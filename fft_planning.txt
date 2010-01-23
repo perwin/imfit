@@ -1,0 +1,103 @@
+NOTES FOR 2D FFT CONVOLUTION:
+
+FFTW: 2D real and complex transforms: speed for >~ 500x500 pixels appears to
+be same whether or not image has powers-of-two dimensions
+
+
+1. Create some sample images
+	[] 6x5 image with delta-fn. central pixel
+		cl> mkpattern deltafn_6x5.fits  ncols=6 nlines=5
+		cl> imreplace deltafn_6x5.fits[3,3] 1.0
+
+	[] 5x5 narrow Gaussian
+		cl> mkgauss gaussian_5x5.fits 5 5 3.0 3.0 1.0 0 0 1.5 1.5 0
+		-- convolution should ~ reproduce Gaussian
+		-- 3x3 image can be printed
+
+	[] Same, but 10x10 or 20x20, to allow better sampling of Gaussian
+		cl> mkgauss gaussian_10x10.fits 10 10 5.0 5.0 1.0 0 0 1.5 1.5 0
+
+
+1. Work on basic FFT of 2D image
+
+2. Work on convolution of 2D image (don't worry about padding)
+
+3. Work on padding issues
+
+OK, here's what we get so far, using deltafn_6x5.fits  (ncols=6 nlines=5) and
+the 5x5 Gaussians PSF:
+	Create "full" complex array, which is (6 + 5 - 1) = 10 x (6 + 6 - 1) = 9
+	Copy input image into LL corner of this
+	Copy input PSF image into LL corner of its own copy
+	Run FFT sequence
+
+The whole padded PSF image, row by row:
+ 0.000052 0.002109 0.007233 0.002109 0.000052 0.000000 0.000000 0.000000 0.000000 0.000000
+ 0.002109 0.085049 0.291632 0.085049 0.002109 0.000000 0.000000 0.000000 0.000000 0.000000
+ 0.007233 0.291632 1.000000 0.291632 0.007233 0.000000 0.000000 0.000000 0.000000 0.000000
+ 0.002109 0.085049 0.291632 0.085049 0.002109 0.000000 0.000000 0.000000 0.000000 0.000000
+ 0.000052 0.002109 0.007233 0.002109 0.000052 0.000000 0.000000 0.000000 0.000000 0.000000
+ 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+ 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+ 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+ 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+
+Result: (first row listed first, etc.; upside-down version of "normal" DS9/etc.
+display)
+  0.000000  0.000000  0.000000 -0.000000  0.000000  0.000000 -0.000000  0.000000  0.000000  0.000000
+  0.000000  0.000000  0.000000 -0.000000  0.000000  0.000000  0.000000  0.000000 -0.000000 -0.000000
+  0.000000  0.000000  0.004709  0.189854  0.651005  0.189854  0.004709  0.189854  0.000000 -0.000000
+ -0.000000  0.000000  0.189854  7.654442 26.246901  7.654442 26.246901  0.651005  0.000000  0.000000
+  0.000000  0.000000  0.651005 26.246901 90.000000 26.246901  7.654442  0.189854  0.000000  0.000000
+  0.000000  0.000000  0.189854  7.654442  0.189854  0.651005  0.189854  0.004709  0.000000  0.000000
+  0.000000  0.000000  0.004709  0.000000  0.000000 -0.000000 -0.000000 -0.000000 -0.000000 -0.000000
+  0.000000  0.000000 -0.000000  0.000000  0.000000  0.000000 -0.000000 -0.000000 -0.000000  0.000000
+  0.000000  0.000000 -0.000000 -0.000000  0.000000  0.000000 -0.000000 -0.000000 -0.000000 -0.000000
+
+So the convolved image is apparently at
+   nrow = 2--6, ncol = 2--7
+   PROBLEM: values appear somewhat scrambled (or rotated?)
+
+
+
+NOTE: if convolved image appears shifted (esp. if full padded output image
+has the part corresponding to the input image shifted), then one possibility
+is that the PSF is not centered.
+
+
+* 28 Nov 2009:
+Currently, things [psfconvolve_main.cpp] seem to be working, especially in
+the sense of the output convolved image being properly placed within the
+padded image.
+
+The only anomaly is that the outermost rows/columns (i.e., the first and last
+rows and first and last columns) of the convolve image are artifically low.
+
+Workaround: always chop off the outermost rows/columns
+
+Possible tests/comparisons:
+	[] Do FFT convolution using e.g. Scipy
+	[] Do actual convolution (not FFT) using same image, padding, and PSF.
+
+
+
+INTEGRATION INTO IMFIT:
+
+static-variable switch in CreateModelImage() which determines whether or
+not to do convolution?
+
+In principle, we could handle generation of the model vector via
+correct offsets, e.g. [haven't checked this for correctness!]
+
+  for (int i = 0; i < nRows; i++) {   // step by row number = y
+    y = (double)(i + 1);
+    for (int j = 0; j < nColumns; j++) {   // step by column number = x
+      x = (double)(j + 1);
+      newVal = 0.0;
+      for (int n = 0; n < nFunctions; n++)
+        newVal += functionObjects[n]->GetValue(x, y);
+      modelVector[(i + Y_OFFSET)*nColumns + j + X_OFFSET] = newVal;
+      //printf("   x = %g, y = %g, value = %g\n", x, y, modelVector[i*nColumns + j]);
+    }
+  }
+

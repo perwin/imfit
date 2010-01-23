@@ -1,0 +1,75 @@
+DESIRED FUNCTIONALITY FOR IMFIT:
+
+[] More complete, generally usable version of makeimage
+
+
+[] Allow command-line options to override options in config file
+
+
+[] Handle magnitude parameters (e.g., mu_e instead of I_e)
+	-- requires user-supplied zero point (command-line and/or config file?)
+
+
+[X] Read in and use mask image
+	-- Calculate number of valid pixels & save it for output
+
+
+[] Calculate & print chi^2, reduced chi^2, AIC, and BIC
+
+
+[] Use differential evolution as alternate minimization routine
+
+
+[] Create noise/weight image internally, using input image + user-supplied
+values for gain, sky, etc.
+
+	[] Read FITS header keywords to get gain, etc. from input image
+
+
+[] Specify same (x0,y0) for all components
+
+
+[] Sub-pixel sampling, as appropriate, during function calculations
+
+
+[] Convolve with PSF image
+
+	[] Generate, e.g., Gaussian or Moffat PSF image internally,
+	given user inputs for FWHM, beta, etc.
+	[] Generate sum-of-Gaussians for internal PSF image?
+
+
+[] Save final model image
+
+
+[] Save text file with best-fit parameters (suitable for use by makeimage?)
+
+
+[] Save residual image
+	-- note that this *is* the "deviance" vector computed by ModelObject
+
+
+[] Ability to specify function(s) and parameters via command line?
+	-- e.g. --FUNCTION Sersci --params "450.5 403.2 1.5e4 24.0 
+	-- probably too much to try *also* specifying parameter limits,etc. on
+	command line!
+
+[] Post-analysis: option to calculate B/T, etc.?
+	-- or would this be better handled by, e.g., a Python script which reads
+	the best-fit parameters?
+
+
+
+VERY SPECULATIVE:
+
+[] PSF *image* component: read in PSF image, add scaled to final (post-convolved) 
+model image
+	-- Only parameters would be x0, y0, and A [multiplicative scaling]
+	-- PROBLEM: shifting the image (trial values of x0,y0) means *interpolating*
+	the original image, and also padding the image appropriately
+	-- Simplified option: let user create properly shifted (and 
+
+() Specify linked (x0,y0) for *some* components, or for sets of components?
+
+() Fit more than one image at a time? (e.g., SDSS + HST image)
+

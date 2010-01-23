@@ -1,0 +1,39 @@
+NOTES ON MAPPING 2D POSITIONS IN AN IMAGE INTO 1D C/C++ VECTORS:
+
+Assume an image in standard "IRAF/DS9" format, where the horizontal
+axis = x, and the vertical axis = y:
+	Ncols = range of x values
+	Nrows = range of y values  (a.k.a. "number of lines" in some Iraf contexts)
+	
+	x, y = current column, current row
+
+
+Storing a 2D image as a 1D C vector, in C-standard "row-major" format =
+each row is continuous in memory, followed by the next row:
+
+	[... first row ...][... second row ...][... third row...] etc.
+
+Thus, to index this properly, one takes the x-value (current column number)
+and adds it to a multiple of y:
+
+	x, y --> y*Ncols + x
+
+The *fasted* access is to step through the first row, then the second row,
+and so forth:
+	for (y = 0; y < Nrows; y++)
+		for (x = 0; x < Ncols; x++)
+			... imageVector[y*Ncols + x]
+
+
+
+Example of actual code:
+  printf("The whole image, row by row:\n");
+  // The following fetches pixels row-by-row, starting with the bottom
+  // row (i.e., what we would normally like to think of as the first row)
+  for (int i = 0; i < nRows; i++) {   // step by row number = y
+    for (int j = 0; j < nColumns; j++)   // step by column number = x
+      printf(" %f", allPixels[i*nColumns + j]);
+    printf("\n");
+  }
+  printf("\n");
+

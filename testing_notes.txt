@@ -1,0 +1,10 @@
+# simple testing of makeimage
+
+# really small (2x2) image:
+./makeimage smalltest_config_4.dat -o smalltest_2x2.fits --ncols 2 --nrows 2
+
+# really small (2x2) image with slightly complicated config:
+./makeimage smalltest_config_4b.dat -o smalltest_2x2b.fits --ncols 2 --nrows 2
+
+# slightly larger & more complex (4x4) image:
+./makeimage smalltest_config_4c.dat -o smalltest.fits --ncols 4 --nrows 4
