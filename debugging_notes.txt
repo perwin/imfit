@@ -1,0 +1,20 @@
+NOTES ON DEBUGGING (MAC OS X):
+
+[] Core-dump peculiarities on Mac OS X:
+
+1. By default, core dumps are turned *off* on Mac OS X; to enable them,
+do this
+$ ulimit -c unlimited
+
+2. Core dumps do *not* go in the starting directory; instead, they all
+go into /cores, with the PID appended to the name.  To tell which core
+goes with which original process:
+$ otool -c /cores/core.xxx
+	where "xxx" = PID
+
+
+[] Starting gdb on a core dump:
+$ gdb -c core.47113 
+
+
+

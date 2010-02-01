@@ -95,35 +95,48 @@ void CommandLineError( char errorString[] )
 
 
 /* ---------------- FUNCTION: NotANumber() ------------------------- */
-
+// Possible cases:
+//    0, 0.0, 0.1, .1
+//    -0.1, -.1?
+//    -1
 bool NotANumber( char theString[], int index, int restriction )
 {
   int  theCharacter = theString[index];
 
   switch (restriction) {
     case kAnyInt:
-      return ( ! isdigit(theCharacter) );
+      if (theCharacter == '-')
+        return NotANumber( theString, index + 1, kAnyInt );
+      else
+        return (bool)( ! isdigit(theCharacter) );
+    
     case kPosInt:
       if ( isdigit(theCharacter) && (theCharacter != '0') )
         return false;
       else
         return true;
+    
     case kAnyReal:
       switch (theCharacter) {
         case '-':
-          return NotANumber( theString, index + 1, kPosReal );
+          return NotANumber( theString, index + 1, kAnyReal );
         case '.':
           return NotANumber( theString, index + 1, kAnyInt );
         default:
-          return ( ! isdigit(theCharacter) );
+          return (bool)( ! isdigit(theCharacter) );
       }  /* end switch (theCharacter) */
+    
     case kPosReal:
+      // THIS STILL NEEDS WORK!
       switch (theCharacter) {
+        case '-':
+          return true;
         case '.':
           return NotANumber( theString, index + 1, kAnyInt );
         default:
-          return ( ! isdigit(theCharacter) );
+          return (bool)( ! isdigit(theCharacter) );
       }  /* end switch (theCharacter) */
+    
     default:
       return true;
   }  /* end switch (restriction) */
