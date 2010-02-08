@@ -8,3 +8,6 @@
 
 # slightly larger & more complex (4x4) image:
 ./makeimage smalltest_config_4c.dat -o smalltest.fits --ncols 4 --nrows 4
+
+# medium-sized, complex (64x64) image:
+./makeimage biggertest_config_4c.dat -o biggertest.fits --ncols 64 --nrows 64

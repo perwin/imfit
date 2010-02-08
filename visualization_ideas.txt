@@ -1,0 +1,8 @@
+POSSIBLE VISUALIZATION IDEAS FOR IMAGE FITTING:
+
+[] Plot absolute maximum (or mean, or median) of residuals as a function of radius
+
+[] Plot log contours of different components in different colors
+	e.g., plot outer exponential (disk) in blue; then plot bar component in green;
+	then plot Sersic (bulge) component in red; etc.
+
