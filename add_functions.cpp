@@ -48,8 +48,13 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
     return - 1;
   }
   
+  // OK, we're done adding functions; now tell the model object to do some
+  // final setup work
   // Tell model object about arrangement of functions into common-center sets
   theModel->DefineFunctionSets(functionSetIndices);
+  
+  // Tell model object to create vector of parameter labels
+  theModel->PopulateParameterNames();
   return 0;
 }
 

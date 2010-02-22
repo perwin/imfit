@@ -77,17 +77,17 @@ void Sersic::Setup( double params[], int offsetIndex, double xc, double yc )
   n = params[2 + offsetIndex ];
   I_e = params[3 + offsetIndex ];
   r_e = params[4 + offsetIndex ];
-  printf("func_sersic: x0 = %g, y0 = %g, PA = %g, ell = %g, n = %g, r_e = %g, I_e = %g\n",
-          x0, y0, PA, ell, n, r_e, I_e);
-  
+// #ifdef DEBUG
+//   printf("func_sersic: x0 = %g, y0 = %g, PA = %g, ell = %g, n = %g, r_e = %g, I_e = %g\n",
+//           x0, y0, PA, ell, n, r_e, I_e);
+// #endif
+
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
   // convert PA to +x-axis reference
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
-//  printf("func_exp: q = %g, PA_rad = %g, cosPA = %g, sinPA = %g\n",
-//         q, PA_rad, cosPA, sinPA);
   n2 = n*n;
   /* The following approximation for b_n is good for all n > 0.36 */
   bn = 2*n - 0.333333333333333 + 0.009876543209876543/n

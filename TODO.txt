@@ -1,0 +1,39 @@
+MISCELLANEOUS TO-DO AND FIXES NEEDED FOR IMFIT:
+
+(Bugs to fix, etc.; missing/desired features are in 
+possible_2d_image-fitting_notes.txt)
+
+[x] Bug in current version of imfit (after incorporating function-set-related
+changes first implemented in 
+	Run as: 
+	$ ./imfit testimage_expdisk_tiny.fits --config smalltest_config_4.dat
+	Problem traced to: weight vector is not set up properly: weight-vector
+	values are all "nan"
+	
+	This appears to be a bug in the setup, in that previously we passed
+	an error image, or provided specific gain and read-noise values.
+	PROBLEM IDENTIFIED:
+		Because we did not specify a value for gain on the command line,
+		the *uninitialized* value of options.gain [= 0] was passed to
+		ModelObject.GenerateErrorVector, where it produced division-by-zero
+		effects.
+
+	FIXES:
+		1. Specified default value of 1.0 for commandOptions.gain
+		2. Inserted assert() statement at start of ModelObject.GenerateErrorVector,
+		so that gain values <= 0 are trapped.
+
+
+[] Fix PrintResult() in imfit_main.cpp to account for function sets with
+common X0,Y0 values...
+	[] Add PrintParameters function to ModelObject (which knows best about
+	which functions have how many parameters, function-set boundaries, etc.)?
+
+
+[] Determine whether or not func_sersic.cpp is calculating things
+correctly (currently does not agree with astro_utils.Sersic at 10^-5
+level).
+
+
+[] Unit tests for Gaussian function object
+

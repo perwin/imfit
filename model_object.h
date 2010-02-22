@@ -62,9 +62,15 @@ class ModelObject
     
     virtual void GetDescription( );
 
-    void PrintImage( );
+    void PrintImage( double *pixelVector );
+
+    void PrintInputImage( );
 
     void PrintModelImage( );
+
+    void PrintWeights( );
+
+    void PopulateParameterNames( );
 
     string& GetParameterName( int i );
 
@@ -96,6 +102,8 @@ class ModelObject
     vector<FunctionObject *> functionObjects;
     vector<int> paramSizes;
     vector<string>  parameterLabels;
+    
+    bool CheckWeightVector( );
   
 };
 

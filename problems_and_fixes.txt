@@ -1,0 +1,120 @@
+NOTES ON PROBLEMS/BUGS ENCOUNTED IN IMFIT, HOW WE SOLVED THEM,
+AND POSSIBLE WAYS TO AVOID SIMILAR PROBLEMS IN THE FUTURE
+
+
+** 20--21 Feb 2010: 
+
+# Testing imfit on SDSS image of NGC 3073:
+# Using Dec 2009 code:
+$ ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3
+
+FAILED
+
+# Testing on SDSS image of IC 3487
+$ ./imfit_db testing/ic3478rss_small.fits --config=imfit_config_ic3478.dat --gain=4.725 --readnoise=4.3
+
+FAILED [in similar fashion]
+Works on 32x32 and 64x64 cutouts of ic3478 image; FAILS on 128x128 cutout.
+
+TRACKING DOWN THE PROBLEM:
+	Debugging printouts indicates that after 8 calls to ComputeDeviates(), the ninth
+	call by mpfit passes a vector of "nan" values for the parameters
+		-- this is 1 call at start of mpfit plus 7 calls by mp_fdjac2
+
+	Normal behavior is nParam calls by mp_fdjac2, with only the last one having
+	different parameter values.
+	
+	OK, problem appears to be in the "inner loop" of mpfit (~ line 900);
+	this call to ComputeDeviates() is with reasonable (altered) param values in
+	32x32 and 64x64 cases, but with "nan" in 128x128 and full image cases.
+
+	Problem now appears to be present by around line 657: wa1 = all "nan"
+	Problem now appears to be in first call to mp_qrfac (line 534)
+		-- just before this, wa1 = all 0; just after wa1 = all "nan"
+		-- wa1 becomes input parameter rdiag inside mp_qrfac
+
+Function definition and actual call:
+void mp_qrfac(int m, int n, double *a, int lda, 
+              int pivot, int *ipvt, int lipvt,
+              double *rdiag, double *acnorm, double *wa)
+  mp_qrfac(m, nfree, fjac, ldfjac, 1, ipvt, nfree, wa1, wa2, wa3);
+
+	OK, now we've localized the problem to the first few lines of mp_qrfac:
+		specifically,
+		    acnorm[j] = mp_enorm(m, &a[ij]);
+		which populates acnorm[j] with "nan"
+		Note that m = 16384 for the 128x128 image
+	
+	Problem is apparently *not* in the allocation of fjac (I replaced the use of
+	Craig's mp_alloc macro with a more straightforward calloc use; no difference).
+	
+	Problem may be in mp_enorm...
+	[x] Possible check: have mp_enorm print all values of fjac[] that it's
+	trying to sum up.
+	
+	Problem localized to: occasionaly "nan" values within fjac[]
+		-- somehow, we are occasionally generating "nan" values in the Jacobian
+		matrix.
+	
+	[-] Possible kludge solution: insert code into mp_enorm which checks for
+	non-finite values of x and sets them to zero.
+		-- Doesn't really work, because "nan" values in fjac still cause problems
+		elsewhere in mp_qrfac (result is that program exits cleanly after one
+		iteration with mpfit code = 2)
+
+	Problem is in mp_fdjac2: occasionally, "nan" values are generated and stored
+	in fjac.
+	
+		[X] Possible approaches/things to try:
+			[] Compute two-sided numerical derivatives?
+			[x] insert tests into mpfit to figure out where "nan" appears...
+				-- both fvec (pre-computed) and wa (computed in fdjac2) contain
+				"nan" values...
+			
+			[X] Something weird in the noise/weight array?
+
+
+PROBLEM FOUND:
+[X] Possible problem(s) in noise computation:
+	In a sky-sub. image, there will be pixels with *negative* values.
+	If we don't specify a (large enough) sky background, then ModelObject.GenerateErrorVector
+will use those negative pixel values to compute weights ... 
+    noise_squared = dataVector[z]/gain + sky_plus_readNoise;
+    weightVector[z] = 1.0 / sqrt(noise_squared);
+if dataVector[z] < 0, then it's possible for noise_squared to be <= 0, in which
+case we'll have either "/ 0" or (more likely) "/ sqrt(negative-number)"
+
+WHAT WENT WRONG:
+	There was a bug in the noise-calculation code (ModelObject.GenerateErrorVector)
+which allowed for possible "nan" values in the weight vector.
+	The (unquestioned) *assumption* was that all (sky + pixel) values would be
+positive; however, if sky=0 (or is just low) and some pixels have negative values,
+then noise_squared could end up negative, leading to sqrt(noise_squared) --> "nan"
+	This did not show up when fitting artificial images because there were no
+negative pixels; it did not show up in earlier fits of SDSS images because we always
+remembered to specify a large sky value.
+	It *did* show up (Feb 2010) when we were fitting cutouts of SDSS images because
+the large (128x128) cutout had negative pixel values *and* we forgot to specify
+a sky value (thus setting sky internally to 0).
+
+FIXES:
+	[X] GenerateErrorVector: Check final weightVector for "nan" (and also negative?) 
+	values; squawk and die if any are found
+	-- actually, it would be good to check user-supplied weight image as well
+	(e.g., should not be all-bad-pixel; should not be negative, etc.)
+	
+	[X] Warn user if no sky value was supplied (but go ahead, since this may be
+	the correct approach for some images)
+	
+	[] (future) When computing weights from image, median-smooth image first
+	(GALFIT does this; smooths out CRs and large negative values...)
+
+	
+
+
+*** TROUBLESHOOTING TIPS:
+	<> Try fitting image with constant weights (e.g., uniform "noise image")
+		-- this would have identified the 20 Feb 2010 problem as having to do
+		with noise generation
+	<> Check values of gain, read-noise, and sky
+	

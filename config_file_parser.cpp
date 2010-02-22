@@ -124,7 +124,6 @@ int ReadConfigFile( string& configFileName, vector<string>& functionList,
   vector<string>  stringPieces;
   int  functionNumber;
   int  i, nInputLines;
-  vector<int>  functionStartIndices;
   
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
@@ -182,7 +181,6 @@ int ReadConfigFile( string& configFileName, vector<string>& functionList,
   vector<string>  stringPieces;
   int  functionNumber, paramNumber;
   int  i, nInputLines;
-  vector<int>  functionStartIndices, setStartParameterNumber;
   bool  pLimitFound;
   
   inputFileStream.open(configFileName.c_str());
@@ -205,9 +203,8 @@ int ReadConfigFile( string& configFileName, vector<string>& functionList,
   parameterLimitsFound = false;
   while (i < nInputLines) {
     if (inputLines[i].find("X0", 0) != string::npos) {
-      printf("X0 detected (i = %d)\n", i);
+      //printf("X0 detected (i = %d)\n", i);
       setStartFunctionNumber.push_back(functionNumber);
-      setStartParameterNumber.push_back(paramNumber);
       pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
       paramNumber++;
       if (pLimitFound)
@@ -232,7 +229,7 @@ int ReadConfigFile( string& configFileName, vector<string>& functionList,
       continue;
     }
     // OK, we only reach here if it's a regular (non-positional) parameter line
-    printf("Parameter detected (i = %d)\n", i);
+    //printf("Parameter detected (i = %d)\n", i);
     AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
     paramNumber++;
     i++;

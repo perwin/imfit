@@ -1,0 +1,17 @@
+# Sample input file format, for use in fitting trimmed SDSS r-band
+# image of NGC 3073 (n3073rss_small.fits)
+
+X0   130.0    100,200
+Y0   146.0    100,200
+FUNCTION Sersic
+PA    70.0    0,180
+ell    0.05   0,1
+n      2.0    0,5
+I_e   100     0,500
+r_e    15     0,100
+
+FUNCTION   Exponential   # here is a comment
+PA    70.0   0,180      # another note
+ell    0.1  0,1
+I_0  120.0   0,500
+h     40.0   0,1000

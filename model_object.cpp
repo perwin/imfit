@@ -59,7 +59,7 @@ void ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
   nNewParams = newFunctionObj_ptr->GetNParams();
   paramSizes.push_back(nNewParams);
   nFunctionParams += nNewParams;
-  newFunctionObj_ptr->GetParameterNames(parameterLabels);
+//  newFunctionObj_ptr->GetParameterNames(parameterLabels);
 }
 
 
@@ -163,8 +163,14 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
       // a weight map with pixel values = 1/sigma already)
       ;
   }
-      
-  weightValsSet = true;
+  
+  if (CheckWeightVector())
+    weightValsSet = true;
+  else {
+    printf("ModelObject::AddErrorVector -- Conversion of error vector resulted in bad values!\n");
+    printf("Exiting ...\n\n");
+    exit(-1);
+  }
 }
 
 
@@ -185,6 +191,12 @@ void ModelObject::GenerateErrorVector( double gain, double readNoise, double sky
 {
   double  sky_plus_readNoise, noise_squared;
   
+  assert( (gain > 0.0) && (readNoise >= 0.0) );
+  if ( skyValue <= 0.0 ) {
+    printf("ModelObject::GenerateErrorVector -- original sky value (%g) is zero or negative.\n",
+           skyValue);
+  }
+
   // Allocate storage for weight image:
   weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   weightVectorAllocated = true;
@@ -195,7 +207,13 @@ void ModelObject::GenerateErrorVector( double gain, double readNoise, double sky
     weightVector[z] = 1.0 / sqrt(noise_squared);
   }
 
-  weightValsSet = true;
+  if (CheckWeightVector())
+    weightValsSet = true;
+  else {
+    printf("ModelObject::GenerateErrorVector -- Calculation of error vector resulted in bad values!\n");
+    printf("Exiting ...\n\n");
+    exit(-1);
+  }
 }
 
 
@@ -219,7 +237,7 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
     case MASK_ZERO_IS_GOOD:
       // This is our "standard" input mask: good pixels are zero, bad pixels
       // are positive integers
-      printf("ModelObject::AddMaskVector -- zero is good ...\n");
+      printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
       for (int z = 0; z < nDataVals; z++) {
         if (maskVector[z] > 0.0) {
           maskVector[z] = 0.0;
@@ -231,7 +249,7 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       break;
     case MASK_ZERO_IS_BAD:
       // Alternate form for input masks: good pixels are 1, bad pixels are 0
-      printf("ModelObject::AddMaskVector -- zero is bad ...\n");
+      printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
       for (int z = 0; z < nDataVals; z++) {
         if (maskVector[z] < 1.0)
           maskVector[z] = 0.0;
@@ -295,8 +313,10 @@ void ModelObject::CreateModelImage( double params[] )
       x0 = params[offset];
       y0 = params[offset + 1];
       offset += 2;
-      printf("  Function %d = start of new set; x0 = %g, y0 = %g\n",
-              n, x0, y0);
+// #ifdef DEBUG
+//       printf("  Function %d = start of new set; x0 = %g, y0 = %g\n",
+//               n, x0, y0);
+// #endif
     }
     functionObjects[n]->Setup(params, offset, x0, y0);
     offset += paramSizes[n];
@@ -311,7 +331,9 @@ void ModelObject::CreateModelImage( double params[] )
       for (int n = 0; n < nFunctions; n++)
         newVal += functionObjects[n]->GetValue(x, y);
       modelVector[i*nColumns + j] = newVal;
-      //printf("   x = %g, y = %g, value = %g\n", x, y, modelVector[i*nColumns + j]);
+// #ifdef DEBUG
+//       printf("   x = %g, y = %g, value = %g\n", x, y, modelVector[i*nColumns + j]);
+// #endif
     }
   }
   modelImageComputed = true;
@@ -327,12 +349,21 @@ void ModelObject::CreateModelImage( double params[] )
 void ModelObject::ComputeDeviates( double yResults[], double params[] )
 {
 
+#ifdef DEBUG
+  printf("ComputeDeviates: Input parameters: ");
+  for (int z = 0; z < nParamsTot; z++)
+    printf("p[%d] = %g, ", z, params[z]);
+  printf("\n");
+#endif
+
   CreateModelImage(params);
   
   for (int z = 0; z < nDataVals; z++) {
-    //printf("weightVector[%d] = %f, ", z, weightVector[z]);
     yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
-    //printf("yResults[%d] = %f  ", z, yResults[z]);
+// #ifdef DEBUG
+//     printf("yResults[%d] = %g = %g * (%g - %g)  ", z, yResults[z], weightVector[z],
+//     				dataVector[z], modelVector[z]);
+// #endif
   }
 }
 
@@ -370,25 +401,35 @@ void ModelObject::GetDescription( )
 
 
 /* ---------------- PUBLIC METHOD: PrintImage ------------------------- */
+// Basic function which prints an image to stdout.  Mainly meant to be
+// called by PrintInputImage, PrintModelImage, and PrintWeights.
 
-void ModelObject::PrintImage( )
+void ModelObject::PrintImage( double *pixelVector )
+{
+
+  // The following fetches pixels row-by-row, starting with the bottom
+  // row (i.e., what we would normally like to think of as the first row)
+  for (int i = 0; i < nRows; i++) {   // step by row number = y
+    for (int j = 0; j < nColumns; j++)   // step by column number = x
+      printf(" %f", pixelVector[i*nColumns + j]);
+    printf("\n");
+  }
+  printf("\n");
+}
+
+
+/* ---------------- PUBLIC METHOD: PrintInputImage -------------------- */
+void ModelObject::PrintInputImage( )
 {
 
   if (! dataValsSet) {
     printf("* ModelObject: No image data supplied!\n\n");
     return;
   }
-  
-  printf("The whole image, row by row:\n");
-  // The following fetches pixels row-by-row, starting with the bottom
-  // row (i.e., what we would normally like to think of as the first row)
-  for (int i = 0; i < nRows; i++) {   // step by row number = y
-    for (int j = 0; j < nColumns; j++)   // step by column number = x
-      printf(" %f", dataVector[i*nColumns + j]);
-    printf("\n");
-  }
-  printf("\n");
+  printf("The whole input image, row by row:\n");
+  PrintImage(dataVector);
 }
+
 
 
 /* ---------------- PUBLIC METHOD: PrintModelImage -------------------- */
@@ -400,16 +441,39 @@ void ModelObject::PrintModelImage( )
     printf("* ModelObject: Model image has not yet been computed!\n\n");
     return;
   }
-  
   printf("The model image, row by row:\n");
-  // The following fetches pixels row-by-row, starting with the bottom
-  // row (i.e., what we would normally like to think of as the first row)
-  for (int i = 0; i < nRows; i++) {   // step by row number = y
-    for (int j = 0; j < nColumns; j++)   // step by column number = x
-      printf(" %f", modelVector[i*nColumns + j]);
-    printf("\n");
+  PrintImage(modelVector);
+}
+
+
+/* ---------------- PUBLIC METHOD: PrintWeights ----------------------- */
+
+void ModelObject::PrintWeights( )
+{
+
+  if (! weightValsSet) {
+    printf("* ModelObject: Weight vector has not yet been computed!\n\n");
+    return;
   }
-  printf("\n");
+  printf("The weight image, row by row:\n");
+  PrintImage(weightVector);
+}
+
+
+/* ---------------- PUBLIC METHOD: PopulateParameterNames -------------- */
+
+void ModelObject::PopulateParameterNames( )
+{
+  int  n;
+
+  for (n = 0; n < nFunctions; n++) {
+    if (setStartFlag[n] == true) {
+      // start of new function set: extract x0,y0
+      parameterLabels.push_back("X0");
+      parameterLabels.push_back("Y0");
+    }
+    functionObjects[n]->GetParameterNames(parameterLabels);
+  }
 }
 
 
@@ -451,6 +515,36 @@ double * ModelObject::GetModelImageVector( )
   
   return modelVector;
 }
+
+
+/* ---------------- PROTECTED METHOD: CheckWeightVector ---------------- */
+// The purpose of this method is to check the weight vector (image) to ensure
+// that all pixels are finite and positive.
+bool ModelObject::CheckWeightVector( )
+{
+  bool  nonFinitePixels = false;
+  bool  negativePixels = false;
+  bool  weightVectorOK = true;
+  
+  for (int z = 0; z < nDataVals; z++) {
+    if (! finite(weightVector[z]))
+      nonFinitePixels = true;
+    else if (weightVector[z] < 0.0)
+      negativePixels = true;
+  }
+  
+  if (nonFinitePixels) {
+    printf("\n** WARNING: one or more pixel values in weightVector[] are non-finite!\n");
+    weightVectorOK = false;
+  }
+  if (negativePixels) {
+    printf("\n** WARNING: one or more pixel values in weightVector[] are < 0\n");
+    weightVectorOK = false;
+  }
+  return weightVectorOK;
+}
+
+
 
 
 /* ---------------- DESTRUCTOR ----------------------------------------- */

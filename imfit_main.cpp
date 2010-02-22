@@ -139,12 +139,10 @@ void PrintResult( double *x, double *xact, mp_result *result, ModelObject *model
   aic = AIC_corrected(result->bestnorm, nFreeParameters, nValidPixels, 1);
   bic = BIC(result->bestnorm, nFreeParameters, nValidPixels, 1);
   printf("Reduced Chi^2 = %f\n", result->bestnorm / nDegreesFreedom);
-  chiSquared = model->ChiSquared(x);
-  printf("Recalculated = %f\n", chiSquared / nDegreesFreedom);
   printf("AIC = %f, BIC = %f\n\n", aic, bic);
   
   if (xact) {
-    for (i=0; i<result->npar; i++) {
+    for (i=0; i < result->npar; i++) {
       printf("  P[%d] = %f +/- %f     (ACTUAL %f)\n", 
 	     i, x[i], result->xerror[i], xact[i]);
     }
@@ -191,6 +189,7 @@ int main(int argc, char *argv[])
   vector<string>  functionList;
   vector<double>  parameterList;
   vector<mp_par>  paramLimits;
+  vector<int>  functionSetIndices;
   bool  paramLimitsExist = false;
   mp_result  mpfitResult;
   mp_config  mpConfig;
@@ -209,6 +208,8 @@ int main(int argc, char *argv[])
   options.maskFormat = MASK_ZERO_IS_GOOD;
   options.outputModel = false;
   options.useImageHeader= false;
+  options.gain = 1.0;
+  options.readNoise = 0.0;
   options.originalSky = 0.0;
   options.noModel = true;
   options.noParamLimits = true;
@@ -232,9 +233,12 @@ int main(int argc, char *argv[])
            options.configFileName.c_str());
     return -1;
   }
-  ReadConfigFile(options.configFileName, functionList, parameterList, paramLimits, 
-  								paramLimitsExist);
-
+  status = ReadConfigFile(options.configFileName, functionList, parameterList, 
+  								paramLimits, functionSetIndices, paramLimitsExist);
+  if (status != 0) {
+    printf("\n*** WARNING: Failure reading configuration file!\n\n");
+    return -1;
+  }
 
   if (options.noImage) {
     printf("*** WARNING: No image to fit!\n\n");
@@ -298,7 +302,7 @@ int main(int argc, char *argv[])
   /* Create the model object */
   theModel = new ModelObject();
   /* Add functions to the model object */
-  status = AddFunctions(theModel, functionList);
+  status = AddFunctions(theModel, functionList, functionSetIndices);
   if (status < 0) {
   	printf("*** WARNING: Failure in AddFunctions!\n\n");
   	exit(-1);
@@ -321,7 +325,7 @@ int main(int argc, char *argv[])
   theModel->AddImageDataVector(nPixels_tot, nColumns, nRows, allPixels);
   theModel->GetDescription();
   if (options.printImages)
-    theModel->PrintImage();
+    theModel->PrintInputImage();
   
   if (options.noiseImagePresent)
     theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
@@ -370,6 +374,7 @@ int main(int argc, char *argv[])
   								theModel, &mpfitResult);
   
   printf("*** mpfit status = %d\n", status);
+  status = AddFunctions(theModel, functionList, functionSetIndices);
   PrintResult(paramsVect, 0, &mpfitResult, theModel, nFreeParams);
   
   printf("\nTrue degrees of freedom = %d\n", nDegFreedom);

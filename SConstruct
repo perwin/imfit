@@ -49,6 +49,10 @@ defines_db = base_defines + ["DEBUG"]
 lib_list = ["fftw3", "cfitsio", "m"]
 
 
+# "env_opt" is currently a semi-debugging environment (most debugging options
+# 			turned on, but not -DDEBUG
+# "env_debug" is identical, except that -DDEBUG is also specified
+
 # two environments, one for debugging compilations, one for optimized
 # env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 # 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
@@ -57,7 +61,8 @@ lib_list = ["fftw3", "cfitsio", "m"]
 # FOR THE MOMENT, WE'LL DO EVERYTHING IN DEBUGGING MODE:
 env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-env_opt = env_debug.Clone()
+env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 #env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 #						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 
@@ -123,9 +128,14 @@ psfconvolve_sources = ["psfconvolve_main.cpp", "anyoption.cpp", "image_io.cpp"]
 # test_parser: put all the object and source-code lists together
 testparser_sources = ["test_parser.cpp", "config_file_parser.cpp", "utilities.cpp"]
 
+
+
 # Finally, define the actual targets
-# FOR THE MOMENT, WE'LL DO EVERYTHING IN DEBUGGING MODE:
-env_opt.Program("imfit", imfit_sources)
+full_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
+env_debug.Program("imfit_db", full_dbg_objlist)
+base_dbg_objlist = [ env_opt.Object(obj, src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
+env_opt.Program("imfit", base_dbg_objlist)
+
 env_opt.Program("imfit1d", imfit1d_sources)
 env_opt.Program("makeimage", makeimage_sources)
 env_opt.Program("readimage_test", readimage_sources)

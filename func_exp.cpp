@@ -75,9 +75,10 @@ void Exponential::Setup( double params[], int offsetIndex, double xc, double yc 
   ell = params[1 + offsetIndex];
   I_0 = params[2 + offsetIndex ];
   h = params[3 + offsetIndex ];
-  printf("func_exp: x0 = %g, y0 = %g, PA = %g, ell = %g, I_0 = %g, h = %g\n",
-          x0, y0, PA, ell, I_0, h);
-  
+// #ifdef DEBUG
+//   printf("func_exp: x0 = %g, y0 = %g, PA = %g, ell = %g, I_0 = %g, h = %g\n",
+//           x0, y0, PA, ell, I_0, h);
+// #endif  
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
   // convert PA to +x-axis reference

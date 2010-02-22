@@ -11,3 +11,91 @@
 
 # medium-sized, complex (64x64) image:
 ./makeimage biggertest_config_4c.dat -o biggertest.fits --ncols 64 --nrows 64
+
+
+
+# simple testing of imfit:
+
+# really small (2x2) image, made with modelimage + expdisk_tiny_testparams.dat:
+#    Input: x0,y0 = 2,2; PA = 90.0, ell = 0.5, I_0 = 100, h = 1.0
+./imfit testimage_expdisk_tiny.fits --config smalltest_config_4.dat
+
+./imfit testimage_expdisk_tiny.fits --config smalltest_config_4.dat --noise tiny_uniform_image.fits
+
+
+# small-ish (32x32) image, made with modelimage + expdisk_testparams_32x32.dat:
+#    Input: x0,y0 = 15,15; PA = 90.0, ell = 0.5, I_0 = 100, h = 20.0
+# The following *worked* with Dec 2009 code:
+$ ./imfit --config imfit_trial_config32.dat --noise uniform_image32.fits testimage_expdisk32.fits 
+Reduced Chi^2 = 0.000000
+AIC = 8.039254, BIC = 27.725887
+
+          x0 = 15.000000 +/- 0.000000
+          y0 = 15.000000 +/- 0.000000
+          PA = 90.000000 +/- 0.102986
+         ell = 0.500000 +/- 0.001695
+         I_0 = 100.000001 +/- 0.151606
+           h = 20.000000 +/- 0.071919
+
+# And with current (Feb 2010) code:
+$ ./imfit --config imfit_trial_config32_new.dat --noise uniform_image32.fits testimage_expdisk32.fits 
+Reduced Chi^2 = 0.000000
+Recalculated = 0.000000
+AIC = 12.082596, BIC = 41.588831
+
+          X0 = 15.000000 +/- 0.021376
+          Y0 = 15.000000 +/- 0.009135
+          PA = 90.000000 +/- 0.103197
+         ell = 0.500000 +/- 0.001711
+         I_0 = 100.000001 +/- 0.152262
+           h = 20.000000 +/- 0.072772
+
+
+# Testing with real image, 1 function
+# Testing on SDSS image of IC 3487
+$ ./imfit testing/ic3478rss_32x32.fits --config=imfit_config_ic3478_32x32.dat --gain=4.725 --readnoise=4.3 --sky=130.1
+
+(the following takes ~ 3s on MacBook Pro 2009)
+$ ./imfit testing/ic3478rss_small.fits --config=imfit_config_ic3478.dat --gain=4.725 --readnoise=4.3 --sky=130.1
+Reduced Chi^2 = 1.168005
+AIC = 73006.120921, BIC = 73069.419582
+
+          X0 = 126.860407 +/- 0.011681
+          Y0 = 128.192654 +/- 0.013504
+          PA = 19.515408 +/- 0.240219
+         ell = 0.226771 +/- 0.001689
+           n = 2.314081 +/- 0.008181
+         I_e = 21.789578 +/- 0.160830
+         r_e = 57.166072 +/- 0.258979
+
+
+#Testing to catch bad-weight-vector generation (due to negative pixels values and
+#failure to specify original sky background):
+$ ./imfit testing/ic3478rss_128x128.fits --config=imfit_config_ic3478_128x128.dat --gain=4.725 --readnoise=4.3
+
+#Output should end with:
+** WARNING: one or more pixel values in weightVector[] are non-finite!
+ModelObject::GenerateErrorVector -- Calculation of error vector resulted in bad values!
+Exiting ...
+
+
+# Testing with real image, 2 functions
+# Testing imfit on SDSS image of NGC 3073: (takes about 9s on MacBook Pro 2009)
+$ ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0
+Reduced Chi^2 = 1.602120
+AIC = 98871.227761, BIC = 98970.555696
+
+          X0 = 129.606285 +/- 0.004494
+          Y0 = 146.141849 +/- 0.005152
+          PA = 173.462493 +/- 10257363.011855
+         ell = 0.000000 +/- 0.000000
+           n = 1.978473 +/- 0.010367
+         I_e = 205.442964 +/- 2.217007
+         r_e = 13.128373 +/- 0.104367
+          PA = 83.439691 +/- 0.505981
+         ell = 0.190977 +/- 0.003870
+         I_0 = 77.241215 +/- 1.175597
+           h = 45.991557 +/- 0.392651
+
+
+

@@ -1,0 +1,452 @@
+NOTES ON 2D IMAGE FITTING:
+
+[x]Use Craig M.'s mpfit C code for testing/experimentation?
+	-- could later add use of Diff.Evoln. solver
+	Limits: lower, upper; presence or absence of both; hold fixed
+
+
+[x]"Model" (Function+Data) Object:
+
+	Holds:
+		Input image (perhaps as 1D vector)
+		Error/weight image (")
+		
+		Pointer/slots for functions
+		
+		Function for computing & returning 1D vector of deviances (what mpfit
+		wants: dy[i] = (y[i] - f)/ey[i] )
+	[mpfit: could be passed as the "private" data structure]
+
+
+	Array to hold function objects?
+		-- number of functions
+		-- knowledge of how many parameters/function, and in which order
+		(i.e., will receive one long vector of trial parameters; need to know
+		how to chop it up and send off individual parameter sets to appropriate
+		individual functions
+			-- copy parameters into a C++ vector of parameters (i.e., pointer to
+			arrays of double, each array corresponding to the appropriate-sized
+			parameter array for the given function)
+		-- pointers to actual function objects
+		-- * Use C++ vector
+
+[x]Function objects:
+	-- parameters we will almost always have:
+		x0, y0  [not necessary for e.g. sky background]
+		PA [not for circular things]
+		ellipticity [not for circular things, edge-on analytic disks, etc.]
+	-- Program should handle multiple instances with different parameters 
+	(e.g., Sersic + Sersic), as GALFIT does
+	-- for now, handle x_im,y_im --> r, PA calculations within the function
+	object (not needed for circular components); later, we can think about
+	maybe handling some of it outside (e.g., function object has flag that
+	lets model object know to do those calculations...?)
+
+
+Alternate approaches to adding function contributions:
+	For each pixel, add all function contributions
+	OR: For each function, allocate an image, compute function values, then add
+	all images together
+		-- disadvantage: slightly more overhead?
+		-- disadvantage: uses more memory
+		-- advantage: less overhead in switching back & forth between functions?
+
+
+Image as 1D vector:
+	Craig M.'s MPFIT2DFUN IDL code works with 2D arrays (1 each for x, y, and actual
+	values z), but turns the 2D array of deviances into a 1D array (the latter is what
+	gets returned).  (In more detail: MPFIT2DFUN implements a wrapper function as the
+	"user function"; this wrapper function takes the real user function, applies it
+	and calculates the deviances, then passes the 1D array of deviances back as its
+	return value.)
+	
+	A simple approach:
+		1. Convert input image (and input error/weight image?) into 1D vector
+		2. Store row and column sizes, so we can reconstruct x,y pixel coordinates
+		when we step through the 1D vector
+		3. Calculate deviances via something like this: [NOTE: this needs to be
+		coordinated with whatever scheme we use to convert the original image, so
+		that we step smoothly through the 1D vector...
+		
+			for (i = 0; i < modelObject->nRows; i++) {
+				y = i + 1;   // so x,y are 1-based, not 0-based
+				for (j = 0; j < modelObject->nColumns; j++) {
+					x = j + 1;
+					modelVal = modelObject->modelFunc(x, y, paramsVector);
+					ii = i*nRows + j;   // index into 1D vector
+					deviances[ii] = (modelObject->DataVect[ii] - modelVal) / modelObject->ErrVect[ii];
+				}
+			}
+
+	According to http://en.wikipedia.org/wiki/Row-major_order, this format is
+	row-major, which is the C default.  The nice thing is that such an array can,
+	in princple, be fed to FFTW *as is* -- or at least, we can create a 1-D
+	pixel array of fftw_complex values with exactly the same structure as the
+	input image array.
+		-- in FFTW terms, n_0 = nColumns, n_1 = nRows [[I think...]]
+		-- on the latter point: if we do the faster, real-based FFT, then things
+		are a little more complicated; we can postpone figuring this out till
+		later
+
+From http://www.covig.imi.aau.dk/publications/MDobroczynski2DFFT2006.pdf:
+"Let us assume to have N*M matrix. Row-major format simply puts all rows
+(N) of the array one after another (M times), so that as a result we
+have a N*M vector. Similar situation is for column-major format – but
+this time columns are put one after another (column-major is more
+popular among Fortran programmers)."
+
+
+
+Coordinates:
+	Standard IRAF/DS9 approach is: *center* of first pixel is 1.0,1.0;
+	sub-pixel coordinates run from (x - 1).5 on L edge to x.0 in center to x.5 on R edge,
+	(y - 1).5 on bottom edge to y.0 in center to y.5 on top edge.
+
+
+Possible elaborations:
+	Input text file which hold model specifications, initial guesses, limits
+	Python script to convert command-line arguments into text file?  Or Python script
+	to read text file and convert them into command-line arguments?
+
+Experimenting with possible options for specifying limits:
+
+FUNCTION   Sersic-1D   # here is a comment
+n       2.0   fixed
+mu_e   24.0   20.0/25.0   NO
+r_e     5.0   1.0:10.0
+
+n       2.0   0.0--10.0
+mu_e   24.0   (20.0,25.0)
+r_e     5.0   1.0,10.0      CURRENTLY USING THIS ONE
+
+
+
+Version of function objects with and without generalized ellipses (see Eqn.3 of
+Peng+2002 for a nice example of how to get r given x',y',q,c, assuming that x' and y'
+are in the principle-axes-of-the-ellipse coordinate system).
+
+
+Sky background: Chien Peng notes (in the readme file accompanying galfit
+2.0) that it's best to keep the sky "component" fixed to the best
+measured value: " as a rule of thumb, always determine the sky value
+inde- pendently and hold it fixed in the fit. Allow the sky parameter to
+vary only when desperate."
+	-- So it's plausible to have "sky component" to allow users to work with
+	non-sky-subtracted images, with the proviso that it's best to measure
+	a value, and then keep that value fixed.
+
+
+QUESTIONS AND ISSUES:
+
+	[x] How best to combine multiple functions into model object
+	
+	[x] How to map image x,y to function parameters (R, or R + theta, or ...)
+		-- look at modelimage code
+		-- handled by function objects?
+	
+	[x] How to allow for separate x0,y0 for each component vs same (adjustable)
+	x0,y0 for all components
+		-- Note that in principle we could have 2+ *sets* of linked components
+		(e.g., simultaneously fitting bulge+disk+... for two overlapping galaxies...),
+		where each set has a common x0,y0
+		-- Let ModelObject keep parallel set of parameters
+		-- Change FunctionObject::Setup() interface to *require* x0, y0 for all
+		components as separate from main parameter vector (functions can ignore
+		the x0, y0 values if they want to); then have a setting w/in ModelObject
+		which tells it whether or not all components share same x0,y0
+			e.g., x0,y0 = paramsVector[0],paramsVector[1] in the case of shared
+			x0,y0 (pass paramsVector[2:] as input to function objects); in case
+			of individual x0,y0, we either have all the x0,y0 pairs in the first
+			part of paramsVector, or we keep them at the beginning of each
+			individual-comonent parameter block (w/in paramsVector), adding 2 to
+			the offset when we pass paramsVector to the function object...
+
+		Remember: params has to contain all the unique x0,y0 pairs (but not more
+		than that), since the minimization code needs to adjust them.
+		Two options:
+			==> store all x0,y0 at beginning of params?
+				-- nSets [added to offset as index into params vector]
+				-- something that 
+
+			==> store x0,y0 in order of functions & set?
+				-- better for simple printing of output
+				-- need something to track whether we've reached a new set or not
+				-- 
+			
+		A possible setup:
+			Vector in ModelObject: delta-Nparam between different sets of components
+			(simplest case: vector = [0]
+			case of exp. disk + exp. disk:vector = [0,5]
+			Vector of coordinates: one x,y pair per set of components
+			
+  for (int n = 0; n < nFunctions; n++) {
+    if newXYVals[n] == true {
+      x0 = params
+    x0 = x0Vect[n];
+    y0 = y0Vect[n];
+    functionObjects[n]->Setup(x0, y0, params, offset);
+    offset += paramSizes[n];
+  }
+
+			Two lines in config file per set:
+			X-COORD   xxx.x   x1,x2 [or "fixed"]
+			Y-COORD   yyy.y   y1,y2 [or "fixed"]
+			(followed by 1+ FUNCTION <funcname> "declarations" + associated parameters)
+
+		
+	[] TO TEST: Does fixing nominally free parameters slow things down compared
+	to doing a fit with the parameters excluded?
+		-- i.e., say we decide to keep x0,y0 fixed: is there a speed advantage
+		to having a separate function for which they are not free parameters?
+		(e.g., L-M code doesn't waste time calculating derivates w.r.t. to those
+		parameters)
+
+		
+
+
+OUTLINE OF PROGRAM:
+
+1. Parse user input
+
+2. Read in other input files: model spec; initial parameters; etc.
+
+3. Create model object
+
+4. Create function objects & assign to model object
+
+5. Read input image & transform to 1D vector (store nRows, nCols)
+	-- Later: read in error/weight map; mask
+	[could be done after step 2]
+
+6. Assign input-image vector [& other data to be used in fit] to model object
+
+7. Do fitting
+
+8. Report results of fit
+
+
+** PLAN/OUTLINE:
+
+[x] Work out initial test data: very small image with e.g. Gaussian or exp.disk
+
+[x] Prototype code for reading in image (using cfitsio) and unrolling it into
+1D vector
+	[x] Convert this code to a function
+
+[x] Prototype code for function object - something simple like exp. disk
+
+[x] Prototype code for model object holding data, function objects
+
+[x] Prototype chi-square/deviance code for use with mpfit
+
+[x] Prototype code for having multiple function objects in ModelObject
+
+[x] Prototype code for handling multiple parameter sets:
+	-- parameter sets for each function object
+	-- function/method which disassembles the mpfit-generated array of
+	new parameter values into individual parameter sets, one for each function
+	object, in the correct order.
+	-- stored in ModelObject as C++ vector of double *
+	-- for each individual parameter array:
+		array of double
+		nParams
+	-- [Later?] function/method which bundles up initial parameter guesses, in the
+	right order, into the combined 1-D initial-params array for mpfit
+	-- END RESULT: much simpler to pass entire parameter vector to each function
+	object, along with index offset...
+
+[x] Prototype command-line processing
+	-- Try using Kishan Thomas' anyoption.cpp class
+
+[x] Prototype code for reading in an error (variance?) image & using it in
+ModelObject
+	[x] Start with image with all pixels = 1; result should be same as fitting
+	without noise image
+
+[x] Prototype a separate program (or command-line options?) to generate test images of functions
+	[x] Prototype code for saving an image: use original input image
+	[x] Prototype code for saving a model image stored in ModelObject
+
+[x] Prototype code for selecting function objects & putting them into ModelObject
+	-- e.g., given vector of strings with function names
+	-- should do basic sanity check: total # parameters in user-supplied parameter
+	vector = total # parameters for all functions (theModel->GetNParams())?
+
+[x] Refine makeimage code:
+	[x] Add code to read function specifications from config file
+	[x] Add command-line options (and/or config file?) for image dimensions
+
+[x] Prototype code for PA-aware function objects (e.g., exp. disk)
+	-- angletest.c has working code for testing (x,y) --> (x',y') rotation transform.
+
+[x] Prototype code for setting up model object based on user input?
+	-- see www.cprogramming.com/tutorial/string.html
+
+[x] Prototype code for read & using mask image
+	-- note that our "standard", ellipse-compatible masks are "good = 0, bad > 0";
+	the versions generated by sdssproc.py are integer images.
+	-- start off with *integer* masks; later, add ability to read floating-point masks
+	[x] Prototype checking and reading in mask image
+		-- check to make sure it is same size as image!
+		-- add command to print mask image to screen
+	[x] Prototype code to convert mask values
+		-- best for us to use: good = 1, bad = 0
+	[x] Prototype use of mask image in ModelObject
+
+[x] Add function-selection code (currently used by makeimage) to imfit
+
+[x] Protoype code for reading and applying parameter limits
+	[x] Prototype code to read & store parameter limits from config file
+	[x] Prototype code for setting up mpfit parameter limit structure
+
+
+
+[] Prototype "psfconvolve" program
+	[x] Prototype ShiftAndPadPSF() function: takes PSF image & push into corner
+	w/ correct wrap-around
+	[x] Test ShiftAndPadPSF() function with external PSF FITS images
+	[x] Do further tests with convolving external FITS images
+	[x] Prototype simple program which reads in image & PSF and saves convolution
+	[x] Implement trimming of final output image
+	[] Figure out funny outer-edge issue in convolved image
+
+[] Prototype code for FFT convolution in makeimage
+	[] Prototype PSF reading in makeimage
+	[] Prototype convolution in makeimage
+	[] Prototype incorporating convolution into ModelObject
+
+[x] Prototype code for saving output model image
+[] Prototype code for saving final residual image?
+	-- should be deviates vector in ModelObject
+
+[] Test possible sub-pixel generation schemes (Python)
+	[x] Write Python code to do sub-pixel sampling
+	[] Test effects of different subsampling for exponential (vs scale length)
+	[] Test effects of different subsampling for Sersic (vs r_e, for different n)
+	[] Make some notes on plausible subsampling schemes/
+
+[] Prototype code for getting non-function-related data from config file
+	-- e.g., input image name; noise image name; gain; sky value; etc.
+
+[] Prototype code for unit testing
+	[x] Decide on C++ unit testing framework to use (CxxTest?)
+	[x] Install C++ unit testing framework
+	[x] Trial implementation of trival unit test
+	[] Plan out possible unit tests
+	[] Implement more sophisticated unit tests
+
+[] Prototype code for generating an error "image" (1-D vector) from the input
+image
+	-- we'll assume that supplying a noise image overrides other options
+	[x] implement command-line options to specify gain, readnoise
+	[] implement reading of header values from input image
+
+[] Prototype chisquare() member function for ModelObject()
+	-- i.e., something for diff'l evoln. to call; computes non-overflowing sum
+	of squares of individual deviances
+	[x] Prototype basic chisquare function
+	[] Prototype internal allocation & de-allocation of deviances vector and
+	simpler chisquare function
+
+[] Prototype code for checking inputs:
+	[x] input files should exist
+	[x] numeric inputs should be numbers (modify utilities.c --> utilities.cpp?)
+	[] basic checks of config-file format
+
+[] Prototype code for multiple component sets
+	-- see test_config_sets.dat for example of format
+	[x] Start with test_parser.cpp
+	[x] Prototype modifications of makeimage to generate multiple sets
+	[] Generate & inspect test images with makeimage
+	[] Set up basic regressions tests for makeimage
+	[] Prototype code for multiple component sets with imfit
+
+[] Prototype a generalized-ellipse function object
+
+[] Prototype option to use only a subset of input image
+	[] Prototype command-line subsetting of image
+	[] Prototype config-file subsetting of image
+		-- e.g., image.fits[x1:x2,y1:y2] ??
+
+[] Prototype use of magnitudes
+	-- user specifies a zero point, and (somehow) magnitude parameters are
+	converted to intensities
+	-- possibly an extra flag for FunctionObject::Setup(), which tells the latter
+	to expect magnitude values? (and we assume the individual sub-classes know
+	which of their input parameters can be magnitudes)
+		-- "flag" is zero point itself, with some default ridiculous value
+		meaning non-magnitude?
+
+
+
+** SPECULATIVE EXTRA STUFF:
+
+Multi-Gaussian-Expansion mode:
+	Python wrapper code to do n1--n2 Gaussian fits (n1, n2 = user input) and pick
+the one with lowest reduced chi^2 and/or AIC or BIC.
+	Note, however, that the IDL MGE approach (or at least Cappellari's 2002 version)
+takes advantage of the nature of Gaussians to derive faster and more specialized
+code ...
+
+
+
+
+
+** NOTES ON MULTIPLE CHI-SQUARE MINIMA:
+
+With the default "tiny-exponential-disk" image (testimage_expdisk_tiny.fits, 4x4 pixels),
+when fitting with the sum of two Gaussians (mpfit), there are at least two outcomes:
+The whole image, row by row:
+ 10.687793 13.533528 10.687793 5.910574
+ 36.787945 100.000000 36.787945 13.533528
+ 10.687793 13.533528 10.687793 5.910574
+ 1.619414 1.831564 1.619414 1.142289
+
+Initial params = {1.0, 1.0, 50.0, 1.0, 1.0, 1.0, 20.0, 0.5}
+	==> converges to 
+  CHI-SQUARE = 840.918927    (8 DOF)
+        NPAR = 8
+       NFREE = 8
+     NPEGGED = 0
+     NITER = 65
+      NFEV = 594
+
+  P[0] = 7.758884 +/- 0.000000
+  P[1] = 7.195688 +/- 0.000000
+  P[2] = -214.706757 +/- 0.000000
+  P[3] = -0.603486 +/- 0.000000
+  P[4] = 2.006787 +/- 0.009379
+  P[5] = 2.000393 +/- 0.009380
+  P[6] = 98.693523 +/- 0.991016
+  P[7] = -0.623820 +/- 0.004437
+The model image, row by row:
+ 7.417287 27.278586 7.680577 0.165562
+ 26.834042 98.687663 27.786564 0.598966
+ 7.432285 27.333742 7.696107 0.165897
+ 0.157599 0.579603 0.163193 0.003518
+
+But with initial params = {1.0, 1.0, 50.0, 1.0, 1.5, 1.5, 20.0, 0.5}
+	==> converges to 
+  CHI-SQUARE = 400.776151    (8 DOF)
+        NPAR = 8
+       NFREE = 8
+     NPEGGED = 0
+     NITER = 200
+      NFEV = 1850
+
+  P[0] = 1.635329 +/- 0.305284
+  P[1] = 2.001725 +/- 0.028840
+  P[2] = 45.552504 +/- 15.606852
+  P[3] = 0.763261 +/- 0.024219
+  P[4] = 2.454461 +/- 3.663788
+  P[5] = 1.995058 +/- 5.206057
+  P[6] = 337.699031 +/- 56522.865669
+  P[7] = 0.243732 +/- 9.799968
+The model image, row by row:
+ 13.615329 17.189946 3.899910 0.158575
+ 32.214874 99.997723 36.789970 0.375200
+ 13.696221 17.289804 3.922025 0.159517
+ 1.046312 1.319919 0.299191 0.012186
+
+Note that this is termination after maximum number of iterations (200)
+Also note that chi-square is *lower*!
