@@ -101,6 +101,20 @@ Coordinates:
 	Standard IRAF/DS9 approach is: *center* of first pixel is 1.0,1.0;
 	sub-pixel coordinates run from (x - 1).5 on L edge to x.0 in center to x.5 on R edge,
 	(y - 1).5 on bottom edge to y.0 in center to y.5 on top edge.
+	
+	We're using this approach. (Verified 8 March 2010 by inspecting makeimage output
+	image in iraf.)  Here's the code used in model_object.cpp to step through image
+	pixels -- note that the very first pixel has coordinates (x,y) = (1.0,1.0):
+	
+  for (int i = 0; i < nRows; i++) {   // step by row number = y
+    y = (double)(i + 1);              // Iraf counting: first row = 1
+    for (int j = 0; j < nColumns; j++) {   // step by column number = x
+      x = (double)(j + 1);                 // Iraf counting: first column = 1
+      newVal = 0.0;
+      for (int n = 0; n < nFunctions; n++)
+        newVal += functionObjects[n]->GetValue(x, y);
+      modelVector[i*nColumns + j] = newVal;
+
 
 
 Possible elaborations:
@@ -299,9 +313,23 @@ ModelObject
 	[x] Prototype code to read & store parameter limits from config file
 	[x] Prototype code for setting up mpfit parameter limit structure
 
+[x] Prototype code for multiple component sets
+	-- see test_config_sets.dat for example of format
+	[x] Start with test_parser.cpp
+	[x] Prototype modifications of makeimage to generate multiple sets
+	[x] Generate & inspect test images with makeimage
+	[x] Set up basic regressions tests for makeimage
+	[x] Prototype code for multiple component sets with imfit
+
+[x] Add checking of parameters for "nan" values
+
+[x] Prototype code for saving output model image
+
+[x] Prototype checking & reporting of mpfit error codes
 
 
-[] Prototype "psfconvolve" program
+
+[.] Prototype "psfconvolve" program
 	[x] Prototype ShiftAndPadPSF() function: takes PSF image & push into corner
 	w/ correct wrap-around
 	[x] Test ShiftAndPadPSF() function with external PSF FITS images
@@ -315,10 +343,22 @@ ModelObject
 	[] Prototype convolution in makeimage
 	[] Prototype incorporating convolution into ModelObject
 
-[x] Prototype code for saving output model image
+[] Prototype code for checking inputs:
+	[x] input files should exist
+	[x] numeric inputs should be numbers (modify utilities.c --> utilities.cpp?)
+	[] basic checks of config-file format
+	[] parameter limits should be sane (lower limit < upper limit) and should bound initial value
+
 [] Prototype code for saving final residual image?
 	-- should be deviates vector in ModelObject
 
+[] Prototype code for saving best-fit parameter file
+	-- suitable as intput to makeimage, or as starting point for new fitting attempt
+	-- should also have timestamp, name of file fitted, command-line invocation,
+	final chi^2, etc. (all as comments, with # in front)
+	[] Prototype saving information about fit (filename, command-line used, etc.)
+	[] Prototype saving best-fit parameters and functions
+	
 [] Test possible sub-pixel generation schemes (Python)
 	[x] Write Python code to do sub-pixel sampling
 	[] Test effects of different subsampling for exponential (vs scale length)
@@ -326,19 +366,22 @@ ModelObject
 	[] Make some notes on plausible subsampling schemes/
 
 [] Prototype code for getting non-function-related data from config file
-	-- e.g., input image name; noise image name; gain; sky value; etc.
+	-- e.g., input image name; noise image name; mask image name gain; sky value; etc.
 
 [] Prototype code for unit testing
 	[x] Decide on C++ unit testing framework to use (CxxTest?)
 	[x] Install C++ unit testing framework
 	[x] Trial implementation of trival unit test
-	[] Plan out possible unit tests
-	[] Implement more sophisticated unit tests
+	[x] Plan out possible unit tests
+	[x] Implement more sophisticated unit tests
+	[] Add unit tests for ModelObject::CheckWeightVector
+	[] Add more unit tests!
 
-[] Prototype code for generating an error "image" (1-D vector) from the input
+[.] Prototype code for generating an error "image" (1-D vector) from the input
 image
 	-- we'll assume that supplying a noise image overrides other options
 	[x] implement command-line options to specify gain, readnoise
+	[] prototype code to read header values from an image
 	[] implement reading of header values from input image
 
 [] Prototype chisquare() member function for ModelObject()
@@ -347,19 +390,6 @@ image
 	[x] Prototype basic chisquare function
 	[] Prototype internal allocation & de-allocation of deviances vector and
 	simpler chisquare function
-
-[] Prototype code for checking inputs:
-	[x] input files should exist
-	[x] numeric inputs should be numbers (modify utilities.c --> utilities.cpp?)
-	[] basic checks of config-file format
-
-[] Prototype code for multiple component sets
-	-- see test_config_sets.dat for example of format
-	[x] Start with test_parser.cpp
-	[x] Prototype modifications of makeimage to generate multiple sets
-	[] Generate & inspect test images with makeimage
-	[] Set up basic regressions tests for makeimage
-	[] Prototype code for multiple component sets with imfit
 
 [] Prototype a generalized-ellipse function object
 
@@ -380,6 +410,15 @@ image
 
 
 ** SPECULATIVE EXTRA STUFF:
+
+ModelObject.ComputeDeviates *could* return an integer status value, which
+myfunc [in imfit_main.cpp] could then pass on to mpfit (mpfit assigns the
+return value of myfunc to "iflag", and if iflag < 0, then mpfit *terminates*
+and that value becomes the status returned by mpfit.
+	-- So we could, in principle, use this as a way of signalling that, e.g.,
+wonky parameter values were passed to ModelObject.ComputeDeviates, or some
+other bad thing had happened ...
+
 
 Multi-Gaussian-Expansion mode:
 	Python wrapper code to do n1--n2 Gaussian fits (n1, n2 = user input) and pick

@@ -10,6 +10,8 @@
 ./makeimage smalltest_config_4c.dat -o smalltest.fits --ncols 4 --nrows 4
 
 # medium-sized, complex (64x64) image:
+# Exp+Sersic centered at (31.0,31.0) and Exp+Ser+Gauss at (10.5,13.0)
+# and Exp+Gauss at (2.5,2.0)
 ./makeimage biggertest_config_4c.dat -o biggertest.fits --ncols 64 --nrows 64
 
 

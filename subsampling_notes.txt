@@ -1,39 +1,52 @@
-Start at x = 0; first pixel edge at x = 0.5
-Pixel edges = [-0.5, 0.5; 0.5, 1.5; 1.5, 2.5; 2.5, 3.5; etc.]
-Pixel centers = [  0.0;      1.0;      2.0;      3.0;  etc. ]
-fine-pixel counts = [
+NOTES ON SUBSAMPLING EXPERIMENTS:
 
-xFine centers = [-0.45, -0.35, -0.25, -0.15, -0.05, 0.05, 0.15, 0.25, 0.35, 0.45] = 10 total
-xFine edges = [-0.5,  -0.4, ...                                           0.4, 0.5]
+* Exponential (1-D): 100 subsamples per "pixel"
+	* h = 1 pixel:
+		r=0 is overestimated by ~ 27%; all other pixels are underestimated by ~ 4%
+	* h = 2 pixels:
+		r=0 overestimated by 13%; all other pixels underestimated by 1%
+	* h = 3 pixels:
+		r=0 overestimated by 8.6%; all other pixels underestimated by 0.5%
+	* h = 5 pixels:
+		r=0 overestimated by 5.1%; all other pixels underestimated by 0.02%
 
-xFine = N.arange(-0.45, 10.5, 0.1)
-xCoarse = N.arange(0.0, 11.0, 1.0)
+* Sersic, n=2 (1-D): 100 subsamples per "pixel"
+	* r_e = 1 pixel:
+		r=0 is overestimated by ~ 360%; r=1 underestimated by 17%, r=2 by 8%, r=3 by 5%,
+		decaying to larger radii
+	* r_e = 2 pixels:
+		r=0 overestimated by 210%; r=1 underestimated by 10%, r-2 by 6%, r=3 by 3%,
+		decaying to larger radii
+	* r_e = 3 pixels:
+		r=0 overestimated by 150%; r=1 underestimated by 7%, r-2 by 3%, r=3 by 2%,
+		decaying to larger radii
+	* r_e = 5 pixels:
+		r=0 overestimated by 1090%; r=1 underestimated by 5%, r-2 by 2%, r=3 by 1.3%,
+		decaying to larger radii
 
 
-def sumpixels( x_finescale, y_finescale, stepsize ):
-	nFine = len(x_finescale)
 
-def SumSubsample( x_range, func, params, Nsubsamples ):
-	"""Function to compute a vector func(x_range), using subsampling.
-	"""
-	
-	if subsample == 1:
-		return func(x_range)
-	else:
-		Npts = len(x_range)
-		N_subsampled_pts = Npts * Nsubsamples
-		fullXrange = x_range[-1] - x_range[0]
-		deltaX_orig = fullXrange / (Npts - 1)
-		deltaX_sub = deltaX_orig / Nsubsamples
-		startX = x_range[0] - deltaX_orig/2
-		new_x_range = startX + N.arange(N_subsampled_pts)*deltaX_sub
-		subsampledData = func(new_x_range, params)
-		
-		# sum up the subsamples
-		resampledData = N.zeros(Npts)
-		for i in range(Npts):
-			resampledData[i] = N.sum(subsampledData[i*Npts:i*Npts + Nsubsamples])
-		
-		return (new_x_range, subsampledData, resampledData)
+POSSIBLE CODING APPROACH:
+	In FunctionObject.GetValue:
+		Calculate r [and anything else needed]
+		nSubsamples = CalculateSubsamples(r, xxx)
+		if (nSubsamples == 1) {
+			calculate and return value
+		}
+		else {
+			do subsample calculations
+			for (i = 0; i < nSubsamples; i++) {
+				for (j = 0; j < nSubsamples; j++) {
+					xxx
+			
+
+
+TENTATIVE NOTES & CONCLUSIONS:
+	[] For *elliptical* objects, we should be careful to use (1 - ell)*scale_length
+as the "working scale length"
+
+	[] Interesting possible problem: edge-on disks have *two* scale lengths: radial
+(which applies to distance from galaxy center) and vertical (which applies to distance
+from z=0 line and therefor affects many more pixels)
 
 

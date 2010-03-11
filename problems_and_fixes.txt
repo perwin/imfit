@@ -2,13 +2,14 @@ NOTES ON PROBLEMS/BUGS ENCOUNTED IN IMFIT, HOW WE SOLVED THEM,
 AND POSSIBLE WAYS TO AVOID SIMILAR PROBLEMS IN THE FUTURE
 
 
-** 20--21 Feb 2010: 
+*** 20--21 Feb 2010: Negative background pixel values + default sky=0 
+	led to "nan" values in weight image, propagating "nan" values into subsequent calculations
 
 # Testing imfit on SDSS image of NGC 3073:
 # Using Dec 2009 code:
 $ ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3
 
-FAILED
+FAILED -- program ran forever
 
 # Testing on SDSS image of IC 3487
 $ ./imfit_db testing/ic3478rss_small.fits --config=imfit_config_ic3478.dat --gain=4.725 --readnoise=4.3
@@ -17,19 +18,19 @@ FAILED [in similar fashion]
 Works on 32x32 and 64x64 cutouts of ic3478 image; FAILS on 128x128 cutout.
 
 TRACKING DOWN THE PROBLEM:
-	Debugging printouts indicates that after 8 calls to ComputeDeviates(), the ninth
+	1. Debugging printouts indicates that after 8 calls to ComputeDeviates(), the ninth
 	call by mpfit passes a vector of "nan" values for the parameters
 		-- this is 1 call at start of mpfit plus 7 calls by mp_fdjac2
 
 	Normal behavior is nParam calls by mp_fdjac2, with only the last one having
 	different parameter values.
 	
-	OK, problem appears to be in the "inner loop" of mpfit (~ line 900);
+	2. OK, problem appears to be in the "inner loop" of mpfit (~ line 900);
 	this call to ComputeDeviates() is with reasonable (altered) param values in
 	32x32 and 64x64 cases, but with "nan" in 128x128 and full image cases.
 
-	Problem now appears to be present by around line 657: wa1 = all "nan"
-	Problem now appears to be in first call to mp_qrfac (line 534)
+	3. Problem now appears to be present by around line 657: wa1 = all "nan"
+	4. Problem now appears to be in first call to mp_qrfac (line 534)
 		-- just before this, wa1 = all 0; just after wa1 = all "nan"
 		-- wa1 becomes input parameter rdiag inside mp_qrfac
 
@@ -39,20 +40,20 @@ void mp_qrfac(int m, int n, double *a, int lda,
               double *rdiag, double *acnorm, double *wa)
   mp_qrfac(m, nfree, fjac, ldfjac, 1, ipvt, nfree, wa1, wa2, wa3);
 
-	OK, now we've localized the problem to the first few lines of mp_qrfac:
+	5. OK, now we've localized the problem to the first few lines of mp_qrfac:
 		specifically,
 		    acnorm[j] = mp_enorm(m, &a[ij]);
 		which populates acnorm[j] with "nan"
 		Note that m = 16384 for the 128x128 image
 	
-	Problem is apparently *not* in the allocation of fjac (I replaced the use of
+	6. Problem is apparently *not* in the allocation of fjac (I replaced the use of
 	Craig's mp_alloc macro with a more straightforward calloc use; no difference).
 	
-	Problem may be in mp_enorm...
+	7. Problem may be in mp_enorm...
 	[x] Possible check: have mp_enorm print all values of fjac[] that it's
 	trying to sum up.
 	
-	Problem localized to: occasionaly "nan" values within fjac[]
+	8. Problem localized to: occasionaly "nan" values within fjac[]
 		-- somehow, we are occasionally generating "nan" values in the Jacobian
 		matrix.
 	
@@ -62,7 +63,7 @@ void mp_qrfac(int m, int n, double *a, int lda,
 		elsewhere in mp_qrfac (result is that program exits cleanly after one
 		iteration with mpfit code = 2)
 
-	Problem is in mp_fdjac2: occasionally, "nan" values are generated and stored
+	9. Problem is in mp_fdjac2: occasionally, "nan" values are generated and stored
 	in fjac.
 	
 		[X] Possible approaches/things to try:
@@ -74,7 +75,7 @@ void mp_qrfac(int m, int n, double *a, int lda,
 			[X] Something weird in the noise/weight array?
 
 
-PROBLEM FOUND:
+* PROBLEM FOUND:
 [X] Possible problem(s) in noise computation:
 	In a sky-sub. image, there will be pixels with *negative* values.
 	If we don't specify a (large enough) sky background, then ModelObject.GenerateErrorVector
@@ -97,6 +98,10 @@ remembered to specify a large sky value.
 the large (128x128) cutout had negative pixel values *and* we forgot to specify
 a sky value (thus setting sky internally to 0).
 
+	(mpfit should, ideally, have a check for "nan" values, but it was most likely
+written in a time when compilers did *not* allow for "nan" generation...)
+
+
 FIXES:
 	[X] GenerateErrorVector: Check final weightVector for "nan" (and also negative?) 
 	values; squawk and die if any are found
@@ -110,6 +115,8 @@ FIXES:
 	(GALFIT does this; smooths out CRs and large negative values...)
 
 	
+
+
 
 
 *** TROUBLESHOOTING TIPS:

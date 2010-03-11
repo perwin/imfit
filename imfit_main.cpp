@@ -115,17 +115,78 @@ void PrintParam( string& paramName, double paramValue, double paramErr )
 }
 
 
+
+/* Function which prints interpretation of mpfit return values */
+void InterpretMpfitResult( int mpfitResult, std::string& interpretationString )
+{
+
+  if (mpfitResult <= 0) {
+    // negative value = Failure of some kind
+    interpretationString = "ERROR: ";
+    // first option is not apparently used by mpfit...
+    if (mpfitResult == MP_ERR_INPUT)
+      interpretationString += "General input parameter error!";
+    if (mpfitResult == MP_ERR_NAN)
+      interpretationString += "User function produced non-finite values!";
+    if (mpfitResult == MP_ERR_FUNC)
+      interpretationString += "No user function was supplied!";
+    if (mpfitResult == MP_ERR_NPOINTS)
+      interpretationString += "No user data points were supplied!";
+    if (mpfitResult == MP_ERR_NFREE)
+      interpretationString += "No free parameters!";
+    if (mpfitResult == MP_ERR_MEMORY)
+      interpretationString += "Memory allocation error!";
+    if (mpfitResult == MP_ERR_INITBOUNDS)
+      interpretationString += "Initial values inconsistent w constraints!";
+    if (mpfitResult == MP_ERR_BOUNDS)
+      interpretationString += "Initial constraints inconsistent!";
+    if (mpfitResult == MP_ERR_PARAM)
+      interpretationString += "General input parameter error.";
+    if (mpfitResult == MP_ERR_DOF)
+      interpretationString += "Not enough degrees of freedom!";
+  } else {
+    // positive values
+    if (mpfitResult < 5) {
+      // Success (probably)
+      interpretationString = "SUCCESS: ";
+      if (mpfitResult == MP_OK_CHI)
+        interpretationString += "Convergence in chi-square value.";
+      if (mpfitResult == MP_OK_PAR)
+        interpretationString += "Convergence in parameter value.";
+      if (mpfitResult == MP_OK_BOTH)
+        interpretationString += "Convergence in chi-square and parameter value.";
+      if (mpfitResult == MP_OK_DIR)
+        interpretationString += "Convergence in orthogonality.";
+    } else {
+      interpretationString = "Terminated: ";
+      if (mpfitResult == MP_MAXITER)
+        interpretationString += "Maximum number of iterations reached";
+      if (mpfitResult == MP_FTOL)
+        interpretationString += "ftol too small; no further improvement";
+      if (mpfitResult == MP_XTOL)
+        interpretationString += "xtol too small; no further improvement";
+      if (mpfitResult == MP_GTOL)
+        interpretationString += "gtol too small; no further improvement";
+    }
+  }
+}
+
+
 /* Simple routine to print the fit results [taken & modified from Craig Markwardt's
    testmpfit.c] 
 */
 void PrintResult( double *x, double *xact, mp_result *result, ModelObject *model,
-									int nFreeParameters )
+									int nFreeParameters, int mpStatus )
 {
   int  i;
   int  nValidPixels = model->GetNValidPixels();
   int  nDegreesFreedom = nValidPixels - nFreeParameters;
+  std::string  mpfitMessage;
   double  aic, bic, chiSquared;
   
+  InterpretMpfitResult(mpStatus, mpfitMessage);
+  printf("*** mpfit status = %d -- %s\n", mpStatus, mpfitMessage.c_str());
+
   if ((x == 0) || (result == 0)) return;
   printf("  CHI-SQUARE = %f    (%d DOF)\n", 
 	 result->bestnorm, result->nfunc-result->nfree);
@@ -185,6 +246,7 @@ int main(int argc, char *argv[])
   double  *paramsVect;
   double  *paramErrs;
   std::string  noiseImage;
+  std::string  mpfitMessage;
   ModelObject  *theModel;
   vector<string>  functionList;
   vector<double>  parameterList;
@@ -364,18 +426,16 @@ int main(int argc, char *argv[])
     mpParamLimits = NULL;
   }
   
-  /* Copy parameters into C array and start the fitting process */
+  /* Copy parameters into C array */
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));
   for (int i = 0; i < nParamsTot; i++)
     paramsVect[i] = parameterList[i];
   
+  /* DO THE FIT! */
   printf("\nStarting mpfit ...\n");
   status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpParamLimits, &mpConfig, 
   								theModel, &mpfitResult);
-  
-  printf("*** mpfit status = %d\n", status);
-  status = AddFunctions(theModel, functionList, functionSetIndices);
-  PrintResult(paramsVect, 0, &mpfitResult, theModel, nFreeParams);
+  PrintResult(paramsVect, 0, &mpfitResult, theModel, nFreeParams, status);
   
   printf("\nTrue degrees of freedom = %d\n", nDegFreedom);
 

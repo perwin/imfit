@@ -103,6 +103,7 @@ class ModelObject
     vector<int> paramSizes;
     vector<string>  parameterLabels;
     
+    bool CheckParamVector( int nParams, double paramVector[] );
     bool CheckWeightVector( );
   
 };

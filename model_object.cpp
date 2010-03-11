@@ -302,6 +302,19 @@ void ModelObject::CreateModelImage( double params[] )
   double  x0, y0, x, y, newVal;
   int  offset = 0;
   
+  // Check parameter values for sanity
+  if (! CheckParamVector(nParamsTot, params)) {
+    printf("** ModelObject::CreateModelImage -- non-finite values detected in parameter vector!\n");
+#ifdef DEBUG
+    printf("   Parameter values: %s = %g, ", parameterLabels[0].c_str(), params[0]);
+    for (int z = 1; z < nParamsTot; z++)
+      printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
+    printf("\n");
+#endif
+    printf("Exiting ...\n\n");
+    exit(-1);
+  }
+
   // Separate out the individual-component parameters and tell the
   // associated function objects to do setup work.
   // The first component's parameters start at params[0]; the second's
@@ -324,9 +337,9 @@ void ModelObject::CreateModelImage( double params[] )
   
   // populate modelVector with the model image
   for (int i = 0; i < nRows; i++) {   // step by row number = y
-    y = (double)(i + 1);
+    y = (double)(i + 1);              // Iraf counting: first row = 1
     for (int j = 0; j < nColumns; j++) {   // step by column number = x
-      x = (double)(j + 1);
+      x = (double)(j + 1);                 // Iraf counting: first column = 1
       newVal = 0.0;
       for (int n = 0; n < nFunctions; n++)
         newVal += functionObjects[n]->GetValue(x, y);
@@ -514,6 +527,22 @@ double * ModelObject::GetModelImageVector( )
   }
   
   return modelVector;
+}
+
+
+/* ---------------- PROTECTED METHOD: CheckParamVector ----------------- */
+// The purpose of this method is to check the parameter vector to ensure
+// that all values are finite.
+bool ModelObject::CheckParamVector( int nParams, double paramVector[] )
+{
+  bool  vectorOK = true;
+  
+  for (int z = 0; z < nParams; z++) {
+    if (! finite(paramVector[z]))
+      vectorOK = false;
+  }
+  
+  return vectorOK;
 }
 
 
