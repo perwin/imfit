@@ -339,13 +339,17 @@ ModelObject
 	[] Figure out funny outer-edge issue in convolved image
 
 [] Prototype code for FFT convolution in makeimage
-	[] Prototype PSF reading in makeimage
+	[x] Prototype PSF reading in makeimage
+		[x] Code for getting PSF image name (and check for existence)
+		[x] Code to read PSF image into a pixel vector
+	[] Prototype code for PSF storage, shifting as part of ModelObject
 	[] Prototype convolution in makeimage
 	[] Prototype incorporating convolution into ModelObject
 
 [] Prototype code for checking inputs:
 	[x] input files should exist
 	[x] numeric inputs should be numbers (modify utilities.c --> utilities.cpp?)
+	[x] Check reading of images (i.e., do cfitsio routines return errors?)
 	[] basic checks of config-file format
 	[] parameter limits should be sane (lower limit < upper limit) and should bound initial value
 

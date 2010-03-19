@@ -1,5 +1,6 @@
 NOTES ON SUBSAMPLING EXPERIMENTS:
 
+1-D SUBSAMPLING
 * Exponential (1-D): 100 subsamples per "pixel"
 	* h = 1 pixel:
 		r=0 is overestimated by ~ 27%; all other pixels are underestimated by ~ 4%
@@ -23,6 +24,21 @@ NOTES ON SUBSAMPLING EXPERIMENTS:
 	* r_e = 5 pixels:
 		r=0 overestimated by 1090%; r=1 underestimated by 5%, r-2 by 2%, r=3 by 1.3%,
 		decaying to larger radii
+
+
+2-D SUBSAMPLING -- PROFILE ALONG MAJOR AXIS
+* Exponential (1-D): 100 subsamples per pixel
+	* h = 1 pixel:
+		r=0 is overestimated by ~ 45%; r=1 by 0.5%; others underestimated
+	* h = 2 pixels:
+		r=0 overestimated by 21%; r=1 by 1.2%; other underestimated by <~ 0.5%
+	* h = 3 pixels:
+		r=0 overestimated by 13%; r=1 by 1.0%; r=2 by 0.2%
+	* h = 5 pixels:
+		r=0 overestimated by 8%; r=1 by 0.7%; r=2 by 0.3%; r=3 by 0.1%
+	* h = 10 pixel:
+		r=0 overestimated by 3.9%; r=1 by 0.4%, r=2 by 0.17%; r=3 by 0.1%
+
 
 
 

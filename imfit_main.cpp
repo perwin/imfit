@@ -60,6 +60,8 @@ typedef struct {
   std::string  configFileName;
   std::string  imageFileName;
   bool  noImage;
+  std::string  psfFileName;
+  bool  psfImagePresent;
   std::string  noiseFileName;
   bool  noiseImagePresent;
   int  errorType;
@@ -182,7 +184,7 @@ void PrintResult( double *x, double *xact, mp_result *result, ModelObject *model
   int  nValidPixels = model->GetNValidPixels();
   int  nDegreesFreedom = nValidPixels - nFreeParameters;
   std::string  mpfitMessage;
-  double  aic, bic, chiSquared;
+  double  aic, bic;
   
   InterpretMpfitResult(mpStatus, mpfitMessage);
   printf("*** mpfit status = %d -- %s\n", mpStatus, mpfitMessage.c_str());
@@ -236,10 +238,12 @@ int myfunc( int nDataVals, int nParams, double *params, double *deviates,
 int main(int argc, char *argv[])
 {
   int  nPixels_tot, nColumns, nRows;
+  int  nPixels_psf, nRows_psf, nColumns_psf;
   int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
   int  nDegFreedom;
   int  nParamsTot, nFreeParams;
   double  *allPixels;
+  double  *psfPixels;
   double  *allErrorPixels;
   double  *allMaskPixels;
   bool  maskAllocated = false;
@@ -264,6 +268,7 @@ int main(int argc, char *argv[])
   /* First, set up the options structure: */
   options.configFileName = DEFAULT_CONFIG_FILE;
   options.noImage = true;
+  options.psfImagePresent = false;
   options.noiseImagePresent = false;
   options.errorType = WEIGHTS_ARE_SIGMAS;
   options.maskImagePresent = false;
@@ -291,7 +296,7 @@ int main(int argc, char *argv[])
 
   /* Read configuration file */
   if (! FileExists(options.configFileName.c_str())) {
-    printf("\n*** WARNING: Unable to find or open configuration file \"%s\"!\n\n", 
+    printf("\n*** WARNING: Unable to find configuration file \"%s\"!\n\n", 
            options.configFileName.c_str());
     return -1;
   }
@@ -309,7 +314,7 @@ int main(int argc, char *argv[])
 
   /* Get image data and sizes */
   if (! FileExists(options.imageFileName.c_str())) {
-    printf("\n*** WARNING: Unable to find or open input image \"%s\"!\n\n", 
+    printf("\n*** WARNING: Unable to find input image \"%s\"!\n\n", 
            options.imageFileName.c_str());
     return -1;
   }
@@ -324,7 +329,7 @@ int main(int argc, char *argv[])
   /* Get and check mask image */
   if (options.maskImagePresent) {
     if (! FileExists(options.maskFileName.c_str())) {
-      printf("\n*** WARNING: Unable to find or open mask image \"%s\"!\n\n", 
+      printf("\n*** WARNING: Unable to find mask image \"%s\"!\n\n", 
              options.maskFileName.c_str());
       return -1;
     }
@@ -343,7 +348,7 @@ int main(int argc, char *argv[])
   /* Get and check error image (or else tell function object to generate one) */
   if (options.noiseImagePresent) {
     if (! FileExists(options.noiseFileName.c_str())) {
-      printf("\n*** WARNING: Unable to find or open noise image \"%s\"!\n\n", 
+      printf("\n*** WARNING: Unable to find noise image \"%s\"!\n\n", 
            options.noiseFileName.c_str());
       return -1;
     }
@@ -359,7 +364,23 @@ int main(int argc, char *argv[])
   }
   else
     printf("* No noise image supplied ... will generate noise image from input image\n");
-           
+  
+  /* Read in PSF image, if supplied */
+  if (options.psfImagePresent) {
+    if (! FileExists(options.psfFileName.c_str())) {
+      printf("\n*** WARNING: Unable to find PSF image \"%s\"!\n\n", 
+             options.psfFileName.c_str());
+      return -1;
+    }
+    printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
+    psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
+    nPixels_psf = nColumns_psf * nRows_psf;
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
+           nColumns_psf, nRows_psf, nPixels_psf);
+  }
+  else
+    printf("* No PSF image supplied -- no image convolution will be done!\n");
+  
 
   /* Create the model object */
   theModel = new ModelObject();
@@ -457,6 +478,8 @@ int main(int argc, char *argv[])
   // Free up memory
   free(allPixels);       // allocated in ReadImageAsVector()
   free(allErrorPixels);  // allocated in ReadImageAsVector()
+  if (options.psfImagePresent)
+    free(psfPixels);
   if (maskAllocated)
     free(allMaskPixels);
   free(paramsVect);
@@ -485,6 +508,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage(" -c  --config <config-file>   configuration file");
   opt->addUsage("     --noise <noisemap.fits>  Noise image");
   opt->addUsage("     --mask <mask.fits>       Mask image");
+  opt->addUsage("     --psf <psf.fits>         PSF image");
   opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
   opt->addUsage("     --use-headers            Use image header values for gain, readnoise");
   opt->addUsage("     --sky <sky-level>        Original sky background (ADUs)");
@@ -505,6 +529,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setFlag("mask-zero-is-bad");
   opt->setOption("noise");      /* an option (takes an argument), supporting only long form */
   opt->setOption("mask");      /* an option (takes an argument), supporting only long form */
+  opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
   opt->setOption("save-model");      /* an option (takes an argument), supporting only long form */
   opt->setOption("sky");        /* an option (takes an argument), supporting only long form */
   opt->setOption("gain");        /* an option (takes an argument), supporting only long form */
@@ -551,6 +576,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->noiseFileName = opt->getValue("noise");
     theOptions->noiseImagePresent = true;
     printf("\tnoise image = %s\n", theOptions->noiseFileName.c_str());
+  }
+  if (opt->getValue("psf") != NULL) {
+    theOptions->psfFileName = opt->getValue("psf");
+    theOptions->psfImagePresent = true;
+    printf("\tPSF image = %s\n", theOptions->psfFileName.c_str());
   }
   if (opt->getValue("mask") != NULL) {
     theOptions->maskFileName = opt->getValue("mask");

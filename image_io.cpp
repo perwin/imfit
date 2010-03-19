@@ -72,14 +72,18 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
   
    /* Open the FITS file: */
   problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
-  if ( problems )
+  if ( problems ) {
+    printf("\n*** ERROR: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
     PrintError(status);
+  }
 
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
 				  &status);
-  if ( problems )
+  if ( problems ) {
+    printf("\n*** ERROR: Problems reading FITS keywords from file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
     PrintError(status);
+  }
   if (verbose)
     printf("ReadImageAsVector: Image keywords: NAXIS1 = %ld, NAXIS2 = %ld\n", naxes[0], naxes[1]);
 
@@ -94,15 +98,19 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
   // Read in the image data
   problems = fits_read_pix(imfile_ptr, TDOUBLE, firstPixel, nPixelsTot, NULL, imageVector,
                             NULL, &status);
-  if ( problems )
+  if ( problems ) {
+    printf("\n*** ERROR: Problems reading pixel data from FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
     PrintError(status);   // Calling PrintError() will exit program...
+  }
 
   if (verbose)
     printf("\nReadImageAsVector: Image read.\n");
 
   problems = fits_close_file(imfile_ptr, &status);
-  if ( problems )
+  if ( problems ) {
+    printf("\n*** ERROR: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
     PrintError(status);
+  }
 
   return imageVector;
 }
@@ -138,12 +146,16 @@ void SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
   /* Write vector of pixel values to the image */
   problems = fits_write_pix(imfile_ptr, TDOUBLE, firstPixel, nPixels, pixelVector,
                             &status);
-  if ( problems )
+  if ( problems ) {
+    printf("\n*** ERROR: Problems writing pixel data to FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
     PrintError(status);
+  }
 
   problems = fits_close_file(imfile_ptr, &status);
-  if ( problems )
+  if ( problems ) {
+    printf("\n*** ERROR: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
     PrintError(status);
+  }
 }
 
 
@@ -156,6 +168,7 @@ static void PrintError( int status )
 
   if ( status ) {
     fits_report_error(stderr, status);
+    printf("\n");
     exit(status);
   }
 }

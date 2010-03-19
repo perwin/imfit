@@ -64,8 +64,10 @@ void Gaussian::Setup( double params[], int offsetIndex, double xc, double yc )
   y0 = yc;
   A = params[0 + offsetIndex ];
   sigma = params[1 + offsetIndex ];
-  printf("func_gaussian: x0 = %g, y0 = %g, A = %g, sigma = %g\n",
-          x0, y0, A, sigma);
+// #ifdef DEBUG
+//   printf("func_gaussian: x0 = %g, y0 = %g, A = %g, sigma = %g\n",
+//           x0, y0, A, sigma);
+// #endif
   
   // pre-compute useful things for this round of invoking the function
   twosigma_squared = 2.0 * sigma*sigma;
