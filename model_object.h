@@ -49,18 +49,25 @@ class ModelObject
     virtual void AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
+    virtual void AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
+                         double *psfPixels);
+
     virtual void ApplyMask( );
     
     void AddParameterLimits( double *paramLimits );
     
+    // may need to be overridden by derived class ModelObject1D
     virtual void CreateModelImage( double params[] );
+    
+    // may need to be overridden by derived class ModelObject1D
+    virtual void ConvolveWithPSF( );
 
     // may need to be overridden by derived class ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
     virtual double ChiSquared( double params[] );
     
-    virtual void GetDescription( );
+    virtual void PrintDescription( );
 
     void PrintImage( double *pixelVector );
 
@@ -91,6 +98,7 @@ class ModelObject
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists;
+    bool  doConvolution;
     int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;
     double  *dataVector;
     double  *weightVector;

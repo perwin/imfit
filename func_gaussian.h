@@ -17,7 +17,7 @@ class Gaussian : public FunctionObject
 {
   public:
     // Constructors:
-    Gaussian( );
+    Gaussian( bool subsampling );
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );

@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
   // "true" = input yVals data are magnitudes, not intensities
   theModel->AddDataVectors(nStoredDataVals, xVals, yVals, true);
   theModel->AddErrorVector1D(nStoredDataVals, yWeights, WEIGHTS_ARE_SIGMAS);
-  theModel->GetDescription();
+  theModel->PrintDescription();
 //  theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
 //                           WEIGHTS_ARE_SIGMAS);
 

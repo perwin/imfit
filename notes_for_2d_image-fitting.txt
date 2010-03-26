@@ -143,7 +143,7 @@ are in the principle-axes-of-the-ellipse coordinate system).
 Sky background: Chien Peng notes (in the readme file accompanying galfit
 2.0) that it's best to keep the sky "component" fixed to the best
 measured value: " as a rule of thumb, always determine the sky value
-inde- pendently and hold it fixed in the fit. Allow the sky parameter to
+independently and hold it fixed in the fit. Allow the sky parameter to
 vary only when desperate."
 	-- So it's plausible to have "sky component" to allow users to work with
 	non-sky-subtracted images, with the proviso that it's best to measure
@@ -151,6 +151,40 @@ vary only when desperate."
 
 
 QUESTIONS AND ISSUES:
+
+	[] Convolution vs non-convolution:
+		-- in principle, some "functions" (components) might not need convolution;
+			-- sky background
+				-- probably makes no difference if we include this; OR we should
+				include it pre-convolution, since that's partly what happens in
+				reality (upper-atmosphere scattered light or glow gets convolved
+				with astronomical source light in lower atmosphere?)
+			
+			-- pure point source
+				-- but this requires that user supply a point source object (or that
+				we allow specification of a PSF function)
+				-- note that GALFIT avoids this by recommending that user specify
+				a very narrow Gaussian as point-source
+			
+		Conclusion (so far): not necessary to work with separate convolved and
+		non-convolved components [but keep this "issue" here in case we think of
+		more possible exceptions]
+
+
+	[] Option to do convolution on subsampled grid around object center?
+		-- e.g., in 10x10 grid around object center, subsample object *and* PSF,
+		do convolution using subsampled image, then resample to input scaling
+		and past into main image.
+		-- does GALFIT do something like this?
+
+
+	[] Create a subclass of FunctionObject which includes pixel-subsampling
+	code for elliptical objects?
+    	-- i.e., the current [26 Mar 2010] code in Sersic::GetValue and Exponential::GetValue
+	    is identical, and would be the same for any other elliptical object
+	    (a generalized-ellipse object would have slightly different code, but all
+	    such objects would presumably share it)
+	    
 
 	[x] How best to combine multiple functions into model object
 	
@@ -237,6 +271,8 @@ OUTLINE OF PROGRAM:
 7. Do fitting
 
 8. Report results of fit
+
+
 
 
 ** PLAN/OUTLINE:

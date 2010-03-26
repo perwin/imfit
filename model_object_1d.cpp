@@ -144,9 +144,9 @@ void ModelObject1d::ComputeDeviates( double yResults[], double params[] )
 }
 
 
-/* ---------------- PUBLIC METHOD: GetDescription ---------------------- */
+/* ---------------- PUBLIC METHOD: PrintDescription -------------------- */
 
-void ModelObject1d::GetDescription( )
+void ModelObject1d::PrintDescription( )
 {
   printf("Model Object(1d): %ld data values\n", nDataVals);
 }

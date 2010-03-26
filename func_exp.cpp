@@ -1,5 +1,5 @@
 /* FILE: func_exp.cpp -------------------------------------------------- */
-/* VERSION 0.3
+/* VERSION 0.4
  *
  *   Function object class for an exponential function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
@@ -18,6 +18,7 @@
  * convert it to radians] relative to +x axis.
  *
  *   MODIFICATION HISTORY:
+ *     [v0.4]  26 Mar 2010: Preliminary support for pixel subsampling.
  *     [v0.3]: 21 Jan 2010: Modified to treat x0,y0 as separate inputs.
  *     [v0.2]: 28 Nov 2009: Updated to new FunctionObject interface.
  *     [v0.1]: 18 Nov 2009: Created (as modification of func_gauss.cpp.
@@ -40,11 +41,12 @@ const int  N_PARAMS = 4;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h"};
 const char FUNCTION_NAME[] = "Exponential function";
 const double  DEG2RAD = 0.017453292519943295;
+const int  SUBSAMPLE_R = 10;
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-Exponential::Exponential( )
+Exponential::Exponential( bool subsampling )
 {
   string  paramName;
   
@@ -56,6 +58,8 @@ Exponential::Exponential( )
     paramName = PARAM_LABELS[i];
     parameterLabels.push_back(paramName);
   }
+  
+  doSubsampling = subsampling;
 }
 
 
@@ -90,19 +94,82 @@ void Exponential::Setup( double params[], int offsetIndex, double xc, double yc 
 }
 
 
+/* ---------------- PRIVATE METHOD: CalculateIntensity ----------------- */
+// This function calculates the intensity for an exponential function at radius r,
+// with the various parameters and derived values (n, b_n, r_e, etc.)
+// pre-calculated by Setup().
+
+double Exponential::CalculateIntensity( double r )
+{
+  return I_0 * exp(-r/h);
+}
+
+
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
 
 double Exponential::GetValue( double x, double y )
 {
   double  x_diff = x - x0;
   double  y_diff = y - y0;
-  double  xp, yp_scaled, r;
+  double  xp, yp_scaled, r, totalIntensity;
+  int  nSubsamples;
   
   // Calculate x,y in component reference frame, and scale y by 1/axis_ratio
   xp = x_diff*cosPA + y_diff*sinPA;
   yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
   r = sqrt(xp*xp + yp_scaled*yp_scaled);
-  return I_0 * exp(-r/h);
+  
+  nSubsamples = CalculateSubsamples(r);
+  if (nSubsamples > 1) {
+    // Do subsampling
+    // start in center of leftmost/bottommost sub-picel
+    double deltaSubpix = 1.0 / nSubsamples;
+    double x_sub_start = x - 0.5 + 0.5*deltaSubpix;
+    double y_sub_start = y - 0.5 + 0.5*deltaSubpix;
+    double theSum = 0.0;
+    for (int ii = 0; ii < nSubsamples; ii++) {
+      double x_ii = x_sub_start + ii*deltaSubpix;
+      for (int jj = 0; jj < nSubsamples; jj++) {
+        double y_ii = y_sub_start + jj*deltaSubpix;
+        x_diff = x_ii - x0;
+        y_diff = y_ii - y0;
+        xp = x_diff*cosPA + y_diff*sinPA;
+        yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
+        r = sqrt(xp*xp + yp_scaled*yp_scaled);
+        theSum += CalculateIntensity(r);
+      }
+    }
+    totalIntensity = theSum / (nSubsamples*nSubsamples);
+  }
+  else
+    totalIntensity = CalculateIntensity(r);
+
+  return totalIntensity;
+}
+
+
+/* ---------------- PROTECTED METHOD: CalculateSubsamples ------------------------- */
+// Function which determines the number of pixel subdivisions for sub-pixel integration,
+// given that the current pixel is a distance of r away from the center of the
+// exponential function.
+// This function returns the number of x and y subdivisions; the total number of subpixels
+// will then be the return value *squared*.
+int Exponential::CalculateSubsamples( double r )
+{
+  int  nSamples = 1;
+  
+  // Chien Peng algorithm for exponential function
+  if ((doSubsampling) && (r < 10.0)) {
+    if ((h <= 1.0) && (r <= 1.0))
+      nSamples = min(100, (int)(2 * SUBSAMPLE_R / h));
+    else {
+      if (r <= 3.0)
+        nSamples = 2 * SUBSAMPLE_R;
+      else
+        nSamples = min(100, (int)(2 * SUBSAMPLE_R / r));
+    }
+  }
+  return nSamples;
 }
 
 

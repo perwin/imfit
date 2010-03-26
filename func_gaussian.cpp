@@ -41,7 +41,7 @@ const char  FUNCTION_NAME[] = "Circular Gaussian function";
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-Gaussian::Gaussian( )
+Gaussian::Gaussian( bool subsampling )
 {
   string  paramName;
   nParams = N_PARAMS;
@@ -53,6 +53,8 @@ Gaussian::Gaussian( )
     paramName = PARAM_LABELS[i];
     parameterLabels.push_back(paramName);
   }
+  
+  doSubsampling = subsampling;
 }
 
 

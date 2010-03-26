@@ -1,4 +1,4 @@
-# simple testing of makeimage
+# *** Simple testing of makeimage
 
 # really small (2x2) image:
 ./makeimage smalltest_config_4.dat -o smalltest_2x2.fits --ncols 2 --nrows 2
@@ -16,7 +16,7 @@
 
 
 
-# simple testing of imfit:
+# *** Simple testing of imfit:
 
 # really small (2x2) image, made with modelimage + expdisk_tiny_testparams.dat:
 #    Input: x0,y0 = 2,2; PA = 90.0, ell = 0.5, I_0 = 100, h = 1.0

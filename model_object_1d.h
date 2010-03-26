@@ -38,7 +38,7 @@ class ModelObject1d : public ModelObject
 
     void ComputeDeviates( double yResults[], double params[] );
 
-    void GetDescription( );
+    void PrintDescription( );
 
 
     // Destructor

@@ -54,6 +54,7 @@ class FunctionObject
   
   protected:  // same as private, except accessible to derived classes
     int  nParams;
+    bool  doSubsampling;
     vector<string>  parameterLabels;
     string  functionName;
   

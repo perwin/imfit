@@ -41,6 +41,7 @@ ModelObject::ModelObject( )
   weightVectorAllocated = false;
   modelImageComputed = false;
   maskExists = false;
+  doConvolution = false;
   nFunctions = 0;
   nFunctionSets = 0;
   nFunctionParams = 0;
@@ -286,6 +287,15 @@ void ModelObject::ApplyMask( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AddPSFVector ------------------------ */
+
+void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
+                         double *psfPixels)
+{
+  doConvolution = true;
+}
+
+
 /* ---------------- PUBLIC METHOD: AddParameterLimits ------------------ */
 
 void ModelObject::AddParameterLimits( double *paramLimits )
@@ -349,7 +359,24 @@ void ModelObject::CreateModelImage( double params[] )
 // #endif
     }
   }
+  
+  
+  // Do PSF convolution, if requested
+  if (doConvolution)
+    ConvolveWithPSF();
+  
   modelImageComputed = true;
+}
+
+
+/* ---------------- PUBLIC METHOD: ConvolveWithPSF --------------------- */
+/* This function handles convolution of a model image (modelVector array)
+ * with the use-supplied PSF.
+ *    CURRENTLY A STUB!
+ */
+void ModelObject::ConvolveWithPSF( )
+{
+  ;
 }
 
 
@@ -405,9 +432,9 @@ double ModelObject::ChiSquared( double params[] )
 }
 
 
-/* ---------------- PUBLIC METHOD: GetDescription ---------------------- */
+/* ---------------- PUBLIC METHOD: PrintDescription ------------------- */
 
-void ModelObject::GetDescription( )
+void ModelObject::PrintDescription( )
 {
   printf("Model Object: %d data values (pixels)\n", nDataVals);
 }

@@ -68,6 +68,7 @@ typedef struct {
   std::string  maskFileName;
   bool  maskImagePresent;
   int  maskFormat;
+  bool  subsamplingFlag;
   std::string  outputModelFileName;
   bool  outputModel;
   bool  useImageHeader;
@@ -273,6 +274,7 @@ int main(int argc, char *argv[])
   options.errorType = WEIGHTS_ARE_SIGMAS;
   options.maskImagePresent = false;
   options.maskFormat = MASK_ZERO_IS_GOOD;
+  options.subsamplingFlag = true;
   options.outputModel = false;
   options.useImageHeader= false;
   options.gain = 1.0;
@@ -380,12 +382,15 @@ int main(int argc, char *argv[])
   }
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
-  
+
+  if (! options.subsamplingFlag)
+    printf("* Pixel subsampling has been turned OFF.\n");
+
 
   /* Create the model object */
   theModel = new ModelObject();
   /* Add functions to the model object */
-  status = AddFunctions(theModel, functionList, functionSetIndices);
+  status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
   if (status < 0) {
   	printf("*** WARNING: Failure in AddFunctions!\n\n");
   	exit(-1);
@@ -406,7 +411,7 @@ int main(int argc, char *argv[])
   
   /* Add image data, errors, and mask to the model object */
   theModel->AddImageDataVector(nPixels_tot, nColumns, nRows, allPixels);
-  theModel->GetDescription();
+  theModel->PrintDescription();
   if (options.printImages)
     theModel->PrintInputImage();
   
@@ -422,6 +427,10 @@ int main(int argc, char *argv[])
     theModel->ApplyMask();
   }
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
+
+  // Add PSF image vector, if present
+  if (options.psfImagePresent)
+    theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
 
 
   // Some trial mpfit experiments:
@@ -509,6 +518,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("     --noise <noisemap.fits>  Noise image");
   opt->addUsage("     --mask <mask.fits>       Mask image");
   opt->addUsage("     --psf <psf.fits>         PSF image");
+  opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
   opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
   opt->addUsage("     --use-headers            Use image header values for gain, readnoise");
   opt->addUsage("     --sky <sky-level>        Original sky background (ADUs)");
@@ -527,6 +537,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setFlag("errors-are-variances");
   opt->setFlag("errors-are-weights");
   opt->setFlag("mask-zero-is-bad");
+  opt->setFlag("nosubsampling");
   opt->setOption("noise");      /* an option (takes an argument), supporting only long form */
   opt->setOption("mask");      /* an option (takes an argument), supporting only long form */
   opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
@@ -555,6 +566,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getFlag("printimage")) {
     theOptions->printImages = true;
+  }
+  if (opt->getFlag("nosubsampling")) {
+    theOptions->subsamplingFlag = false;
   }
   if (opt->getFlag("use-header")) {
     theOptions->useImageHeader = true;

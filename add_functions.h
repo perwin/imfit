@@ -13,7 +13,7 @@ using namespace std;
 
 
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &functionSetIndices );
+                  vector<int> &functionSetIndices, bool subamplingFlag );
 
 
 #endif  // _ADD_FUNCTION_H_

@@ -27,11 +27,16 @@ class Sersic : public FunctionObject
 {
   public:
     // Constructors:
-    Sersic( );
+    Sersic( bool subsampling );
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now
+
+
+  protected:
+    double CalculateIntensity( double r );
+    int  CalculateSubsamples( double r );
 
 
   private:

@@ -6,6 +6,10 @@ NOTES ON DEBUGGING (MAC OS X):
 do this
 $ ulimit -c unlimited
 
+To turn core dumps back off:
+$ ulimit -c 0
+
+
 2. Core dumps do *not* go in the starting directory; instead, they all
 go into /cores, with the PID appended to the name.  To tell which core
 goes with which original process:

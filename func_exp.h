@@ -1,5 +1,5 @@
 /*   Class interface definition for func_exp.cpp
- *   VERSION 0.3
+ *   VERSION 0.4
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the luminosity as a function of radius for an elliptical
@@ -26,11 +26,16 @@ class Exponential : public FunctionObject
 {
   public:
     // Constructors:
-    Exponential( );
+    Exponential( bool subsampling );
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now
+
+
+  protected:
+    double CalculateIntensity( double r );
+    int  CalculateSubsamples( double r );
 
 
   private:

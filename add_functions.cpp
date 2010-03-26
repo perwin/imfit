@@ -19,7 +19,7 @@ using namespace std;
 
 
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &functionSetIndices )
+                  vector<int> &functionSetIndices, bool subamplingFlag )
 {
   int  nFunctions = functionNameList.size();
   string  currentName;
@@ -29,17 +29,17 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
     currentName = functionNameList[i];
     printf("Function: %s\n", currentName.c_str());
     if (currentName == "Exponential") {
-      thisFunctionObj = new Exponential();
+      thisFunctionObj = new Exponential(subamplingFlag);
       theModel->AddFunction(thisFunctionObj);
       continue;
     }
     if (currentName == "Sersic") {
-      thisFunctionObj = new Sersic();
+      thisFunctionObj = new Sersic(subamplingFlag);
       theModel->AddFunction(thisFunctionObj);
       continue;
     }
     if (currentName == "Gaussian") {
-      thisFunctionObj = new Gaussian();
+      thisFunctionObj = new Gaussian(subamplingFlag);
       theModel->AddFunction(thisFunctionObj);
       continue;
     }
