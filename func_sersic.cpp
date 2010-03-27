@@ -97,7 +97,7 @@ void Sersic::Setup( double params[], int offsetIndex, double xc, double yc )
   /* The following approximation for b_n is good for all n > 0.36 */
   bn = 2*n - 0.333333333333333 + 0.009876543209876543/n
        + 0.0018028610621203215/n2 + 0.00011409410586365319/(n2*n)
-       - 0.0018028610621203215e-5/(n2*n2);
+       - 7.1510122958919723e-05/(n2*n2);
   invn = 1.0 / n;
 }
 

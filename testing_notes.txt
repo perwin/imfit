@@ -58,17 +58,17 @@ AIC = 12.082596, BIC = 41.588831
 $ ./imfit testing/ic3478rss_32x32.fits --config=imfit_config_ic3478_32x32.dat --gain=4.725 --readnoise=4.3 --sky=130.1
 
 (the following takes ~ 3s on MacBook Pro 2009)
-$ ./imfit testing/ic3478rss_small.fits --config=imfit_config_ic3478.dat --gain=4.725 --readnoise=4.3 --sky=130.1
+$ ./imfit testing/ic3478rss_small.fits --config=imfit_config_ic3478.dat --gain=4.725 --readnoise=4.3 --sky=130.1 --nosubsampling
 Reduced Chi^2 = 1.168005
-AIC = 73006.120921, BIC = 73069.419582
+AIC = 73006.120922, BIC = 73069.419582
 
-          X0 = 126.860407 +/- 0.011681
-          Y0 = 128.192654 +/- 0.013504
-          PA = 19.515408 +/- 0.240219
+          X0 = 126.860405 +/- 0.011681
+          Y0 = 128.192652 +/- 0.013504
+          PA = 19.515407 +/- 0.240219
          ell = 0.226771 +/- 0.001689
            n = 2.314081 +/- 0.008181
-         I_e = 21.789578 +/- 0.160830
-         r_e = 57.166072 +/- 0.258979
+         I_e = 21.789633 +/- 0.160831
+         r_e = 57.165995 +/- 0.258980
 
 
 #Testing to catch bad-weight-vector generation (due to negative pixels values and
@@ -82,22 +82,37 @@ Exiting ...
 
 
 # Testing with real image, 2 functions
-# Testing imfit on SDSS image of NGC 3073: (takes about 9s on MacBook Pro 2009)
-$ ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0
-Reduced Chi^2 = 1.602120
-AIC = 98871.227761, BIC = 98970.555696
+# Testing imfit on SDSS image of NGC 3073: (takes about 22s on MacBook Pro 2009)
+$ ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --nosubsampling
+Reduced Chi^2 = 1.387224
+AIC = 85612.345726, BIC = 85711.673662
 
-          X0 = 129.606285 +/- 0.004494
-          Y0 = 146.141849 +/- 0.005152
-          PA = 173.462493 +/- 10257363.011855
+          X0 = 129.622168 +/- 0.004804
+          Y0 = 146.152010 +/- 0.004864
+          PA = 112.377538 +/- 0.240573
+         ell = 0.178229 +/- 0.001408
+           n = 1.964242 +/- 0.009489
+         I_e = 209.585745 +/- 2.044273
+         r_e = 14.394535 +/- 0.100719
+          PA = 59.292326 +/- 0.684014
+         ell = 0.162339 +/- 0.003710
+         I_0 = 76.938586 +/- 1.039381
+           h = 45.001772 +/- 0.326984
+
+# Same, with subsampling turned on: (takes about 6s on MacBook Pro 2009)
+Reduced Chi^2 = 1.589260
+AIC = 98077.734591, BIC = 98177.062526
+
+          X0 = 129.663850 +/- 0.004986
+          Y0 = 146.113135 +/- 0.005182
+          PA = 180.000000 +/- 0.000000
          ell = 0.000000 +/- 0.000000
-           n = 1.978473 +/- 0.010367
-         I_e = 205.442964 +/- 2.217007
-         r_e = 13.128373 +/- 0.104367
-          PA = 83.439691 +/- 0.505981
-         ell = 0.190977 +/- 0.003870
-         I_0 = 77.241215 +/- 1.175597
-           h = 45.991557 +/- 0.392651
-
+           n = 2.008758 +/- 0.010411
+         I_e = 201.359204 +/- 2.200926
+         r_e = 13.297131 +/- 0.107078
+          PA = 83.371821 +/- 0.506494
+         ell = 0.193377 +/- 0.003939
+         I_0 = 75.688315 +/- 1.169093
+           h = 46.398183 +/- 0.402259
 
 

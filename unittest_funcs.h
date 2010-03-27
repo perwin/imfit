@@ -24,13 +24,16 @@ using namespace std;
 
 class TestExponential : public CxxTest::TestSuite 
 {
-  FunctionObject  *thisFunc;
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
   
 public:
   void setUp()
   {
     // FUNCTION-SPECIFIC:
-    thisFunc = new Exponential();
+    bool  subsampleFlag = false;
+    thisFunc = new Exponential(subsampleFlag);
+//    subsampleFlag = true;
+//    thisFunc_subsampled = new Exponential(subsampleFlag);
   }
   
   void tearDown()
@@ -73,7 +76,9 @@ public:
     thisFunc->Setup(params, 0, x0, y0);
     
     // FUNCTION-SPECIFIC:
+    // r = 0 value
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 1.0, DELTA );
+    // r = 1 value
     double  rEqualsOneValue = 1.0*exp(-1.0/10.0);
     TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 11.0), rEqualsOneValue, DELTA );
@@ -87,13 +92,16 @@ public:
 
 class TestSersic : public CxxTest::TestSuite 
 {
-  FunctionObject  *thisFunc;
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
   
 public:
   void setUp()
   {
     // FUNCTION-SPECIFIC:
-    thisFunc = new Sersic();
+    bool  subsampleFlag = false;
+    thisFunc = new Sersic(subsampleFlag);
+//    subsampleFlag = true;
+//    thisFunc_subsampled = new Sersic(subsampleFlag);
   }
   
   void tearDown()
@@ -139,6 +147,8 @@ public:
     // FUNCTION-SPECIFIC:
     // r = 0 value
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 39.333062332325284, DELTA );
+    // r = 1 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), 12.315472433581958, DELTA );
     // r = r_e value
     TS_ASSERT_DELTA( thisFunc->GetValue(20.0, 10.0), 1.0, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), 1.0, DELTA );

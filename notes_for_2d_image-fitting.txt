@@ -184,6 +184,9 @@ QUESTIONS AND ISSUES:
 	    is identical, and would be the same for any other elliptical object
 	    (a generalized-ellipse object would have slightly different code, but all
 	    such objects would presumably share it)
+	    -- note that we would need a different function for e.g. edge-on disks
+	    (which are not elliptical, and which include distance from mid-plane as
+	    a subsampling criterion)
 	    
 
 	[x] How best to combine multiple functions into model object
@@ -372,15 +375,32 @@ ModelObject
 	[x] Do further tests with convolving external FITS images
 	[x] Prototype simple program which reads in image & PSF and saves convolution
 	[x] Implement trimming of final output image
+	[] Prototype convolver.cpp module to contain PSF convolution code
 	[] Figure out funny outer-edge issue in convolved image
 
 [] Prototype code for FFT convolution in makeimage
 	[x] Prototype PSF reading in makeimage
 		[x] Code for getting PSF image name (and check for existence)
 		[x] Code to read PSF image into a pixel vector
-	[] Prototype code for PSF storage, shifting as part of ModelObject
+	[] Prototype skeleton/stub-function use of convolver.cpp by ModelObject
+	[] Prototype use of convolver.cpp code for PSF storage, shifting by ModelObject
 	[] Prototype convolution in makeimage
 	[] Prototype incorporating convolution into ModelObject
+
+[] Test possible sub-pixel generation schemes (Python)
+	[x] Write Python code to do sub-pixel sampling
+	[x] Test effects of different subsampling for exponential (vs scale length)
+	[] Test effects of different subsampling for Sersic (vs r_e, for different n)
+	[] Make some notes on plausible subsampling schemes
+
+[] Implement pixel subsampling
+	[x] Implement Chien Peng's Sersic subsampling algorithm in func_sersic.cpp
+	[x] Implement Chien Peng's Sersic subsampling algorithm in func_exp.cpp
+	[] Check func_sersic.cpp subsampling: generate circular Sersic image with
+		center in center of pixel; extract cut through center; compare with
+		Python-generated subsampled 1-D vector (100x100 subsampling for each
+		1-D pixel)
+	[] Implement Chien Peng's Sersic subsampling algorithm in func_gauss.cpp
 
 [] Prototype code for checking inputs:
 	[x] input files should exist
@@ -399,12 +419,6 @@ ModelObject
 	[] Prototype saving information about fit (filename, command-line used, etc.)
 	[] Prototype saving best-fit parameters and functions
 	
-[] Test possible sub-pixel generation schemes (Python)
-	[x] Write Python code to do sub-pixel sampling
-	[] Test effects of different subsampling for exponential (vs scale length)
-	[] Test effects of different subsampling for Sersic (vs r_e, for different n)
-	[] Make some notes on plausible subsampling schemes/
-
 [] Prototype code for getting non-function-related data from config file
 	-- e.g., input image name; noise image name; mask image name gain; sky value; etc.
 
@@ -434,9 +448,18 @@ image
 [] Prototype a generalized-ellipse function object
 
 [] Prototype option to use only a subset of input image
-	[] Prototype command-line subsetting of image
-	[] Prototype config-file subsetting of image
-		-- e.g., image.fits[x1:x2,y1:y2] ??
+	-- Note: we can do this almost automatically with cfitsio!
+	cfitsio allows you to pass a filename of the form "name.fits[x1:x2,y1:y2]"
+	(or even "name.fits[2][x1:x2,*]") and it will automatically read the
+	subfile *and* tweak the header to have correct NAXES and WCS
+		-- potential issue: when we check for existence of image file, we'll
+		need to check for filename.split("[") instead of just filename
+	[] Prototype code to check for image-file existence, chopping off "[...]"
+		if it exists (applies to image, mask, noise, and PSF; also to reference
+		image in makeimage case)
+	[] Test command-line subsetting of image
+	[] Test config-file subsetting of image
+		-- e.g., image.fits[x1:x2,y1:y2]
 
 [] Prototype use of magnitudes
 	-- user specifies a zero point, and (somehow) magnitude parameters are
