@@ -50,7 +50,7 @@ typedef struct {
   int  nColumns;
   int  nRows;
   bool  noConfigFile;
-  std::string  configFile;
+  std::string  configFileName;
   char  modelName[MAXLINE];
   bool  noModel;
   char  paramString[MAXLINE];
@@ -115,7 +115,13 @@ int main(int argc, char *argv[])
 
   ProcessInput(argc, argv, &options);
 
-  status = ReadConfigFile(options.configFile, functionList, parameterList, functionSetIndices);
+  /* Read configuration file */
+  if (! FileExists(options.configFileName.c_str())) {
+    printf("\n*** WARNING: Unable to find configuration file \"%s\"!\n\n", 
+           options.configFileName.c_str());
+    return -1;
+  }
+  status = ReadConfigFile(options.configFileName, functionList, parameterList, functionSetIndices);
   if (status != 0) {
     printf("\n*** WARNING: Failure reading configuration file!\n\n");
     return -1;
@@ -240,6 +246,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("Usage: ");
   opt->addUsage("   makeimage [options] config-file");
   opt->addUsage(" -h  --help                   Prints this help");
+  opt->addUsage("     --list-functions         Prints list of available functions (components)");
   opt->addUsage(" -o  --output <output-image.fits>        name for output image");
   opt->addUsage("     --refimage <reference-image.fits>   reference image (for image size)");
   opt->addUsage("     --psf <psf.fits>         PSF image (for convolution)");
@@ -252,6 +259,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   /* by default all options are checked on the command line and from option/resource file */
   opt->setFlag("help", 'h');
+  opt->setFlag("list-functions");
   opt->setFlag("printimage");
   opt->setFlag("nosubsampling");
   opt->setOption("output", 'o');      /* an option (takes an argument) */
@@ -266,16 +274,23 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   /* Process the results: actual arguments, if any: */
   if (opt->getArgc() > 0) {
-    theOptions->configFile = opt->getArgv(0);
+    theOptions->configFileName = opt->getArgv(0);
     theOptions->noConfigFile = false;
   }
 
   /* Process the results: options */
+  // First two are options which print useful info and then exit the program
   if ( opt->getFlag("help") || opt->getFlag('h') || (! opt->hasOptions()) ) {
     opt->printUsage();
     delete opt;
     exit(1);
   }
+  if (opt->getFlag("list-functions")) {
+    PrintAvailableFunctions();
+    delete opt;
+    exit(1);
+  }
+
   if (opt->getFlag("printimage")) {
     theOptions->printImages = true;
   }

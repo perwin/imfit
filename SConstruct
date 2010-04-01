@@ -78,7 +78,7 @@ c_sources = [name + ".c" for name in c_objs]
 # C++ code
 # ModelObject and various FunctionObject classes:
 modelobject_obj_string = """model_object function_object func_gaussian func_exp
-		func_sersic"""
+		func_sersic func_flat-exp func_broken-exp"""
 modelobject_objs = modelobject_obj_string.split()
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 

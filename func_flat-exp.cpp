@@ -1,8 +1,12 @@
-/* FILE: func_sersic.cpp ----------------------------------------------- */
-/* VERSION 0.3
+/* FILE: func_flat-exp.cpp --------------------------------------------- */
+/* VERSION 0.2
  *
- *   Function object class for a Sersic function, with constant
+ *   Function object class for an "flat/exponential" function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
+ * The profile is an exponential for r > r_break, and constant intensity at
+ * smaller radii.  This is a simplification of my broken-exponential function,
+ * with the inner exponential slope set to infinity (to give a perfectly flat
+ * inner profile).
  *   
  *   BASIC IDEA:
  *      Setup() is called as the first part of invoking the function;
@@ -18,10 +22,9 @@
  * convert it to radians] relative to +x axis.
  *
  *   MODIFICATION HISTORY:
- *     [v0.4]  20--26 Mar 2010: Preliminary support for pixel subsampling.
- *     [v0.3]: 21 Jan 2010: Modified to treat x0,y0 as separate inputs.
- *     [v0.2]: 28 Nov 2009: Updated to new FunctionObject interface.
- *     [v0.1]: 19 Nov 2009: Created (as modification of func_exp.cpp.
+ *     [v0.2]  31 Mar 2010: Tweaked to be an h1=infinity simplification of
+ * the broken-exponential function, including variable smoothness of break.
+ *     [v0.1]  30 Mar 2010: Created as modification of func_exp.cpp.
  */
 
 
@@ -30,24 +33,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
-#include <algorithm>
 
-#include "func_sersic.h"
+#include "func_flat-exp.h"
 
 using namespace std;
 
 
 /* ---------------- Definitions ---------------------------------------- */
-const int  N_PARAMS = 5;
-const char  PARAM_LABELS[][20] = {"PA", "ell", "n", "I_e", "r_e"};
-const char  FUNCTION_NAME[] = "Sersic function";
+const int  N_PARAMS = 6;
+const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h", "r_break", "alpha"};
+const char FUNCTION_NAME[] = "FlatExponential function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-Sersic::Sersic( bool subsampling )
+FlatExponential::FlatExponential( bool subsampling )
 {
   string  paramName;
   
@@ -66,63 +68,54 @@ Sersic::Sersic( bool subsampling )
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
-void Sersic::Setup( double params[], int offsetIndex, double xc, double yc )
+void FlatExponential::Setup( double params[], int offsetIndex, double xc, double yc )
 {
-//   x0 = params[0 + offsetIndex];
-//   y0 = params[1 + offsetIndex];
-//   PA = params[2 + offsetIndex];
-//   ell = params[3 + offsetIndex];
-//   n = params[4 + offsetIndex ];
-//   I_e = params[5 + offsetIndex ];
-//   r_e = params[6 + offsetIndex ];
   x0 = xc;
   y0 = yc;
   PA = params[0 + offsetIndex];
   ell = params[1 + offsetIndex];
-  n = params[2 + offsetIndex ];
-  I_e = params[3 + offsetIndex ];
-  r_e = params[4 + offsetIndex ];
-// #ifdef DEBUG
-//   printf("func_sersic: x0 = %g, y0 = %g, PA = %g, ell = %g, n = %g, r_e = %g, I_e = %g\n",
-//           x0, y0, PA, ell, n, r_e, I_e);
-// #endif
+  I_0 = params[2 + offsetIndex ];
+  h = params[3 + offsetIndex ];
+  r_b = params[4 + offsetIndex ];
+  alpha = params[5 + offsetIndex ];
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
-  // convert PA to +x-axis reference and then to radians
+  // convert PA to +x-axis reference
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
-  n2 = n*n;
-  /* The following approximation for b_n is good for all n > 0.36 */
-  bn = 2*n - 0.333333333333333 + 0.009876543209876543/n
-       + 0.0018028610621203215/n2 + 0.00011409410586365319/(n2*n)
-       - 7.1510122958919723e-05/(n2*n2);
-  invn = 1.0 / n;
+
+  exponent = (1.0 / (alpha*h));
+  double  S = pow( (1.0 + exp(-alpha*r_b)), exponent );
+  I_0_times_S = I_0 * S;
 }
 
 
 /* ---------------- PRIVATE METHOD: CalculateIntensity ----------------- */
-// This function calculates the intensity for a Sersic function at radius r,
+// This function calculates the intensity for an exponential function at radius r,
 // with the various parameters and derived values (n, b_n, r_e, etc.)
 // pre-calculated by Setup().
 
-double Sersic::CalculateIntensity( double r )
+double FlatExponential::CalculateIntensity( double r )
 {
-  double  intensity;
+  double  I;
   
-  intensity = I_e * exp( -bn * (pow((r/r_e), invn) - 1.0));
-  return intensity;
+  // check for possible overflow in exponentiation if r >> r_b, and re-route around it:
+  if ( alpha*(r - r_b) > 100.0 ) {
+    // Outer-exponential approximation:
+    I = I_0_times_S * exp(-r/h);
+  } else {
+    // no danger of overflow in exponentiation, so use fully correct calculation:
+    I = I_0_times_S * pow( 1.0 + exp(alpha*(r - r_b)), -exponent );
+  }
+  return I;
 }
 
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
-// This function calculates and returns the intensity value for a pixel with
-// coordinates (x,y), including pixel subsampling if necessary (and if subsampling
-// is turned on). The CalculateIntensity() function is called for the actual
-// intensity calculation.
 
-double Sersic::GetValue( double x, double y )
+double FlatExponential::GetValue( double x, double y )
 {
   double  x_diff = x - x0;
   double  y_diff = y - y0;
@@ -166,19 +159,20 @@ double Sersic::GetValue( double x, double y )
 /* ---------------- PROTECTED METHOD: CalculateSubsamples ------------------------- */
 // Function which determines the number of pixel subdivisions for sub-pixel integration,
 // given that the current pixel is a distance of r away from the center of the
-// Sersic function.
+// exponential function.
 // This function returns the number of x and y subdivisions; the total number of subpixels
 // will then be the return value *squared*.
-int Sersic::CalculateSubsamples( double r )
+int FlatExponential::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   
-  // Chien Peng algorithm for Sersic function
-  if ((doSubsampling) && (r < 10.0)) {
-    if ((r_e <= 1.0) && (r <= 1.0))
-      nSamples = min(100, (int)(2 * SUBSAMPLE_R / r_e));
+  // Chien Peng algorithm for exponential function, modified so that we
+  // don't do subsampling if we're at r < r_break/2
+  if ((doSubsampling) && (r > 0.5*r_b) && (r < 10.0)) {
+    if ((h <= 1.0) && (r <= 1.0))
+      nSamples = min(100, (int)(2 * SUBSAMPLE_R / h));
     else {
-      if (r <= 4.0)
+      if (r <= 3.0)
         nSamples = 2 * SUBSAMPLE_R;
       else
         nSamples = min(100, (int)(2 * SUBSAMPLE_R / r));
@@ -189,4 +183,4 @@ int Sersic::CalculateSubsamples( double r )
 
 
 
-/* END OF FILE: func_sersic.cpp ---------------------------------------- */
+/* END OF FILE: func_flat-exp.cpp -------------------------------------- */

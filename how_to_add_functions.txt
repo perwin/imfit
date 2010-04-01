@@ -1,0 +1,12 @@
+NOTES ON HOW TO ADD NEW FUNCTIONS TO IMFIT/MAKEIMAGE:
+
+1. Generate new func_<name>.h and func_<name>.cpp files
+   -- e.g., copy and modify an existing pair (func_sersic.h, func_sersic.cpp)
+
+2. Modify add_functions.cpp:
+	a. Include new header file
+	b. Add function name to FUNCTION_NAMES array and increment N_FUNCTIONS
+	c. Add corresponding if {} block to AddFunctions()
+
+3. Add func_<name> to modelobject_obj_string definition in SConstruct file
+

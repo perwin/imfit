@@ -16,6 +16,14 @@
 
 
 
+# *** Testing functions
+# Result is a 1-D image (100 x 1 pixels); we asume that config_functest_XXX.dat
+# is derived from config_functest_template.dat (so that function center is at
+# x=50, y=1).
+./makeimage config_functest_XXX.dat -o functest_1d_XXX.fits --ncols 100 --nrows 1
+
+
+
 # *** Simple testing of imfit:
 
 # really small (2x2) image, made with modelimage + expdisk_tiny_testparams.dat:
@@ -39,8 +47,8 @@ AIC = 8.039254, BIC = 27.725887
          I_0 = 100.000001 +/- 0.151606
            h = 20.000000 +/- 0.071919
 
-# And with current (Feb 2010) code:
-$ ./imfit --config imfit_trial_config32_new.dat --noise uniform_image32.fits testimage_expdisk32.fits 
+# And with current (Mar 2010) code:
+$ ./imfit --config imfit_trial_config32_new.dat --noise uniform_image32.fits testimage_expdisk32.fits --nosubsampling
 Reduced Chi^2 = 0.000000
 Recalculated = 0.000000
 AIC = 12.082596, BIC = 41.588831

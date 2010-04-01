@@ -176,6 +176,10 @@ QUESTIONS AND ISSUES:
 		do convolution using subsampled image, then resample to input scaling
 		and past into main image.
 		-- does GALFIT do something like this?
+		
+		[] Test spline-subsampling of PSF by comparing result of subsampling
+		TinyTim standard-sampled PSF to TinyTim-generated subampled PSF
+
 
 
 	[] Create a subclass of FunctionObject which includes pixel-subsampling
@@ -188,6 +192,15 @@ QUESTIONS AND ISSUES:
 	    (which are not elliptical, and which include distance from mid-plane as
 	    a subsampling criterion)
 	    
+	    
+	    
+	[] Possible option for 1-D fitting: use 2d function objects, with: x and x0
+	specified so that x - x0 = r; y = y0 = 0.0; q = 1.0, PA = 0
+		-- advantage is that we don't need to write separate function-object
+		modules for 1-d case
+		-- disadvantages: how to handle subsampling?
+				a little bit slower than a dedicated 1-d module
+	
 
 	[x] How best to combine multiple functions into model object
 	

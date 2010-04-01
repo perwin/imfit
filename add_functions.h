@@ -15,5 +15,8 @@ using namespace std;
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
                   vector<int> &functionSetIndices, bool subamplingFlag );
 
+// Use the following to print out names of available functions/components
+void PrintAvailableFunctions( );
+
 
 #endif  // _ADD_FUNCTION_H_

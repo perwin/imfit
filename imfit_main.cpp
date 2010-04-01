@@ -513,6 +513,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("Usage: ");
   opt->addUsage("   imfit [options] imagefile.fits");
   opt->addUsage(" -h  --help                   Prints this help");
+  opt->addUsage("     --list-functions         Prints list of available functions (components)");
   opt->addUsage("     --printimage             Print out images (for debugging)");
   opt->addUsage(" -c  --config <config-file>   configuration file");
   opt->addUsage("     --noise <noisemap.fits>  Noise image");
@@ -532,6 +533,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   /* by default all options are checked on the command line and from option/resource file */
   opt->setFlag("help", 'h');
+  opt->setFlag("list-functions");
   opt->setFlag("printimage");
   opt->setFlag("use-headers");
   opt->setFlag("errors-are-variances");
@@ -559,11 +561,18 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
 
   /* Process the results: options */
+  // First two are options which print useful info and then exit the program
   if ( opt->getFlag("help") || opt->getFlag('h') || (! opt->hasOptions()) ) {
     opt->printUsage();
     delete opt;
     exit(1);
   }
+  if (opt->getFlag("list-functions")) {
+    PrintAvailableFunctions();
+    delete opt;
+    exit(1);
+  }
+
   if (opt->getFlag("printimage")) {
     theOptions->printImages = true;
   }
