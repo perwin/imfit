@@ -115,7 +115,14 @@ void AddFunctionName( string& currentLine, vector<string>& functionList ) {
 
 /* ---------------- FUNCTION: ReadConfigFile --------------------------- */
 // Limited version, for use by e.g. makeimage -- ignores parameter limits!
-int ReadConfigFile( string& configFileName, vector<string>& functionList,
+//    configFileName = C++ string with name of configuration file
+//    mode2D = true for 2D functions (imfit, makeimage), false for 1D (imfit1d)
+//    functionList = output, will contain vector of C++ strings containing functions
+//                   names from config file
+//    parameterList = output, will contain vector of parameter values
+//    setStartFunctionNumber = output, will contain vector of integers specifying
+//                   which functions mark start of new function set
+int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionList,
                      vector<double>& parameterList, vector<int>& setStartFunctionNumber )
 {
   ifstream  inputFileStream;
@@ -146,11 +153,16 @@ int ReadConfigFile( string& configFileName, vector<string>& functionList,
     if (inputLines[i].find("X0", 0) != string::npos) {
       setStartFunctionNumber.push_back(functionNumber);
       AddParameter(inputLines[i], parameterList);
-      // X0 line should always be followed by Y0 line
       i++;
-      // xxx INSERT TEST FOR WHETHER LINE STARTS WITH "Y0" xxx
-      AddParameter(inputLines[i], parameterList);
-      i++;
+      if (mode2D) {
+        // X0 line should always be followed by Y0 line in 2D mode
+        if (inputLines[i].find("Y0", 0) == string::npos) {
+          printf("*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
+          return -1;
+        }
+        AddParameter(inputLines[i], parameterList);
+        i++;
+      }
       continue;
     }
     if (inputLines[i].find("FUNCTION", 0) != string::npos) {
@@ -171,7 +183,16 @@ int ReadConfigFile( string& configFileName, vector<string>& functionList,
 
 /* ---------------- FUNCTION: ReadConfigFile --------------------------- */
 // Full version, for use by e.g. imfit -- reads parameter limits as well
-int ReadConfigFile( string& configFileName, vector<string>& functionList,
+//    configFileName = C++ string with name of configuration file
+//    mode2D = true for 2D functions (imfit, makeimage), false for 1D (imfit1d)
+//    functionList = output, will contain vector of C++ strings containing functions
+//                   names from config file
+//    parameterList = output, will contain vector of parameter values
+//    parameterLimits = output, will contain vector of mp_par structures (specifying
+//                   possible limits on parameter values)
+//    setStartFunctionNumber = output, will contain vector of integers specifying
+//                   which functions mark start of new function set
+int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
                     vector<int>& setStartFunctionNumber, bool& parameterLimitsFound )
 {
@@ -209,16 +230,17 @@ int ReadConfigFile( string& configFileName, vector<string>& functionList,
       paramNumber++;
       if (pLimitFound)
         parameterLimitsFound = true;
-      // X0 line should always be followed by Y0 line
       i++;
-      // xxx INSERT TEST FOR WHETHER LINE STARTS WITH "Y0" xxx
-      if (inputLines[i].find("Y0", 0) == string::npos) {
-        printf("*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
-        return -1;
+      if (mode2D) {
+        // X0 line should always be followed by Y0 line in 2D mode
+        if (inputLines[i].find("Y0", 0) == string::npos) {
+          printf("*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
+          return -1;
+        }
+        AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
+        paramNumber++;
+        i++;
       }
-      AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
-      paramNumber++;
-      i++;
       continue;
     }
     if (inputLines[i].find("FUNCTION", 0) != string::npos) {

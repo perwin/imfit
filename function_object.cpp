@@ -46,7 +46,7 @@ FunctionObject::FunctionObject( )
 
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
-
+// Base method for 2D functions
 void FunctionObject::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   // This method is for passing the current parameters into the function
@@ -59,8 +59,22 @@ void FunctionObject::Setup( double params[], int offsetIndex, double xc, double 
 }
 
 
-/* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
+/* ---------------- PUBLIC METHOD: Setup ------------------------------- */
+// Base method for 1D functions
+void FunctionObject::Setup( double params[], int offsetIndex, double xc )
+{
+  // This method is for passing the current parameters into the function
+  // object, storing them for when GetValue() is called, and for pre-computing
+  // various useful quantities.
+  // The parameter array params contains *all* parameters for *all* components
+  // in the overall model; offsetIndex is used to select the correct starting point
+  // for *this* component's parameters.
+  ;
+}
 
+
+/* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
+// Base method for 2D functions
 double FunctionObject::GetValue( double x, double y )
 {
   // This method is for computing the actual function value at the 
@@ -71,7 +85,7 @@ double FunctionObject::GetValue( double x, double y )
 
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
-
+// Base method for 1D functions
 double FunctionObject::GetValue( double x )
 {
   // This method is for computing the actual function value at for the

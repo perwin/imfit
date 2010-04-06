@@ -8,6 +8,10 @@
 
 #include <string>
 #include <vector>
+
+#include "mpfit_cpp.h"
+#include "model_object.h"
+
 using namespace std;
 
 /* constants for use parameter "restriction" when calling NotANumber(): */
@@ -36,6 +40,7 @@ void CommandLineError( char errorString[] );
 
 
 bool NotANumber( char theString[], int index, int restriction );
+
 
 
 #endif /* _UTILITIES_PUB_H_ */

@@ -12,6 +12,7 @@
  */
 
 /* Minor modifications by Peter Erwin:
+ *     5 Apr 2010: Added InterpretMpfitResult() function.
  *     5 Dec 2009: Added #ifndef wrapper
  *    14 Nov 2009: changed "private" to "privateData" ("private" is C++ keyword,
  * making it difficult to use this with a C++ program); included model_object.h
@@ -26,6 +27,7 @@
 #ifndef _MPFIT_H_
 #define _MPFIT_H_
 
+#include <string>
 #include "model_object.h"
 
 
@@ -171,6 +173,9 @@ extern int mpfit(mp_func funct, int m, int npar,
 		 double *xall, mp_par *pars, mp_config *config, ModelObject *privateData, 
 		 mp_result *result);
 
+
+// Added by PE
+void InterpretMpfitResult( int mpfitResult, std::string& interpretationString );
 
 #endif /* _MPFIT_H_ */
 

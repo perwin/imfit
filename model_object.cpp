@@ -42,6 +42,7 @@ ModelObject::ModelObject( )
   modelImageComputed = false;
   maskExists = false;
   doConvolution = false;
+  doChisquared = false;
   nFunctions = 0;
   nFunctionSets = 0;
   nFunctionParams = 0;
@@ -288,7 +289,7 @@ void ModelObject::ApplyMask( )
 
 
 /* ---------------- PUBLIC METHOD: AddPSFVector ------------------------ */
-
+// Still mostly a stub function at this point!
 void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels)
 {
@@ -408,27 +409,38 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 }
 
 
+/* ---------------- PUBLIC METHOD: SetupChisquaredCalcs ---------------- */
+/* Function which tells object to prepare for making chi-square calculations
+ * (i.e., allocate memory for self-stored deviates vector).
+ */
+void ModelObject::SetupChisquaredCalcs( )
+{
+  deviatesVector = (double *) malloc(nDataVals * sizeof(double));
+  doChisquared = true;
+}
+
+
+
 /* ---------------- PUBLIC METHOD: ChiSquared -------------------------- */
 /* Function for calculating chi^2 value for a model.  Current version is meant
  * to be used once (e.g., after fitting is done); for general, repetitive use
  * (e.g., with Diff'l Evoln.), we should allocate deviates[] separately, rather
  * than allocating and then freeing it as part of this function.
+ *
+ * IMPORTANT: SetupChisquaredCalcs() should be called (once) prior to any calls
+ * to this function!
  */
 double ModelObject::ChiSquared( double params[] )
 {
-  double  *deviates;
   double  chi;
   
   CreateModelImage(params);
   
-  deviates = (double *) malloc(nDataVals * sizeof(double));
-
   for (int z = 0; z < nDataVals; z++)
-    deviates[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
-  chi = mp_enorm(nDataVals, deviates);
-  free(deviates);
+    deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+  chi = mp_enorm(nDataVals, deviatesVector);
   
-  return chi*chi;
+  return (chi*chi);
 }
 
 
@@ -611,6 +623,8 @@ ModelObject::~ModelObject()
     free(modelVector);
   if (weightVectorAllocated)
     free(weightVector);
+  if (doChisquared)
+    free(deviatesVector);
   
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)

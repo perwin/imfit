@@ -198,8 +198,21 @@ QUESTIONS AND ISSUES:
 	specified so that x - x0 = r; y = y0 = 0.0; q = 1.0, PA = 0
 		-- advantage is that we don't need to write separate function-object
 		modules for 1-d case
-		-- disadvantages: how to handle subsampling?
-				a little bit slower than a dedicated 1-d module
+		-- subsampling:
+			-- use as in 2D case if profile is equivalent to, e.g., 1-pixel-wide
+			cut or something similar
+			-- turn subsampling off if fitting something that isn't equivalent
+			to a 1-pixel-wide cut
+		-- We will still need a separate ModelObject class, to handle things
+		like separate x-coordinate and y-value vectors, possible missing data;
+		convolution (e.g., we need to handle special cases like excluded data,
+		data profile that starts at r=0, etc.)
+	
+	
+	
+	[] How to handle convolution when object/component center is close to edge
+	of image? (ideally, we would need to make the model image larger, do
+	convolution, then crop back to data-image size)
 	
 
 	[x] How best to combine multiple functions into model object
@@ -257,6 +270,20 @@ QUESTIONS AND ISSUES:
 			Y-COORD   yyy.y   y1,y2 [or "fixed"]
 			(followed by 1+ FUNCTION <funcname> "declarations" + associated parameters)
 
+
+	[] Possible complication/expansion to X0/Y0 function groups: can we create an
+	interface and internal mechanisms to handle "shared" parameters
+		-- function group is then defined as a set of functions *and* the shared
+		parameters (X0, Y0, plus ...?)
+		-- e.g., we might want to specify that all components in a group share the
+		same PA as well as X0 and Y0
+		-- note that, e.g., shared PA would reduce nFreeParams (this is correct & desired)
+	
+	
+	[] Separate, small program which just generates appropriate template parameter
+	lists for each (or all) function?  E.g., use can call it, then copy & paste the
+	output into a config file.  Should accept as input the name of a function, or
+	the generic "all" (or maybe "all" is default mode?).
 		
 	[] TO TEST: Does fixing nominally free parameters slow things down compared
 	to doing a fit with the parameters excluded?
@@ -379,7 +406,41 @@ ModelObject
 
 [x] Prototype checking & reporting of mpfit error codes
 
+[x] Prototype function-testing code and files
+	[x] Prototype command-line template for 1-D image
+	[x] Prototype config-file template
+	[x] Prototype Python code: read in image via pyfits; plot vs actual function
+	[x] Write short text file summarizing testing
 
+[x] Prototype chisquare() member function for ModelObject()
+	-- i.e., something for diff'l evoln. to call; computes non-overflowing sum
+	of squares of individual deviances
+	[x] Prototype basic chisquare function
+	[x] Prototype internal allocation & de-allocation of deviances vector and
+	simpler chisquare function
+
+
+
+[.] Prototype use of differential evolution
+	[x] Prototype bare-bones DE solver
+	[x] Prototype use of DE by imfit1d
+	[x] Prototype use of DE by imfit
+	[x] Investigate use of parameter bounds internally
+		-- check to see how code in ~/coding/imfit/de_storn/de4_0_orig.cpp can or should
+		be applied to DESolver.cpp
+	[] Prototype user selection of DE parameters (F, CR, strategy, Npop multiplier)
+		-- command-line switch? text-file?
+	[] Investigate possible convergence/stop criteria for DE
+		[] modify DE code to print out chi^2 to higher precision and/or delta-chi^2
+		-- e.g., if best chi^2 value does not change by more than epsilon and/or
+		after N generations, then declare a halt...
+	[] Investigate possible ignoring of fixed parameters in DE
+		-- i.e., restrict DE's population & mutation/crossovers to just the free
+		parameters, re-inserting the fixed parameters only when calling the chi-square
+		function
+
+[] Investigate fine-tuning of differential evolution
+	-- e.g., "meta-optimization" using SwarmOps?
 
 [.] Prototype "psfconvolve" program
 	[x] Prototype ShiftAndPadPSF() function: takes PSF image & push into corner
@@ -425,6 +486,8 @@ ModelObject
 [] Prototype code for saving final residual image?
 	-- should be deviates vector in ModelObject
 
+[] Prototype code for outputting best-fit model profile in imfit1d?
+
 [] Prototype code for saving best-fit parameter file
 	-- suitable as intput to makeimage, or as starting point for new fitting attempt
 	-- should also have timestamp, name of file fitted, command-line invocation,
@@ -451,13 +514,6 @@ image
 	[] prototype code to read header values from an image
 	[] implement reading of header values from input image
 
-[] Prototype chisquare() member function for ModelObject()
-	-- i.e., something for diff'l evoln. to call; computes non-overflowing sum
-	of squares of individual deviances
-	[x] Prototype basic chisquare function
-	[] Prototype internal allocation & de-allocation of deviances vector and
-	simpler chisquare function
-
 [] Prototype a generalized-ellipse function object
 
 [] Prototype option to use only a subset of input image
@@ -473,6 +529,12 @@ image
 	[] Test command-line subsetting of image
 	[] Test config-file subsetting of image
 		-- e.g., image.fits[x1:x2,y1:y2]
+	[] Investigate how to retain offset information and apply it to output params
+		-- i.e., figure out coordinates of LL subset corner, then add appropriate
+		offsets to output fitted parameters (all X0,Y0 pairs) so that results make
+		sense on context of original image *and* are appropriate for an output
+		config file (e.g. for makeimage use).
+	[] Prototype code for identifying and applying pixel offsets to output X0,Y0
 
 [] Prototype use of magnitudes
 	-- user specifies a zero point, and (somehow) magnitude parameters are

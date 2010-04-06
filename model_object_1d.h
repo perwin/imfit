@@ -29,17 +29,23 @@ class ModelObject1d : public ModelObject
     ModelObject1d( );
     
    // redefined method/member functions:
+    void DefineFunctionSets( vector<int>& functionStartIndices );
+    
     void AddDataVectors( int nDataValues, double *xValVector, double *yValVector,
     											bool magnitudeData );
 
     void AddErrorVector1D( int nDataValues, double *inputVector, int inputType );
 
+    // new method:
+    void AddPSFVector1d(int nPixels_psf, double *psfPixels);
+    
     void CreateModelImage( double params[] );
 
     void ComputeDeviates( double yResults[], double params[] );
 
     void PrintDescription( );
 
+    void PopulateParameterNames( );
 
     // Destructor
     ~ModelObject1d();

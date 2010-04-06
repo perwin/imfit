@@ -7,6 +7,7 @@ echo
 echo "Generating and compiling unit tests for utilities..."
 cxxtestgen.py --error-printer -o test_runner_utilities.cpp unittest_utilities.h 
 g++ -o test_runner_utilities test_runner_utilities.cpp utilities.cpp -I/usr/local/include
+echo
 echo "Running unit tests for utilities:"
 ./test_runner_utilities
 
@@ -16,6 +17,7 @@ echo "Generating and compiling unit tests for function objects..."
 cxxtestgen.py --error-printer -o test_runner_funcs.cpp unittest_funcs.h 
 g++ -o test_runner_funcs test_runner.cpp function_object.cpp func_exp.cpp \
        func_sersic.cpp -I/usr/local/include
+echo
 echo "Running unit tests for function objects:"
 ./test_runner_funcs
 

@@ -84,19 +84,19 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
 # ModelObject1d and various 1D FunctionObject classes:
 modelobject1d_obj_string = """model_object model_object_1d function_object
-		func1d_exp func1d_sersic func1d_broken-exp"""
+		func1d_exp func1d_sersic"""
 modelobject1d_objs = modelobject1d_obj_string.split()
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
 # Base files for imfit:
-imfit_base_obj_string = """utilities anyoption image_io mpfit 
-		config_file_parser add_functions imfit_main"""
+imfit_base_obj_string = """utilities anyoption image_io mpfit diff_evoln_fit DESolver
+		config_file_parser add_functions print_results imfit_main"""
 imfit_base_objs = imfit_base_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
 # Base files for imfit1d:
-imfit1d_base_obj_string = """utilities anyoption mpfit read_profile
-		config_file_parser add_functions_1d imfit1d_main"""
+imfit1d_base_obj_string = """utilities anyoption mpfit diff_evoln_fit DESolver
+		read_profile config_file_parser add_functions_1d print_results imfit1d_main"""
 imfit1d_base_objs = imfit1d_base_obj_string.split()
 imfit1d_base_sources = [name + ".cpp" for name in imfit1d_base_objs]
 

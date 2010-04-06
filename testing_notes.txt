@@ -108,6 +108,7 @@ AIC = 85612.345726, BIC = 85711.673662
            h = 45.001772 +/- 0.326984
 
 # Same, with subsampling turned on: (takes about 6s on MacBook Pro 2009)
+$ ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0
 Reduced Chi^2 = 1.589260
 AIC = 98077.734591, BIC = 98177.062526
 
@@ -122,5 +123,84 @@ AIC = 98077.734591, BIC = 98177.062526
          ell = 0.193377 +/- 0.003939
          I_0 = 75.688315 +/- 1.169093
            h = 46.398183 +/- 0.402259
+
+# Same, but with subsampling on *and* using DE (converges after about 400 generations; 
+# takes ~ an hour) -- in this case, the bulge & disk seemed to have swapped places!
+# This is an interesting case of a nominally better fit (lower chi^2) that is not
+# preferable [note that I_0 has become pegged].
+./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --de
+Reduced Chi^2 = 1.421590
+AIC = 87732.698237, BIC = 87832.026172
+
+          X0 = 129.637771
+          Y0 = 146.109837
+          PA = 88.252371
+         ell = 0.108625
+           n = 3.407397
+         I_e = 33.390459
+         r_e = 48.671623
+          PA = 125.490702
+         ell = 0.585166
+         I_0 = 500.000000
+           h = 6.200479
+
+# Same as previous, but with limits on I_0 reset to 0,150 instead of 0,500 
+# [imfit_config_n3073_v2.dat]. DE converged after about 400 generations.
+./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073_v2.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --de
+Reduced Chi^2 = 1.370615
+AIC = 84587.563230, BIC = 84686.891165
+
+          X0 = 129.665623
+          Y0 = 146.098974
+          PA = 111.957921
+         ell = 0.179379
+           n = 2.007119
+         I_e = 203.179765
+         r_e = 14.703579
+          PA = 58.361212
+         ell = 0.164939
+         I_0 = 74.390935
+           h = 45.611168
+
+
+
+
+
+*** Simple testing of imfit1d:
+
+./imfit1d profile_data/n5831_total.dat config_imfit1d_sersic.dat
+
+*** mpfit status = 1
+  CHI-SQUARE = 0.160083    (43 DOF)
+  INITIAL CHI^2 = 12.569518
+        NPAR = 4
+       NFREE = 3
+     NPEGGED = 0
+     NITER = 6
+      NFEV = 22
+
+          X0 = 0.000000 +/- 0.000000
+           n = 4.714218 +/- 1.175446
+        mu_e = 21.071312 +/- 1.147649
+         r_e = 25.377895 +/- 14.458686
+
+# Same, with DE
+./imfit1d profile_data/n5831_total.dat config_imfit1d_sersic.dat --de
+
+Reduced Chi^2 = 0.003723
+AIC = 6.731512, BIC = 11.646007
+
+          X0 = 0.000000
+           n = 4.714218
+        mu_e = 21.071312
+         r_e = 25.377896
+
+# Check that in DE mode, we exit with error when config file doesn't have limits
+# for all parameters:
+./imfit1d profile_data/n5831_total.dat config_imfit1d_sersic_nolims.dat --de
+
+*** Parameter limits must be supplied for all parameters when using DE!
+Exiting...
+
 
 

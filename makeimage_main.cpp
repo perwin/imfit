@@ -74,8 +74,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
 
 /* ------------------------ Module Variables --------------------------- */
 
-static char  programName[MAX_FILENAME_LENGTH];
-static char  errorString[MAXLINE];
 
 
 
@@ -121,7 +119,8 @@ int main(int argc, char *argv[])
            options.configFileName.c_str());
     return -1;
   }
-  status = ReadConfigFile(options.configFileName, functionList, parameterList, functionSetIndices);
+  status = ReadConfigFile(options.configFileName, true, functionList, parameterList,
+  							functionSetIndices);
   if (status != 0) {
     printf("\n*** WARNING: Failure reading configuration file!\n\n");
     return -1;

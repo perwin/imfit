@@ -1,8 +1,8 @@
 /*   Class interface definition for func_sersic.cpp
- *   VERSION 0.2
+ *   VERSION 0.3
  *
  *   A class derived from FunctionObject (function_object.h),
- * which produces the luminosity as a function of radius for an elliptical
+ * which produces the luminosity as a function of radius for a 1-D
  * Sersic.
  *
  * PARAMETERS:
@@ -25,12 +25,12 @@ class Sersic1D : public FunctionObject
     // Constructors:
     Sersic1D( );
     // redefined method/member function:
-    void  Setup( double params[], int offsetIndex );
+    void  Setup( double params[], int offsetIndex, double xc );
     double  GetValue( double x );
     // No destructor for now
 
 
   private:
-    double  n, mu_e, r_e;   // parameters
+    double  x0, n, mu_e, r_e;   // parameters
     double  I_e, n2, bn, invn;
 };

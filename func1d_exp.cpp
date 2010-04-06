@@ -52,8 +52,9 @@ Exponential1D::Exponential1D( )
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
-void Exponential1D::Setup( double params[], int offsetIndex )
+void Exponential1D::Setup( double params[], int offsetIndex, double xc )
 {
+  x0 = xc;
   mu_0 = params[0 + offsetIndex ];
   h = params[1 + offsetIndex ];
 //  printf("func_exp: x0 = %g, y0 = %g, PA = %g, ell = %g, I_0 = %g, h = %g\n",
@@ -72,7 +73,8 @@ double Exponential1D::GetValue( double x )
 {
 //  printf("In GetValue: x = %g, I_0 = %g, h = %g\n", x, I_0, h);
 //  double  mu = -2.5 * log10(I);
-  return (I_0 * exp(-x/h));
+  double  r = fabs(x - x0);
+  return (I_0 * exp(-r/h));
 }
 
 

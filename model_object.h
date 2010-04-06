@@ -28,7 +28,8 @@ class ModelObject
     
     void AddFunction( FunctionObject *newFunctionObj_ptr );
     
-    void DefineFunctionSets( vector<int>& functionStartIndices );
+    // may need to be overridden by derived class ModelObject1D
+    virtual void DefineFunctionSets( vector<int>& functionStartIndices );
     
     // to be overridden by derived class ModelObject1D
     virtual void AddDataVectors( int nDataValues, double *xValVector, 
@@ -49,7 +50,7 @@ class ModelObject
     virtual void AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
-    virtual void AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
+    void AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels);
 
     virtual void ApplyMask( );
@@ -65,6 +66,8 @@ class ModelObject
     // may need to be overridden by derived class ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
+    virtual void SetupChisquaredCalcs( );
+    
     virtual double ChiSquared( double params[] );
     
     virtual void PrintDescription( );
@@ -77,7 +80,8 @@ class ModelObject
 
     void PrintWeights( );
 
-    void PopulateParameterNames( );
+    // may need to be overridden by derived class ModelObject1D
+    virtual void PopulateParameterNames( );
 
     string& GetParameterName( int i );
 
@@ -99,11 +103,13 @@ class ModelObject
     bool  modelImageComputed;
     bool  weightValsSet, maskExists;
     bool  doConvolution;
+    bool  doChisquared;   // ModelObject will be asked to do chi-squared calculations
     int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;
     double  *dataVector;
     double  *weightVector;
     double  *maskVector;
     double  *modelVector;
+    double  *deviatesVector;
     double  *parameterBounds;
     int  *functionSetStarts;
     bool  *setStartFlag;

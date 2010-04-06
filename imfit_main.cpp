@@ -27,14 +27,18 @@
 #include "function_object.h"
 #include "add_functions.h"
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
+#include "diff_evoln_fit.h"
 #include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
 #include "config_file_parser.h"
-#include "statistics.h"
+//#include "statistics.h"
+#include "print_results.h"
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
 #define MPFIT_SOLVER        1
 #define DIFF_EVOLN_SOLVER   2
+
+#define MAX_DE_GENERATIONS	600
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
 #define MONTE_CARLO_ITER   100
@@ -52,7 +56,7 @@
 #define FITS_ERROR_FILENAME   "tiny_uniform_image_0.1.fits"
 #define DEFAULT_CONFIG_FILE   "imfit_config.dat"
 
-#define VERSION_STRING      " v0.2"
+#define VERSION_STRING      " v0.5"
 
 
 
@@ -87,8 +91,8 @@ typedef struct {
   double  magZeroPoint;
   char  paramLimitsFileName[MAX_FILENAME_LENGTH];
   bool  noParamLimits;
-//  double  penaltyFunctionAmp;
   bool  printImages;
+  int  solver;
 } commandOptions;
 
 
@@ -98,9 +102,6 @@ typedef struct {
 
 /* Local Functions: */
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
-void PrintParam( string& paramName, double paramValue, double paramErr );
-void PrintResult( double *x, double *xact, mp_result *result,
-					ModelObject *model, int nFreeParameters );
 int myfunc( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *aModel );
 
@@ -110,114 +111,6 @@ int myfunc( int nDataVals, int nParams, double *params, double *deviates,
 /* ------------------------ Module Variables --------------------------- */
 
 
-
-
-void PrintParam( string& paramName, double paramValue, double paramErr )
-{
-  printf("  %10s = %f +/- %f\n", paramName.c_str(), paramValue, paramErr);
-}
-
-
-
-/* Function which prints interpretation of mpfit return values */
-void InterpretMpfitResult( int mpfitResult, std::string& interpretationString )
-{
-
-  if (mpfitResult <= 0) {
-    // negative value = Failure of some kind
-    interpretationString = "ERROR: ";
-    // first option is not apparently used by mpfit...
-    if (mpfitResult == MP_ERR_INPUT)
-      interpretationString += "General input parameter error!";
-    if (mpfitResult == MP_ERR_NAN)
-      interpretationString += "User function produced non-finite values!";
-    if (mpfitResult == MP_ERR_FUNC)
-      interpretationString += "No user function was supplied!";
-    if (mpfitResult == MP_ERR_NPOINTS)
-      interpretationString += "No user data points were supplied!";
-    if (mpfitResult == MP_ERR_NFREE)
-      interpretationString += "No free parameters!";
-    if (mpfitResult == MP_ERR_MEMORY)
-      interpretationString += "Memory allocation error!";
-    if (mpfitResult == MP_ERR_INITBOUNDS)
-      interpretationString += "Initial values inconsistent w constraints!";
-    if (mpfitResult == MP_ERR_BOUNDS)
-      interpretationString += "Initial constraints inconsistent!";
-    if (mpfitResult == MP_ERR_PARAM)
-      interpretationString += "General input parameter error.";
-    if (mpfitResult == MP_ERR_DOF)
-      interpretationString += "Not enough degrees of freedom!";
-  } else {
-    // positive values
-    if (mpfitResult < 5) {
-      // Success (probably)
-      interpretationString = "SUCCESS: ";
-      if (mpfitResult == MP_OK_CHI)
-        interpretationString += "Convergence in chi-square value.";
-      if (mpfitResult == MP_OK_PAR)
-        interpretationString += "Convergence in parameter value.";
-      if (mpfitResult == MP_OK_BOTH)
-        interpretationString += "Convergence in chi-square and parameter value.";
-      if (mpfitResult == MP_OK_DIR)
-        interpretationString += "Convergence in orthogonality.";
-    } else {
-      interpretationString = "Terminated: ";
-      if (mpfitResult == MP_MAXITER)
-        interpretationString += "Maximum number of iterations reached";
-      if (mpfitResult == MP_FTOL)
-        interpretationString += "ftol too small; no further improvement";
-      if (mpfitResult == MP_XTOL)
-        interpretationString += "xtol too small; no further improvement";
-      if (mpfitResult == MP_GTOL)
-        interpretationString += "gtol too small; no further improvement";
-    }
-  }
-}
-
-
-/* Simple routine to print the fit results [taken & modified from Craig Markwardt's
-   testmpfit.c] 
-*/
-void PrintResult( double *x, double *xact, mp_result *result, ModelObject *model,
-									int nFreeParameters, int mpStatus )
-{
-  int  i;
-  int  nValidPixels = model->GetNValidPixels();
-  int  nDegreesFreedom = nValidPixels - nFreeParameters;
-  std::string  mpfitMessage;
-  double  aic, bic;
-  
-  InterpretMpfitResult(mpStatus, mpfitMessage);
-  printf("*** mpfit status = %d -- %s\n", mpStatus, mpfitMessage.c_str());
-
-  if ((x == 0) || (result == 0)) return;
-  printf("  CHI-SQUARE = %f    (%d DOF)\n", 
-	 result->bestnorm, result->nfunc-result->nfree);
-  printf("  INITIAL CHI^2 = %f\n", result->orignorm);
-  printf("        NPAR = %d\n", result->npar);
-  printf("       NFREE = %d\n", result->nfree);
-  printf("     NPEGGED = %d\n", result->npegged);
-  printf("     NITER = %d\n", result->niter);
-  printf("      NFEV = %d\n", result->nfev);
-  printf("\n");
-  aic = AIC_corrected(result->bestnorm, nFreeParameters, nValidPixels, 1);
-  bic = BIC(result->bestnorm, nFreeParameters, nValidPixels, 1);
-  printf("Reduced Chi^2 = %f\n", result->bestnorm / nDegreesFreedom);
-  printf("AIC = %f, BIC = %f\n\n", aic, bic);
-  
-  if (xact) {
-    for (i=0; i < result->npar; i++) {
-      printf("  P[%d] = %f +/- %f     (ACTUAL %f)\n", 
-	     i, x[i], result->xerror[i], xact[i]);
-    }
-  } else {
-    for (i = 0; i < result->npar; i++) {
-      PrintParam(model->GetParameterName(i), x[i], result->xerror[i]);
-//      printf("  P[%d] = %f +/- %f\n", 
-//	     i, x[i], result->xerror[i]);
-    }
-  }    
-}
 
 
 /* This is the function used by mpfit() to compute the vector of deviates.
@@ -284,7 +177,6 @@ int main(int argc, char *argv[])
   options.noParamLimits = true;
   options.paramLimitsFileName[0] = '-';
   options.newParameters = false;
-//  options.penaltyFunctionAmp = -1;
 //  options.doBootstrap = false;
 //  options.bootstrapIterations = BOOTSTRAP_ITER;
 //  options.doMonteCarlo = false;
@@ -292,6 +184,7 @@ int main(int argc, char *argv[])
 //  options.mcIterations = 0;
   options.magZeroPoint = NO_MAGNITUDES;
   options.printImages = false;
+  options.solver = MPFIT_SOLVER;
 
   ProcessInput(argc, argv, &options);
 
@@ -302,7 +195,7 @@ int main(int argc, char *argv[])
            options.configFileName.c_str());
     return -1;
   }
-  status = ReadConfigFile(options.configFileName, functionList, parameterList, 
+  status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
   								paramLimits, functionSetIndices, paramLimitsExist);
   if (status != 0) {
     printf("\n*** WARNING: Failure reading configuration file!\n\n");
@@ -433,11 +326,6 @@ int main(int argc, char *argv[])
     theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
 
 
-  // Some trial mpfit experiments:
-  bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
-  mpfitResult.xerror = paramErrs;
-  bzero(&mpConfig, sizeof(mpConfig));
-  mpConfig.maxiter = 1000;
   
   // Parameter limits:
   if (paramLimitsExist) {
@@ -462,12 +350,26 @@ int main(int argc, char *argv[])
     paramsVect[i] = parameterList[i];
   
   /* DO THE FIT! */
-  printf("\nStarting mpfit ...\n");
-  status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpParamLimits, &mpConfig, 
+  if (options.solver == MPFIT_SOLVER) {
+    // Some trial mpfit experiments:
+    bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
+    mpfitResult.xerror = paramErrs;
+    bzero(&mpConfig, sizeof(mpConfig));
+    mpConfig.maxiter = 1000;
+    printf("Calling mpfit ...\n");
+    status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpParamLimits, &mpConfig, 
   								theModel, &mpfitResult);
-  PrintResult(paramsVect, 0, &mpfitResult, theModel, nFreeParams, status);
-  
-  printf("\nTrue degrees of freedom = %d\n", nDegFreedom);
+    PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, status);
+    printf("\n");
+  }
+  else {
+    printf("Calling DiffEvolnFit ..\n");
+    status = DiffEvolnFit(nParamsTot, paramsVect, mpParamLimits, theModel, MAX_DE_GENERATIONS);
+    printf("\n");
+    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, status);
+    printf("\n");
+  }
+
 
   // TESTING (remove later)
   if (options.printImages)
@@ -516,12 +418,13 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("     --list-functions         Prints list of available functions (components)");
   opt->addUsage("     --printimage             Print out images (for debugging)");
   opt->addUsage(" -c  --config <config-file>   configuration file");
+  opt->addUsage("     --de                     Use differential evolution solver (instead of L-M) [NOT IMPLEMENTED YET]");
   opt->addUsage("     --noise <noisemap.fits>  Noise image");
   opt->addUsage("     --mask <mask.fits>       Mask image");
   opt->addUsage("     --psf <psf.fits>         PSF image");
   opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
   opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
-  opt->addUsage("     --use-headers            Use image header values for gain, readnoise");
+  opt->addUsage("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
   opt->addUsage("     --sky <sky-level>        Original sky background (ADUs)");
   opt->addUsage("     --gain <value>           Image gain (e-/ADU)");
   opt->addUsage("     --readnoise <value>      Image read noise (e-)");
@@ -535,6 +438,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setFlag("help", 'h');
   opt->setFlag("list-functions");
   opt->setFlag("printimage");
+  opt->setFlag("de");
   opt->setFlag("use-headers");
   opt->setFlag("errors-are-variances");
   opt->setFlag("errors-are-weights");
@@ -575,6 +479,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   if (opt->getFlag("printimage")) {
     theOptions->printImages = true;
+  }
+  if (opt->getFlag("de")) {
+  	printf("\t Differential Evolution selected!\n");
+  	theOptions->solver = DIFF_EVOLN_SOLVER;
   }
   if (opt->getFlag("nosubsampling")) {
     theOptions->subsamplingFlag = false;

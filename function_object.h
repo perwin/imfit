@@ -31,6 +31,9 @@ class FunctionObject
     // is used for pre-calculations and convolutions, if any:
     virtual void  Setup( double params[], int offsetIndex, double xc, double yc );
 
+    // all derived classes working with 1D data must override this:
+    virtual void  Setup( double params[], int offsetIndex, double xc );
+
     // all derived classes working with 2D images must override this:
     virtual double GetValue( double x, double y );
 

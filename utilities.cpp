@@ -1,5 +1,5 @@
 /* FILE: utilities.cpp --------------------------------------------- */
-/*   Several utility routines used by imfit
+/*   Several utility routines used by imfit, makeimage, etc.
  */
 
 #include <ctype.h>   /* for isdigit() */
@@ -12,8 +12,14 @@
 
 //#include "messages_and_defs.h"
 #include "utilities_pub.h"
+#include "mpfit_cpp.h"
+#include "statistics.h"
 
 using namespace std;
+
+
+/* ------------------- Function Prototypes ----------------------------- */
+/* Local Functions: */
 
 
 
@@ -141,6 +147,7 @@ bool NotANumber( char theString[], int index, int restriction )
       return true;
   }  /* end switch (restriction) */
 }
+
 
 
 

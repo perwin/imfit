@@ -1,5 +1,5 @@
 /* FILE: func1d_sersic.cpp --------------------------------------------- */
-/* VERSION 0.2
+/* VERSION 0.3
  *
  *   Function object class for a 1-D Sersic function.
  *   
@@ -10,6 +10,7 @@
  *      of x, and returns the result.
  *
  *   MODIFICATION HISTORY:
+ *     [v0.3]:  2 Apr 2010: Updated.
  *     [v0.2]: 28 Nov 2009: Updated to new FunctionObject interface.
  *     [v0.1]: 27 Nov 2009: Created (as modification of func_sersic.cpp.
  */
@@ -50,8 +51,9 @@ Sersic1D::Sersic1D( )
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
-void Sersic1D::Setup( double params[], int offsetIndex )
+void Sersic1D::Setup( double params[], int offsetIndex, double xc )
 {
+  x0 = xc;
   n = params[0 + offsetIndex ];
   mu_e = params[1 + offsetIndex ];
   r_e = params[2 + offsetIndex ];
@@ -65,7 +67,7 @@ void Sersic1D::Setup( double params[], int offsetIndex )
    * n > 0.36 */
   bn = 2*n - 0.333333333333333 + 0.009876543209876543/n
        + 0.0018028610621203215/n2 + 0.00011409410586365319/(n2*n)
-       - 0.0018028610621203215e-5/(n2*n2);
+       - 7.1510122958919723e-05/(n2*n2);
   invn = 1.0 / n;
 }
 
@@ -74,7 +76,8 @@ void Sersic1D::Setup( double params[], int offsetIndex )
 
 double Sersic1D::GetValue( double x )
 {
-  double  I = I_e * exp( -bn * (pow((x/r_e), 1.0/n) - 1.0) );
+  double  r = fabs(x - x0);
+  double  I = I_e * exp( -bn * (pow((r/r_e), 1.0/n) - 1.0) );
 //  double  mu = -2.5 * log10(I);
   // printf("\tI_e = %g, n2 = %g, bn = %g, I = %g, mu = %g\n", I_e, n2, bn, I, mu);
   return (I);

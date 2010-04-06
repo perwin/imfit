@@ -1,10 +1,10 @@
 /* FILE: imfit1d_main.cpp  ----------------------------------------------- */
 /*
- * *** TRAIL VERSION INCORPORATING FUNCTION OBJECTS!!! ***
- * 
- * The proper translations are:
- * NAXIS1 = naxes[0] = nColumns = sizeX;
- * NAXIS2 = naxes[1] = nRows = sizeY.
+ * This is a modified version of imfit_main.cpp, which does fitting of 1-D
+ * profiles, where the profile is stored in a text file with two or three
+ * columns of numbers (first column = radius or x value; second column = 
+ * intensity, magnitudes per square arcsec, or some other y value; third
+ * column = optional errors on y values).
 */
 
 
@@ -22,19 +22,24 @@
 #include "read_profile_pub.h"
 #include "model_object.h"
 #include "model_object_1d.h"
-#include "add_functions.h"
+#include "add_functions_1d.h"
 #include "function_object.h"
 #include "func1d_exp.h"
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
+#include "diff_evoln_fit.h"
 #include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
 #include "config_file_parser.h"
+//#include "statistics.h"
+#include "print_results.h"
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
 #define MAX_N_DATA_VALS   1000000   /* max # data values we'll handle (1.0e6) */
 
-#define LMDIF_SOLVER        1
+#define MPFIT_SOLVER        1
 #define DIFF_EVOLN_SOLVER   2
+
+#define MAX_DE_GENERATIONS	800
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
 #define MONTE_CARLO_ITER   100
@@ -48,11 +53,9 @@
 #define CMDLINE_ERROR6 "Usage: --mciter must be followed by a positive integer"
 #define CMDLINE_ERROR7 "Usage: --pf must be followed by a positive real number"
 
-#define FITS_FILENAME   "testimage_expdisk_tiny.fits"
-#define FITS_ERROR_FILENAME   "tiny_uniform_image_0.1.fits"
 #define DEFAULT_CONFIG_FILE   "sample_imfit1d_config.dat"
 
-#define VERSION_STRING      " v0.05"
+#define VERSION_STRING      " v0.5"
 
 
 
@@ -64,6 +67,8 @@ typedef struct {
   int  startDataRow;
   int  endDataRow;
   bool  noErrors;
+  bool  subsamplingFlag;
+  int  solver;
 } commandOptions;
 
 
@@ -73,9 +78,6 @@ typedef struct {
 
 /* Local Functions: */
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
-void PrintParam( string& paramName, double paramValue, double paramErr );
-void PrintResult( double *x, double *xact, mp_result *result,
-					ModelObject *model );
 int myfunc( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *aModel );
 
@@ -84,47 +86,7 @@ int myfunc( int nDataVals, int nParams, double *params, double *deviates,
 
 /* ------------------------ Module Variables --------------------------- */
 
-static char  programName[MAX_FILENAME_LENGTH];
-static char  errorString[MAXLINE];
 
-
-
-void PrintParam( string& paramName, double paramValue, double paramErr )
-{
-  printf("  %10s = %f +/- %f\n", paramName.c_str(), paramValue, paramErr);
-}
-
-
-/* Simple routine to print the fit results [taken & modified from Craig Markwardt's
-   testmpfit.c] 
-*/
-void PrintResult( double *x, double *xact, mp_result *result, ModelObject *model )
-{
-  int i;
-
-  if ((x == 0) || (result == 0)) return;
-  printf("  CHI-SQUARE = %f    (%d DOF)\n", 
-	 result->bestnorm, result->nfunc-result->nfree);
-  printf("  INITIAL CHI^2 = %f\n", result->orignorm);
-  printf("        NPAR = %d\n", result->npar);
-  printf("       NFREE = %d\n", result->nfree);
-  printf("     NPEGGED = %d\n", result->npegged);
-  printf("     NITER = %d\n", result->niter);
-  printf("      NFEV = %d\n", result->nfev);
-  printf("\n");
-  if (xact) {
-    for (i=0; i<result->npar; i++) {
-      printf("  P[%d] = %f +/- %f     (ACTUAL %f)\n", 
-	     i, x[i], result->xerror[i], xact[i]);
-    }
-  } else {
-    for (i = 0; i < result->npar; i++) {
-      PrintParam(model->GetParameterName(i), x[i], result->xerror[i]);
-//      printf("  P[%d] = %f +/- %f\n", 
-//	     i, x[i], result->xerror[i]);
-    }
-  }    
-}
 
 
 int myfunc( int nDataVals, int nParams, double *params, double *deviates,
@@ -143,7 +105,6 @@ int main(int argc, char *argv[])
   int  nDataVals, nStoredDataVals, nSavedRows;
   int  startDataRow, endDataRow;
   int  nParamsTot, nFreeParams;
-  int  nDegFreedom;
   double  *xVals, *yVals, *yWeights;
   int  weightMode;
   ModelObject  *theModel;
@@ -151,9 +112,9 @@ int main(int argc, char *argv[])
   double  *paramsVect;
   double  *paramErrs;
   vector<mp_par>  paramLimits;
+  vector<int>  functionSetIndices;
   bool  paramLimitsExist = false;
   mp_result  mpfitResult;
-//  mp_par  mpParameterBounds[10];
   int  status;
   vector<string>  functionList;
   vector<double>  parameterList;
@@ -162,6 +123,7 @@ int main(int argc, char *argv[])
   
   
   /* PROCESS COMMAND-LINE: */
+  /* First, set up the options structure: */
   options.configFileName = DEFAULT_CONFIG_FILE;
   options.dataFileName = "";
   options.noDataFile = true;
@@ -169,6 +131,8 @@ int main(int argc, char *argv[])
   options.startDataRow = 0;
   options.endDataRow = -1;   // default value indicating "last row in data file"
   options.noErrors = true;
+  options.solver = MPFIT_SOLVER;
+  options.subsamplingFlag = false;
 
   ProcessInput(argc, argv, &options);
 
@@ -183,9 +147,8 @@ int main(int argc, char *argv[])
            options.configFileName.c_str());
     return -1;
   }
-  // [] READ IN CONFIGURATION FILE ...
-  ReadConfigFile(options.configFileName, functionList, parameterList, paramLimits, 
-  								paramLimitsExist);
+  ReadConfigFile(options.configFileName, false, functionList, parameterList, paramLimits, 
+  								functionSetIndices, paramLimitsExist);
   for (int k = 0; k < parameterList.size(); k++)
   	cout << parameterList[k] << "  ";
   cout << endl;
@@ -263,7 +226,7 @@ int main(int argc, char *argv[])
   theModel = new ModelObject1d();
   
   /* Add functions to the model object */
-  status = AddFunctions(theModel, functionList);
+  status = AddFunctions1d(theModel, functionList, functionSetIndices);
   if (status < 0) {
   	printf("*** WARNING: Failure in AddFunctions!\n\n");
   	exit(-1);
@@ -273,7 +236,6 @@ int main(int argc, char *argv[])
   // there will be
   nParamsTot = nFreeParams = theModel->GetNParams();
   printf("%d total parameters\n", nParamsTot);
-  // [] create & add to parameter vector here?
   paramsVect = (double *) malloc(nParamsTot * sizeof(double));
   for (int i = 0; i < nParamsTot; i++)
     paramsVect[i] = parameterList[i];
@@ -284,23 +246,8 @@ int main(int argc, char *argv[])
   theModel->AddDataVectors(nStoredDataVals, xVals, yVals, true);
   theModel->AddErrorVector1D(nStoredDataVals, yWeights, WEIGHTS_ARE_SIGMAS);
   theModel->PrintDescription();
-//  theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
-//                           WEIGHTS_ARE_SIGMAS);
-
-  // TESTING (remove later)
-  // Create a vector to hold deviates, then ask the model object to
-  // compute the deviates, given a trial set of parameters
-  //diffVector = (double *) malloc(nPixels_tot * sizeof(double));
-  //theModel->ComputeDeviates(diffVector, paramsVect);
-  // Ask the model object to print out the model image it just computed
-  //if (options.printImages)
-  //  theModel->PrintModelImage();
 
 
-  // Some trial mpfit experiments:
-  bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
-  mpfitResult.xerror = paramErrs;
-  
   // Parameter limits:
   if (paramLimitsExist) {
     printf("Setting up parameter limits ...\n");
@@ -322,16 +269,29 @@ int main(int argc, char *argv[])
   for (int k = 0; k < nParamsTot; k++)
   	cout << paramsVect[k] << "  ";
   cout << endl;
-  printf("\nStarting mpfit w/ nStoredDataVals = %d, nParamsTot = %d ...\n",
+  printf("\nStarting the fit w/ nStoredDataVals = %d, nParamsTot = %d ...\n",
   				nStoredDataVals, nParamsTot);
-  status = mpfit(myfunc, nStoredDataVals, nParamsTot, paramsVect, mpParamLimits, 0, 
-  								theModel, &mpfitResult);
   
-  printf("*** mpfit status = %d\n", status);
-  PrintResult(paramsVect, 0, &mpfitResult, theModel);
+  
+  if (options.solver == MPFIT_SOLVER) {
+    bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero the results structure */
+    mpfitResult.xerror = paramErrs;
+    printf("Calling mpfit ...\n");
+    status = mpfit(myfunc, nStoredDataVals, nParamsTot, paramsVect, mpParamLimits, 0, 
+  									theModel, &mpfitResult);
+  
+    printf("*** mpfit status = %d\n", status);
+    PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, status);
+    printf("\n");
+  }
+  else {
+    printf("Calling DiffEvolnFit ..\n");
+    status = DiffEvolnFit(nParamsTot, paramsVect, mpParamLimits, theModel, MAX_DE_GENERATIONS);
+    printf("\n");
+    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, status);
+    printf("\n");
+  }
 
-  nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
-  printf("\nTrue degrees of freedom = %d\n", nDegFreedom);
 
   // Free up memory
   free(xVals);
@@ -339,7 +299,6 @@ int main(int argc, char *argv[])
   free(yWeights);
   free(paramsVect);
   free(paramErrs);
-  //free(mpParameterBounds);
   free(theModel);
   
   return 0;
@@ -358,7 +317,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("Usage: ");
   opt->addUsage("   imfit1d [options] datafile configfile");
   opt->addUsage(" -h  --help                   Prints this help");
-  opt->addUsage(" -c  --useerrors              Use errors from data file");
+  opt->addUsage(" --useerrors                  Use errors from data file");
+  opt->addUsage(" --de                         Solve using differential evolution");
   opt->addUsage("     --x1 <int>               start data value");
   opt->addUsage("     --x2 <int>               end data value");
   opt->addUsage("");
@@ -367,6 +327,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   /* by default all options are checked on the command line and from option/resource file */
   opt->setFlag("help", 'h');
   opt->setFlag("useerrors");
+  opt->setFlag("de");
   opt->setOption("x1");      /* an option (takes an argument), supporting only long form */
   opt->setOption("x2");        /* an option (takes an argument), supporting only long form */
 
@@ -394,6 +355,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getFlag("useerrors")) {
   	printf("\t USEERRORS SELECTED!\n");
+  	theOptions->noErrors = false;
+  }
+  if (opt->getFlag("de")) {
+  	printf("\t Differential Evolution selected!\n");
+  	theOptions->solver = DIFF_EVOLN_SOLVER;
   }
   if (opt->getValue("x1") != NULL) {
     if (NotANumber(opt->getValue("x1"), 0, kPosInt)) {
