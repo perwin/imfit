@@ -12,6 +12,7 @@
  */
 
 /* Minor modifications by Peter Erwin:
+ *     7 Apr 2010: Moved mp_par_struct definition to param_struct.h
  *     5 Apr 2010: Added InterpretMpfitResult() function.
  *     5 Dec 2009: Added #ifndef wrapper
  *    14 Nov 2009: changed "private" to "privateData" ("private" is C++ keyword,
@@ -28,44 +29,13 @@
 #define _MPFIT_H_
 
 #include <string>
+#include "param_struct.h"
 #include "model_object.h"
 
 
 /* MPFIT version string */
 #define MPFIT_VERSION "1.1"
 
-/* Definition of a parameter constraint structure */
-struct mp_par_struct {
-  int fixed;        /* 1 = fixed; 0 = free */
-  int limited[2];   /* 1 = low/upper limit; 0 = no limit */
-  double limits[2]; /* lower/upper limit boundary value */
-
-  char *parname;    /* Name of parameter, or 0 for none */
-  double step;      /* Step size for finite difference */
-  double relstep;   /* Relative step size for finite difference */
-  int side;         /* Sidedness of finite difference derivative 
-		        0 - one-sided derivative computed automatically
-		        1 - one-sided derivative (f(x+h) - f(x)  )/h
-		       -1 - one-sided derivative (f(x)   - f(x-h))/h
-		        2 - two-sided derivative (f(x+h) - f(x-h))/(2*h) 
-			3 - user-computed analytical derivatives
-		    */
-  int deriv_debug;  /* Derivative debug mode: 1 = Yes; 0 = No;
-
-                       If yes, compute both analytical and numerical
-                       derivatives and print them to the console for
-                       comparison.
-
-		       NOTE: when debugging, do *not* set side = 3,
-		       but rather to the kind of numerical derivative
-		       you want to compare the user-analytical one to
-		       (0, 1, -1, or 2).
-		    */
-  double deriv_reltol; /* Relative tolerance for derivative debug
-			  printout */
-  double deriv_abstol; /* Absolute tolerance for derivative debug
-			  printout */
-};
 
 /* Just a placeholder - do not use!! */
 typedef void (*mp_iterproc)(void);
@@ -118,7 +88,6 @@ struct mp_result_struct {
 };  
 
 /* Convenience typedefs */  
-typedef struct mp_par_struct mp_par;
 typedef struct mp_config_struct mp_config;
 typedef struct mp_result_struct mp_result;
 

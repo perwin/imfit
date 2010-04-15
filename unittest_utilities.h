@@ -109,7 +109,106 @@ public:
   {
     TS_ASSERT( FileExists("/Users/erwin/coding/testing/nobody-nohow.dat") == false);
   }
-  
+
+
+  // Tests for StripBrackets()
+  void testStripBrackets_NormalFiles( void )
+  {
+    string  s1_out, s2_out;
+    string  s1 = "image.fits";
+    string  correctResult1 = "image.fits";
+    string  s2 = "image.fit";
+    string  correctResult2 = "image.fit";
+    StripBrackets(s1, s1_out);
+    TS_ASSERT( s1_out == correctResult1 );
+    StripBrackets(s2, s2_out);
+    TS_ASSERT( s2_out == correctResult2 );
+  }
+
+  void testStripBrackets_WithBrackets( void )
+  {
+    string  s1_out, s2_out;
+    string  s1 = "image.fits[100:200,300:400]";
+    string  correctResult1 = "image.fits";
+    string  s2 = "image.fit[100:200,300:400]";
+    string  correctResult2 = "image.fit";
+    StripBrackets(s1, s1_out);
+    TS_ASSERT( s1_out == correctResult1 );
+    StripBrackets(s2, s2_out);
+    TS_ASSERT( s2_out == correctResult2 );
+  }
+
+
+
+  // Tests for GetPixelStartCoords()
+  void testGetPixelStartCoords_NoSection( void )
+  {
+    string  s1("image.fits");
+    string  s2("complicated_name_image.fit");
+    int  x1, y1, x2, y2;
+    int  correct_xoff = 1;
+    int  correct_yoff = 1;
+    GetPixelStartCoords(s1, &x1, &y1);
+    TS_ASSERT( x1 == correct_xoff );
+    TS_ASSERT( y1 == correct_yoff );
+    GetPixelStartCoords(s2, &x2, &y2);
+    TS_ASSERT( x2 == correct_xoff );
+    TS_ASSERT( y2 == correct_yoff );
+  }
+
+  void testGetPixelStartCoords_BadSections( void )
+  {
+    string  s1("image.fits[100:200,200:400");
+    string  s2("complicated_name_image.fit[100:200,200:400[");
+    string  s3("image.fits[100:200]");
+    int  x1, y1, x2, y2, x3, y3;
+    int  correct_xoff = 0;
+    int  correct_yoff = 0;
+    GetPixelStartCoords(s1, &x1, &y1);
+    TS_ASSERT( x1 == correct_xoff );
+    TS_ASSERT( y1 == correct_yoff );
+    GetPixelStartCoords(s2, &x2, &y2);
+    TS_ASSERT( x2 == correct_xoff );
+    TS_ASSERT( y2 == correct_yoff );
+    GetPixelStartCoords(s3, &x3, &y3);
+    TS_ASSERT( x3 == correct_xoff );
+    TS_ASSERT( y3 == correct_yoff );
+  }
+
+  void testGetPixelStartCoords_BasicSections( void )
+  {
+    string  s1("image.fits[100:200,200:400]");
+    string  s2("complicated_name_image.fit[100:200,200:400]");
+    int  x1, y1, x2, y2;
+    int  correct_xoff = 100;
+    int  correct_yoff = 200;
+    GetPixelStartCoords(s1, &x1, &y1);
+    TS_ASSERT( x1 == correct_xoff );
+    TS_ASSERT( y1 == correct_yoff );
+    GetPixelStartCoords(s2, &x2, &y2);
+    TS_ASSERT( x2 == correct_xoff );
+    TS_ASSERT( y2 == correct_yoff );
+  }
+
+  void testGetPixelStartCoords_StarredSections( void )
+  {
+    string  s1("image.fits[*,200:400]");
+    string  s2("image.fits[100:200,*]");
+    int  x1, y1, x2, y2;
+    int  correct_xoff1 = 1;
+    int  correct_yoff1 = 200;
+    int  correct_xoff2 = 100;
+    int  correct_yoff2 = 1;
+    GetPixelStartCoords(s1, &x1, &y1);
+    TS_ASSERT( x1 == correct_xoff1 );
+    TS_ASSERT( y1 == correct_yoff1 );
+    GetPixelStartCoords(s2, &x2, &y2);
+    TS_ASSERT( x2 == correct_xoff2 );
+    TS_ASSERT( y2 == correct_yoff2 );
+  }
+
+
+
   
   // Tests for NotANumber()
   void testNotANumberWithInts( void )

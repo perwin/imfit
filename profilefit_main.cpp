@@ -25,6 +25,7 @@
 #include "add_functions_1d.h"
 #include "function_object.h"
 #include "func1d_exp.h"
+#include "param_struct.h"   // for mp_par structure
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
 #include "diff_evoln_fit.h"
 #include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
@@ -280,7 +281,7 @@ int main(int argc, char *argv[])
     status = mpfit(myfunc, nStoredDataVals, nParamsTot, paramsVect, mpParamLimits, 0, 
   									theModel, &mpfitResult);
   
-    printf("*** mpfit status = %d\n", status);
+    printf("\n");
     PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, status);
     printf("\n");
   }

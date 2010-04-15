@@ -49,22 +49,17 @@ defines_db = base_defines + ["DEBUG"]
 lib_list = ["fftw3", "cfitsio", "m"]
 
 
-# "env_opt" is currently a semi-debugging environment (most debugging options
+# "env_norm" is currently a semi-debugging environment (most debugging options
 # 			turned on, but not -DDEBUG
 # "env_debug" is identical, except that -DDEBUG is also specified
+# "env_opt" is an environment for optimized compiling [not really used yet]
 
-# two environments, one for debugging compilations, one for optimized
-# env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-# 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-# env_opt = env_debug.Clone( CCFLAGS=cflags_opt, CPPDEFINES=defines_opt, 
-# 							LINKFLAGS=link_flags )
-# FOR THE MOMENT, WE'LL DO EVERYTHING IN DEBUGGING MODE:
 env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
+env_norm = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
-#env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-#						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 
 # We have separate lists of object names (what we want the .o files to be 
 # called) and source names (.cpp, .c) so that we can specify separate 
@@ -94,11 +89,11 @@ imfit_base_obj_string = """utilities anyoption image_io mpfit diff_evoln_fit DES
 imfit_base_objs = imfit_base_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
-# Base files for imfit1d:
-imfit1d_base_obj_string = """utilities anyoption mpfit diff_evoln_fit DESolver
-		read_profile config_file_parser add_functions_1d print_results imfit1d_main"""
-imfit1d_base_objs = imfit1d_base_obj_string.split()
-imfit1d_base_sources = [name + ".cpp" for name in imfit1d_base_objs]
+# Base files for profilefit:
+profilefit_base_obj_string = """utilities anyoption mpfit diff_evoln_fit DESolver
+		read_profile config_file_parser add_functions_1d print_results profilefit_main"""
+profilefit_base_objs = profilefit_base_obj_string.split()
+profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
 # Base files for makeimage:
 makeimage_base_obj_string = """anyoption utilities image_io config_file_parser 
@@ -111,9 +106,9 @@ makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 imfit_objs = imfit_base_objs + modelobject_objs + c_objs
 imfit_sources = imfit_base_sources + modelobject_sources + c_sources
 
-# imfit1d: put all the object and source-code lists together
-imfit1d_objs = imfit1d_base_objs + modelobject1d_objs + c_objs
-imfit1d_sources = imfit1d_base_sources + modelobject1d_sources + c_sources
+# profilefit: put all the object and source-code lists together
+profilefit_objs = profilefit_base_objs + modelobject1d_objs + c_objs
+profilefit_sources = profilefit_base_sources + modelobject1d_sources + c_sources
 
 # makeimage: put all the object and source-code lists together
 makeimage_objs = makeimage_base_objs + modelobject_objs + c_objs
@@ -123,7 +118,9 @@ makeimage_sources = makeimage_base_sources + modelobject_sources + c_sources
 readimage_sources = ["readimage_main.cpp", "readimage.cpp"]
 
 # psfconvolve: put all the object and source-code lists together
-psfconvolve_sources = ["psfconvolve_main.cpp", "anyoption.cpp", "image_io.cpp"]
+psfconvolve_sources_old = ["psfconvolve_main_old.cpp", "anyoption.cpp", "image_io.cpp"]
+psfconvolve_sources = ["psfconvolve_main.cpp", "anyoption.cpp", "image_io.cpp",
+	"convolver.cpp"]
 
 # test_parser: put all the object and source-code lists together
 testparser_sources = ["test_parser.cpp", "config_file_parser.cpp", "utilities.cpp"]
@@ -131,16 +128,19 @@ testparser_sources = ["test_parser.cpp", "config_file_parser.cpp", "utilities.cp
 
 
 # Finally, define the actual targets
+# specify ".do" as the suffix for "full-debug" object code
 full_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
 env_debug.Program("imfit_db", full_dbg_objlist)
-base_dbg_objlist = [ env_opt.Object(obj, src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
-env_opt.Program("imfit", base_dbg_objlist)
 
-env_opt.Program("imfit1d", imfit1d_sources)
-env_opt.Program("makeimage", makeimage_sources)
-env_opt.Program("readimage_test", readimage_sources)
-env_opt.Program("psfconvolve", psfconvolve_sources)
-env_opt.Program("testparser", testparser_sources)
+base_norm_objlist = [ env_norm.Object(obj, src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
+env_norm.Program("imfit", base_norm_objlist)
+
+env_norm.Program("profilefit", profilefit_sources)
+env_norm.Program("makeimage", makeimage_sources)
+env_norm.Program("readimage_test", readimage_sources)
+env_norm.Program("psfconvolve", psfconvolve_sources)
+env_norm.Program("psfconvolve_old", psfconvolve_sources_old)
+env_norm.Program("testparser", testparser_sources)
 
 
 # Specify that debug-compilation produces object files with "_debug" 

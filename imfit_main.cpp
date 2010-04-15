@@ -26,6 +26,7 @@
 #include "model_object.h"
 #include "function_object.h"
 #include "add_functions.h"
+#include "param_struct.h"   // for mp_par structure
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
 #include "diff_evoln_fit.h"
 #include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
@@ -89,7 +90,6 @@ typedef struct {
 //  int  mcIterations;
 //  double  monteCarloOffset;
   double  magZeroPoint;
-  char  paramLimitsFileName[MAX_FILENAME_LENGTH];
   bool  noParamLimits;
   bool  printImages;
   int  solver;
@@ -101,6 +101,8 @@ typedef struct {
 /* External functions: */
 
 /* Local Functions: */
+void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
+					double *y_offset);
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
 int myfunc( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *aModel );
@@ -143,6 +145,8 @@ int main(int argc, char *argv[])
   bool  maskAllocated = false;
   double  *paramsVect;
   double  *paramErrs;
+  double  X0_offset = 0.0;
+  double  Y0_offset = 0.0;
   std::string  noiseImage;
   std::string  mpfitMessage;
   ModelObject  *theModel;
@@ -151,11 +155,15 @@ int main(int argc, char *argv[])
   vector<mp_par>  paramLimits;
   vector<int>  functionSetIndices;
   bool  paramLimitsExist = false;
+  bool  parameterInfo_allocated = false;
   mp_result  mpfitResult;
   mp_config  mpConfig;
-  mp_par  *mpParamLimits;
+  mp_par  *parameterInfo;
+  mp_par  *mpfitParameterConstraints;
   int  status;
   commandOptions  options;
+  const std::string  X0_string("X0");
+  const std::string  Y0_string("Y0");
   
   
   /* Process the command line */
@@ -175,7 +183,6 @@ int main(int argc, char *argv[])
   options.originalSky = 0.0;
   options.noModel = true;
   options.noParamLimits = true;
-  options.paramLimitsFileName[0] = '-';
   options.newParameters = false;
 //  options.doBootstrap = false;
 //  options.bootstrapIterations = BOOTSTRAP_ITER;
@@ -208,19 +215,25 @@ int main(int argc, char *argv[])
   }
 
   /* Get image data and sizes */
-  if (! FileExists(options.imageFileName.c_str())) {
+  // Check to make sure the file exists; trim off any [...] region-specification at
+  // end (but keep the full input name, since we'll pass that to ReadImageAsVector)
+  string  baseImageFileName;
+  StripBrackets(options.imageFileName, baseImageFileName);
+  if (! FileExists(baseImageFileName.c_str())) {
     printf("\n*** WARNING: Unable to find input image \"%s\"!\n\n", 
-           options.imageFileName.c_str());
+           baseImageFileName.c_str());
     return -1;
   }
-    printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
+  printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
   allPixels = ReadImageAsVector(options.imageFileName, &nColumns, &nRows);
   // Reminder: nColumns = n_pixels_per_row = x-size
   // Reminder: nRows = n_pixels_per_column = y-size
   nPixels_tot = nColumns * nRows;
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
            nColumns, nRows, nPixels_tot);
-  
+  // Determine X0,Y0 pixel offset values if user specified an image section
+  DetermineImageOffset(options.imageFileName, &X0_offset, &Y0_offset);
+
   /* Get and check mask image */
   if (options.maskImagePresent) {
     if (! FileExists(options.maskFileName.c_str())) {
@@ -327,21 +340,37 @@ int main(int argc, char *argv[])
 
 
   
-  // Parameter limits:
-  if (paramLimitsExist) {
-    printf("Setting up parameter limits ...\n");
-    mpParamLimits = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
-    for (int i = 0; i < nParamsTot; i++) {
-      mpParamLimits[i].fixed = paramLimits[i].fixed;
-      if (mpParamLimits[i].fixed == 1)
-        nFreeParams--;
-      mpParamLimits[i].limited[0] = paramLimits[i].limited[0];
-      mpParamLimits[i].limited[1] = paramLimits[i].limited[1];
-      mpParamLimits[i].limits[0] = paramLimits[i].limits[0];
-      mpParamLimits[i].limits[1] = paramLimits[i].limits[1];
+  // Parameter limits and other info:
+  // OK, first we create a C-style array of mp_par structures, containing parameter constraints
+  // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
+  // by DiffEvolnFit (if called) and by PrintResults.  We also decrement nFreeParams for
+  // each *fixed* parameter.
+  // Then we point the mp_par-array variable mpfitParameterConstraints to this array *if*
+  // there are actual parameter constraints; if not, mpfitParameterConstraints is set = NULL,
+  // since that's what mpfit() expects when there are no constraints.
+  printf("Setting up parameter information array ...\n");
+  parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
+  parameterInfo_allocated = true;
+  for (int i = 0; i < nParamsTot; i++) {
+    parameterInfo[i].fixed = paramLimits[i].fixed;
+    if (parameterInfo[i].fixed == 1)
+      nFreeParams--;
+    parameterInfo[i].limited[0] = paramLimits[i].limited[0];
+    parameterInfo[i].limited[1] = paramLimits[i].limited[1];
+    parameterInfo[i].limits[0] = paramLimits[i].limits[0];
+    parameterInfo[i].limits[1] = paramLimits[i].limits[1];
+    // specify different offsets if using image subsection
+    if (theModel->GetParameterName(i) == X0_string) {
+      parameterInfo[i].offset = X0_offset;
+    } else if (theModel->GetParameterName(i) == Y0_string) {
+      parameterInfo[i].offset = Y0_offset;
     }
+  }
+  if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
+    // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
+    mpfitParameterConstraints = NULL;
   } else {
-    mpParamLimits = NULL;
+    mpfitParameterConstraints = parameterInfo;
   }
   
   /* Copy parameters into C array */
@@ -356,17 +385,17 @@ int main(int argc, char *argv[])
     mpfitResult.xerror = paramErrs;
     bzero(&mpConfig, sizeof(mpConfig));
     mpConfig.maxiter = 1000;
-    printf("Calling mpfit ...\n");
-    status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpParamLimits, &mpConfig, 
+    printf("\nCalling mpfit ...\n");
+    status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints, &mpConfig, 
   								theModel, &mpfitResult);
-    PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, status);
+    PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
   }
   else {
-    printf("Calling DiffEvolnFit ..\n");
-    status = DiffEvolnFit(nParamsTot, paramsVect, mpParamLimits, theModel, MAX_DE_GENERATIONS);
+    printf("\nCalling DiffEvolnFit ..\n");
+    status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, MAX_DE_GENERATIONS);
     printf("\n");
-    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, status);
+    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
   }
 
@@ -395,8 +424,8 @@ int main(int argc, char *argv[])
     free(allMaskPixels);
   free(paramsVect);
   free(paramErrs);
-  if (paramLimitsExist)
-    free(mpParamLimits);
+  if (parameterInfo_allocated)
+    free(parameterInfo);
   delete theModel;
   
   return 0;
@@ -553,6 +582,21 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   delete opt;
 
+}
+
+
+/* Function which takes the user-supplied image filename and determines what,
+ * if any, x0 and y0 pixel offsets are implied by any section specification
+ * in the filename
+ */
+void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
+					double *y_offset)
+{
+  int  xStart, yStart;
+
+  GetPixelStartCoords(fullImageName, &xStart, &yStart);
+  *x_offset = xStart - 1;
+  *y_offset = yStart - 1;
 }
 
 

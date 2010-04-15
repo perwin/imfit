@@ -14,7 +14,7 @@
 #include <string>
 #include <stdio.h>
 
-#include "mpfit_cpp.h"
+#include "param_struct.h"
 #include "utilities_pub.h"
 #include "config_file_parser.h"
 

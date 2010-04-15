@@ -33,13 +33,19 @@ void ChopComment( string& inputString, char delimiter = '#' );
 void TrimWhitespace( string& stringToModify );
 
 
+void StripBrackets( const string& inputFilename, string& strippedFilename );
+
+
+void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart );
+
+
 bool FileExists(const char * filename);
 
 
 void CommandLineError( char errorString[] );
 
 
-bool NotANumber( char theString[], int index, int restriction );
+bool NotANumber( const char theString[], int index, int restriction );
 
 
 

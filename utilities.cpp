@@ -10,13 +10,12 @@
 #include <vector>
 #include <string>
 
+using namespace std;
+
 //#include "messages_and_defs.h"
 #include "utilities_pub.h"
 #include "mpfit_cpp.h"
 #include "statistics.h"
-
-using namespace std;
-
 
 /* ------------------- Function Prototypes ----------------------------- */
 /* Local Functions: */
@@ -79,6 +78,83 @@ void TrimWhitespace(string& stringToModify)
 
 
 
+/* ---------------- FUNCTION: StripBrackets() ---------------------- */
+
+void StripBrackets( const string& inputFilename, string& strippedFilename )
+{
+  strippedFilename = inputFilename.c_str();
+  ChopComment(strippedFilename, '[');
+}
+
+
+
+/* ---------------- FUNCTION: GetPixelStartCoords() ---------------- */
+
+void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart )
+{
+  string::size_type  loc1, loc2;
+  int  nPieces;
+  string  sectionSubstring;
+  vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
+  const string star = string("*");
+  
+  // default values indicating errors:
+  *xStart = 0;
+  *yStart = 0;
+  
+  loc1 = inputFilename.find('[', 0);
+  if (loc1 == string::npos) {
+    // no image section specified, so we're using the entire image
+    *xStart = 1;
+    *yStart = 1;
+    return;
+  } else {
+    // OK, there's an image section
+    loc2 = inputFilename.find(']', loc1);
+    if (loc2 == string::npos) {
+      printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+      				inputFilename.c_str());
+      return;
+    } else {
+      // extract what's inside the []
+      sectionSubstring = inputFilename.substr(loc1 + 1, loc2 - loc1 - 1);
+      SplitString(sectionSubstring, sectionPieces, ",");
+      nPieces = sectionPieces.size();
+      if (nPieces != 2) {
+        printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+      					inputFilename.c_str());
+        return;
+      }
+      // handle the x part of the section specification
+      if (sectionPieces[0] == star)
+        *xStart = 1;
+      else {
+        SplitString(sectionPieces[0], subsectionPieces_x, ":");
+        if (nPieces != 2) {
+          printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+        					inputFilename.c_str());
+          return;
+        }
+        *xStart = atoi(subsectionPieces_x[0].c_str());
+      }
+      // handle the y part of the section specification
+      if (sectionPieces[1] == star)
+        *yStart = 1;
+      else {
+        SplitString(sectionPieces[1], subsectionPieces_y, ":");
+        if (nPieces != 2) {
+          printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+        					inputFilename.c_str());
+          return;
+        }
+        *yStart = atoi(subsectionPieces_y[0].c_str());
+      }
+    }
+  }
+}
+
+
+
 /* ---------------- FUNCTION: FileExists() ------------------------- */
 
 bool FileExists(const char * filename)
@@ -105,7 +181,7 @@ void CommandLineError( char errorString[] )
 //    0, 0.0, 0.1, .1
 //    -0.1, -.1?
 //    -1
-bool NotANumber( char theString[], int index, int restriction )
+bool NotANumber( const char theString[], int index, int restriction )
 {
   int  theCharacter = theString[index];
 

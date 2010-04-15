@@ -80,6 +80,15 @@ Possible tests/comparisons:
 	[] Do actual convolution (not FFT) using same image, padding, and PSF.
 
 
+TESTS:
+
+[] Convolve with delta function:
+$ ./psfconvolve gaussian_10x10.fits deltafn_5x5.fits convolve_out_new.fits
+
+or, to use images small enough to print out intermediate stages:
+$ ./psfconvolve gaussian_5x5.fits deltafn_5x5.fits convolve_out_new.fits
+
+
 
 INTEGRATION INTO IMFIT:
 

@@ -11,7 +11,7 @@
 
 #include "DESolver.h"
 #include "model_object.h"
-#include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
+#include "param_struct.h"   // for mp_par structure
 #include "diff_evoln_fit.h"
 
 

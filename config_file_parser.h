@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include "mpfit_cpp.h"
+#include "param_struct.h"
 
 using namespace std;
 

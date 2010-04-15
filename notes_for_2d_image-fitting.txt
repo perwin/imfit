@@ -163,12 +163,23 @@ QUESTIONS AND ISSUES:
 			-- pure point source
 				-- but this requires that user supply a point source object (or that
 				we allow specification of a PSF function)
-				-- note that GALFIT avoids this by recommending that user specify
+				-- note that GALFIT 2.0 avoids this by recommending that user specify
 				a very narrow Gaussian as point-source
 			
 		Conclusion (so far): not necessary to work with separate convolved and
 		non-convolved components [but keep this "issue" here in case we think of
 		more possible exceptions]
+
+
+	[] Generation of PSFs
+		-- mode where user specifies an extra config file which describes a PSF
+		image (e.g., Gaussian, or Moffat fn., or anything that makeimage can handle)
+		-- create a temporary ModelObject instance to generate the PSF image,
+		but then keep it in memory (assign to psfPixels array) and delete ModelObject
+		instance
+		-- config file should ideally specify image size
+		-- sanity/input check: requested PSF image should be square, odd-sized,
+		with X0,Y0 in image center
 
 
 	[] Option to do convolution on subsampled grid around object center?
@@ -423,7 +434,7 @@ ModelObject
 
 [.] Prototype use of differential evolution
 	[x] Prototype bare-bones DE solver
-	[x] Prototype use of DE by imfit1d
+	[x] Prototype use of DE by profilefit
 	[x] Prototype use of DE by imfit
 	[x] Investigate use of parameter bounds internally
 		-- check to see how code in ~/coding/imfit/de_storn/de4_0_orig.cpp can or should
@@ -449,7 +460,8 @@ ModelObject
 	[x] Do further tests with convolving external FITS images
 	[x] Prototype simple program which reads in image & PSF and saves convolution
 	[x] Implement trimming of final output image
-	[] Prototype convolver.cpp module to contain PSF convolution code
+	[x] Prototype convolver.cpp module to contain PSF convolution code
+	[] Do initial tests of convolver-based psfconvolve
 	[] Figure out funny outer-edge issue in convolved image
 
 [] Prototype code for FFT convolution in makeimage
@@ -486,7 +498,7 @@ ModelObject
 [] Prototype code for saving final residual image?
 	-- should be deviates vector in ModelObject
 
-[] Prototype code for outputting best-fit model profile in imfit1d?
+[] Prototype code for outputting best-fit model profile in profilefit?
 
 [] Prototype code for saving best-fit parameter file
 	-- suitable as intput to makeimage, or as starting point for new fitting attempt
@@ -496,7 +508,22 @@ ModelObject
 	[] Prototype saving best-fit parameters and functions
 	
 [] Prototype code for getting non-function-related data from config file
+	-- denote in config file via ALL_CAPS (e.g., GAIN, ORIGINAL_SKY, etc.)
+	-- these should go *before* function listings
+	-- for makeimage: IMAGE_SIZE_X, IMAGE_SIZE_Y (or _NCOLS, _NROWS)
 	-- e.g., input image name; noise image name; mask image name gain; sky value; etc.
+	-- read in and store in some kind of C++ dictionary/map?
+		-- could use STL map, though we'd have to use, e.g., String keys and 
+		double items (OK to store, e.g., image dimensions as double and then
+		convert back to int later)
+		-- would need to distinguish between text and numeric values (text -->
+		fields of option structure, numeric values --> same OR --> entries
+		in map)
+		-- OR we could just add more entries to the options structure and
+		use if-then logic to assign values properly
+	[] Modify ReadConfigFile() to identify first "X0" as start of function-
+	definition section; then process pre-function lines (if any); then
+	process function lines (as we currently do)
 
 [] Prototype code for unit testing
 	[x] Decide on C++ unit testing framework to use (CxxTest?)
@@ -523,11 +550,19 @@ image
 	subfile *and* tweak the header to have correct NAXES and WCS
 		-- potential issue: when we check for existence of image file, we'll
 		need to check for filename.split("[") instead of just filename
-	[] Prototype code to check for image-file existence, chopping off "[...]"
+	-- Allowed region-specifications (which we'll try to interpret):
+		name.fits[x1:x2,y1:y2]
+		name.fits[*,y1:y2]
+		name.fits[x1:x2,*]
+		name.fits[*,*]
+		and variations of the above with [n] in front of the region specification
+		(e.g., name.fits[3][x1:x2,y1:y2])
+		
+	[x] Prototype code to check for image-file existence, chopping off "[...]"
 		if it exists (applies to image, mask, noise, and PSF; also to reference
 		image in makeimage case)
-	[] Test command-line subsetting of image
-	[] Test config-file subsetting of image
+	[x] Test command-line subsetting of image
+	[x] Test config-file subsetting of image
 		-- e.g., image.fits[x1:x2,y1:y2]
 	[] Investigate how to retain offset information and apply it to output params
 		-- i.e., figure out coordinates of LL subset corner, then add appropriate

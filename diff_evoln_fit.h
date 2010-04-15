@@ -5,7 +5,7 @@
 #ifndef _DIFF_EVOLN_FIT_H_
 #define _DIFF_EVOLN_FIT_H_
 
-#include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
+#include "param_struct.h"   // for mp_par structure
 #include "model_object.h"
 
 

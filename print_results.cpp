@@ -7,6 +7,7 @@ using namespace std;
 
 #include "print_results.h"
 #include "mpfit_cpp.h"
+#include "param_struct.h"
 #include "statistics.h"
 
 
@@ -30,7 +31,7 @@ void PrintParam( string& paramName, double paramValue, double paramErr )
 // Craig Markwardt's testmpfit.c, but will also accomodate results from a fit
 // done with differential evolution (call with result=0 to indicate the latter).
 void PrintResults( double *params, double *xact, mp_result *result, ModelObject *model,
-									int nFreeParameters, int fitStatus )
+									int nFreeParameters, mp_par *parameterInfo, int fitStatus )
 {
   int  i;
   int  nValidPixels = model->GetNValidPixels();
@@ -50,8 +51,9 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     bic = BIC(chiSquared, nFreeParameters, nValidPixels, 1);
     printf("Reduced Chi^2 = %f\n", chiSquared / nDegreesFreedom);
     printf("AIC = %f, BIC = %f\n\n", aic, bic);
+    // output the best-fit parameters
     for (i = 0; i < model->GetNParams(); i++) {
-      PrintParam(model->GetParameterName(i), params[i], 0.0);
+      PrintParam(model->GetParameterName(i), params[i] + parameterInfo[i].offset, 0.0);
     }
     return;
   }
@@ -82,7 +84,7 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     }
   } else {
     for (i = 0; i < result->npar; i++)
-      PrintParam(model->GetParameterName(i), params[i], result->xerror[i]);
+      PrintParam(model->GetParameterName(i), params[i] + parameterInfo[i].offset, result->xerror[i]);
   }    
 }
 
