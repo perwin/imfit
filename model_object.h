@@ -1,8 +1,9 @@
 /*   Class interface definition for model_object.cpp [imfit]
  *   VERSION 0.3
  *
- * This is intended to be an abstract base class for the various
- * "model" objects (e.g., image data + fitting functions).
+ * This is the standard class for 2D image-generation and image-fitting
+ * "model" objects; it also acts as a base class for variant model objects
+ * (e.g., 1-D fitting objects -- see model_object_1d.h)
  * 
  */
 
@@ -16,6 +17,7 @@
 
 #include "definitions.h"
 #include "function_object.h"
+#include "convolver.h"
 
 using namespace std;
 
@@ -61,9 +63,6 @@ class ModelObject
     virtual void CreateModelImage( double params[] );
     
     // may need to be overridden by derived class ModelObject1D
-    virtual void ConvolveWithPSF( );
-
-    // may need to be overridden by derived class ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
     virtual void SetupChisquaredCalcs( );
@@ -96,6 +95,7 @@ class ModelObject
 
 
   private:
+    Convolver  *psfConvolver;
   
   protected:  // same as private, except accessible to derived classes
     int  nDataVals, nColumns, nRows, nValidDataVals;

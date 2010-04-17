@@ -94,6 +94,9 @@ protected:
 	double *oldValues;
 	double *minBounds;
 	double *maxBounds;
+	
+	// added by PE for debugging purposes
+	double  lastBestEnergy;
 
 private:
 	void Best1Exp(int candidate);

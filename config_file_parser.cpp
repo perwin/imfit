@@ -13,6 +13,8 @@
 #include <vector>
 #include <string>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "param_struct.h"
 #include "utilities_pub.h"

@@ -67,6 +67,7 @@
 // can tell which method produced it.
 
 #include "anyoption.h"
+#include "string.h"
 
 AnyOption::AnyOption()
 {

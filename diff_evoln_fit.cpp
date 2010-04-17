@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include "DESolver.h"
 #include "model_object.h"
@@ -33,19 +35,16 @@ public:
 
 private:
 	int count;
+	double  lastChiSquared;
   ModelObject  *theModel;
 };
 
 
 double ImfitSolver::EnergyFunction(double *trial, bool &bAtSolution)
 {
-  double  chiSquared;
+  double  chiSquared, delta_chiSquared;
   
   chiSquared = theModel->ChiSquared(trial);
-  
-  // print an update every 10 generations
-	if (count++ % (10*nPop) == 0)
-		printf("Generation %d: energy = %lf\n", count/nPop, Energy());
 	
 	return(chiSquared);
 }

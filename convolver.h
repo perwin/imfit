@@ -33,6 +33,9 @@
 using namespace std;
 
 
+void PrintRealImage( double *image, int nRows, int nColumns );
+void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nRows, int nColumns );
+
 
 class Convolver
 {

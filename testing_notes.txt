@@ -24,6 +24,23 @@
 
 
 
+# *** Simple tests of psfconvolve
+# Generate reference image and text output:
+$ ./psfconvolve_old gaussian_5x5.fits deltafn_5x5.fits convolve_out_gauss5-c-deltafn.fits
+$ mv convolve_out_gauss5-c-deltafn.fits testing/
+$ ./psfconvolve_old deltafn_5x5.fits gaussian_5x5.fits convolve_out_deltafn-c-gauss5.fits
+$ mv convolve_out_deltafn-c-gauss5.fits testing/
+
+# Test new version (tell cmp to ignore first 724 bytes, thus skipping the header)
+./psfconvolve gaussian_5x5.fits deltafn_5x5.fits convolve_out_new.fits --printimages > temp.txt
+cmp convolve_out_new.fits testing/convolve_out_gauss5-c-deltafn.fits -i 724
+diff temp.txt testing/psfconvolve_printimages.txt
+./psfconvolve deltafn_5x5.fits gaussian_5x5.fits convolve_out_new.fits --printimages > temp2.txt
+cmp convolve_out_new.fits testing/convolve_out_deltafn-c-gauss5.fits -i 724
+diff temp2.txt testing/psfconvolve_printimages2.txt
+
+
+
 # *** Simple testing of imfit:
 
 # really small (2x2) image, made with modelimage + expdisk_tiny_testparams.dat:
@@ -146,7 +163,8 @@ AIC = 87732.698237, BIC = 87832.026172
            h = 6.200479
 
 # Same as previous, but with limits on I_0 reset to 0,150 instead of 0,500 
-# [imfit_config_n3073_v2.dat]. DE converged after about 400 generations.
+# [imfit_config_n3073_v2.dat]. DE converged after about 400 generations (15 min, with
+# convergence test causing DE solver to exit).
 ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073_v2.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --de
 Reduced Chi^2 = 1.370615
 AIC = 84587.563230, BIC = 84686.891165

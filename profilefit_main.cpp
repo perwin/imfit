@@ -282,14 +282,14 @@ int main(int argc, char *argv[])
   									theModel, &mpfitResult);
   
     printf("\n");
-    PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, status);
+    PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, mpParamLimits, status);
     printf("\n");
   }
   else {
     printf("Calling DiffEvolnFit ..\n");
     status = DiffEvolnFit(nParamsTot, paramsVect, mpParamLimits, theModel, MAX_DE_GENERATIONS);
     printf("\n");
-    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, status);
+    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, mpParamLimits, status);
     printf("\n");
   }
 

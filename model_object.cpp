@@ -1,9 +1,17 @@
 /* FILE: model_object.cpp ---------------------------------------------- */
-/* VERSION 0.3
+/* VERSION 0.5
  *
  * This is intended to be an abstract base class for the various
  * "model" objects (e.g., image data + fitting functions).
  *   
+ *     [v0.5]: 16 Apr 2010: Convolution with PSF now works, at least in principle.
+ *     [v0.4]: 20--26 Mar 2010: Added stub functions to accomodate PSF image and
+ * convolution.
+ *     [v0.3.5]: 18--22 Feb 2010: Added PopulateParameterNames() method;
+ * this generates the proper set of parameter names (including X0,Y0 for each function set)
+ * and is now called by AddFunctions().  Added CheckWeightVector() method, to catch cases
+ * where weight vector (whether use-supplied or calculated from Poisson statistics)
+ * has "nan" values (or negative values).
  *     [v0.3]:  4 Dec 2009: Added handling of mask images.
  *     [v0.2]: 27 Nov 2009: Modified to include AddDataVectors function, which
  * will be used by derived class ModelObject1D
@@ -289,11 +297,28 @@ void ModelObject::ApplyMask( )
 
 
 /* ---------------- PUBLIC METHOD: AddPSFVector ------------------------ */
-// Still mostly a stub function at this point!
+// This function is called to pass in the PSF image and dimensions; doing so
+// automatically triggers setup of a Convolver object to do convolutions (including
+// prep work such as computing the FFT of the PSF).
+// This function must be called *after* SetupModelImage() is called (to ensure
+// that we can tell the Convolver object the model image dimensions).
 void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels)
 {
-  doConvolution = true;
+  int  debugLevel = 0;
+  
+  if (modelVectorAllocated) {
+    psfConvolver = new Convolver();
+    psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
+    psfConvolver->SetupImage(nColumns, nRows);
+    psfConvolver->DoFullSetup(debugLevel);
+    doConvolution = true;
+  }
+  else {
+    printf("WARNING: PSF image was supplied before main image dimensions!\n");
+    printf("\tUnable to do convolution ...\n");
+    doConvolution = false;
+  }
 }
 
 
@@ -364,20 +389,9 @@ void ModelObject::CreateModelImage( double params[] )
   
   // Do PSF convolution, if requested
   if (doConvolution)
-    ConvolveWithPSF();
+    psfConvolver->ConvolveImage(modelVector);
   
   modelImageComputed = true;
-}
-
-
-/* ---------------- PUBLIC METHOD: ConvolveWithPSF --------------------- */
-/* This function handles convolution of a model image (modelVector array)
- * with the use-supplied PSF.
- *    CURRENTLY A STUB!
- */
-void ModelObject::ConvolveWithPSF( )
-{
-  ;
 }
 
 
@@ -630,6 +644,9 @@ ModelObject::~ModelObject()
     for (int i = 0; i < nFunctions; i++)
       delete functionObjects[i];
   free(setStartFlag);
+  
+  if (doConvolution)
+    delete psfConvolver;
 }
 
 

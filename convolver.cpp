@@ -4,6 +4,8 @@
  *   Module for image convolution functions.
  *
  *   MODIFICATION HISTORY:
+ *     [v0.1]: 15 April 2010: More or less usable now (thought not thoroughly tested,
+ * and I'm not sure whether the "lowered-edges" peculiarity is still present).
  *     [v0.01]: 26 Mar 2010: Created.
  */
 
@@ -185,12 +187,7 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     printf("Normalizing the PSF ...\n");
     if (debugStatus > 1) {
       printf("The whole input PSF image, row by row:\n");
-      for (int i = 0; i < nRows_psf; i++) {   // step by row number = y
-        for (int j = 0; j < nColumns_psf; j++)   // step by column number = x
-          printf(" %f", psfPixels[i*nColumns_psf + j]);
-        printf("\n");
-      }
-      printf("\n");
+      PrintRealImage(psfPixels, nRows_psf, nColumns_psf);
     }
   }
   psfSum = 0.0;
@@ -200,12 +197,7 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     psfPixels[k] = psfPixels[k] / psfSum;
   if (debugStatus > 1) {
     printf("The whole *normalized* PSF image, row by row:\n");
-    for (int i = 0; i < nRows_psf; i++) {   // step by row number = y
-      for (int j = 0; j < nColumns_psf; j++)   // step by column number = x
-        printf(" %f", psfPixels[i*nColumns_psf + j]);
-      printf("\n");
-    }
-    printf("\n");
+    PrintRealImage(psfPixels, nRows_psf, nColumns_psf);
   }
 
   // Second, prepare (complex) psf array for FFT, and then copy input PSF into
@@ -218,13 +210,8 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     printf("Shifting and wrapping the PSF ...\n");
   ShiftAndWrapPSF(psfPixels, nRows_psf, nColumns_psf, psf_in_cmplx, nRows_padded, nColumns_padded);
   if (debugStatus > 1) {
-  printf("The whole padded, normalized PSF image, row by row:\n");
-    for (int i = 0; i < nRows_padded; i++) {   // step by row number = y
-      for (int j = 0; j < nColumns_padded; j++)   // step by column number = x
-        printf(" %f", psf_in_cmplx[i*nColumns_padded + j][0]);
-      printf("\n");
-    }
-    printf("\n");
+    printf("The whole padded, normalized PSF image, row by row:\n");
+    PrintComplexImage_RealPart(psf_in_cmplx, nRows_padded, nColumns_padded);
   }
   
   // Finally, do forward FFT on PSF image
@@ -259,12 +246,7 @@ void Convolver::ConvolveImage( double *pixelVector )
   }
   if (debugStatus > 1) {
     printf("The whole (padded) input mage [image_in_cmplx], row by row:\n");
-    for (int i = 0; i < nRows_padded; i++) {   // step by row number = y
-      for (int j = 0; j < nColumns_padded; j++)   // step by column number = x
-        printf(" %10f", image_in_cmplx[i*nColumns_padded + j][0]);
-      printf("\n");
-    }
-    printf("\n");
+    PrintComplexImage_RealPart(image_in_cmplx, nRows_padded, nColumns_padded);
   }
 
   // Do FFT of input image:
@@ -291,7 +273,7 @@ void Convolver::ConvolveImage( double *pixelVector )
     printf("The whole (padded) convolved image [convolvedImage_cmplx, rescaled], row by row:\n");
     for (int i = 0; i < nRows_padded; i++) {   // step by row number = y
       for (int j = 0; j < nColumns_padded; j++)   // step by column number = x
-        printf(" %10f", fabs(convolvedImage_cmplx[i*nColumns_padded + j][0] / nPixels_padded));
+        printf(" %9f", fabs(convolvedImage_cmplx[i*nColumns_padded + j][0] / nPixels_padded));
       printf("\n");
     }
     printf("\n");
@@ -333,6 +315,42 @@ void Convolver::ShiftAndWrapPSF( double *psfImage, int nRows_psf, int nCols_psf,
       destImage[pos_in_dest][0] = psfImage[pos_in_psf];
     }
   }
+}
+
+
+void PrintRealImage( fftw_complex *image_cmplx, int nRows, int nColumns )
+{
+
+  for (int i = 0; i < nRows; i++) {   // step by row number = y
+    for (int j = 0; j < nColumns; j++)   // step by column number = x
+      printf(" %f", image_cmplx[i*nColumns + j][0]);
+    printf("\n");
+  }
+  printf("\n");
+}
+
+
+void PrintRealImage( double *image, int nRows, int nColumns )
+{
+
+  for (int i = 0; i < nRows; i++) {   // step by row number = y
+    for (int j = 0; j < nColumns; j++)   // step by column number = x
+      printf(" %f", image[i*nColumns + j]);
+    printf("\n");
+  }
+  printf("\n");
+}
+
+
+void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nRows, int nColumns )
+{
+
+  for (int i = 0; i < nRows; i++) {   // step by row number = y
+    for (int j = 0; j < nColumns; j++)   // step by column number = x
+      printf(" %9f", image_cmplx[i*nColumns + j][0]);
+    printf("\n");
+  }
+  printf("\n");
 }
 
 

@@ -771,7 +771,7 @@ int mpfit(mp_func funct, int m, int npar,
   nfev += 1;
   if (iflag < 0) goto L300;
 
-  fnorm1 = mp_enorm(m,wa4);
+  fnorm1 = mp_enorm(m, wa4);
 
   /*
    *            compute the scaled actual reduction.
