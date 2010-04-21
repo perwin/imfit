@@ -322,15 +322,6 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 }
 
 
-/* ---------------- PUBLIC METHOD: AddParameterLimits ------------------ */
-
-void ModelObject::AddParameterLimits( double *paramLimits )
-{
-  parameterBounds = paramLimits;
-  parameterBoundsSet = true;
-}
-
-
 /* ---------------- PUBLIC METHOD: CreateModelImage -------------------- */
 
 void ModelObject::CreateModelImage( double params[] )

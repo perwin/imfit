@@ -189,6 +189,14 @@ void ModelObject1d::CreateModelImage( double params[] )
 }
 
 
+/* ---------------- PUBLIC METHOD: ConvolveWithPSF --------------------- */
+
+void ModelObject1d::ConvolveWithPSF( )
+{
+  ;
+}
+
+
 /* ---------------- PUBLIC METHOD: ComputeDeviates --------------------- */
 
 void ModelObject1d::ComputeDeviates( double yResults[], double params[] )

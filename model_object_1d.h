@@ -46,6 +46,9 @@ class ModelObject1d : public ModelObject
     void PrintDescription( );
 
     void PopulateParameterNames( );
+    
+    // Stub method; might be replaced by internal call to Convolver1d object(?)
+    void ConvolveWithPSF( );
 
     // Destructor
     ~ModelObject1d();

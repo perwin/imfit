@@ -158,6 +158,12 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   nPixels_padded = nRows_padded*nColumns_padded;
   rescaleFactor = 1.0 / nPixels_padded;
 
+#ifdef FFTW_THREADING
+  // TEST: multi-threaded FFTW:
+  int  threadStatus;
+  threadStatus = fftw_init_threads();
+#endif  // FFTW_THREADING
+
   // allocate memory for fftw_complex arrays
   image_in_cmplx = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nPixels_padded);
   image_fft_cmplx = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nPixels_padded);
@@ -172,8 +178,17 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     fftwFlags = FFTW_MEASURE;
   else
     fftwFlags = FFTW_ESTIMATE;
+  // Note that there's not much purpose in multi-threading plan_psf, since we only do
+  // the FFT of the PSF once
   plan_psf = fftw_plan_dft_2d(nColumns_padded, nRows_padded, psf_in_cmplx, psf_fft_cmplx, FFTW_FORWARD,
                              fftwFlags);
+
+#ifdef FFTW_THREADING
+  // TEST: multi-threaded FFTW:
+  int nThreads = 2;
+  fftw_plan_with_nthreads(nThreads);
+#endif  // FFTW_THREADING
+
   plan_inputImage = fftw_plan_dft_2d(nColumns_padded, nRows_padded, image_in_cmplx, image_fft_cmplx, FFTW_FORWARD,
                              fftwFlags);
   plan_inverse = fftw_plan_dft_2d(nColumns_padded, nRows_padded, multiplied_cmplx, convolvedImage_cmplx, FFTW_BACKWARD, 
@@ -208,7 +223,7 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   }
   if (debugStatus > 0)
     printf("Shifting and wrapping the PSF ...\n");
-  ShiftAndWrapPSF(psfPixels, nRows_psf, nColumns_psf, psf_in_cmplx, nRows_padded, nColumns_padded);
+  ShiftAndWrapPSF();
   if (debugStatus > 1) {
     printf("The whole padded, normalized PSF image, row by row:\n");
     PrintComplexImage_RealPart(psf_in_cmplx, nRows_padded, nColumns_padded);
@@ -290,32 +305,32 @@ void Convolver::ConvolveImage( double *pixelVector )
 }
 
 
-// ShiftAndWrapPSF: Takes an input PSF (assumed to be centered in the central pixel
-// of the image) and copies it into the real part of an fftw_complex image, with the
+// ShiftAndWrapPSF: Takes the input PSF (assumed to be centered in the central pixel
+// of the image) and copy it into the real part of the (padded) fftw_complex image, with the
 // PSF wrapped into the corners, suitable for convolutions.
-// Call with, e.g.
-//   ShiftAndWrapPSF(psfPixels, nRows_psf, nColumns_psf, psf_in_cmplx, nRows_padded, nColumns_padded);
-void Convolver::ShiftAndWrapPSF( double *psfImage, int nRows_psf, int nCols_psf,
-                      fftw_complex *destImage, int nRows_dest, int nCols_dest )
+void Convolver::ShiftAndWrapPSF( )
 {
-  int  centerX_psf = nCols_psf / 2;
-  int  centerY_psf = nRows_psf / 2;
+  int  centerX_psf, centerY_psf;
   int  psfCol, psfRow, destCol, destRow;
   int  pos_in_psf, pos_in_dest;
   int  i, j;
 
+  centerX_psf = nColumns_psf / 2;
+  centerY_psf = nRows_psf / 2;
   for (i = 0; i < nRows_psf; i++) {
-    for (j = 0; j < nCols_psf; j++) {
+    for (j = 0; j < nColumns_psf; j++) {
       psfCol = j;
       psfRow = i;
-      pos_in_psf = i*nCols_psf + j;
-      destCol = (nCols_dest - centerX_psf + psfCol) % nCols_dest;
-      destRow = (nRows_dest - centerY_psf + psfRow) % nRows_dest;
-      pos_in_dest = destRow*nCols_dest + destCol;
-      destImage[pos_in_dest][0] = psfImage[pos_in_psf];
+      pos_in_psf = i*nColumns_psf + j;
+      destCol = (nColumns_padded - centerX_psf + psfCol) % nColumns_padded;
+      destRow = (nRows_padded - centerY_psf + psfRow) % nRows_padded;
+      pos_in_dest = destRow*nColumns_padded + destCol;
+      psf_in_cmplx[pos_in_dest][0] = psfPixels[pos_in_psf];
     }
   }
 }
+
+
 
 
 void PrintRealImage( fftw_complex *image_cmplx, int nRows, int nColumns )

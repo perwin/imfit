@@ -1,10 +1,16 @@
-# Scons "makefile" for imfit program
+# Scons "makefile" for imfit and related programs
 # 
 # To use this, type the following on the command line:
 #    $ scons <target-name>
 # where <target-name> is, e.g., "imft", "imfit_db", etc.
 # "scons" by itself will build *all* targets
 # 
+# To build a version with FFTW3 threading enabled:
+#    $ scons define=FFTW_THREADING <target-name>
+#
+# To build a version with full debugging printouts:
+#    $ scons define=DEBUG <target-name>
+#
 # To clean up everything (including programs):
 #    $ scons -c
 
@@ -18,6 +24,8 @@
 
 import os
 
+FUNCTION_SUBDIR = "function_objects/"
+
 os_type = os.uname()[0]
 
 cflags_opt = ["-O3", "-g0"]
@@ -25,45 +33,49 @@ cflags_db = ["-Wall", "-g3"]
 
 base_defines = ["ANSI"]
 # slightly experimental system-specific stuff
-if (os_type == "Darwin"):
-	# OK, we're compiling on Mac OS X
-	include_path = ["/usr/local/include"]
+if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
+	include_path = ["/usr/local/include", FUNCTION_SUBDIR]
 	lib_path = ["/usr/local/lib"]
 	# Use "-m32" for both compiling and linking, to make sure we work in 
 	# 32-bit mode for Mac OS X (10.6 defaults to 64-bit compilation otherwise,
-	# which would cause problems when linking with fftw3 library):
+	# which would cause problems when linking with fftw3 and cfitsio libraries):
 	cflags_opt = ["-O3", "-g0", "-m32"]
-	cflags_db = ["-Wall", "-g3", "-m32"]
+	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3", "-m32"]
 	link_flags = ["-m32"]
 if (os_type == "Linux"):
-	# silly Linux doesn't have OpenBSD string routines built in, so we'll
-	# have to include them
+	# silly Linux doesn't have OpenBSD string routines built in, so we'll have to include them
 	base_defines = base_defines + ["NO_BSD_STRINGS"]
-	include_path = ["/usr/include"]
+	include_path = ["/usr/include", FUNCTION_SUBDIR]
 	lib_path = ["/usr/lib"]
 	link_flags = None
 defines_opt = base_defines
 defines_db = base_defines + ["DEBUG"]
 
 
-lib_list = ["fftw3", "cfitsio", "m"]
+# Allow use to specify extra definitions via command line (e.g., "scons define=FFTW_THREADING"):
+extra_defines = []
+for key, value in ARGLIST:
+	if key == 'define':
+		extra_defines.append(value)
+defines_db = defines_db + extra_defines
+defines_opt = defines_opt + extra_defines
 
 
-# "env_norm" is currently a semi-debugging environment (most debugging options
-# 			turned on, but not -DDEBUG
-# "env_debug" is identical, except that -DDEBUG is also specified
+lib_list = ["fftw3_threads", "fftw3", "cfitsio", "m"]
+
+
+# "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling [not really used yet]
 
 env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-env_norm = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+# env_norm = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+# 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 
-# We have separate lists of object names (what we want the .o files to be 
-# called) and source names (.cpp, .c) so that we can specify separate 
-# debugging and optimized compilations.
+# We have separate lists of object names (what we want the .o files to be called) and
+# source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
 
 # Pure C code
 c_obj_string = """mp_enorm statistics mersenne_twister"""
@@ -71,17 +83,28 @@ c_objs = c_obj_string.split()
 c_sources = [name + ".c" for name in c_objs]
 
 # C++ code
-# ModelObject and various FunctionObject classes:
-modelobject_obj_string = """model_object convolver function_object func_gaussian func_exp
-		func_sersic func_flat-exp func_broken-exp"""
+
+# ModelObject and related classes:
+modelobject_obj_string = """model_object convolver"""
 modelobject_objs = modelobject_obj_string.split()
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
-# ModelObject1d and various 1D FunctionObject classes:
-modelobject1d_obj_string = """model_object model_object_1d function_object
-		func1d_exp func1d_sersic"""
+# Function objects:
+functionobject_obj_string = """function_object func_gaussian func_exp func_sersic 
+		func_flat-exp func_broken-exp func_moffat"""
+functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
+functionobject_sources = [name + ".cpp" for name in functionobject_objs]
+
+# ModelObject1d and related classes:
+modelobject1d_obj_string = """model_object model_object_1d"""
 modelobject1d_objs = modelobject1d_obj_string.split()
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
+
+# 1D FunctionObject classes:
+functionobject1d_obj_string = """function_object func1d_exp func1d_sersic"""
+functionobject1d_objs = [ FUNCTION_SUBDIR + name for name in functionobject1d_obj_string.split() ]
+functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
+
 
 # Base files for imfit:
 imfit_base_obj_string = """utilities anyoption image_io mpfit diff_evoln_fit DESolver
@@ -91,7 +114,8 @@ imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
 # Base files for profilefit:
 profilefit_base_obj_string = """utilities anyoption mpfit diff_evoln_fit DESolver
-		read_profile config_file_parser add_functions_1d print_results profilefit_main"""
+		read_profile config_file_parser add_functions_1d print_results 
+		convolver profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
@@ -103,52 +127,53 @@ makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 
 # imfit: put all the object and source-code lists together
-imfit_objs = imfit_base_objs + modelobject_objs + c_objs
-imfit_sources = imfit_base_sources + modelobject_sources + c_sources
+imfit_objs = imfit_base_objs + modelobject_objs + functionobject_objs + c_objs
+imfit_sources = imfit_base_sources + modelobject_sources + functionobject_sources + c_sources
 
 # profilefit: put all the object and source-code lists together
-profilefit_objs = profilefit_base_objs + modelobject1d_objs + c_objs
-profilefit_sources = profilefit_base_sources + modelobject1d_sources + c_sources
+profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + c_objs
+profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + c_sources
 
 # makeimage: put all the object and source-code lists together
-makeimage_objs = makeimage_base_objs + modelobject_objs + c_objs
-makeimage_sources = makeimage_base_sources + modelobject_sources + c_sources
+makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs + c_objs
+makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources + c_sources
 
 # readimage: put all the object and source-code lists together
 readimage_sources = ["readimage_main.cpp", "readimage.cpp"]
 
 # psfconvolve: put all the object and source-code lists together
-psfconvolve_sources_old = ["psfconvolve_main_old.cpp", "anyoption.cpp", "image_io.cpp"]
-psfconvolve_sources = ["psfconvolve_main.cpp", "anyoption.cpp", "image_io.cpp",
-	"convolver.cpp"]
+#psfconvolve_sources_old = ["psfconvolve_main_old.cpp", "anyoption.cpp", "image_io.cpp"]
+psfconvolve_objs = ["psfconvolve_main", "anyoption", "image_io", "convolver"]
+psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
 # test_parser: put all the object and source-code lists together
-testparser_sources = ["test_parser.cpp", "config_file_parser.cpp", "utilities.cpp"]
-
+testparser_objs = ["test_parser", "config_file_parser", "utilities"]
+testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 
 # Finally, define the actual targets
 # specify ".do" as the suffix for "full-debug" object code
-full_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
-env_debug.Program("imfit_db", full_dbg_objlist)
+imfit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
+env_debug.Program("imfit_db", imfit_dbg_objlist)
+imfit_opt_objlist = [ env_opt.Object(obj, src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
+env_opt.Program("imfit", imfit_opt_objlist)
 
-base_norm_objlist = [ env_norm.Object(obj, src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
-env_norm.Program("imfit", base_norm_objlist)
+# profile fit is fast, so we don't really need an "optimized" version
+profilefit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(profilefit_objs, profilefit_sources) ]
+env_debug.Program("profilefit", profilefit_dbg_objlist)
 
-env_norm.Program("profilefit", profilefit_sources)
-env_norm.Program("makeimage", makeimage_sources)
-env_norm.Program("readimage_test", readimage_sources)
-env_norm.Program("psfconvolve", psfconvolve_sources)
-env_norm.Program("psfconvolve_old", psfconvolve_sources_old)
-env_norm.Program("testparser", testparser_sources)
+makeimage_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(makeimage_objs, makeimage_sources) ]
+env_debug.Program("makeimage_db", makeimage_dbg_objlist)
+env_opt.Program("makeimage", makeimage_sources)
 
+psfconvolve_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve_objs, psfconvolve_sources) ]
+env_debug.Program("psfconvolve", psfconvolve_dbg_objlist)
 
-# Specify that debug-compilation produces object files with "_debug" 
-# at end of root name by making a list of scons Objects which pair
-# "<rootname>_debug" with "<rootname.cpp>"
-# nonlinfit_debug_Objects = [ env_debug.Object(objname + "_debug", sourcename) 
-# 							for objname,sourcename in zip(nonlinfit_objs, nonlinfit_sources) ]
-# env_debug.Program("nonlinfit3_db", nonlinfit_debug_Objects)
+# older programs
+#env_debug.Program("readimage_test", readimage_sources)
+#env_debug.Program("psfconvolve_old", psfconvolve_sources_old)
+testparser_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(testparser_objs, testparser_sources) ]
+env_debug.Program("testparser", testparser_objlist)
 
 
 # Run the tests (note that these work because we define nonexistent files

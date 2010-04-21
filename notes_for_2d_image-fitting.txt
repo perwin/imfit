@@ -165,6 +165,9 @@ QUESTIONS AND ISSUES:
 				we allow specification of a PSF function)
 				-- note that GALFIT 2.0 avoids this by recommending that user specify
 				a very narrow Gaussian as point-source
+				-- [Apr 2010] Experiments suggest that we can get a rather good
+				approximation of a scalable point source by convolving a Gaussian of
+				sigma = 0.1 or 0.2 [e.g., with limits = "fixed"] with the PSF
 			
 		Conclusion (so far): not necessary to work with separate convolved and
 		non-convolved components [but keep this "issue" here in case we think of
@@ -430,6 +433,16 @@ ModelObject
 	[x] Prototype internal allocation & de-allocation of deviances vector and
 	simpler chisquare function
 
+[x] Prototype code for FFT convolution in makeimage
+	[x] Prototype PSF reading in makeimage
+		[x] Code for getting PSF image name (and check for existence)
+		[x] Code to read PSF image into a pixel vector
+	[x] Prototype skeleton/stub-function use of convolver.cpp by ModelObject
+	[x] Prototype use of convolver.cpp code for PSF storage, shifting by ModelObject
+	[x] Prototype convolution in makeimage
+	[x] Prototype incorporating convolution into ModelObject
+
+
 
 
 [.] Prototype use of differential evolution
@@ -441,8 +454,8 @@ ModelObject
 		be applied to DESolver.cpp
 	[] Prototype user selection of DE parameters (F, CR, strategy, Npop multiplier)
 		-- command-line switch? text-file?
-	[] Investigate possible convergence/stop criteria for DE
-		[] modify DE code to print out chi^2 to higher precision and/or delta-chi^2
+	[x] Investigate possible convergence/stop criteria for DE
+		[x] modify DE code to print out chi^2 to higher precision and/or delta-chi^2
 		-- e.g., if best chi^2 value does not change by more than epsilon and/or
 		after N generations, then declare a halt...
 	[] Investigate possible ignoring of fixed parameters in DE
@@ -450,6 +463,18 @@ ModelObject
 		parameters, re-inserting the fixed parameters only when calling the chi-square
 		function
 
+[] Prototype error-printing functions
+	-- e.g., something like what's in Kernighan & Pike's _The Practice of
+	Programming_
+	[] Prototype an error-printing function
+	[] Prototype an error-printing-and-exit function
+	[] Add error-printing function use to rest of code
+
+[] Prototype elliptical Moffat profile function
+	[] Prototype 1-D Python function for use in testing subsampling
+	[] Prototype C++ Moffat function
+	[] Generate Moffat-function test images & compare 1-D cuts with 1-D Python function
+	
 [] Investigate fine-tuning of differential evolution
 	-- e.g., "meta-optimization" using SwarmOps?
 
@@ -461,17 +486,8 @@ ModelObject
 	[x] Prototype simple program which reads in image & PSF and saves convolution
 	[x] Implement trimming of final output image
 	[x] Prototype convolver.cpp module to contain PSF convolution code
-	[] Do initial tests of convolver-based psfconvolve
+	[x] Do initial tests of convolver-based psfconvolve
 	[] Figure out funny outer-edge issue in convolved image
-
-[] Prototype code for FFT convolution in makeimage
-	[x] Prototype PSF reading in makeimage
-		[x] Code for getting PSF image name (and check for existence)
-		[x] Code to read PSF image into a pixel vector
-	[] Prototype skeleton/stub-function use of convolver.cpp by ModelObject
-	[] Prototype use of convolver.cpp code for PSF storage, shifting by ModelObject
-	[] Prototype convolution in makeimage
-	[] Prototype incorporating convolution into ModelObject
 
 [] Test possible sub-pixel generation schemes (Python)
 	[x] Write Python code to do sub-pixel sampling
@@ -543,7 +559,7 @@ image
 
 [] Prototype a generalized-ellipse function object
 
-[] Prototype option to use only a subset of input image
+[.] Prototype option to use only a subset of input image
 	-- Note: we can do this almost automatically with cfitsio!
 	cfitsio allows you to pass a filename of the form "name.fits[x1:x2,y1:y2]"
 	(or even "name.fits[2][x1:x2,*]") and it will automatically read the
@@ -557,7 +573,6 @@ image
 		name.fits[*,*]
 		and variations of the above with [n] in front of the region specification
 		(e.g., name.fits[3][x1:x2,y1:y2])
-		
 	[x] Prototype code to check for image-file existence, chopping off "[...]"
 		if it exists (applies to image, mask, noise, and PSF; also to reference
 		image in makeimage case)

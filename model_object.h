@@ -1,9 +1,7 @@
-/*   Class interface definition for model_object.cpp [imfit]
+/*   Abstract base lass interface definition for model_object.cpp [imfit]
  *   VERSION 0.3
  *
- * This is the standard class for 2D image-generation and image-fitting
- * "model" objects; it also acts as a base class for variant model objects
- * (e.g., 1-D fitting objects -- see model_object_1d.h)
+ * This is the abstract base clase for 1D and 2D "model" objects.
  * 
  */
 
@@ -28,66 +26,84 @@ class ModelObject
     // Constructors:
     ModelObject( );
     
+    // common, not specialized
     void AddFunction( FunctionObject *newFunctionObj_ptr );
     
-    // may need to be overridden by derived class ModelObject1D
+    // common, but Specialized by ModelObject1D
     virtual void DefineFunctionSets( vector<int>& functionStartIndices );
     
-    // to be overridden by derived class ModelObject1D
+    // 1D only, but needs to be part of base interface
     virtual void AddDataVectors( int nDataValues, double *xValVector, 
     						double *yValVector, bool magnitudeData );
 
+		// 2D only
     void AddImageDataVector( int nDataValues, int nImageColumns,
                                      int nImageRows, double *pixelVector );
 
+		// 2D only
     void SetupModelImage( int nDataValues, int nImageColumns, int nImageRows );
     
+		// 2D only
     virtual void AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
+    // 1D only
     virtual void AddErrorVector1D( int nDataValues, double *pixelVector, int inputType );
 
+		// 2D only
     virtual void GenerateErrorVector( double gain, double readNoise, double skyValue );
 
+		// 2D only
     virtual void AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
+		// 2D only [1D needs something similar, but with diff. interface]
     void AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels);
 
+		// 2D only [1D maybe needs something similar, but with diff. interface]
     virtual void ApplyMask( );
-    
-    void AddParameterLimits( double *paramLimits );
-    
-    // may need to be overridden by derived class ModelObject1D
+
+    // common, but Specialized by ModelObject1D
     virtual void CreateModelImage( double params[] );
     
-    // may need to be overridden by derived class ModelObject1D
+    // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
+    // common, not specialized
     virtual void SetupChisquaredCalcs( );
     
+    // common, not specialized
     virtual double ChiSquared( double params[] );
     
+    // common, but Specialized by ModelObject1D
     virtual void PrintDescription( );
 
+    // 2D only; NOT USED ANYWHERE!
     void PrintImage( double *pixelVector );
 
+		// 2D only
     void PrintInputImage( );
 
+		// 2D only
     void PrintModelImage( );
 
+    // 2D only; NOT USED ANYWHERE!
     void PrintWeights( );
 
-    // may need to be overridden by derived class ModelObject1D
+    // common, but Specialized by ModelObject1D
     virtual void PopulateParameterNames( );
 
+    // common, not specialized
     string& GetParameterName( int i );
 
+    // common, not specialized
     int GetNParams( );
 
+    // common, not specialized
     int GetNValidPixels( );
 
+		// 2D only
     double * GetModelImageVector( );
 
     // Destructor

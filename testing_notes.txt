@@ -83,7 +83,7 @@ AIC = 12.082596, BIC = 41.588831
 $ ./imfit testing/ic3478rss_32x32.fits --config=imfit_config_ic3478_32x32.dat --gain=4.725 --readnoise=4.3 --sky=130.1
 
 (the following takes ~ 3s on MacBook Pro 2009)
-$ ./imfit testing/ic3478rss_small.fits --config=imfit_config_ic3478.dat --gain=4.725 --readnoise=4.3 --sky=130.1 --nosubsampling
+$ ./imfit testing/ic3478rss_small.fits --config=imfit_config_ic3478_sersic-only.dat --gain=4.725 --readnoise=4.3 --sky=130.1 --nosubsampling
 Reduced Chi^2 = 1.168005
 AIC = 73006.120922, BIC = 73069.419582
 

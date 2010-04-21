@@ -23,7 +23,9 @@ int main(int argc, char *argv[])
   vector<int>  setStarts;   // which function number marks start of new set
   mp_par  test_parlimit;
   bool  paramLimitsExist = false;
+  bool mode2D_flag = true;   // we're testing the reading of 2D config files (non-profilefit)
   int  nSets, nParamsTot;
+  int  status;
   
   printf("\nStarting ...\n\n");
   
@@ -37,7 +39,8 @@ int main(int argc, char *argv[])
   
   
   // Read file in limited mode (ignore parameter limits)
-  ReadConfigFile(configFileName, functionList, parameterList, setStarts);
+  status = ReadConfigFile(configFileName, mode2D_flag, functionList, parameterList, 
+                              setStarts);
 
   printf("Number of sets = %d, number of functions = %d, number of parameters = %d\n", 
             (int)setStarts.size(), (int)functionList.size(), (int)parameterList.size());
@@ -57,7 +60,7 @@ int main(int argc, char *argv[])
   paramLimits.clear();
   setStarts.clear();
   // Read file in full mode (recognize parameter limits)
-  ReadConfigFile(configFileName, functionList, parameterList, paramLimits, 
+  status = ReadConfigFile(configFileName, mode2D_flag, functionList, parameterList, paramLimits, 
                 setStarts, paramLimitsExist);
   
   printf("Number of functions = %d, number of parameters = %d\n", (int)functionList.size(),

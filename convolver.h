@@ -56,8 +56,7 @@ class Convolver
 
   private:
   // Private member functions:
-  void ShiftAndWrapPSF( double *psfImage, int nRows_psf, int nCols_psf,
-                      fftw_complex *destImage, int nRows_dest, int nCols_dest );
+  void ShiftAndWrapPSF( );
   
   // Data members:
   int  nPixels_image, nPixels_psf, nPixels_padded;
