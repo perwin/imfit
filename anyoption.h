@@ -56,7 +56,7 @@ public: /* the public interface */
 	 */
 
 	void useCommandArgs( int _argc, char **_argv );
-	void useFiileName( const char *_filename );
+	void useFileName( const char *_filename );
 
 	/* 
          * turn off the POSIX style options 

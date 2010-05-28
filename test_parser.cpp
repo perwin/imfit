@@ -13,6 +13,7 @@ using namespace std;
 
 
 string  configFileName("test_config_sets.dat");
+string  configFileName2("test_config_sets_and_extra.dat");
 
 
 int main(int argc, char *argv[])
@@ -26,6 +27,7 @@ int main(int argc, char *argv[])
   bool mode2D_flag = true;   // we're testing the reading of 2D config files (non-profilefit)
   int  nSets, nParamsTot;
   int  status;
+  configOptions  userConfigOptions, userConfigOptions2;
   
   printf("\nStarting ...\n\n");
   
@@ -39,8 +41,16 @@ int main(int argc, char *argv[])
   
   
   // Read file in limited mode (ignore parameter limits)
-  status = ReadConfigFile(configFileName, mode2D_flag, functionList, parameterList, 
-                              setStarts);
+  printf("Starting simple (makeimage) mode:\n");
+  status = ReadConfigFile(configFileName2, mode2D_flag, functionList, parameterList, 
+                              setStarts, userConfigOptions);
+
+  printf("User config options:\n");
+  for (int j = 0; j < userConfigOptions.nOptions; j++) {
+    printf("%s = %s\n", userConfigOptions.optionNames[j].c_str(),
+    				userConfigOptions.optionValues[j].c_str());
+  }
+  printf("\n");
 
   printf("Number of sets = %d, number of functions = %d, number of parameters = %d\n", 
             (int)setStarts.size(), (int)functionList.size(), (int)parameterList.size());
@@ -55,14 +65,22 @@ int main(int argc, char *argv[])
   }
   printf("Done with simple (makeimage) mode...\n\n");
 
+  
+  printf("Starting full (imfit) mode...\n");
   functionList.clear();
   parameterList.clear();
   paramLimits.clear();
   setStarts.clear();
   // Read file in full mode (recognize parameter limits)
-  status = ReadConfigFile(configFileName, mode2D_flag, functionList, parameterList, paramLimits, 
-                setStarts, paramLimitsExist);
+  status = ReadConfigFile(configFileName2, mode2D_flag, functionList, parameterList, paramLimits, 
+                setStarts, paramLimitsExist, userConfigOptions2);
   
+  printf("User config options:\n");
+  for (int j = 0; j < userConfigOptions2.nOptions; j++) {
+    printf("%s = %s\n", userConfigOptions2.optionNames[j].c_str(),
+    				userConfigOptions2.optionValues[j].c_str());
+  }
+  printf("\n");
   printf("Number of functions = %d, number of parameters = %d\n", (int)functionList.size(),
             (int)parameterList.size());
   nSets = setStarts.size();

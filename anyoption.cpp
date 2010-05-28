@@ -65,6 +65,7 @@
 // message.
 // Also added method-name prefixes to the "Unknown command ..." strings, so we
 // can tell which method produced it.
+// (May 2010): Changed useFiileName to useFileName
 
 #include "anyoption.h"
 #include "string.h"
@@ -382,7 +383,7 @@ AnyOption::useCommandArgs( int _argc, char **_argv )
 }
 
 void
-AnyOption::useFiileName( const char *_filename )
+AnyOption::useFileName( const char *_filename )
 {
 	filename = _filename;
 	file_set = true;
@@ -616,20 +617,21 @@ AnyOption::processCommandArgs( int _argc, char **_argv )
 void
 AnyOption::processCommandArgs()
 {
-   	if( ! ( valueStoreOK() && CommandSet() )  )
-	   return;
+	if( ! ( valueStoreOK() && CommandSet() )  )
+		return;
 	   
 	if( max_legal_args == 0 )
 		max_legal_args = argc;
 	new_argv = (int*) malloc( (max_legal_args+1) * sizeof(int) );
-	for( int i = 1 ; i < argc ; i++ ){/* ignore first argv */
-		if(  argv[i][0] == long_opt_prefix[0] && 
+	for ( int i = 1 ; i < argc ; i++ ) {/* ignore first argv */
+		if ( argv[i][0] == long_opt_prefix[0] && 
                      argv[i][1] == long_opt_prefix[1] ) { /* long GNU option */
 			int match_at = parseGNU( argv[i]+2 ); /* skip -- */
-			if( match_at >= 0 && i < argc-1 ) /* found match */
+			if ( match_at >= 0 && i < argc-1 ) /* found match */
 				setValue( options[match_at] , argv[++i] );
-		}else if(  argv[i][0] ==  opt_prefix_char ) { /* POSIX char */
-			if( POSIX() ){ 
+		} else if (   argv[i][0] ==  opt_prefix_char ) { /* POSIX char */
+			if( POSIX() ) { 
+				printf("processCommandArgs: argv[i] = %s, argv[i]+1 = %s\n", argv[i], argv[i]+1);
 				char ch =  parsePOSIX( argv[i]+1 );/* skip - */ 
 				if( ch != '0' && i < argc-1 ) /* matching char */
 					setValue( ch ,  argv[++i] );
@@ -638,16 +640,16 @@ AnyOption::processCommandArgs()
 				if( match_at >= 0 && i < argc-1 ) /* found match */
 					setValue( options[match_at] , argv[++i] );
 			}
-		}else { /* not option but an argument keep index */
-			if( new_argc < max_legal_args ){
-                                new_argv[ new_argc ] = i ;
-                                new_argc++;
-                        }else{ /* ignore extra arguments */
-                                printVerbose( "Ignoring extra argument: " );
+		} else { /* not option but an argument keep index */
+			if ( new_argc < max_legal_args ) {
+				new_argv[ new_argc ] = i ;
+				new_argc++;
+			} else { /* ignore extra arguments */
+				printVerbose( "Ignoring extra argument: " );
 				printVerbose( argv[i] );
 				printVerbose( );
 				printAutoUsage();
-                        }
+			}
 // 			printVerbose( "processCommandArgs: Unknown command argument option : " );
 // 			printVerbose( argv[i] );
 // 			printVerbose( );
@@ -660,15 +662,17 @@ char
 AnyOption::parsePOSIX( char* arg )
 {
 
-	for( unsigned int i = 0 ; i < strlen(arg) ; i++ ){ 
-		char ch = arg[i] ;
-		if( matchChar(ch) ) { /* keep matching flags till an option */
+	for( unsigned int i = 0 ; i < strlen(arg) ; i++ ) {
+		char ch = arg[i];
+		printf("parsePOSIX: i = %d, ch = %c\n", i, ch);
+		if ( matchChar(ch) ) { /* keep matching flags till an option */
+			printf("parsePOSIX: matched!\n");
 			/*if last char argv[++i] is the value */
-			if( i == strlen(arg)-1 ){ 
+			if ( i == strlen(arg)-1 ) { 
 				return ch;
-			}else{/* else the rest of arg is the value */
+			} else {/* else the rest of arg is the value */
 				i++; /* skip any '=' and ' ' */
-				while( arg[i] == whitespace 
+				while ( arg[i] == whitespace 
 			    		|| arg[i] == equalsign )
 					i++;	
 				setValue( ch , arg+i );
@@ -744,16 +748,17 @@ AnyOption::matchOpt( char *opt )
 bool
 AnyOption::matchChar( char c )
 {
-	for( int i = 0 ; i < optchar_counter ; i++ ){
-		if( optionchars[i] == c ) { /* found match */
-			if(optchartype[i] == COMMON_OPT ||
-			     optchartype[i] == COMMAND_OPT )
-			{ /* an option store and stop scanning */
+	for ( int i = 0 ; i < optchar_counter ; i++ ) {
+		printf("matchChar: c = %c, i = %d, optionchars[i] = %c\n", c, i, optionchars[i]);
+		if ( optionchars[i] == c ) { /* found match */
+			if (optchartype[i] == COMMON_OPT ||
+			     optchartype[i] == COMMAND_OPT ) { /* an option store and stop scanning */
 				return true;	
-			}else if( optchartype[i] == COMMON_FLAG || 
+			} else if ( optchartype[i] == COMMON_FLAG || 
 				  optchartype[i] == COMMAND_FLAG ) { /* a flag store and keep scanning */
 				setFlagOn( c );
-				return false;
+//				return false;
+				return true;
 			}
 		}
 	}
@@ -936,7 +941,7 @@ AnyOption::processFile()
 bool
 AnyOption::processFile( const char *filename )
 {
-	useFiileName(filename );
+	useFileName(filename );
 	return ( processFile() );
 }
 

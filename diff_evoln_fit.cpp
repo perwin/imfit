@@ -42,7 +42,7 @@ private:
 
 double ImfitSolver::EnergyFunction(double *trial, bool &bAtSolution)
 {
-  double  chiSquared, delta_chiSquared;
+  double  chiSquared;
   
   chiSquared = theModel->ChiSquared(trial);
 	

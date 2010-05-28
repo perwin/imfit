@@ -125,14 +125,16 @@ void AddFunctionName( string& currentLine, vector<string>& functionList ) {
 //    setStartFunctionNumber = output, will contain vector of integers specifying
 //                   which functions mark start of new function set
 int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionList,
-                     vector<double>& parameterList, vector<int>& setStartFunctionNumber )
+                     vector<double>& parameterList, vector<int>& setStartFunctionNumber,
+                     configOptions& configFileOptions )
 {
   ifstream  inputFileStream;
   string  inputLine, currentLine;
   vector<string>  inputLines;
   vector<string>  stringPieces;
-  int  functionNumber;
+  int  functionSectionStart, functionNumber;
   int  i, nInputLines;
+  bool  functionSectionFound = false;
   
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
@@ -149,7 +151,35 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   inputFileStream.close();
 
   nInputLines = inputLines.size();
+  
+  // OK, locate the start of the function block (first line beginning with "X0")
   i = 0;
+  while (i < nInputLines) {
+    if (inputLines[i].find("X0", 0) != string::npos) {
+      functionSectionStart = i;
+      functionSectionFound = true;
+      break;
+    }
+    i++;
+  }
+
+  // Parse the first (non-function-related) section here
+  // We assume that each of lines has the form "CAPITAL_KEYWORD some_value"
+  configFileOptions.nOptions = 0;
+  configFileOptions.optionNames.clear();
+  configFileOptions.optionValues.clear();
+  for (i = 0; i < functionSectionStart; i++) {
+    ChopComment(inputLines[i]);
+    SplitString(inputLines[i], stringPieces);
+    if (stringPieces.size() == 2) {
+      configFileOptions.optionNames.push_back(stringPieces[0]);
+      configFileOptions.optionValues.push_back(stringPieces[1]);
+      configFileOptions.nOptions += 1;
+    }
+  }
+  
+  // OK, now parse the function section
+  i = functionSectionStart;
   functionNumber = 0;
   while (i < nInputLines) {
     if (inputLines[i].find("X0", 0) != string::npos) {
@@ -196,14 +226,16 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
 //                   which functions mark start of new function set
 int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
-                    vector<int>& setStartFunctionNumber, bool& parameterLimitsFound )
+                    vector<int>& setStartFunctionNumber, bool& parameterLimitsFound,
+                    configOptions& configFileOptions )
 {
   ifstream  inputFileStream;
   string  inputLine, currentLine;
   vector<string>  inputLines;
   vector<string>  stringPieces;
-  int  functionNumber, paramNumber;
+  int  functionSectionStart, functionNumber, paramNumber;
   int  i, nInputLines;
+  bool  functionSectionFound = false;
   bool  pLimitFound;
   
   inputFileStream.open(configFileName.c_str());
@@ -220,7 +252,35 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   inputFileStream.close();
 
   nInputLines = inputLines.size();
+
+  // OK, locate the start of the function block (first line beginning with "X0")
   i = 0;
+  while (i < nInputLines) {
+    if (inputLines[i].find("X0", 0) != string::npos) {
+      functionSectionStart = i;
+      functionSectionFound = true;
+      break;
+    }
+    i++;
+  }
+
+  // Parse the first (non-function-related) section here
+  // We assume that each of lines has the form "CAPITAL_KEYWORD some_value"
+  configFileOptions.nOptions = 0;
+  configFileOptions.optionNames.clear();
+  configFileOptions.optionValues.clear();
+  for (i = 0; i < functionSectionStart; i++) {
+    ChopComment(inputLines[i]);
+    SplitString(inputLines[i], stringPieces);
+    if (stringPieces.size() == 2) {
+      configFileOptions.optionNames.push_back(stringPieces[0]);
+      configFileOptions.optionValues.push_back(stringPieces[1]);
+      configFileOptions.nOptions += 1;
+    }
+  }
+  
+  // OK, now parse the function section
+  i = functionSectionStart;
   functionNumber = 0;
   paramNumber = 0;
   parameterLimitsFound = false;
@@ -239,7 +299,9 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
           printf("*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
           return -1;
         }
-        AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
+        pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
+        if (pLimitFound)
+          parameterLimitsFound = true;
         paramNumber++;
         i++;
       }
@@ -254,7 +316,9 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
     }
     // OK, we only reach here if it's a regular (non-positional) parameter line
     //printf("Parameter detected (i = %d)\n", i);
-    AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
+    pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
+    if (pLimitFound)
+      parameterLimitsFound = true;
     paramNumber++;
     i++;
   }

@@ -332,19 +332,6 @@ void Convolver::ShiftAndWrapPSF( )
 
 
 
-
-void PrintRealImage( fftw_complex *image_cmplx, int nRows, int nColumns )
-{
-
-  for (int i = 0; i < nRows; i++) {   // step by row number = y
-    for (int j = 0; j < nColumns; j++)   // step by column number = x
-      printf(" %f", image_cmplx[i*nColumns + j][0]);
-    printf("\n");
-  }
-  printf("\n");
-}
-
-
 void PrintRealImage( double *image, int nRows, int nColumns )
 {
 

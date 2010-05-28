@@ -22,14 +22,15 @@
 #include "func_flat-exp.h"
 #include "func_broken-exp.h"
 #include "func_moffat.h"
+#include "func_flatsky.h"
 
 using namespace std;
 
 
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
 const char  FUNCTION_NAMES[][30] = {"Exponential", "Sersic", "Gaussian", 
-            "FlatExponential", "BrokenExponential", "Moffat"};
-const int  N_FUNCTIONS = 6;
+            "FlatExponential", "BrokenExponential", "Moffat", "FlatSky"};
+const int  N_FUNCTIONS = 7;
 
 
 // CHANGE WHEN ADDING FUNCTION -- add corresponding
@@ -72,6 +73,11 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
     }
     if (currentName == "Moffat") {
       thisFunctionObj = new Moffat(subamplingFlag);
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
+    if (currentName == "FlatSky") {
+      thisFunctionObj = new FlatSky(subamplingFlag);
       theModel->AddFunction(thisFunctionObj);
       continue;
     }

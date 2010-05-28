@@ -23,8 +23,15 @@ using namespace std;
 
 // String-processing functions
 
-// Splits a string and returns substrings as elements of tokens.
-void SplitString( const string& str, vector<string>& tokens, const string& delimiters = "\t " );
+// Splits a string and returns substrings as elements of tokens (tokens is cleared
+// before adding the substrings).
+void SplitString( const string& str, vector<string>& tokens, 
+									const string& delimiters = "\t " );
+
+// Same as SplitString, but the pieces of the input string are *added* to the
+// tokens vector, instead of the tokens vector being cleared first
+void SplitStringAdd( const string& str, vector<string>& tokens, 
+									const string& delimiters = "\t " );
 
 // Removes remainder of string after first occurance of delimiter.
 void ChopComment( string& inputString, char delimiter = '#' );
@@ -38,6 +45,8 @@ void StripBrackets( const string& inputFilename, string& strippedFilename );
 
 void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart );
 
+
+bool ImageFileExists(const char * filename);
 
 bool FileExists(const char * filename);
 

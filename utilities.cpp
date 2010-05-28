@@ -35,6 +35,29 @@ void SplitString( const string& str, vector<string>& tokens, const string& delim
   // Find first "non-delimiter".
   string::size_type  pos = str.find_first_of(delimiters, lastPos);
 
+  tokens.clear();
+  while (string::npos != pos || string::npos != lastPos)
+  {
+    // Found a token, add it to the vector.
+    tokens.push_back(str.substr(lastPos, pos - lastPos));
+    // Skip delimiters.  Note the "not_of"
+    lastPos = str.find_first_not_of(delimiters, pos);
+    // Find next "non-delimiter"
+    pos = str.find_first_of(delimiters, lastPos);
+  }
+}
+
+
+/* ---------------- FUNCTION: SplitStringAdd() --------------------- */
+// Same as SplitString, but the pieces of the input string are *added* to the
+// tokens vector, instead of the tokens vector being cleared first
+void SplitStringAdd( const string& str, vector<string>& tokens, const string& delimiters )
+{
+  // Skip delimiters at beginning.
+  string::size_type  lastPos = str.find_first_not_of(delimiters, 0);
+  // Find first "non-delimiter".
+  string::size_type  pos = str.find_first_of(delimiters, lastPos);
+
   while (string::npos != pos || string::npos != lastPos)
   {
     // Found a token, add it to the vector.
@@ -151,6 +174,32 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
       }
     }
   }
+}
+
+
+
+/* ---------------- FUNCTION: ImageFileExists() -------------------- */
+// Function which tests for the existence of an image file, with the following
+// special cases:
+//    1. If filename begins with "ftp:" or "http:", we assume it exists
+//    2. Trailing image specifications (e.g. "name.fits[100:200, 100:200]")
+// are ignored, since they are not part of the on-disk filename
+
+bool ImageFileExists(const char * filename)
+{
+  string  ftpString("ftp://");
+  string  httpString("http://");
+  string  filenameStr(filename);
+  string  baseImageFileName;
+  
+  // Check for possible ftp:// or http://
+  if ((filenameStr.find(ftpString) != string::npos) || 
+  		(filenameStr.find(httpString) != string::npos)) {
+    return true;
+  }
+  
+  StripBrackets(filenameStr, baseImageFileName);
+  return FileExists(baseImageFileName.c_str());
 }
 
 

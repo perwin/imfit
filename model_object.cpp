@@ -110,13 +110,14 @@ void ModelObject::AddDataVectors( int nDataValues, double *xValVector, double *y
 
 /* ---------------- PUBLIC METHOD: AddImageDataVector ------------------ */
 
-void ModelObject::AddImageDataVector( int nDataValues, int nImageColumns,
-                                      int nImageRows, double *pixelVector )
+void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
+																			int nImageRows, int nCombinedImages )
 {
-  nDataVals = nValidDataVals = nDataValues;
   nColumns = nImageColumns;
   nRows = nImageRows;
+  nDataVals = nValidDataVals = nColumns * nRows;
   dataVector = pixelVector;
+  nCombined = nCombinedImages;
   dataValsSet = true;
   
   SetupModelImage(nDataVals, nColumns, nRows);
@@ -125,7 +126,7 @@ void ModelObject::AddImageDataVector( int nDataValues, int nImageColumns,
 
 /* ---------------- PUBLIC METHOD: SetupModelImage -------------------- */
 // Called by AddImageDataVector(); can also be used by itself in make-image
-// mode
+// mode. Tells ModelObject to allocate space for the model image.
 void ModelObject::SetupModelImage( int nDataValues, int nImageColumns,
                                       int nImageRows )
 {
@@ -197,9 +198,16 @@ void ModelObject::AddErrorVector1D( int nDataValues, double *inputVector,
 
 /* ---------------- PUBLIC METHOD: GenerateErrorVector ----------------- */
 // Generate an error vector based on Poisson statistics.
+//    noise^2 = object_flux + sky + rdnoise^2
+//
+// Since sigma_adu = sigma_e/gain, we can go from
+//    noise(e-)^2 = object_flux(e-) + sky(e-) + rdnoise^2
+// to
+//    noise(adu)^2 = object_flux(adu)/gain + sky(adu)/gain + rdnoise^2/gain^2
+// (assuming that read noise is in units of e-, as is usual)
 void ModelObject::GenerateErrorVector( double gain, double readNoise, double skyValue )
 {
-  double  sky_plus_readNoise, noise_squared;
+  double  sky_plus_readNoise, noise_squared, objectFlux;
   
   assert( (gain > 0.0) && (readNoise >= 0.0) );
   if ( skyValue <= 0.0 ) {
@@ -211,9 +219,15 @@ void ModelObject::GenerateErrorVector( double gain, double readNoise, double sky
   weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   weightVectorAllocated = true;
   
+  // Compute noise estimate for each pixel (see above for derivation)
+  // Note that we assume a constant sky background (presumably already
+  // subtracted)
   sky_plus_readNoise = skyValue/gain + readNoise*readNoise/(gain*gain);
   for (int z = 0; z < nDataVals; z++) {
-    noise_squared = dataVector[z]/gain + sky_plus_readNoise;
+    objectFlux = dataVector[z];
+    if (objectFlux < 0.0)
+      objectFlux = 0.0;
+    noise_squared = objectFlux/gain + sky_plus_readNoise;
     weightVector[z] = 1.0 / sqrt(noise_squared);
   }
 
@@ -302,6 +316,7 @@ void ModelObject::ApplyMask( )
 // prep work such as computing the FFT of the PSF).
 // This function must be called *after* SetupModelImage() is called (to ensure
 // that we can tell the Convolver object the model image dimensions).
+// [Note that SetupModelImage() is called by AddImageDataVector().]
 void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels)
 {

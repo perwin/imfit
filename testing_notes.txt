@@ -27,17 +27,17 @@
 # *** Simple tests of psfconvolve
 # Generate reference image and text output:
 $ ./psfconvolve_old gaussian_5x5.fits deltafn_5x5.fits convolve_out_gauss5-c-deltafn.fits
-$ mv convolve_out_gauss5-c-deltafn.fits testing/
+$ mv convolve_out_gauss5-c-deltafn.fits tests/
 $ ./psfconvolve_old deltafn_5x5.fits gaussian_5x5.fits convolve_out_deltafn-c-gauss5.fits
-$ mv convolve_out_deltafn-c-gauss5.fits testing/
+$ mv convolve_out_deltafn-c-gauss5.fits tests/
 
 # Test new version (tell cmp to ignore first 724 bytes, thus skipping the header)
 ./psfconvolve gaussian_5x5.fits deltafn_5x5.fits convolve_out_new.fits --printimages > temp.txt
-cmp convolve_out_new.fits testing/convolve_out_gauss5-c-deltafn.fits -i 724
-diff temp.txt testing/psfconvolve_printimages.txt
+cmp convolve_out_new.fits tests/convolve_out_gauss5-c-deltafn.fits -i 724
+diff temp.txt tests/psfconvolve_printimages.txt
 ./psfconvolve deltafn_5x5.fits gaussian_5x5.fits convolve_out_new.fits --printimages > temp2.txt
-cmp convolve_out_new.fits testing/convolve_out_deltafn-c-gauss5.fits -i 724
-diff temp2.txt testing/psfconvolve_printimages2.txt
+cmp convolve_out_new.fits tests/convolve_out_deltafn-c-gauss5.fits -i 724
+diff temp2.txt tests/psfconvolve_printimages2.txt
 
 
 
@@ -80,92 +80,94 @@ AIC = 12.082596, BIC = 41.588831
 
 # Testing with real image, 1 function
 # Testing on SDSS image of IC 3487
-$ ./imfit testing/ic3478rss_32x32.fits --config=imfit_config_ic3478_32x32.dat --gain=4.725 --readnoise=4.3 --sky=130.1
+$ ./imfit tests/ic3478rss_32x32.fits --config=imfit_config_ic3478_32x32.dat --gain=4.725 --readnoise=4.3 --sky=130.1
 
 (the following takes ~ 3s on MacBook Pro 2009)
-$ ./imfit testing/ic3478rss_small.fits --config=imfit_config_ic3478_sersic-only.dat --gain=4.725 --readnoise=4.3 --sky=130.1 --nosubsampling
-Reduced Chi^2 = 1.168005
-AIC = 73006.120922, BIC = 73069.419582
+$ ./imfit tests/ic3478rss_small.fits --config=imfit_config_ic3478_sersic-only.dat --gain=4.725 --readnoise=4.3 --sky=130.1 --nosubsampling
+Reduced Chi^2 = 1.154560
+AIC = 72165.919965, BIC = 72229.218626
 
-          X0 = 126.860405 +/- 0.011681
-          Y0 = 128.192652 +/- 0.013504
-          PA = 19.515407 +/- 0.240219
-         ell = 0.226771 +/- 0.001689
-           n = 2.314081 +/- 0.008181
-         I_e = 21.789633 +/- 0.160831
-         r_e = 57.165995 +/- 0.258980
+          X0 = 126.859231 +/- 0.011653
+          Y0 = 128.194370 +/- 0.013465
+          PA = 19.515649 +/- 0.240457
+         ell = 0.226685 +/- 0.001690
+           n = 2.323015 +/- 0.008230
+         I_e = 21.586762 +/- 0.160352
+         r_e = 57.505012 +/- 0.262275
 
 
 #Testing to catch bad-weight-vector generation (due to negative pixels values and
 #failure to specify original sky background):
-$ ./imfit testing/ic3478rss_128x128.fits --config=imfit_config_ic3478_128x128.dat --gain=4.725 --readnoise=4.3
+$ ./imfit tests/ic3478rss_128x128.fits --config=imfit_config_ic3478_128x128.dat --gain=4.725 --readnoise=4.3
 
 #Output should end with:
 ** WARNING: one or more pixel values in weightVector[] are non-finite!
 ModelObject::GenerateErrorVector -- Calculation of error vector resulted in bad values!
 Exiting ...
+	NOTE: As of 24 April 2010, this no longer works, since we have modified the weight-image
+	generation code to automatically set negative pixel values to 0
 
 
 # Testing with real image, 2 functions
 # Testing imfit on SDSS image of NGC 3073: (takes about 22s on MacBook Pro 2009)
-$ ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --nosubsampling
-Reduced Chi^2 = 1.387224
-AIC = 85612.345726, BIC = 85711.673662
+$ ./imfit tests/n3073rss_small.fits --mask=tests/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --nosubsampling
+Reduced Chi^2 = 1.376590
+AIC = 84956.235671, BIC = 85055.563606
 
-          X0 = 129.622168 +/- 0.004804
-          Y0 = 146.152010 +/- 0.004864
-          PA = 112.377538 +/- 0.240573
-         ell = 0.178229 +/- 0.001408
-           n = 1.964242 +/- 0.009489
-         I_e = 209.585745 +/- 2.044273
-         r_e = 14.394535 +/- 0.100719
-          PA = 59.292326 +/- 0.684014
-         ell = 0.162339 +/- 0.003710
-         I_0 = 76.938586 +/- 1.039381
-           h = 45.001772 +/- 0.326984
+          X0 = 129.621986 +/- 0.004798
+          Y0 = 146.152930 +/- 0.004860
+          PA = 112.288192 +/- 0.240556
+         ell = 0.177726 +/- 0.001404
+           n = 1.972908 +/- 0.009520
+         I_e = 207.351400 +/- 2.028667
+         r_e = 14.519065 +/- 0.101815
+          PA = 59.032553 +/- 0.688702
+         ell = 0.163450 +/- 0.003759
+         I_0 = 75.228578 +/- 1.026748
+           h = 45.559703 +/- 0.336000
 
 # Same, with subsampling turned on: (takes about 6s on MacBook Pro 2009 for normal
-# debugging version, 4.4s for optimized-compile version)
-$ ./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0
-Reduced Chi^2 = 1.589260
-AIC = 98077.734591, BIC = 98177.062526
+# debugging version, 4.5s for optimized-compile version)
+$ ./imfit tests/n3073rss_small.fits --mask=tests/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0
+Reduced Chi^2 = 1.578748
+AIC = 97429.182628, BIC = 97528.510563
 
-          X0 = 129.663850 +/- 0.004986
-          Y0 = 146.113135 +/- 0.005182
-          PA = 180.000000 +/- 0.000000
-         ell = 0.000000 +/- 0.000000
-           n = 2.008758 +/- 0.010411
-         I_e = 201.359204 +/- 2.200926
-         r_e = 13.297131 +/- 0.107078
-          PA = 83.371821 +/- 0.506494
-         ell = 0.193377 +/- 0.003939
-         I_0 = 75.688315 +/- 1.169093
-           h = 46.398183 +/- 0.402259
+          X0 = 129.663539 +/- 0.004982
+          Y0 = 146.113296 +/- 0.005183
+          PA = 180.000000 +/- 9579033.109753
+         ell = 0.000000
+           n = 2.017579 +/- 0.010438
+         I_e = 199.127859 +/- 2.182575
+         r_e = 13.422585 +/- 0.108257
+          PA = 83.307892 +/- 0.509672
+         ell = 0.194880 +/- 0.004006
+         I_0 = 73.894563 +/- 1.154100
+           h = 47.033906 +/- 0.415080
 
 # Same, but with subsampling on *and* using DE (converges after about 400 generations; 
-# takes ~ an hour) -- in this case, the bulge & disk seemed to have swapped places!
+# takes ~ 19 min) -- in this case, the bulge & disk seemed to have swapped places!
 # This is an interesting case of a nominally better fit (lower chi^2) that is not
 # preferable [note that I_0 has become pegged].
-./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --de
-Reduced Chi^2 = 1.421590
-AIC = 87732.698237, BIC = 87832.026172
+./imfit tests/n3073rss_small.fits --mask=tests/n3073rss_small_mask.fits --config=imfit_config_n3073.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --de
+Reduced Chi^2 = 1.410906
+AIC = 87073.521544, BIC = 87172.849479
 
-          X0 = 129.637771
-          Y0 = 146.109837
-          PA = 88.252371
-         ell = 0.108625
-           n = 3.407397
-         I_e = 33.390459
-         r_e = 48.671623
-          PA = 125.490702
-         ell = 0.585166
+          X0 = 129.637626
+          Y0 = 146.109696
+          PA = 88.263149
+         ell = 0.108623
+           n = 3.414654
+         I_e = 33.138663
+         r_e = 48.886429
+          PA = 125.500303
+         ell = 0.582893
          I_0 = 500.000000
-           h = 6.200479
+           h = 6.200682
 
 # Same as previous, but with limits on I_0 reset to 0,150 instead of 0,500 
 # [imfit_config_n3073_v2.dat]. DE converged after about 400 generations (15 min, with
 # convergence test causing DE solver to exit).
-./imfit testing/n3073rss_small.fits --mask=testing/n3073rss_small_mask.fits --config=imfit_config_n3073_v2.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --de
+./imfit tests/n3073rss_small.fits --mask=tests/n3073rss_small_mask.fits --config=imfit_config_n3073_v2.dat --gain=4.725 --readnoise=4.3 --sky=127.0 --de
 Reduced Chi^2 = 1.370615
 AIC = 84587.563230, BIC = 84686.891165
 

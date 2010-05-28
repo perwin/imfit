@@ -442,6 +442,12 @@ ModelObject
 	[x] Prototype convolution in makeimage
 	[x] Prototype incorporating convolution into ModelObject
 
+[X] Prototype flat sky model function
+	-- NOTE: for future Monte-Carlo simulations -- it might be easier to
+	use a non-sky-sub. image and tweak the best-estimate sky value used
+	in a fixed flat-sky model
+
+
 
 
 
@@ -470,13 +476,42 @@ ModelObject
 	[] Prototype an error-printing-and-exit function
 	[] Add error-printing function use to rest of code
 
-[] Prototype elliptical Moffat profile function
-	[] Prototype 1-D Python function for use in testing subsampling
-	[] Prototype C++ Moffat function
+[.] Prototype elliptical Moffat profile function
+	[x] Prototype 1-D Python function for use in testing subsampling
+	[x] Prototype C++ Moffat function
 	[] Generate Moffat-function test images & compare 1-D cuts with 1-D Python function
 	
 [] Investigate fine-tuning of differential evolution
 	-- e.g., "meta-optimization" using SwarmOps?
+
+[] Improvements to noise-image generation
+	[x] Check GALFIT README against our current code
+		-- are we using the sky value incorrectly? [ANSWER: YES]
+	[] Prototype option to output weight map
+	[] Generate trial sigma maps using GALFIT and compare them with our
+	   version using the same input galaxy image
+	<>[] Prototype use of an optional "n_combined" input parameter
+		-- number of combined images used to generate input image
+		-- true flux (and pre-sub. sky background, if any) = n_combined*image_flux
+		-- total readnoise^2 = N * rdnoise^2 (add individual rdnoise inputs in
+		quadrature)
+		-- preliminary calc. suggests that all we need to do is multiply
+		chi^2 by n_combined
+		[x] Prototype command-line setting of "n_combined"
+		[x] Prototype internal storage of "n_combined"
+		[x] Prototype passing "n_combined" to ModelObject
+		[] Prototype use of "n_combined" in ModelObject
+	[-] Prototype use of an optional "t_exp" input parameter?
+		-- GALFIT README indicates that GALFIT does *not* use EXPTIME for
+		noise calculation (instead, user is advised to multiply the image
+		by EXPTIME to convert counts/sec to counts). The only thing that
+		GALFIT uses EXPTIME for is calculating magnitude values, since it
+		assumes that an input zero point is for count/sec
+		-- total exposure time *iff* input image has units of ADU/sec
+		-- true flux (and pre-sub. sky background, if any) = n_combined*image_flux
+		-- problem: doesn't affect total readnoise calculation (unlike n_combined),
+		so effect on noise
+		-- OK, we'll take the same approach as GALFIT and *not* use t_exp
 
 [.] Prototype "psfconvolve" program
 	[x] Prototype ShiftAndPadPSF() function: takes PSF image & push into corner
@@ -489,13 +524,13 @@ ModelObject
 	[x] Do initial tests of convolver-based psfconvolve
 	[] Figure out funny outer-edge issue in convolved image
 
-[] Test possible sub-pixel generation schemes (Python)
+[.] Test possible sub-pixel generation schemes (Python)
 	[x] Write Python code to do sub-pixel sampling
 	[x] Test effects of different subsampling for exponential (vs scale length)
 	[] Test effects of different subsampling for Sersic (vs r_e, for different n)
 	[] Make some notes on plausible subsampling schemes
 
-[] Implement pixel subsampling
+[.] Implement pixel subsampling
 	[x] Implement Chien Peng's Sersic subsampling algorithm in func_sersic.cpp
 	[x] Implement Chien Peng's Sersic subsampling algorithm in func_exp.cpp
 	[] Check func_sersic.cpp subsampling: generate circular Sersic image with
@@ -504,17 +539,24 @@ ModelObject
 		1-D pixel)
 	[] Implement Chien Peng's Sersic subsampling algorithm in func_gauss.cpp
 
-[] Prototype code for checking inputs:
+[.] Prototype code for checking inputs:
 	[x] input files should exist
 	[x] numeric inputs should be numbers (modify utilities.c --> utilities.cpp?)
 	[x] Check reading of images (i.e., do cfitsio routines return errors?)
 	[] basic checks of config-file format
 	[] parameter limits should be sane (lower limit < upper limit) and should bound initial value
 
+[] Prototype use of FFTW "measure" mode
+	-- locate moderately long PSF-using fit
+	-- try it with fft_measure option
+	-- try it with fft_measure option *and* fftw threading compiled in
+
 [] Prototype code for saving final residual image?
 	-- should be deviates vector in ModelObject
 
-[] Prototype code for outputting best-fit model profile in profilefit?
+[] Prototype code for better pretty-printint of best-fit result
+	-- should print function names and id separate function blocks
+	-- could be similar/identical to output to config file
 
 [] Prototype code for saving best-fit parameter file
 	-- suitable as intput to makeimage, or as starting point for new fitting attempt
@@ -523,7 +565,7 @@ ModelObject
 	[] Prototype saving information about fit (filename, command-line used, etc.)
 	[] Prototype saving best-fit parameters and functions
 	
-[] Prototype code for getting non-function-related data from config file
+<>[] Prototype code for getting non-function-related data from config file
 	-- denote in config file via ALL_CAPS (e.g., GAIN, ORIGINAL_SKY, etc.)
 	-- these should go *before* function listings
 	-- for makeimage: IMAGE_SIZE_X, IMAGE_SIZE_Y (or _NCOLS, _NROWS)
@@ -537,9 +579,14 @@ ModelObject
 		in map)
 		-- OR we could just add more entries to the options structure and
 		use if-then logic to assign values properly
-	[] Modify ReadConfigFile() to identify first "X0" as start of function-
+	[x] Modify ReadConfigFile() to identify first "X0" as start of function-
 	definition section; then process pre-function lines (if any); then
 	process function lines (as we currently do)
+	<>[] Prototype processing of userConfigOptions data structure within imfit
+	[] Prototype processing of userConfigOptions data structure within makeimage
+	[] Modify profilefile_main.cpp to use new version(s) of ReadConfigFile
+
+[] Prototype code for outputting best-fit model profile in profilefit?
 
 [] Prototype code for unit testing
 	[x] Decide on C++ unit testing framework to use (CxxTest?)
@@ -558,6 +605,19 @@ image
 	[] implement reading of header values from input image
 
 [] Prototype a generalized-ellipse function object
+
+[] Add option to makeimage (and imfit?) to output one image per *function*
+	-- specialized option within ModelObject, to go through function list
+	(associating correct X0,Y0) and generating and saving images (re-use
+	the model-image vector?)
+		-- public member function which takes image filename root, appends
+		<function-name><integer> to filename
+
+[] Option for makeimage -- or separate program? -- to calculate "luminosities" 
+   for individual functions?
+	-- define a nominal very large image (user-specified size?), with function 
+	centered in the middle, then integrate over the "image", summing up pixel 
+	fluxes instead of storing them in an array
 
 [.] Prototype option to use only a subset of input image
 	-- Note: we can do this almost automatically with cfitsio!
@@ -579,12 +639,22 @@ image
 	[x] Test command-line subsetting of image
 	[x] Test config-file subsetting of image
 		-- e.g., image.fits[x1:x2,y1:y2]
-	[] Investigate how to retain offset information and apply it to output params
+	[x] Investigate how to retain offset information and apply it to output params
 		-- i.e., figure out coordinates of LL subset corner, then add appropriate
 		offsets to output fitted parameters (all X0,Y0 pairs) so that results make
 		sense on context of original image *and* are appropriate for an output
 		config file (e.g. for makeimage use).
-	[] Prototype code for identifying and applying pixel offsets to output X0,Y0
+	[x] Prototype code for identifying and applying pixel offsets to output X0,Y0
+	[] Prototype code for applying pixel offsets to *input* X0,Y0 and their limits
+		-- i.e., user specifies image[100:200,100:200]; we assume input X0,Y0 are
+		relative to complete image, but these need to be transformed to section-
+		relative coords for the actual fitting process -- and the same applies
+		to the user-specified limits on X0 and Y0!
+	[] Prototype code for handling more complex image sections
+		-- utilities.cpp: GetPixelStartCoords
+		-- e.g., [3][x1:x2,y1:y2] or [3,x1:x2,y1:y2]
+	[x] Prototype handling of "http://" or "ftp://" prefixes to file names, to
+	   allow use of files on remote hosts (cfitsio capability)
 
 [] Prototype use of magnitudes
 	-- user specifies a zero point, and (somehow) magnitude parameters are

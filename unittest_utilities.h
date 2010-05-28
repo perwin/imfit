@@ -49,6 +49,39 @@ public:
     SplitString(s1, s1_split, ",");
     TS_ASSERT( s1_split == correctResult12 );
   }
+
+  void testSplitString_storage( void )
+  // test to make sure that SplitString() clears the supplied vector
+  // before storing things in it
+  {
+    string  s1 = "two words";
+    string  s2 = "more words";
+    vector<string>  s_split;
+    vector<string>  correctResult;
+    correctResult.push_back("more");
+    correctResult.push_back("words");
+    SplitString(s1, s_split);
+    SplitString(s2, s_split);
+    TS_ASSERT( s_split == correctResult );
+  }
+  
+
+  void testSplitStringAdd_storage( void )
+  // test to make sure that SplitStringAdd() does *not* clear the supplied vector
+  // before storing things in it
+  {
+    string  s1 = "two words";
+    string  s2 = "more words";
+    vector<string>  s_split;
+    vector<string>  correctResult;
+    correctResult.push_back("two");
+    correctResult.push_back("words");
+    correctResult.push_back("more");
+    correctResult.push_back("words");
+    SplitStringAdd(s1, s_split);
+    SplitStringAdd(s2, s_split);
+    TS_ASSERT( s_split == correctResult );
+  }
   
 
   // Tests for TrimWhitespace()
@@ -96,6 +129,29 @@ public:
     TS_ASSERT( s1 == correctResult1 );
     ChopComment(s2, ';');
     TS_ASSERT( s2 == correctResult2 );
+  }
+  
+  
+  // Tests for ImageFileExists()
+  void testImageFileExists_internet( void )
+  {
+    TS_ASSERT( ImageFileExists("ftp://www.blah.com/something") == true);
+    TS_ASSERT( ImageFileExists("http://www.blah.com/something") == true);
+  }
+
+  void testImageFileExists_NonexistentFile( void )
+  {
+    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/testing/nohow.fits") == false);
+  }
+  
+  void testImageFileExists_RealFile( void )
+  {
+    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/testing/n3073rss_small.fits") == true);
+  }
+  
+  void testImageFileExists_RealFileWithSection( void )
+  {
+    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/testing/n3073rss_small.fits[100:200,200:300]") == true);
   }
   
   

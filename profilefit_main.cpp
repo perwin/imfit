@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
   vector<double>  parameterList;
   mp_par  *mpParamLimits;
   commandOptions  options;
+  configOptions  userConfigOptions;
   
   
   /* PROCESS COMMAND-LINE: */
@@ -149,7 +150,7 @@ int main(int argc, char *argv[])
     return -1;
   }
   ReadConfigFile(options.configFileName, false, functionList, parameterList, paramLimits, 
-  								functionSetIndices, paramLimitsExist);
+  								functionSetIndices, paramLimitsExist, userConfigOptions);
   for (int k = 0; k < parameterList.size(); k++)
   	cout << parameterList[k] << "  ";
   cout << endl;

@@ -11,7 +11,9 @@
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
-# To clean up everything (including programs):
+# To clean up files associated with a given target:
+#    $ scons -c <target-name>
+# To clean up all targets (including programs):
 #    $ scons -c
 
 
@@ -28,40 +30,51 @@ FUNCTION_SUBDIR = "function_objects/"
 
 os_type = os.uname()[0]
 
-cflags_opt = ["-O3", "-g0"]
+cflags_opt = ["-O2", "-g0"]
 cflags_db = ["-Wall", "-g3"]
 
 base_defines = ["ANSI"]
-# slightly experimental system-specific stuff
+
+lib_list = ["fftw3", "cfitsio", "m"]
+
+# system-specific stuff
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	include_path = ["/usr/local/include", FUNCTION_SUBDIR]
 	lib_path = ["/usr/local/lib"]
 	# Use "-m32" for both compiling and linking, to make sure we work in 
 	# 32-bit mode for Mac OS X (10.6 defaults to 64-bit compilation otherwise,
 	# which would cause problems when linking with fftw3 and cfitsio libraries):
-	cflags_opt = ["-O3", "-g0", "-m32"]
+	cflags_opt.append("-m32")
 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3", "-m32"]
 	link_flags = ["-m32"]
 if (os_type == "Linux"):
+	# When compiled under Linux, -O3 causes mysterious "invalid pointer" error at end of run
+	cflags_opt = ["-O3", "-g0"]
+	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 	# silly Linux doesn't have OpenBSD string routines built in, so we'll have to include them
 	base_defines = base_defines + ["NO_BSD_STRINGS"]
-	include_path = ["/usr/include", FUNCTION_SUBDIR]
-	lib_path = ["/usr/lib"]
+	include_path = ["/home/erwin/include", "/usr/include", FUNCTION_SUBDIR]
+	lib_path = ["/home/erwin/lib"]
 	link_flags = None
 defines_opt = base_defines
 defines_db = base_defines + ["DEBUG"]
 
 
-# Allow use to specify extra definitions via command line (e.g., "scons define=FFTW_THREADING"):
+# Allow use to specify extra definitions via command line
+# (e.g., "scons define=FFTW_THREADING"):
 extra_defines = []
 for key, value in ARGLIST:
 	if key == 'define':
 		extra_defines.append(value)
+		if value == "FFTW_THREADING":
+			# OK, user has requested FFTW threading to be turned on
+			lib_list.insert(0, "fftw3_threads")
+			if (os_type == "Linux"):
+				lib_list.append("pthread")
+
 defines_db = defines_db + extra_defines
 defines_opt = defines_opt + extra_defines
 
-
-lib_list = ["fftw3_threads", "fftw3", "cfitsio", "m"]
 
 
 # "env_debug" is environment with debugging options turned on
@@ -91,7 +104,7 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
 # Function objects:
 functionobject_obj_string = """function_object func_gaussian func_exp func_sersic 
-		func_flat-exp func_broken-exp func_moffat"""
+		func_flat-exp func_broken-exp func_moffat func_flatsky"""
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
@@ -139,7 +152,8 @@ makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs + 
 makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources + c_sources
 
 # readimage: put all the object and source-code lists together
-readimage_sources = ["readimage_main.cpp", "readimage.cpp"]
+#readimage_sources = ["readimage_main.cpp", "readimage.cpp"]
+readimage_sources = ["readimage_main.cpp", "image_io.cpp"]
 
 # psfconvolve: put all the object and source-code lists together
 #psfconvolve_sources_old = ["psfconvolve_main_old.cpp", "anyoption.cpp", "image_io.cpp"]
@@ -170,7 +184,7 @@ psfconvolve_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in 
 env_debug.Program("psfconvolve", psfconvolve_dbg_objlist)
 
 # older programs
-#env_debug.Program("readimage_test", readimage_sources)
+env_opt.Program("readimage", readimage_sources)
 #env_debug.Program("psfconvolve_old", psfconvolve_sources_old)
 testparser_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(testparser_objs, testparser_sources) ]
 env_debug.Program("testparser", testparser_objlist)

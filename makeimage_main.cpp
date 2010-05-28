@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
   vector<double>  parameterList;
   vector<int>  functionSetIndices;
   commandOptions  options;
+  configOptions  userConfigOptions;
   
   
   /* Process command line and parse config file: */
@@ -115,29 +116,25 @@ int main(int argc, char *argv[])
 
   /* Read configuration file */
   if (! FileExists(options.configFileName.c_str())) {
-    printf("\n*** WARNING: Unable to find configuration file \"%s\"!\n\n", 
+    fprintf(stderr, "\n*** WARNING: Unable to find configuration file \"%s\"!\n\n", 
            options.configFileName.c_str());
     return -1;
   }
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList,
-  							functionSetIndices);
+  							functionSetIndices, userConfigOptions);
   if (status != 0) {
-    printf("\n*** WARNING: Failure reading configuration file!\n\n");
+    fprintf(stderr, "\n*** WARNING: Failure reading configuration file!\n\n");
     return -1;
   }
 
   if ((options.noRefImage) and (options.noImageDimensions)) {
-    printf("\n*** WARNING: Insufficient image dimensions (or no reference image) supplied!\n\n");
+    fprintf(stderr, "\n*** WARNING: Insufficient image dimensions (or no reference image) supplied!\n\n");
     return -1;
   }
 
   /* Get image size from reference image, if necessary */
   if (options.noImageDimensions) {
-    if (! FileExists(options.referenceImageName.c_str())) {
-      printf("\n*** WARNING: Unable to find reference image \"%s\"!\n\n", 
-             options.referenceImageName.c_str());
-      return -1;
-    }
+    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     allPixels = ReadImageAsVector(options.referenceImageName, &nColumns, &nRows);
     allPixels_allocated = true;
     // Reminder: nColumns = n_pixels_per_row
@@ -154,11 +151,7 @@ int main(int argc, char *argv[])
 
   /* Read in PSF image, if supplied */
   if (options.psfImagePresent) {
-    if (! FileExists(options.psfFileName.c_str())) {
-      printf("\n*** WARNING: Unable to find PSF image \"%s\"!\n\n", 
-             options.psfFileName.c_str());
-      return -1;
-    }
+    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
     psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
     nPixels_psf = nColumns_psf * nRows_psf;
@@ -178,7 +171,7 @@ int main(int argc, char *argv[])
      sets start */
   status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
   if (status < 0) {
-  	printf("*** WARNING: Failure in AddFunctions!\n\n");
+  	fprintf(stderr, "*** WARNING: Failure in AddFunctions!\n\n");
   	exit(-1);
   }
 
@@ -188,9 +181,9 @@ int main(int argc, char *argv[])
   nParamsTot = theModel->GetNParams();
   printf("%d total parameters\n", nParamsTot);
   if (nParamsTot != (int)parameterList.size()) {
-  	printf("*** WARNING: number of input parameters (%d) does not equal", 
+  	fprintf(stderr, "*** WARNING: number of input parameters (%d) does not equal", 
   	       (int)parameterList.size());
-  	printf(" required number of parameters for specified functions (%d)!\n\n",
+  	fprintf(stderr, " required number of parameters for specified functions (%d)!\n\n",
   	       nParamsTot);
   	exit(-1);
  }
@@ -214,12 +207,13 @@ int main(int argc, char *argv[])
   if (options.printImages)
     theModel->PrintModelImage();
 
-  /* TEST: save model image under new name: */
+  /* Save model image: */
   printf("\nSaving output model image (\"%s\") ...\n", options.outputImageName.c_str());
   SaveVectorAsImage(theModel->GetModelImageVector(), options.outputImageName, 
                     nColumns, nRows);
 
   printf("Done!\n\n");
+
 
   // Free up memory
   if (allPixels_allocated)
@@ -311,7 +305,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getValue("ncols") != NULL) {
     if (NotANumber(opt->getValue("ncols"), 0, kPosInt)) {
-      printf("*** WARNING: ncols should be a positive integer!\n");
+      fprintf(stderr, "*** WARNING: ncols should be a positive integer!\n");
       delete opt;
       exit(1);
     }
@@ -319,7 +313,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getValue("nrows") != NULL) {
     if (NotANumber(opt->getValue("nrows"), 0, kPosInt)) {
-      printf("*** WARNING: nrows should be a positive integer!\n");
+      fprintf(stderr, "*** WARNING: nrows should be a positive integer!\n");
       delete opt;
       exit(1);
     }

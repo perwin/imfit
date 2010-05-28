@@ -80,6 +80,7 @@ typedef struct {
   bool  useImageHeader;
   double  gain;
   double  readNoise;
+  int  nCombined;
   double  originalSky;
   char  modelName[MAXLINE];
   bool  noModel;
@@ -93,6 +94,7 @@ typedef struct {
   double  magZeroPoint;
   bool  noParamLimits;
   bool  printImages;
+  bool printChiSquaredOnly;
   int  solver;
 } commandOptions;
 
@@ -105,6 +107,8 @@ typedef struct {
 void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset);
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
+void HandleConfigFileOptions( configOptions *configFileOptions, 
+															commandOptions *mainOptions );
 int myfunc( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *aModel );
 
@@ -142,6 +146,7 @@ int main(int argc, char *argv[])
   double  *allPixels;
   double  *psfPixels;
   double  *allErrorPixels;
+  bool  errorPixels_allocated = false;
   double  *allMaskPixels;
   bool  maskAllocated = false;
   double  *paramsVect;
@@ -150,6 +155,7 @@ int main(int argc, char *argv[])
   double  Y0_offset = 0.0;
   std::string  noiseImage;
   std::string  mpfitMessage;
+  std::string  baseFileName;
   ModelObject  *theModel;
   vector<string>  functionList;
   vector<double>  parameterList;
@@ -163,6 +169,7 @@ int main(int argc, char *argv[])
   mp_par  *mpfitParameterConstraints;
   int  status;
   commandOptions  options;
+  configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
   
@@ -181,6 +188,7 @@ int main(int argc, char *argv[])
   options.useImageHeader= false;
   options.gain = 1.0;
   options.readNoise = 0.0;
+  options.nCombined = 1;
   options.originalSky = 0.0;
   options.noModel = true;
   options.noParamLimits = true;
@@ -191,6 +199,7 @@ int main(int argc, char *argv[])
 //  options.monteCarloOffset = 0.0;
 //  options.mcIterations = 0;
   options.magZeroPoint = NO_MAGNITUDES;
+  options.printChiSquaredOnly = false;
   options.printImages = false;
   options.solver = MPFIT_SOLVER;
 
@@ -199,32 +208,27 @@ int main(int argc, char *argv[])
 
   /* Read configuration file */
   if (! FileExists(options.configFileName.c_str())) {
-    printf("\n*** WARNING: Unable to find configuration file \"%s\"!\n\n", 
+    fprintf(stderr, "\n*** WARNING: Unable to find configuration file \"%s\"!\n\n", 
            options.configFileName.c_str());
     return -1;
   }
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
-  								paramLimits, functionSetIndices, paramLimitsExist);
+  								paramLimits, functionSetIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
-    printf("\n*** WARNING: Failure reading configuration file!\n\n");
+    fprintf(stderr, "\n*** WARNING: Failure reading configuration file!\n\n");
     return -1;
   }
 
+  // Parse and process user-supplied (non-function) values from config file, if any
+  HandleConfigFileOptions(&userConfigOptions, &options);
+  
   if (options.noImage) {
-    printf("*** WARNING: No image to fit!\n\n");
+    fprintf(stderr, "*** WARNING: No image to fit!\n\n");
     return -1;
   }
 
   /* Get image data and sizes */
-  // Check to make sure the file exists; trim off any [...] region-specification at
-  // end (but keep the full input name, since we'll pass that to ReadImageAsVector)
-  string  baseImageFileName;
-  StripBrackets(options.imageFileName, baseImageFileName);
-  if (! FileExists(baseImageFileName.c_str())) {
-    printf("\n*** WARNING: Unable to find input image \"%s\"!\n\n", 
-           baseImageFileName.c_str());
-    return -1;
-  }
+  // Note that we rely on the cfitsio library to catch errors like nonexistent files
   printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
   allPixels = ReadImageAsVector(options.imageFileName, &nColumns, &nRows);
   // Reminder: nColumns = n_pixels_per_row = x-size
@@ -237,17 +241,13 @@ int main(int argc, char *argv[])
 
   /* Get and check mask image */
   if (options.maskImagePresent) {
-    if (! FileExists(options.maskFileName.c_str())) {
-      printf("\n*** WARNING: Unable to find mask image \"%s\"!\n\n", 
-             options.maskFileName.c_str());
-      return -1;
-    }
+    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading mask image (\"%s\") ...\n", options.maskFileName.c_str());
     allMaskPixels = ReadImageAsVector(options.maskFileName, &nMaskColumns, &nMaskRows);
     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
-      printf("\n*** WARNING: Dimenstions of mask image (%s: %d columns, %d rows)\n",
+      fprintf(stderr, "\n*** WARNING: Dimenstions of mask image (%s: %d columns, %d rows)\n",
              options.maskFileName.c_str(), nMaskColumns, nMaskRows);
-      printf("do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
+      fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
              options.imageFileName.c_str(), nColumns, nRows);
       return -1;
     }
@@ -256,17 +256,14 @@ int main(int argc, char *argv[])
            
   /* Get and check error image (or else tell function object to generate one) */
   if (options.noiseImagePresent) {
-    if (! FileExists(options.noiseFileName.c_str())) {
-      printf("\n*** WARNING: Unable to find noise image \"%s\"!\n\n", 
-           options.noiseFileName.c_str());
-      return -1;
-    }
+    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading noise image (\"%s\") ...\n", options.noiseFileName.c_str());
     allErrorPixels = ReadImageAsVector(options.noiseFileName, &nErrColumns, &nErrRows);
+    errorPixels_allocated = true;
     if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
-      printf("\n*** WARNING: Dimenstions of error image (%s: %d columns, %d rows)\n",
+      fprintf(stderr, "\n*** WARNING: Dimenstions of error image (%s: %d columns, %d rows)\n",
              noiseImage.c_str(), nErrColumns, nErrRows);
-      printf("do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
+      fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
              options.imageFileName.c_str(), nColumns, nRows);
       return -1;
     }
@@ -276,11 +273,7 @@ int main(int argc, char *argv[])
   
   /* Read in PSF image, if supplied */
   if (options.psfImagePresent) {
-    if (! FileExists(options.psfFileName.c_str())) {
-      printf("\n*** WARNING: Unable to find PSF image \"%s\"!\n\n", 
-             options.psfFileName.c_str());
-      return -1;
-    }
+    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
     psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
     nPixels_psf = nColumns_psf * nRows_psf;
@@ -299,7 +292,7 @@ int main(int argc, char *argv[])
   /* Add functions to the model object */
   status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
   if (status < 0) {
-  	printf("*** WARNING: Failure in AddFunctions!\n\n");
+  	fprintf(stderr, "*** WARNING: Failure in AddFunctions!\n\n");
   	exit(-1);
  }
   
@@ -307,9 +300,9 @@ int main(int argc, char *argv[])
   nParamsTot = nFreeParams = theModel->GetNParams();
   printf("%d total parameters\n", nParamsTot);
   if (nParamsTot != (int)parameterList.size()) {
-  	printf("*** WARNING: number of input parameters (%d) does not equal", 
+  	fprintf(stderr, "*** WARNING: number of input parameters (%d) does not equal", 
   	       (int)parameterList.size());
-  	printf(" required number of parameters for specified functions (%d)!\n\n",
+  	fprintf(stderr, " required number of parameters for specified functions (%d)!\n\n",
   	       nParamsTot);
   	exit(-1);
   }
@@ -317,7 +310,7 @@ int main(int argc, char *argv[])
   
   
   /* Add image data, errors, and mask to the model object */
-  theModel->AddImageDataVector(nPixels_tot, nColumns, nRows, allPixels);
+  theModel->AddImageDataVector(allPixels, nColumns, nRows, options.nCombined);
   theModel->PrintDescription();
   if (options.printImages)
     theModel->PrintInputImage();
@@ -354,50 +347,75 @@ int main(int argc, char *argv[])
   parameterInfo_allocated = true;
   for (int i = 0; i < nParamsTot; i++) {
     parameterInfo[i].fixed = paramLimits[i].fixed;
-    if (parameterInfo[i].fixed == 1)
+    if (parameterInfo[i].fixed == 1) {
+    	printf("Fixed parameter detected (i = %d)\n", i);
       nFreeParams--;
+    }
     parameterInfo[i].limited[0] = paramLimits[i].limited[0];
     parameterInfo[i].limited[1] = paramLimits[i].limited[1];
     parameterInfo[i].limits[0] = paramLimits[i].limits[0];
     parameterInfo[i].limits[1] = paramLimits[i].limits[1];
-    // specify different offsets if using image subsection
+    // specify different offsets if using image subsection, and apply them to
+    // user-specified X0,Y0 limits
     if (theModel->GetParameterName(i) == X0_string) {
       parameterInfo[i].offset = X0_offset;
+      parameterInfo[i].limits[0] -= X0_offset;
+      parameterInfo[i].limits[1] -= X0_offset;
     } else if (theModel->GetParameterName(i) == Y0_string) {
       parameterInfo[i].offset = Y0_offset;
+      parameterInfo[i].limits[0] -= Y0_offset;
+      parameterInfo[i].limits[1] -= Y0_offset;
     }
   }
   if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
+    printf("No parameter constraints!\n");
     mpfitParameterConstraints = NULL;
   } else {
     mpfitParameterConstraints = parameterInfo;
   }
   
-  /* Copy parameters into C array */
-  paramsVect = (double *) calloc(nParamsTot, sizeof(double));
-  for (int i = 0; i < nParamsTot; i++)
-    paramsVect[i] = parameterList[i];
   
-  /* DO THE FIT! */
-  if (options.solver == MPFIT_SOLVER) {
-    // Some trial mpfit experiments:
-    bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
-    mpfitResult.xerror = paramErrs;
-    bzero(&mpConfig, sizeof(mpConfig));
-    mpConfig.maxiter = 1000;
-    printf("\nCalling mpfit ...\n");
-    status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints, &mpConfig, 
-  								theModel, &mpfitResult);
-    PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
+  /* Copy parameters into C array, correcting for X0,Y0 offsets */
+  paramsVect = (double *) calloc(nParamsTot, sizeof(double));
+  for (int i = 0; i < nParamsTot; i++) {
+    if (theModel->GetParameterName(i) == X0_string) {
+      paramsVect[i] = parameterList[i] - X0_offset;
+    } else if (theModel->GetParameterName(i) == Y0_string) {
+      paramsVect[i] = parameterList[i] - Y0_offset;
+    } else
+      paramsVect[i] = parameterList[i];
+  }
+  
+  
+  if (options.printChiSquaredOnly) {
+    printf("\n");
+    theModel->SetupChisquaredCalcs();
+    status = 1;
+    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
   }
   else {
-    printf("\nCalling DiffEvolnFit ..\n");
-    status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, MAX_DE_GENERATIONS);
-    printf("\n");
-    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
-    printf("\n");
+    /* DO THE FIT! */
+    if (options.solver == MPFIT_SOLVER) {
+      // Some trial mpfit experiments:
+      bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
+      mpfitResult.xerror = paramErrs;
+      bzero(&mpConfig, sizeof(mpConfig));
+      mpConfig.maxiter = 1000;
+      printf("\nCalling mpfit ...\n");
+      status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints, &mpConfig, 
+  		  						theModel, &mpfitResult);
+      PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+    }
+    else {
+      printf("\nCalling DiffEvolnFit ..\n");
+      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, MAX_DE_GENERATIONS);
+      printf("\n");
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+    }
   }
 
 
@@ -411,14 +429,12 @@ int main(int argc, char *argv[])
   if (options.outputModel)
     SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
                       nColumns, nRows);
-  else   // no special name for output
-    SaveVectorAsImage(theModel->GetModelImageVector(), "test_best-fit_model.fits", 
-                      nColumns, nRows);
 
 
   // Free up memory
   free(allPixels);       // allocated in ReadImageAsVector()
-  free(allErrorPixels);  // allocated in ReadImageAsVector()
+  if (errorPixels_allocated)
+    free(allErrorPixels);  // allocated in ReadImageAsVector()
   if (options.psfImagePresent)
     free(psfPixels);
   if (maskAllocated)
@@ -446,6 +462,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("   imfit [options] imagefile.fits");
   opt->addUsage(" -h  --help                   Prints this help");
   opt->addUsage("     --list-functions         Prints list of available functions (components)");
+  opt->addUsage("     --chisquare-only         Print chi^2 of input model and quit");
   opt->addUsage("     --printimage             Print out images (for debugging)");
   opt->addUsage(" -c  --config <config-file>   configuration file");
   opt->addUsage("     --de                     Use differential evolution solver (instead of L-M) [NOT IMPLEMENTED YET]");
@@ -458,6 +475,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("     --sky <sky-level>        Original sky background (ADUs)");
   opt->addUsage("     --gain <value>           Image gain (e-/ADU)");
   opt->addUsage("     --readnoise <value>      Image read noise (e-)");
+  opt->addUsage("     --ncombined <value>      Number of images averaged to make final image (if counts are average or median)");
   opt->addUsage("     --errors-are-variances   Indicates that values in noise image = variances");
   opt->addUsage("     --errors-are-weights     Indicates that values in noise image = weights");
   opt->addUsage("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
@@ -465,9 +483,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
 
   /* by default all options are checked on the command line and from option/resource file */
+  opt->setFlag('q');
   opt->setFlag("help", 'h');
   opt->setFlag("list-functions");
   opt->setFlag("printimage");
+  opt->setFlag("chisquare-only");
   opt->setFlag("de");
   opt->setFlag("use-headers");
   opt->setFlag("errors-are-variances");
@@ -481,6 +501,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setOption("sky");        /* an option (takes an argument), supporting only long form */
   opt->setOption("gain");        /* an option (takes an argument), supporting only long form */
   opt->setOption("readnoise");        /* an option (takes an argument), supporting only long form */
+  opt->setOption("ncombined");        /* an option (takes an argument), supporting only long form */
   opt->setOption("config", 'c');
 
   /* parse the command line:  */
@@ -496,6 +517,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   /* Process the results: options */
   // First two are options which print useful info and then exit the program
+  if ( opt->getFlag('q') ) {
+  	printf("\n\nimfit_main: q option found!\n\n");
+    delete opt;
+    exit(1);
+  }
   if ( opt->getFlag("help") || opt->getFlag('h') || (! opt->hasOptions()) ) {
     opt->printUsage();
     delete opt;
@@ -509,6 +535,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   if (opt->getFlag("printimage")) {
     theOptions->printImages = true;
+  }
+  if (opt->getFlag("chisquare-only")) {
+    printf("\t No fitting will be done!\n");
+    theOptions->printChiSquaredOnly = true;
   }
   if (opt->getFlag("de")) {
   	printf("\t Differential Evolution selected!\n");
@@ -555,7 +585,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getValue("sky") != NULL) {
     if (NotANumber(opt->getValue("sky"), 0, kAnyReal)) {
-      printf("*** WARNING: sky should be a real number!\n");
+      fprintf(stderr, "*** WARNING: sky should be a real number!\n");
       delete opt;
       exit(1);
     }
@@ -564,7 +594,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getValue("gain") != NULL) {
     if (NotANumber(opt->getValue("gain"), 0, kPosReal)) {
-      printf("*** WARNING: gain should be a positive real number!\n");
+      fprintf(stderr, "*** WARNING: gain should be a positive real number!\n");
       delete opt;
       exit(1);
     }
@@ -573,12 +603,21 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getValue("readnoise") != NULL) {
     if (NotANumber(opt->getValue("readnoise"), 0, kPosReal)) {
-      printf("*** WARNING: read noise should be a non-negative real number!\n");
+      fprintf(stderr, "*** WARNING: read noise should be a non-negative real number!\n");
       delete opt;
       exit(1);
     }
     theOptions->readNoise = atof(opt->getValue("readnoise"));
     printf("\tread noise = %g e-\n", theOptions->readNoise);
+  }
+  if (opt->getValue("ncombined") != NULL) {
+    if (NotANumber(opt->getValue("ncombined"), 0, kPosInt)) {
+      fprintf(stderr, "*** WARNING: ncombined should be a positive integer!\n");
+      delete opt;
+      exit(1);
+    }
+    theOptions->nCombined = atoi(opt->getValue("ncombined"));
+    printf("\tn_combined = %d\n", theOptions->nCombined);
   }
 
   delete opt;
@@ -586,9 +625,17 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 }
 
 
+void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *mainOptions )
+{
+  if (configFileOptions->nOptions == 0)
+    return;
+  ;
+}
+
+
 /* Function which takes the user-supplied image filename and determines what,
  * if any, x0 and y0 pixel offsets are implied by any section specification
- * in the filename
+ * in the filename.  Note that offsets are always >= 0.
  */
 void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset)

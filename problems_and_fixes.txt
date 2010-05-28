@@ -114,6 +114,36 @@ FIXES:
 	[] (future) When computing weights from image, median-smooth image first
 	(GALFIT does this; smooths out CRs and large negative values...)
 
+
+
+
+*** 28 May 2010: "fixed" parameters do not stay fixed
+
+Parameter with limit-value "fixed" is recognized as "fixed":
+Startup output includes:
+	"Found a parameter limit: fixed"
+
+But this is not enforced:
+	Final parameter value was different!
+	PrintResults says: "NPAR = 8, NFREE = 8"
+
+* PROBLEM FOUND:
+In config_file_parser.cpp:
+	AddParameterAndLimit() in config_file_parser.cpp returns true if the line it
+just processed had a parameter limit.
+	ReadConfigFile() is supposed to check this return value, and set parameterLimitsFound
+to true if ever AddParameterAndLimit returns true.  BUT this was only happening for
+X0! (In fact, only for the X0 line was the return value even stored!)
+	Consequently, if all of the X0 lines did *not* have parameter limits, ReadConfigFile()
+would return parameterLimitsFound as false (even though the parameterLimits structure it 
+also returned to imfit *did* have limits...), and imfit would proceed to pass a pointer 
+set to NULL as the parameter-limits structure to mpfit.
+
+FIXES:
+	Added checks of AddParameterAndLimit's return value after *each* call to it in
+ReadConfigFile().
+
+
 	
 
 

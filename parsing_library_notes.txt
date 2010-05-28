@@ -1,0 +1,159 @@
+NOTES FOR A COMMAND-LINE PARSING LIBRARY:
+
+Allowed formats
+	xxx				-- argument
+	
+	-x				-- flag option
+	--xxx			-- flag option
+	
+	-x <cmd-arg>	-- option with argument
+	-x=<cmd-arg>	-- option with argument
+	-xxx <cmd-arg>	-- option with argument
+	-xxx=<cmd-arg>	-- option with argument
+
+
+Mode of setup and use, based on AnyOption:
+  opt->addUsage("Usage: ");
+  opt->addUsage("   imfit [options] imagefile.fits");
+etc.
+
+  opt->setFlag('q');
+  opt->setFlag("printimage");
+  opt->setFlag("help", 'h');
+  opt->setOption("noise");      /* an option (takes an argument), supporting only long form */
+  opt->setOption("config", 'c');
+
+  opt->processCommandArgs( argc, argv );
+
+  /* Process the results: actual arguments, if any: */
+  if (opt->getArgc() > 0) {
+    theOptions->imageFileName = opt->getArgv(0);
+    theOptions->noImage = false;
+    printf("\tImage file = %s\n", theOptions->imageFileName.c_str());
+  }
+
+  /* Process the results: options */
+  if (opt->getFlag("printimage")) {
+    DO_STUFF (set a commandOptions flag, print message, etc.)
+  }
+  if (opt->getValue("config") != NULL) {
+    theOptions->configFileName = opt->getValue("config");
+    printf("\tconfiguration file = %s\n", theOptions->configFileName.c_str());
+  }
+
+
+Possible error conditions for setup:
+	non-string passed as key
+	duplicate option-string
+Possible error conditions for post-parsing use:
+	non-string passed as key
+	invalid option-string
+
+
+
+Mode of parsing operation
+   1. No more argv[i]? (e.g., i == (argc - 1))?
+      IF YES: RETURN to outside
+   2. Get next argv[i]   [pop from a vector?]
+   3. Process argv[i]
+      1. Check for - or --:
+         IF NO: it's an argument
+            1. add argv[i] to argument vector
+            2. RETURN to main parsing loop (step 1 at top)
+         IF YES: it's a command option:
+            1. Chop off leading "-" or "--"
+            2. check if it's a *valid* option:
+               if (optMap.count(trimmedString) > 0)
+               IF NO: error!
+                  ERROR-RETURN with error/exit/throw exception
+               IF YES:
+                  1. Extract option
+                     currentOpt = optMap[trimmedString]
+                  2. check if it's a flag
+                     if (currentOpt->flag == true)
+                     if YES:
+                        1. Mark option as checked
+                           currentOpt->flagSet = true
+                        2. RETURN to main parsing loop
+                     if NO:   [target required]
+						1. check if there *is* a next target available
+						   IF NO: error!
+						      ERROR-RETURN with error/exit/throw exception
+						   IF YES:
+						      0. optional: check for "-" or "--" and issue warning?
+						      1. Get next argv[i]
+						         i++
+						      2. Store in association with option
+						         currentOpt->targetString = argv[i]
+						         currentOpt->targetSet = true
+						      3. RETURN to main parsing loop (step 1 at top)
+
+
+POSSIBLE STRUCTURES/OBJECTS:
+
+Option structure
+	?? description -- string
+	?? short-name -- char or length-1 string
+	?? long-name -- string
+	flag? -- boolean   [indicates whether option is flag or not]
+	flag-set? -- boolean [intial value: false]
+	target-set? -- boolean [initial value: false]
+	target -- string
+
+Might be better to make this a (lightweight) class, since then we can
+de-allocate them via "delete optionMap", where optionMap is
+map<string, *optObject>
+
+
+Class: parser
+	Main interface; only one object (usually) created
+	data: map<string, *optObject> of option-objects
+	data: vector<string> of usage strings
+	data: vector<string> of argument strings
+	method: void PrintUsage()
+	method: void AddFlag(string) / void AddFlag(string, string)
+		-- generates & sets up option object, adds to map
+	method: void AddOption(string) / void AddOption(string, string)
+		-- generates & sets up option object, adds to map
+	method: void AddUsageLine(string)
+	method: void ParseCommandLine()
+	method: bool IsFlagSet(string) -- checks if associated flag was set
+	method: bool IsOptionSet(string) -- checks if associated target was supplied
+	method: string GetTarget(string) -- retrieves target-string for option
+	method: int nArguments() -- retrieves number of arguments found
+	method: string GetArgument(n) -- retrieves argument-string number n
+	Initialization:
+		-- generate "-h,--help" (flag) object and add to map
+
+Class: option
+	data: bool  isFlag
+	data: bool  flagSet
+	data: bool  targetSet
+	data: string  targetString
+	method: void SetFlag()
+	method: void StoreTarget(string)
+	method: bool IsFlag()
+	Initialization:
+		--- main thing is to specify whether isFlag is true or false
+
+
+C++ STL map class:
+
+   Note that the default comparison operator/class for maps "defaults
+   to less<Key>, which returns the same as applying the less-than
+   operator (a<b)".  Since we're using the string class as keys, and the
+   string class implements operator< (and operator>, and ...), we can
+   rely on the default comparator.
+
+  map<char,int> first;
+
+  first['a']=10;
+  first['b']=30;
+  first['c']=50;
+  first['d']=70;
+
+To see if key is in the map, use "count" (returns 1 if present, 0 if not)
+    if (mymap.count(c) > 0)
+      cout << " is an element of mymap.\n";
+    else 
+      cout << " is not an element of mymap.\n";

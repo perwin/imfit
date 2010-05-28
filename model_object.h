@@ -37,8 +37,8 @@ class ModelObject
     						double *yValVector, bool magnitudeData );
 
 		// 2D only
-    void AddImageDataVector( int nDataValues, int nImageColumns,
-                                     int nImageRows, double *pixelVector );
+    void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows,
+    													int nCombinedImages );
 
 		// 2D only
     void SetupModelImage( int nDataValues, int nImageColumns, int nImageRows );
@@ -114,7 +114,7 @@ class ModelObject
     Convolver  *psfConvolver;
   
   protected:  // same as private, except accessible to derived classes
-    int  nDataVals, nColumns, nRows, nValidDataVals;
+    int  nDataVals, nColumns, nRows, nValidDataVals, nCombined;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists;
