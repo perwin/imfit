@@ -135,10 +135,13 @@ r_e     5.0   1.0,10.0      CURRENTLY USING THIS ONE
 
 
 
-Version of function objects with and without generalized ellipses (see Eqn.3 of
-Peng+2002 for a nice example of how to get r given x',y',q,c, assuming that x' and y'
-are in the principle-axes-of-the-ellipse coordinate system).
-
+Version of function objects with and without generalized ellipses (see
+Eqn.3 of Peng+2002, or Eqn. 21 of the Galfit-3.0 README for a nice
+example of how to get r given x',y',q,c, assuming that x' and y' are in
+the principle-axes-of-the-ellipse coordinate system).
+	--- From Galfit-3.0 README: "C0 should not be used until a best fitting 
+	ellipsoid model has been found." [i.e., it's best to fit with normal
+	ellipses, and then re-fit from that fit using generalized ellipse]
 
 Sky background: Chien Peng notes (in the readme file accompanying galfit
 2.0) that it's best to keep the sky "component" fixed to the best
@@ -447,6 +450,17 @@ ModelObject
 	use a non-sky-sub. image and tweak the best-estimate sky value used
 	in a fixed flat-sky model
 
+[x] Prototype "psfconvolve" program
+	[x] Prototype ShiftAndPadPSF() function: takes PSF image & push into corner
+	w/ correct wrap-around
+	[x] Test ShiftAndPadPSF() function with external PSF FITS images
+	[x] Do further tests with convolving external FITS images
+	[x] Prototype simple program which reads in image & PSF and saves convolution
+	[x] Implement trimming of final output image
+	[x] Prototype convolver.cpp module to contain PSF convolution code
+	[x] Do initial tests of convolver-based psfconvolve
+
+
 
 
 
@@ -469,6 +483,15 @@ ModelObject
 		parameters, re-inserting the fixed parameters only when calling the chi-square
 		function
 
+[] Prototype basic checking of initial parameter values (and limits?)
+	-- Mainly/only for startup (sometimes it's useful to know that best-fit
+	values are "physically impossible" ...)
+	-- FunctionObject classes should have a method which checks a passed-in set
+	of initial parameter values for sanity; reply with String error messages if
+	there are problems
+	-- Brainstorm how to handle parameter limits (two for each parameter, but
+	some/many parameters may not have limits
+	
 [] Prototype error-printing functions
 	-- e.g., something like what's in Kernighan & Pike's _The Practice of
 	Programming_
@@ -513,17 +536,6 @@ ModelObject
 		so effect on noise
 		-- OK, we'll take the same approach as GALFIT and *not* use t_exp
 
-[.] Prototype "psfconvolve" program
-	[x] Prototype ShiftAndPadPSF() function: takes PSF image & push into corner
-	w/ correct wrap-around
-	[x] Test ShiftAndPadPSF() function with external PSF FITS images
-	[x] Do further tests with convolving external FITS images
-	[x] Prototype simple program which reads in image & PSF and saves convolution
-	[x] Implement trimming of final output image
-	[x] Prototype convolver.cpp module to contain PSF convolution code
-	[x] Do initial tests of convolver-based psfconvolve
-	[] Figure out funny outer-edge issue in convolved image
-
 [.] Test possible sub-pixel generation schemes (Python)
 	[x] Write Python code to do sub-pixel sampling
 	[x] Test effects of different subsampling for exponential (vs scale length)
@@ -554,7 +566,7 @@ ModelObject
 [] Prototype code for saving final residual image?
 	-- should be deviates vector in ModelObject
 
-[] Prototype code for better pretty-printint of best-fit result
+[] Prototype code for better pretty-printing of best-fit result
 	-- should print function names and id separate function blocks
 	-- could be similar/identical to output to config file
 
@@ -645,7 +657,7 @@ image
 		sense on context of original image *and* are appropriate for an output
 		config file (e.g. for makeimage use).
 	[x] Prototype code for identifying and applying pixel offsets to output X0,Y0
-	[] Prototype code for applying pixel offsets to *input* X0,Y0 and their limits
+	[x] Prototype code for applying pixel offsets to *input* X0,Y0 and their limits
 		-- i.e., user specifies image[100:200,100:200]; we assume input X0,Y0 are
 		relative to complete image, but these need to be transformed to section-
 		relative coords for the actual fitting process -- and the same applies
@@ -668,6 +680,19 @@ image
 
 
 ** SPECULATIVE EXTRA STUFF:
+
+* Future explorations of speeding things up:
+
+	-- Try using FFTW real-to-complex + complex-to-real transforms (supposedly uses
+	less memory *and* is faster)
+		-- input (model) array is unchanged
+		-- FFT of PSF and input model array are smaller than before
+		-- complex product (input to c2r) array is "destroyed" by c2r inverse transform
+	
+	-- Try using in-place FFT transforms?
+	
+	-- Try rounding up to nearest power-of-two for FFT work
+
 
 ModelObject.ComputeDeviates *could* return an integer status value, which
 myfunc [in imfit_main.cpp] could then pass on to mpfit (mpfit assigns the

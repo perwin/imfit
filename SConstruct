@@ -103,8 +103,8 @@ modelobject_objs = modelobject_obj_string.split()
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
 # Function objects:
-functionobject_obj_string = """function_object func_gaussian func_exp func_sersic 
-		func_flat-exp func_broken-exp func_moffat func_flatsky"""
+functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
+		func_sersic func_gen-sersic func_flat-exp func_broken-exp func_moffat func_flatsky"""
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
@@ -138,6 +138,12 @@ makeimage_base_obj_string = """anyoption utilities image_io config_file_parser
 makeimage_base_objs = makeimage_base_obj_string.split()
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
+# Base files for timing:
+timing_base_obj_string = """anyoption utilities image_io config_file_parser 
+			add_functions timing_main"""
+timing_base_objs = timing_base_obj_string.split()
+timing_base_sources = [name + ".cpp" for name in timing_base_objs]
+
 
 # imfit: put all the object and source-code lists together
 imfit_objs = imfit_base_objs + modelobject_objs + functionobject_objs + c_objs
@@ -150,6 +156,9 @@ profilefit_sources = profilefit_base_sources + modelobject1d_sources + functiono
 # makeimage: put all the object and source-code lists together
 makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs + c_objs
 makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources + c_sources
+# timing: variation on makeimage designed to time image-generation and convolution
+timing_sources = timing_base_sources + modelobject_sources + functionobject_sources + c_sources
+
 
 # readimage: put all the object and source-code lists together
 #readimage_sources = ["readimage_main.cpp", "readimage.cpp"]
@@ -182,6 +191,8 @@ env_opt.Program("makeimage", makeimage_sources)
 
 psfconvolve_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve_objs, psfconvolve_sources) ]
 env_debug.Program("psfconvolve", psfconvolve_dbg_objlist)
+
+env_opt.Program("timing", timing_sources)
 
 # older programs
 env_opt.Program("readimage", readimage_sources)

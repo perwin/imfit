@@ -220,6 +220,7 @@ int main(int argc, char *argv[])
   }
 
   // Parse and process user-supplied (non-function) values from config file, if any
+  // [] CURRENTLY DOES NOTHING
   HandleConfigFileOptions(&userConfigOptions, &options);
   
   if (options.noImage) {
@@ -254,7 +255,7 @@ int main(int argc, char *argv[])
     maskAllocated = true;
   }
            
-  /* Get and check error image (or else tell function object to generate one) */
+  /* Get and check error image, if supplied */
   if (options.noiseImagePresent) {
     // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading noise image (\"%s\") ...\n", options.noiseFileName.c_str());
@@ -269,7 +270,7 @@ int main(int argc, char *argv[])
     }
   }
   else
-    printf("* No noise image supplied ... will generate noise image from input image\n");
+    printf("* No noise image supplied ... will generate noise image from input image.\n");
   
   /* Read in PSF image, if supplied */
   if (options.psfImagePresent) {
@@ -376,7 +377,7 @@ int main(int argc, char *argv[])
   }
   
   
-  /* Copy parameters into C array, correcting for X0,Y0 offsets */
+  /* Copy initial parameter values into C array, correcting for X0,Y0 offsets */
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));
   for (int i = 0; i < nParamsTot; i++) {
     if (theModel->GetParameterName(i) == X0_string) {
@@ -388,6 +389,8 @@ int main(int argc, char *argv[])
   }
   
   
+  // OK, now we either print chi^2 value for the input parameters and quit, or
+  // else call one of the solvers!
   if (options.printChiSquaredOnly) {
     printf("\n");
     theModel->SetupChisquaredCalcs();
@@ -396,9 +399,8 @@ int main(int argc, char *argv[])
     printf("\n");
   }
   else {
-    /* DO THE FIT! */
+    // DO THE FIT!
     if (options.solver == MPFIT_SOLVER) {
-      // Some trial mpfit experiments:
       bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
       mpfitResult.xerror = paramErrs;
       bzero(&mpConfig, sizeof(mpConfig));
@@ -463,22 +465,23 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage(" -h  --help                   Prints this help");
   opt->addUsage("     --list-functions         Prints list of available functions (components)");
   opt->addUsage("     --chisquare-only         Print chi^2 of input model and quit");
-  opt->addUsage("     --printimage             Print out images (for debugging)");
   opt->addUsage(" -c  --config <config-file>   configuration file");
-  opt->addUsage("     --de                     Use differential evolution solver (instead of L-M) [NOT IMPLEMENTED YET]");
+  opt->addUsage("     --de                     Use differential evolution solver (instead of L-M)");
   opt->addUsage("     --noise <noisemap.fits>  Noise image");
   opt->addUsage("     --mask <mask.fits>       Mask image");
   opt->addUsage("     --psf <psf.fits>         PSF image");
   opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
   opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
   opt->addUsage("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
-  opt->addUsage("     --sky <sky-level>        Original sky background (ADUs)");
+  opt->addUsage("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   opt->addUsage("     --gain <value>           Image gain (e-/ADU)");
   opt->addUsage("     --readnoise <value>      Image read noise (e-)");
   opt->addUsage("     --ncombined <value>      Number of images averaged to make final image (if counts are average or median)");
-  opt->addUsage("     --errors-are-variances   Indicates that values in noise image = variances");
-  opt->addUsage("     --errors-are-weights     Indicates that values in noise image = weights");
+  opt->addUsage("     --errors-are-variances   Indicates that values in noise image = variances (instead of sigmas)");
+  opt->addUsage("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
   opt->addUsage("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
+  opt->addUsage("");
+  opt->addUsage("     --printimage             Print out images (for debugging)");
   opt->addUsage("");
 
 

@@ -1,13 +1,37 @@
 /* FILE: convolver.cpp ------------------------------------------------- */
-/* VERSION 0.01
+/* VERSION 0.2
  *
  *   Module for image convolution functions.
  *
  *   MODIFICATION HISTORY:
+ *     [v0.2]: 31 May/1 June 2010: Fixed bug in dealing with non-square images:
+ * calls to fftw_plan_* functions had nRows and nColumns in the wrong order!
  *     [v0.1]: 15 April 2010: More or less usable now (thought not thoroughly tested,
  * and I'm not sure whether the "lowered-edges" peculiarity is still present).
  *     [v0.01]: 26 Mar 2010: Created.
  */
+
+// IMPORTANT NOTES ON ROWS, COLUMNS, ETC.
+//
+//    nColumns = # of possible x values = size of a row = width of image
+//    nRows = # of possible y values = size of a column = height of image
+//
+//    FFTW more or less requires that multi-dimensional arrays be in row-major
+// order, as is standard for C.  This means that an image which is W x H (W columns
+// by H rows) is indexed thusly:
+//    (column x, row y) = A[y][x] = A[y*Ncols + x]
+// In the confusing terminology of the FFTW manual: "the last dimension has the fastest-varying
+// index in the array" -- meaning that the "last dimension" corresponds to x-values,
+// and thus to the number of *columns*.
+//    Thus, the proper way to call fftw_plan_dft_2d(), which is described in the
+// FFTW manual as:
+//       fftw_plan_dft_2d(int n0, int n1, fftw_complex *in, fftw_complex *out,
+//                        int sign, unsigned flags);
+// is:
+//       fftw_plan_dft_2d(nRows, nColumns, fftw_complex *in, fftw_complex *out,
+//                        int sign, unsigned flags);
+
+
 
 // What we want:
 // 
@@ -153,10 +177,12 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     printf("*** WARNING: Convolver.DoFullSetup: PSF and/or image parameters not set!\n");
     exit(-1);
   }
-  nRows_padded = nRows_image + nRows_psf;
-  nColumns_padded = nColumns_image + nColumns_psf;
-  nPixels_padded = nRows_padded*nColumns_padded;
+  nColumns_padded = nColumns_image + nColumns_psf - 1;
+  nRows_padded = nRows_image + nRows_psf - 1;
+  nPixels_padded = nColumns_padded*nRows_padded;
   rescaleFactor = 1.0 / nPixels_padded;
+  if (debugStatus > 0)
+    printf("Images will be padded to %d x %d pixels in size\n", nColumns_padded, nRows_padded);
 
 #ifdef FFTW_THREADING
   // TEST: multi-threaded FFTW:
@@ -180,7 +206,7 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     fftwFlags = FFTW_ESTIMATE;
   // Note that there's not much purpose in multi-threading plan_psf, since we only do
   // the FFT of the PSF once
-  plan_psf = fftw_plan_dft_2d(nColumns_padded, nRows_padded, psf_in_cmplx, psf_fft_cmplx, FFTW_FORWARD,
+  plan_psf = fftw_plan_dft_2d(nRows_padded, nColumns_padded, psf_in_cmplx, psf_fft_cmplx, FFTW_FORWARD,
                              fftwFlags);
 
 #ifdef FFTW_THREADING
@@ -189,9 +215,9 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   fftw_plan_with_nthreads(nThreads);
 #endif  // FFTW_THREADING
 
-  plan_inputImage = fftw_plan_dft_2d(nColumns_padded, nRows_padded, image_in_cmplx, image_fft_cmplx, FFTW_FORWARD,
+  plan_inputImage = fftw_plan_dft_2d(nRows_padded, nColumns_padded, image_in_cmplx, image_fft_cmplx, FFTW_FORWARD,
                              fftwFlags);
-  plan_inverse = fftw_plan_dft_2d(nColumns_padded, nRows_padded, multiplied_cmplx, convolvedImage_cmplx, FFTW_BACKWARD, 
+  plan_inverse = fftw_plan_dft_2d(nRows_padded, nColumns_padded, multiplied_cmplx, convolvedImage_cmplx, FFTW_BACKWARD, 
                              fftwFlags);
   fftPlansCreated = true;
   
@@ -202,7 +228,7 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     printf("Normalizing the PSF ...\n");
     if (debugStatus > 1) {
       printf("The whole input PSF image, row by row:\n");
-      PrintRealImage(psfPixels, nRows_psf, nColumns_psf);
+      PrintRealImage(psfPixels, nColumns_psf, nRows_psf);
     }
   }
   psfSum = 0.0;
@@ -212,7 +238,7 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     psfPixels[k] = psfPixels[k] / psfSum;
   if (debugStatus > 1) {
     printf("The whole *normalized* PSF image, row by row:\n");
-    PrintRealImage(psfPixels, nRows_psf, nColumns_psf);
+    PrintRealImage(psfPixels, nColumns_psf, nRows_psf);
   }
 
   // Second, prepare (complex) psf array for FFT, and then copy input PSF into
@@ -226,7 +252,7 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   ShiftAndWrapPSF();
   if (debugStatus > 1) {
     printf("The whole padded, normalized PSF image, row by row:\n");
-    PrintComplexImage_RealPart(psf_in_cmplx, nRows_padded, nColumns_padded);
+    PrintComplexImage_RealPart(psf_in_cmplx, nColumns_padded, nRows_padded);
   }
   
   // Finally, do forward FFT on PSF image
@@ -261,13 +287,17 @@ void Convolver::ConvolveImage( double *pixelVector )
   }
   if (debugStatus > 1) {
     printf("The whole (padded) input mage [image_in_cmplx], row by row:\n");
-    PrintComplexImage_RealPart(image_in_cmplx, nRows_padded, nColumns_padded);
+    PrintComplexImage_RealPart(image_in_cmplx, nColumns_padded, nRows_padded);
   }
 
   // Do FFT of input image:
   if (debugStatus > 0)
     printf("Performing FFT of input image ...\n");
   fftw_execute(plan_inputImage);
+  if (debugStatus > 1) {
+    printf("The (modulus of the) transform of the input image [image_fft_cmplx], row by row:\n");
+    PrintComplexImage_Absolute(image_fft_cmplx, nColumns_padded, nRows_padded);
+  }
   
   // Multiply transformed arrays:
   for (jj = 0; jj < nPixels_padded; jj++) {
@@ -277,6 +307,10 @@ void Convolver::ConvolveImage( double *pixelVector )
     d = psf_fft_cmplx[jj][1];
     multiplied_cmplx[jj][0] = a*c - b*d;
     multiplied_cmplx[jj][1] = b*c + a*d;
+  }
+  if (debugStatus > 1) {
+    printf("The (modulus of the) product [multiplied_cmplx], row by row:\n");
+    PrintComplexImage_Absolute(multiplied_cmplx, nColumns_padded, nRows_padded);
   }
 
   // Do the inverse FFT on the product array:
@@ -332,7 +366,7 @@ void Convolver::ShiftAndWrapPSF( )
 
 
 
-void PrintRealImage( double *image, int nRows, int nColumns )
+void PrintRealImage( double *image, int nColumns, int nRows )
 {
 
   for (int i = 0; i < nRows; i++) {   // step by row number = y
@@ -344,12 +378,27 @@ void PrintRealImage( double *image, int nRows, int nColumns )
 }
 
 
-void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nRows, int nColumns )
+void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nColumns, int nRows )
 {
 
   for (int i = 0; i < nRows; i++) {   // step by row number = y
     for (int j = 0; j < nColumns; j++)   // step by column number = x
       printf(" %9f", image_cmplx[i*nColumns + j][0]);
+    printf("\n");
+  }
+  printf("\n");
+}
+
+
+void PrintComplexImage_Absolute( fftw_complex *image_cmplx, int nColumns, int nRows )
+{
+  double  absVal;
+  
+  for (int i = 0; i < nRows; i++) {   // step by row number = y
+    for (int j = 0; j < nColumns; j++) {   // step by column number = x
+      absVal = hypot(image_cmplx[i*nColumns + j][0], image_cmplx[i*nColumns + j][1]);
+      printf(" %9f", absVal);
+    }
     printf("\n");
   }
   printf("\n");

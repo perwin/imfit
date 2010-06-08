@@ -10,3 +10,13 @@ NOTES ON HOW TO ADD NEW FUNCTIONS TO IMFIT/MAKEIMAGE:
 
 3. Add func_<name> to modelobject_obj_string definition in SConstruct file
 
+
+Note that the only place where the precise mapping between user-supplied function
+name (i.e., in the config file) and actual function object is done is in
+add_functions.cpp.
+	-- Thus, we can change what the users see as the names of functions just
+	by tweaking things in add_functions.cpp, without needing to re-write the
+	individual function-object code (though a radical name-change might
+	warrant a change to the FUNCTION_NAME definition in the function-object .cpp
+	file).
+

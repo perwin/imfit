@@ -144,6 +144,24 @@ FIXES:
 ReadConfigFile().
 
 
+
+
+*** 1 June 2010: Convolution problems
+
+Convolution gets screwed up when image is non-square (but is OK when image is
+square); first manifested as mysterious failure of imfit in fitting non-square
+NGC 1332 and 7457 images only when using PSF convolution.
+
+* PROBLEM FOUND:
+In convolver.cpp:
+	All three calls to FFTW plan_* functions had dimensions mixed up: number of rows and
+number of columns were swapped (partly due to rather opaque discussion of dimensions
+in FFTW documentation...).
+
+FIXES:
+	Swap nColumns and nRows in calls to plan_* functions.
+
+
 	
 
 
