@@ -55,6 +55,20 @@ ModelObject::ModelObject( )
   nFunctionSets = 0;
   nFunctionParams = 0;
   nParamsTot = 0;
+  debugLevel = 0;
+}
+
+
+/* ---------------- PUBLIC METHOD: SetDebugLevel ----------------------- */
+
+void ModelObject::SetDebugLevel( int debuggingLevel )
+{
+  if (debuggingLevel < 0) {
+    printf("ModelObject::SetDebugLevel -- WARNING: debugging level must be > 0");
+    printf(" (%d was supplied); debugging level left unchanged.\n", debuggingLevel);
+  }
+  else
+    debugLevel = debuggingLevel;
 }
 
 
@@ -320,8 +334,7 @@ void ModelObject::ApplyMask( )
 void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels)
 {
-  int  debugLevel = 0;
-  
+
   if (modelVectorAllocated) {
     psfConvolver = new Convolver();
     psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);

@@ -160,8 +160,8 @@ void ModelObject1d::CreateModelImage( double params[] )
       x0 = params[offset];
       offset += 1;
 // #ifdef DEBUG
-//       printf("  Function %d = start of new set; x0 = %g, y0 = %g\n",
-//               n, x0, y0);
+//       printf("  Function %d = start of new set; x0 = %g\n",
+//               n, x0);
 // #endif
     }
     functionObjects[n]->Setup(params, offset, x0);
@@ -231,7 +231,7 @@ void ModelObject1d::PrintDescription( )
 
 /* ---------------- PUBLIC METHOD: PopulateParameterNames -------------- */
 // This function is redefined because the base function in ModelObject assumes
-// two positional paramters ("X0" and "Y0").
+// two positional paramters ("X0").
 
 void ModelObject1d::PopulateParameterNames( )
 {
@@ -239,7 +239,7 @@ void ModelObject1d::PopulateParameterNames( )
 
   for (n = 0; n < nFunctions; n++) {
     if (setStartFlag[n] == true) {
-      // start of new function set: extract x0,y0
+      // start of new function set: extract x0
       parameterLabels.push_back("X0");
     }
     functionObjects[n]->GetParameterNames(parameterLabels);

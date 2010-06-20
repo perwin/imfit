@@ -162,6 +162,11 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
     }
     i++;
   }
+  if (functionSectionFound == false) {
+    printf("\n*** ReadConfigFile: Unable to find start of function section!");
+    printf(" (no \"X0\" line found)\n");
+    return -1;
+  }
 
   // Parse the first (non-function-related) section here
   // We assume that each of lines has the form "CAPITAL_KEYWORD some_value"
@@ -262,6 +267,11 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
       break;
     }
     i++;
+  }
+  if (functionSectionFound == false) {
+    printf("\n*** ReadConfigFile: Unable to find start of function section!");
+    printf(" (no \"X0\" line found)\n");
+    return -1;
   }
 
   // Parse the first (non-function-related) section here

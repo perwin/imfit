@@ -104,7 +104,8 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
 # Function objects:
 functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
-		func_sersic func_gen-sersic func_flat-exp func_broken-exp func_moffat func_flatsky"""
+		func_sersic func_gen-sersic func_flat-exp func_broken-exp func_broken-exp2d
+		func_moffat func_flatsky"""
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
@@ -114,7 +115,8 @@ modelobject1d_objs = modelobject1d_obj_string.split()
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
 # 1D FunctionObject classes:
-functionobject1d_obj_string = """function_object func1d_exp func1d_sersic"""
+functionobject1d_obj_string = """function_object func1d_gaussian func1d_exp func1d_sersic 
+		func1d_broken-exp"""
 functionobject1d_objs = [ FUNCTION_SUBDIR + name for name in functionobject1d_obj_string.split() ]
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 

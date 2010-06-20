@@ -149,8 +149,12 @@ int main(int argc, char *argv[])
            options.configFileName.c_str());
     return -1;
   }
-  ReadConfigFile(options.configFileName, false, functionList, parameterList, paramLimits, 
+  status = ReadConfigFile(options.configFileName, false, functionList, parameterList, paramLimits, 
   								functionSetIndices, paramLimitsExist, userConfigOptions);
+  if (status < 0) {
+    printf("\n*** WARNING: Problem in processing config file!\n\n");
+    return -1;
+  }
   for (int k = 0; k < parameterList.size(); k++)
   	cout << parameterList[k] << "  ";
   cout << endl;

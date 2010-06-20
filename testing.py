@@ -58,3 +58,15 @@ def CreateModelImage( params ):
 CreateModelImage(p)
 
 
+# Finding nearest power-of-two image size:
+def ln( x ):
+	return math.log(x) / math.log(2.0)
+
+nRows_padded_min = nRows_image + nRows_psf - 1
+nRows_powerof2 = 2**int(math.ceil(ln(nRows_padded_min)))
+
+# C version:
+nRows_padded_min = nRows_image + nRows_psf - 1;
+nearestExp = ceil(log2(nRows_padded_min));
+nRows_powerof2 = round(pow(2, nearestExp));
+

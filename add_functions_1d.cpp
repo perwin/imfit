@@ -15,8 +15,9 @@
 
 #include "function_object.h"
 #include "func1d_exp.h"
+#include "func1d_gaussian.h"
 #include "func1d_sersic.h"
-//#include "func1d_broken-exp.h"
+#include "func1d_broken-exp.h"
 
 using namespace std;
 
@@ -31,6 +32,11 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
     currentName = functionNameList[i];
     printf("Function: %s\n", currentName.c_str());
     
+    if (currentName == "Gaussian-1D") {
+      thisFunctionObj = new Gaussian1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
     if (currentName == "Exponential-1D") {
       thisFunctionObj = new Exponential1D();
       theModel->AddFunction(thisFunctionObj);
@@ -46,11 +52,11 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
 //       theModel->AddFunction(thisFunctionObj);
 //       continue;
 //     }
-//     if (currentName == "BrokenExponential-1D") {
-//       thisFunctionObj = new BrokenExponential1D();
-//       theModel->AddFunction(thisFunctionObj);
-//       continue;
-//     }
+    if (currentName == "BrokenExponential-1D") {
+      thisFunctionObj = new BrokenExponential1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
     // If we reach here, then something went wrong
     printf("*** AddFunctions1d: unidentified function name (\"%s\")\n", currentName.c_str());
     return - 1;

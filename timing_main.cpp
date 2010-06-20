@@ -57,6 +57,7 @@ typedef struct {
   bool  noParamLimits;
   bool  printImages;
   int  nIterations;
+  int  debugLevel;
 } commandOptions;
 
 
@@ -111,6 +112,7 @@ int main(int argc, char *argv[])
   options.magZeroPoint = NO_MAGNITUDES;
   options.printImages = false;
   options.nIterations = 1;
+  options.debugLevel = 0;
 
   ProcessInput(argc, argv, &options);
 
@@ -166,6 +168,7 @@ int main(int argc, char *argv[])
 
   /* Set up the model object */
   theModel = new ModelObject();
+  theModel->SetDebugLevel(options.debugLevel);
   
   /* Add functions to the model object; also tells model object where function
      sets start */
@@ -255,6 +258,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("     --nrows <number-of-rows>   y-size of output image");
   opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
   opt->addUsage("     --niterations <n>             number of iterations to do");
+  opt->addUsage("     --debug <n>             debugging level");
   opt->addUsage("");
 
 
@@ -268,6 +272,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setOption("nrows");      /* an option (takes an argument), supporting only long form */
   opt->setOption("refimage");      /* an option (takes an argument), supporting only long form */
   opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
+  opt->setOption("debug");      /* an option (takes an argument), supporting only long form */
 
   /* parse the command line:  */
   opt->processCommandArgs( argc, argv );
@@ -331,6 +336,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
       exit(1);
     }
     theOptions->nRows = atol(opt->getValue("nrows"));
+  }
+  if (opt->getValue("debug") != NULL) {
+    if (NotANumber(opt->getValue("debug"), 0, kAnyInt)) {
+      fprintf(stderr, "*** WARNING: debug should be an integer!\n");
+      delete opt;
+      exit(1);
+    }
+    theOptions->debugLevel = atol(opt->getValue("debug"));
   }
 
   if ((theOptions->nColumns) && (theOptions->nRows))

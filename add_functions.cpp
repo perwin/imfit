@@ -23,6 +23,7 @@
 #include "func_gen-sersic.h"
 #include "func_flat-exp.h"
 #include "func_broken-exp.h"
+#include "func_broken-exp2d.h"
 #include "func_moffat.h"
 #include "func_flatsky.h"
 
@@ -32,8 +33,8 @@ using namespace std;
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
 const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
             "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
-            "Moffat", "FlatSky"};
-const int  N_FUNCTIONS = 9;
+            "BrokenExponential2D", "Moffat", "FlatSky"};
+const int  N_FUNCTIONS = 10;
 
 
 // CHANGE WHEN ADDING FUNCTION -- add corresponding
@@ -81,6 +82,11 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
     }
     if (currentName == "BrokenExponential") {
       thisFunctionObj = new BrokenExponential(subamplingFlag);
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
+    if (currentName == "BrokenExponential2D") {
+      thisFunctionObj = new BrokenExponential2D(subamplingFlag);
       theModel->AddFunction(thisFunctionObj);
       continue;
     }

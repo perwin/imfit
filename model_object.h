@@ -25,6 +25,8 @@ class ModelObject
   public:
     // Constructors:
     ModelObject( );
+
+    void SetDebugLevel( int debuggingLevel );
     
     // common, not specialized
     void AddFunction( FunctionObject *newFunctionObj_ptr );
@@ -115,6 +117,7 @@ class ModelObject
   
   protected:  // same as private, except accessible to derived classes
     int  nDataVals, nColumns, nRows, nValidDataVals, nCombined;
+    int  debugLevel;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists;
