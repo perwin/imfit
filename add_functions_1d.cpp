@@ -16,6 +16,7 @@
 #include "function_object.h"
 #include "func1d_exp.h"
 #include "func1d_gaussian.h"
+#include "func1d_moffat.h"
 #include "func1d_sersic.h"
 #include "func1d_broken-exp.h"
 
@@ -37,6 +38,11 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
       theModel->AddFunction(thisFunctionObj);
       continue;
     }
+    if (currentName == "Moffat-1D") {
+      thisFunctionObj = new Moffat1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
     if (currentName == "Exponential-1D") {
       thisFunctionObj = new Exponential1D();
       theModel->AddFunction(thisFunctionObj);
@@ -47,11 +53,6 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
       theModel->AddFunction(thisFunctionObj);
       continue;
     }
-//     if (currentName == "Sersic-1D") {
-//       thisFunctionObj = new Sersic1D();
-//       theModel->AddFunction(thisFunctionObj);
-//       continue;
-//     }
     if (currentName == "BrokenExponential-1D") {
       thisFunctionObj = new BrokenExponential1D();
       theModel->AddFunction(thisFunctionObj);

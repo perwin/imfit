@@ -8,8 +8,8 @@ Allowed formats
 	
 	-x <cmd-arg>	-- option with argument
 	-x=<cmd-arg>	-- option with argument
-	-xxx <cmd-arg>	-- option with argument
-	-xxx=<cmd-arg>	-- option with argument
+	--xxx <cmd-arg>	-- option with argument
+	--xxx=<cmd-arg>	-- option with argument
 
 
 Mode of setup and use, based on AnyOption:

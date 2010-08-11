@@ -116,7 +116,7 @@ modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
 # 1D FunctionObject classes:
 functionobject1d_obj_string = """function_object func1d_gaussian func1d_exp func1d_sersic 
-		func1d_broken-exp"""
+		func1d_broken-exp func1d_moffat"""
 functionobject1d_objs = [ FUNCTION_SUBDIR + name for name in functionobject1d_obj_string.split() ]
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
@@ -171,6 +171,10 @@ readimage_sources = ["readimage_main.cpp", "image_io.cpp"]
 psfconvolve_objs = ["psfconvolve_main", "anyoption", "image_io", "convolver"]
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
+# psfconvolve1d: put all the object and source-code lists together
+psfconvolve1d_objs = ["psfconvolve1d_main", "anyoption", "image_io", "convolver1d"]
+psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
+
 # test_parser: put all the object and source-code lists together
 testparser_objs = ["test_parser", "config_file_parser", "utilities"]
 testparser_sources = [name + ".cpp" for name in testparser_objs]
@@ -194,11 +198,13 @@ env_opt.Program("makeimage", makeimage_sources)
 psfconvolve_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve_objs, psfconvolve_sources) ]
 env_debug.Program("psfconvolve", psfconvolve_dbg_objlist)
 
+psfconvolve1d_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve1d_objs, psfconvolve1d_sources) ]
+env_debug.Program("psfconvolve1d", psfconvolve1d_dbg_objlist)
+
 env_opt.Program("timing", timing_sources)
 
 # older programs
 env_opt.Program("readimage", readimage_sources)
-#env_debug.Program("psfconvolve_old", psfconvolve_sources_old)
 testparser_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(testparser_objs, testparser_sources) ]
 env_debug.Program("testparser", testparser_objlist)
 
