@@ -37,6 +37,7 @@
 /* ---------------- Definitions & Constants ----------------------------- */
 #define MAX_N_DATA_VALS   1000000   /* max # data values we'll handle (1.0e6) */
 
+#define NO_FITTING          0 
 #define MPFIT_SOLVER        1
 #define DIFF_EVOLN_SOLVER   2
 
@@ -55,20 +56,26 @@
 #define CMDLINE_ERROR7 "Usage: --pf must be followed by a positive real number"
 
 #define DEFAULT_CONFIG_FILE   "sample_imfit1d_config.dat"
+#define DEFAULT_MODEL_OUTPUT_FILE   "model_profile_save.dat"
 
-#define VERSION_STRING      " v0.5"
+#define VERSION_STRING      " v0.6"
 
 
 
 typedef struct {
   std::string  configFileName;
   std::string  dataFileName;
+  std::string  psfFileName;
+  std::string  modelOutputFileName;
+  bool  psfPresent;
   bool  noDataFile;
   bool  noConfigFile;
+  bool  dataAreMagnitudes;
   int  startDataRow;
   int  endDataRow;
   bool  noErrors;
   bool  subsamplingFlag;
+  bool  saveBestProfile;
   int  solver;
 } commandOptions;
 
@@ -104,10 +111,13 @@ int myfunc( int nDataVals, int nParams, double *params, double *deviates,
 int main(int argc, char *argv[])
 {
   int  nDataVals, nStoredDataVals, nSavedRows;
+  int  nPixels_psf;
   int  startDataRow, endDataRow;
   int  nParamsTot, nFreeParams;
   double  *xVals, *yVals, *yWeights;
+  double  *xVals_psf, *yVals_psf;
   int  weightMode;
+  FILE  *outputFile_ptr;
   ModelObject  *theModel;
 //  FunctionObject  *thisFunctionObj;  
   double  *paramsVect;
@@ -115,11 +125,13 @@ int main(int argc, char *argv[])
   vector<mp_par>  paramLimits;
   vector<int>  functionSetIndices;
   bool  paramLimitsExist = false;
+  bool  parameterInfo_allocated = false;
   mp_result  mpfitResult;
   int  status;
   vector<string>  functionList;
   vector<double>  parameterList;
-  mp_par  *mpParamLimits;
+  mp_par  *parameterInfo;
+  mp_par  *mpfitParameterConstraints;
   commandOptions  options;
   configOptions  userConfigOptions;
   
@@ -128,13 +140,17 @@ int main(int argc, char *argv[])
   /* First, set up the options structure: */
   options.configFileName = DEFAULT_CONFIG_FILE;
   options.dataFileName = "";
+  options.modelOutputFileName = DEFAULT_MODEL_OUTPUT_FILE;
   options.noDataFile = true;
   options.noConfigFile = true;
+  options.psfPresent = false;
+  options.dataAreMagnitudes = true;   // default: assumes we usually fit mu(R) profiles
   options.startDataRow = 0;
   options.endDataRow = -1;   // default value indicating "last row in data file"
   options.noErrors = true;
   options.solver = MPFIT_SOLVER;
   options.subsamplingFlag = false;
+  options.saveBestProfile = false;
 
   ProcessInput(argc, argv, &options);
 
@@ -155,9 +171,9 @@ int main(int argc, char *argv[])
     printf("\n*** WARNING: Problem in processing config file!\n\n");
     return -1;
   }
-  for (int k = 0; k < parameterList.size(); k++)
-  	cout << parameterList[k] << "  ";
-  cout << endl;
+//  for (int k = 0; k < parameterList.size(); k++)
+//  	cout << parameterList[k] << "  ";
+//  cout << endl;
 
 
   /* GET THE DATA: */
@@ -225,13 +241,48 @@ int main(int argc, char *argv[])
         yWeights[i] = 1.0/yWeights[i];
     }
   }
-  
+
+
+  /* Read in PSF profile, if supplied */
+  if (options.psfPresent) {
+//    printf("Reading PSF profile (\"%s\") ...\n", options.psfFileName.c_str());
+    nPixels_psf = CountDataLines(options.psfFileName);
+    if ((nPixels_psf < 1) || (nPixels_psf > MAX_N_DATA_VALS)) {
+	  /* file has no data *or* too much data (or an integer overflow occured 
+	     in CountDataLines) */
+  	  printf("Something wrong: input PSF file %s has too few or too many data points\n", 
+		     options.psfFileName.c_str());
+  	printf("(nPixels_psf = %d)\n", nPixels_psf);
+	  exit(1);
+    }
+    printf("PSF file \"%s\": %d data points\n", options.psfFileName.c_str(), nPixels_psf);
+    /* Set default end data row (if not specified) and check for reasonable values: */
+    startDataRow = 0;
+    endDataRow = nPixels_psf - 1;
+
+    xVals_psf = (double *)calloc( (size_t)nPixels_psf, sizeof(double) );
+    yVals_psf = (double *)calloc( (size_t)nPixels_psf, sizeof(double) );
+    if ( (xVals_psf == NULL) || (yVals_psf == NULL) ) {
+      fprintf(stderr, "\nFailure to allocate memory for PSF data!\n");
+      exit(-1);
+    }
+
+    nSavedRows = ReadDataFile(options.psfFileName, startDataRow, endDataRow, 
+                               xVals_psf, yVals_psf, NULL);
+    if (nSavedRows > nStoredDataVals) {
+      fprintf(stderr, "\nMore PSF rows saved (%d) than we allocated space for (%d)!\n",
+              nSavedRows, nPixels_psf);
+      exit(-1);
+    }
+  }
+
 
 
   /* Set up the model object */
   theModel = new ModelObject1d();
   
   /* Add functions to the model object */
+  printf("Adding functions to model object...\n");
   status = AddFunctions1d(theModel, functionList, functionSetIndices);
   if (status < 0) {
   	printf("*** WARNING: Failure in AddFunctions!\n\n");
@@ -241,7 +292,7 @@ int main(int argc, char *argv[])
   // Set up parameter vector(s), now that we know how many total parameters
   // there will be
   nParamsTot = nFreeParams = theModel->GetNParams();
-  printf("%d total parameters\n", nParamsTot);
+  printf("\t%d total parameters\n", nParamsTot);
   paramsVect = (double *) malloc(nParamsTot * sizeof(double));
   for (int i = 0; i < nParamsTot; i++)
     paramsVect[i] = parameterList[i];
@@ -249,63 +300,139 @@ int main(int argc, char *argv[])
   
   /* Add image data and errors to the model object */
   // "true" = input yVals data are magnitudes, not intensities
-  theModel->AddDataVectors(nStoredDataVals, xVals, yVals, true);
+  theModel->AddDataVectors(nStoredDataVals, xVals, yVals, options.dataAreMagnitudes);
   theModel->AddErrorVector1D(nStoredDataVals, yWeights, WEIGHTS_ARE_SIGMAS);
   theModel->PrintDescription();
+  // Add PSF vector, if present, and thereby enable convolution
+  if (options.psfPresent)
+    theModel->AddPSFVector1D(nPixels_psf, xVals_psf, yVals_psf);
 
+
+  // Parameter limits and other info:
+  // OK, first we create a C-style array of mp_par structures, containing parameter constraints
+  // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
+  // by DiffEvolnFit (if called) and by PrintResults.  We also decrement nFreeParams for
+  // each *fixed* parameter.
+  // Then we point the mp_par-array variable mpfitParameterConstraints to this array *if*
+  // there are actual parameter constraints; if not, mpfitParameterConstraints is set = NULL,
+  // since that's what mpfit() expects when there are no constraints.
+  printf("Setting up parameter information array ...\n");
+  parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
+  parameterInfo_allocated = true;
+  for (int i = 0; i < nParamsTot; i++) {
+    parameterInfo[i].fixed = paramLimits[i].fixed;
+    if (parameterInfo[i].fixed == 1) {
+    	printf("Fixed parameter detected (i = %d)\n", i);
+      nFreeParams--;
+    }
+    parameterInfo[i].limited[0] = paramLimits[i].limited[0];
+    parameterInfo[i].limited[1] = paramLimits[i].limited[1];
+    parameterInfo[i].limits[0] = paramLimits[i].limits[0];
+    parameterInfo[i].limits[1] = paramLimits[i].limits[1];
+  }
+  if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
+    // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
+    printf("No parameter constraints!\n");
+    mpfitParameterConstraints = NULL;
+  } else {
+    mpfitParameterConstraints = parameterInfo;
+  }
 
   // Parameter limits:
-  if (paramLimitsExist) {
-    printf("Setting up parameter limits ...\n");
-    mpParamLimits = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
-    for (int i = 0; i < nParamsTot; i++) {
-      mpParamLimits[i].fixed = paramLimits[i].fixed;
-      if (mpParamLimits[i].fixed == 1)
-        nFreeParams--;
-      mpParamLimits[i].limited[0] = paramLimits[i].limited[0];
-      mpParamLimits[i].limited[1] = paramLimits[i].limited[1];
-      mpParamLimits[i].limits[0] = paramLimits[i].limits[0];
-      mpParamLimits[i].limits[1] = paramLimits[i].limits[1];
-    }
-  } else {
-    mpParamLimits = NULL;
-  }
+//   if (paramLimitsExist) {
+//     printf("Setting up parameter limits ...\n");
+//     mpfitParameterConstraints = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
+//     for (int i = 0; i < nParamsTot; i++) {
+//       mpfitParameterConstraints[i].fixed = paramLimits[i].fixed;
+//       if (mpfitParameterConstraints[i].fixed == 1)
+//         nFreeParams--;
+//       mpfitParameterConstraints[i].limited[0] = paramLimits[i].limited[0];
+//       mpfitParameterConstraints[i].limited[1] = paramLimits[i].limited[1];
+//       mpfitParameterConstraints[i].limits[0] = paramLimits[i].limits[0];
+//       mpfitParameterConstraints[i].limits[1] = paramLimits[i].limits[1];
+//     }
+//   } else {
+//     mpfitParameterConstraints = NULL;
+//   }
   
-  cout << "Here is the input paramsVect:" << endl;
-  for (int k = 0; k < nParamsTot; k++)
-  	cout << paramsVect[k] << "  ";
-  cout << endl;
-  printf("\nStarting the fit w/ nStoredDataVals = %d, nParamsTot = %d ...\n",
-  				nStoredDataVals, nParamsTot);
+//  cout << "Here is the input paramsVect:" << endl;
+//  for (int k = 0; k < nParamsTot; k++)
+//  	cout << paramsVect[k] << "  ";
+//  cout << endl;
+//  printf("\nStarting the fit w/ nStoredDataVals = %d, nParamsTot = %d ...\n",
+//  				nStoredDataVals, nParamsTot);
   
   
-  if (options.solver == MPFIT_SOLVER) {
-    bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero the results structure */
-    mpfitResult.xerror = paramErrs;
-    printf("Calling mpfit ...\n");
-    status = mpfit(myfunc, nStoredDataVals, nParamsTot, paramsVect, mpParamLimits, 0, 
-  									theModel, &mpfitResult);
+  switch (options.solver) {
+    case MPFIT_SOLVER:
+      bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero the results structure */
+      mpfitResult.xerror = paramErrs;
+      printf("\nCalling mpfit ...\n");
+      status = mpfit(myfunc, nStoredDataVals, nParamsTot, paramsVect, mpfitParameterConstraints, 0, 
+  	  								theModel, &mpfitResult);
   
-    printf("\n");
-    PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, mpParamLimits, status);
-    printf("\n");
-  }
-  else {
-    printf("Calling DiffEvolnFit ..\n");
-    status = DiffEvolnFit(nParamsTot, paramsVect, mpParamLimits, theModel, MAX_DE_GENERATIONS);
-    printf("\n");
-    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, mpParamLimits, status);
-    printf("\n");
-  }
+      printf("\n");
+      PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+      break;
+    case DIFF_EVOLN_SOLVER:
+      printf("\nCalling DiffEvolnFit ..\n");
+      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, MAX_DE_GENERATIONS);
+      printf("\n");
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+      break;
+    case NO_FITTING:
+      printf("\nNO FITTING BEING DONE!\n");
+      theModel->SetupChisquaredCalcs();
+      options.saveBestProfile = true;
+//       double chisqr = theModel->ChiSquared(paramsVect);
+//       double  *modelProfile = theModel->GetModelImageVector();
+//       if (modelProfile == NULL)
+//         break;
+//       printf("Saving model profile to %s...\n", options.modelOutputFileName.c_str());
+//       outputFile_ptr = fopen(options.modelOutputFileName.c_str(), "w");
+//       for (int i = 0; i < nStoredDataVals; i++) {
+//         fprintf(outputFile_ptr, "\t%f\t%f\n", xVals[i], modelProfile[i]);
+//       }
+//       fclose(outputFile_ptr);
+//       printf("Done.\n");
+      break;
+  } // end switch
 
+  if (options.saveBestProfile) {
+    double chisqr = theModel->ChiSquared(paramsVect);
+    double *modelProfile = (double *) calloc((size_t)nStoredDataVals, sizeof(double));
+    int nPts = theModel->GetModelVector(modelProfile);
+    if (nPts == nStoredDataVals) {
+      printf("Saving model profile to %s...\n", options.modelOutputFileName.c_str());
+      outputFile_ptr = fopen(options.modelOutputFileName.c_str(), "w");
+      for (int i = 0; i < nPts; i++) {
+        fprintf(outputFile_ptr, "\t%f\t%f\n", xVals[i], modelProfile[i]);
+      }
+      fclose(outputFile_ptr);
+      printf("Done.\n");
+    }
+    else {
+      printf("WARNING -- MISMATCH BETWEEN nStoredDataVals (main) and nDataVals (ModelObject1d)!\n");
+      printf("NO PROFILE SAVED!\n");
+    }
+    free(modelProfile);
+  }
 
   // Free up memory
   free(xVals);
   free(yVals);
   free(yWeights);
+  if (options.psfPresent) {
+    free(xVals_psf);
+    free(yVals_psf);
+  }
   free(paramsVect);
   free(paramErrs);
-  free(theModel);
+  if (parameterInfo_allocated)
+    free(parameterInfo);
+  delete theModel;
   
   return 0;
 }
@@ -321,10 +448,13 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   /* SET THE USAGE/HELP   */
   opt->addUsage("Usage: ");
-  opt->addUsage("   imfit1d [options] datafile configfile");
+  opt->addUsage("   profilefit [options] datafile configfile");
   opt->addUsage(" -h  --help                   Prints this help");
   opt->addUsage(" --useerrors                  Use errors from data file");
+  opt->addUsage(" --intensities                Data y-values are intensities, not magnitudes");
+  opt->addUsage(" --psf <psf_file>             PSF image");
   opt->addUsage(" --de                         Solve using differential evolution");
+  opt->addUsage(" --no-fitting                 Don't do fitting (just save input model)");
   opt->addUsage("     --x1 <int>               start data value");
   opt->addUsage("     --x2 <int>               end data value");
   opt->addUsage("");
@@ -333,7 +463,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   /* by default all options are checked on the command line and from option/resource file */
   opt->setFlag("help", 'h');
   opt->setFlag("useerrors");
+  opt->setFlag("intensities");
+  opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
   opt->setFlag("de");
+  opt->setFlag("no-fitting");
   opt->setOption("x1");      /* an option (takes an argument), supporting only long form */
   opt->setOption("x2");        /* an option (takes an argument), supporting only long form */
 
@@ -360,12 +493,25 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     exit(1);
   }
   if (opt->getFlag("useerrors")) {
-  	printf("\t USEERRORS SELECTED!\n");
+  	printf("\t USE ERRORS SELECTED!\n");
   	theOptions->noErrors = false;
+  }
+  if (opt->getFlag("intensities")) {
+  	printf("\t Data values are assumed to be intensities (instead of magnitudes)!\n");
+  	theOptions->dataAreMagnitudes = false;
+  }
+  if (opt->getValue("psf") != NULL) {
+    theOptions->psfFileName = opt->getValue("psf");
+    theOptions->psfPresent = true;
+    printf("\tPSF profile = %s\n", theOptions->psfFileName.c_str());
   }
   if (opt->getFlag("de")) {
   	printf("\t Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
+  }
+  if (opt->getFlag("no-fitting")) {
+  	printf("\t No fitting will be done!\n");
+  	theOptions->solver = NO_FITTING;
   }
   if (opt->getValue("x1") != NULL) {
     if (NotANumber(opt->getValue("x1"), 0, kPosInt)) {

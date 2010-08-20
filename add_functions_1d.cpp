@@ -19,6 +19,7 @@
 #include "func1d_moffat.h"
 #include "func1d_sersic.h"
 #include "func1d_broken-exp.h"
+#include "func1d_delta.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
   
   for (int i = 0; i < nFunctions; i++) {
     currentName = functionNameList[i];
-    printf("Function: %s\n", currentName.c_str());
+    printf("\tFunction: %s\n", currentName.c_str());
     
     if (currentName == "Gaussian-1D") {
       thisFunctionObj = new Gaussian1D();
@@ -55,6 +56,11 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
     }
     if (currentName == "BrokenExponential-1D") {
       thisFunctionObj = new BrokenExponential1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
+    if (currentName == "Delta-1D") {
+      thisFunctionObj = new Delta1D();
       theModel->AddFunction(thisFunctionObj);
       continue;
     }

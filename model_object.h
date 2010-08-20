@@ -59,10 +59,13 @@ class ModelObject
     virtual void AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
-		// 2D only [1D needs something similar, but with diff. interface]
-    void AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
-                         double *psfPixels);
+		// 2D only
+    void AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
+                         double *psfPixels );
 
+    // 1D only
+    virtual void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector );
+    
 		// 2D only [1D maybe needs something similar, but with diff. interface]
     virtual void ApplyMask( );
 
@@ -108,6 +111,9 @@ class ModelObject
 		// 2D only
     double * GetModelImageVector( );
 
+    // 1D only
+    virtual int GetModelVector( double *profileVector );
+
     // Destructor
     virtual ~ModelObject();
 
@@ -119,6 +125,7 @@ class ModelObject
     int  nDataVals, nColumns, nRows, nValidDataVals, nCombined;
     int  debugLevel;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
+    bool  setStartFlag_allocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists;
     bool  doConvolution;

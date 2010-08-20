@@ -57,7 +57,8 @@ if (os_type == "Linux"):
 	lib_path = ["/home/erwin/lib"]
 	link_flags = None
 defines_opt = base_defines
-defines_db = base_defines + ["DEBUG"]
+#defines_db = base_defines + ["DEBUG"]
+defines_db = base_defines
 
 
 # Allow use to specify extra definitions via command line
@@ -116,7 +117,7 @@ modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
 # 1D FunctionObject classes:
 functionobject1d_obj_string = """function_object func1d_gaussian func1d_exp func1d_sersic 
-		func1d_broken-exp func1d_moffat"""
+		func1d_broken-exp func1d_moffat func1d_delta"""
 functionobject1d_objs = [ FUNCTION_SUBDIR + name for name in functionobject1d_obj_string.split() ]
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
@@ -130,7 +131,7 @@ imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 # Base files for profilefit:
 profilefit_base_obj_string = """utilities anyoption mpfit diff_evoln_fit DESolver
 		read_profile config_file_parser add_functions_1d print_results 
-		convolver profilefit_main"""
+		convolver convolver1d profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
@@ -172,7 +173,7 @@ psfconvolve_objs = ["psfconvolve_main", "anyoption", "image_io", "convolver"]
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
 # psfconvolve1d: put all the object and source-code lists together
-psfconvolve1d_objs = ["psfconvolve1d_main", "anyoption", "image_io", "convolver1d"]
+psfconvolve1d_objs = ["psfconvolve1d_main", "anyoption", "read_profile", "convolver1d"]
 psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 
 # test_parser: put all the object and source-code lists together

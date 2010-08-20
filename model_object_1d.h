@@ -21,6 +21,7 @@
 #include "definitions.h"
 #include "function_object.h"
 #include "model_object.h"
+#include "convolver1d.h"
 
 class ModelObject1d : public ModelObject
 {
@@ -36,8 +37,7 @@ class ModelObject1d : public ModelObject
 
     void AddErrorVector1D( int nDataValues, double *inputVector, int inputType );
 
-    // new method:
-    void AddPSFVector1d(int nPixels_psf, double *psfPixels);
+    void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector );
     
     void CreateModelImage( double params[] );
 
@@ -47,14 +47,14 @@ class ModelObject1d : public ModelObject
 
     void PopulateParameterNames( );
     
-    // Stub method; might be replaced by internal call to Convolver1d object(?)
-    void ConvolveWithPSF( );
+    int GetModelVector( double *profileVector );
 
     // Destructor
     ~ModelObject1d();
 
 
   private:
+    Convolver1D  *psfConvolver;
   
 //   protected:  // same as private, except accessible to derived classes
 //     int  nParams;
@@ -63,8 +63,10 @@ class ModelObject1d : public ModelObject
 //     bool  weightValsSet;
 //     int  nFunctions, nParamsTot;
 // 	double  *dataVector;
-	double  *xValuesVector;
+	double  *dataXValues, *modelXValues;
 	bool  dataAreMagnitudes;
+	// things useful for PSF convolution
+	int  dataStartOffset, nPSFVals, nModelVals;
 // 	double  *weightVector;
 // 	double  *modelVector;
 // 	double  *parameterBounds;

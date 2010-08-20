@@ -83,8 +83,9 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
 	     i, params[i], result->xerror[i], xact[i]);
     }
   } else {
-    for (i = 0; i < result->npar; i++)
+    for (i = 0; i < result->npar; i++) {
       PrintParam(model->GetParameterName(i), params[i] + parameterInfo[i].offset, result->xerror[i]);
+    }
   }    
 }
 

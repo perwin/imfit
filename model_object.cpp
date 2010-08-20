@@ -47,6 +47,7 @@ ModelObject::ModelObject( )
   modelVector = NULL;
   modelVectorAllocated = false;
   weightVectorAllocated = false;
+  setStartFlag_allocated = false;
   modelImageComputed = false;
   maskExists = false;
   doConvolution = false;
@@ -97,6 +98,7 @@ void ModelObject::DefineFunctionSets( vector<int>& functionStartIndices )
   nFunctionSets = functionStartIndices.size();
     // define array of [false, false, false, ...]
   setStartFlag = (bool *)calloc(nFunctions, sizeof(bool));
+  setStartFlag_allocated = true;
   for (i = 0; i < nFunctionSets; i++) {
     nn = functionStartIndices[i];
     // function number n is start of new function set; 
@@ -350,6 +352,16 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 }
 
 
+/* ---------------- PUBLIC METHOD: AddPSFVector1D ---------------------- */
+// This is a stub function; it is meant to be properly defined in the derived
+// class ModelObject1d
+void ModelObject::AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector )
+{
+  ;
+}
+
+
+
 /* ---------------- PUBLIC METHOD: CreateModelImage -------------------- */
 
 void ModelObject::CreateModelImage( double params[] )
@@ -566,8 +578,9 @@ void ModelObject::PopulateParameterNames( )
 
 string& ModelObject::GetParameterName( int i )
 {
-  if (i < nParamsTot)
+  if (i < nParamsTot) {
     return parameterLabels[i];
+  }
   else
 	return UNDEFINED;
 }
@@ -600,6 +613,16 @@ double * ModelObject::GetModelImageVector( )
   
   return modelVector;
 }
+
+
+/* ---------------- PUBLIC METHOD: GetModelVector ---------------------- */
+// This is a stub function; it is meant to be properly defined in the derived
+// class ModelObject1d
+int ModelObject::GetModelVector( double *profileVector )
+{
+  ;
+}
+
 
 
 /* ---------------- PROTECTED METHOD: CheckParamVector ----------------- */
@@ -662,7 +685,9 @@ ModelObject::~ModelObject()
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)
       delete functionObjects[i];
-  free(setStartFlag);
+  
+  if (setStartFlag_allocated)
+    free(setStartFlag);
   
   if (doConvolution)
     delete psfConvolver;

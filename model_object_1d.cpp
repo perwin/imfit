@@ -19,6 +19,7 @@
 #include "definitions.h"
 #include "model_object_1d.h"
 #include "mp_enorm.h"
+#include "convolver1d.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -40,6 +41,8 @@ ModelObject1d::ModelObject1d( )
   nFunctionSets = 0;
   nFunctionParams = 0;
   nParamsTot = 0;
+  dataStartOffset = 0;
+  debugLevel = 0;
 }
 
 
@@ -72,8 +75,8 @@ void ModelObject1d::DefineFunctionSets( vector<int>& functionStartIndices )
 void ModelObject1d::AddDataVectors( int nDataValues, double *xValVector, 
 										double *yValVector, bool magnitudeData )
 {
-  nDataVals = nValidDataVals = nDataValues;
-  xValuesVector = xValVector;
+  nModelVals = nDataVals = nValidDataVals = nDataValues;
+  modelXValues = dataXValues = xValVector;
   dataVector = yValVector;
   dataValsSet = true;
   dataAreMagnitudes = magnitudeData;  // are yValVector data magnitudes?
@@ -119,12 +122,38 @@ void ModelObject1d::AddErrorVector1D( int nDataValues, double *inputVector,
 }
 
 
-/* ---------------- PUBLIC METHOD: AddPSFVector ------------------------ */
+/* ---------------- PUBLIC METHOD: AddPSFVector1D ---------------------- */
 // This function needs to be redefined because the base function in ModelObject
 // assumes a 2-D PSF.
 // Still mostly a stub function at this point!
-void ModelObject1d::AddPSFVector1d(int nPixels_psf, double *psfPixels)
+void ModelObject1d::AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector )
 {
+  nPSFVals = nPixels_psf;
+  
+  // Do full setup for convolution
+  // 1. Figure out extra size for model profile (PSF dimensions added to each end)
+  nModelVals = nDataVals + 2*nPSFVals;
+  dataStartOffset = nPSFVals;
+  // 2. Create new model vector and set dataStartOffset to nPSFVals
+  if (modelVectorAllocated)
+    free(modelVector);
+  modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
+  modelVectorAllocated = true;
+  // 3. Create new xVals vector for model
+  modelXValues = (double *) calloc((size_t)nModelVals, sizeof(double));
+  double  deltaX = dataXValues[1] - dataXValues[0];
+  double  newXStart = dataXValues[0] - nPSFVals*deltaX;
+  for (int i = 0; i < nPSFVals; i++)
+    modelXValues[i] = newXStart + deltaX*i;
+  for (int i = 0; i < nDataVals; i++)
+    modelXValues[i + nPSFVals] = dataXValues[i];
+  for (int i = 0; i < nPSFVals; i ++)
+    modelXValues[i + nPSFVals + nDataVals] = dataXValues[nDataVals - 1] + deltaX*(i + 1);
+  // 4. Create and setup Convolver1D object
+  psfConvolver = new Convolver1D();
+  psfConvolver->SetupPSF(yValVector, nPSFVals);
+  psfConvolver->SetupProfile(nModelVals);
+  psfConvolver->DoFullSetup(debugLevel);
   doConvolution = true;
 }
 
@@ -169,31 +198,29 @@ void ModelObject1d::CreateModelImage( double params[] )
   }
   
   // populate modelVector with the model
-  for (int i = 0; i < nDataVals; i++) {
-    x = xValuesVector[i];
+  for (int i = 0; i < nModelVals; i++) {
+    x = modelXValues[i];
     newVal = 0.0;
     for (int n = 0; n < nFunctions; n++)
       newVal += functionObjects[n]->GetValue(x);
-    if (dataAreMagnitudes)
-      newVal = -2.5 * log10(newVal);
     modelVector[i] = newVal;
 //    printf("newVal = %g  ", newVal);
   }
 
 
   // Do PSF convolution, if requested
-  if (doConvolution)
-    ConvolveWithPSF();
+  if (doConvolution) {
+    psfConvolver->ConvolveProfile(modelVector);
+  }
+  
+  // Convert to magnitudes, if required
+  if (dataAreMagnitudes) {
+    for (int i = 0; i < nModelVals; i++) {
+      modelVector[i] = -2.5 * log10(modelVector[i]);
+    }
+  }
   
   modelImageComputed = true;
-}
-
-
-/* ---------------- PUBLIC METHOD: ConvolveWithPSF --------------------- */
-
-void ModelObject1d::ConvolveWithPSF( )
-{
-  ;
 }
 
 
@@ -212,7 +239,7 @@ void ModelObject1d::ComputeDeviates( double yResults[], double params[] )
   CreateModelImage(params);
   
   for (int z = 0; z < nDataVals; z++) {
-    yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+    yResults[z] = weightVector[z] * (dataVector[z] - modelVector[dataStartOffset + z]);
     //printf("weight = %g, data = %g, model = %g\n", weightVector[z], dataVector[z], modelVector[z]);
   }
   //for (int z = 0; z < nDataVals; z++) {
@@ -247,17 +274,45 @@ void ModelObject1d::PopulateParameterNames( )
 }
 
 
-/* ---------------- DESTRUCTOR ----------------------------------------- */
+/* ---------------- PUBLIC METHOD: GetModelProfile --------------------- */
 
+int ModelObject1d::GetModelVector( double *profileVector )
+{
+  if (! modelImageComputed) {
+    printf("* ModelObject: Model profile has not yet been computed!\n\n");
+    return -1;
+  }
+  
+  for (int z = 0; z < nDataVals; z++)
+    profileVector[z] = modelVector[dataStartOffset + z];
+  return nDataVals;
+}
+
+
+/* ---------------- DESTRUCTOR ----------------------------------------- */
+// Note that we have to turn various bool variables off and set nFunctions = 0,
+// else we have problems when the *base* class (ModelObject) destructor is called!
 ModelObject1d::~ModelObject1d()
 {
-  if (modelVectorAllocated)
+  if (modelVectorAllocated) {
     free(modelVector);
+    modelVectorAllocated = false;
+  }
+  if (doConvolution) {
+    free(psfConvolver);
+    free(modelXValues);
+    doConvolution = false;
+  }
   
-  if (nFunctions > 0)
+  if (nFunctions > 0) {
     for (int i = 0; i < nFunctions; i++)
       delete functionObjects[i];
-  free(setStartFlag);
+    nFunctions = 0;
+  }
+  if (setStartFlag_allocated) {
+    free(setStartFlag);
+    setStartFlag_allocated = false;
+  }
 }
 
 
