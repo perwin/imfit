@@ -84,6 +84,9 @@ class ModelObject
     // common, but Specialized by ModelObject1D
     virtual void PrintDescription( );
 
+    // common, but Specialized by ModelObject1D
+    virtual void PrintModelParams( double params[], FILE *output_ptr );
+
     // 2D only; NOT USED ANYWHERE!
     void PrintImage( double *pixelVector );
 

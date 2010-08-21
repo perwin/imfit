@@ -9,21 +9,24 @@ using namespace std;
 #include "mpfit_cpp.h"
 #include "param_struct.h"
 #include "statistics.h"
+#include "utilities_pub.h"
+
+#define  FILE_OPEN_ERR_STRING "\n   Couldn't open file \"%s\"\n\n"
 
 
 
 /* Local Functions: */
-void PrintParam( string& paramName, double paramValue, double paramErr );
+void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr );
 
 
 
 // The following is used by PrintResults()
-void PrintParam( string& paramName, double paramValue, double paramErr )
+void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr )
 {
   if (paramErr == 0.0)
-    printf("  %10s = %f\n", paramName.c_str(), paramValue);
+    fprintf(outFile, "  %10s = %f\n", paramName.c_str(), paramValue);
   else
-    printf("  %10s = %f +/- %f\n", paramName.c_str(), paramValue, paramErr);
+    fprintf(outFile, "  %10s = %f +/- %f\n", paramName.c_str(), paramValue, paramErr);
 }
 
 
@@ -53,7 +56,7 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     printf("AIC = %f, BIC = %f\n\n", aic, bic);
     // output the best-fit parameters
     for (i = 0; i < model->GetNParams(); i++) {
-      PrintParam(model->GetParameterName(i), params[i] + parameterInfo[i].offset, 0.0);
+      PrintParam(stdout, model->GetParameterName(i), params[i] + parameterInfo[i].offset, 0.0);
     }
     return;
   }
@@ -84,9 +87,36 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     }
   } else {
     for (i = 0; i < result->npar; i++) {
-      PrintParam(model->GetParameterName(i), params[i] + parameterInfo[i].offset, result->xerror[i]);
+      PrintParam(stdout, model->GetParameterName(i), params[i] + parameterInfo[i].offset, result->xerror[i]);
     }
   }    
+}
+
+
+
+void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
+                    string& outputFilename, int argc, char *argv[] )
+{
+  FILE  *file_ptr;
+  
+  if ((file_ptr = fopen(outputFilename.c_str(), "w")) == NULL) {
+    fprintf(stderr, FILE_OPEN_ERR_STRING, outputFilename.c_str());
+    exit(-1);
+  }
+
+  char  *timeStamp;
+  timeStamp = TimeStamp();
+  fprintf(file_ptr, "# Best-fit model results for imfit\n");
+  fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
+          timeStamp);
+  for (int i = 0; i < argc; i++)
+    fprintf(file_ptr, " %s", argv[i]);
+  fprintf(file_ptr, "\n\n");
+
+  model->PrintModelParams(params, file_ptr);
+
+  fclose(file_ptr);
+
 }
 
 

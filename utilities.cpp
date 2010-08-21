@@ -5,6 +5,7 @@
 #include <ctype.h>   /* for isdigit() */
 #include <stdio.h>
 #include <stdlib.h>  /* for exit() */
+#include <time.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -209,6 +210,25 @@ bool ImageFileExists(const char * filename)
 bool FileExists(const char * filename)
 {
   return ifstream(filename);
+}
+
+
+
+/* ---------------- FUNCTION: TimeStamp() -------------------------- */
+
+char * TimeStamp( void )
+{  
+  time_t  currentTime;
+  char *dateString;
+  
+  currentTime = time(NULL);
+  dateString = ctime(&currentTime);
+  // Hack! Shift the null-termination up one character to knock out the
+  // '\n' which otherwise ends the string.  This works because the
+  // output of ctime() is supposed to be a 26-character string.
+  dateString[24] = '\0';
+  
+  return dateString;
 }
 
 

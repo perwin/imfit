@@ -17,6 +17,8 @@ Mode of setup and use, based on AnyOption:
   opt->addUsage("   imfit [options] imagefile.fits");
 etc.
 
+  opt->PrintUsage()   // presumably called from within when "-h" encountered
+
   opt->setFlag('q');
   opt->setFlag("printimage");
   opt->setFlag("help", 'h');
@@ -87,6 +89,7 @@ Mode of parsing operation
 						         currentOpt->targetString = argv[i]
 						         currentOpt->targetSet = true
 						      3. RETURN to main parsing loop (step 1 at top)
+
 
 
 POSSIBLE STRUCTURES/OBJECTS:

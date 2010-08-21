@@ -57,8 +57,9 @@
 #define FITS_FILENAME   "testimage_expdisk_tiny.fits"
 #define FITS_ERROR_FILENAME   "tiny_uniform_image_0.1.fits"
 #define DEFAULT_CONFIG_FILE   "imfit_config.dat"
+#define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters.dat"
 
-#define VERSION_STRING      " v0.5"
+#define VERSION_STRING      " v0.6"
 
 
 
@@ -76,7 +77,9 @@ typedef struct {
   int  maskFormat;
   bool  subsamplingFlag;
   std::string  outputModelFileName;
-  bool  outputModel;
+  bool  saveModel;
+  bool  saveBestFitParams;
+  std::string  outputParameterFileName;
   bool  useImageHeader;
   double  gain;
   double  readNoise;
@@ -168,6 +171,7 @@ int main(int argc, char *argv[])
   mp_par  *parameterInfo;
   mp_par  *mpfitParameterConstraints;
   int  status;
+  vector<string>  imageCommentsList;
   commandOptions  options;
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
@@ -184,7 +188,9 @@ int main(int argc, char *argv[])
   options.maskImagePresent = false;
   options.maskFormat = MASK_ZERO_IS_GOOD;
   options.subsamplingFlag = true;
-  options.outputModel = false;
+  options.saveModel = false;
+  options.saveBestFitParams = true;
+  options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
   options.useImageHeader= false;
   options.gain = 1.0;
   options.readNoise = 0.0;
@@ -425,12 +431,14 @@ int main(int argc, char *argv[])
   if (options.printImages)
     theModel->PrintModelImage();
 
-  /* TEST: save best-fit model image under new name: */
-  // LATER: honor the boolean variable options.outputModel, which should
-  // tell us (if it's = false) *not* to save the model image
-  if (options.outputModel)
+  if (options.saveBestFitParams)
+    SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
+    								argc, argv);
+  
+  if (options.saveModel) {
     SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
-                      nColumns, nRows);
+                      nColumns, nRows, imageCommentsList);
+  }
 
 
   // Free up memory
@@ -472,6 +480,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("     --psf <psf.fits>         PSF image");
   opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
   opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
+  opt->addUsage("     --save-params <output-file>          Save best-fit parameters in config-file format");
   opt->addUsage("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
   opt->addUsage("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   opt->addUsage("     --gain <value>           Image gain (e-/ADU)");
@@ -501,6 +510,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setOption("mask");      /* an option (takes an argument), supporting only long form */
   opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
   opt->setOption("save-model");      /* an option (takes an argument), supporting only long form */
+  opt->setOption("save-params");      /* an option (takes an argument), supporting only long form */
   opt->setOption("sky");        /* an option (takes an argument), supporting only long form */
   opt->setOption("gain");        /* an option (takes an argument), supporting only long form */
   opt->setOption("readnoise");        /* an option (takes an argument), supporting only long form */
@@ -583,8 +593,13 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getValue("save-model") != NULL) {
     theOptions->outputModelFileName = opt->getValue("save-model");
-    theOptions->outputModel = true;
+    theOptions->saveModel = true;
     printf("\toutput best-fit model image = %s\n", theOptions->outputModelFileName.c_str());
+  }
+  if (opt->getValue("save-params") != NULL) {
+    theOptions->outputParameterFileName = opt->getValue("save-params");
+    theOptions->saveBestFitParams = true;
+    printf("\toutput best-fit parameter file = %s\n", theOptions->outputParameterFileName.c_str());
   }
   if (opt->getValue("sky") != NULL) {
     if (NotANumber(opt->getValue("sky"), 0, kAnyReal)) {

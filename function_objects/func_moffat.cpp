@@ -47,6 +47,7 @@ using namespace std;
 const int  N_PARAMS = 5;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "fwhm", "beta"};
 const char  FUNCTION_NAME[] = "Moffat function";
+const char  SHORT_FUNCTION_NAME[] = "Moffat";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
@@ -59,6 +60,7 @@ Moffat::Moffat( bool subsampling )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
+  shortFunctionName = SHORT_FUNCTION_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

@@ -42,6 +42,7 @@ using namespace std;
 FunctionObject::FunctionObject( )
 {
   functionName = "Base (undefined) function";
+  shortFunctionName = "BaseFunction";
 }
 
 
@@ -100,6 +101,14 @@ double FunctionObject::GetValue( double x )
 string FunctionObject::GetDescription( )
 {
   return functionName;
+}
+
+
+/* ---------------- PUBLIC METHOD: GetShortName ----------------------- */
+
+string& FunctionObject::GetShortName( )
+{
+  return shortFunctionName;
 }
 
 

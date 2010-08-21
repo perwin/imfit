@@ -6,6 +6,7 @@
 #ifndef _PRINT_RESULTS_H_
 #define _PRINT_RESULTS_H_
 
+#include <string>
 #include "mpfit_cpp.h"
 #include "model_object.h"
 #include "param_struct.h"
@@ -16,6 +17,8 @@
 // be ignored.
 void PrintResults( double *params, double *xact, mp_result *result,
 					ModelObject *model, int nFreeParameters, mp_par *parameterInfo, int fitStatus );
+void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
+          string& outputFilename, int argc, char *argv[] );
 
 
 #endif /* _PRINT_RESULTS_H_ */

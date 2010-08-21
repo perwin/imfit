@@ -25,7 +25,7 @@ using namespace std;
 
 /* ------------------- Function Prototypes ----------------------------- */
 void AddParameter( string& currentLine, vector<double>& parameterList );
-bool AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
+int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
 														vector<mp_par>& parameterLimits );
 void AddFunctionName( string& currentLine, vector<string>& functionList );
 
@@ -59,13 +59,14 @@ void AddParameter( string& currentLine, vector<double>& parameterList ) {
 // is added to the parameterLimits vector.
 // Returns true for the existence of a parameter limit; false if no limits were
 // found
-bool AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
+int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
 														vector<mp_par>& parameterLimits ) {
   double  paramVal;
+  double  lowerLimit, upperLimit;
   string  extraPiece;
   vector<string>  stringPieces, newPieces;
   mp_par  newParamLimit;
-  bool  paramLimitsFound = false;
+  int  paramLimitsFound = 0;
   
   ChopComment(currentLine);
   stringPieces.clear();
@@ -78,7 +79,7 @@ bool AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
   bzero(&newParamLimit, sizeof(mp_par));
   if (stringPieces.size() > 2) {
     // parse and store parameter limits, if any
-    paramLimitsFound = true;
+    paramLimitsFound = 1;
     extraPiece = stringPieces[2];
     printf("Found a parameter limit: %s\n", extraPiece.c_str());
     if (extraPiece == fixedIndicatorString) {
@@ -89,8 +90,20 @@ bool AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
         SplitString(extraPiece, newPieces, ",");
         newParamLimit.limited[0] = 1;
         newParamLimit.limited[1] = 1;
-        newParamLimit.limits[0] = strtod(newPieces[0].c_str(), NULL);
-        newParamLimit.limits[1] = strtod(newPieces[1].c_str(), NULL);
+        lowerLimit = strtod(newPieces[0].c_str(), NULL);
+        upperLimit = strtod(newPieces[1].c_str(), NULL);
+        if (lowerLimit > upperLimit) {
+          printf("*** WARNING: first parameter limit for \"%s\" (%g) must be <= second limit (%g)!\n",
+          				stringPieces[0].c_str(), lowerLimit, upperLimit);
+          return -1;
+        }
+        if ((paramVal < lowerLimit) || (paramVal > upperLimit)) {
+          printf("*** WARNING: initial parameter value for \"%s\" (%g) must lie between the limits (%g,%g)!\n",
+          				stringPieces[0].c_str(), paramVal, lowerLimit, upperLimit);
+          return -1;
+        }
+        newParamLimit.limits[0] = lowerLimit;
+        newParamLimit.limits[1] = upperLimit;
       }
     }
   }
@@ -241,7 +254,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   int  functionSectionStart, functionNumber, paramNumber;
   int  i, nInputLines;
   bool  functionSectionFound = false;
-  bool  pLimitFound;
+  int  pLimitFound;
   
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
@@ -300,7 +313,11 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
       setStartFunctionNumber.push_back(functionNumber);
       pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
       paramNumber++;
-      if (pLimitFound)
+      if (pLimitFound < 0) {
+        // Bad limit format or other problem -- bail out!
+        return -1;
+      }
+      if (pLimitFound == 1)
         parameterLimitsFound = true;
       i++;
       if (mode2D) {
@@ -310,7 +327,11 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
           return -1;
         }
         pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
-        if (pLimitFound)
+        if (pLimitFound < 0) {
+          // Bad limit format or other problem -- bail out!
+          return -1;
+        }
+        if (pLimitFound == 1)
           parameterLimitsFound = true;
         paramNumber++;
         i++;
@@ -327,7 +348,11 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
     // OK, we only reach here if it's a regular (non-positional) parameter line
     //printf("Parameter detected (i = %d)\n", i);
     pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
-    if (pLimitFound)
+    if (pLimitFound < 0) {
+      // Bad limit format or other problem -- bail out!
+      return -1;
+    }
+    if (pLimitFound == 1)
       parameterLimitsFound = true;
     paramNumber++;
     i++;

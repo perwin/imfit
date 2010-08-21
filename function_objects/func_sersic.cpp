@@ -41,6 +41,7 @@ using namespace std;
 const int  N_PARAMS = 5;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "n", "I_e", "r_e"};
 const char  FUNCTION_NAME[] = "Sersic function";
+const char SHORT_FUNCTION_NAME[] = "Sersic";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
@@ -53,7 +54,7 @@ Sersic::Sersic( bool subsampling )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
-
+  shortFunctionName = SHORT_FUNCTION_NAME;
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {
     paramName = PARAM_LABELS[i];

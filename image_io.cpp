@@ -1,5 +1,5 @@
 /* FILE: image_io.cpp -------------------------------------------------- */
-/* VERSION 0.15
+/* VERSION 0.2
  *
  *   Function for dealing with FITS files, using cfitsio routines:
  *   1. Read in a FITS image and store it in a 1-D array
@@ -15,6 +15,8 @@
  *   Must be linked with the cfitsio library.
  *
  *   MODIFICATION HISTORY:
+ *     [version 0.2:] 20 Aug 2010: Added writing of (optional) comments to
+ # output FITS header.
  *     [version 0.15:] 27 Mar 2010: Added writing of DATE header and saving
  * of image in single-precision format to SaveVectorAsImage().
  *     [version 0.10:] 17 Nov 2009: Created by extending readimage.cpp to
@@ -26,6 +28,7 @@
 
 #include <stdlib.h>
 #include <string>
+#include <vector>
 
 #include "fitsio.h"
 
@@ -121,7 +124,7 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 
 /* ---------------- FUNCTION: SaveVectorAsImage ------------------------ */
 void SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
-                         int nRows )
+                         int nRows, std::vector<std::string> comments )
 {
   fitsfile  *imfile_ptr;
   std::string  finalFilename = "!";
@@ -144,6 +147,10 @@ void SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
   fits_create_img(imfile_ptr, FLOAT_IMG, 2, naxes, &status);
   
   // Insert keyword writing here ...
+  if (comments.size() > 0) {
+    for (int i = 0; i < comments.size(); i++)
+      fits_write_comment(imfile_ptr, comments[i].c_str(), &status);
+  }
   fits_write_date(imfile_ptr, &status);
 
   /* Write vector of pixel values to the image (note that cfitsio automatically handles

@@ -20,6 +20,8 @@
 #include "func1d_sersic.h"
 #include "func1d_broken-exp.h"
 #include "func1d_delta.h"
+#include "func1d_sech.h"
+#include "func1d_sech2.h"
 
 using namespace std;
 
@@ -61,6 +63,16 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
     }
     if (currentName == "Delta-1D") {
       thisFunctionObj = new Delta1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
+    if (currentName == "Sech-1D") {
+      thisFunctionObj = new Sech1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
+    if (currentName == "Sech2-1D") {
+      thisFunctionObj = new Sech21D();
       theModel->AddFunction(thisFunctionObj);
       continue;
     }

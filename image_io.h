@@ -6,12 +6,13 @@
 #define _IMAGE_IO_H
 
 #include <string>
+#include <vector>
 
 
 double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 														bool verbose=false );
 
 void SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
-                         int nRows );
+                         int nRows, std::vector<std::string> comments );
 
 #endif  // _IMAGE_IO_H

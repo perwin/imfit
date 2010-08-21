@@ -44,6 +44,9 @@ class FunctionObject
     virtual string GetDescription( );
 
     // no need to modify this:
+    virtual string& GetShortName( );
+
+    // no need to modify this:
     virtual void GetParameterNames( vector<string> &paramNameList );
 
     // no need to modify this:
@@ -59,7 +62,7 @@ class FunctionObject
     int  nParams;
     bool  doSubsampling;
     vector<string>  parameterLabels;
-    string  functionName;
+    string  functionName, shortFunctionName;
   
 };
 

@@ -41,6 +41,7 @@ using namespace std;
 const int  N_PARAMS = 6;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "c0", "n", "I_e", "r_e"};
 const char  FUNCTION_NAME[] = "Generalized-ellipse Sersic function";
+const char  SHORT_FUNCTION_NAME[] = "Sersic_GenEllipse";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
@@ -53,6 +54,7 @@ GenSersic::GenSersic( bool subsampling )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
+  shortFunctionName = SHORT_FUNCTION_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

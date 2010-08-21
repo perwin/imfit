@@ -51,6 +51,9 @@ bool ImageFileExists(const char * filename);
 bool FileExists(const char * filename);
 
 
+char * TimeStamp( void );
+
+
 void CommandLineError( char errorString[] );
 
 
