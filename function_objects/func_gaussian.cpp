@@ -37,18 +37,17 @@ using namespace std;
 const int  N_PARAMS = 2;
 const char  PARAM_LABELS[][20] = {"A", "sigma"};
 const char  FUNCTION_NAME[] = "Circular Gaussian function";
-const char  SHORT_FUNCTION_NAME[] = "Gaussian";
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-Gaussian::Gaussian( bool subsampling )
+Gaussian::Gaussian( )
 {
   string  paramName;
   nParams = N_PARAMS;
   
   functionName = FUNCTION_NAME;
-  shortFunctionName = SHORT_FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;   // defined in header file
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {
@@ -56,7 +55,7 @@ Gaussian::Gaussian( bool subsampling )
     parameterLabels.push_back(paramName);
   }
   
-  doSubsampling = subsampling;
+  doSubsampling = true;
 }
 
 

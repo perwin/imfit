@@ -25,18 +25,18 @@ using namespace std;
 const int  N_PARAMS = 1;
 const char  PARAM_LABELS[][20] = {"I_sky"};
 const char  FUNCTION_NAME[] = "Flat sky background function";
-const char  SHORT_FUNCTION_NAME[] = "FlatSky";
+//const char  SHORT_FUNCTION_NAME[] = "FlatSky";
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-FlatSky::FlatSky( bool subsampling )
+FlatSky::FlatSky( )
 {
   string  paramName;
   nParams = N_PARAMS;
   
   functionName = FUNCTION_NAME;
-  shortFunctionName = SHORT_FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {
@@ -44,7 +44,7 @@ FlatSky::FlatSky( bool subsampling )
     parameterLabels.push_back(paramName);
   }
   
-  doSubsampling = false;
+  doSubsampling = true;
 }
 
 

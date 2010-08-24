@@ -40,20 +40,19 @@ using namespace std;
 const int   N_PARAMS = 4;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h"};
 const char  FUNCTION_NAME[] = "Exponential function";
-const char  SHORT_FUNCTION_NAME[] = "Exponential";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-Exponential::Exponential( bool subsampling )
+Exponential::Exponential( )
 {
   string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
-  shortFunctionName = SHORT_FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;   // defined in header file
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {
@@ -61,7 +60,7 @@ Exponential::Exponential( bool subsampling )
     parameterLabels.push_back(paramName);
   }
   
-  doSubsampling = subsampling;
+  doSubsampling = true;
 }
 
 

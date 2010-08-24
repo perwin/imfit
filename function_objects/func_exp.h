@@ -20,18 +20,24 @@
 // CLASS Exponential:
 
 #include "function_object.h"
+#include <string>
+using namespace std;
+
+#define CLASS_SHORT_NAME  "Exponential"
 
 
 class Exponential : public FunctionObject
 {
   public:
     // Constructors:
-    Exponential( bool subsampling );
+    Exponential( );
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now
 
+    // class method for returning official short name of class
+    static void GetClassShortName( string& classname ) { classname = CLASS_SHORT_NAME; };
 
   protected:
     double CalculateIntensity( double r );

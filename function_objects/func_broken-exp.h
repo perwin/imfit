@@ -31,7 +31,7 @@ class BrokenExponential : public FunctionObject
 {
   public:
     // Constructors:
-    BrokenExponential( bool subsampling );
+    BrokenExponential( );
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );

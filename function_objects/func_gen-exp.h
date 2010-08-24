@@ -22,16 +22,21 @@
 
 #include "function_object.h"
 
+#define CLASS_SHORT_NAME  "Exponential_GenEllipse"
+
 
 class GenExponential : public FunctionObject
 {
   public:
     // Constructors:
-    GenExponential( bool subsampling );
+    GenExponential( );
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now
+
+    // class method for returning official short name of class
+    static void GetClassShortName( string& classname ) { classname = CLASS_SHORT_NAME; };
 
   protected:
     double CalculateIntensity( double r );

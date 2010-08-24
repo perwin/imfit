@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <stdio.h>
 
 #include "model_object.h"
@@ -37,74 +38,87 @@ const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Se
 const int  N_FUNCTIONS = 10;
 
 
-// CHANGE WHEN ADDING FUNCTION -- add corresponding
-// 'if (currentName == "<function name>" {}' block
+
+// Code to create FunctionObject object factories
+class factory
+{
+public:
+    virtual FunctionObject* create() = 0;
+};
+
+
+template <class function_object_type>
+class funcobj_factory : public factory
+{
+public:
+   FunctionObject* create() { return new function_object_type(); }
+};
+
+
+
+void PopulateFactoryMap( map<string, factory*>& input_factory_map )
+{
+  string  classFuncName;
+
+  // CHANGE WHEN ADDING FUNCTION -- add new pair of lines for new function-object class
+  // Here we create the map of function-object names and factory objects
+  Exponential::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Exponential>();
+  
+  Sersic::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Sersic>();
+  
+  GenSersic::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GenSersic>();
+  
+  GenExponential::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GenExponential>();
+  
+  BrokenExponential::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential>();
+  
+  FlatExponential::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FlatExponential>();
+  
+  BrokenExponential2D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential2D>();
+  
+  Gaussian::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Gaussian>();
+
+  Moffat::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Moffat>();
+
+  FlatSky::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FlatSky>();
+}
+
+
+
+
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &functionSetIndices, bool subamplingFlag )
+                  vector<int> &functionSetIndices, bool subsamplingFlag )
 {
   int  nFunctions = functionNameList.size();
   string  currentName;
   FunctionObject  *thisFunctionObj;
-  
+  map<string, factory*>  factory_map;
+
+  PopulateFactoryMap(factory_map);
+
   for (int i = 0; i < nFunctions; i++) {
     currentName = functionNameList[i];
     printf("Function: %s\n", currentName.c_str());
-    
-    if (currentName == "Exponential") {
-      thisFunctionObj = new Exponential(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
+    if (factory_map.count(currentName) < 1) {
+      printf("*** AddFunctions: unidentified function name (\"%s\")\n", currentName.c_str());
+      return - 1;
     }
-    if (currentName == "Exponential_GenEllipse") {
-      thisFunctionObj = new GenExponential(subamplingFlag);
+    else {
+      thisFunctionObj = factory_map[currentName]->create();
+      thisFunctionObj->SetSubsampling(subsamplingFlag);
       theModel->AddFunction(thisFunctionObj);
-      continue;
     }
-    if (currentName == "Sersic") {
-      thisFunctionObj = new Sersic(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Sersic_GenEllipse") {
-      thisFunctionObj = new GenSersic(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Gaussian") {
-      thisFunctionObj = new Gaussian(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "FlatExponential") {
-      thisFunctionObj = new FlatExponential(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "BrokenExponential") {
-      thisFunctionObj = new BrokenExponential(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "BrokenExponential2D") {
-      thisFunctionObj = new BrokenExponential2D(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Moffat") {
-      thisFunctionObj = new Moffat(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "FlatSky") {
-      thisFunctionObj = new FlatSky(subamplingFlag);
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    // If we reach here, then something went wrong
-    printf("*** AddFunctions: unidentified function name (\"%s\")\n", currentName.c_str());
-    return - 1;
   }
-  
   // OK, we're done adding functions; now tell the model object to do some
   // final setup work
   // Tell model object about arrangement of functions into common-center sets

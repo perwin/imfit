@@ -40,20 +40,20 @@ using namespace std;
 const int  N_PARAMS = 5;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "c0", "I_0", "h"};
 const char FUNCTION_NAME[] = "Generalized-ellipse exponential function";
-const char SHORT_FUNCTION_NAME[] = "Exponential_GenEllipse";
+//const char SHORT_FUNCTION_NAME[] = "Exponential_GenEllipse";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-GenExponential::GenExponential( bool subsampling )
+GenExponential::GenExponential( )
 {
   string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
-  shortFunctionName = SHORT_FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {
@@ -61,7 +61,7 @@ GenExponential::GenExponential( bool subsampling )
     parameterLabels.push_back(paramName);
   }
   
-  doSubsampling = subsampling;
+  doSubsampling = true;
 }
 
 
