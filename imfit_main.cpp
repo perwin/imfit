@@ -474,13 +474,13 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("     --list-functions         Prints list of available functions (components)");
   opt->addUsage("     --chisquare-only         Print chi^2 of input model and quit");
   opt->addUsage(" -c  --config <config-file>   configuration file");
-  opt->addUsage("     --de                     Use differential evolution solver (instead of L-M)");
+  opt->addUsage("     --de                     Use differential evolution solver instead of L-M");
   opt->addUsage("     --noise <noisemap.fits>  Noise image");
   opt->addUsage("     --mask <mask.fits>       Mask image");
   opt->addUsage("     --psf <psf.fits>         PSF image");
   opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
-  opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
   opt->addUsage("     --save-params <output-file>          Save best-fit parameters in config-file format");
+  opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
   opt->addUsage("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
   opt->addUsage("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   opt->addUsage("     --gain <value>           Image gain (e-/ADU)");
@@ -509,8 +509,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setOption("noise");      /* an option (takes an argument), supporting only long form */
   opt->setOption("mask");      /* an option (takes an argument), supporting only long form */
   opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("save-model");      /* an option (takes an argument), supporting only long form */
   opt->setOption("save-params");      /* an option (takes an argument), supporting only long form */
+  opt->setOption("save-model");      /* an option (takes an argument), supporting only long form */
   opt->setOption("sky");        /* an option (takes an argument), supporting only long form */
   opt->setOption("gain");        /* an option (takes an argument), supporting only long form */
   opt->setOption("readnoise");        /* an option (takes an argument), supporting only long form */

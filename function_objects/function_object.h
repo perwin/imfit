@@ -27,6 +27,9 @@ class FunctionObject
     // Constructors:
     FunctionObject( );
 
+    // probably no need to modify this:
+    virtual void SetSubsampling( bool subsampleFlag );
+
     // derived classes will almost certainly modify this, which
     // is used for pre-calculations and convolutions, if any:
     virtual void  Setup( double params[], int offsetIndex, double xc, double yc );

@@ -126,6 +126,7 @@ class ModelObject
   
   protected:  // same as private, except accessible to derived classes
     int  nDataVals, nColumns, nRows, nValidDataVals, nCombined;
+    double  nCombined_sqrt;
     int  debugLevel;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
     bool  setStartFlag_allocated;

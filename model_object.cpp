@@ -3,7 +3,14 @@
  *
  * This is intended to be an abstract base class for the various
  * "model" objects (e.g., image data + fitting functions).
- *   
+ * 
+ *
+ * Places where chi^2 or components of chi^2 are calculated:
+ *    [] ModelObject::ChiSquared()
+ *    [] ModelObject::ComputeDeviates
+ *       -- prepares deviates vector, which L-M code then squares and sums
+ *
+ *
  *     [v0.5]: 16 Apr 2010: Convolution with PSF now works, at least in principle.
  *     [v0.4]: 20--26 Mar 2010: Added stub functions to accomodate PSF image and
  * convolution.
@@ -134,6 +141,7 @@ void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
   nDataVals = nValidDataVals = nColumns * nRows;
   dataVector = pixelVector;
   nCombined = nCombinedImages;
+  nCombined_sqrt = sqrt(nCombined);
   dataValsSet = true;
   
   SetupModelImage(nDataVals, nColumns, nRows);
@@ -445,7 +453,7 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
   CreateModelImage(params);
   
   for (int z = 0; z < nDataVals; z++) {
-    yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+    yResults[z] = nCombined_sqrt * weightVector[z] * (dataVector[z] - modelVector[z]);
 // #ifdef DEBUG
 //     printf("yResults[%d] = %g = %g * (%g - %g)  ", z, yResults[z], weightVector[z],
 //     				dataVector[z], modelVector[z]);
@@ -467,10 +475,7 @@ void ModelObject::SetupChisquaredCalcs( )
 
 
 /* ---------------- PUBLIC METHOD: ChiSquared -------------------------- */
-/* Function for calculating chi^2 value for a model.  Current version is meant
- * to be used once (e.g., after fitting is done); for general, repetitive use
- * (e.g., with Diff'l Evoln.), we should allocate deviates[] separately, rather
- * than allocating and then freeing it as part of this function.
+/* Function for calculating chi^2 value for a model.
  *
  * IMPORTANT: SetupChisquaredCalcs() should be called (once) prior to any calls
  * to this function!
@@ -485,7 +490,7 @@ double ModelObject::ChiSquared( double params[] )
     deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
   chi = mp_enorm(nDataVals, deviatesVector);
   
-  return (chi*chi);
+  return (nCombined*chi*chi);
 }
 
 

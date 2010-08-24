@@ -46,6 +46,13 @@ FunctionObject::FunctionObject( )
 }
 
 
+/* ---------------- PUBLIC METHOD: SetSubsampling ---------------------- */
+void FunctionObject::SetSubsampling( bool subsampleFlag )
+{
+  doSubsampling = subsampleFlag;
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 // Base method for 2D functions
 void FunctionObject::Setup( double params[], int offsetIndex, double xc, double yc )
