@@ -1,6 +1,12 @@
 # Sample input file format, for use in fitting trimmed SDSS r-band
 # image of NGC 3073 (n3073rss_small.fits)
 
+GAIN		4.725
+READNOISE	4.3
+NCOMBINED	1
+ORIGINAL_SKY	127.0
+BLAH		2000   # testing that we ignore a meaningless keyword
+
 X0   130.0    100,200
 Y0   146.0    100,200
 FUNCTION Sersic

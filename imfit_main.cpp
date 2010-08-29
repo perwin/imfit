@@ -59,6 +59,14 @@
 #define DEFAULT_CONFIG_FILE   "imfit_config.dat"
 #define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters.dat"
 
+
+// Option names for use in config files
+static string  kGainString = "GAIN";
+static string  kReadNoiseString = "READNOISE";
+static string  kNCombinedString = "NCOMBINED";
+static string  kOriginalSkyString = "ORIGINAL_SKY";
+
+
 #define VERSION_STRING      " v0.6"
 
 
@@ -82,9 +90,13 @@ typedef struct {
   std::string  outputParameterFileName;
   bool  useImageHeader;
   double  gain;
+  bool  gainSet;
   double  readNoise;
+  bool  readNoiseSet;
   int  nCombined;
+  bool  nCombinedSet;
   double  originalSky;
+  bool  originalSkySet;
   char  modelName[MAXLINE];
   bool  noModel;
   char  paramString[MAXLINE];
@@ -193,9 +205,13 @@ int main(int argc, char *argv[])
   options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
   options.useImageHeader= false;
   options.gain = 1.0;
+  options.gainSet = false;
   options.readNoise = 0.0;
+  options.readNoiseSet = false;
   options.nCombined = 1;
+  options.nCombinedSet = false;
   options.originalSky = 0.0;
+  options.originalSkySet = false;
   options.noModel = true;
   options.noParamLimits = true;
   options.newParameters = false;
@@ -226,8 +242,8 @@ int main(int argc, char *argv[])
   }
 
   // Parse and process user-supplied (non-function) values from config file, if any
-  // [] CURRENTLY DOES NOTHING
   HandleConfigFileOptions(&userConfigOptions, &options);
+
   
   if (options.noImage) {
     fprintf(stderr, "*** WARNING: No image to fit!\n\n");
@@ -608,6 +624,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
       exit(1);
     }
     theOptions->originalSky = atof(opt->getValue("sky"));
+    theOptions->originalSkySet = true;
     printf("\toriginal sky level = %g ADU\n", theOptions->originalSky);
   }
   if (opt->getValue("gain") != NULL) {
@@ -617,6 +634,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
       exit(1);
     }
     theOptions->gain = atof(opt->getValue("gain"));
+    theOptions->gainSet = true;
     printf("\tgain = %g e-/ADU\n", theOptions->gain);
   }
   if (opt->getValue("readnoise") != NULL) {
@@ -626,6 +644,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
       exit(1);
     }
     theOptions->readNoise = atof(opt->getValue("readnoise"));
+    theOptions->readNoiseSet = true;
     printf("\tread noise = %g e-\n", theOptions->readNoise);
   }
   if (opt->getValue("ncombined") != NULL) {
@@ -635,6 +654,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
       exit(1);
     }
     theOptions->nCombined = atoi(opt->getValue("ncombined"));
+    theOptions->nCombinedSet = true;
     printf("\tn_combined = %d\n", theOptions->nCombined);
   }
 
@@ -643,11 +663,64 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 }
 
 
+// Note that we only use options from the config file if they have *not*
+// already been set by the command line (i.e., command-line options override
+// config-file values).
 void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *mainOptions )
 {
+	double  newDblVal;
+	int  newIntVal;
+	
   if (configFileOptions->nOptions == 0)
     return;
-  ;
+
+  for (int i = 0; i < configFileOptions->nOptions; i++) {
+    
+    if (configFileOptions->optionNames[i] == kGainString) {
+      if (mainOptions->gainSet) {
+        printf("Gain value in config file ignored (using command-line value)\n");
+      } else {
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        printf("Value from config file: gain = %f\n", newDblVal);
+        mainOptions->gain = newDblVal;
+      }
+      continue;
+    }
+    if (configFileOptions->optionNames[i] == kReadNoiseString) {
+      if (mainOptions->readNoiseSet) {
+        printf("Read-noise value in config file ignored (using command-line value)\n");
+      } else {
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        printf("Value from config file: read noise = %f\n", newDblVal);
+        mainOptions->readNoise = newDblVal;
+      }
+      continue;
+    }
+    if (configFileOptions->optionNames[i] == kOriginalSkyString) {
+      if (mainOptions->originalSkySet) {
+        printf("Original-sky value in config file ignored (using command-line value)\n");
+      } else {
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        printf("Value from config file: original sky = %f\n", newDblVal);
+        mainOptions->originalSky = newDblVal;
+      }
+      continue;
+    }
+    if (configFileOptions->optionNames[i] == kNCombinedString) {
+      if (mainOptions->nCombinedSet) {
+        printf("nCombined value in config file ignored (using command-line value)\n");
+      } else {
+        newIntVal = atoi(configFileOptions->optionValues[i].c_str());
+        printf("Value from config file: nCombined = %d\n", newIntVal);
+        mainOptions->nCombined = newIntVal;
+      }
+      continue;
+    }
+    // we only get here if we encounter an unknown option
+    printf("Unknown keyword (\"%s\") in config file ignored\n", 
+    				configFileOptions->optionNames[i].c_str());
+    
+  }
 }
 
 
