@@ -14,6 +14,8 @@
 # and Exp+Gauss at (2.5,2.0)
 ./makeimage biggertest_config_4c.dat -o biggertest.fits --ncols 64 --nrows 64
 
+# medium-sized image with image size specified in config file
+./makeimage config_gensersictest_512.dat -o gensersictest.fits
 
 
 # *** Testing functions

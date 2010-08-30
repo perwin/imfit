@@ -35,7 +35,14 @@
 #define FITS_FILENAME   "testimage_expdisk_tiny.fits"
 #define FITS_ERROR_FILENAME   "tiny_uniform_image_0.1.fits"
 
-#define VERSION_STRING      " v0.5"
+
+// Option names for use in config files
+static string  kNCols1 = "NCOLS";
+static string  kNCols2 = "NCOLUMNS";
+static string  kNRows = "NROWS";
+
+
+#define VERSION_STRING      " v0.6"
 
 
 typedef struct {
@@ -49,6 +56,8 @@ typedef struct {
   bool  psfImagePresent;
   int  nColumns;
   int  nRows;
+  bool  nColumnsSet;
+  bool  nRowsSet;
   bool  noConfigFile;
   std::string  configFileName;
   char  modelName[MAXLINE];
@@ -57,7 +66,6 @@ typedef struct {
   bool  newParameters;
   double  magZeroPoint;
   char  paramLimitsFileName[MAX_FILENAME_LENGTH];
-  bool  noParamLimits;
   bool  printImages;
 } commandOptions;
 
@@ -68,6 +76,8 @@ typedef struct {
 
 /* Local Functions: */
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
+void HandleConfigFileOptions( configOptions *configFileOptions, 
+															commandOptions *mainOptions );
 
 
 /* ------------------------ Global Variables --------------------------- */
@@ -103,11 +113,15 @@ int main(int argc, char *argv[])
   options.outputImageName = DEFAULT_OUTPUT_FILENAME;
   options.noImageName = true;
   options.noRefImage = true;
-  options.psfImagePresent = false;
   options.subsamplingFlag = true;
   options.noImageDimensions = true;
+  options.psfImagePresent = false;
+  options.nColumns = 0;
+  options.nRows = 0;
+  options.nColumnsSet = false;
+  options.nRowsSet = false;
+  options.noConfigFile = true;
   options.noModel = true;
-  options.noParamLimits = true;
   options.paramLimitsFileName[0] = '-';
   options.newParameters = false;
   options.magZeroPoint = NO_MAGNITUDES;
@@ -128,11 +142,15 @@ int main(int argc, char *argv[])
     return -1;
   }
 
+  // Parse and process user-supplied (non-function) values from config file, if any
+  HandleConfigFileOptions(&userConfigOptions, &options);
+
+  if ((options.nColumns > 0) && (options.nRows > 0))
+    options.noImageDimensions = false;
   if ((options.noRefImage) and (options.noImageDimensions)) {
     fprintf(stderr, "\n*** WARNING: Insufficient image dimensions (or no reference image) supplied!\n\n");
     return -1;
   }
-
   /* Get image size from reference image, if necessary */
   if (options.noImageDimensions) {
     // Note that we rely on the cfitsio library to catch errors like nonexistent files
@@ -317,6 +335,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
       exit(1);
     }
     theOptions->nColumns = atol(opt->getValue("ncols"));
+    theOptions->nColumnsSet = true;
   }
   if (opt->getValue("nrows") != NULL) {
     if (NotANumber(opt->getValue("nrows"), 0, kPosInt)) {
@@ -325,6 +344,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
       exit(1);
     }
     theOptions->nRows = atol(opt->getValue("nrows"));
+    theOptions->nRowsSet = true;
   }
 
   if ((theOptions->nColumns) && (theOptions->nRows))
@@ -332,6 +352,56 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   
   delete opt;
 
+}
+
+
+// Note that we only use options from the config file if they have *not*
+// already been set by the command line (i.e., command-line options override
+// config-file values).
+void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *mainOptions )
+{
+	double  newDblVal;
+	int  newIntVal;
+	
+  if (configFileOptions->nOptions == 0)
+    return;
+
+  for (int i = 0; i < configFileOptions->nOptions; i++) {
+    
+    if ((configFileOptions->optionNames[i] == kNCols1) || 
+    		(configFileOptions->optionNames[i] == kNCols2)) {
+      if (mainOptions->nColumnsSet) {
+        printf("nColumns (x-size of image) value in config file ignored (using command-line value)\n");
+      } else {
+        if (NotANumber(configFileOptions->optionValues[i].c_str(), 0, kPosInt)) {
+          fprintf(stderr, "*** WARNING: NCOLS should be a positive integer!\n");
+          exit(1);
+        }
+        newIntVal = atoi(configFileOptions->optionValues[i].c_str());
+        printf("Value from config file: nColumns = %d\n", newIntVal);
+        mainOptions->nColumns = newIntVal;
+      }
+      continue;
+    }
+    if (configFileOptions->optionNames[i] == kNRows) {
+      if (mainOptions->nRowsSet) {
+        printf("nRows (y-size of image) value in config file ignored (using command-line value)\n");
+      } else {
+        if (NotANumber(configFileOptions->optionValues[i].c_str(), 0, kPosInt)) {
+          fprintf(stderr, "*** WARNING: NROWS should be a positive integer!\n");
+          exit(1);
+        }
+        newIntVal = atoi(configFileOptions->optionValues[i].c_str());
+        printf("Value from config file: nRows = %d\n", newIntVal);
+        mainOptions->nRows = newIntVal;
+      }
+      continue;
+    }
+    // we only get here if we encounter an unknown option
+    printf("Unknown keyword (\"%s\") in config file ignored\n", 
+    				configFileOptions->optionNames[i].c_str());
+    
+  }
 }
 
 

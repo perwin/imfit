@@ -1,0 +1,15 @@
+# Config file for makeimage, meant to be used to generate a 512x512 image.
+
+NCOLS	512
+NROWS	512
+
+# Generalized-ellipse Sersic object
+X0    256.0
+Y0    256.0
+FUNCTION   Sersic_GenEllipse
+PA    30.0
+ell    0.5
+c0    -1.0
+n      2.5
+I_e  100.0
+r_e   50.0
