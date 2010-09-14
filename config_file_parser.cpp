@@ -28,6 +28,7 @@ void AddParameter( string& currentLine, vector<double>& parameterList );
 int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
 														vector<mp_par>& parameterLimits );
 void AddFunctionName( string& currentLine, vector<string>& functionList );
+void ReportConfigError( int errorCode );
 
 
 /* ------------------------ Global Variables --------------------------- */
@@ -93,12 +94,12 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
         lowerLimit = strtod(newPieces[0].c_str(), NULL);
         upperLimit = strtod(newPieces[1].c_str(), NULL);
         if (lowerLimit > upperLimit) {
-          printf("*** WARNING: first parameter limit for \"%s\" (%g) must be <= second limit (%g)!\n",
+          fprintf(stderr, "*** WARNING: first parameter limit for \"%s\" (%g) must be <= second limit (%g)!\n",
           				stringPieces[0].c_str(), lowerLimit, upperLimit);
           return -1;
         }
         if ((paramVal < lowerLimit) || (paramVal > upperLimit)) {
-          printf("*** WARNING: initial parameter value for \"%s\" (%g) must lie between the limits (%g,%g)!\n",
+          fprintf(stderr, "*** WARNING: initial parameter value for \"%s\" (%g) must lie between the limits (%g,%g)!\n",
           				stringPieces[0].c_str(), paramVal, lowerLimit, upperLimit);
           return -1;
         }
@@ -124,6 +125,85 @@ void AddFunctionName( string& currentLine, vector<string>& functionList ) {
   SplitString(currentLine, stringPieces);
   // store the actual function name (remember that first token is "FUNCTION")
   functionList.push_back(stringPieces[1]);
+}
+
+
+
+/* ---------------- FUNCTION: VetConfigFile ---------------------------- */
+// Utility function which checks a list of non-comment, non-empty lines from
+// a config file for the following:
+//    1. An X0 line (indicating the start of the function section)
+//    2. At least one FUNCTION line after the X0 line
+// Returns the index for the start of the function section on sucess, or
+// error code on failure.
+int VetConfigFile( vector<string>& inputLines, bool mode2D )
+{
+  int  i, nInputLines;
+  int  functionSectionStart = -1;
+  bool  functionSectionFound = false;
+  bool  allOK = false;
+  bool  yValueOK = true;   // defaults to true for 1D case
+  
+  nInputLines = inputLines.size();
+  // OK, locate the start of the function block (first line beginning with "X0")
+  i = 0;
+  while (i < nInputLines) {
+    if (inputLines[i].find("X0", 0) != string::npos) {
+      functionSectionStart = i;
+      functionSectionFound = true;
+      if (mode2D) {
+        // for 2D (makeimage or imfit) mode, the next line must start with "Y0"
+        if ( ((i + 1) == nInputLines) || (inputLines[i + 1].find("Y0", 0) == string::npos) )
+          yValueOK = false;
+      }
+      break;
+    }
+    i++;
+  }
+  
+  if ((functionSectionFound) && (yValueOK)) {
+    i = functionSectionStart;
+    for (i = functionSectionStart; i < nInputLines; i++) {
+      if (inputLines[i].find("FUNCTION", 0) != string::npos) {
+        allOK = true;
+        break;
+      }
+    }
+  }
+
+  if (allOK)
+    return functionSectionStart;
+  else {
+    if (functionSectionFound) {
+      if (yValueOK == false)
+        return CONFIG_FILE_ERROR_INCOMPLETEXY;
+      else
+        return CONFIG_FILE_ERROR_NOFUNCTIONS;
+    }
+    else
+      return CONFIG_FILE_ERROR_NOFUNCSECTION;
+  }
+}
+
+
+/* ---------------- FUNCTION: ReportConfigError ------------------------ */
+void ReportConfigError( int errorCode )
+{
+  switch (errorCode) {
+    case CONFIG_FILE_ERROR_NOFUNCSECTION:
+      fprintf(stderr, "\n*** ReadConfigFile: Unable to find start of function section in configuration file!");
+      fprintf(stderr, " (no \"X0\" line found)\n");
+      break;
+    case CONFIG_FILE_ERROR_NOFUNCTIONS:
+      fprintf(stderr, "\n*** ReadConfigFile: No actual functions found in configuration file!\n");
+      break;
+    case CONFIG_FILE_ERROR_INCOMPLETEXY:
+      fprintf(stderr, "\n*** ReadConfigFile: Initial Y0 value (start of function section) missing in configuration file!\n");
+      break;
+    default:
+      fprintf(stderr, "\n*** ReadConfigFile: Unknown error code!\n");
+      break;
+  }
 }
 
 
@@ -166,18 +246,9 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   nInputLines = inputLines.size();
   
   // OK, locate the start of the function block (first line beginning with "X0")
-  i = 0;
-  while (i < nInputLines) {
-    if (inputLines[i].find("X0", 0) != string::npos) {
-      functionSectionStart = i;
-      functionSectionFound = true;
-      break;
-    }
-    i++;
-  }
-  if (functionSectionFound == false) {
-    printf("\n*** ReadConfigFile: Unable to find start of function section!");
-    printf(" (no \"X0\" line found)\n");
+  functionSectionStart = VetConfigFile(inputLines, mode2D);
+  if (functionSectionStart < 0) {
+    ReportConfigError(functionSectionStart);
     return -1;
   }
 
@@ -207,7 +278,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
       if (mode2D) {
         // X0 line should always be followed by Y0 line in 2D mode
         if (inputLines[i].find("Y0", 0) == string::npos) {
-          printf("*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
+          fprintf(stderr, "*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
           return -1;
         }
         AddParameter(inputLines[i], parameterList);
@@ -272,18 +343,9 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   nInputLines = inputLines.size();
 
   // OK, locate the start of the function block (first line beginning with "X0")
-  i = 0;
-  while (i < nInputLines) {
-    if (inputLines[i].find("X0", 0) != string::npos) {
-      functionSectionStart = i;
-      functionSectionFound = true;
-      break;
-    }
-    i++;
-  }
-  if (functionSectionFound == false) {
-    printf("\n*** ReadConfigFile: Unable to find start of function section!");
-    printf(" (no \"X0\" line found)\n");
+  functionSectionStart = VetConfigFile(inputLines, mode2D);
+  if (functionSectionStart < 0) {
+    ReportConfigError(functionSectionStart);
     return -1;
   }
 
@@ -323,7 +385,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
       if (mode2D) {
         // X0 line should always be followed by Y0 line in 2D mode
         if (inputLines[i].find("Y0", 0) == string::npos) {
-          printf("*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
+          fprintf(stderr, "*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
           return -1;
         }
         pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);

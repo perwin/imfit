@@ -40,6 +40,7 @@ const int  N_FUNCTIONS = 10;
 
 
 // Code to create FunctionObject object factories
+// Abstract base class for FunctionObject factories
 class factory
 {
 public:
@@ -47,6 +48,9 @@ public:
 };
 
 
+// Template for derived FunctionObject factory classes
+// (this implicitly sets up a whole set of derived classes, one for each
+// FunctionOjbect class we substitute for the "function_object_type" placeholder)
 template <class function_object_type>
 class funcobj_factory : public factory
 {
@@ -61,7 +65,8 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   string  classFuncName;
 
   // CHANGE WHEN ADDING FUNCTION -- add new pair of lines for new function-object class
-  // Here we create the map of function-object names and factory objects
+  // Here we create the map of function-object names (strings) and factory objects
+  // (instances of the various template-specified factory subclasses)
   Exponential::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<Exponential>();
   

@@ -17,6 +17,11 @@
 # medium-sized image with image size specified in config file
 ./makeimage config_gensersictest_512.dat -o gensersictest.fits
 
+# testing that bad config files are caught:
+./makeimage tests/config_makeimage_sersictest512_bad1.dat
+./makeimage tests/config_makeimage_sersictest512_bad2.dat
+./makeimage tests/config_makeimage_sersictest512_bad3.dat
+
 
 # *** Testing functions
 # Result is a 1-D image (100 x 1 pixels); we asume that config_functest_XXX.dat
@@ -98,16 +103,11 @@ AIC = 72165.919965, BIC = 72229.218626
          r_e = 57.505012 +/- 0.262275
 
 
-#Testing to catch bad-weight-vector generation (due to negative pixels values and
-#failure to specify original sky background):
-$ ./imfit tests/ic3478rss_128x128.fits --config=imfit_config_ic3478_128x128.dat --gain=4.725 --readnoise=4.3
-
-#Output should end with:
-** WARNING: one or more pixel values in weightVector[] are non-finite!
-ModelObject::GenerateErrorVector -- Calculation of error vector resulted in bad values!
-Exiting ...
-	NOTE: As of 24 April 2010, this no longer works, since we have modified the weight-image
-	generation code to automatically set negative pixel values to 0
+# Tests to catch errors:
+#    Testing to see that bad config files are caught:
+./imfit --config tests/config_makeimage_sersictest512_bad1.dat
+./imfit --config tests/config_makeimage_sersictest512_bad2.dat
+./imfit --config tests/config_makeimage_sersictest512_bad3.dat
 
 
 # Testing with real image, 2 functions

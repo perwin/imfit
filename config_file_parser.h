@@ -11,12 +11,21 @@
 
 using namespace std;
 
+// Error codes returned by VetConfigFile
+#define CONFIG_FILE_ERROR_NOFUNCSECTION  -1
+#define CONFIG_FILE_ERROR_NOFUNCTIONS  -2
+#define CONFIG_FILE_ERROR_INCOMPLETEXY  -3
+
 typedef struct {
   vector<string> optionNames;
   vector<string> optionValues;
   int  nOptions;
 } configOptions;
 
+
+// Utility function (only used inside ReadConfigFile, but exposed here so
+// we can do unit tests on it
+int VetConfigFile( vector<string>& inputLines, bool mode2D );
 
 // First version is for use by e.g. makeimage: reads in parameters, but ignores
 // parameter limits
