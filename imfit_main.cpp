@@ -57,7 +57,7 @@
 #define FITS_FILENAME   "testimage_expdisk_tiny.fits"
 #define FITS_ERROR_FILENAME   "tiny_uniform_image_0.1.fits"
 #define DEFAULT_CONFIG_FILE   "imfit_config.dat"
-#define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters.dat"
+#define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_imfit.dat"
 
 
 // Option names for use in config files

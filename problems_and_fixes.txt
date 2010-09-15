@@ -162,6 +162,83 @@ FIXES:
 	Swap nColumns and nRows in calls to plan_* functions.
 
 
+
+
+*** 14 Sept 2010: Problem with DE mode in profilefit
+
+Testing latest changes to profilefit (adding option to save best-fit params
+in config-format text file), I found that while the LM fit of profile_data/n5831_total.dat
+worked normally, the DE test of the same data *failed*: the initial chi^2 ("energy")
+value was very negative, and subsequent evolution resulted in -inf values (and bad --
+though finite -- values for the parameters).
+
+Generation    0: bestEnergy = -10591748006.7271785736
+Generation   10: bestEnergy = -228075485079.5437011719
+Generation   20: bestEnergy =         -inf   (relative change = 1.000000e+00)
+
+Since it wasn't clear when this problem was introduced, I tried using the advice
+in the Mercurial book (Chapter 9) regarding "hg --bisect".
+
+1. Find an earlier revision where things worked:
+$ cd ~/coding
+(Try a revision from August...)
+$ clone --rev 18 imfit imfit-rev18
+$ cd imfit-rev18
+$ scons profilefit
+... run tests -- OK, this revision [21 Aug 2010] works!
+
+2. Make new up-to-date clone of repository
+$ cd ~/coding
+$ hg clone imfit imfit-bugfind
+$ cd imfit-bugfind
+
+3. Set up hg bisect
+$ hg bisect --reset
+tell bisect that the current revision (24, the tip) is bad, and that rev 18 is good
+$ hg bisect --bad
+$ hg bisect --good 18
+
+4. Iterate until we find the last good changeset
+$ scons profilefit
+... run tests
+IF things works as we expect:
+	$ hg bisect --good
+ELSE (things fail):
+	$ hg bisect --bad
+	
+OK... this wasn't entirely necessary, since it turns out that changes *since*
+rev 24 were the problem (i.e., cloning the current repository yields a version
+of profilefit that works properly...)
+
+The problem *appears* to be the point where we add an extra command-line
+option
+	For some reason, adding *any* new option or flag in ProcessInput triggers
+	this!
+
+(NOTE: I've also noticed that even when it behaves, the chi^2 values seem to
+be wrong...:
+	Final chi^2 for LM fit: 0.160083
+	Final chi^2 for DE fit: 142808336.952452
+
+* PROBLEM FOUND:
+When we added nCombined and nCombined_sqrt to model_object.h/.cpp, we
+ensured that they were initialized by a call to ModelObject::AddImageDataVector().
+But when using ModelObject1d, this method is never called, and therefore
+nCombined and nCombined_sqrt are never initialized.
+
+Since nCombined is used in ModelObject::ChiSquared, which is *not*
+overridden in ModelObject1d, an unitialized value gets multiplied into
+the chi^2 computation.
+
+Presumably, adding a new option causes an extra round of memory allocation
+and/or shifting that didn't happen before, and so a *different* unitialized value
+ends up in the integer storage for nCombined.
+
+FIXES:
+	Initialize nCombined (and nCombined_sqrt, for good measure) in ModelObject1d
+constructor.
+
+
 	
 
 

@@ -57,6 +57,7 @@
 
 #define DEFAULT_CONFIG_FILE   "sample_imfit1d_config.dat"
 #define DEFAULT_MODEL_OUTPUT_FILE   "model_profile_save.dat"
+#define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_profilefit.dat"
 
 #define VERSION_STRING      " v0.6"
 
@@ -76,6 +77,8 @@ typedef struct {
   bool  noErrors;
   bool  subsamplingFlag;
   bool  saveBestProfile;
+  bool  saveBestFitParams;
+  std::string  outputParameterFileName;
   int  solver;
 } commandOptions;
 
@@ -151,6 +154,8 @@ int main(int argc, char *argv[])
   options.solver = MPFIT_SOLVER;
   options.subsamplingFlag = false;
   options.saveBestProfile = false;
+  options.saveBestFitParams = true;
+  options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
 
   ProcessInput(argc, argv, &options);
 
@@ -171,9 +176,6 @@ int main(int argc, char *argv[])
     printf("\n*** WARNING: Problem in processing config file!\n\n");
     return -1;
   }
-//  for (int k = 0; k < parameterList.size(); k++)
-//  	cout << parameterList[k] << "  ";
-//  cout << endl;
 
 
   /* GET THE DATA: */
@@ -338,30 +340,6 @@ int main(int argc, char *argv[])
     mpfitParameterConstraints = parameterInfo;
   }
 
-  // Parameter limits:
-//   if (paramLimitsExist) {
-//     printf("Setting up parameter limits ...\n");
-//     mpfitParameterConstraints = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
-//     for (int i = 0; i < nParamsTot; i++) {
-//       mpfitParameterConstraints[i].fixed = paramLimits[i].fixed;
-//       if (mpfitParameterConstraints[i].fixed == 1)
-//         nFreeParams--;
-//       mpfitParameterConstraints[i].limited[0] = paramLimits[i].limited[0];
-//       mpfitParameterConstraints[i].limited[1] = paramLimits[i].limited[1];
-//       mpfitParameterConstraints[i].limits[0] = paramLimits[i].limits[0];
-//       mpfitParameterConstraints[i].limits[1] = paramLimits[i].limits[1];
-//     }
-//   } else {
-//     mpfitParameterConstraints = NULL;
-//   }
-  
-//  cout << "Here is the input paramsVect:" << endl;
-//  for (int k = 0; k < nParamsTot; k++)
-//  	cout << paramsVect[k] << "  ";
-//  cout << endl;
-//  printf("\nStarting the fit w/ nStoredDataVals = %d, nParamsTot = %d ...\n",
-//  				nStoredDataVals, nParamsTot);
-  
   
   switch (options.solver) {
     case MPFIT_SOLVER:
@@ -386,19 +364,12 @@ int main(int argc, char *argv[])
       printf("\nNO FITTING BEING DONE!\n");
       theModel->SetupChisquaredCalcs();
       options.saveBestProfile = true;
-//       double chisqr = theModel->ChiSquared(paramsVect);
-//       double  *modelProfile = theModel->GetModelImageVector();
-//       if (modelProfile == NULL)
-//         break;
-//       printf("Saving model profile to %s...\n", options.modelOutputFileName.c_str());
-//       outputFile_ptr = fopen(options.modelOutputFileName.c_str(), "w");
-//       for (int i = 0; i < nStoredDataVals; i++) {
-//         fprintf(outputFile_ptr, "\t%f\t%f\n", xVals[i], modelProfile[i]);
-//       }
-//       fclose(outputFile_ptr);
-//       printf("Done.\n");
       break;
   } // end switch
+
+  if (options.saveBestFitParams)
+    SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
+    								argc, argv);
 
   if (options.saveBestProfile) {
     double chisqr = theModel->ChiSquared(paramsVect);
@@ -455,8 +426,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage(" --psf <psf_file>             PSF image");
   opt->addUsage(" --de                         Solve using differential evolution");
   opt->addUsage(" --no-fitting                 Don't do fitting (just save input model)");
-  opt->addUsage("     --x1 <int>               start data value");
-  opt->addUsage("     --x2 <int>               end data value");
+  opt->addUsage(" --x1 <int>                   start data value");
+  opt->addUsage(" --x2 <int>                   end data value");
+  opt->addUsage(" --save-params <output-file>  Save best-fit parameters in config-file format");
   opt->addUsage("");
 
 
@@ -469,7 +441,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setFlag("no-fitting");
   opt->setOption("x1");      /* an option (takes an argument), supporting only long form */
   opt->setOption("x2");        /* an option (takes an argument), supporting only long form */
-
+  opt->setOption("save-params");
+  
   /* parse the command line:  */
   opt->processCommandArgs( argc, argv );
 
@@ -530,6 +503,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     }
     theOptions->endDataRow = atol(opt->getValue("x2"));
     printf("\tend data row = %d\n", theOptions->endDataRow);
+  }
+  if (opt->getValue("save-params") != NULL) {
+    theOptions->outputParameterFileName = opt->getValue("save-params");
+    theOptions->saveBestFitParams = true;
+    printf("\toutput best-fit parameter file = %s\n", theOptions->outputParameterFileName.c_str());
   }
 
 

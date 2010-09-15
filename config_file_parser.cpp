@@ -227,7 +227,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   vector<string>  stringPieces;
   int  functionSectionStart, functionNumber;
   int  i, nInputLines;
-  bool  functionSectionFound = false;
+//  bool  functionSectionFound = false;
   
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
@@ -324,7 +324,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   vector<string>  stringPieces;
   int  functionSectionStart, functionNumber, paramNumber;
   int  i, nInputLines;
-  bool  functionSectionFound = false;
+//  bool  functionSectionFound = false;
   int  pLimitFound;
   
   inputFileStream.open(configFileName.c_str());

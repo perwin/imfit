@@ -180,6 +180,10 @@ psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 testparser_objs = ["test_parser", "config_file_parser", "utilities"]
 testparser_sources = [name + ".cpp" for name in testparser_objs]
 
+# test_commandline: put all the object and source-code lists together
+test_commandline_objs = ["test_commandline_parser", "anyoption", "utilities"]
+test_commandline_sources = [name + ".cpp" for name in test_commandline_objs]
+
 
 # Finally, define the actual targets
 # specify ".do" as the suffix for "full-debug" object code
@@ -203,6 +207,10 @@ psfconvolve1d_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) i
 env_debug.Program("psfconvolve1d", psfconvolve1d_dbg_objlist)
 
 env_opt.Program("timing", timing_sources)
+
+# test harnesses, etc.:
+test_commandline_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(test_commandline_objs, test_commandline_sources) ]
+env_debug.Program("test_commandline", test_commandline_objlist)
 
 # older programs
 env_opt.Program("readimage", readimage_sources)

@@ -106,7 +106,7 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
 
   char  *timeStamp;
   timeStamp = TimeStamp();
-  fprintf(file_ptr, "# Best-fit model results for imfit\n");
+  fprintf(file_ptr, "# Best-fit model results for imfit or profilefit\n");
   fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
           timeStamp);
   for (int i = 0; i < argc; i++)

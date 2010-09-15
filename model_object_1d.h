@@ -44,6 +44,8 @@ class ModelObject1d : public ModelObject
     void ComputeDeviates( double yResults[], double params[] );
 
     void PrintDescription( );
+    
+    void PrintModelParams( double params[], FILE *output_ptr );
 
     void PopulateParameterNames( );
     
