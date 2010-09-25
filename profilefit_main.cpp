@@ -75,6 +75,8 @@ typedef struct {
   int  startDataRow;
   int  endDataRow;
   bool  noErrors;
+  bool  noMask;
+  int  maskFormat;
   bool  subsamplingFlag;
   bool  saveBestProfile;
   bool  saveBestFitParams;
@@ -117,7 +119,7 @@ int main(int argc, char *argv[])
   int  nPixels_psf;
   int  startDataRow, endDataRow;
   int  nParamsTot, nFreeParams;
-  double  *xVals, *yVals, *yWeights;
+  double  *xVals, *yVals, *yWeights, *maskVals;
   double  *xVals_psf, *yVals_psf;
   int  weightMode;
   FILE  *outputFile_ptr;
@@ -127,6 +129,7 @@ int main(int argc, char *argv[])
   double  *paramErrs;
   vector<mp_par>  paramLimits;
   vector<int>  functionSetIndices;
+  bool  maskAllocated = false;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
   mp_result  mpfitResult;
@@ -151,6 +154,8 @@ int main(int argc, char *argv[])
   options.startDataRow = 0;
   options.endDataRow = -1;   // default value indicating "last row in data file"
   options.noErrors = true;
+  options.noMask = true;
+  options.maskFormat = MASK_ZERO_IS_GOOD;
   options.solver = MPFIT_SOLVER;
   options.subsamplingFlag = false;
   options.saveBestProfile = false;
@@ -213,15 +218,21 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\nFailure to allocate memory for input data!\n");
     exit(-1);
   }
-  if (options.noErrors == 1)
+  if (options.noErrors)
     yWeights = NULL;
   else {
     yWeights = (double *)calloc( (size_t)nStoredDataVals, sizeof(double) );
   }
+  if (options.noMask)
+    maskVals = NULL;
+  else {
+    maskVals = (double *)calloc( (size_t)nStoredDataVals, sizeof(double) );
+    maskAllocated = true;
+  }
   
   /* Read in data */
   nSavedRows = ReadDataFile(options.dataFileName, startDataRow, endDataRow, 
-                             xVals, yVals, yWeights);
+                             xVals, yVals, yWeights, maskVals);
   if (nSavedRows > nStoredDataVals) {
     fprintf(stderr, "\nMore data rows saved (%d) than we allocated space for (%d)!\n",
             nSavedRows, nStoredDataVals);
@@ -270,7 +281,7 @@ int main(int argc, char *argv[])
     }
 
     nSavedRows = ReadDataFile(options.psfFileName, startDataRow, endDataRow, 
-                               xVals_psf, yVals_psf, NULL);
+                               xVals_psf, yVals_psf, NULL, NULL);
     if (nSavedRows > nStoredDataVals) {
       fprintf(stderr, "\nMore PSF rows saved (%d) than we allocated space for (%d)!\n",
               nSavedRows, nPixels_psf);
@@ -300,15 +311,19 @@ int main(int argc, char *argv[])
     paramsVect[i] = parameterList[i];
   paramErrs = (double *) malloc(nParamsTot * sizeof(double));
   
-  /* Add image data and errors to the model object */
+  /* Add image data, errors, and mask to the model object */
   // "true" = input yVals data are magnitudes, not intensities
   theModel->AddDataVectors(nStoredDataVals, xVals, yVals, options.dataAreMagnitudes);
   theModel->AddErrorVector1D(nStoredDataVals, yWeights, WEIGHTS_ARE_SIGMAS);
-  theModel->PrintDescription();
+  if (maskAllocated) {
+    theModel->AddMaskVector1D(nStoredDataVals, maskVals, options.maskFormat);
+    //theModel->ApplyMask();
+  }
   // Add PSF vector, if present, and thereby enable convolution
   if (options.psfPresent)
     theModel->AddPSFVector1D(nPixels_psf, xVals_psf, yVals_psf);
-
+  theModel->FinalSetup();   // calls ApplyMask(), VetDataVector()
+  theModel->PrintDescription();
 
   // Parameter limits and other info:
   // OK, first we create a C-style array of mp_par structures, containing parameter constraints
@@ -367,12 +382,13 @@ int main(int argc, char *argv[])
       break;
   } // end switch
 
+
   if (options.saveBestFitParams)
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
     								argc, argv);
 
   if (options.saveBestProfile) {
-    double chisqr = theModel->ChiSquared(paramsVect);
+    theModel->CreateModelImage(paramsVect);
     double *modelProfile = (double *) calloc((size_t)nStoredDataVals, sizeof(double));
     int nPts = theModel->GetModelVector(modelProfile);
     if (nPts == nStoredDataVals) {
@@ -395,6 +411,8 @@ int main(int argc, char *argv[])
   free(xVals);
   free(yVals);
   free(yWeights);
+  if (maskAllocated);
+    free(maskVals);
   if (options.psfPresent) {
     free(xVals_psf);
     free(yVals_psf);
@@ -422,6 +440,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("   profilefit [options] datafile configfile");
   opt->addUsage(" -h  --help                   Prints this help");
   opt->addUsage(" --useerrors                  Use errors from data file");
+  opt->addUsage(" --usemask                    Use mask from data file");
   opt->addUsage(" --intensities                Data y-values are intensities, not magnitudes");
   opt->addUsage(" --psf <psf_file>             PSF image");
   opt->addUsage(" --de                         Solve using differential evolution");
@@ -429,12 +448,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage(" --x1 <int>                   start data value");
   opt->addUsage(" --x2 <int>                   end data value");
   opt->addUsage(" --save-params <output-file>  Save best-fit parameters in config-file format");
+  opt->addUsage(" --save-best-fit <output-file>  Save best-fit profile");
   opt->addUsage("");
 
 
   /* by default all options are checked on the command line and from option/resource file */
   opt->setFlag("help", 'h');
   opt->setFlag("useerrors");
+  opt->setFlag("usemask");
   opt->setFlag("intensities");
   opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
   opt->setFlag("de");
@@ -442,6 +463,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setOption("x1");      /* an option (takes an argument), supporting only long form */
   opt->setOption("x2");        /* an option (takes an argument), supporting only long form */
   opt->setOption("save-params");
+  opt->setOption("save-best-fit");
   
   /* parse the command line:  */
   opt->processCommandArgs( argc, argv );
@@ -468,6 +490,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (opt->getFlag("useerrors")) {
   	printf("\t USE ERRORS SELECTED!\n");
   	theOptions->noErrors = false;
+  }
+  if (opt->getFlag("usemask")) {
+  	printf("\t USE MASK SELECTED!\n");
+  	theOptions->noMask = false;
   }
   if (opt->getFlag("intensities")) {
   	printf("\t Data values are assumed to be intensities (instead of magnitudes)!\n");
@@ -508,6 +534,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->outputParameterFileName = opt->getValue("save-params");
     theOptions->saveBestFitParams = true;
     printf("\toutput best-fit parameter file = %s\n", theOptions->outputParameterFileName.c_str());
+  }
+  if (opt->getValue("save-best-fit") != NULL) {
+    theOptions->modelOutputFileName = opt->getValue("save-best-fit");
+    theOptions->saveBestProfile = true;
+    printf("\toutput best-fit profile to file = %s\n", theOptions->modelOutputFileName.c_str());
   }
 
 

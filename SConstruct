@@ -35,12 +35,13 @@ cflags_db = ["-Wall", "-g3"]
 
 base_defines = ["ANSI"]
 
-lib_list = ["fftw3", "cfitsio", "m"]
+lib_list = ["fftw3", "cfitsio", "m", "gsl"]
 
 # system-specific stuff
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
-	include_path = ["/usr/local/include", FUNCTION_SUBDIR]
-	lib_path = ["/usr/local/lib"]
+	# /sw/include and /sw/lib are for GNU Scientific Library (gsl) stuff
+	include_path = ["/usr/local/include", "/sw/include", FUNCTION_SUBDIR]
+	lib_path = ["/usr/local/lib", "/sw/lib"]
 	# Use "-m32" for both compiling and linking, to make sure we work in 
 	# 32-bit mode for Mac OS X (10.6 defaults to 64-bit compilation otherwise,
 	# which would cause problems when linking with fftw3 and cfitsio libraries):
@@ -106,7 +107,8 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 # Function objects:
 functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
 		func_sersic func_gen-sersic func_flat-exp func_broken-exp func_broken-exp2d
-		func_moffat func_flatsky"""
+		func_edge-on-disk func_moffat func_flatsky
+		func_edge-on-disk_n4762 func_edge-on-disk_n4762v2"""
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
@@ -117,7 +119,7 @@ modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
 # 1D FunctionObject classes:
 functionobject1d_obj_string = """function_object func1d_gaussian func1d_exp func1d_sersic 
-		func1d_broken-exp func1d_moffat func1d_delta func1d_sech func1d_sech2"""
+		func1d_broken-exp func1d_moffat func1d_delta func1d_sech func1d_sech2 func1d_vdksech"""
 functionobject1d_objs = [ FUNCTION_SUBDIR + name for name in functionobject1d_obj_string.split() ]
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 

@@ -25,8 +25,12 @@
 #include "func_flat-exp.h"
 #include "func_broken-exp.h"
 #include "func_broken-exp2d.h"
+#include "func_edge-on-disk.h"
 #include "func_moffat.h"
 #include "func_flatsky.h"
+
+#include "func_edge-on-disk_n4762.h"
+#include "func_edge-on-disk_n4762v2.h"
 
 using namespace std;
 
@@ -34,8 +38,9 @@ using namespace std;
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
 const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
             "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
-            "BrokenExponential2D", "Moffat", "FlatSky"};
-const int  N_FUNCTIONS = 10;
+            "BrokenExponential2D", "EdgeOnDisk", "Moffat", "FlatSky",
+            "EdgeOnDiskN4762"};
+const int  N_FUNCTIONS = 12;
 
 
 
@@ -88,6 +93,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   BrokenExponential2D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential2D>();
   
+  EdgeOnDisk::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDisk>();
+  
   Gaussian::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<Gaussian>();
 
@@ -96,6 +104,13 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   FlatSky::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatSky>();
+
+  // weird extra stuff we may not keep
+  EdgeOnDiskN4762::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762>();
+
+  EdgeOnDiskN4762v2::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762v2>();
 }
 
 

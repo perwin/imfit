@@ -29,6 +29,7 @@ using namespace std;
 const int  N_PARAMS = 1;
 const char  PARAM_LABELS[][20] = {"I"};
 const char FUNCTION_NAME[] = "Delta-1D function";
+#define CLASS_SHORT_NAME  "Delta-1D"
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -39,6 +40,7 @@ Delta1D::Delta1D( )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

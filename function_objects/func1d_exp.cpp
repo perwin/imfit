@@ -31,6 +31,7 @@ using namespace std;
 const int  N_PARAMS = 2;
 const char  PARAM_LABELS[][20] = {"mu_0", "h"};
 const char FUNCTION_NAME[] = "Exponential-1D function";
+#define CLASS_SHORT_NAME  "Exponential-1D"
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -41,6 +42,7 @@ Exponential1D::Exponential1D( )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

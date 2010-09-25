@@ -220,6 +220,17 @@ void ModelObject::AddErrorVector1D( int nDataValues, double *inputVector,
 
 
 
+/* ---------------- PUBLIC METHOD: AddMaskVector1D --------------------- */
+// This is a stub function; it is meant to be properly defined in the derived
+// class ModelObject1d
+void ModelObject::AddMaskVector1D( int nDataValues, double *inputVector,
+                                      int inputType )
+{
+  ;
+}
+
+
+
 /* ---------------- PUBLIC METHOD: GenerateErrorVector ----------------- */
 // Generate an error vector based on Poisson statistics.
 //    noise^2 = object_flux + sky + rdnoise^2
@@ -267,7 +278,12 @@ void ModelObject::GenerateErrorVector( double gain, double readNoise, double sky
 
 
 /* ---------------- PUBLIC METHOD: AddMaskVector ----------------------- */
-
+// Code for adding and processing a vector containing the 2D mask image.
+// Note that although our default *input* format is "0 = good pixel, > 0 =
+// bad pixel", internally we convert all bad pixels to 0 and all good pixels
+// to 1, so that we can multiply the weight vector by the (internal) mask values.
+// The mask is applied to the weight vector by calling the ApplyMask() method
+// for a given ModelObject instance.
 void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
                                       int nImageRows, double *pixelVector,
                                       int inputType )
@@ -366,6 +382,19 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 void ModelObject::AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector )
 {
   ;
+}
+
+
+/* ---------------- PUBLIC METHOD: FinalSetup -------------------------- */
+void ModelObject::FinalSetup( )
+{
+  if (maskExists)
+    ApplyMask();
+  bool dataOK = VetDataVector();
+  if (! dataOK) {
+    fprintf(stderr, "ERROR: bad (non-masked) data values!\n\n");
+    exit(-1);
+  }
 }
 
 
@@ -681,9 +710,35 @@ bool ModelObject::CheckParamVector( int nParams, double paramVector[] )
 }
 
 
+/* ---------------- PROTECTED METHOD: VetDataVector -------------------- */
+// The purpose of this method is to check the data vector (profile or image)
+// to ensure that all non-masked pixels are finite; any non-finite pixels 
+// which *are* masked will be set = 0.
+bool ModelObject::VetDataVector( )
+{
+  bool  nonFinitePixels = false;
+  bool  vectorOK = true;
+  
+  for (int z = 0; z < nDataVals; z++) {
+    if (! finite(dataVector[z])) {
+      if (weightVector[z] == 0.0)
+        dataVector[z] = 0.0;
+      else
+        nonFinitePixels = true;
+    }
+  }
+  
+  if (nonFinitePixels) {
+    printf("\n** WARNING: one or more (non-masked) pixel values in dataVector[] are non-finite!\n");
+    vectorOK = false;
+  }
+  return vectorOK;
+}
+
+
 /* ---------------- PROTECTED METHOD: CheckWeightVector ---------------- */
 // The purpose of this method is to check the weight vector (image) to ensure
-// that all pixels are finite and positive.
+// that all pixels are finite *and* positive.
 bool ModelObject::CheckWeightVector( )
 {
   bool  nonFinitePixels = false;

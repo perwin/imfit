@@ -631,7 +631,7 @@ AnyOption::processCommandArgs()
 				setValue( options[match_at] , argv[++i] );
 		} else if (   argv[i][0] ==  opt_prefix_char ) { /* POSIX char */
 			if( POSIX() ) { 
-				printf("processCommandArgs: argv[i] = %s, argv[i]+1 = %s\n", argv[i], argv[i]+1);
+				//printf("processCommandArgs: argv[i] = %s, argv[i]+1 = %s\n", argv[i], argv[i]+1);
 				char ch =  parsePOSIX( argv[i]+1 );/* skip - */ 
 				if( ch != '0' && i < argc-1 ) /* matching char */
 					setValue( ch ,  argv[++i] );
@@ -664,9 +664,9 @@ AnyOption::parsePOSIX( char* arg )
 
 	for( unsigned int i = 0 ; i < strlen(arg) ; i++ ) {
 		char ch = arg[i];
-		printf("parsePOSIX: i = %d, ch = %c\n", i, ch);
+		//printf("parsePOSIX: i = %d, ch = %c\n", i, ch);
 		if ( matchChar(ch) ) { /* keep matching flags till an option */
-			printf("parsePOSIX: matched!\n");
+			//printf("parsePOSIX: matched!\n");
 			/*if last char argv[++i] is the value */
 			if ( i == strlen(arg)-1 ) { 
 				return ch;
@@ -749,7 +749,7 @@ bool
 AnyOption::matchChar( char c )
 {
 	for ( int i = 0 ; i < optchar_counter ; i++ ) {
-		printf("matchChar: c = %c, i = %d, optionchars[i] = %c\n", c, i, optionchars[i]);
+		//printf("matchChar: c = %c, i = %d, optionchars[i] = %c\n", c, i, optionchars[i]);
 		if ( optionchars[i] == c ) { /* found match */
 			if (optchartype[i] == COMMON_OPT ||
 			     optchartype[i] == COMMAND_OPT ) { /* an option store and stop scanning */

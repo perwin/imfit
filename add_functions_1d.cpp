@@ -22,6 +22,7 @@
 #include "func1d_delta.h"
 #include "func1d_sech.h"
 #include "func1d_sech2.h"
+#include "func1d_vdksech.h"
 
 using namespace std;
 
@@ -73,6 +74,11 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
     }
     if (currentName == "Sech2-1D") {
       thisFunctionObj = new Sech21D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
+    if (currentName == "vdKSech-1D") {
+      thisFunctionObj = new vdKSech1D();
       theModel->AddFunction(thisFunctionObj);
       continue;
     }

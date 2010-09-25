@@ -37,6 +37,8 @@ class ModelObject1d : public ModelObject
 
     void AddErrorVector1D( int nDataValues, double *inputVector, int inputType );
 
+    void AddMaskVector1D( int nDataValues, double *inputVector, int inputType );
+    
     void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector );
     
     void CreateModelImage( double params[] );

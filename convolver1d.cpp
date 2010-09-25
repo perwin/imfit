@@ -166,9 +166,6 @@ void Convolver1D::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   }
   if (debugStatus >= 1)
     printf("Shifting and wrapping the PSF ...\n");
-  // FOR NOW, JUST TRY ADDING THE ZERO PADDING AT THE END
-//  for (k = 0; k < nPixels_psf; k++)
-//    psf_in_cmplx[k][0] = psfPixels[k];
   ShiftAndWrapPSF();
   if (debugStatus >= 2) {
     printf("The whole padded, normalized PSF profile:\n");

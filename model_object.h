@@ -52,6 +52,9 @@ class ModelObject
     // 1D only
     virtual void AddErrorVector1D( int nDataValues, double *pixelVector, int inputType );
 
+    // 1D only
+    virtual void AddMaskVector1D( int nDataValues, double *inputVector, int inputType );
+
 		// 2D only
     virtual void GenerateErrorVector( double gain, double readNoise, double skyValue );
 
@@ -102,6 +105,9 @@ class ModelObject
     // common, but Specialized by ModelObject1D
     virtual void PopulateParameterNames( );
 
+    // common, might be specialized...
+    virtual void FinalSetup( );
+
     // common, not specialized
     string& GetParameterName( int i );
 
@@ -149,6 +155,7 @@ class ModelObject
     
     bool CheckParamVector( int nParams, double paramVector[] );
     bool CheckWeightVector( );
+    bool VetDataVector( );
   
 };
 

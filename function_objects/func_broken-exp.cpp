@@ -95,6 +95,7 @@ void BrokenExponential::Setup( double params[], int offsetIndex, double xc, doub
 // This function calculates the intensity for a broken-exponential function at radius r,
 // with the various parameters and derived values (I_0*S, exponent, etc.)
 // pre-calculated by Setup().
+// NOTE: We assume that r >= 0, since GetValue() ensures that.
 
 double BrokenExponential::CalculateIntensity( double r )
 {

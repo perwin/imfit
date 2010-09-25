@@ -32,6 +32,7 @@ using namespace std;
 const int  N_PARAMS = 2;
 const char  PARAM_LABELS[][20] = {"mu_0", "sigma"};
 const char FUNCTION_NAME[] = "Gaussian-1D function";
+#define CLASS_SHORT_NAME  "Gaussian-1D"
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -42,6 +43,7 @@ Gaussian1D::Gaussian1D( )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

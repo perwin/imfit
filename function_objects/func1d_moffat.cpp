@@ -38,6 +38,7 @@ using namespace std;
 const int  N_PARAMS = 3;
 const char  PARAM_LABELS[][20] = {"I_0", "fwhm", "beta"};
 const char FUNCTION_NAME[] = "Moffat-1D function";
+#define CLASS_SHORT_NAME  "Moffat-1D"
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -48,6 +49,7 @@ Moffat1D::Moffat1D( )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

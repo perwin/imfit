@@ -98,6 +98,7 @@ void FlatExponential::Setup( double params[], int offsetIndex, double xc, double
 // This function calculates the intensity for an exponential function at radius r,
 // with the various parameters and derived values (n, b_n, r_e, etc.)
 // pre-calculated by Setup().
+// NOTE: We assume that r >= 0, since GetValue() ensures that.
 
 double FlatExponential::CalculateIntensity( double r )
 {

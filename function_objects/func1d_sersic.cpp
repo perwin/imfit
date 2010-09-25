@@ -30,6 +30,7 @@ using namespace std;
 const int  N_PARAMS = 3;
 const char  PARAM_LABELS[][20] = {"n", "mu_e", "r_e"};
 const char FUNCTION_NAME[] = "Sersic-1D function";
+#define CLASS_SHORT_NAME  "Sersic-1D"
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -40,6 +41,7 @@ Sersic1D::Sersic1D( )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
+  shortFunctionName = CLASS_SHORT_NAME;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

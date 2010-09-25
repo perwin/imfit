@@ -3,7 +3,12 @@
  *
  * This is intended to be an abstract base class for the various
  * "model" objects (e.g., image data + fitting functions).
- *   
+ * 
+ *
+ * length of: dataVector, weightVector = nDataVals
+ * length of: modelVector = nModelVals = nDataVals IF NO PSF
+ * length of: modelVector = nModelVals = nDataVals + 2*nPSFVals IF PSF USED
+ *
  *     [v0.1]: 27 Nov 2009: Created; initial development.
  *
  */
@@ -36,6 +41,7 @@ ModelObject1d::ModelObject1d( )
   modelVector = NULL;
   modelVectorAllocated = false;
   modelImageComputed = false;
+  maskExists = false;
   dataAreMagnitudes = true;
   nFunctions = 0;
   nFunctionSets = 0;
@@ -117,10 +123,64 @@ void ModelObject1d::AddErrorVector1D( int nDataValues, double *inputVector,
       ;
   }
       
-  if (inputType == WEIGHTS_ARE_SIGMAS) {
+  if (CheckWeightVector())
+    weightValsSet = true;
+  else {
+    printf("ModelObject::AddErrorVector -- Conversion of error vector resulted in bad values!\n");
+    printf("Exiting ...\n\n");
+    exit(-1);
   }
+}
 
-  weightValsSet = true;
+
+/* ---------------- PUBLIC METHOD: AddMaskVector1D --------------------- */
+// Code for adding and processing a vector containing the 1-D mask.
+// Note that although our default *input* format is "0 = good pixel, > 0 =
+// bad pixel", internally we convert all bad pixels to 0 and all good pixels
+// to 1, so that we can multiply the weight vector by the (internal) mask values.
+void ModelObject1d::AddMaskVector1D( int nDataValues, double *inputVector,
+                                      int inputType )
+{
+  assert (nDataValues == nDataVals);
+
+  maskVector = inputVector;
+  nValidDataVals = 0;   // Since there's a mask, not all pixels from the original
+                        // profile will be valid
+    
+  // We need to convert the mask values so that good pixels = 1 and bad
+  // pixels = 0.
+  switch (inputType) {
+    case MASK_ZERO_IS_GOOD:
+      // This is our "standard" input mask: good pixels are zero, bad pixels
+      // are positive integers
+      printf("ModelObject1D::AddMaskVector -- treating zero-valued pixels as good ...\n");
+      for (int z = 0; z < nDataVals; z++) {
+        if (maskVector[z] > 0.0) {
+          maskVector[z] = 0.0;
+        } else {
+          maskVector[z] = 1.0;
+          nValidDataVals++;
+        }
+      }
+      break;
+    case MASK_ZERO_IS_BAD:
+      // Alternate form for input masks: good pixels are 1, bad pixels are 0
+      printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
+      for (int z = 0; z < nDataVals; z++) {
+        if (maskVector[z] < 1.0)
+          maskVector[z] = 0.0;
+        else {
+          maskVector[z] = 1.0;
+          nValidDataVals++;
+        }
+      }
+      break;
+    default:
+      printf("ModelObject1D::AddMaskVector -- WARNING: unknown inputType detected!\n\n");
+      exit(-1);
+  }
+      
+  maskExists = true;
 }
 
 
@@ -242,7 +302,9 @@ void ModelObject1d::ComputeDeviates( double yResults[], double params[] )
   
   for (int z = 0; z < nDataVals; z++) {
     yResults[z] = weightVector[z] * (dataVector[z] - modelVector[dataStartOffset + z]);
-    //printf("weight = %g, data = %g, model = %g\n", weightVector[z], dataVector[z], modelVector[z]);
+#ifdef DEBUG
+    printf("weight = %g, data = %g, model = %g ==> yResults = %g\n", weightVector[z], dataVector[z], modelVector[dataStartOffset + z], yResults[z]);
+#endif
   }
   //for (int z = 0; z < nDataVals; z++) {
   //  yResults[z] = yWeights[z] * (yVals[z] - GetValue(xVals[z], params));
