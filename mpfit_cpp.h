@@ -12,6 +12,7 @@
  */
 
 /* Minor modifications by Peter Erwin:
+ *     1 Oct 2010: Added verbose flag to mp_config_struct
  *     7 Apr 2010: Moved mp_par_struct definition to param_struct.h
  *     5 Apr 2010: Added InterpretMpfitResult() function.
  *     5 Dec 2009: Added #ifndef wrapper
@@ -62,6 +63,7 @@ struct mp_config_struct {
 			1 = perform check 
 		     */
   mp_iterproc iterproc; /* Placeholder pointer - must set to 0 */
+  int  verbose;
 
 };
 

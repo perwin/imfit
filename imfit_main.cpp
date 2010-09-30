@@ -101,6 +101,7 @@ typedef struct {
   bool  noModel;
   char  paramString[MAXLINE];
   bool  newParameters;
+  bool  verbose;
 //  bool  doBootstrap;
 //  int  bootstrapIterations;
 //  bool  doMonteCarlo;
@@ -224,6 +225,7 @@ int main(int argc, char *argv[])
   options.printChiSquaredOnly = false;
   options.printImages = false;
   options.solver = MPFIT_SOLVER;
+  options.verbose = true;
 
   ProcessInput(argc, argv, &options);
 
@@ -427,6 +429,10 @@ int main(int argc, char *argv[])
       mpfitResult.xerror = paramErrs;
       bzero(&mpConfig, sizeof(mpConfig));
       mpConfig.maxiter = 1000;
+      if (options.verbose)
+        mpConfig.verbose = 1;
+      else
+        mpConfig.verbose = 0;
       printf("\nCalling mpfit ...\n");
       status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints,
       							&mpConfig, theModel, &mpfitResult);
@@ -506,7 +512,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
   opt->addUsage("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
   opt->addUsage("");
-  opt->addUsage("     --printimage             Print out images (for debugging)");
+  opt->addUsage("     --quiet                  Turn off printing of mpfit interation updates");
+//  opt->addUsage("     --printimage             Print out images (for debugging)");
   opt->addUsage("");
 
 
@@ -522,6 +529,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setFlag("errors-are-weights");
   opt->setFlag("mask-zero-is-bad");
   opt->setFlag("nosubsampling");
+  opt->setFlag("quiet");
   opt->setOption("noise");      /* an option (takes an argument), supporting only long form */
   opt->setOption("mask");      /* an option (takes an argument), supporting only long form */
   opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
@@ -575,6 +583,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (opt->getFlag("nosubsampling")) {
     theOptions->subsamplingFlag = false;
+  }
+  if (opt->getFlag("quiet")) {
+    theOptions->verbose = false;
   }
   if (opt->getFlag("use-header")) {
     theOptions->useImageHeader = true;

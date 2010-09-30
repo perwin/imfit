@@ -856,6 +856,10 @@ int mpfit(mp_func funct, int m, int npar,
     }
     xnorm = mp_enorm(nfree,wa2);
     fnorm = fnorm1;
+    // Added by PE: printing updates
+    if (config->verbose > 0) {
+      printf("\tmpfit iteration %d: chi^2 = %f\n", iter, fnorm*fnorm);
+    }
     iter += 1;
   }
   
