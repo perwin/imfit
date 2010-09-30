@@ -16,6 +16,7 @@
 #include "definitions.h"
 #include "function_object.h"
 #include "convolver.h"
+#include "param_struct.h"
 
 using namespace std;
 
@@ -88,7 +89,8 @@ class ModelObject
     virtual void PrintDescription( );
 
     // common, but Specialized by ModelObject1D
-    virtual void PrintModelParams( double params[], FILE *output_ptr );
+    virtual void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
+																		double errs[] );
 
     // 2D only; NOT USED ANYWHERE!
     void PrintImage( double *pixelVector );

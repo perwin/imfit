@@ -249,4 +249,6 @@ constructor.
 		-- this would have identified the 20 Feb 2010 problem as having to do
 		with noise generation
 	<> Check values of gain, read-noise, and sky
+	<> Check that size (radius, etc.) values and limits are in *pixels*, not arcsec!
+	
 	

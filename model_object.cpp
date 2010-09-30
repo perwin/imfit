@@ -38,6 +38,7 @@
 #include "definitions.h"
 #include "model_object.h"
 #include "mp_enorm.h"
+#include "param_struct.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -532,24 +533,32 @@ void ModelObject::PrintDescription( )
 
 
 /* ---------------- PUBLIC METHOD: PrintModelParams --------=---------- */
-// Basic function which prints to a file a summary of the best-fitting model,
-// in form suitable for future use as an input config file.
+// Basic function which prints to a file (or, e.g. stdout) a summary of the
+// best-fitting model, in form suitable for future use as an input config file.
+// If errs != NULL, then +/- errors are printed as well
 
-void ModelObject::PrintModelParams( double params[], FILE *output_ptr )
+void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
+																		double errs[] )
 {
   double  x0, y0, paramVal;
-  int nParamsThisFunc;
-  int  offset = 0;
+  int nParamsThisFunc, k;
+  int  indexOffset = 0;
   string  funcName, paramName;
 
   for (int n = 0; n < nFunctions; n++) {
     if (setStartFlag[n] == true) {
       // start of new function set: extract x0,y0 and then skip over them
-      x0 = params[offset];
-      y0 = params[offset + 1];
-      offset += 2;
-      fprintf(output_ptr, "\nX0\t\t%g\n", x0);
-      fprintf(output_ptr, "Y0\t\t%g\n", y0);
+      k = indexOffset;
+      x0 = params[k] + parameterInfo[k].offset;
+      y0 = params[k + 1] + parameterInfo[k + 1].offset;
+      if (errs != NULL) {
+        fprintf(output_ptr, "X0\t\t%f # +/- %f\n", x0, errs[k]);
+        fprintf(output_ptr, "Y0\t\t%f # +/- %f\n", y0, errs[k + 1]);
+      } else {
+        fprintf(output_ptr, "X0\t\t%f\n", x0);
+        fprintf(output_ptr, "Y0\t\t%f\n", y0);
+      }
+      indexOffset += 2;
     }
     
     // Now print the function and its parameters
@@ -557,11 +566,14 @@ void ModelObject::PrintModelParams( double params[], FILE *output_ptr )
     funcName = functionObjects[n]->GetShortName();
     fprintf(output_ptr, "FUNCTION %s\n", funcName.c_str());
     for (int i = 0; i < nParamsThisFunc; i++) {
-      paramName = GetParameterName(offset + i);
-      paramVal = params[offset + i];
-      fprintf(output_ptr, "%s\t\t%g\n", paramName.c_str(), paramVal);
+      paramName = GetParameterName(indexOffset + i);
+      paramVal = params[indexOffset + i];
+      if (errs != NULL)
+        fprintf(output_ptr, "%s\t\t%f # +/- %f\n", paramName.c_str(), paramVal, errs[indexOffset + i]);
+      else
+        fprintf(output_ptr, "%s\t\t%f\n", paramName.c_str(), paramVal);
     }
-    offset += paramSizes[n];
+    indexOffset += paramSizes[n];
   }
 }
 

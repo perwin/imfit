@@ -86,9 +86,10 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
 	     i, params[i], result->xerror[i], xact[i]);
     }
   } else {
-    for (i = 0; i < result->npar; i++) {
-      PrintParam(stdout, model->GetParameterName(i), params[i] + parameterInfo[i].offset, result->xerror[i]);
-    }
+    model->PrintModelParams(stdout, params, parameterInfo, result->xerror);
+//    for (i = 0; i < result->npar; i++) {
+//      PrintParam(stdout, model->GetParameterName(i), params[i] + parameterInfo[i].offset, result->xerror[i]);
+//    }
   }    
 }
 
@@ -113,7 +114,7 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
     fprintf(file_ptr, " %s", argv[i]);
   fprintf(file_ptr, "\n\n");
 
-  model->PrintModelParams(params, file_ptr);
+  model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
 
   fclose(file_ptr);
 

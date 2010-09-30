@@ -428,8 +428,8 @@ int main(int argc, char *argv[])
       bzero(&mpConfig, sizeof(mpConfig));
       mpConfig.maxiter = 1000;
       printf("\nCalling mpfit ...\n");
-      status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints, &mpConfig, 
-  		  						theModel, &mpfitResult);
+      status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints,
+      							&mpConfig, theModel, &mpfitResult);
       PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
     }

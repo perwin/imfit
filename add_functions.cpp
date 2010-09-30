@@ -26,6 +26,8 @@
 #include "func_broken-exp.h"
 #include "func_broken-exp2d.h"
 #include "func_edge-on-disk.h"
+#include "func_edge-on-ring.h"
+#include "func_edge-on-ring2side.h"
 #include "func_moffat.h"
 #include "func_flatsky.h"
 
@@ -39,8 +41,8 @@ using namespace std;
 const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
             "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
             "BrokenExponential2D", "EdgeOnDisk", "Moffat", "FlatSky",
-            "EdgeOnDiskN4762"};
-const int  N_FUNCTIONS = 12;
+            "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing"};
+const int  N_FUNCTIONS = 14;
 
 
 
@@ -95,6 +97,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   
   EdgeOnDisk::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDisk>();
+  
+  EdgeOnRing::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnRing>();
+  
+  EdgeOnRing2Side::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnRing2Side>();
   
   Gaussian::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<Gaussian>();
