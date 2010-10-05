@@ -56,6 +56,7 @@ if (os_type == "Linux"):
 	base_defines = base_defines + ["NO_BSD_STRINGS"]
 	include_path = ["/home/erwin/include", "/usr/include", FUNCTION_SUBDIR]
 	lib_path = ["/home/erwin/lib"]
+	lib_list.append("gslcblas")
 	link_flags = None
 defines_opt = base_defines
 #defines_db = base_defines + ["DEBUG"]

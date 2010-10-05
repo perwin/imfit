@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
   for (int i = 0; i < nParamsTot; i++) {
     parameterInfo[i].fixed = paramLimits[i].fixed;
     if (parameterInfo[i].fixed == 1) {
-    	printf("Fixed parameter detected (i = %d)\n", i);
+    	//printf("Fixed parameter detected (i = %d)\n", i);
       nFreeParams--;
     }
     parameterInfo[i].limited[0] = paramLimits[i].limited[0];

@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
   bool  maskAllocated = false;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
+  mp_config  mpConfig;
   mp_result  mpfitResult;
   int  status;
   vector<string>  functionList;
@@ -360,9 +361,11 @@ int main(int argc, char *argv[])
     case MPFIT_SOLVER:
       bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero the results structure */
       mpfitResult.xerror = paramErrs;
+      bzero(&mpConfig, sizeof(mpConfig));
+      mpConfig.maxiter = 1000;
       printf("\nCalling mpfit ...\n");
-      status = mpfit(myfunc, nStoredDataVals, nParamsTot, paramsVect, mpfitParameterConstraints, 0, 
-  	  								theModel, &mpfitResult);
+      status = mpfit(myfunc, nStoredDataVals, nParamsTot, paramsVect, mpfitParameterConstraints,
+                      &mpConfig, theModel, &mpfitResult);
   
       printf("\n");
       PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);

@@ -47,8 +47,8 @@ class ModelObject1d : public ModelObject
 
     void PrintDescription( );
     
-    void PrintModelParams( double params[], FILE *output_ptr );
-
+    void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
+																		double errs[] );
     void PopulateParameterNames( );
     
     int GetModelVector( double *profileVector );
@@ -67,10 +67,11 @@ class ModelObject1d : public ModelObject
 //     bool  weightValsSet;
 //     int  nFunctions, nParamsTot;
 // 	double  *dataVector;
-	double  *dataXValues, *modelXValues;
-	bool  dataAreMagnitudes;
+	  double  *dataXValues, *modelXValues;
+	  double  zeroPoint;
+	  bool  dataAreMagnitudes;
 	// things useful for PSF convolution
-	int  dataStartOffset, nPSFVals, nModelVals;
+	  int  dataStartOffset, nPSFVals, nModelVals;
 // 	double  *weightVector;
 // 	double  *modelVector;
 // 	double  *parameterBounds;
