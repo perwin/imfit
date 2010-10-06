@@ -39,6 +39,9 @@ class ModelObject
     virtual void AddDataVectors( int nDataValues, double *xValVector, 
     						double *yValVector, bool magnitudeData );
 
+    // Probably 1D only, but might be usable by 2D version later...
+    virtual void SetZeroPoint( double zeroPointValue );
+    
 		// 2D only
     void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows,
     													int nCombinedImages );

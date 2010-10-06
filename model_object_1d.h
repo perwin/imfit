@@ -35,6 +35,8 @@ class ModelObject1d : public ModelObject
     void AddDataVectors( int nDataValues, double *xValVector, double *yValVector,
     											bool magnitudeData );
 
+    void SetZeroPoint( double zeroPointValue );
+    
     void AddErrorVector1D( int nDataValues, double *inputVector, int inputType );
 
     void AddMaskVector1D( int nDataValues, double *inputVector, int inputType );

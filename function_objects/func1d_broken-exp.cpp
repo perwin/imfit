@@ -66,7 +66,7 @@ void BrokenExponential1D::Setup( double params[], int offsetIndex, double xc )
   alpha = params[4 + offsetIndex ];
   
   // pre-compute useful things for this round of invoking the function
-  I_0 = pow(10.0, -0.4*mu_0);
+  I_0 = pow(10.0, 0.4*(ZP - mu_0));
   exponent = (1.0/alpha) * (1.0/h_1 - 1.0/h_2);
   // Calculate S [note that this can cause floating *underflow*, but that's OK]:
   S = pow( (1.0 + exp(-alpha*r_b)), (-exponent) );

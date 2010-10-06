@@ -60,7 +60,7 @@ void Sech1D::Setup( double params[], int offsetIndex, double xc )
   h = params[1 + offsetIndex ];
   
   // pre-compute useful things for this round of invoking the function
-  I_0 = pow(10.0, -0.4*mu_0);
+  I_0 = pow(10.0, 0.4*(ZP - mu_0));
 }
 
 

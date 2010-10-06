@@ -62,7 +62,7 @@ void Gaussian1D::Setup( double params[], int offsetIndex, double xc )
   sigma = params[1 + offsetIndex ];
   
   // pre-compute useful things for this round of invoking the function
-  I_0 = pow(10.0, -0.4*mu_0);
+  I_0 = pow(10.0, 0.4*(ZP - mu_0));
 //  printf("Gaussian1D::Setup: mu_0 = %g, sigma = %g, I_0 = %g\n", mu_0, sigma, I_0);
 }
 

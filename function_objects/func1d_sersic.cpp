@@ -63,7 +63,7 @@ void Sersic1D::Setup( double params[], int offsetIndex, double xc )
 //          x0, y0, PA, ell, n, r_e, I_e);
   
   // pre-compute useful things for this round of invoking the function
-  I_e = pow(10.0, -0.4*mu_e);
+  I_e = pow(10.0, 0.4*(ZP - mu_e));
   n2 = n*n;
   /* The following approximation for b_n is good for all
    * n > 0.36 */

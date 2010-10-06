@@ -62,7 +62,7 @@ void vdKSech1D::Setup( double params[], int offsetIndex, double xc )
   alpha = params[2 + offsetIndex];
   
   // pre-compute useful things for this round of invoking the function
-  I_0 = pow(2.0, -alpha) * pow(10.0, -0.4*mu_0);
+  I_0 = pow(2.0, -alpha) * pow(10.0, 0.4*(ZP - mu_0));
   scaledZ0 = alpha*z0;
 }
 

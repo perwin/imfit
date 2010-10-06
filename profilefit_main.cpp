@@ -72,6 +72,7 @@ typedef struct {
   bool  noDataFile;
   bool  noConfigFile;
   bool  dataAreMagnitudes;
+  double  zeroPoint;
   int  startDataRow;
   int  endDataRow;
   bool  noErrors;
@@ -152,6 +153,7 @@ int main(int argc, char *argv[])
   options.noConfigFile = true;
   options.psfPresent = false;
   options.dataAreMagnitudes = true;   // default: assumes we usually fit mu(R) profiles
+  options.zeroPoint = 0.0;
   options.startDataRow = 0;
   options.endDataRow = -1;   // default value indicating "last row in data file"
   options.noErrors = true;
@@ -302,6 +304,7 @@ int main(int argc, char *argv[])
   	printf("*** WARNING: Failure in AddFunctions!\n\n");
   	exit(-1);
  }
+  theModel->SetZeroPoint(options.zeroPoint);
   
   // Set up parameter vector(s), now that we know how many total parameters
   // there will be
@@ -442,14 +445,15 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("Usage: ");
   opt->addUsage("   profilefit [options] datafile configfile");
   opt->addUsage(" -h  --help                   Prints this help");
-  opt->addUsage(" --useerrors                  Use errors from data file");
-  opt->addUsage(" --usemask                    Use mask from data file");
+  opt->addUsage(" --useerrors                  Use errors from data file (3rd column)");
+  opt->addUsage(" --usemask                    Use mask from data file (4th column)");
   opt->addUsage(" --intensities                Data y-values are intensities, not magnitudes");
   opt->addUsage(" --psf <psf_file>             PSF image");
   opt->addUsage(" --de                         Solve using differential evolution");
   opt->addUsage(" --no-fitting                 Don't do fitting (just save input model)");
   opt->addUsage(" --x1 <int>                   start data value");
   opt->addUsage(" --x2 <int>                   end data value");
+  opt->addUsage(" --zp <float>                 magnitude zero point of the data");
   opt->addUsage(" --save-params <output-file>  Save best-fit parameters in config-file format");
   opt->addUsage(" --save-best-fit <output-file>  Save best-fit profile");
   opt->addUsage("");
@@ -465,6 +469,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setFlag("no-fitting");
   opt->setOption("x1");      /* an option (takes an argument), supporting only long form */
   opt->setOption("x2");        /* an option (takes an argument), supporting only long form */
+  opt->setOption("zp");        /* an option (takes an argument), supporting only long form */
   opt->setOption("save-params");
   opt->setOption("save-best-fit");
   
@@ -532,6 +537,15 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     }
     theOptions->endDataRow = atol(opt->getValue("x2"));
     printf("\tend data row = %d\n", theOptions->endDataRow);
+  }
+  if (opt->getValue("zp") != NULL) {
+    if (NotANumber(opt->getValue("zp"), 0, kAnyReal)) {
+      printf("*** WARNING: zero point should be a real number!\n");
+      delete opt;
+      exit(1);
+    }
+    theOptions->zeroPoint = atof(opt->getValue("zp"));
+    printf("\tmagnitude zero point = %f\n", theOptions->zeroPoint);
   }
   if (opt->getValue("save-params") != NULL) {
     theOptions->outputParameterFileName = opt->getValue("save-params");

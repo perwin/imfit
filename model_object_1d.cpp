@@ -79,6 +79,23 @@ void ModelObject1d::DefineFunctionSets( vector<int>& functionStartIndices )
 
 
 
+/* ---------------- PUBLIC METHOD: SetZeroPoint ----------------------- */
+
+void ModelObject1d::SetZeroPoint( double zeroPointValue )
+{
+  zeroPoint = zeroPointValue;
+  if (nFunctions < 1) {
+    fprintf(stderr, "ModelObject1d: WARNING: zero point added to model object");
+    fprintf(stderr, " before any functions were added!\n");
+    return;
+  }
+  else {
+    for (int n = 0; n < nFunctions; n++)
+      functionObjects[n]->SetZeroPoint(zeroPoint);
+  }
+}
+
+
 /* ---------------- PUBLIC METHOD: AddDataVectors --------------------- */
 
 void ModelObject1d::AddDataVectors( int nDataValues, double *xValVector, 
@@ -188,7 +205,7 @@ void ModelObject1d::AddMaskVector1D( int nDataValues, double *inputVector,
 /* ---------------- PUBLIC METHOD: AddPSFVector1D ---------------------- */
 // This function needs to be redefined because the base function in ModelObject
 // assumes a 2-D PSF.
-// Still mostly a stub function at this point!
+// NOTE: PSF vector y-values are assumed to be intensities, *not* magnitudes!
 void ModelObject1d::AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector )
 {
   nPSFVals = nPixels_psf;
@@ -251,10 +268,6 @@ void ModelObject1d::CreateModelImage( double params[] )
       // start of new function set: extract x0 and then skip over them
       x0 = params[offset];
       offset += 1;
-// #ifdef DEBUG
-//       printf("  Function %d = start of new set; x0 = %g\n",
-//               n, x0);
-// #endif
     }
     functionObjects[n]->Setup(params, offset, x0);
     offset += paramSizes[n];
@@ -267,7 +280,6 @@ void ModelObject1d::CreateModelImage( double params[] )
     for (int n = 0; n < nFunctions; n++)
       newVal += functionObjects[n]->GetValue(x);
     modelVector[i] = newVal;
-//    printf("newVal = %g  ", newVal);
   }
 
 

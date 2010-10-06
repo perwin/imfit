@@ -53,6 +53,13 @@ void FunctionObject::SetSubsampling( bool subsampleFlag )
 }
 
 
+/* ---------------- PUBLIC METHOD: SetZeroPoint ------------------------ */
+void FunctionObject::SetZeroPoint( double zeroPoint )
+{
+  ZP = zeroPoint;
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 // Base method for 2D functions
 void FunctionObject::Setup( double params[], int offsetIndex, double xc, double yc )

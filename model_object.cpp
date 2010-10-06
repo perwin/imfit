@@ -132,6 +132,16 @@ void ModelObject::AddDataVectors( int nDataValues, double *xValVector, double *y
 }
 
 
+/* ---------------- PUBLIC METHOD: SetZeroPoint ----------------------- */
+
+void ModelObject::SetZeroPoint( double zeroPointValue )
+{
+  // Just a placeholder for now (needs to be modified & overridden in derived
+  // class ModelObject1D
+  ;
+}
+
+
 /* ---------------- PUBLIC METHOD: AddImageDataVector ------------------ */
 
 void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,

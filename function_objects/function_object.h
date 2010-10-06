@@ -30,6 +30,9 @@ class FunctionObject
     // probably no need to modify this:
     virtual void SetSubsampling( bool subsampleFlag );
 
+    // probably no need to modify this:
+    virtual void SetZeroPoint( double zeroPoint );
+
     // derived classes will almost certainly modify this, which
     // is used for pre-calculations and convolutions, if any:
     virtual void  Setup( double params[], int offsetIndex, double xc, double yc );
@@ -66,6 +69,7 @@ class FunctionObject
     bool  doSubsampling;
     vector<string>  parameterLabels;
     string  functionName, shortFunctionName;
+    double  ZP;
   
 };
 

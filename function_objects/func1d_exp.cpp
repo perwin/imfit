@@ -63,7 +63,8 @@ void Exponential1D::Setup( double params[], int offsetIndex, double xc )
 //          x0, y0, PA, ell, I_0, h);
   
   // pre-compute useful things for this round of invoking the function
-  I_0 = pow(10.0, -0.4*mu_0);
+//  I_0 = pow(10.0, -0.4*mu_0);
+  I_0 = pow(10.0, 0.4*(ZP - mu_0));
 //  printf("Exponential1D::Setup: mu_0 = %g, h = %g, I_0 = %g\n", mu_0, h, I_0);
 }
 
