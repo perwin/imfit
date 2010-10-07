@@ -82,7 +82,7 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
     // parse and store parameter limits, if any
     paramLimitsFound = 1;
     extraPiece = stringPieces[2];
-    printf("Found a parameter limit: %s\n", extraPiece.c_str());
+    //printf("Found a parameter limit: %s\n", extraPiece.c_str());
     if (extraPiece == fixedIndicatorString) {
       newParamLimit.fixed = 1;
     } else {
@@ -401,7 +401,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
       continue;
     }
     if (inputLines[i].find("FUNCTION", 0) != string::npos) {
-      printf("Function detected (i = %d)\n", i);
+      //printf("Function detected (i = %d)\n", i);
       AddFunctionName(inputLines[i], functionList);
       functionNumber++;
       i++;

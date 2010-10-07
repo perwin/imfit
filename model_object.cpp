@@ -53,8 +53,10 @@ ModelObject::ModelObject( )
   parameterBoundsSet = false;
   parameterBounds = NULL;
   modelVector = NULL;
+  residualVector = NULL;
   modelVectorAllocated = false;
   weightVectorAllocated = false;
+  residualVectorAllocated = false;
   setStartFlag_allocated = false;
   modelImageComputed = false;
   maskExists = false;
@@ -706,6 +708,23 @@ double * ModelObject::GetModelImageVector( )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetResidualImageVector -------------- */
+
+double * ModelObject::GetResidualImageVector( )
+{
+  if (! modelImageComputed) {
+    printf("* ModelObject: Model image has not yet been computed!\n\n");
+    return NULL;
+  }
+  
+  residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  residualVectorAllocated = true;
+  for (int z = 0; z < nDataVals; z++)
+    residualVector[z] = (dataVector[z] - modelVector[z]);
+  return residualVector;
+}
+
+
 /* ---------------- PUBLIC METHOD: GetModelVector ---------------------- */
 // This is a stub function; it is meant to be properly defined in the derived
 // class ModelObject1d
@@ -798,6 +817,8 @@ ModelObject::~ModelObject()
     free(weightVector);
   if (doChisquared)
     free(deviatesVector);
+  if (residualVectorAllocated)
+    free(residualVector);
   
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)

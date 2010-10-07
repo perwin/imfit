@@ -84,8 +84,10 @@ typedef struct {
   bool  maskImagePresent;
   int  maskFormat;
   bool  subsamplingFlag;
-  std::string  outputModelFileName;
   bool  saveModel;
+  std::string  outputModelFileName;
+  bool  saveResidualImage;
+  std::string  outputResidualFileName;
   bool  saveBestFitParams;
   std::string  outputParameterFileName;
   bool  useImageHeader;
@@ -202,6 +204,7 @@ int main(int argc, char *argv[])
   options.maskFormat = MASK_ZERO_IS_GOOD;
   options.subsamplingFlag = true;
   options.saveModel = false;
+  options.saveResidualImage = false;
   options.saveBestFitParams = true;
   options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
   options.useImageHeader= false;
@@ -453,12 +456,20 @@ int main(int argc, char *argv[])
   if (options.printImages)
     theModel->PrintModelImage();
 
-  if (options.saveBestFitParams)
+  // Handle assorted output requests
+  if (options.saveBestFitParams) {
+    printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
     								argc, argv);
-  
+  }
   if (options.saveModel) {
+    printf("Saving model image in file \"%s\"\n", options.outputModelFileName.c_str());
     SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
+                      nColumns, nRows, imageCommentsList);
+  }
+  if (options.saveResidualImage) {
+    printf("Saving residual (input - model) image in file \"%s\"\n", options.outputResidualFileName.c_str());
+    SaveVectorAsImage(theModel->GetResidualImageVector(), options.outputResidualFileName, 
                       nColumns, nRows, imageCommentsList);
   }
 
@@ -476,6 +487,8 @@ int main(int argc, char *argv[])
   if (parameterInfo_allocated)
     free(parameterInfo);
   delete theModel;
+  
+  printf("Done!\n\n");
   
   return 0;
 }
@@ -503,6 +516,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
   opt->addUsage("     --save-params <output-file>          Save best-fit parameters in config-file format");
   opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
+  opt->addUsage("     --save-residual <outputname.fits>       Save residual (input - model) image");
   opt->addUsage("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
   opt->addUsage("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   opt->addUsage("     --gain <value>           Image gain (e-/ADU)");
@@ -535,6 +549,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
   opt->setOption("save-params");      /* an option (takes an argument), supporting only long form */
   opt->setOption("save-model");      /* an option (takes an argument), supporting only long form */
+  opt->setOption("save-residual");      /* an option (takes an argument), supporting only long form */
   opt->setOption("sky");        /* an option (takes an argument), supporting only long form */
   opt->setOption("gain");        /* an option (takes an argument), supporting only long form */
   opt->setOption("readnoise");        /* an option (takes an argument), supporting only long form */
@@ -622,6 +637,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->outputModelFileName = opt->getValue("save-model");
     theOptions->saveModel = true;
     printf("\toutput best-fit model image = %s\n", theOptions->outputModelFileName.c_str());
+  }
+  if (opt->getValue("save-residual") != NULL) {
+    theOptions->outputResidualFileName = opt->getValue("save-residual");
+    theOptions->saveResidualImage = true;
+    printf("\toutput residual (input - model) image = %s\n", theOptions->outputResidualFileName.c_str());
   }
   if (opt->getValue("save-params") != NULL) {
     theOptions->outputParameterFileName = opt->getValue("save-params");

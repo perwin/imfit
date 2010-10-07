@@ -125,6 +125,9 @@ class ModelObject
 		// 2D only
     double * GetModelImageVector( );
 
+		// 2D only
+    double * GetResidualImageVector( );
+
     // 1D only
     virtual int GetModelVector( double *profileVector );
 
@@ -140,6 +143,7 @@ class ModelObject
     double  nCombined_sqrt;
     int  debugLevel;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
+    bool  residualVectorAllocated;
     bool  setStartFlag_allocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists;
@@ -151,6 +155,7 @@ class ModelObject
     double  *maskVector;
     double  *modelVector;
     double  *deviatesVector;
+    double  *residualVector;
     double  *parameterBounds;
     int  *functionSetStarts;
     bool  *setStartFlag;
