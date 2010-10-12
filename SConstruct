@@ -5,16 +5,19 @@
 # where <target-name> is, e.g., "imft", "imfit_db", etc.
 # "scons" by itself will build *all* targets
 # 
+# To clean up files associated with a given target:
+#    $ scons -c <target-name>
+# To clean up all targets (including programs):
+#    $ scons -c
+
+
+# *** SPECIAL STUFF ***
 # To build a version with FFTW3 threading enabled:
 #    $ scons define=FFTW_THREADING <target-name>
 #
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
-# To clean up files associated with a given target:
-#    $ scons -c <target-name>
-# To clean up all targets (including programs):
-#    $ scons -c
 
 
 # Operating-system determination via os.uname:
@@ -74,6 +77,16 @@ for key, value in ARGLIST:
 			lib_list.insert(0, "fftw3_threads")
 			if (os_type == "Linux"):
 				lib_list.append("pthread")
+	if key == 'mode':
+		if value == "profile":
+			if (os_type == "Linux"):
+				cflags_opt.append("-pg")
+				cflags_db.append("-pg")
+				link_flags.append("-pg")
+		if value == "openmp":
+			cflags_opt.append("-fopenmp")
+			cflags_db.append("-fopenmp")
+			link_flags.append("-fopenmp")
 
 defines_db = defines_db + extra_defines
 defines_opt = defines_opt + extra_defines

@@ -29,6 +29,8 @@
 
 /* ------------------------ Include Files (Header Files )--------------- */
 
+#include <omp.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -417,6 +419,7 @@ void ModelObject::FinalSetup( )
 void ModelObject::CreateModelImage( double params[] )
 {
   double  x0, y0, x, y, newVal;
+  int  i, j, n;
   int  offset = 0;
   
   // Check parameter values for sanity
@@ -443,29 +446,32 @@ void ModelObject::CreateModelImage( double params[] )
       x0 = params[offset];
       y0 = params[offset + 1];
       offset += 2;
-// #ifdef DEBUG
-//       printf("  Function %d = start of new set; x0 = %g, y0 = %g\n",
-//               n, x0, y0);
-// #endif
     }
     functionObjects[n]->Setup(params, offset, x0, y0);
     offset += paramSizes[n];
   }
   
-  // populate modelVector with the model image
-  for (int i = 0; i < nRows; i++) {   // step by row number = y
+  // OK, populate modelVector with the model image
+  // OpenMP Parallel Section
+  int  chunk = 100;
+// Note that we cannot specify modelVector as shared [or private] bcs it is part
+// of a class (not an independent variable); happily, by default all references in
+// an omp-parallel section are shared unless specificied otherwise
+#pragma omp parallel private(i,j,n,x,y,newVal)
+  {
+  #pragma omp for schedule (static, chunk)
+  for (i = 0; i < nRows; i++) {   // step by row number = y
     y = (double)(i + 1);              // Iraf counting: first row = 1
-    for (int j = 0; j < nColumns; j++) {   // step by column number = x
+    for (j = 0; j < nColumns; j++) {   // step by column number = x
       x = (double)(j + 1);                 // Iraf counting: first column = 1
       newVal = 0.0;
-      for (int n = 0; n < nFunctions; n++)
+      for (n = 0; n < nFunctions; n++)
         newVal += functionObjects[n]->GetValue(x, y);
       modelVector[i*nColumns + j] = newVal;
-// #ifdef DEBUG
-//       printf("   x = %g, y = %g, value = %g\n", x, y, modelVector[i*nColumns + j]);
-// #endif
     }
   }
+  
+  } // end omp parallel section
   
   
   // Do PSF convolution, if requested
