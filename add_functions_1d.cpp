@@ -1,4 +1,4 @@
-/* FILE: add_functions.cpp ----------------------------------------------- */
+/* FILE: add_functions_1d.cpp -------------------------------------------- */
 /*
  * Function which takes a vector of strings listing function names and generates
  * the corresponding FunctionObjects, passing them to the input ModelObject
@@ -18,6 +18,7 @@
 #include "func1d_gaussian.h"
 #include "func1d_moffat.h"
 #include "func1d_sersic.h"
+#include "func1d_core-sersic.h"
 #include "func1d_broken-exp.h"
 #include "func1d_delta.h"
 #include "func1d_sech.h"
@@ -54,6 +55,11 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
     }
     if (currentName == "Sersic-1D") {
       thisFunctionObj = new Sersic1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
+    if (currentName == "Core-Sersic-1D") {
+      thisFunctionObj = new CoreSersic1D();
       theModel->AddFunction(thisFunctionObj);
       continue;
     }
@@ -98,4 +104,4 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
 }
 
 
-/* END OF FILE: add_functions.cpp ---------------------------------------- */
+/* END OF FILE: add_functions_1d.cpp ------------------------------------- */

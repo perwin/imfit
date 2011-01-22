@@ -1,4 +1,4 @@
-# Trial config file for imfit1d, fitting a Sersic profile
+# Trial config file for profilefit, fitting a Sersic profile
 
 # Here we have a function group (in this case, a single Sersic function),
 # specified as having a fixed center at r=0

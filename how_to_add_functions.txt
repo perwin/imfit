@@ -8,7 +8,7 @@ NOTES ON HOW TO ADD NEW FUNCTIONS TO IMFIT/MAKEIMAGE:
 	b. Add function name to FUNCTION_NAMES array and increment N_FUNCTIONS
 	c. Add corresponding if {} block to AddFunctions()
 
-3. Add func_<name> to modelobject_obj_string definition in SConstruct file
+3. Add func_<name> to functionobject_obj_string definition in SConstruct file
 
 
 Note that the only place where the precise mapping between user-supplied function
