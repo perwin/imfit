@@ -32,6 +32,9 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
+#ifdef LINUX
+#include <string.h>
+#endif
 
 #include "read_profile_pub.h"
 #include "utilities_pub.h"

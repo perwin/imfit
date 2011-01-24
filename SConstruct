@@ -56,7 +56,7 @@ if (os_type == "Linux"):
 	cflags_opt = ["-O3", "-g0"]
 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 	# silly Linux doesn't have OpenBSD string routines built in, so we'll have to include them
-	base_defines = base_defines + ["NO_BSD_STRINGS"]
+	base_defines = base_defines + ["LINUX", "NO_BSD_STRINGS"]
 	include_path = ["/home/erwin/include", "/usr/include", FUNCTION_SUBDIR]
 	lib_path = ["/home/erwin/lib"]
 	lib_list.append("gslcblas")

@@ -236,7 +236,7 @@ Exiting...
 
 
 * Test Core-Sersic fitting:
-./profilefit profile_data/n3348_total_fix.dat config_profilefit_sersic.dat
+./profilefit profile_data/n3348_total_fix.dat config_profilefit_core-sersic.dat
 
 *** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
   CHI-SQUARE = 0.062599    (37 DOF)
