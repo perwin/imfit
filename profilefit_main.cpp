@@ -41,7 +41,7 @@
 #define MPFIT_SOLVER        1
 #define DIFF_EVOLN_SOLVER   2
 
-#define MAX_DE_GENERATIONS	800
+#define MAX_DE_GENERATIONS  800
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
 #define MONTE_CARLO_ITER   100
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     return -1;
   }
   status = ReadConfigFile(options.configFileName, false, functionList, parameterList, paramLimits, 
-  								functionSetIndices, paramLimitsExist, userConfigOptions);
+                  functionSetIndices, paramLimitsExist, userConfigOptions);
   if (status < 0) {
     printf("\n*** WARNING: Problem in processing config file!\n\n");
     return -1;
@@ -189,12 +189,12 @@ int main(int argc, char *argv[])
   /* GET THE DATA: */
   nDataVals = CountDataLines(options.dataFileName);
   if ((nDataVals < 1) || (nDataVals > MAX_N_DATA_VALS)) {
-	/* file has no data *or* too much data (or an integer overflow occured 
-	   in CountDataLines) */
-  	printf("Something wrong: input file %s has too few or too many data points\n", 
-		   options.dataFileName.c_str());
-	printf("(nDataVals = %d)\n", nDataVals);
-	exit(1);
+    /* file has no data *or* too much data (or an integer overflow occured 
+       in CountDataLines) */
+    printf("Something wrong: input file %s has too few or too many data points\n", 
+           options.dataFileName.c_str());
+    printf("(nDataVals = %d)\n", nDataVals);
+    exit(1);
   }
   printf("Data file \"%s\": %d data points\n", options.dataFileName.c_str(), nDataVals);
   /* Set default end data row (if not specified) and check for reasonable values: */
@@ -204,12 +204,12 @@ int main(int argc, char *argv[])
     endDataRow = nDataVals - 1;
   if ( (startDataRow < 0) || (startDataRow >= nDataVals) ) {
     printf("Starting data row (\"--x1\") must be >= 1 and <= number of rows in data file (%d)!\n",
-    				nDataVals);
+            nDataVals);
     exit(-1);
   }
   if ( (endDataRow <= startDataRow) || (endDataRow >= nDataVals) ) {
     printf("Ending data row (\"--x2\") must be >= starting data row and <= number of rows in data file (%d)!\n",
-    				nDataVals);
+            nDataVals);
     exit(-1);
   }
   
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
   } else {
     if (weightMode == WEIGHTS_ARE_SIGMAS) {
       // Construct weights as 1/err
-	  printf("Converting errors to weights (w = 1/err)\n");
+      printf("Converting errors to weights (w = 1/err)\n");
       for (int i = 0; i < nStoredDataVals; i++)
         yWeights[i] = 1.0/yWeights[i];
     }
@@ -264,12 +264,12 @@ int main(int argc, char *argv[])
 //    printf("Reading PSF profile (\"%s\") ...\n", options.psfFileName.c_str());
     nPixels_psf = CountDataLines(options.psfFileName);
     if ((nPixels_psf < 1) || (nPixels_psf > MAX_N_DATA_VALS)) {
-	  /* file has no data *or* too much data (or an integer overflow occured 
-	     in CountDataLines) */
-  	  printf("Something wrong: input PSF file %s has too few or too many data points\n", 
-		     options.psfFileName.c_str());
-  	printf("(nPixels_psf = %d)\n", nPixels_psf);
-	  exit(1);
+      /* file has no data *or* too much data (or an integer overflow occured 
+         in CountDataLines) */
+      printf("Something wrong: input PSF file %s has too few or too many data points\n", 
+             options.psfFileName.c_str());
+      printf("(nPixels_psf (# of PSF points) = %d)\n", nPixels_psf);
+      exit(1);
     }
     printf("PSF file \"%s\": %d data points\n", options.psfFileName.c_str(), nPixels_psf);
     /* Set default end data row (if not specified) and check for reasonable values: */
@@ -301,8 +301,8 @@ int main(int argc, char *argv[])
   printf("Adding functions to model object...\n");
   status = AddFunctions1d(theModel, functionList, functionSetIndices);
   if (status < 0) {
-  	printf("*** WARNING: Failure in AddFunctions!\n\n");
-  	exit(-1);
+    printf("*** WARNING: Failure in AddFunctions!\n\n");
+    exit(-1);
  }
   theModel->SetZeroPoint(options.zeroPoint);
   
@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
   for (int i = 0; i < nParamsTot; i++) {
     parameterInfo[i].fixed = paramLimits[i].fixed;
     if (parameterInfo[i].fixed == 1) {
-    	printf("Fixed parameter detected (i = %d)\n", i);
+      printf("Fixed parameter detected (i = %d)\n", i);
       nFreeParams--;
     }
     parameterInfo[i].limited[0] = paramLimits[i].limited[0];
@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
 
   if (options.saveBestFitParams)
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-    								argc, argv);
+                    argc, argv);
 
   if (options.saveBestProfile) {
     theModel->CreateModelImage(paramsVect);
@@ -448,7 +448,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   opt->addUsage(" --useerrors                  Use errors from data file (3rd column)");
   opt->addUsage(" --usemask                    Use mask from data file (4th column)");
   opt->addUsage(" --intensities                Data y-values are intensities, not magnitudes");
-  opt->addUsage(" --psf <psf_file>             PSF image");
+  opt->addUsage(" --psf <psf_file>             PSF profile (centered on middle row, y-values = intensities)");
   opt->addUsage(" --de                         Solve using differential evolution");
   opt->addUsage(" --no-fitting                 Don't do fitting (just save input model)");
   opt->addUsage(" --x1 <int>                   start data value");
@@ -496,16 +496,16 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     exit(1);
   }
   if (opt->getFlag("useerrors")) {
-  	printf("\t USE ERRORS SELECTED!\n");
-  	theOptions->noErrors = false;
+    printf("\t USE ERRORS SELECTED!\n");
+    theOptions->noErrors = false;
   }
   if (opt->getFlag("usemask")) {
-  	printf("\t USE MASK SELECTED!\n");
-  	theOptions->noMask = false;
+    printf("\t USE MASK SELECTED!\n");
+    theOptions->noMask = false;
   }
   if (opt->getFlag("intensities")) {
-  	printf("\t Data values are assumed to be intensities (instead of magnitudes)!\n");
-  	theOptions->dataAreMagnitudes = false;
+    printf("\t Data values are assumed to be intensities (instead of magnitudes)!\n");
+    theOptions->dataAreMagnitudes = false;
   }
   if (opt->getValue("psf") != NULL) {
     theOptions->psfFileName = opt->getValue("psf");
@@ -513,12 +513,12 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     printf("\tPSF profile = %s\n", theOptions->psfFileName.c_str());
   }
   if (opt->getFlag("de")) {
-  	printf("\t Differential Evolution selected!\n");
-  	theOptions->solver = DIFF_EVOLN_SOLVER;
+    printf("\t Differential Evolution selected!\n");
+    theOptions->solver = DIFF_EVOLN_SOLVER;
   }
   if (opt->getFlag("no-fitting")) {
-  	printf("\t No fitting will be done!\n");
-  	theOptions->solver = NO_FITTING;
+    printf("\t No fitting will be done!\n");
+    theOptions->solver = NO_FITTING;
   }
   if (opt->getValue("x1") != NULL) {
     if (NotANumber(opt->getValue("x1"), 0, kPosInt)) {

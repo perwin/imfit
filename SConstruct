@@ -199,7 +199,8 @@ testparser_objs = ["test_parser", "config_file_parser", "utilities"]
 testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 # test_commandline: put all the object and source-code lists together
-test_commandline_objs = ["test_commandline_parser", "anyoption", "utilities"]
+test_commandline_objs = ["test_commandline_parser", "anyoption", 
+			"commandline_parser", "utilities"]
 test_commandline_sources = [name + ".cpp" for name in test_commandline_objs]
 
 

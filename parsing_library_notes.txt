@@ -13,19 +13,19 @@ Allowed formats
 
 
 Mode of setup and use, based on AnyOption:
-  opt->addUsage("Usage: ");
-  opt->addUsage("   imfit [options] imagefile.fits");
+  opt->AddUsageLine("Usage: ");
+  opt->AddUsageLine("   imfit [options] imagefile.fits");
 etc.
 
   opt->PrintUsage()   // presumably called from within when "-h" encountered
 
-  opt->setFlag('q');
-  opt->setFlag("printimage");
-  opt->setFlag("help", 'h');
-  opt->setOption("noise");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("config", 'c');
+  opt->AddFlag('q');
+  opt->AddFlag("printimage");
+  opt->AddFlag("help", 'h');
+  opt->AddOption("noise");      /* an option (takes an argument), supporting only long form */
+  opt->AddOption("config", 'c');
 
-  opt->processCommandArgs( argc, argv );
+  opt->ParseCommandLine( argc, argv );
 
   /* Process the results: actual arguments, if any: */
   if (opt->getArgc() > 0) {
@@ -44,11 +44,16 @@ etc.
   }
 
 
+Other possibly useful things:
+opt->SetVerbose()  /* print warnings about unknown options */
+opt->hasOptions() -- returns false if *no* options/arguments were supplied
+	useful if one wants to trigger help printout & exit when use has
+	just entered the program name alone
+
+
 Possible error conditions for setup:
-	non-string passed as key
 	duplicate option-string
 Possible error conditions for post-parsing use:
-	non-string passed as key
 	invalid option-string
 
 
@@ -72,10 +77,10 @@ Mode of parsing operation
                   1. Extract option
                      currentOpt = optMap[trimmedString]
                   2. check if it's a flag
-                     if (currentOpt->flag == true)
+                     if (currentOpt->IsFlag())
                      if YES:
                         1. Mark option as checked
-                           currentOpt->flagSet = true
+                           currentOpt->SetFlag()
                         2. RETURN to main parsing loop
                      if NO:   [target required]
 						1. check if there *is* a next target available
@@ -86,8 +91,7 @@ Mode of parsing operation
 						      1. Get next argv[i]
 						         i++
 						      2. Store in association with option
-						         currentOpt->targetString = argv[i]
-						         currentOpt->targetSet = true
+						         currentOpt->StoreTarget(string(argv[i]))
 						      3. RETURN to main parsing loop (step 1 at top)
 
 
@@ -105,7 +109,7 @@ Option structure
 
 Might be better to make this a (lightweight) class, since then we can
 de-allocate them via "delete optionMap", where optionMap is
-map<string, *optObject>
+map<string, optObject *>
 
 
 Class: parser

@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
   	exit(-1);
  }
   
-  // Set up parameter vector(s), now that we know how total # parameters
+  // Set up parameter vector(s), now that we know total # parameters
   nParamsTot = nFreeParams = theModel->GetNParams();
   printf("%d total parameters\n", nParamsTot);
   if (nParamsTot != (int)parameterList.size()) {
@@ -362,6 +362,7 @@ int main(int argc, char *argv[])
 
 
   
+  /* START OF MINIMIZATION-ROUTINE-RELATED CODE */
   // Parameter limits and other info:
   // OK, first we create a C-style array of mp_par structures, containing parameter constraints
   // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
