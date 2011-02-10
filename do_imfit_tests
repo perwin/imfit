@@ -1,0 +1,80 @@
+# !bin/sh
+
+FAILED_TEXT=" ** Test failed. **"
+
+echo ""
+echo "Running tests for imfit..."
+# simple tests using small images
+./imfit --config tests/config_imfit_expdisk32.dat --noise uniform_image32.fits testimage_expdisk32.fits --nosubsampling &> test_dump1
+# test using cutout SDSS image
+./imfit tests/ic3478rss_32x32.fits --config tests/imfit_config_ic3478_32x32.dat --gain 4.725 --readnoise 4.3 --sky 130.1 &> test_dump2
+# same, now with gain, etc. put into config file
+./imfit tests/ic3478rss_32x32.fits --config tests/imfit_config_ic3478_32x32b.dat &> test_dump3
+
+# test non-square image + PSF convolution?
+
+#    Testing to see that bad config files are caught:
+./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump4
+./imfit --config tests/config_makeimage_sersictest512_bad2.dat &> test_dump5
+./imfit --config tests/config_makeimage_sersictest512_bad3.dat &> test_dump6
+
+echo ""
+
+echo -n "*** Diff comparison with archives: first test... "
+if (diff --brief test_dump1 tests/imfit_textout1)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump1 tests/imfit_textout1
+fi
+
+echo -n "*** Diff comparison with archives: tiny SDSS cutout image... "
+if (diff --brief test_dump2 tests/imfit_textout2)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump2 tests/imfit_textout2
+fi
+
+echo -n "*** Diff comparison with archives: tiny SDSS cutout image (take 2)... "
+if (diff --brief test_dump3 tests/imfit_textout3)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump3 tests/imfit_textout3
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 1... "
+if (diff --brief test_dump4 tests/imfit_textout4)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump4 tests/imfit_textout4
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 2... "
+if (diff --brief test_dump5 tests/imfit_textout5)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump5 tests/imfit_textout5
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 3... "
+if (diff --brief test_dump6 tests/imfit_textout6)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump6 tests/imfit_textout6
+fi
+
+
+echo ""
+echo "Done."
+echo ""

@@ -121,6 +121,7 @@ CLineParser::CLineParser( )
   ignoreUnrecognized = true;
   commandLineEmpty = true;
   verboseLevel = 0;
+  errorString1 = "<NULL>";
 }
 
 
@@ -137,7 +138,7 @@ CLineParser::~CLineParser( )
 {
 //  printf("CLineParser object being destroyed!\n");
   
-  // free the memory occupied by the OptionObject objects by calling delete
+  // free the memory occupied by the OptionObject instances by calling delete
   // on the pointers to each object
   for (int i = 0; i < (int)optObjPointers.size(); i++)
     delete optObjPointers[i];
@@ -226,7 +227,7 @@ int CLineParser::ParseCommandLine( int argc, char *argv[] )
       currentString = argv[i];
       StripLeadingDashes(currentString);
       if (currentString.size() < 1) {
-        fprintf(stderr, "WARNING: isolated \"-\" or \"--\" encountered!\n");
+        fprintf(stderr, "WARNING: isolated \"-\" or \"--\" found on command line!\n");
         return -1;
       }
       if (verboseLevel > 1)
@@ -278,7 +279,7 @@ int CLineParser::ParseCommandLine( int argc, char *argv[] )
 
 
 // Checks if associated flag was set
-bool CLineParser::IsCommandLineEmpty( )
+bool CLineParser::CommandLineEmpty( )
 {
   return commandLineEmpty;
 }
@@ -287,23 +288,38 @@ bool CLineParser::IsCommandLineEmpty( )
 
 
 // Checks if associated flag was set
-bool CLineParser::IsFlagSet( string flagName )
+bool CLineParser::FlagSet( string flagName )
 {
-  return optMap[flagName]->FlagSet();
+  if (optMap.count(flagName) > 0)
+    return optMap[flagName]->FlagSet();
+  else {
+    fprintf(stderr, "\nERROR: \"%s\" is not an assigned flag!\n", flagName.c_str());
+    return false;
+  }
 }
 
 
 // Checks if target was supplied for the associated option
-bool CLineParser::IsOptionSet( string optName )
+bool CLineParser::OptionSet( string optName )
 {
-  return optMap[optName]->TargetSet();
+  if (optMap.count(optName) > 0)
+    return optMap[optName]->TargetSet();
+  else {
+    fprintf(stderr, "\nERROR: \"%s\" is not an assigned option!\n", optName.c_str());
+    return false;
+  }
 }
 
 
 // Returns the stored target string for the associated option
 string& CLineParser::GetTargetString( string optName )
 {
-  return optMap[optName]->GetTargetString();
+  if (optMap.count(optName) > 0)
+    return optMap[optName]->GetTargetString();
+  else {
+    fprintf(stderr, "\nERROR: \"%s\" is not an assigned option!\n", optName.c_str());
+    return errorString1;
+  }
 }
 
 

@@ -30,7 +30,7 @@
 #include "param_struct.h"   // for mp_par structure
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
 #include "diff_evoln_fit.h"
-#include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
+#include "commandline_parser.h"
 #include "config_file_parser.h"
 //#include "statistics.h"
 #include "print_results.h"
@@ -499,198 +499,195 @@ int main(int argc, char *argv[])
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 {
 
-  AnyOption *opt = new AnyOption();
-  opt->setVerbose(); /* print warnings about unknown options */
-  //opt->autoUsagePrint(true); /* print usage for bad options */
+  CLineParser *optParser = new CLineParser();
 
   /* SET THE USAGE/HELP   */
-  opt->addUsage("Usage: ");
-  opt->addUsage("   imfit [options] imagefile.fits");
-  opt->addUsage(" -h  --help                   Prints this help");
-  opt->addUsage("     --list-functions         Prints list of available functions (components)");
-  opt->addUsage("     --chisquare-only         Print chi^2 of input model and quit");
-  opt->addUsage(" -c  --config <config-file>   configuration file");
-  opt->addUsage("     --de                     Use differential evolution solver instead of L-M");
-  opt->addUsage("     --noise <noisemap.fits>  Noise image");
-  opt->addUsage("     --mask <mask.fits>       Mask image");
-  opt->addUsage("     --psf <psf.fits>         PSF image");
-  opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
-  opt->addUsage("     --save-params <output-file>          Save best-fit parameters in config-file format");
-  opt->addUsage("     --save-model <outputname.fits>       Save best-fit model image");
-  opt->addUsage("     --save-residual <outputname.fits>       Save residual (input - model) image");
-  opt->addUsage("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
-  opt->addUsage("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
-  opt->addUsage("     --gain <value>           Image gain (e-/ADU)");
-  opt->addUsage("     --readnoise <value>      Image read noise (e-)");
-  opt->addUsage("     --ncombined <value>      Number of images averaged to make final image (if counts are average or median)");
-  opt->addUsage("     --errors-are-variances   Indicates that values in noise image = variances (instead of sigmas)");
-  opt->addUsage("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
-  opt->addUsage("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
-  opt->addUsage("");
-  opt->addUsage("     --quiet                  Turn off printing of mpfit interation updates");
-//  opt->addUsage("     --printimage             Print out images (for debugging)");
-  opt->addUsage("");
+  optParser->AddUsageLine("Usage: ");
+  optParser->AddUsageLine("   imfit [options] imagefile.fits");
+  optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
+  optParser->AddUsageLine("     --chisquare-only         Print chi^2 of input model and quit");
+  optParser->AddUsageLine(" -c  --config <config-file>   configuration file");
+  optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
+  optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image");
+  optParser->AddUsageLine("     --mask <mask.fits>       Mask image");
+  optParser->AddUsageLine("     --psf <psf.fits>         PSF image");
+  optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
+  optParser->AddUsageLine("     --save-params <output-file>          Save best-fit parameters in config-file format");
+  optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
+  optParser->AddUsageLine("     --save-residual <outputname.fits>       Save residual (input - model) image");
+  optParser->AddUsageLine("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
+  optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
+  optParser->AddUsageLine("     --gain <value>           Image gain (e-/ADU)");
+  optParser->AddUsageLine("     --readnoise <value>      Image read noise (e-)");
+  optParser->AddUsageLine("     --ncombined <value>      Number of images averaged to make final image (if counts are average or median)");
+  optParser->AddUsageLine("     --errors-are-variances   Indicates that values in noise image = variances (instead of sigmas)");
+  optParser->AddUsageLine("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
+  optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --quiet                  Turn off printing of mpfit interation updates");
+//  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
+  optParser->AddUsageLine("");
 
 
   /* by default all options are checked on the command line and from option/resource file */
-  opt->setFlag('q');
-  opt->setFlag("help", 'h');
-  opt->setFlag("list-functions");
-  opt->setFlag("printimage");
-  opt->setFlag("chisquare-only");
-  opt->setFlag("de");
-  opt->setFlag("use-headers");
-  opt->setFlag("errors-are-variances");
-  opt->setFlag("errors-are-weights");
-  opt->setFlag("mask-zero-is-bad");
-  opt->setFlag("nosubsampling");
-  opt->setFlag("quiet");
-  opt->setOption("noise");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("mask");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("save-params");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("save-model");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("save-residual");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("sky");        /* an option (takes an argument), supporting only long form */
-  opt->setOption("gain");        /* an option (takes an argument), supporting only long form */
-  opt->setOption("readnoise");        /* an option (takes an argument), supporting only long form */
-  opt->setOption("ncombined");        /* an option (takes an argument), supporting only long form */
-  opt->setOption("config", 'c');
+  optParser->AddFlag("help", "h");
+  optParser->AddFlag("list-functions");
+  optParser->AddFlag("printimage");
+  optParser->AddFlag("chisquare-only");
+  optParser->AddFlag("de");
+  optParser->AddFlag("use-headers");
+  optParser->AddFlag("errors-are-variances");
+  optParser->AddFlag("errors-are-weights");
+  optParser->AddFlag("mask-zero-is-bad");
+  optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("quiet");
+  optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("mask");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("save-params");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("save-model");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("save-residual");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("sky");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("gain");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("readnoise");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("ncombined");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("config", "c");
 
   /* parse the command line:  */
-  opt->processCommandArgs( argc, argv );
+  int status = optParser->ParseCommandLine( argc, argv );
+  if (status < 0) {
+    printf("\nError on command line... quitting...\n\n");
+    delete optParser;
+    exit(1);
+  }
 
 
   /* Process the results: actual arguments, if any: */
-  if (opt->getArgc() > 0) {
-    theOptions->imageFileName = opt->getArgv(0);
+  if (optParser->nArguments() > 0) {
+    theOptions->imageFileName = optParser->GetArgument(0);
     theOptions->noImage = false;
     printf("\tImage file = %s\n", theOptions->imageFileName.c_str());
   }
 
   /* Process the results: options */
   // First two are options which print useful info and then exit the program
-  if ( opt->getFlag('q') ) {
-  	printf("\n\nimfit_main: q option found!\n\n");
-    delete opt;
+  if ( optParser->FlagSet("help") || optParser->CommandLineEmpty() ) {
+    optParser->PrintUsage();
+    delete optParser;
     exit(1);
   }
-  if ( opt->getFlag("help") || opt->getFlag('h') || (! opt->hasOptions()) ) {
-    opt->printUsage();
-    delete opt;
-    exit(1);
-  }
-  if (opt->getFlag("list-functions")) {
+  if (optParser->FlagSet("list-functions")) {
     PrintAvailableFunctions();
-    delete opt;
+    delete optParser;
     exit(1);
   }
 
-  if (opt->getFlag("printimage")) {
+  if (optParser->FlagSet("printimage")) {
     theOptions->printImages = true;
   }
-  if (opt->getFlag("chisquare-only")) {
+  if (optParser->FlagSet("chisquare-only")) {
     printf("\t No fitting will be done!\n");
     theOptions->printChiSquaredOnly = true;
   }
-  if (opt->getFlag("de")) {
+  if (optParser->FlagSet("de")) {
   	printf("\t Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
   }
-  if (opt->getFlag("nosubsampling")) {
+  if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;
   }
-  if (opt->getFlag("quiet")) {
+  if (optParser->FlagSet("quiet")) {
     theOptions->verbose = false;
   }
-  if (opt->getFlag("use-header")) {
+  if (optParser->FlagSet("use-headers")) {
     theOptions->useImageHeader = true;
   }
-  if (opt->getFlag("errors-are-variances")) {
+  if (optParser->FlagSet("errors-are-variances")) {
     theOptions->errorType = WEIGHTS_ARE_VARIANCES;
   }
-  if (opt->getFlag("errors-are-weights")) {
+  if (optParser->FlagSet("errors-are-weights")) {
     theOptions->errorType = WEIGHTS_ARE_WEIGHTS;
   }
-  if (opt->getFlag("mask-zero-is-bad")) {
+  if (optParser->FlagSet("mask-zero-is-bad")) {
     theOptions->maskFormat = MASK_ZERO_IS_BAD;
   }
-  if (opt->getValue("config") != NULL) {
-    theOptions->configFileName = opt->getValue("config");
+  if (optParser->OptionSet("config")) {
+    theOptions->configFileName = optParser->GetTargetString("config");
     printf("\tconfiguration file = %s\n", theOptions->configFileName.c_str());
   }
-  if (opt->getValue("noise") != NULL) {
-    theOptions->noiseFileName = opt->getValue("noise");
+  if (optParser->OptionSet("noise")) {
+    theOptions->noiseFileName = optParser->GetTargetString("noise");
     theOptions->noiseImagePresent = true;
     printf("\tnoise image = %s\n", theOptions->noiseFileName.c_str());
   }
-  if (opt->getValue("psf") != NULL) {
-    theOptions->psfFileName = opt->getValue("psf");
+  if (optParser->OptionSet("psf")) {
+    theOptions->psfFileName = optParser->GetTargetString("psf");
     theOptions->psfImagePresent = true;
     printf("\tPSF image = %s\n", theOptions->psfFileName.c_str());
   }
-  if (opt->getValue("mask") != NULL) {
-    theOptions->maskFileName = opt->getValue("mask");
+  if (optParser->OptionSet("mask")) {
+    theOptions->maskFileName = optParser->GetTargetString("mask");
     theOptions->maskImagePresent = true;
     printf("\tmask image = %s\n", theOptions->maskFileName.c_str());
   }
-  if (opt->getValue("save-model") != NULL) {
-    theOptions->outputModelFileName = opt->getValue("save-model");
+  if (optParser->OptionSet("save-model")) {
+    theOptions->outputModelFileName = optParser->GetTargetString("save-model");
     theOptions->saveModel = true;
     printf("\toutput best-fit model image = %s\n", theOptions->outputModelFileName.c_str());
   }
-  if (opt->getValue("save-residual") != NULL) {
-    theOptions->outputResidualFileName = opt->getValue("save-residual");
+  if (optParser->OptionSet("save-residual")) {
+    theOptions->outputResidualFileName = optParser->GetTargetString("save-residual");
     theOptions->saveResidualImage = true;
     printf("\toutput residual (input - model) image = %s\n", theOptions->outputResidualFileName.c_str());
   }
-  if (opt->getValue("save-params") != NULL) {
-    theOptions->outputParameterFileName = opt->getValue("save-params");
+  if (optParser->OptionSet("save-params")) {
+    theOptions->outputParameterFileName = optParser->GetTargetString("save-params");
     theOptions->saveBestFitParams = true;
     printf("\toutput best-fit parameter file = %s\n", theOptions->outputParameterFileName.c_str());
   }
-  if (opt->getValue("sky") != NULL) {
-    if (NotANumber(opt->getValue("sky"), 0, kAnyReal)) {
+  if (optParser->OptionSet("sky")) {
+    if (NotANumber(optParser->GetTargetString("sky").c_str(), 0, kAnyReal)) {
       fprintf(stderr, "*** WARNING: sky should be a real number!\n");
-      delete opt;
+      delete optParser;
       exit(1);
     }
-    theOptions->originalSky = atof(opt->getValue("sky"));
+    theOptions->originalSky = atof(optParser->GetTargetString("sky").c_str());
     theOptions->originalSkySet = true;
     printf("\toriginal sky level = %g ADU\n", theOptions->originalSky);
   }
-  if (opt->getValue("gain") != NULL) {
-    if (NotANumber(opt->getValue("gain"), 0, kPosReal)) {
+  if (optParser->OptionSet("gain")) {
+    if (NotANumber(optParser->GetTargetString("gain").c_str(), 0, kPosReal)) {
       fprintf(stderr, "*** WARNING: gain should be a positive real number!\n");
-      delete opt;
+      delete optParser;
       exit(1);
     }
-    theOptions->gain = atof(opt->getValue("gain"));
+    theOptions->gain = atof(optParser->GetTargetString("gain").c_str());
     theOptions->gainSet = true;
     printf("\tgain = %g e-/ADU\n", theOptions->gain);
   }
-  if (opt->getValue("readnoise") != NULL) {
-    if (NotANumber(opt->getValue("readnoise"), 0, kPosReal)) {
+  if (optParser->OptionSet("readnoise")) {
+    if (NotANumber(optParser->GetTargetString("readnoise").c_str(), 0, kPosReal)) {
       fprintf(stderr, "*** WARNING: read noise should be a non-negative real number!\n");
-      delete opt;
+      delete optParser;
       exit(1);
     }
-    theOptions->readNoise = atof(opt->getValue("readnoise"));
+    theOptions->readNoise = atof(optParser->GetTargetString("readnoise").c_str());
     theOptions->readNoiseSet = true;
     printf("\tread noise = %g e-\n", theOptions->readNoise);
   }
-  if (opt->getValue("ncombined") != NULL) {
-    if (NotANumber(opt->getValue("ncombined"), 0, kPosInt)) {
+  if (optParser->OptionSet("ncombined")) {
+    if (NotANumber(optParser->GetTargetString("ncombined").c_str(), 0, kPosInt)) {
       fprintf(stderr, "*** WARNING: ncombined should be a positive integer!\n");
-      delete opt;
+      delete optParser;
       exit(1);
     }
-    theOptions->nCombined = atoi(opt->getValue("ncombined"));
+    theOptions->nCombined = atoi(optParser->GetTargetString("ncombined").c_str());
     theOptions->nCombinedSet = true;
     printf("\tn_combined = %d\n", theOptions->nCombined);
   }
 
-  delete opt;
+  delete optParser;
 
 }
 

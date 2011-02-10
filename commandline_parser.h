@@ -62,9 +62,9 @@ class CLineParser
     void AddOption( string shortOptString, string longOptString );
     void AddUsageLine( string usageLine );
     int ParseCommandLine( int argc, char *argv[] );
-    bool IsCommandLineEmpty( );
-    bool IsFlagSet( string flagName );
-    bool IsOptionSet( string optName );
+    bool CommandLineEmpty( );
+    bool FlagSet( string flagName );
+    bool OptionSet( string optName );
     string& GetTargetString( string optName );
     int nArguments( );
     string& GetArgument( int n );
@@ -81,6 +81,7 @@ class CLineParser
   bool  commandLineEmpty;        // true if user supplied *no* options/flags *or* arguments
   bool  ignoreUnrecognized;      // if we encounter an unrecognized option/flag, do we
                                  // ignore it (= just print a warning & continue processing)?
+  string  errorString1;
 };
 
 

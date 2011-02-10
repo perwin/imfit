@@ -133,7 +133,7 @@ public:
     
     testParser = new CLineParser();
 
-    TS_ASSERT( testParser->IsCommandLineEmpty() == true );
+    TS_ASSERT( testParser->CommandLineEmpty() == true );
   }
 
 
@@ -146,10 +146,10 @@ public:
     testParser = new CLineParser();
 
     testParser->AddFlag("b");
-    TS_ASSERT( testParser->IsFlagSet("b") == false );
+    TS_ASSERT( testParser->FlagSet("b") == false );
     testParser->AddFlag("z", "zeta");
-    TS_ASSERT( testParser->IsFlagSet("z") == false );
-    TS_ASSERT( testParser->IsFlagSet("zeta") == false );
+    TS_ASSERT( testParser->FlagSet("z") == false );
+    TS_ASSERT( testParser->FlagSet("zeta") == false );
   }
 
 
@@ -162,10 +162,27 @@ public:
     testParser = new CLineParser();
 
     testParser->AddOption("x");
-    TS_ASSERT( testParser->IsOptionSet("x") == false );
+    TS_ASSERT( testParser->OptionSet("x") == false );
     testParser->AddOption("c", "config");
-    TS_ASSERT( testParser->IsOptionSet("c") == false );
-    TS_ASSERT( testParser->IsOptionSet("config") == false );
+    TS_ASSERT( testParser->OptionSet("c") == false );
+    TS_ASSERT( testParser->OptionSet("config") == false );
+  }
+
+
+  // Test that we catch erroneous flag names
+  void testCLineParser_CheckBadNames( void )
+  {
+    CLineParser *testParser;
+    OptionObject *optionObj;
+    
+    testParser = new CLineParser();
+
+    testParser->AddFlag("x");
+    TS_ASSERT( testParser->FlagSet("x") == false );
+    // OK, now try it with an incorrect name
+    TS_ASSERT( testParser->FlagSet("qq") == false );
+    
+
   }
 
 
@@ -183,7 +200,7 @@ public:
 
     status = testParser->ParseCommandLine(argc, argv);
     TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->IsCommandLineEmpty() == true );
+    TS_ASSERT( testParser->CommandLineEmpty() == true );
   }
 
 
@@ -224,15 +241,15 @@ public:
     testParser->AddFlag("b");
     testParser->AddOption("x");
 
-    TS_ASSERT( testParser->IsFlagSet("a") == false );
-    TS_ASSERT( testParser->IsFlagSet("b") == false );
-    TS_ASSERT( testParser->IsOptionSet("x") == false );
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == false );
+    TS_ASSERT( testParser->OptionSet("x") == false );
     status = testParser->ParseCommandLine(argc, argv);
     TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->IsCommandLineEmpty() == false );
-    TS_ASSERT( testParser->IsFlagSet("a") == false );
-    TS_ASSERT( testParser->IsFlagSet("b") == true );
-    TS_ASSERT( testParser->IsOptionSet("x") == false );
+    TS_ASSERT( testParser->CommandLineEmpty() == false );
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == true );
+    TS_ASSERT( testParser->OptionSet("x") == false );
   }
 
 
@@ -250,15 +267,15 @@ public:
     testParser->AddFlag("b");
     testParser->AddOption("x");
 
-    TS_ASSERT( testParser->IsFlagSet("a") == false );
-    TS_ASSERT( testParser->IsFlagSet("b") == false );
-    TS_ASSERT( testParser->IsOptionSet("x") == false );
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == false );
+    TS_ASSERT( testParser->OptionSet("x") == false );
     status = testParser->ParseCommandLine(argc, argv);
     TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->IsCommandLineEmpty() == false );
-    TS_ASSERT( testParser->IsFlagSet("a") == false );
-    TS_ASSERT( testParser->IsFlagSet("b") == false );
-    TS_ASSERT( testParser->IsOptionSet("x") == true );
+    TS_ASSERT( testParser->CommandLineEmpty() == false );
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == false );
+    TS_ASSERT( testParser->OptionSet("x") == true );
     // check that we correctly stored the target
     targetString = testParser->GetTargetString("x");
     TS_ASSERT( targetString == "target_for_x" );
@@ -279,15 +296,15 @@ public:
     testParser->AddFlag("b");
     testParser->AddOption("x");
 
-    TS_ASSERT( testParser->IsFlagSet("a") == false );
-    TS_ASSERT( testParser->IsFlagSet("b") == false );
-    TS_ASSERT( testParser->IsOptionSet("x") == false );
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == false );
+    TS_ASSERT( testParser->OptionSet("x") == false );
     status = testParser->ParseCommandLine(argc, argv);
     TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->IsCommandLineEmpty() == false );
-    TS_ASSERT( testParser->IsFlagSet("a") == false );
-    TS_ASSERT( testParser->IsFlagSet("b") == true );
-    TS_ASSERT( testParser->IsOptionSet("x") == true );
+    TS_ASSERT( testParser->CommandLineEmpty() == false );
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == true );
+    TS_ASSERT( testParser->OptionSet("x") == true );
     // check that we correctly stored the target
     targetString = testParser->GetTargetString("x");
     TS_ASSERT( targetString == "target_for_x" );
@@ -342,9 +359,9 @@ public:
     status = testParser->ParseCommandLine(argc, argv);
     TS_ASSERT( status == 0 );
     // check that flags and options were caught
-    TS_ASSERT( testParser->IsFlagSet("a") == false );
-    TS_ASSERT( testParser->IsFlagSet("b") == true );
-    TS_ASSERT( testParser->IsOptionSet("x") == true );
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == true );
+    TS_ASSERT( testParser->OptionSet("x") == true );
     // check that we correctly stored the target
     targetString = testParser->GetTargetString("x");
     TS_ASSERT( targetString == "target_for_x" );

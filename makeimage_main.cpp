@@ -21,7 +21,7 @@
 #include "image_io.h"
 #include "model_object.h"
 #include "add_functions.h"
-#include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
+#include "commandline_parser.h"
 #include "config_file_parser.h"
 #include "utilities_pub.h"
 
@@ -260,106 +260,109 @@ int main(int argc, char *argv[])
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 {
 
-  AnyOption *opt = new AnyOption();
-  //opt->setVerbose(); /* print warnings about unknown options */
-  //opt->autoUsagePrint(true); /* print usage for bad options */
+  CLineParser *optParser = new CLineParser();
 
   /* SET THE USAGE/HELP   */
-  opt->addUsage("Usage: ");
-  opt->addUsage("   makeimage [options] config-file");
-  opt->addUsage(" -h  --help                   Prints this help");
-  opt->addUsage("     --list-functions         Prints list of available functions (components)");
-  opt->addUsage(" -o  --output <output-image.fits>        name for output image");
-  opt->addUsage("     --refimage <reference-image.fits>   reference image (for image size)");
-  opt->addUsage("     --psf <psf.fits>         PSF image (for convolution)");
-  opt->addUsage("     --ncols <number-of-columns>   x-size of output image");
-  opt->addUsage("     --nrows <number-of-rows>   y-size of output image");
-  opt->addUsage("     --nosubsampling          Do *not* do pixel subsampling near centers");
-  opt->addUsage("     --printimage             Print out images (for debugging)");
-  opt->addUsage("     --nosave                 Do *not* save image (for testing)");
-  opt->addUsage("");
+  optParser->AddUsageLine("Usage: ");
+  optParser->AddUsageLine("   makeimage [options] config-file");
+  optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
+  optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image");
+  optParser->AddUsageLine("     --refimage <reference-image.fits>   reference image (for image size)");
+  optParser->AddUsageLine("     --psf <psf.fits>         PSF image (for convolution)");
+  optParser->AddUsageLine("     --ncols <number-of-columns>   x-size of output image");
+  optParser->AddUsageLine("     --nrows <number-of-rows>   y-size of output image");
+  optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
+  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
+  optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing)");
+  optParser->AddUsageLine("");
 
 
   /* by default all options are checked on the command line and from option/resource file */
-  opt->setFlag("help", 'h');
-  opt->setFlag("list-functions");
-  opt->setFlag("printimage");
-  opt->setFlag("nosubsampling");
-  opt->setFlag("nosave");
-  opt->setOption("output", 'o');      /* an option (takes an argument) */
-  opt->setOption("ncols");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("nrows");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("refimage");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
+  optParser->AddFlag("help", "h");
+  optParser->AddFlag("list-functions");
+  optParser->AddFlag("printimage");
+  optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("nosave");
+  optParser->AddOption("output", "o");      /* an option (takes an argument) */
+  optParser->AddOption("ncols");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("nrows");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("refimage");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
 
   /* parse the command line:  */
-  opt->processCommandArgs( argc, argv );
+  int status = optParser->ParseCommandLine( argc, argv );
+  if (status < 0) {
+    printf("\nError on command line... quitting...\n\n");
+    delete optParser;
+    exit(1);
+  }
 
 
   /* Process the results: actual arguments, if any: */
-  if (opt->getArgc() > 0) {
-    theOptions->configFileName = opt->getArgv(0);
+  if (optParser->nArguments() > 0) {
+    theOptions->configFileName = optParser->GetArgument(0);
     theOptions->noConfigFile = false;
   }
 
   /* Process the results: options */
   // First two are options which print useful info and then exit the program
-  if ( opt->getFlag("help") || opt->getFlag('h') || (! opt->hasOptions()) ) {
-    opt->printUsage();
-    delete opt;
+  if ( optParser->FlagSet("help") || optParser->CommandLineEmpty() ) {
+    optParser->PrintUsage();
+    delete optParser;
     exit(1);
   }
-  if (opt->getFlag("list-functions")) {
+  if (optParser->FlagSet("list-functions")) {
     PrintAvailableFunctions();
-    delete opt;
+    delete optParser;
     exit(1);
   }
 
-  if (opt->getFlag("printimage")) {
+  if (optParser->FlagSet("printimage")) {
     theOptions->printImages = true;
   }
-  if (opt->getFlag("nosubsampling")) {
+  if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;
   }
-  if (opt->getFlag("nosave")) {
+  if (optParser->FlagSet("nosave")) {
     theOptions->saveImage = false;
   }
-  if (opt->getValue("output") != NULL) {
-    theOptions->outputImageName = opt->getValue("output");
+  if (optParser->OptionSet("output")) {
+    theOptions->outputImageName = optParser->GetTargetString("output");
     theOptions->noImageName = false;
   }
-  if (opt->getValue("refimage") != NULL) {
-    theOptions->referenceImageName = opt->getValue("refimage");
+  if (optParser->OptionSet("refimage")) {
+    theOptions->referenceImageName = optParser->GetTargetString("refimage");
     theOptions->noRefImage = false;
   }
-  if (opt->getValue("psf") != NULL) {
-    theOptions->psfFileName = opt->getValue("psf");
+  if (optParser->OptionSet("psf")) {
+    theOptions->psfFileName = optParser->GetTargetString("psf");
     theOptions->psfImagePresent = true;
     printf("\tPSF image = %s\n", theOptions->psfFileName.c_str());
   }
-  if (opt->getValue("ncols") != NULL) {
-    if (NotANumber(opt->getValue("ncols"), 0, kPosInt)) {
-      fprintf(stderr, "*** WARNING: ncols should be a positive integer!\n");
-      delete opt;
+  if (optParser->OptionSet("ncols")) {
+    if (NotANumber(optParser->GetTargetString("ncols").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** WARNING: ncols should be a positive integer!\n\n");
+      delete optParser;
       exit(1);
     }
-    theOptions->nColumns = atol(opt->getValue("ncols"));
+    theOptions->nColumns = atol(optParser->GetTargetString("ncols").c_str());
     theOptions->nColumnsSet = true;
   }
-  if (opt->getValue("nrows") != NULL) {
-    if (NotANumber(opt->getValue("nrows"), 0, kPosInt)) {
-      fprintf(stderr, "*** WARNING: nrows should be a positive integer!\n");
-      delete opt;
+  if (optParser->OptionSet("nrows")) {
+    if (NotANumber(optParser->GetTargetString("nrows").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** WARNING: nrows should be a positive integer!\n\n");
+      delete optParser;
       exit(1);
     }
-    theOptions->nRows = atol(opt->getValue("nrows"));
+    theOptions->nRows = atol(optParser->GetTargetString("nrows").c_str());
     theOptions->nRowsSet = true;
   }
 
   if ((theOptions->nColumns) && (theOptions->nRows))
     theOptions->noImageDimensions = false;
   
-  delete opt;
+  delete optParser;
 
 }
 

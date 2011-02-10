@@ -141,7 +141,7 @@ functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 
 # Base files for imfit:
-imfit_base_obj_string = """utilities anyoption image_io mpfit diff_evoln_fit DESolver
+imfit_base_obj_string = """commandline_parser utilities image_io mpfit diff_evoln_fit DESolver
 		config_file_parser add_functions print_results imfit_main"""
 imfit_base_objs = imfit_base_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
@@ -154,7 +154,7 @@ profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
 # Base files for makeimage:
-makeimage_base_obj_string = """anyoption utilities image_io config_file_parser 
+makeimage_base_obj_string = """commandline_parser utilities image_io config_file_parser 
 			add_functions makeimage_main"""
 makeimage_base_objs = makeimage_base_obj_string.split()
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
