@@ -147,7 +147,7 @@ imfit_base_objs = imfit_base_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
 # Base files for profilefit:
-profilefit_base_obj_string = """utilities anyoption mpfit diff_evoln_fit DESolver
+profilefit_base_obj_string = """utilities commandline_parser mpfit diff_evoln_fit DESolver
 		read_profile config_file_parser add_functions_1d print_results 
 		convolver convolver1d profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
@@ -187,7 +187,7 @@ readimage_sources = ["readimage_main.cpp", "image_io.cpp"]
 
 # psfconvolve: put all the object and source-code lists together
 #psfconvolve_sources_old = ["psfconvolve_main_old.cpp", "anyoption.cpp", "image_io.cpp"]
-psfconvolve_objs = ["psfconvolve_main", "anyoption", "image_io", "convolver"]
+psfconvolve_objs = ["psfconvolve_main", "anyoption", "commandline_parser", "image_io", "convolver"]
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
 # psfconvolve1d: put all the object and source-code lists together

@@ -37,6 +37,13 @@ public:
     correctResult3.push_back("now");
     SplitString(s3, s3_split);
     TS_ASSERT( s3_split == correctResult3 );
+
+    string  s4 = "onelongword";
+    vector<string>  s4_split;
+    vector<string>  correctResult4;
+    correctResult4.push_back("onelongword");
+    SplitString(s4, s4_split);
+    TS_ASSERT( s4_split == correctResult4 );
   }
 
   void testSplitString_csv( void )

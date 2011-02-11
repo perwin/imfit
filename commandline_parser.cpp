@@ -14,8 +14,11 @@
 #include <map>
 
 #include "commandline_parser.h"
+#include "utilities_pub.h"
 
 using namespace std;
+
+//const char  *equalsSign = "=";
 
 
 /* UTILITY FUNCTIONS */
@@ -213,6 +216,7 @@ void CLineParser::AddUsageLine( string usageLine )
 int CLineParser::ParseCommandLine( int argc, char *argv[] )
 {
   string  currentString;
+  vector<string>  stringPieces;
   OptionObject  *currentOpt;
   int  i;
   
@@ -232,9 +236,11 @@ int CLineParser::ParseCommandLine( int argc, char *argv[] )
       }
       if (verboseLevel > 1)
         printf("\tflag or option: %s\n", currentString.c_str());
-      if (optMap.count(currentString) > 0) {
+      // chop the string up if there's an "=" in the middle
+      SplitString(currentString, stringPieces, "=");
+      if (optMap.count(stringPieces[0]) > 0) {
         // OK, this is a valid flag or option
-        currentOpt = optMap[currentString];
+        currentOpt = optMap[stringPieces[0]];
         if (currentOpt->IsFlag()) {
           // It's a flag, so set it
           currentOpt->SetFlag();
@@ -242,18 +248,25 @@ int CLineParser::ParseCommandLine( int argc, char *argv[] )
         }
         else {
           // It's an option with a target
-          if ((i + 1) < argc) {
-            i++;
-            // OPTION: check if target starts with "-" and warn user
-            currentOpt->StoreTarget(argv[i]);
-            if (verboseLevel > 1)
-              printf("\tstoring target \"%s\"...\n", argv[i]);
+          // check for "=" format
+          if (stringPieces.size() > 1) {
+            currentOpt->StoreTarget(stringPieces[1].c_str());
+            continue;
           }
-          else {
-            // we need a target for this option, but we've run out of command-line!
-            fprintf(stderr, "WARNING: option \"%s\" expects a following argument!\n",
-                    argv[i]);
-            return -1;
+          else {   // no equals sign, so should be "-opt target" format
+            if ((i + 1) < argc) {
+              i++;
+              // OPTION: check if target starts with "-" and warn user
+              currentOpt->StoreTarget(argv[i]);
+              if (verboseLevel > 1)
+                printf("\tstoring target \"%s\"...\n", argv[i]);
+            }
+            else {
+              // we need a target for this option, but we've run out of command-line!
+              fprintf(stderr, "WARNING: option \"%s\" expects a following argument!\n",
+                      argv[i]);
+              return -1;
+            }
           }
         }
       }

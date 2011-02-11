@@ -1,7 +1,7 @@
 // Unit tests for code in commandline_parser.cpp
 
 // $ cxxtestgen.py --error-printer -o test_runner.cpp unittest_commandline_parser.h
-// $ g++ -Wno-write-strings -o test_runner test_runner.cpp commandline_parser.cpp -I/usr/local/include
+// $ g++ -Wno-write-strings -o test_runner test_runner.cpp commandline_parser.cpp utilities.cpp -I/usr/local/include
 //
 // [the "-Wno-write-strings" is to suppress warnings when we create and use the
 // argv c-string arrays]
@@ -258,6 +258,35 @@ public:
   {
     int  argc = 3;
     char  *argv[] = {"progName", "-x", "target_for_x"};
+    int  status;
+    string  targetString;
+    CLineParser  *testParser;
+    
+    testParser = new CLineParser();
+    testParser->AddFlag("a");
+    testParser->AddFlag("b");
+    testParser->AddOption("x");
+
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == false );
+    TS_ASSERT( testParser->OptionSet("x") == false );
+    status = testParser->ParseCommandLine(argc, argv);
+    TS_ASSERT( status == 0 );
+    TS_ASSERT( testParser->CommandLineEmpty() == false );
+    TS_ASSERT( testParser->FlagSet("a") == false );
+    TS_ASSERT( testParser->FlagSet("b") == false );
+    TS_ASSERT( testParser->OptionSet("x") == true );
+    // check that we correctly stored the target
+    targetString = testParser->GetTargetString("x");
+    TS_ASSERT( targetString == "target_for_x" );
+  }
+
+
+  // Test that we correctly process a command line with one option, using "="
+  void testCLineParser_ParseSimpleOption_with_equals( void )
+  {
+    int  argc = 2;
+    char  *argv[] = {"progName", "-x=target_for_x"};
     int  status;
     string  targetString;
     CLineParser  *testParser;

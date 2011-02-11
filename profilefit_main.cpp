@@ -28,9 +28,8 @@
 #include "param_struct.h"   // for mp_par structure
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
 #include "diff_evoln_fit.h"
-#include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
+#include "commandline_parser.h"
 #include "config_file_parser.h"
-//#include "statistics.h"
 #include "print_results.h"
 
 
@@ -92,6 +91,7 @@ typedef struct {
 
 /* Local Functions: */
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
+//void ProcessInputOld( int argc, char *argv[], commandOptions *theOptions );
 int myfunc( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *aModel );
 
@@ -437,133 +437,129 @@ int main(int argc, char *argv[])
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 {
 
-  AnyOption *opt = new AnyOption();
-  //opt->setVerbose(); /* print warnings about unknown options */
-  //opt->autoUsagePrint(true); /* print usage for bad options */
+  CLineParser *optParser = new CLineParser();
 
   /* SET THE USAGE/HELP   */
-  opt->addUsage("Usage: ");
-  opt->addUsage("   profilefit [options] datafile configfile");
-  opt->addUsage(" -h  --help                   Prints this help");
-  opt->addUsage(" --useerrors                  Use errors from data file (3rd column)");
-  opt->addUsage(" --usemask                    Use mask from data file (4th column)");
-  opt->addUsage(" --intensities                Data y-values are intensities, not magnitudes");
-  opt->addUsage(" --psf <psf_file>             PSF profile (centered on middle row, y-values = intensities)");
-  opt->addUsage(" --de                         Solve using differential evolution");
-  opt->addUsage(" --no-fitting                 Don't do fitting (just save input model)");
-  opt->addUsage(" --x1 <int>                   start data value");
-  opt->addUsage(" --x2 <int>                   end data value");
-  opt->addUsage(" --zp <float>                 magnitude zero point of the data");
-  opt->addUsage(" --save-params <output-file>  Save best-fit parameters in config-file format");
-  opt->addUsage(" --save-best-fit <output-file>  Save best-fit profile");
-  opt->addUsage("");
+  optParser->AddUsageLine("Usage: ");
+  optParser->AddUsageLine("   profilefit [options] datafile configfile");
+  optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine(" --useerrors                  Use errors from data file (3rd column)");
+  optParser->AddUsageLine(" --usemask                    Use mask from data file (4th column)");
+  optParser->AddUsageLine(" --intensities                Data y-values are intensities, not magnitudes");
+  optParser->AddUsageLine(" --psf <psf_file>             PSF profile (centered on middle row, y-values = intensities)");
+  optParser->AddUsageLine(" --de                         Solve using differential evolution");
+  optParser->AddUsageLine(" --no-fitting                 Don't do fitting (just save input model)");
+  optParser->AddUsageLine(" --x1 <int>                   start data value");
+  optParser->AddUsageLine(" --x2 <int>                   end data value");
+  optParser->AddUsageLine(" --zp <float>                 magnitude zero point of the data");
+  optParser->AddUsageLine(" --save-params <output-file>  Save best-fit parameters in config-file format");
+  optParser->AddUsageLine(" --save-best-fit <output-file>  Save best-fit profile");
+  optParser->AddUsageLine("");
 
 
   /* by default all options are checked on the command line and from option/resource file */
-  opt->setFlag("help", 'h');
-  opt->setFlag("useerrors");
-  opt->setFlag("usemask");
-  opt->setFlag("intensities");
-  opt->setOption("psf");      /* an option (takes an argument), supporting only long form */
-  opt->setFlag("de");
-  opt->setFlag("no-fitting");
-  opt->setOption("x1");      /* an option (takes an argument), supporting only long form */
-  opt->setOption("x2");        /* an option (takes an argument), supporting only long form */
-  opt->setOption("zp");        /* an option (takes an argument), supporting only long form */
-  opt->setOption("save-params");
-  opt->setOption("save-best-fit");
+  optParser->AddFlag("help", "h");
+  optParser->AddFlag("useerrors");
+  optParser->AddFlag("usemask");
+  optParser->AddFlag("intensities");
+  optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
+  optParser->AddFlag("de");
+  optParser->AddFlag("no-fitting");
+  optParser->AddOption("x1");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("x2");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("zp");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("save-params");
+  optParser->AddOption("save-best-fit");
   
   /* parse the command line:  */
-  opt->processCommandArgs( argc, argv );
+  optParser->ParseCommandLine( argc, argv );
 
 
   /* Process the results: actual arguments, if any: */
-  if (opt->getArgc() > 0) {
-    theOptions->dataFileName = opt->getArgv(0);
+  if (optParser->nArguments() > 0) {
+    theOptions->dataFileName = optParser->GetArgument(0);
     theOptions->noDataFile = false;
     printf("\tdata file = %s\n", theOptions->dataFileName.c_str());
   }
-  if (opt->getArgc() > 1) {
-    theOptions->configFileName = opt->getArgv(1);
+  if (optParser->nArguments() > 1) {
+    theOptions->configFileName = optParser->GetArgument(1);
     theOptions->noConfigFile = false;
     printf("\tconfig file = %s\n", theOptions->configFileName.c_str());
   }
 
   /* Process the results: options */
-  if ( opt->getFlag("help") || opt->getFlag('h') || (! opt->hasOptions()) ) {
-    opt->printUsage();
-    delete opt;
+  if ( optParser->FlagSet("help")  || optParser->CommandLineEmpty() ) {
+    optParser->PrintUsage();
+    delete optParser;
     exit(1);
   }
-  if (opt->getFlag("useerrors")) {
+  if (optParser->FlagSet("useerrors")) {
     printf("\t USE ERRORS SELECTED!\n");
     theOptions->noErrors = false;
   }
-  if (opt->getFlag("usemask")) {
+  if (optParser->FlagSet("usemask")) {
     printf("\t USE MASK SELECTED!\n");
     theOptions->noMask = false;
   }
-  if (opt->getFlag("intensities")) {
+  if (optParser->FlagSet("intensities")) {
     printf("\t Data values are assumed to be intensities (instead of magnitudes)!\n");
     theOptions->dataAreMagnitudes = false;
   }
-  if (opt->getValue("psf") != NULL) {
-    theOptions->psfFileName = opt->getValue("psf");
+  if (optParser->OptionSet("psf")) {
+    theOptions->psfFileName = optParser->GetTargetString("psf");
     theOptions->psfPresent = true;
     printf("\tPSF profile = %s\n", theOptions->psfFileName.c_str());
   }
-  if (opt->getFlag("de")) {
+  if (optParser->FlagSet("de")) {
     printf("\t Differential Evolution selected!\n");
     theOptions->solver = DIFF_EVOLN_SOLVER;
   }
-  if (opt->getFlag("no-fitting")) {
+  if (optParser->FlagSet("no-fitting")) {
     printf("\t No fitting will be done!\n");
     theOptions->solver = NO_FITTING;
   }
-  if (opt->getValue("x1") != NULL) {
-    if (NotANumber(opt->getValue("x1"), 0, kPosInt)) {
+  if (optParser->OptionSet("x1")) {
+    if (NotANumber(optParser->GetTargetString("x1").c_str(), 0, kPosInt)) {
       printf("*** WARNING: start data row should be a positive integer!\n");
-      delete opt;
+      delete optParser;
       exit(1);
     }
-    theOptions->startDataRow = atol(opt->getValue("x1"));
+    theOptions->startDataRow = atol(optParser->GetTargetString("x1").c_str());
     printf("\tstart data row = %d\n", theOptions->startDataRow);
   }
-  if (opt->getValue("x2") != NULL) {
-    if (NotANumber(opt->getValue("x2"), 0, kPosInt)) {
+  if (optParser->OptionSet("x2")) {
+    if (NotANumber(optParser->GetTargetString("x2").c_str(), 0, kPosInt)) {
       printf("*** WARNING: end data row should be a positive integer!\n");
-      delete opt;
+      delete optParser;
       exit(1);
     }
-    theOptions->endDataRow = atol(opt->getValue("x2"));
+    theOptions->endDataRow = atol(optParser->GetTargetString("x2").c_str());
     printf("\tend data row = %d\n", theOptions->endDataRow);
   }
-  if (opt->getValue("zp") != NULL) {
-    if (NotANumber(opt->getValue("zp"), 0, kAnyReal)) {
+  if (optParser->OptionSet("zp")) {
+    if (NotANumber(optParser->GetTargetString("zp").c_str(), 0, kAnyReal)) {
       printf("*** WARNING: zero point should be a real number!\n");
-      delete opt;
+      delete optParser;
       exit(1);
     }
-    theOptions->zeroPoint = atof(opt->getValue("zp"));
+    theOptions->zeroPoint = atof(optParser->GetTargetString("zp").c_str());
     printf("\tmagnitude zero point = %f\n", theOptions->zeroPoint);
   }
-  if (opt->getValue("save-params") != NULL) {
-    theOptions->outputParameterFileName = opt->getValue("save-params");
+  if (optParser->OptionSet("save-params")) {
+    theOptions->outputParameterFileName = optParser->GetTargetString("save-params");
     theOptions->saveBestFitParams = true;
     printf("\toutput best-fit parameter file = %s\n", theOptions->outputParameterFileName.c_str());
   }
-  if (opt->getValue("save-best-fit") != NULL) {
-    theOptions->modelOutputFileName = opt->getValue("save-best-fit");
+  if (optParser->OptionSet("save-best-fit")) {
+    theOptions->modelOutputFileName = optParser->GetTargetString("save-best-fit");
     theOptions->saveBestProfile = true;
     printf("\toutput best-fit profile to file = %s\n", theOptions->modelOutputFileName.c_str());
   }
 
 
-  delete opt;
+  delete optParser;
 
 }
-
-
 
 
 
