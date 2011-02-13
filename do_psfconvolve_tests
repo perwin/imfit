@@ -1,0 +1,48 @@
+# !bin/sh
+
+FAILED_TEXT=" ** Test failed. **"
+
+echo ""
+echo "Running tests for psfconvolve ..."
+# simple tests
+./psfconvolve gaussian_5x5.fits deltafn_5x5.fits convolve_out_new1.fits --printimages &> test_dump1
+./psfconvolve deltafn_5x5.fits gaussian_5x5.fits convolve_out_new2.fits --printimages &> test_dump2
+
+
+echo ""
+
+echo -n "*** Diff comparison with archives: first convolution... "
+if (diff --brief test_dump1 tests/psfconvolve_out1.txt)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump1 tests/psfconvolve_out1.txt
+fi
+
+echo -n "*** cmp comparison of output FITS file... "
+if (cmp convolve_out_new1.fits tests/convolve_out_gauss5-c-deltafn.fits -i 724)
+then
+  echo " OK"
+fi
+
+
+echo -n "*** Diff comparison with archives: second convolution... "
+if (diff --brief test_dump2 tests/psfconvolve_out2.txt)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump2 tests/psfconvolve_out2.txt
+fi
+
+echo -n "*** cmp comparison of output FITS file... "
+if (cmp convolve_out_new2.fits tests/convolve_out_deltafn-c-gauss5.fits -i 724)
+then
+  echo " OK"
+fi
+
+
+echo ""
+echo "Done."
+echo ""

@@ -1,0 +1,51 @@
+	Image file = tests/ic3478rss_32x32.fits
+	configuration file = tests/imfit_config_ic3478_32x32.dat
+	original sky level = 130.1 ADU
+	gain = 4.725 e-/ADU
+	read noise = 4.3 e-
+Reading data image ("tests/ic3478rss_32x32.fits") ...
+naxis1 [# pixels/row] = 32, naxis2 [# pixels/col] = 32; nPixels_tot = 1024
+* No noise image supplied ... will generate noise image from input image.
+* No PSF image supplied -- no image convolution will be done!
+Function: Sersic
+7 total parameters
+Model Object: 1024 data values (pixels)
+Setting up parameter information array ...
+
+Calling mpfit ...
+	mpfit iteration 1: chi^2 = 163127.882867
+	mpfit iteration 2: chi^2 = 20913.228940
+	mpfit iteration 3: chi^2 = 19774.730600
+	mpfit iteration 4: chi^2 = 12705.107620
+	mpfit iteration 5: chi^2 = 5478.667654
+	mpfit iteration 6: chi^2 = 2693.096622
+	mpfit iteration 7: chi^2 = 1675.709972
+	mpfit iteration 8: chi^2 = 1294.296649
+	mpfit iteration 9: chi^2 = 1277.068456
+	mpfit iteration 10: chi^2 = 1277.038369
+	mpfit iteration 11: chi^2 = 1277.038337
+	mpfit iteration 12: chi^2 = 1277.038337
+*** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
+  CHI-SQUARE = 1277.038337    (1017 DOF)
+  INITIAL CHI^2 = 304296.502806
+        NPAR = 7
+       NFREE = 7
+     NPEGGED = 0
+     NITER = 13
+      NFEV = 98
+
+Reduced Chi^2 = 1.255692
+AIC = 1291.148573, BIC = 1325.558640
+
+X0		16.950237 # +/- 0.013580
+Y0		18.098768 # +/- 0.016642
+FUNCTION Sersic
+PA		17.775894 # +/- 0.477889
+ell		0.228324 # +/- 0.003550
+n		2.237415 # +/- 0.030004
+I_e		24.748948 # +/- 0.941264
+r_e		51.393930 # +/- 1.505380
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+Done!
+

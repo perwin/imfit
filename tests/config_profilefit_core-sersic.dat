@@ -1,0 +1,12 @@
+# Trial config file for profilefit, fitting a Core-Sersic profile
+
+# Here we have a function group (in this case, a single Core-Sersic function),
+# specified as having a fixed center at r=0
+X0     0.0  fixed
+FUNCTION   Core-Sersic-1D
+n      4.0	0.3,15.0
+mu_b  15.0	10.0,25.0
+r_e   20.0	0.0,500.0
+r_b    0.5  0.0,10.0
+alpha  3.0  0.0,200.0
+gamma  0.2  0.0,1.0

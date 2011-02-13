@@ -1,0 +1,9 @@
+# Trial config file for profilefit, fitting a Sersic profile
+
+# Here we have a function group (in this case, a single Sersic function),
+# specified as having a fixed center at r=0
+X0     0.0  fixed
+FUNCTION   Sersic-1D
+n      4.0	0.3,15.0
+mu_e  20.0	0.0,40.0
+r_e   20.0	0.0,500.0

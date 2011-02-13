@@ -1,0 +1,8 @@
+# Sample input file format (new 2010 format)
+X0    15.1   14,16
+Y0    15.1   14,16         # a note
+FUNCTION   Exponential   # here is a comment
+PA    95.0   0,180      # another note
+ell    0.45  0,1
+I_0   90.0   0,1e6
+h     15.0   0,1000

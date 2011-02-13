@@ -1,0 +1,35 @@
+# !bin/sh
+
+FAILED_TEXT=" ** Test failed. **"
+
+echo ""
+echo "Running tests for profilefit (L-M solver only)..."
+# simple tests
+./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat &> test_dump1
+./profilefit profile_data/n3348_total_fix.dat tests/config_profilefit_core-sersic.dat &> test_dump2
+
+
+echo ""
+
+echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit... "
+if (diff --brief test_dump1 tests/profilefit_textout1)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump1 tests/profilefit_textout1
+fi
+
+echo -n "*** Diff comparison with archives: NGC 3348 Core-Sersic fit... "
+if (diff --brief test_dump2 tests/profilefit_textout2)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump2 tests/profilefit_textout2
+fi
+
+
+echo ""
+echo "Done."
+echo ""

@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 #include <string>
 #include <math.h>
 
@@ -12,7 +13,7 @@
 
 #include "convolver.h"
 #include "image_io.h"
-#include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
+#include "commandline_parser.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -33,8 +34,6 @@ typedef struct {
 
 /* ------------------- Function Prototypes ----------------------------- */
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
-// void ShiftAndWrapPSF( double *psfImage, int nRows_psf, int nCols_psf,
-//                       fftw_complex *destImage, int nRows_dest, int nCols_dest );
 
 
 
@@ -106,7 +105,8 @@ int main(int argc, char *argv[])
 
 
   printf("\nSaving output convolved image (\"%s\") ...\n", options.outputImageName.c_str());
-  SaveVectorAsImage(allPixels, options.outputImageName, nColumns, nRows);
+  vector<string>  commentStrings;
+  SaveVectorAsImage(allPixels, options.outputImageName, nColumns, nRows, commentStrings);
 
 
   
@@ -118,56 +118,56 @@ int main(int argc, char *argv[])
 
 
 
+
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 {
 
-  AnyOption *opt = new AnyOption();
-  //opt->setVerbose(); /* print warnings about unknown options */
-  //opt->autoUsagePrint(true); /* print usage for bad options */
+  CLineParser *optParser = new CLineParser();
 
   /* SET THE USAGE/HELP   */
-  opt->addUsage("Usage: ");
-  opt->addUsage("   psfconvolve input-image psf-image [ouput-image-name]");
-  opt->addUsage(" -h  --help                   Prints this help");
-  opt->addUsage("     --printimages            Print out images (for debugging)");
-//  opt->addUsage("     --savepadded             Save zero-padded output image also");
-  opt->addUsage("");
+  optParser->AddUsageLine("Usage: ");
+  optParser->AddUsageLine("   psfconvolve input-image psf-image [ouput-image-name]");
+  optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine("     --printimages            Print out images (for debugging)");
+//  optParser->AddUsageLine("     --savepadded             Save zero-padded output image also");
+  optParser->AddUsageLine("");
 
 
-  opt->setFlag("help", 'h');
-  opt->setFlag("printimages");
-//  opt->setFlag("savepadded");
+  optParser->AddFlag("help", "h");
+  optParser->AddFlag("printimages");
+//  optParser->AddFlag("savepadded");
 
   /* parse the command line:  */
-  opt->processCommandArgs( argc, argv );
+  optParser->ParseCommandLine( argc, argv );
 
 
   /* Process the results: actual arguments, if any: */
-  if (opt->getArgc() > 0) {
-    theOptions->inputImageName = opt->getArgv(0);
-    if (opt->getArgc() > 1) {
-      theOptions->psfImageName = opt->getArgv(1);
-      if (opt->getArgc() > 2) {
-        theOptions->outputImageName = opt->getArgv(2);
+  int  nArgsFound = optParser->nArguments();
+  if (nArgsFound > 0) {
+    theOptions->inputImageName = optParser->GetArgument(0);
+    if (nArgsFound > 1) {
+      theOptions->psfImageName = optParser->GetArgument(1);
+      if (nArgsFound > 2) {
+        theOptions->outputImageName = optParser->GetArgument(2);
       }
     }
   }
 
   /* Process the results: options */
-  if ( opt->getFlag("help") || opt->getFlag('h') ) {
-    opt->printUsage();
-    delete opt;
+  if ( optParser->FlagSet("help") ) {
+    optParser->PrintUsage();
+    delete optParser;
     exit(1);
   }
-  if (opt->getFlag("printimages")) {
+  if (optParser->FlagSet("printimages")) {
     theOptions->printImages = true;
     theOptions->debugLevel = 2;
   }
-//   if (opt->getFlag("savepadded")) {
+//   if (optParser->FlagSet("savepadded")) {
 //     theOptions->outputPaddedImage = true;
 //   }
   
-  delete opt;
+  delete optParser;
 
 }
 

@@ -33,10 +33,10 @@
 
 # *** Simple tests of psfconvolve
 # Generate reference image and text output:
-$ ./psfconvolve_old gaussian_5x5.fits deltafn_5x5.fits convolve_out_gauss5-c-deltafn.fits
-$ mv convolve_out_gauss5-c-deltafn.fits tests/
-$ ./psfconvolve_old deltafn_5x5.fits gaussian_5x5.fits convolve_out_deltafn-c-gauss5.fits
-$ mv convolve_out_deltafn-c-gauss5.fits tests/
+./psfconvolve_old gaussian_5x5.fits deltafn_5x5.fits convolve_out_gauss5-c-deltafn.fits
+mv convolve_out_gauss5-c-deltafn.fits tests/
+./psfconvolve_old deltafn_5x5.fits gaussian_5x5.fits convolve_out_deltafn-c-gauss5.fits
+mv convolve_out_deltafn-c-gauss5.fits tests/
 
 # Test new version (tell cmp to ignore first 724 bytes, thus skipping the header)
 ./psfconvolve gaussian_5x5.fits deltafn_5x5.fits convolve_out_new.fits --printimages > temp.txt

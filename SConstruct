@@ -187,7 +187,8 @@ readimage_sources = ["readimage_main.cpp", "image_io.cpp"]
 
 # psfconvolve: put all the object and source-code lists together
 #psfconvolve_sources_old = ["psfconvolve_main_old.cpp", "anyoption.cpp", "image_io.cpp"]
-psfconvolve_objs = ["psfconvolve_main", "anyoption", "commandline_parser", "image_io", "convolver"]
+psfconvolve_objs = ["psfconvolve_main", "commandline_parser", "utilities",
+					"image_io", "convolver"]
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
 # psfconvolve1d: put all the object and source-code lists together
