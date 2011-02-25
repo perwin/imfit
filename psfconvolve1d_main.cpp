@@ -15,7 +15,7 @@
 
 #include "convolver1d.h"
 #include "read_profile_pub.h"
-#include "anyoption.h"   // Kishan Thomas' class for command-line option parsing
+#include "commandline_parser.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
   /* Read in data */
   nSavedRows = ReadDataFile(options.dataFileName, startDataRow, endDataRow, 
-                             xVals, yVals, NULL);
+                             xVals, yVals, NULL, NULL);
   if (nSavedRows > nStoredDataVals) {
     fprintf(stderr, "\nMore data rows saved (%d) than we allocated space for (%d)!\n",
             nSavedRows, nStoredDataVals);
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   }
 
   nSavedRows = ReadDataFile(options.psfProfileName, startDataRow, endDataRow, 
-                             xVals_psf, yVals_psf, NULL);
+                             xVals_psf, yVals_psf, NULL, NULL);
   if (nSavedRows > nStoredDataVals) {
     fprintf(stderr, "\nMore PSF rows saved (%d) than we allocated space for (%d)!\n",
             nSavedRows, nPSFVals);
@@ -187,53 +187,51 @@ int main(int argc, char *argv[])
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 {
 
-  AnyOption *opt = new AnyOption();
-  //opt->setVerbose(); /* print warnings about unknown options */
-  //opt->autoUsagePrint(true); /* print usage for bad options */
+  CLineParser *optParser = new CLineParser();
 
   /* SET THE USAGE/HELP   */
-  opt->addUsage("Usage: ");
-  opt->addUsage("   psfconvolve1d input-profile psf-profile [ouput-profile-name]");
-  opt->addUsage(" -h  --help                   Prints this help");
-  opt->addUsage("     --printProfiles            Print out images (for debugging)");
-//  opt->addUsage("     --savepadded             Save zero-padded output image also");
-  opt->addUsage("");
+  optParser->AddUsageLine("Usage: ");
+  optParser->AddUsageLine("   psfconvolve1d input-profile psf-profile [ouput-profile-name]");
+  optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine("     --printProfiles            Print out images (for debugging)");
+//  optParser->AddUsageLine("     --savepadded             Save zero-padded output image also");
+  optParser->AddUsageLine("");
 
 
-  opt->setFlag("help", 'h');
-  opt->setFlag("printProfiles");
-//  opt->setFlag("savepadded");
+  optParser->AddFlag("help", "h");
+  optParser->AddFlag("printProfiles");
+//  optParser->AddFlag("savepadded");
 
   /* parse the command line:  */
-  opt->processCommandArgs( argc, argv );
+  optParser->ParseCommandLine( argc, argv );
 
 
   /* Process the results: actual arguments, if any: */
-  if (opt->getArgc() > 0) {
-    theOptions->dataFileName = opt->getArgv(0);
-    if (opt->getArgc() > 1) {
-      theOptions->psfProfileName = opt->getArgv(1);
-      if (opt->getArgc() > 2) {
-        theOptions->outputProfileName = opt->getArgv(2);
+  if (optParser->nArguments() > 0) {
+    theOptions->dataFileName = optParser->GetArgument(0);
+    if (optParser->nArguments() > 1) {
+      theOptions->psfProfileName = optParser->GetArgument(1);
+      if (optParser->nArguments() > 2) {
+        theOptions->outputProfileName = optParser->GetArgument(2);
       }
     }
   }
 
   /* Process the results: options */
-  if ( opt->getFlag("help") || opt->getFlag('h') ) {
-    opt->printUsage();
-    delete opt;
+  if ( optParser->FlagSet("help") ) {
+    optParser->PrintUsage();
+    delete optParser;
     exit(1);
   }
-  if (opt->getFlag("printProfiles")) {
+  if (optParser->FlagSet("printProfiles")) {
     theOptions->printProfiles = true;
     theOptions->debugLevel = 2;
   }
-//   if (opt->getFlag("savepadded")) {
+//   if (optParser->FlagSet("savepadded")) {
 //     theOptions->outputPaddedProfile = true;
 //   }
   
-  delete opt;
+  delete optParser;
 
 }
 

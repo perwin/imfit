@@ -160,7 +160,7 @@ makeimage_base_objs = makeimage_base_obj_string.split()
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 # Base files for timing:
-timing_base_obj_string = """anyoption utilities image_io config_file_parser 
+timing_base_obj_string = """commandline_parser utilities image_io config_file_parser 
 			add_functions timing_main"""
 timing_base_objs = timing_base_obj_string.split()
 timing_base_sources = [name + ".cpp" for name in timing_base_objs]
@@ -192,7 +192,8 @@ psfconvolve_objs = ["psfconvolve_main", "commandline_parser", "utilities",
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
 # psfconvolve1d: put all the object and source-code lists together
-psfconvolve1d_objs = ["psfconvolve1d_main", "anyoption", "read_profile", "convolver1d"]
+psfconvolve1d_objs = ["psfconvolve1d_main", "commandline_parser", "utilities",
+					"read_profile", "convolver1d"]
 psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 
 # test_parser: put all the object and source-code lists together

@@ -88,6 +88,8 @@ typedef struct {
   std::string  outputModelFileName;
   bool  saveResidualImage;
   std::string  outputResidualFileName;
+  bool  saveWeightImage;
+  std::string  outputWeightFileName;
   bool  saveBestFitParams;
   std::string  outputParameterFileName;
   bool  useImageHeader;
@@ -205,6 +207,7 @@ int main(int argc, char *argv[])
   options.subsamplingFlag = true;
   options.saveModel = false;
   options.saveResidualImage = false;
+  options.saveWeightImage = false;
   options.saveBestFitParams = true;
   options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
   options.useImageHeader= false;
@@ -473,6 +476,11 @@ int main(int argc, char *argv[])
     SaveVectorAsImage(theModel->GetResidualImageVector(), options.outputResidualFileName, 
                       nColumns, nRows, imageCommentsList);
   }
+  if (options.saveWeightImage) {
+    printf("Saving weight image in file \"%s\"\n", options.outputWeightFileName.c_str());
+    SaveVectorAsImage(theModel->GetWeightImageVector(), options.outputWeightFileName, 
+                      nColumns, nRows, imageCommentsList);
+  }
 
 
   // Free up memory
@@ -506,6 +514,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("   imfit [options] imagefile.fits");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
+  optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --chisquare-only         Print chi^2 of input model and quit");
   optParser->AddUsageLine(" -c  --config <config-file>   configuration file");
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
@@ -516,6 +526,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --save-params <output-file>          Save best-fit parameters in config-file format");
   optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
   optParser->AddUsageLine("     --save-residual <outputname.fits>       Save residual (input - model) image");
+  optParser->AddUsageLine("     --save-weights <outputname.fits>       Save weight image");
   optParser->AddUsageLine("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
   optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   optParser->AddUsageLine("     --gain <value>           Image gain (e-/ADU)");
@@ -533,6 +544,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   /* by default all options are checked on the command line and from option/resource file */
   optParser->AddFlag("help", "h");
   optParser->AddFlag("list-functions");
+  optParser->AddFlag("list-parameters");
   optParser->AddFlag("printimage");
   optParser->AddFlag("chisquare-only");
   optParser->AddFlag("de");
@@ -548,6 +560,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("save-params");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("save-model");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("save-residual");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("save-weights");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("sky");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("gain");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("readnoise");        /* an option (takes an argument), supporting only long form */
@@ -579,6 +592,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->FlagSet("list-functions")) {
     PrintAvailableFunctions();
+    delete optParser;
+    exit(1);
+  }
+  if (optParser->FlagSet("list-parameters")) {
+    ListFunctionParameters();
     delete optParser;
     exit(1);
   }
@@ -640,6 +658,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->outputResidualFileName = optParser->GetTargetString("save-residual");
     theOptions->saveResidualImage = true;
     printf("\toutput residual (input - model) image = %s\n", theOptions->outputResidualFileName.c_str());
+  }
+  if (optParser->OptionSet("save-weights")) {
+    theOptions->outputWeightFileName = optParser->GetTargetString("save-weights");
+    theOptions->saveWeightImage = true;
+    printf("\toutput weight image = %s\n", theOptions->outputWeightFileName.c_str());
   }
   if (optParser->OptionSet("save-params")) {
     theOptions->outputParameterFileName = optParser->GetTargetString("save-params");

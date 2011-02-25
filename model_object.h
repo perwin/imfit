@@ -128,6 +128,9 @@ class ModelObject
 		// 2D only
     double * GetResidualImageVector( );
 
+		// 2D only
+    double * GetWeightImageVector( );
+
     // 1D only
     virtual int GetModelVector( double *profileVector );
 

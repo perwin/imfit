@@ -731,6 +731,19 @@ double * ModelObject::GetResidualImageVector( )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetWeightImageVector ---------------- */
+
+double * ModelObject::GetWeightImageVector( )
+{
+  if (! weightValsSet) {
+    printf("* ModelObject: Weight image has not yet been computed!\n\n");
+    return NULL;
+  }
+  
+  return weightVector;
+}
+
+
 /* ---------------- PUBLIC METHOD: GetModelVector ---------------------- */
 // This is a stub function; it is meant to be properly defined in the derived
 // class ModelObject1d

@@ -18,5 +18,10 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
 // Use the following to print out names of available functions/components
 void PrintAvailableFunctions( );
 
+// Use the following to print out a full list consisting of each function
+// name ("FUNCTION <short-name>") followed by the ordered list of parameter
+// names (suitable for copying and pasting into a config file for makeimage or imfit).
+void ListFunctionParameters( );
+
 
 #endif  // _ADD_FUNCTION_H_

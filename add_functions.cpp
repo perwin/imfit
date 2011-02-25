@@ -171,4 +171,37 @@ void PrintAvailableFunctions( )
 }
 
 
+void ListFunctionParameters( )
+// Prints a list of function names, along with the ordered list of
+// parameter names for each function (suitable for copying and pasting
+// into a config file for makeimage or imfit).
+{
+  
+  string  currentName;
+  vector<string>  parameterNameList;
+  FunctionObject  *thisFunctionObj;
+  map<string, factory*>  factory_map;
+
+  PopulateFactoryMap(factory_map);
+
+  // get list of keys (function names) and step through it
+  map<string, factory*>::iterator  w;
+
+  printf("\nAvailable function/components:\n");
+  for (w = factory_map.begin(); w != factory_map.end(); w++) {
+//    printf("%s, ", w->first.c_str());
+    thisFunctionObj = w->second->create();
+    currentName = thisFunctionObj->GetShortName();
+    printf("\nFUNCTION %s\n", currentName.c_str());
+    parameterNameList.clear();
+    thisFunctionObj->GetParameterNames(parameterNameList);
+    for (int i = 0; i < (int)parameterNameList.size(); i++)
+      printf("%s\n", parameterNameList[i].c_str());
+    delete thisFunctionObj;
+  }
+  printf("\n\n");
+    
+}
+
+
 /* END OF FILE: add_functions.cpp ---------------------------------------- */

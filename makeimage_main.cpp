@@ -267,6 +267,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("   makeimage [options] config-file");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
+  optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image");
   optParser->AddUsageLine("     --refimage <reference-image.fits>   reference image (for image size)");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image (for convolution)");
@@ -281,6 +283,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   /* by default all options are checked on the command line and from option/resource file */
   optParser->AddFlag("help", "h");
   optParser->AddFlag("list-functions");
+  optParser->AddFlag("list-parameters");
   optParser->AddFlag("printimage");
   optParser->AddFlag("nosubsampling");
   optParser->AddFlag("nosave");
@@ -314,6 +317,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->FlagSet("list-functions")) {
     PrintAvailableFunctions();
+    delete optParser;
+    exit(1);
+  }
+  if (optParser->FlagSet("list-parameters")) {
+    ListFunctionParameters();
     delete optParser;
     exit(1);
   }
