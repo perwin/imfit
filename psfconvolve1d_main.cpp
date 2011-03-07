@@ -16,14 +16,15 @@
 #include "convolver1d.h"
 #include "read_profile_pub.h"
 #include "commandline_parser.h"
+#include "utilities_pub.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
 #define MAX_N_DATA_VALS   1000000   /* max # data values we'll handle (1.0e6) */
 
-#define INPUT_PROFILE_FILENAME   "some_profiles.fits"
-#define PSF_FILENAME    "psf_gaussian1d.fits"
-#define DEFAULT_OUTPUT_FILENAME   "convolve1d_out.fits"
+#define INPUT_PROFILE_FILENAME   "some_profile.dat"
+#define PSF_FILENAME    "psf_gaussian1d.dat"
+#define DEFAULT_OUTPUT_FILENAME   "convolve1d_out.dat"
 
 #define  FILE_OPENW_ERR_STRING "\n   Couldn't open file \"%s\" for writing!\n\n"
 
@@ -118,6 +119,13 @@ int main(int argc, char *argv[])
             nSavedRows, nStoredDataVals);
     exit(-1);
   }
+  
+  if (options.debugLevel >= 3) {
+    printf("The input data:\n");
+    for (int k = 0; k < nStoredDataVals; k++) {
+      printf("%f\t%f\n", xVals[k], yVals[k]);
+    }
+  }
 
 
   printf("Reading PSF profile (\"%s\") ...\n", options.psfProfileName.c_str());
@@ -194,12 +202,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("   psfconvolve1d input-profile psf-profile [ouput-profile-name]");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
   optParser->AddUsageLine("     --printProfiles            Print out images (for debugging)");
+  optParser->AddUsageLine("     --debug <int>            Set debugging output (>= 1)");
 //  optParser->AddUsageLine("     --savepadded             Save zero-padded output image also");
   optParser->AddUsageLine("");
 
 
   optParser->AddFlag("help", "h");
   optParser->AddFlag("printProfiles");
+  optParser->AddOption("debug");      /* an option (takes an argument), supporting only long form */
 //  optParser->AddFlag("savepadded");
 
   /* parse the command line:  */
@@ -226,6 +236,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("printProfiles")) {
     theOptions->printProfiles = true;
     theOptions->debugLevel = 2;
+  }
+  if (optParser->OptionSet("debug")) {
+    if (NotANumber(optParser->GetTargetString("debug").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** WARNING: debugging level should be a positive integer!\n\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->debugLevel = atol(optParser->GetTargetString("debug").c_str());
   }
 //   if (optParser->FlagSet("savepadded")) {
 //     theOptions->outputPaddedProfile = true;

@@ -55,6 +55,10 @@ class ModelObject1d : public ModelObject
     
     int GetModelVector( double *profileVector );
 
+    void UseBootstrap( );
+    
+    void MakeBootstrapSample( );
+
     // Destructor
     ~ModelObject1d();
 
@@ -71,9 +75,10 @@ class ModelObject1d : public ModelObject
 // 	double  *dataVector;
 	  double  *dataXValues, *modelXValues;
 	  double  zeroPoint;
-	  bool  dataAreMagnitudes;
+	  bool  dataAreMagnitudes, doBootstrap, bootstrapIndicesAllocated;
 	// things useful for PSF convolution
 	  int  dataStartOffset, nPSFVals, nModelVals;
+	  int  *bootstrapIndices;
 // 	double  *weightVector;
 // 	double  *modelVector;
 // 	double  *parameterBounds;

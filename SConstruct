@@ -149,7 +149,7 @@ imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 # Base files for profilefit:
 profilefit_base_obj_string = """utilities commandline_parser mpfit diff_evoln_fit DESolver
 		read_profile config_file_parser add_functions_1d print_results 
-		convolver convolver1d profilefit_main"""
+		convolver convolver1d bootstrap_errors_1d profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 

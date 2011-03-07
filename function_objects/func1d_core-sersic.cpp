@@ -30,6 +30,11 @@ const char  PARAM_LABELS[][20] = {"n", "mu_b", "r_e", "r_b", "alpha", "gamma"};
 const char FUNCTION_NAME[] = "Core-Sersic-1D function";
 #define CLASS_SHORT_NAME  "Core-Sersic-1D"
 
+// The following is the minimum allowable value of r = |x - x0|, meant to
+// avoid blowups due to the fact that the inner, power-law part of the
+// Core-Sersic function becomes infinite at r = 0.
+const double  R_MIN = 0.01;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
@@ -79,6 +84,9 @@ void CoreSersic1D::Setup( double params[], int offsetIndex, double xc )
 double CoreSersic1D::GetValue( double x )
 {
   double  r = fabs(x - x0);
+  // kludge to handle cases when r is very close to zero:
+  if (r < R_MIN)
+    r = R_MIN;
   double  powerlaw_part = pow( 1.0 + pow(r_b/r, alpha), gamma/alpha );
   double  exp_part = exp( -bn * pow( ( pow(r, alpha) + pow(r_b, alpha) )/pow(r_e, alpha), 1.0/(alpha*n)) );
   double  I = Iprime * powerlaw_part * exp_part;

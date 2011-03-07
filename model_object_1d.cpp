@@ -25,6 +25,7 @@
 #include "model_object_1d.h"
 #include "mp_enorm.h"
 #include "convolver1d.h"
+#include "mersenne_twister.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -43,6 +44,8 @@ ModelObject1d::ModelObject1d( )
   modelImageComputed = false;
   maskExists = false;
   dataAreMagnitudes = true;
+  doBootstrap = false;
+  bootstrapIndicesAllocated = false;
   nFunctions = 0;
   nFunctionSets = 0;
   nFunctionParams = 0;
@@ -249,7 +252,7 @@ void ModelObject1d::CreateModelImage( double params[] )
   if (! CheckParamVector(nParamsTot, params)) {
     printf("** ModelObject1d::CreateModelImage -- non-finite values detected in parameter vector!\n");
 #ifdef DEBUG
-    printf("   Parameter values: %s = %g, ", parameterLabels[0].c_str(), params[0]);
+    printf("   Parameter values: %s = %g", parameterLabels[0].c_str(), params[0]);
     for (int z = 1; z < nParamsTot; z++)
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
@@ -280,8 +283,17 @@ void ModelObject1d::CreateModelImage( double params[] )
     for (int n = 0; n < nFunctions; n++)
       newVal += functionObjects[n]->GetValue(x);
     modelVector[i] = newVal;
+#ifdef DEBUG
+    printf("x = %g, newVal = %g,  ", x, newVal);
+#endif
   }
 
+#ifdef DEBUG
+    printf("   Parameter values: %s = %g", parameterLabels[0].c_str(), params[0]);
+    for (int z = 1; z < nParamsTot; z++)
+      printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
+    printf("\n");
+#endif
 
   // Do PSF convolution, if requested
   if (doConvolution) {
@@ -313,15 +325,26 @@ void ModelObject1d::ComputeDeviates( double yResults[], double params[] )
 
   CreateModelImage(params);
   
-  for (int z = 0; z < nDataVals; z++) {
-    yResults[z] = weightVector[z] * (dataVector[z] - modelVector[dataStartOffset + z]);
+  if (doBootstrap) {
+    for (int z = 0; z < nDataVals; z++) {
+      int i = bootstrapIndices[z];
+      yResults[z] = weightVector[i] * (dataVector[i] - modelVector[dataStartOffset + i]);
+    }
+  } else {
+    for (int z = 0; z < nDataVals; z++) {
+      yResults[z] = weightVector[z] * (dataVector[z] - modelVector[dataStartOffset + z]);
 #ifdef DEBUG
-    printf("weight = %g, data = %g, model = %g ==> yResults = %g\n", weightVector[z], dataVector[z], modelVector[dataStartOffset + z], yResults[z]);
+      printf("weight = %g, data = %g, model = %g ==> yResults = %g\n", weightVector[z], dataVector[z], modelVector[dataStartOffset + z], yResults[z]);
 #endif
+    }
   }
-  //for (int z = 0; z < nDataVals; z++) {
-  //  yResults[z] = yWeights[z] * (yVals[z] - GetValue(xVals[z], params));
-  //}
+
+//   for (int z = 0; z < nDataVals; z++) {
+//     yResults[z] = weightVector[z] * (dataVector[z] - modelVector[dataStartOffset + z]);
+// #ifdef DEBUG
+//     printf("weight = %g, data = %g, model = %g ==> yResults = %g\n", weightVector[z], dataVector[z], modelVector[dataStartOffset + z], yResults[z]);
+// #endif
+//   }
 }
 
 
@@ -393,6 +416,38 @@ void ModelObject1d::PopulateParameterNames( )
 }
 
 
+/* ---------------- PUBLIC METHOD: UseBootstrap ------------------------ */
+// Tells ModelObject1d object that from now on we'll operate in bootstrap
+// resampling mode, so that bootstrapIndices vector is used to access the
+// data and model values (and weight values, if any).
+
+void ModelObject1d::UseBootstrap( )
+{
+  doBootstrap = true;
+  MakeBootstrapSample();
+}
+
+
+/* ---------------- PUBLIC METHOD: MakeBootstrapSample ----------------- */
+// Generate a new bootstrap resampling of the data (actually, we generate a
+// bootstrap resampling of the data *indices*)
+
+void ModelObject1d::MakeBootstrapSample( )
+{
+  
+  if (! bootstrapIndicesAllocated) {
+    bootstrapIndices = (int *) calloc((size_t)nDataVals, sizeof(int));
+    bootstrapIndicesAllocated = true;
+  }
+  for (int i = 0; i < nDataVals; i++) {
+    /* pick random data point between 0 and nDataVals - 1, inclusive */
+    //n = round( (random()/MAX_RANDF)*(nDataVals - 1) );
+    int n = (int)floor( genrand_real2()*nDataVals );
+    bootstrapIndices[i] = n;
+  }
+}
+
+
 /* ---------------- PUBLIC METHOD: GetModelProfile --------------------- */
 
 int ModelObject1d::GetModelVector( double *profileVector )
@@ -431,6 +486,11 @@ ModelObject1d::~ModelObject1d()
   if (setStartFlag_allocated) {
     free(setStartFlag);
     setStartFlag_allocated = false;
+  }
+  
+  if (bootstrapIndicesAllocated) {
+    free(bootstrapIndices);
+    bootstrapIndicesAllocated = false;
   }
 }
 

@@ -693,6 +693,14 @@ int ModelObject::GetNParams( )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetNDataValues ---------------------- */
+
+int ModelObject::GetNDataValues( )
+{
+  return nDataVals;
+}
+
+
 /* ---------------- PUBLIC METHOD: GetNValidPixels --------------------- */
 
 int ModelObject::GetNValidPixels( )
@@ -748,6 +756,26 @@ double * ModelObject::GetWeightImageVector( )
 // This is a stub function; it is meant to be properly defined in the derived
 // class ModelObject1d
 int ModelObject::GetModelVector( double *profileVector )
+{
+  ;
+}
+
+
+
+/* ---------------- PUBLIC METHOD: UseBootstrap ------------------------ */
+// This is a stub function; it is meant to be properly defined in the derived
+// class ModelObject1d
+void ModelObject::UseBootstrap( )
+{
+  ;
+}
+
+
+
+/* ---------------- PUBLIC METHOD: MakeBootstrapSample ----------------- */
+// This is a stub function; it is meant to be properly defined in the derived
+// class ModelObject1d
+void ModelObject::MakeBootstrapSample( )
 {
   ;
 }

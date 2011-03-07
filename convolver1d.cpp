@@ -189,6 +189,11 @@ void Convolver1D::ConvolveProfile( double *pixelVector )
   int  ii, jj;
   double  a, b, c, d, realPart;
   
+  if (debugStatus >= 3) {
+    printf("nPixels_data = %d, nPixels_padded = %d\n", nPixels_data, nPixels_padded);
+    printf("Original input profile [pixelVector]:\n");
+    PrintRealProfile(pixelVector, nPixels_data);
+  }
   // Populate (complex) input profiles array for FFT
   //   First, zero the complex array (especially need to do this if this isn't the
   // first time we've called this function!):

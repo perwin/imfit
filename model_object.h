@@ -119,7 +119,10 @@ class ModelObject
     // common, not specialized
     int GetNParams( );
 
-    // common, not specialized
+    // common, not specialized -- returns total number of data values (e.g., pixels in image)
+    int GetNDataValues( );
+
+    // common, not specialized -- returns total number of *non-masked* data values
     int GetNValidPixels( );
 
 		// 2D only
@@ -134,6 +137,12 @@ class ModelObject
     // 1D only
     virtual int GetModelVector( double *profileVector );
 
+    // 1D only
+    virtual void UseBootstrap( );
+    
+    // 1D only
+    virtual void MakeBootstrapSample( );
+    
     // Destructor
     virtual ~ModelObject();
 

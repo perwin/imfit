@@ -239,9 +239,44 @@ FIXES:
 constructor.
 
 
+
+
+*** 3 Mar 2011: Problem with profilefit: convolutions with PSF
+
+Stephanie Rusli found a problem when trying to run profilefit with a PSF
+on a (resampled) galaxy profile (testfile.txt):
+
+	** ModelObject1d::CreateModelImage -- non-finite values detected in parameter vector!
+
+(No problems when running profilefit without PSF convolution.)
+
+Running debugging version of profilefit ("scons define=DEBUG profilefit") showed that
+problem was "nan" values in very first version of model profile.
+
+Running profilefit in "generate input model and save" model ("--no-fitting")
+showed that convolved input profile was indeed composed of all "nan".
+$ ../profilefit testfile.txt config_profilefit_core-sersic.dat --save-best-fit initial_model_profile_convolved.dat --no-fitting --psf psf_5328_major.dat
+
+However, running psfconvolve1d produced an output profile (convolve1d_out.dat)
+with *no* "nan" values:
+$ ../psfconvolve1d initial_model_profile_no-psf.dat psf_5328_major.dat 
+
+Problem is somewhere in the generation (or transfer) of the model profile, prior
+to convolution, in ModelObject1d.CreateModelImage()
+
+* PROBLEM FOUND: [?]
+
+When x=0, Core-Sersic-1D return "inf" as a value, which propagates through and
+screws up the convolution!  [Stephanie had a case where another galaxy profiles
+did *not* have problems; this seems to be because convolver1d.cpp extrapolated
+a value of x=0 that was actually ~ 10^-16 instead of 0, and so no infinite value
+was computed.]
+
+[] * FIXES:
+
+Handle the x=0 case for Core-Sersic-1D!
+	[] ? if (x < x_min) ==> x = x_min 
 	
-
-
 
 
 *** TROUBLESHOOTING TIPS:

@@ -28,6 +28,7 @@
 #include "param_struct.h"   // for mp_par structure
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
 #include "diff_evoln_fit.h"
+#include "bootstrap_errors_1d.h"
 #include "commandline_parser.h"
 #include "config_file_parser.h"
 #include "print_results.h"
@@ -44,7 +45,7 @@
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
 #define MONTE_CARLO_ITER   100
-#define BOOTSTRAP_ITER     200
+#define BOOTSTRAP_ITER     1000
 
 #define CMDLINE_ERROR1 "Usage: -p must be followed by a string containing initial parameter values for the model"
 #define CMDLINE_ERROR2 "Usage: -l must be followed by a filename for a file containing parameter limits"
@@ -82,6 +83,8 @@ typedef struct {
   bool  saveBestFitParams;
   std::string  outputParameterFileName;
   int  solver;
+  bool  doBootstrap;
+  int  bootstrapIterations;
 } commandOptions;
 
 
@@ -160,6 +163,8 @@ int main(int argc, char *argv[])
   options.noMask = true;
   options.maskFormat = MASK_ZERO_IS_GOOD;
   options.solver = MPFIT_SOLVER;
+  options.doBootstrap = false;
+  options.bootstrapIterations = 0;
   options.subsamplingFlag = false;
   options.saveBestProfile = false;
   options.saveBestFitParams = true;
@@ -389,6 +394,18 @@ int main(int argc, char *argv[])
   } // end switch
 
 
+
+  // OPTIONAL HANDLING OF BOOTSTRAP RESAMPLING HERE
+  if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
+    printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
+           options.bootstrapIterations);
+    printf("[NOT YET PROPERLY IMPLEMENTED!]\n");
+    BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel,
+                    options.bootstrapIterations, nFreeParams);
+  }
+  
+  
+  
   if (options.saveBestFitParams)
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
                     argc, argv);
@@ -429,6 +446,7 @@ int main(int argc, char *argv[])
     free(parameterInfo);
   delete theModel;
   
+  printf("All done!\n\n");
   return 0;
 }
 
@@ -452,6 +470,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" --x1 <int>                   start data value");
   optParser->AddUsageLine(" --x2 <int>                   end data value");
   optParser->AddUsageLine(" --zp <float>                 magnitude zero point of the data");
+  optParser->AddUsageLine(" --bootstrap <int>            do this many bootstrap resampling to estimate errors");
   optParser->AddUsageLine(" --save-params <output-file>  Save best-fit parameters in config-file format");
   optParser->AddUsageLine(" --save-best-fit <output-file>  Save best-fit profile");
   optParser->AddUsageLine("");
@@ -468,6 +487,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("x1");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("x2");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("zp");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("bootstrap");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("save-params");
   optParser->AddOption("save-best-fit");
   
@@ -544,6 +564,16 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     }
     theOptions->zeroPoint = atof(optParser->GetTargetString("zp").c_str());
     printf("\tmagnitude zero point = %f\n", theOptions->zeroPoint);
+  }
+  if (optParser->OptionSet("bootstrap")) {
+    if (NotANumber(optParser->GetTargetString("bootstrap").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: number of bootstrap iterations should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->doBootstrap = true;
+    theOptions->bootstrapIterations = atol(optParser->GetTargetString("bootstrap").c_str());
+    printf("\tnumber of bootstrap iterations = %d\n", theOptions->bootstrapIterations);
   }
   if (optParser->OptionSet("save-params")) {
     theOptions->outputParameterFileName = optParser->GetTargetString("save-params");
