@@ -14,6 +14,7 @@ echo "Running test fits for makeimage..."
 ./makeimage tests/config_makeimage_sersictest512_bad1.dat &> test_dump4
 ./makeimage tests/config_makeimage_sersictest512_bad2.dat &> test_dump5
 ./makeimage tests/config_makeimage_sersictest512_bad3.dat &> test_dump6
+./makeimage tests/config_makeimage_sersictest512_bad4.dat &> test_dump7
 echo ""
 
 echo -n "*** Diff comparison with archives: biggertest... "
@@ -68,6 +69,15 @@ then
 else
   echo "Diff output:"
   diff test_dump6 tests/makeimage_textout6
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 4... "
+if (diff --brief test_dump7 tests/makeimage_textout7)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump7 tests/makeimage_textout7
 fi
 
 

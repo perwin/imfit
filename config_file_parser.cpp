@@ -225,8 +225,10 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   string  inputLine, currentLine;
   vector<string>  inputLines;
   vector<string>  stringPieces;
+  vector<int>  origLineNumbers;
   int  functionSectionStart, functionNumber;
   int  i, nInputLines;
+  int  k = 0;
 //  bool  functionSectionFound = false;
   
   inputFileStream.open(configFileName.c_str());
@@ -234,12 +236,15 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
      cerr << "Error opening input stream for file " << configFileName.c_str() << endl;
   }
   while ( getline(inputFileStream, inputLine) ) {
+    k++;
     // strip off leading & trailing spaces; turns a blank line with spaces/tabs
     // into an empty string
     TrimWhitespace(inputLine);
     // store non-empty, non-comment lines in a vector of strings
-    if ((inputLine.size() > 0) && (inputLine[0] != '#'))
+    if ((inputLine.size() > 0) && (inputLine[0] != '#')) {
       inputLines.push_back(inputLine);
+      origLineNumbers.push_back(k);
+    }
   }
   inputFileStream.close();
 
@@ -279,6 +284,8 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
         // X0 line should always be followed by Y0 line in 2D mode
         if (inputLines[i].find("Y0", 0) == string::npos) {
           fprintf(stderr, "*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
+          fprintf(stderr, "   (X0 on input line %d should be followed by Y0 on line %d)\n",
+          				origLineNumbers[i] - 1, origLineNumbers[i]);
           return -1;
         }
         AddParameter(inputLines[i], parameterList);
@@ -322,8 +329,10 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   string  inputLine, currentLine;
   vector<string>  inputLines;
   vector<string>  stringPieces;
+  vector<int>  origLineNumbers;
   int  functionSectionStart, functionNumber, paramNumber;
   int  i, nInputLines;
+  int  k = 0;
 //  bool  functionSectionFound = false;
   int  pLimitFound;
   
@@ -332,11 +341,14 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
      cerr << "Error opening input stream for file " << configFileName.c_str() << endl;
   }
   while ( getline(inputFileStream, inputLine) ) {
+    k++;
     // strip off leading & trailing spaces; turns a blank line with spaces/tabs
     // into an empty string
     TrimWhitespace(inputLine);
-    if ((inputLine.size() > 0) && (inputLine[0] != '#'))
+    if ((inputLine.size() > 0) && (inputLine[0] != '#')) {
       inputLines.push_back(inputLine);
+      origLineNumbers.push_back(k);
+    }
   }
   inputFileStream.close();
 
@@ -386,6 +398,8 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
         // X0 line should always be followed by Y0 line in 2D mode
         if (inputLines[i].find("Y0", 0) == string::npos) {
           fprintf(stderr, "*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
+          fprintf(stderr, "   (X0 on input line %d should be followed by Y0 on line %d)\n",
+          				origLineNumbers[i] - 1, origLineNumbers[i]);
           return -1;
         }
         pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits);
