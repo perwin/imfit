@@ -56,9 +56,10 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     printf("Reduced Chi^2 = %f\n", chiSquared / nDegreesFreedom);
     printf("AIC = %f, BIC = %f\n\n", aic, bic);
     // output the best-fit parameters
-    for (i = 0; i < model->GetNParams(); i++) {
-      PrintParam(stdout, model->GetParameterName(i), params[i] + parameterInfo[i].offset, 0.0);
-    }
+    model->PrintModelParams(stdout, params, parameterInfo, NULL);
+//    for (i = 0; i < model->GetNParams(); i++) {
+//      PrintParam(stdout, model->GetParameterName(i), params[i] + parameterInfo[i].offset, 0.0);
+//    }
     return;
   }
   
