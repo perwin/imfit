@@ -1,0 +1,6 @@
+*** WARNING: initial parameter value for "PA" (30) must lie between the limits (45,100)!
+    (Error on input line 9 of configuration file)
+
+*** WARNING: Failure reading configuration file!
+
+	configuration file = tests/config_imfit_sersictest512_badlimits2.dat

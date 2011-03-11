@@ -31,26 +31,32 @@ public:
     string  inputLine;
     vector<string>  inputLines;
     int  output, correctOutput;
+    int  possibleBadLineNumber = -1;
+    int  k = 0;
+    vector<int>  origLineNumbers;
     
     inputFileStream.open(TEST_CONFIGFILE_GOOD.c_str());
     if( ! inputFileStream ) {
        cerr << "Error opening input stream for file " << TEST_CONFIGFILE_GOOD.c_str() << endl;
     }
     while ( getline(inputFileStream, inputLine) ) {
+      k++;
       // strip off leading & trailing spaces; turns a blank line with spaces/tabs
       // into an empty string
       TrimWhitespace(inputLine);
       // store non-empty, non-comment lines in a vector of strings
-      if ((inputLine.size() > 0) && (inputLine[0] != '#'))
+      if ((inputLine.size() > 0) && (inputLine[0] != '#')) {
         inputLines.push_back(inputLine);
+        origLineNumbers.push_back(k);
+      }
     }
     inputFileStream.close();
 
     correctOutput = 2;
-    output = VetConfigFile(inputLines, false);
+    output = VetConfigFile(inputLines, origLineNumbers, false, &possibleBadLineNumber);
     TS_ASSERT( output == correctOutput );
     // check that this works in 2D mode also
-    output = VetConfigFile(inputLines, true);
+    output = VetConfigFile(inputLines, origLineNumbers, true, &possibleBadLineNumber);
     TS_ASSERT( output == correctOutput );
   }
 
@@ -61,26 +67,32 @@ public:
     string  inputLine;
     vector<string>  inputLines;
     int  output, correctOutput;
+    int  possibleBadLineNumber = -1;
+    int  k = 0;
+    vector<int>  origLineNumbers;
     
     inputFileStream.open(TEST_CONFIGFILE_BAD1.c_str());
     if( ! inputFileStream ) {
        cerr << "Error opening input stream for file " << TEST_CONFIGFILE_BAD1.c_str() << endl;
     }
     while ( getline(inputFileStream, inputLine) ) {
+      k++;
       // strip off leading & trailing spaces; turns a blank line with spaces/tabs
       // into an empty string
       TrimWhitespace(inputLine);
       // store non-empty, non-comment lines in a vector of strings
-      if ((inputLine.size() > 0) && (inputLine[0] != '#'))
+      if ((inputLine.size() > 0) && (inputLine[0] != '#')) {
         inputLines.push_back(inputLine);
+        origLineNumbers.push_back(k);
+      }
     }
     inputFileStream.close();
 
     correctOutput = CONFIG_FILE_ERROR_NOFUNCSECTION;
-    output = VetConfigFile(inputLines, false);
+    output = VetConfigFile(inputLines, origLineNumbers, false, &possibleBadLineNumber);
     TS_ASSERT( output == correctOutput );
     // check that this works in 2D mode also
-    output = VetConfigFile(inputLines, true);
+    output = VetConfigFile(inputLines, origLineNumbers, true, &possibleBadLineNumber);
     TS_ASSERT( output == correctOutput );
   }
 
@@ -91,26 +103,32 @@ public:
     string  inputLine;
     vector<string>  inputLines;
     int  output, correctOutput;
+    int  possibleBadLineNumber = -1;
+    int  k = 0;
+    vector<int>  origLineNumbers;
     
     inputFileStream.open(TEST_CONFIGFILE_BAD2.c_str());
     if( ! inputFileStream ) {
        cerr << "Error opening input stream for file " << TEST_CONFIGFILE_BAD2.c_str() << endl;
     }
     while ( getline(inputFileStream, inputLine) ) {
+      k++;
       // strip off leading & trailing spaces; turns a blank line with spaces/tabs
       // into an empty string
       TrimWhitespace(inputLine);
       // store non-empty, non-comment lines in a vector of strings
-      if ((inputLine.size() > 0) && (inputLine[0] != '#'))
+      if ((inputLine.size() > 0) && (inputLine[0] != '#')) {
         inputLines.push_back(inputLine);
+        origLineNumbers.push_back(k);
+      }
     }
     inputFileStream.close();
 
     correctOutput = CONFIG_FILE_ERROR_NOFUNCTIONS;
-    output = VetConfigFile(inputLines, false);
+    output = VetConfigFile(inputLines, origLineNumbers, false, &possibleBadLineNumber);
     TS_ASSERT( output == correctOutput );
     // check that this works in 2D mode also
-    output = VetConfigFile(inputLines, true);
+    output = VetConfigFile(inputLines, origLineNumbers, true, &possibleBadLineNumber);
     TS_ASSERT( output == correctOutput );
   }
 
@@ -121,24 +139,32 @@ public:
     string  inputLine;
     vector<string>  inputLines;
     int  output, correctOutput;
+    int  possibleBadLineNumber = -1;
+    int  k = 0;
+    vector<int>  origLineNumbers;
     
     inputFileStream.open(TEST_CONFIGFILE_BAD3.c_str());
     if( ! inputFileStream ) {
        cerr << "Error opening input stream for file " << TEST_CONFIGFILE_BAD3.c_str() << endl;
     }
     while ( getline(inputFileStream, inputLine) ) {
+      k++;
       // strip off leading & trailing spaces; turns a blank line with spaces/tabs
       // into an empty string
       TrimWhitespace(inputLine);
       // store non-empty, non-comment lines in a vector of strings
-      if ((inputLine.size() > 0) && (inputLine[0] != '#'))
+      if ((inputLine.size() > 0) && (inputLine[0] != '#')) {
         inputLines.push_back(inputLine);
+        origLineNumbers.push_back(k);
+      }
     }
     inputFileStream.close();
 
     correctOutput = CONFIG_FILE_ERROR_INCOMPLETEXY;
-    output = VetConfigFile(inputLines, true);
+    int  trueBadLineNumber = 8;  // X0 line in TEST_CONFIGFILE_BAD3
+    output = VetConfigFile(inputLines, origLineNumbers, true, &possibleBadLineNumber);
     TS_ASSERT( output == correctOutput );    
+    TS_ASSERT( possibleBadLineNumber == trueBadLineNumber );    
   }
 
 };

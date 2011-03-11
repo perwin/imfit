@@ -25,7 +25,8 @@ typedef struct {
 
 // Utility function (only used inside ReadConfigFile, but exposed here so
 // we can do unit tests on it
-int VetConfigFile( vector<string>& inputLines, bool mode2D );
+int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, bool mode2D,
+									int *badLineNumber );
 
 // First version is for use by e.g. makeimage: reads in parameters, but ignores
 // parameter limits

@@ -18,6 +18,8 @@ echo "Running tests for imfit..."
 ./imfit --config tests/config_makeimage_sersictest512_bad2.dat &> test_dump5
 ./imfit --config tests/config_makeimage_sersictest512_bad3.dat &> test_dump6
 ./imfit --config tests/config_makeimage_sersictest512_bad4.dat &> test_dump7
+./imfit --config tests/config_imfit_sersictest512_badlimits1.dat &> test_dump8
+./imfit --config tests/config_imfit_sersictest512_badlimits2.dat &> test_dump9
 
 echo ""
 
@@ -82,6 +84,24 @@ then
 else
   echo "Diff output:"
   diff test_dump7 tests/imfit_textout7
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 5... "
+if (diff --brief test_dump8 tests/imfit_textout8)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump8 tests/imfit_textout8
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 6... "
+if (diff --brief test_dump9 tests/imfit_textout9)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump9 tests/imfit_textout9
 fi
 
 
