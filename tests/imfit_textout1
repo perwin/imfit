@@ -1,9 +1,9 @@
-	Image file = testimage_expdisk32.fits
+	Image file = tests/testimage_expdisk32.fits
 	configuration file = tests/config_imfit_expdisk32.dat
-	noise image = uniform_image32.fits
-Reading data image ("testimage_expdisk32.fits") ...
+	noise image = tests/uniform_image32.fits
+Reading data image ("tests/testimage_expdisk32.fits") ...
 naxis1 [# pixels/row] = 32, naxis2 [# pixels/col] = 32; nPixels_tot = 1024
-Reading noise image ("uniform_image32.fits") ...
+Reading noise image ("tests/uniform_image32.fits") ...
 * No PSF image supplied -- no image convolution will be done!
 * Pixel subsampling has been turned OFF.
 Function: Exponential

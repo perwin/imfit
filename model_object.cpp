@@ -685,6 +685,14 @@ string& ModelObject::GetParameterName( int i )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetNFunctions ----------------------- */
+
+int ModelObject::GetNFunctions( )
+{
+  return nFunctions;
+}
+
+
 /* ---------------- PUBLIC METHOD: GetNParams -------------------------- */
 
 int ModelObject::GetNParams( )

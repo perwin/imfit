@@ -117,6 +117,9 @@ class ModelObject
     string& GetParameterName( int i );
 
     // common, not specialized
+    int GetNFunctions( );
+
+    // common, not specialized
     int GetNParams( );
 
     // common, not specialized -- returns total number of data values (e.g., pixels in image)

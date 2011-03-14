@@ -102,14 +102,22 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits,
   printf(" (%d rounds):\n", nIterations);
   printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
   for (i = 0; i < nParams; i++) {
-    ConfidenceInterval(paramArray[i], nIterations, &lower, &upper);
-    plus = upper - bestfitParams[i];
-    minus = bestfitParams[i] - lower;
-    halfwidth = (upper - lower)/2.0;
-    printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", 
-           theModel->GetParameterName(i).c_str(), 
-           bestfitParams[i], plus, minus, lower, upper, halfwidth,
-           Mean(paramArray[i], nIterations), paramSigmas[i]);
+    if ((paramLimitsExist) && (mpfitParameterConstraints[i].fixed == 0)) {
+      // OK, this parameter was not fixed
+      ConfidenceInterval(paramArray[i], nIterations, &lower, &upper);
+      plus = upper - bestfitParams[i];
+      minus = bestfitParams[i] - lower;
+      halfwidth = (upper - lower)/2.0;
+      printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", 
+             theModel->GetParameterName(i).c_str(), 
+             bestfitParams[i], plus, minus, lower, upper, halfwidth,
+             Mean(paramArray[i], nIterations), paramSigmas[i]);
+    }
+    else {
+      printf("%s = %g     [fixed parameter]\n", theModel->GetParameterName(i).c_str(),
+                  bestfitParams[i]);
+    
+    }
   }
 
 

@@ -72,18 +72,18 @@ extra_defines = []
 for key, value in ARGLIST:
 	if key == 'define':
 		extra_defines.append(value)
-		if value == "FFTW_THREADING":
+		if value == "FFTW_THREADING":   # "scons define=FFTW_THREADING"
 			# OK, user has requested FFTW threading to be turned on
 			lib_list.insert(0, "fftw3_threads")
 			if (os_type == "Linux"):
 				lib_list.append("pthread")
 	if key == 'mode':
-		if value == "profile":
+		if value == "profile":   # "scons mode=profile"  [for profiling the code]
 			if (os_type == "Linux"):
 				cflags_opt.append("-pg")
 				cflags_db.append("-pg")
 				link_flags.append("-pg")
-		if value == "openmp":
+		if value == "openmp":   # "scons mode=openmp"  [for compiling with OpenMP enabled]
 			cflags_opt.append("-fopenmp")
 			cflags_db.append("-fopenmp")
 			link_flags.append("-fopenmp")
@@ -98,10 +98,10 @@ defines_opt = defines_opt + extra_defines
 
 env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-# env_norm = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-# 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+
+
 
 # We have separate lists of object names (what we want the .o files to be called) and
 # source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
@@ -110,6 +110,7 @@ env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 c_obj_string = """mp_enorm statistics mersenne_twister"""
 c_objs = c_obj_string.split()
 c_sources = [name + ".c" for name in c_objs]
+
 
 # C++ code
 
@@ -177,16 +178,16 @@ profilefit_sources = profilefit_base_sources + modelobject1d_sources + functiono
 # makeimage: put all the object and source-code lists together
 makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs + c_objs
 makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources + c_sources
+
 # timing: variation on makeimage designed to time image-generation and convolution
 timing_sources = timing_base_sources + modelobject_sources + functionobject_sources + c_sources
 
 
+# source+obj lists for older or less-used programs:
 # readimage: put all the object and source-code lists together
-#readimage_sources = ["readimage_main.cpp", "readimage.cpp"]
 readimage_sources = ["readimage_main.cpp", "image_io.cpp"]
 
 # psfconvolve: put all the object and source-code lists together
-#psfconvolve_sources_old = ["psfconvolve_main_old.cpp", "anyoption.cpp", "image_io.cpp"]
 psfconvolve_objs = ["psfconvolve_main", "commandline_parser", "utilities",
 					"image_io", "convolver"]
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
@@ -204,6 +205,7 @@ testparser_sources = [name + ".cpp" for name in testparser_objs]
 test_commandline_objs = ["test_commandline_parser", "anyoption", 
 			"commandline_parser", "utilities"]
 test_commandline_sources = [name + ".cpp" for name in test_commandline_objs]
+
 
 
 # Finally, define the actual targets
