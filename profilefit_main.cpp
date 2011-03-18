@@ -59,7 +59,7 @@
 #define DEFAULT_MODEL_OUTPUT_FILE   "model_profile_save.dat"
 #define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_profilefit.dat"
 
-#define VERSION_STRING      " v0.6"
+#define VERSION_STRING      " v0.8"
 
 
 
@@ -461,6 +461,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("Usage: ");
   optParser->AddUsageLine("   profilefit [options] datafile configfile");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine(" -v  --version                Prints version number");
+  optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
+  optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine(" --useerrors                  Use errors from data file (3rd column)");
   optParser->AddUsageLine(" --usemask                    Use mask from data file (4th column)");
   optParser->AddUsageLine(" --intensities                Data y-values are intensities, not magnitudes");
@@ -478,6 +482,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   /* by default all options are checked on the command line and from option/resource file */
   optParser->AddFlag("help", "h");
+  optParser->AddFlag("version", "v");
+  optParser->AddFlag("list-functions");
+  optParser->AddFlag("list-parameters");
   optParser->AddFlag("useerrors");
   optParser->AddFlag("usemask");
   optParser->AddFlag("intensities");
@@ -513,6 +520,22 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     delete optParser;
     exit(1);
   }
+  if ( optParser->FlagSet("version") ) {
+    printf("profilefit version %s\n\n", VERSION_STRING);
+    delete optParser;
+    exit(1);
+  }
+  if (optParser->FlagSet("list-functions")) {
+    PrintAvailableFunctions();
+    delete optParser;
+    exit(1);
+  }
+  if (optParser->FlagSet("list-parameters")) {
+    ListFunctionParameters();
+    delete optParser;
+    exit(1);
+  }
+
   if (optParser->FlagSet("useerrors")) {
     printf("\t USE ERRORS SELECTED!\n");
     theOptions->noErrors = false;

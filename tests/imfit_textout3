@@ -37,6 +37,7 @@ Calling mpfit ...
 Reduced Chi^2 = 1.255692
 AIC = 1291.148573, BIC = 1325.558640
 
+
 X0		16.950237 # +/- 0.013580
 Y0		18.098768 # +/- 0.016642
 FUNCTION Sersic

@@ -67,7 +67,7 @@ static string  kNCombinedString = "NCOMBINED";
 static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
-#define VERSION_STRING      " v0.6"
+#define VERSION_STRING      "0.8"
 
 
 
@@ -513,6 +513,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("Usage: ");
   optParser->AddUsageLine("   imfit [options] imagefile.fits");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine(" -v  --version                Prints version number");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
@@ -543,6 +544,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   /* by default all options are checked on the command line and from option/resource file */
   optParser->AddFlag("help", "h");
+  optParser->AddFlag("version", "v");
   optParser->AddFlag("list-functions");
   optParser->AddFlag("list-parameters");
   optParser->AddFlag("printimage");
@@ -584,9 +586,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
 
   /* Process the results: options */
-  // First two are options which print useful info and then exit the program
+  // First four are options which print useful info and then exit the program
   if ( optParser->FlagSet("help") || optParser->CommandLineEmpty() ) {
     optParser->PrintUsage();
+    delete optParser;
+    exit(1);
+  }
+  if ( optParser->FlagSet("version") ) {
+    printf("imfit version %s\n\n", VERSION_STRING);
     delete optParser;
     exit(1);
   }

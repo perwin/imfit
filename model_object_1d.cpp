@@ -374,9 +374,9 @@ void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], mp_par 
       k = indexOffset;
       x0 = params[k] + parameterInfo[k].offset;
       if (errs != NULL) {
-        fprintf(output_ptr, "X0\t\t%f # +/- %f\n", x0, errs[k]);
+        fprintf(output_ptr, "\nX0\t\t%f # +/- %f\n", x0, errs[k]);
       } else {
-        fprintf(output_ptr, "X0\t\t%f\n", x0);
+        fprintf(output_ptr, "\nX0\t\t%f\n", x0);
       }
       indexOffset += 1;
     }

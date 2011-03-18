@@ -30,6 +30,7 @@ Calling mpfit ...
 Reduced Chi^2 = 0.000000
 AIC = 12.082596, BIC = 41.588831
 
+
 X0		15.000000 # +/- 0.021376
 Y0		15.000000 # +/- 0.009135
 FUNCTION Exponential

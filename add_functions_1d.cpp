@@ -16,6 +16,7 @@
 #include "function_object.h"
 #include "func1d_exp.h"
 #include "func1d_gaussian.h"
+#include "func1d_gaussian2side.h"
 #include "func1d_moffat.h"
 #include "func1d_sersic.h"
 #include "func1d_core-sersic.h"
@@ -26,6 +27,15 @@
 #include "func1d_vdksech.h"
 
 using namespace std;
+
+
+// CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
+const char  FUNCTION_NAMES[][30] = {"Gaussian-1D", "Moffat-1D", "Sersic-1D", 
+            "Core-Sersic-1D", "BrokenExponential-1D", "Sech-1D", "Sech2-1D", 
+            "vdKSech-1D", "Gaussian2Side-1D"};
+const int  N_FUNCTIONS = 9;
+
+
 
 int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
                   vector<int> &functionSetIndices )
@@ -40,6 +50,11 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
     
     if (currentName == "Gaussian-1D") {
       thisFunctionObj = new Gaussian1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
+    if (currentName == "Gaussian2Side-1D") {
+      thisFunctionObj = new Gaussian2Side1D();
       theModel->AddFunction(thisFunctionObj);
       continue;
     }
@@ -103,5 +118,28 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
   return 0;
 }
 
+
+
+void PrintAvailableFunctions( )
+{
+  
+  printf("\nAvailable function/components:\n");
+  for (int i = 0; i < N_FUNCTIONS - 1; i++) {
+    printf("%s, ", FUNCTION_NAMES[i]);
+  }
+  printf("%s.\n\n", FUNCTION_NAMES[N_FUNCTIONS - 1]);
+    
+}
+
+
+
+void ListFunctionParameters( )
+// Prints a list of function names, along with the ordered list of
+// parameter names for each function (suitable for copying and pasting
+// into a config file for makeimage or imfit).
+{
+  
+  printf("\n<listing of function parameters not yet implemented!>\n\n");
+}
 
 /* END OF FILE: add_functions_1d.cpp ------------------------------------- */

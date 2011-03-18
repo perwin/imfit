@@ -570,10 +570,10 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
       x0 = params[k] + parameterInfo[k].offset;
       y0 = params[k + 1] + parameterInfo[k + 1].offset;
       if (errs != NULL) {
-        fprintf(output_ptr, "X0\t\t%f # +/- %f\n", x0, errs[k]);
+        fprintf(output_ptr, "\nX0\t\t%f # +/- %f\n", x0, errs[k]);
         fprintf(output_ptr, "Y0\t\t%f # +/- %f\n", y0, errs[k + 1]);
       } else {
-        fprintf(output_ptr, "X0\t\t%f\n", x0);
+        fprintf(output_ptr, "\nX0\t\t%f\n", x0);
         fprintf(output_ptr, "Y0\t\t%f\n", y0);
       }
       indexOffset += 2;
