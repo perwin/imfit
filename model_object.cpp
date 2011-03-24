@@ -64,6 +64,7 @@ ModelObject::ModelObject( )
   maskExists = false;
   doConvolution = false;
   doChisquared = false;
+  zeroPointSet = false;
   nFunctions = 0;
   nFunctionSets = 0;
   nFunctionParams = 0;
@@ -140,9 +141,9 @@ void ModelObject::AddDataVectors( int nDataValues, double *xValVector, double *y
 
 void ModelObject::SetZeroPoint( double zeroPointValue )
 {
-  // Just a placeholder for now (needs to be modified & overridden in derived
-  // class ModelObject1D
-  ;
+
+  zeroPoint = zeroPointValue;
+  zeroPointSet = true;
 }
 
 
@@ -550,6 +551,17 @@ void ModelObject::PrintDescription( )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetFunctionNames ------------------- */
+
+void ModelObject::GetFunctionNames( vector<string>& functionNames )
+{
+  functionNames.clear();
+  for (int n = 0; n < nFunctions; n++) {
+    functionNames.push_back(functionObjects[n]->GetShortName());
+  }
+}
+
+
 /* ---------------- PUBLIC METHOD: PrintModelParams --------=---------- */
 // Basic function which prints to a file (or, e.g. stdout) a summary of the
 // best-fitting model, in form suitable for future use as an input config file.
@@ -757,6 +769,50 @@ double * ModelObject::GetWeightImageVector( )
   }
   
   return weightVector;
+}
+
+
+/* ---------------- PUBLIC METHOD: FindTotalFluxes --------------------- */
+// Estimate total fluxes for individual components (and entire model) by integrating
+// over a very large image, with each component/function centered in the image.
+double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
+                       double individualFluxes[] )
+{
+  double  x0_all, y0_all, x, y;
+  double  totalModelFlux, totalComponentFlux;
+  int  i, j, n;
+  int  offset = 0;
+
+  // Define x0_all, y0_all as center of nominal giant image
+  x0_all = 0.5*xSize;
+  y0_all = 0.5*ySize;
+  
+  for (int n = 0; n < nFunctions; n++) {
+    if (setStartFlag[n] == true) {
+      // start of new function set: skip over existing x0,y0 values
+      offset += 2;
+    }
+    functionObjects[n]->Setup(params, offset, x0_all, y0_all);
+    offset += paramSizes[n];
+  }
+
+
+  totalModelFlux = 0.0;
+  // Integrate over the image, once per function
+  for (n = 0; n < nFunctions; n++) {
+    totalComponentFlux = 0.0;
+    for (i = 0; i < ySize; i++) {   // step by row number = y
+      y = (double)(i + 1);              // Iraf counting: first row = 1
+      for (j = 0; j < xSize; j++) {   // step by column number = x
+        x = (double)(j + 1);                 // Iraf counting: first column = 1
+        totalComponentFlux += functionObjects[n]->GetValue(x, y);
+      }
+    }
+    individualFluxes[n] = totalComponentFlux;
+    totalModelFlux += totalComponentFlux;
+  }
+
+  return totalModelFlux;
 }
 
 

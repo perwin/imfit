@@ -46,6 +46,7 @@ ModelObject1d::ModelObject1d( )
   dataAreMagnitudes = true;
   doBootstrap = false;
   bootstrapIndicesAllocated = false;
+  zeroPointSet = false;
   nFunctions = 0;
   nFunctionSets = 0;
   nFunctionParams = 0;
@@ -87,6 +88,7 @@ void ModelObject1d::DefineFunctionSets( vector<int>& functionStartIndices )
 void ModelObject1d::SetZeroPoint( double zeroPointValue )
 {
   zeroPoint = zeroPointValue;
+  zeroPointSet = true;
   if (nFunctions < 1) {
     fprintf(stderr, "ModelObject1d: WARNING: zero point added to model object");
     fprintf(stderr, " before any functions were added!\n");

@@ -12,6 +12,7 @@
 #define _MODEL_OBJ_H_
 
 #include <vector>
+#include <string>
 
 #include "definitions.h"
 #include "function_object.h"
@@ -91,6 +92,9 @@ class ModelObject
     // common, but Specialized by ModelObject1D
     virtual void PrintDescription( );
 
+    // common, not specialized
+    void GetFunctionNames( vector<string>& functionNames );
+
     // common, but Specialized by ModelObject1D
     virtual void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
 																		double errs[] );
@@ -137,6 +141,10 @@ class ModelObject
 		// 2D only
     double * GetWeightImageVector( );
 
+		// 2D only
+    double FindTotalFluxes(double params[], int xSize, int ySize, 
+    											double individualFluxes[] );
+
     // 1D only
     virtual int GetModelVector( double *profileVector );
 
@@ -156,6 +164,7 @@ class ModelObject
   protected:  // same as private, except accessible to derived classes
     int  nDataVals, nColumns, nRows, nValidDataVals, nCombined;
     double  nCombined_sqrt;
+	  double  zeroPoint;
     int  debugLevel;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
     bool  residualVectorAllocated;
@@ -164,6 +173,7 @@ class ModelObject
     bool  weightValsSet, maskExists;
     bool  doConvolution;
     bool  doChisquared;   // ModelObject will be asked to do chi-squared calculations
+    bool  zeroPointSet;
     int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;
     double  *dataVector;
     double  *weightVector;

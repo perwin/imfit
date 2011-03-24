@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <string>
 
 #include "definitions.h"
@@ -35,6 +36,8 @@
 #define FITS_FILENAME   "testimage_expdisk_tiny.fits"
 #define FITS_ERROR_FILENAME   "tiny_uniform_image_0.1.fits"
 
+#define DEFAULT_ESTIMATION_IMAGE_SIZE  5000
+
 
 // Option names for use in config files
 static string  kNCols1 = "NCOLS";
@@ -42,7 +45,7 @@ static string  kNCols2 = "NCOLUMNS";
 static string  kNRows = "NROWS";
 
 
-#define VERSION_STRING      " v0.6"
+#define VERSION_STRING      " v0.7"
 
 
 typedef struct {
@@ -56,6 +59,7 @@ typedef struct {
   bool  psfImagePresent;
   int  nColumns;
   int  nRows;
+  int  estimationImageSize;
   bool  nColumnsSet;
   bool  nRowsSet;
   bool  noConfigFile;
@@ -68,6 +72,7 @@ typedef struct {
   char  paramLimitsFileName[MAX_FILENAME_LENGTH];
   bool  printImages;
   bool  saveImage;
+  bool  printFluxes;
 } commandOptions;
 
 
@@ -119,6 +124,7 @@ int main(int argc, char *argv[])
   options.psfImagePresent = false;
   options.nColumns = 0;
   options.nRows = 0;
+  options.estimationImageSize = DEFAULT_ESTIMATION_IMAGE_SIZE;
   options.nColumnsSet = false;
   options.nRowsSet = false;
   options.noConfigFile = true;
@@ -128,6 +134,7 @@ int main(int argc, char *argv[])
   options.magZeroPoint = NO_MAGNITUDES;
   options.printImages = false;
   options.saveImage = true;
+  options.printFluxes = false;
 
   ProcessInput(argc, argv, &options);
 
@@ -241,6 +248,50 @@ int main(int argc, char *argv[])
                       nColumns, nRows, imageCommentsList);
   }
   
+  
+  /* Estimate component fluxes, if requested */
+  if (options.printFluxes) {
+    int  nComponents = theModel->GetNFunctions();
+    double *fluxes = (double *) calloc(nComponents, sizeof(double));
+    double *fractions = (double *) calloc(nComponents, sizeof(double));
+    double  fraction, totalFlux, magnitude;
+    vector<string> functionNames;
+    
+    theModel->GetFunctionNames(functionNames);
+    
+    printf("\nEstimating fluxes on %d x %d image", options.estimationImageSize,
+    				options.estimationImageSize);
+    if (options.magZeroPoint != NO_MAGNITUDES)
+      printf(" (using zero point = %g)", options.magZeroPoint);
+    printf("...\n\n");
+    
+    totalFlux = theModel->FindTotalFluxes(paramsVect, options.estimationImageSize,
+    												options.estimationImageSize, fluxes);
+    printf("Component                 Flux        Magnitude  Fraction\n");
+    for (int n = 0; n < nComponents; n++) {
+      fraction = fluxes[n] / totalFlux;
+      fractions[n] = fraction;
+      printf("%-25s %10.4e", functionNames[n].c_str(), fluxes[n]);
+      if (options.magZeroPoint != NO_MAGNITUDES) {
+        magnitude = options.magZeroPoint - 2.5*log10(fluxes[n]);
+        printf("   %6.4f", magnitude);
+      }
+      else
+        printf("      ---");
+      printf("%10.5f\n", fraction);
+    }
+
+    printf("\nTotal                     %10.4e", totalFlux);
+    if (options.magZeroPoint != NO_MAGNITUDES) {
+      magnitude = options.magZeroPoint - 2.5*log10(totalFlux);
+      printf("   %6.4f", magnitude);
+    }
+
+    free(fluxes);
+    free(fractions);
+    printf("\n\n");
+  }
+  
   printf("Done!\n\n");
 
 
@@ -266,6 +317,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("Usage: ");
   optParser->AddUsageLine("   makeimage [options] config-file");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine(" -v  --version                Prints version number");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
@@ -277,21 +329,28 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
   optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
   optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing)");
+  optParser->AddUsageLine("     --zero-point <value>     Zero point (for estimating component & total magnitudes)");
+  optParser->AddUsageLine("     --print-fluxes           Estimate total component fluxes (& magnitudes, if zero point is given)");
+  optParser->AddUsageLine("     --estimation-size <int>  Size of square image to use for estimating fluxes");
   optParser->AddUsageLine("");
 
 
   /* by default all options are checked on the command line and from option/resource file */
   optParser->AddFlag("help", "h");
+  optParser->AddFlag("version", "v");
   optParser->AddFlag("list-functions");
   optParser->AddFlag("list-parameters");
   optParser->AddFlag("printimage");
   optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("print-fluxes");
   optParser->AddFlag("nosave");
   optParser->AddOption("output", "o");      /* an option (takes an argument) */
   optParser->AddOption("ncols");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("nrows");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("refimage");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("zero-point");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("estimation-size");      /* an option (takes an argument), supporting only long form */
 
   /* parse the command line:  */
   int status = optParser->ParseCommandLine( argc, argv );
@@ -315,6 +374,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     delete optParser;
     exit(1);
   }
+  if ( optParser->FlagSet("version") ) {
+    printf("makeimage version %s\n\n", VERSION_STRING);
+    delete optParser;
+    exit(1);
+  }
   if (optParser->FlagSet("list-functions")) {
     PrintAvailableFunctions();
     delete optParser;
@@ -334,6 +398,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->FlagSet("nosave")) {
     theOptions->saveImage = false;
+  }
+  if (optParser->FlagSet("print-fluxes")) {
+    theOptions->printFluxes = true;
   }
   if (optParser->OptionSet("output")) {
     theOptions->outputImageName = optParser->GetTargetString("output");
@@ -365,6 +432,23 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     }
     theOptions->nRows = atol(optParser->GetTargetString("nrows").c_str());
     theOptions->nRowsSet = true;
+  }
+  if (optParser->OptionSet("zero-point")) {
+    if (NotANumber(optParser->GetTargetString("zero-point").c_str(), 0, kAnyReal)) {
+      fprintf(stderr, "*** WARNING: zero point should be a real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->magZeroPoint = atof(optParser->GetTargetString("zero-point").c_str());
+    printf("\tmagnitude zero point = %g\n", theOptions->magZeroPoint);
+  }
+  if (optParser->OptionSet("estimation-size")) {
+    if (NotANumber(optParser->GetTargetString("estimation-size").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** WARNING: estimation size should be a positive integer!\n\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->estimationImageSize = atol(optParser->GetTargetString("estimation-size").c_str());
   }
 
   if ((theOptions->nColumns) && (theOptions->nRows))

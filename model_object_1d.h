@@ -74,7 +74,6 @@ class ModelObject1d : public ModelObject
 //     int  nFunctions, nParamsTot;
 // 	double  *dataVector;
 	  double  *dataXValues, *modelXValues;
-	  double  zeroPoint;
 	  bool  dataAreMagnitudes, doBootstrap, bootstrapIndicesAllocated;
 	// things useful for PSF convolution
 	  int  dataStartOffset, nPSFVals, nModelVals;
