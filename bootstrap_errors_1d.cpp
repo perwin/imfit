@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include "strings.h"  // for bzero on Linux systems
 
 #include "definitions.h"
 #include "model_object_1d.h"

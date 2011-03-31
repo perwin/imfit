@@ -463,7 +463,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" -h  --help                   Prints this help");
   optParser->AddUsageLine(" -v  --version                Prints version number");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
-  optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
+  optParser->AddUsageLine("     --list-parameters        [NOT YET WORKING!] Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" --useerrors                  Use errors from data file (3rd column)");
   optParser->AddUsageLine(" --usemask                    Use mask from data file (4th column)");
@@ -474,7 +474,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" --x1 <int>                   start data value");
   optParser->AddUsageLine(" --x2 <int>                   end data value");
   optParser->AddUsageLine(" --zp <float>                 magnitude zero point of the data");
-  optParser->AddUsageLine(" --bootstrap <int>            do this many bootstrap resampling to estimate errors");
+  optParser->AddUsageLine(" --bootstrap <int>            do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine(" --save-params <output-file>  Save best-fit parameters in config-file format");
   optParser->AddUsageLine(" --save-best-fit <output-file>  Save best-fit profile");
   optParser->AddUsageLine("");
