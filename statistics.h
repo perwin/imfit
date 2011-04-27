@@ -11,8 +11,6 @@ double Mean( double *vector, int nVals );
 
 double StandardDeviation( double *vector, int nVals );
 
-double GaussianRand( void );
-
 void ConfidenceInterval( double *vector, int nVals, double *lower, double *upper );
 
 double AIC_corrected( double logLikelihood, int nParams, long nData, int chiSquareUsed );

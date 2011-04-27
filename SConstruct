@@ -65,6 +65,7 @@ defines_opt = base_defines
 #defines_db = base_defines + ["DEBUG"]
 defines_db = base_defines
 
+gslPresent = True
 
 # Allow use to specify extra definitions via command line
 # (e.g., "scons define=FFTW_THREADING"):
@@ -77,6 +78,12 @@ for key, value in ARGLIST:
 			lib_list.insert(0, "fftw3_threads")
 			if (os_type == "Linux"):
 				lib_list.append("pthread")
+		if value == "NO_GSL":   # "scons define=NO_GSL"
+			# OK, user does *not* have GSL library installed
+			defines_opt.append("NO_GSL")
+			defines_db.append("NO_GSL")
+			lib_list.remove("gsl")
+			gslPresent = False
 	if key == 'mode':
 		if value == "profile":   # "scons mode=profile"  [for profiling the code]
 			if (os_type == "Linux"):
@@ -107,9 +114,14 @@ env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 # source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
 
 # Pure C code
-c_obj_string = """mp_enorm statistics mersenne_twister"""
+c_obj_string = """mp_enorm statistics"""
 c_objs = c_obj_string.split()
 c_sources = [name + ".c" for name in c_objs]
+
+# mersenne_twister code is only used by profilefit
+c_mersenne_obj_string = """mersenne_twister"""
+c_mersenne_objs = c_mersenne_obj_string.split()
+c_mersenne_sources = [name + ".c" for name in c_mersenne_objs]
 
 
 # C++ code
@@ -122,9 +134,12 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 # Function objects:
 functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
 		func_sersic func_gen-sersic func_flat-exp func_broken-exp func_broken-exp2d
-		func_edge-on-disk func_moffat func_flatsky func_gaussian-ring2side
+		func_moffat func_flatsky func_gaussian-ring func_gaussian-ring2side
 		func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
 		func_edge-on-ring func_edge-on-ring2side"""
+if gslPresent:
+	# these modules require GSL be present
+	functionobject_obj_string += " func_edge-on-disk"
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
@@ -172,8 +187,8 @@ imfit_objs = imfit_base_objs + modelobject_objs + functionobject_objs + c_objs
 imfit_sources = imfit_base_sources + modelobject_sources + functionobject_sources + c_sources
 
 # profilefit: put all the object and source-code lists together
-profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + c_objs
-profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + c_sources
+profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + c_objs + c_mersenne_objs
+profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + c_sources + c_mersenne_sources
 
 # makeimage: put all the object and source-code lists together
 makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs + c_objs

@@ -25,12 +25,16 @@
 #include "func_flat-exp.h"
 #include "func_broken-exp.h"
 #include "func_broken-exp2d.h"
-#include "func_edge-on-disk.h"
 #include "func_edge-on-ring.h"
 #include "func_edge-on-ring2side.h"
+#include "func_gaussian-ring.h"
 #include "func_gaussian-ring2side.h"
 #include "func_moffat.h"
 #include "func_flatsky.h"
+// modules requiring GSL:
+#ifndef NO_GSL
+#include "func_edge-on-disk.h"
+#endif
 
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
@@ -39,12 +43,21 @@ using namespace std;
 
 
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
+#ifndef NO_GSL
 const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
             "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
             "BrokenExponential2D", "EdgeOnDisk", "Moffat", "FlatSky",
-            "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "GaussianRing2Side"};
-const int  N_FUNCTIONS = 15;
-
+            "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
+            "GaussianRing", "GaussianRing2Side"};
+const int  N_FUNCTIONS = 17;
+#else
+const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
+            "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
+            "BrokenExponential2D", "Moffat", "FlatSky",
+            "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
+            "GaussianRing", "GaussianRing2Side"};
+const int  N_FUNCTIONS = 16;
+#endif
 
 
 // Code to create FunctionObject object factories
@@ -95,15 +108,15 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   
   BrokenExponential2D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential2D>();
-  
-  EdgeOnDisk::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDisk>();
-  
+
   EdgeOnRing::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnRing>();
   
   EdgeOnRing2Side::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnRing2Side>();
+  
+  GaussianRing::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GaussianRing>();
   
   GaussianRing2Side::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRing2Side>();
@@ -123,6 +136,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   EdgeOnDiskN4762v2::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762v2>();
+
+// functions requring GSL:
+#ifndef NO_GSL 
+  EdgeOnDisk::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDisk>();
+#endif
 }
 
 
