@@ -1,0 +1,12 @@
+# Sample configuration file format, for use in fitting 256x256 cutout
+# of SDSS r-band image of IC 3478 (ic3478rss_256.fits)
+
+X0   129.0    125,135
+Y0   129.0    125,135
+FUNCTION Sersic
+PA    18.0    0,90
+ell    0.2    0,1
+n      1.5    0,5
+I_e    15     0,500
+r_e    25     0,100
+

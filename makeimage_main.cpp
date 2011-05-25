@@ -50,6 +50,7 @@ static string  kNRows = "NROWS";
 
 typedef struct {
   std::string  outputImageName;
+  std::string  functionRootName;   // root name for individual-image functions
   bool  noImageName;
   std::string  referenceImageName;
   bool  noRefImage;
@@ -72,6 +73,7 @@ typedef struct {
   char  paramLimitsFileName[MAX_FILENAME_LENGTH];
   bool  printImages;
   bool  saveImage;
+  bool  saveAllFunctions;  // save individual-function images
   bool  printFluxes;
 } commandOptions;
 
@@ -134,6 +136,7 @@ int main(int argc, char *argv[])
   options.magZeroPoint = NO_MAGNITUDES;
   options.printImages = false;
   options.saveImage = true;
+  options.saveAllFunctions = false;
   options.printFluxes = false;
 
   ProcessInput(argc, argv, &options);
@@ -249,6 +252,26 @@ int main(int argc, char *argv[])
   }
   
   
+  /* Save individual-function images, if requested */
+  if (options.saveAllFunctions) {
+    string  currentFilename;
+    vector<string> functionNames;
+    char  numstring[21];   // large enough to hold any 64-bit integer
+    int  nFuncs = theModel->GetNFunctions();
+    theModel->GetFunctionNames(functionNames);
+    for (int i = 0; i < nFuncs; i++) {
+      currentFilename = options.functionRootName;
+      sprintf(numstring, "%d", i + 1);
+      currentFilename += numstring;
+      currentFilename += "_";
+      currentFilename += functionNames[i];
+      currentFilename += ".fits";
+      printf("%s\n", currentFilename.c_str());
+      SaveVectorAsImage(theModel->SingleFunctionImage(paramsVect, i), currentFilename, 
+                      nColumns, nRows, imageCommentsList);    }
+  }
+
+  
   /* Estimate component fluxes, if requested */
   if (options.printFluxes) {
     int  nComponents = theModel->GetNFunctions();
@@ -332,6 +355,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --zero-point <value>     Zero point (for estimating component & total magnitudes)");
   optParser->AddUsageLine("     --print-fluxes           Estimate total component fluxes (& magnitudes, if zero point is given)");
   optParser->AddUsageLine("     --estimation-size <int>  Size of square image to use for estimating fluxes");
+  optParser->AddUsageLine("     --output-functions <root-name>  Output individual function-images");
   optParser->AddUsageLine("");
 
 
@@ -351,6 +375,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("zero-point");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("estimation-size");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("output-functions");      /* an option (takes an argument), supporting only long form */
 
   /* parse the command line:  */
   int status = optParser->ParseCommandLine( argc, argv );
@@ -449,6 +474,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
       exit(1);
     }
     theOptions->estimationImageSize = atol(optParser->GetTargetString("estimation-size").c_str());
+  }
+  if (optParser->OptionSet("output-functions")) {
+    theOptions->functionRootName = optParser->GetTargetString("output-functions");
+    theOptions->saveAllFunctions = true;
   }
 
   if ((theOptions->nColumns) && (theOptions->nRows))

@@ -42,15 +42,15 @@ lib_list = ["fftw3", "cfitsio", "m", "gsl"]
 
 # system-specific stuff
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
-	# /sw/include and /sw/lib are for GNU Scientific Library (gsl) stuff
-	include_path = ["/usr/local/include", "/sw/include", FUNCTION_SUBDIR]
-	lib_path = ["/usr/local/lib", "/sw/lib"]
+	include_path = ["/usr/local/include", FUNCTION_SUBDIR]
+	lib_path = ["/usr/local/lib"]
 	# Use "-m32" for both compiling and linking, to make sure we work in 
 	# 32-bit mode for Mac OS X (10.6 defaults to 64-bit compilation otherwise,
 	# which would cause problems when linking with fftw3 and cfitsio libraries):
-	cflags_opt.append("-m32")
-	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3", "-m32"]
-	link_flags = ["-m32"]
+#	cflags_opt.append("-m32")
+	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
+	link_flags = []
+#	link_flags = ["-m32"]
 if (os_type == "Linux"):
 	# When compiled under Linux, -O3 causes mysterious "invalid pointer" error at end of run
 	cflags_opt = ["-O3", "-g0"]

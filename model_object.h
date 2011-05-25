@@ -31,6 +31,7 @@ class ModelObject
     void SetDebugLevel( int debuggingLevel );
     
     // common, not specialized
+    // Adds a new FunctionObject pointer to the internal vector
     void AddFunction( FunctionObject *newFunctionObj_ptr );
     
     // common, but Specialized by ModelObject1D
@@ -144,6 +145,10 @@ class ModelObject
 		// 2D only
     double FindTotalFluxes(double params[], int xSize, int ySize, 
     											double individualFluxes[] );
+
+    // Generate a model image using *one* of the FunctionObjects (the one indicated by
+    // functionIndex) and the input parameter vector; returns pointer to modelVector.
+    double * SingleFunctionImage( double params[], int functionIndex );
 
     // 1D only
     virtual int GetModelVector( double *profileVector );

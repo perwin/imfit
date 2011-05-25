@@ -95,7 +95,7 @@ version 3 of the FFTW (Fastest Fourier Transform in the West)
 library\footnote{\url{http://www.fftw.org/}} for PSF convolution.
 
 MORE CREDITS -- e.g., Craig Markwardt's lmfit code; Differential Evolution
-code.  [Mersenne Twister code??]
+code; C++ interface to DE.
 
 
 
@@ -173,8 +173,27 @@ which describes the model (the combination of 2D functions, initial values
 for parameters, and possible limits on parameter values) and \textit{input-image}
 is the FITS image we want to fit with the model.
 
-The ``options'' are a set of command-line flags; some notable/useful ones
-include:
+The ``options'' are a set of command-line flags and options (use ``\imfit{} \texttt{-h}''
+or `\imfit{} \texttt{--help}'' to see the complete list). Options must be followed by
+an appropriate value (e.g., a filename, an integer, a floating-point number); this can
+be separated from the option by a space, or they can be connected with an equals sign.
+In other words, both of the following are valid:
+\begin{quote}
+imfit ~ \texttt{--}gain 2.5 \\
+imfit ~ \texttt{--}gain=2.5
+\end{quote}
+Note that \imfit{} does not follow the full GNU standard for
+command-line options and flags (as implemented by, e.g., the GNU
+\texttt{getopt} library): you cannot merge multiple one-character flags
+into a single item (if ``\texttt{-a}'' and ``\texttt{-b}'' are flags,
+``\texttt{-a -b}'' will work, but ``\texttt{-ab}'' will not), and you
+cannot merge a one-character option and its target
+(``\texttt{-csomefile.dat}'' is \textit{not} a valid substitute for
+``\texttt{-c somefile.dat}'').
+
+\bigskip
+
+Some notable/useful comand-line flags and options include:
 \begin{itemize}
 \item \texttt{--psf} \textit{psf-image} --- specifies a FITS image to be convolved
 with the model image.
@@ -231,26 +250,41 @@ model as a fit to the input image, \textit{without} doing any minimization to fi
 a better solution.
 \end{itemize}
 
-%     --chisquare-only         Print chi^2 of input model and quit
-% -c  --config <config-file>   configuration file
-%     --de                     Use differential evolution solver instead of L-M
-%     --noise <noisemap.fits>  Noise image
-%     --mask <mask.fits>       Mask image
-%     --psf <psf.fits>         PSF image
-%     --nosubsampling          Do *not* do pixel subsampling near centers
-%     --save-params <output-file>          Save best-fit parameters in config-file format
-%     --save-model <outputname.fits>       Save best-fit model image
-%     --save-residual <outputname.fits>       Save residual (input - model) image
-%     --save-weights <outputname.fits>       Save weight image
-%     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]
-%     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image
-%     --gain <value>           Image gain (e-/ADU)
-%     --readnoise <value>      Image read noise (e-)
-%     --ncombined <value>      Number of images averaged to make final image (if counts are average or median)
-%     --errors-are-variances   Indicates that values in noise image = variances (instead of sigmas)
-%     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)
-%     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels
 
+
+
+\section{Trying It Out}
+
+In the \texttt{examples/} directory are XXX.
+
+The simplest way to run \imfit{} is:
+\begin{quote}
+imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}mask ~ ic3478rss\_256\_mask.fits ~ \texttt{--}gain=4.725 \texttt{--}readnoise=4.3 ~ \texttt{--}sky=130.14
+\end{quote}
+
+This converges to a fit in about 2.5 seconds on a 2009 MacBook Pro (2.8 GHz Core 2 Duo processor).
+
+Note that you can specify a subset of an image, thus:
+\begin{quote}
+imfit ~ ic3478rss\_256.fits[45:150,200:310] ~ [rest of options]
+\end{quote}
+This will fit columns 45--150 and rows 200--310 of the image (column and row numbering starts
+at 1); pixel coordinates in the configuration file should refer to locations within the
+full image.
+
+You can also fit the image using PSF convolution, by adding the ``\texttt{--psf}'' option and a
+valid FITS image for the PSF; the \texttt{examples} directory contains a Moffat PSF image which
+matches stars in the original image fairly well:
+\begin{quote}
+imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}mask ~ ic3478rss\_256\_mask.fits ~ \texttt{--}gain=4.725 \texttt{--}readnoise=4.3 ~ \texttt{--}sky=130.14 ~ \texttt{--}psf ~ psf\_moffat\_51.fits
+\end{quote}
+
+
+The PSF image was generated using the companion program \makeimage{} and the configuration
+file \texttt{makeimage\_config\_moffat\_psf\_51\_for\_ic3478rss.dat}:
+\begin{quote}
+makeimage ~ \texttt{--}ncols=51 ~ \texttt{--}nrows=51 ~ -o ~ psf\_moffat\_51.fits ~ makeimage\_config\_moffat\_psf\_51\_for\_ic3478rss.dat  
+\end{quote}
 
 
 
@@ -504,6 +538,27 @@ obtained by running \imfit{} with the ``\texttt{--list-parameters}'' option:
 \begin{quote}
   \texttt{\$ IMFIT --list-parematers}
 \end{quote}
+
+
+
+
+\section{Extras for Fitting Images}
+
+\subsection{Masks}
+
+\subsection{Noise, Variance, or Weight Maps}
+
+Note that \imfit{} does \textit{not} [, xxx by default,] try to obtain information
+from the FITS header of an image, for two reasons. First, there is little
+consistency in header names across the wide range of astronomical images, so
+it is difficult pick one name, or even a small set, and assume that it will
+be present in a given image's header. Second, XXX
+% trying to explain that we don't do the dumb thing that GALFIT does,
+% which is to assume that the presence of an EXPTIME keyword means that
+% pixel values MUST be divided by EXPTIME ...
+
+
+\subsection{PSF Convolution}
 
 
 

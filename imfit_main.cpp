@@ -517,8 +517,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --chisquare-only         Print chi^2 of input model and quit");
   optParser->AddUsageLine(" -c  --config <config-file>   configuration file");
+  optParser->AddUsageLine("     --chisquare-only         Print chi^2 of input model and quit");
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image");
@@ -540,6 +540,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --quiet                  Turn off printing of mpfit interation updates");
 //  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
   optParser->AddUsageLine("");
+  optParser->AddUsageLine("EXAMPLES:");
+  optParser->AddUsageLine("   imfit -c model_config_a.dat ngc100.fits");
+  optParser->AddUsageLine("   imfit -c model_config_b.dat ngc100.fits[405:700,844:1060] --mask ngc100_mask.fits[405:700,844:1060] --gain 4.5 --readnoise 0.7");
 
 
   /* by default all options are checked on the command line and from option/resource file */
