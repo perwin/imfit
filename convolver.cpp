@@ -95,6 +95,10 @@
 
 #include "fftw3.h"
 
+#ifdef FFTW_THREADING
+#include <unistd.h>
+#endif  // FFTW_THREADING
+
 #include "convolver.h"
 
 //using namespace std;
@@ -185,7 +189,6 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     printf("Images will be padded to %d x %d pixels in size\n", nColumns_padded, nRows_padded);
 
 #ifdef FFTW_THREADING
-  // TEST: multi-threaded FFTW:
   int  threadStatus;
   threadStatus = fftw_init_threads();
 #endif  // FFTW_THREADING
@@ -210,9 +213,11 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
                              fftwFlags);
 
 #ifdef FFTW_THREADING
-  // TEST: multi-threaded FFTW:
-  int nThreads = 2;
-  fftw_plan_with_nthreads(nThreads);
+  // Default: 1 thread per available core
+  int  nCores = sysconf(_SC_NPROCESSORS_ONLN);
+  if (nCores < 1)
+    nCores = 1;
+  fftw_plan_with_nthreads(nCores);
 #endif  // FFTW_THREADING
 
   plan_inputImage = fftw_plan_dft_2d(nRows_padded, nColumns_padded, image_in_cmplx, image_fft_cmplx, FFTW_FORWARD,

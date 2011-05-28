@@ -222,11 +222,6 @@ int main(int argc, char *argv[])
   options.noModel = true;
   options.noParamLimits = true;
   options.newParameters = false;
-//  options.doBootstrap = false;
-//  options.bootstrapIterations = BOOTSTRAP_ITER;
-//  options.doMonteCarlo = false;
-//  options.monteCarloOffset = 0.0;
-//  options.mcIterations = 0;
   options.magZeroPoint = NO_MAGNITUDES;
   options.printChiSquaredOnly = false;
   options.printImages = false;

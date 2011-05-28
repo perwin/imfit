@@ -43,7 +43,7 @@ class Moffat : public FunctionObject
 
 
   private:
-  double  x0, y0, PA, ell, I_0, fwhm, beta;   // parameters
-  double  alpha;
-  double  q, PA_rad, cosPA, sinPA;   // other useful (shape-related) quantities
+    double  x0, y0, PA, ell, I_0, fwhm, beta;   // parameters
+    double  alpha;
+    double  q, PA_rad, cosPA, sinPA;   // other useful (shape-related) quantities
 };

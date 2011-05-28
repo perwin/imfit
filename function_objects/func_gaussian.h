@@ -1,5 +1,5 @@
 /*   Class interface definition for func_gaussian.cpp
- *   VERSION 0.3
+ *   VERSION 0.4
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the luminosity as a function of radius for a circular
@@ -30,6 +30,13 @@ class Gaussian : public FunctionObject
     static void GetClassShortName( string& classname ) { classname = CLASS_SHORT_NAME; };
 
 
+  protected:
+    double CalculateIntensity( double r );
+    int  CalculateSubsamples( double r );
+
+
   private:
-    double  x0, y0, A, sigma, twosigma_squared;
+    double  x0, y0, PA, ell, I_0, sigma;   // parameters
+    double  twosigma_squared;
+    double  q, PA_rad, cosPA, sinPA;   // other useful (shape-related) quantities
 };

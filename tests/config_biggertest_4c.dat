@@ -34,7 +34,9 @@ n      4.0
 I_e   15.0
 r_e   15.0
 FUNCTION   Gaussian
-A     20.0
+PA    10.0
+ell    0.0   fixed
+I_0    20.0
 sigma  1.6
 
 
@@ -47,5 +49,7 @@ ell    0.5   0,1
 I_0  290.0   0,1000
 h     15.0   0,1000
 FUNCTION   Gaussian
-A    150.0
+PA    10.0
+ell    0.0   fixed
+I_0   150.0
 sigma  0.8
