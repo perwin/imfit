@@ -45,6 +45,8 @@ const char  FUNCTION_NAME[] = "Generalized-ellipse Sersic function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
+const char GenSersic::className[] = "Sersic_GenEllipse";
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
@@ -54,7 +56,7 @@ GenSersic::GenSersic( )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
-  shortFunctionName = CLASS_SHORT_NAME;
+  shortFunctionName = className;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

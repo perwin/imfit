@@ -1,5 +1,5 @@
 
-*** ReadConfigFile: No actual functions found in configuration file!
+*** ReadConfigFile: Unable to find start of function section in configuration file! (no "X0" line found)
 
 *** WARNING: Failure reading configuration file!
 

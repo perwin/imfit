@@ -22,11 +22,14 @@
 
 #include "function_object.h"
 
-#define CLASS_SHORT_NAME  "Exponential_GenEllipse"
+//#define CLASS_SHORT_NAME  "Exponential_GenEllipse"
 
 
 class GenExponential : public FunctionObject
 {
+  // the following static constant will be defined/initialized in the .cpp file
+  static const char  className[];
+  
   public:
     // Constructors:
     GenExponential( );
@@ -36,7 +39,7 @@ class GenExponential : public FunctionObject
     // No destructor for now
 
     // class method for returning official short name of class
-    static void GetClassShortName( string& classname ) { classname = CLASS_SHORT_NAME; };
+    static void GetClassShortName( string& classname ) { classname = className; };
 
   protected:
     double CalculateIntensity( double r );

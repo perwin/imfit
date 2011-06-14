@@ -70,6 +70,10 @@ class FunctionObject
     vector<string>  parameterLabels;
     string  functionName, shortFunctionName;
     double  ZP;
+
+    // class member (constant char-vector string) which will hold name of
+    // individual class in derived classes
+    static const char  shortFuncName[];
   
 };
 

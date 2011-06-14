@@ -43,6 +43,8 @@ const char  FUNCTION_NAME[] = "Elliptical Gaussian function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
+const char Gaussian::className[] = "Gaussian";
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
@@ -52,7 +54,7 @@ Gaussian::Gaussian( )
   nParams = N_PARAMS;
   
   functionName = FUNCTION_NAME;
-  shortFunctionName = CLASS_SHORT_NAME;   // defined in header file
+  shortFunctionName = className;   // defined in header file
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {

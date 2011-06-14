@@ -35,13 +35,14 @@
 
 using namespace std;
 
-
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 4;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h"};
 const char  FUNCTION_NAME[] = "Exponential function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
+
+const char Exponential::className[] = "Exponential";
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -52,7 +53,7 @@ Exponential::Exponential( )
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
-  shortFunctionName = CLASS_SHORT_NAME;   // defined in header file
+  shortFunctionName = className;
 
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {
