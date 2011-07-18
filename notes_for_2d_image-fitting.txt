@@ -692,6 +692,10 @@ image
 	-- Try using in-place FFT transforms?
 	
 	-- Try rounding up to nearest power-of-two for FFT work
+	
+	-- Look into ways of parallelizing (e.g., via OpenMP) L-M process
+		-- problem: computation of offset parameters implies multiple
+		versions of ModelObject
 
 
 ModelObject.ComputeDeviates *could* return an integer status value, which

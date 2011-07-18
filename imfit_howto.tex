@@ -76,9 +76,9 @@ the new function, and re-compiling the program. Notes are [WILL BE] provided
 to guide the interested user in adding new functions; in most cases, a
 basic working knowledge of C should suffice.
 
-Additional auxiliary programs built from the same codebase exist for
-generating artificial galaxy images (using the same input/output
-parameter-file format as \imfit{}).
+An additional auxiliary program called \makeimage{}, built from the same
+codebase, exists for generating artificial galaxy images (using the same
+input/output parameter-file format as \imfit{}).
 
 \Imfit{} is an open-source project; the source code is freely available
 under the GNU Public License (GPL).
@@ -115,8 +115,9 @@ Pre-built binaries for Intel-based MacOS X and Linux systems are available XXX.
 \item Install FFTW
 
 \item (Optional) Install GNU Scientific Library (GSL) --- this is only necessary
-if you wish to use 2D image functions that rely on GSL; currently, the only
-such function is the EdgeOnDisk (\texttt{func\_edge-on-disk.cpp}) component.
+if you wish to use 2D image functions that rely on GSL.  Currently, the only
+such function is the EdgeOnDisk (\texttt{func\_edge-on-disk.cpp}) component, which
+uses a modified Bessell function.
 
 \item Install SCons
 
@@ -151,8 +152,10 @@ commands instead:
 
 \subsubsection{Options: Multithreaded Programs}
 
-Mainly useful for making PSF convolution go faster ... Requires that FFTW
-have been compiled with threading support turned on.
+To speed up the FastFourier Transforms involved in PSF convolution, one
+can compile \imfit{} and \makeimage{} so that they make use of a multithreaded
+version of the FFTW library.  (This naturally requires that the FFTW
+library files have been compiled with threading support turned on.)
 
 \begin{quote}
 \texttt{\$ scons define=FFTW\_THREADING imfit} \\

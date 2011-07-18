@@ -68,7 +68,7 @@ defines_db = base_defines
 gslPresent = True
 
 # Allow use to specify extra definitions via command line
-# (e.g., "scons define=FFTW_THREADING"):
+# (e.g., "scons define=FFTW_THREADING mode="):
 extra_defines = []
 for key, value in ARGLIST:
 	if key == 'define':
@@ -83,6 +83,7 @@ for key, value in ARGLIST:
 			defines_opt.append("NO_GSL")
 			defines_db.append("NO_GSL")
 			lib_list.remove("gsl")
+			lib_list.remove("gslcblas")
 			gslPresent = False
 	if key == 'mode':
 		if value == "profile":   # "scons mode=profile"  [for profiling the code]
