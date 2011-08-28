@@ -716,6 +716,41 @@ code ...
 
 
 
+* Multiple-image fitting:
+
+I.e., fit two (or more) images of the same object simultaneously.
+
+Total chi^2 = Sum_{i=1}^{N_im}( k_i * chi_i^2 ), where N_im = number of
+images and k_i = some kind of relative weight (user-supplied guess) for
+each image.
+	Possibly: k_1 = 1.0, k_i > 1 or < 1 to indicate relative weights for
+	other images
+
+Idea would be to translate x0,y0, PA, and sizes into values specific to
+each image, given some kind of user-supplied specification of image offset
+and relative rotations and pixel scales
+	-- possible (but dangerous?) option: inter-image conversion factors
+	could be parameters as well... (usually a much better idea would be
+	to adopt fixed user-supplied values, or at most allow the positional
+	offsets to be free parameters)
+
+Modification of ModelObject class
+	-- holds data, masks, noise-maps for multiple images
+	-- holds multiple Convolver objects, one for each image
+	-- handles translation of main parameter set (seen & manipulated by
+	solvers) into per-image parameter sets
+
+Modify FunctionObjects to include an optional pixel-scale parameter
+(special method to pass in pixel scale; default value is 1.0).  Individual
+function objects can then scale input parameters accordingly (since nominally
+they're the only one who know which parameters are size-related).
+	-- Underlying logic: FunctionObjects should always work in pixel sizes,
+	since x0,y0 are always pixel values. So while the (e.g.) scale-length *parameter*
+	may have a value of arcsec (or even, who knows, kpc!), when its Setup()
+	function is called, it converts the parameter into pixels, using
+
+
+
 
 
 ** NOTES ON MULTIPLE CHI-SQUARE MINIMA:

@@ -38,27 +38,33 @@ cflags_db = ["-Wall", "-g3"]
 
 base_defines = ["ANSI"]
 
+# libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
 lib_list = ["fftw3", "cfitsio", "m", "gsl"]
+# libraries needed for profilefit and psfconvolve1d compilation
+lib_list_1d = ["fftw3", "m"]
+
 
 # system-specific stuff
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
+	# change the following path definitions as needed
 	include_path = ["/usr/local/include", FUNCTION_SUBDIR]
 	lib_path = ["/usr/local/lib"]
-	# Use "-m32" for both compiling and linking, to make sure we work in 
-	# 32-bit mode for Mac OS X (10.6 defaults to 64-bit compilation otherwise,
-	# which would cause problems when linking with fftw3 and cfitsio libraries):
+	# Note: if for some reason you need to compile to 32-bit -- e.g., because
+	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
+	# are 32-bit, use the following
 #	cflags_opt.append("-m32")
+#	link_flags = ["-m32"]
 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 	link_flags = []
-#	link_flags = ["-m32"]
 if (os_type == "Linux"):
+	# change the following path definitions as needed
+	include_path = ["/home/erwin/include", "/usr/include", FUNCTION_SUBDIR]
+	lib_path = ["/home/erwin/lib"]
 	# When compiled under Linux, -O3 causes mysterious "invalid pointer" error at end of run
 	cflags_opt = ["-O3", "-g0"]
 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 	# silly Linux doesn't have OpenBSD string routines built in, so we'll have to include them
 	base_defines = base_defines + ["LINUX", "NO_BSD_STRINGS"]
-	include_path = ["/home/erwin/include", "/usr/include", FUNCTION_SUBDIR]
-	lib_path = ["/home/erwin/lib"]
 	lib_list.append("gslcblas")
 	link_flags = None
 defines_opt = base_defines
@@ -101,6 +107,7 @@ defines_opt = defines_opt + extra_defines
 
 
 
+# "Environments" for compilation:
 # "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling [not really used yet]
 
@@ -108,6 +115,8 @@ env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+env_1d = Environment( CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
+						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 
 
@@ -233,7 +242,7 @@ env_opt.Program("imfit", imfit_opt_objlist)
 
 # profile fit is fast, so we don't really need an "optimized" version
 profilefit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(profilefit_objs, profilefit_sources) ]
-env_debug.Program("profilefit", profilefit_dbg_objlist)
+env_1d.Program("profilefit", profilefit_dbg_objlist)
 
 makeimage_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(makeimage_objs, makeimage_sources) ]
 env_debug.Program("makeimage_db", makeimage_dbg_objlist)
@@ -243,7 +252,7 @@ psfconvolve_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in 
 env_debug.Program("psfconvolve", psfconvolve_dbg_objlist)
 
 psfconvolve1d_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve1d_objs, psfconvolve1d_sources) ]
-env_debug.Program("psfconvolve1d", psfconvolve1d_dbg_objlist)
+env_1d.Program("psfconvolve1d", psfconvolve1d_dbg_objlist)
 
 env_opt.Program("timing", timing_sources)
 

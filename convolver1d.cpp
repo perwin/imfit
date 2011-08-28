@@ -229,6 +229,11 @@ void Convolver1D::ConvolveProfile( double *pixelVector )
     multiplied_cmplx[jj][1] = b*c + a*d;
   }
   if (debugStatus >= 3) {
+    printf("The product [multiplied_cmplx]:\n");
+    for (jj = 0; jj < nPixels_padded; jj++) {
+      printf("%f + %fi\n", multiplied_cmplx[jj][0], multiplied_cmplx[jj][1]);
+    }
+    printf("\n");
     printf("The (modulus of the) product [multiplied_cmplx]:\n");
     PrintComplexProfile_Absolute(multiplied_cmplx, nPixels_padded);
   }
@@ -237,6 +242,13 @@ void Convolver1D::ConvolveProfile( double *pixelVector )
   if (debugStatus >= 2)
     printf("Performing inverse FFT of multiplied profile ...\n");
   fftw_execute(plan_inverse);
+  if (debugStatus >= 3) {
+    printf("The full inverse FFT:\n");
+    for (jj = 0; jj < nPixels_padded; jj++) {
+      printf("%f + %fi\n", convolvedProfile_cmplx[jj][0], convolvedProfile_cmplx[jj][1]);
+    }
+    printf("\n");
+  }
 
 
   // Extract & rescale the real part of the convolved profile and copy into
