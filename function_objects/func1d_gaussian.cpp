@@ -68,8 +68,6 @@ void Gaussian1D::Setup( double params[], int offsetIndex, double xc )
 
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
-// NOTE: for compatibility with 2D functions (and base class FunctionObject), we
-// include y as an input, but don't use it.
 double Gaussian1D::GetValue( double x )
 {
 //  printf("In GetValue: x = %g, I_0 = %g, h = %g\n", x, I_0, h);

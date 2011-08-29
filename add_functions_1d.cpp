@@ -30,10 +30,10 @@ using namespace std;
 
 
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
-const char  FUNCTION_NAMES[][30] = {"Gaussian-1D", "Moffat-1D", "Sersic-1D", 
-            "Core-Sersic-1D", "BrokenExponential-1D", "Sech-1D", "Sech2-1D", 
-            "vdKSech-1D", "Gaussian2Side-1D"};
-const int  N_FUNCTIONS = 9;
+const char  FUNCTION_NAMES[][30] = {"Exponential-1D", "Gaussian-1D", "Gaussian2Side-1D",
+            "Moffat-1D", "Sersic-1D", "Core-Sersic-1D", "BrokenExponential-1D", 
+            "Delta-1D", "Sech-1D", "Sech2-1D", "vdKSech-1D"};
+const int  N_FUNCTIONS = 11;
 
 
 
@@ -48,6 +48,11 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
     currentName = functionNameList[i];
     printf("\tFunction: %s\n", currentName.c_str());
     
+    if (currentName == "Exponential-1D") {
+      thisFunctionObj = new Exponential1D();
+      theModel->AddFunction(thisFunctionObj);
+      continue;
+    }
     if (currentName == "Gaussian-1D") {
       thisFunctionObj = new Gaussian1D();
       theModel->AddFunction(thisFunctionObj);
@@ -60,11 +65,6 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
     }
     if (currentName == "Moffat-1D") {
       thisFunctionObj = new Moffat1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Exponential-1D") {
-      thisFunctionObj = new Exponential1D();
       theModel->AddFunction(thisFunctionObj);
       continue;
     }
