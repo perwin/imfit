@@ -33,6 +33,8 @@ const char  PARAM_LABELS[][20] = {"mu_0", "z0", "alpha"};
 const char FUNCTION_NAME[] = "van der Kruit Sech-1D function";
 #define CLASS_SHORT_NAME  "vdKSech-1D"
 
+const char vdKSech1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

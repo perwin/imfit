@@ -32,6 +32,8 @@ const char  PARAM_LABELS[][20] = {"mu_0", "h"};
 const char FUNCTION_NAME[] = "Sech^2-1D function";
 #define CLASS_SHORT_NAME  "Sech2-1D"
 
+const char Sech21D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

@@ -32,6 +32,8 @@ const char  PARAM_LABELS[][20] = {"n", "mu_e", "r_e"};
 const char FUNCTION_NAME[] = "Sersic-1D function";
 #define CLASS_SHORT_NAME  "Sersic-1D"
 
+const char Sersic1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

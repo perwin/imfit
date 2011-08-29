@@ -9,10 +9,13 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include <stdio.h>
 
 #include "add_functions_1d.h"
 #include "model_object.h"
 
+// CHANGE WHEN ADDING FUNCTION -- add corresponding header file
 #include "function_object.h"
 #include "func1d_exp.h"
 #include "func1d_gaussian.h"
@@ -36,6 +39,70 @@ const char  FUNCTION_NAMES[][30] = {"Exponential-1D", "Gaussian-1D", "Gaussian2S
 const int  N_FUNCTIONS = 11;
 
 
+// Code to create FunctionObject object factories
+// Abstract base class for FunctionObject factories
+class factory
+{
+public:
+    virtual FunctionObject* create() = 0;
+};
+
+
+// Template for derived FunctionObject factory classes
+// (this implicitly sets up a whole set of derived classes, one for each
+// FunctionOjbect class we substitute for the "function_object_type" placeholder)
+template <class function_object_type>
+class funcobj_factory : public factory
+{
+public:
+   FunctionObject* create() { return new function_object_type(); }
+};
+
+
+
+void PopulateFactoryMap( map<string, factory*>& input_factory_map )
+{
+  string  classFuncName;
+
+  // CHANGE WHEN ADDING FUNCTION -- add new pair of lines for new function-object class
+  // Here we create the map of function-object names (strings) and factory objects
+  // (instances of the various template-specified factory subclasses)
+  Exponential1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Exponential1D>();
+  
+  Gaussian1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Gaussian1D>();
+  
+  Gaussian2Side1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Gaussian2Side1D>();
+  
+  Moffat1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Moffat1D>();
+  
+  Sersic1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Sersic1D>();
+  
+  CoreSersic1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<CoreSersic1D>();
+  
+  BrokenExponential1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential1D>();
+  
+  Delta1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Delta1D>();
+  
+  Sech1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Sech1D>();
+  
+  Sech21D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Sech21D>();
+  
+  vdKSech1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<vdKSech1D>();
+  
+}
+
+
 
 int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
                   vector<int> &functionSetIndices )
@@ -43,71 +110,22 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
   int  nFunctions = functionNameList.size();
   string  currentName;
   FunctionObject  *thisFunctionObj;
-  
+  map<string, factory*>  factory_map;
+
+  PopulateFactoryMap(factory_map);
+
   for (int i = 0; i < nFunctions; i++) {
     currentName = functionNameList[i];
     printf("\tFunction: %s\n", currentName.c_str());
-    
-    if (currentName == "Exponential-1D") {
-      thisFunctionObj = new Exponential1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
+    if (factory_map.count(currentName) < 1) {
+      printf("*** AddFunctions: unidentified function name (\"%s\")\n", currentName.c_str());
+      return - 1;
     }
-    if (currentName == "Gaussian-1D") {
-      thisFunctionObj = new Gaussian1D();
+    else {
+      thisFunctionObj = factory_map[currentName]->create();
       theModel->AddFunction(thisFunctionObj);
-      continue;
     }
-    if (currentName == "Gaussian2Side-1D") {
-      thisFunctionObj = new Gaussian2Side1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Moffat-1D") {
-      thisFunctionObj = new Moffat1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Sersic-1D") {
-      thisFunctionObj = new Sersic1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Core-Sersic-1D") {
-      thisFunctionObj = new CoreSersic1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "BrokenExponential-1D") {
-      thisFunctionObj = new BrokenExponential1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Delta-1D") {
-      thisFunctionObj = new Delta1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Sech-1D") {
-      thisFunctionObj = new Sech1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "Sech2-1D") {
-      thisFunctionObj = new Sech21D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    if (currentName == "vdKSech-1D") {
-      thisFunctionObj = new vdKSech1D();
-      theModel->AddFunction(thisFunctionObj);
-      continue;
-    }
-    // If we reach here, then something went wrong
-    printf("*** AddFunctions1d: unidentified function name (\"%s\")\n", currentName.c_str());
-    return - 1;
-  }
-  
+  }  
   // OK, we're done adding functions; now tell the model object to do some
   // final setup work
   // Tell model object about arrangement of functions into common-center sets
@@ -139,7 +157,31 @@ void ListFunctionParameters( )
 // into a config file for makeimage or imfit).
 {
   
-  printf("\n<listing of function parameters not yet implemented!>\n\n");
+  string  currentName;
+  vector<string>  parameterNameList;
+  FunctionObject  *thisFunctionObj;
+  map<string, factory*>  factory_map;
+
+  PopulateFactoryMap(factory_map);
+
+  // get list of keys (function names) and step through it
+  map<string, factory*>::iterator  w;
+
+  printf("\nAvailable function/components:\n");
+  for (w = factory_map.begin(); w != factory_map.end(); w++) {
+//    printf("%s, ", w->first.c_str());
+    thisFunctionObj = w->second->create();
+    currentName = thisFunctionObj->GetShortName();
+    printf("\nFUNCTION %s\n", currentName.c_str());
+    parameterNameList.clear();
+    thisFunctionObj->GetParameterNames(parameterNameList);
+    for (int i = 0; i < (int)parameterNameList.size(); i++)
+      printf("%s\n", parameterNameList[i].c_str());
+    delete thisFunctionObj;
+  }
+  printf("\n\n");
+    
 }
+
 
 /* END OF FILE: add_functions_1d.cpp ------------------------------------- */

@@ -35,6 +35,8 @@ const char  PARAM_LABELS[][20] = {"mu_0", "h_1", "h_2", "r_b", "alpha"};
 const char FUNCTION_NAME[] = "Broken-Exponential-1D function";
 #define CLASS_SHORT_NAME  "BrokenExponential-1D"
 
+const char BrokenExponential1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

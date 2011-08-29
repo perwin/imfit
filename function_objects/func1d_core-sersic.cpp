@@ -35,6 +35,8 @@ const char FUNCTION_NAME[] = "Core-Sersic-1D function";
 // Core-Sersic function becomes infinite at r = 0.
 const double  R_MIN = 0.01;
 
+const char CoreSersic1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

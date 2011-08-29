@@ -34,6 +34,8 @@ const char  PARAM_LABELS[][20] = {"mu_0", "sigma_left", "sigma_right"};
 const char FUNCTION_NAME[] = "Asymmetric Gaussian-1D function";
 #define CLASS_SHORT_NAME  "Gaussian2Side-1D"
 
+const char Gaussian2Side1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

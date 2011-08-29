@@ -31,6 +31,8 @@ const char  PARAM_LABELS[][20] = {"I"};
 const char FUNCTION_NAME[] = "Delta-1D function";
 #define CLASS_SHORT_NAME  "Delta-1D"
 
+const char Delta1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

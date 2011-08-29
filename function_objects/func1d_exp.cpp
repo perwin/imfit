@@ -33,6 +33,8 @@ const char  PARAM_LABELS[][20] = {"mu_0", "h"};
 const char FUNCTION_NAME[] = "Exponential-1D function";
 #define CLASS_SHORT_NAME  "Exponential-1D"
 
+const char Exponential1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

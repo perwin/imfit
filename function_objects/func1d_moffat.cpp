@@ -40,6 +40,8 @@ const char  PARAM_LABELS[][20] = {"I_0", "fwhm", "beta"};
 const char FUNCTION_NAME[] = "Moffat-1D function";
 #define CLASS_SHORT_NAME  "Moffat-1D"
 
+const char Moffat1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

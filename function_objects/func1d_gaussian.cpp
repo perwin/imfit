@@ -34,6 +34,8 @@ const char  PARAM_LABELS[][20] = {"mu_0", "sigma"};
 const char FUNCTION_NAME[] = "Gaussian-1D function";
 #define CLASS_SHORT_NAME  "Gaussian-1D"
 
+const char Gaussian1D::className[] = CLASS_SHORT_NAME;
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
