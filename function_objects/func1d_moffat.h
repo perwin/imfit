@@ -1,11 +1,11 @@
 /*   Class interface definition for func1d_moffat.cpp
- *   VERSION 0.1
+ *   VERSION 0.2
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the luminosity as a function of radius for a 1-D Moffat profile.
  *
  * PARAMETERS:
- * I_0 = params[0 + offsetIndex ];   -- central intensity (counts)
+ * mu_0 = params[0 + offsetIndex ];   -- central surf.brightness (mag/arcsec^2)
  * fwhm = params[1 + offsetIndex ];
  * beta = params[2 + offsetIndex ];
  *
@@ -36,6 +36,6 @@ class Moffat1D : public FunctionObject
 
 
   private:
-    double  x0, I_0, fwhm, beta;   // parameters
-    double  alpha;
+    double  x0, mu_0, fwhm, beta;   // parameters
+    double  I_0, alpha;
 };

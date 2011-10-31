@@ -32,5 +32,6 @@ r_b		0.344100 # +/- 0.770049
 alpha		3.790065 # +/- 40.115956
 gamma		0.139916 # +/- 0.554911
 
+Saving best-fit parameters in file "bestfit_parameters_profilefit.dat"
 All done!
 

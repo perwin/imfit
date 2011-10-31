@@ -66,11 +66,12 @@ Moffat1D::Moffat1D( )
 void Moffat1D::Setup( double params[], int offsetIndex, double xc )
 {
   x0 = xc;
-  I_0 = params[0 + offsetIndex ];
+  mu_0 = params[0 + offsetIndex ];
   fwhm = params[1 + offsetIndex ];
   beta = params[2 + offsetIndex ];
   
   // pre-compute useful things for this round of invoking the function
+  I_0 = pow(10.0, 0.4*(ZP - mu_0));
   // compute alpha:
   double  exponent = pow(2.0, 1.0/beta);
   alpha = 0.5*fwhm/sqrt(exponent - 1.0);

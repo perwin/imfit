@@ -406,9 +406,11 @@ int main(int argc, char *argv[])
   
   
   
-  if (options.saveBestFitParams)
+  if (options.saveBestFitParams) {
+    printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
                     argc, argv);
+  }
 
   if (options.saveBestProfile) {
     theModel->CreateModelImage(paramsVect);
