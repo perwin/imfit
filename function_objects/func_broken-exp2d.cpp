@@ -171,7 +171,7 @@ int BrokenExponential2D::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   
-  // Chien Peng algorithm for exponential function, adapted for inner exponential
+  // do subsampling of inner exponential only (same as for standard exponential)
   if ((doSubsampling) && (r < 10.0)) {
     if ((h1 <= 1.0) && (r <= 1.0))
       nSamples = min(100, (int)(2 * SUBSAMPLE_R / h1));

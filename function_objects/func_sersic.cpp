@@ -176,7 +176,7 @@ int Sersic::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   
-  // Chien Peng algorithm for Sersic function
+  // Standard Sersic subsampling, based on Chien Peng's GALFIT algorithm
   if ((doSubsampling) && (r < 10.0)) {
     if ((r_e <= 1.0) && (r <= 1.0))
       nSamples = min(100, (int)(2 * SUBSAMPLE_R / r_e));

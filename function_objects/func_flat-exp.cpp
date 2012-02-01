@@ -171,7 +171,7 @@ int FlatExponential::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   
-  // Chien Peng algorithm for exponential function, modified so that we
+  // Based on standard exponential function subsampling, modified so that we
   // don't do subsampling if we're at r < r_break/2
   if ((doSubsampling) && (r > 0.5*r_b) && (r < 10.0)) {
     if ((h <= 1.0) && (r <= 1.0))

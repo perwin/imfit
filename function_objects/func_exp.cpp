@@ -160,7 +160,7 @@ int Exponential::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   
-  // Chien Peng algorithm for exponential function
+  // Standard exponential subsampling, based on Chien Peng's GALFIT algorithm
   if ((doSubsampling) && (r < 10.0)) {
     if ((h <= 1.0) && (r <= 1.0))
       nSamples = min(100, (int)(2 * SUBSAMPLE_R / h));

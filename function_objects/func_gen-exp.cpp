@@ -5,7 +5,7 @@
  * (generalized) ellipticity and position angle.
  *
  *   Generalized ellipse is from Athanassoula et al. (1990), with parameterization
- * as in Peng+2002.
+ * as in Peng et al. (2002).
  *   
  *   BASIC IDEA:
  *      Setup() is called as the first part of invoking the function;
@@ -166,7 +166,7 @@ int GenExponential::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   
-  // Chien Peng algorithm for exponential function
+  // Subsampling as for basic (pure-ellipse) exponential (func_exp.cpp)
   if ((doSubsampling) && (r < 10.0)) {
     if ((h <= 1.0) && (r <= 1.0))
       nSamples = min(100, (int)(2 * SUBSAMPLE_R / h));

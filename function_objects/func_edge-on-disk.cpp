@@ -193,7 +193,7 @@ int EdgeOnDisk::CalculateSubsamples( double r, double z )
   double  R_abs = fabs(r);
   double  z_abs = fabs(z);
   
-  // based on Chien Peng algorithm for exponential function
+  // based on standard exponential-function subsampling
   if ( (doSubsampling) && ((R_abs < 10.0) || (z_abs < 10.0)) ) {
     if ( ((h <= 1.0) && (R_abs <= 1.0)) || ((z_0 <= 1.0) && (z_abs <= 1.0)) ) {
       nSr = min(100, (int)(2 * SUBSAMPLE_R / h));
