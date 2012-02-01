@@ -253,7 +253,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   /* SET THE USAGE/HELP   */
   optParser->AddUsageLine("Usage: ");
-  optParser->AddUsageLine("   makeimage [options] config-file");
+  optParser->AddUsageLine("   timing [options] config-file");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image");

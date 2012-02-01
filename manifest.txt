@@ -1,0 +1,68 @@
+# File lists for building distributions
+
+# Sub-manifest for binary-only distribution (non-source-code):
+
+imfit
+makeimage
+imfit_howto.pdf
+<some kind of short README>
+
+examples/
+config_sersic_ic3478_256.dat
+ic3478rss_256.fits
+ic3478rss_256_mask.fits
+makeimage_config_moffat_psf_51_for_ic3478rss.dat
+psf_moffat_51.fits
+README_examples.txt
+
+
+# Source code
+
+# C files (*.c and *.h):
+mp_enorm
+statistics
+
+
+# C++ files (*.cpp and *.h):
+model_object
+convolver
+commandline_parser 
+utilities 
+image_io 
+mpfit 
+diff_evoln_fit
+DESolver
+config_file_parser 
+add_functions 
+print_results 
+imfit_main
+makeimage_main
+timing_main
+			
+# function-objects subdirectory
+function_objects/function_object 
+function_objects/func_gaussian 
+function_objects/func_exp 
+function_objects/func_gen-exp  
+function_objects/func_sersic 
+function_objects/func_gen-sersic 
+function_objects/func_flat-exp 
+function_objects/func_broken-exp 
+function_objects/func_broken-exp2d
+function_objects/func_moffat 
+function_objects/func_flatsky 
+function_objects/func_gaussian-ring 
+function_objects/func_gaussian-ring2side
+function_objects/func_edge-on-disk_n4762 
+function_objects/func_edge-on-disk_n4762v2 
+function_objects/func_edge-on-ring 
+function_objects/func_edge-on-ring2side
+func_edge-on-disk
+
+# header-only:
+definitions.h
+utilities_pub.h
+param_struct.h
+mpfit_cpp.h
+
+

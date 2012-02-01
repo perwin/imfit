@@ -7,9 +7,9 @@ echo "Running tests for imfit..."
 # simple tests using small images
 ./imfit --config tests/config_imfit_expdisk32.dat --noise tests/uniform_image32.fits tests/testimage_expdisk32.fits --nosubsampling &> test_dump1
 # test using cutout SDSS image
-./imfit tests/ic3478rss_32x32.fits --config tests/imfit_config_ic3478_32x32.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> test_dump2
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> test_dump2
 # same, now with gain, etc. put into config file
-./imfit tests/ic3478rss_32x32.fits --config tests/imfit_config_ic3478_32x32b.dat &> test_dump3
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat &> test_dump3
 
 # test non-square image + PSF convolution?
 

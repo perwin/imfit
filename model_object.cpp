@@ -46,6 +46,8 @@
 /* ---------------- Definitions ---------------------------------------- */
 static string  UNDEFINED = "<undefined>";
 
+#define OPENMP_CHUNK_SIZE  10
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
@@ -454,10 +456,10 @@ void ModelObject::CreateModelImage( double params[] )
   
   // OK, populate modelVector with the model image
   // OpenMP Parallel Section
-  int  chunk = 100;
+  int  chunk = OPENMP_CHUNK_SIZE;
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
-// an omp-parallel section are shared unless specificied otherwise
+// an omp-parallel section are shared unless specified otherwise
 #pragma omp parallel private(i,j,n,x,y,newVal)
   {
   #pragma omp for schedule (static, chunk)
@@ -523,10 +525,10 @@ double * ModelObject::SingleFunctionImage( double params[], int functionIndex )
   
   // OK, populate modelVector with the model image
   // OpenMP Parallel Section
-  int  chunk = 100;
+  int  chunk = OPENMP_CHUNK_SIZE;
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
-// an omp-parallel section are shared unless specificied otherwise
+// an omp-parallel section are shared unless specified otherwise
 #pragma omp parallel private(i,j,n,x,y,newVal)
   {
   #pragma omp for schedule (static, chunk)

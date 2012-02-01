@@ -67,7 +67,7 @@ static string  kNCombinedString = "NCOMBINED";
 static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
-#define VERSION_STRING      "0.8"
+#define VERSION_STRING      "0.9"
 
 
 
@@ -523,7 +523,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
   optParser->AddUsageLine("     --save-residual <outputname.fits>       Save residual (input - model) image");
   optParser->AddUsageLine("     --save-weights <outputname.fits>       Save weight image");
-  optParser->AddUsageLine("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
+//  optParser->AddUsageLine("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
   optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   optParser->AddUsageLine("     --gain <value>           Image gain (e-/ADU)");
   optParser->AddUsageLine("     --readnoise <value>      Image read noise (e-)");

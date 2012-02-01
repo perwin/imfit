@@ -45,7 +45,7 @@ static string  kNCols2 = "NCOLUMNS";
 static string  kNRows = "NROWS";
 
 
-#define VERSION_STRING      " v0.7"
+#define VERSION_STRING      "0.9"
 
 
 typedef struct {

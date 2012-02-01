@@ -88,7 +88,7 @@ under the GNU Public License (GPL).
 \bigskip
 
 \textbf{System Requirements:} \Imfit{} has been built and tested on
-Intel-based MacOS X (Snow Leopard) and Linux (Ubuntu) systems. It uses standard C++ and
+Intel-based MacOS X (Snow Leopard and Lion) and Linux (Ubuntu) systems. It uses standard C++ and
 should work on any Unix-style system with a modern C++ compiler and the
 Standard Template Library (e.g., GCC v4 or higher). It relies on two
 external, open-source libraries: version 3 of the CFITSIO
@@ -111,7 +111,7 @@ the Differential Evolution fitting code of Rainer Storn and Kenneth Price
 
 Pre-built binaries for Intel-based MacOS X and Linux systems, along with the
 source code, are available at
-\url{http://www.mpe.mpg.de/~erwin/code/}.
+\url{http://www.mpe.mpg.de/~erwin/code/imfit/}.
 
 
 \subsection{Compiling from Source: Outline}
@@ -119,7 +119,9 @@ source code, are available at
 \begin{enumerate}
 \item Install CFITSIO
 
-\item Install FFTW
+\item Install FFTW --- note that if you have a multi-core CPU (or multiple CPUs sharing
+main memory), you should install the threaded version of FFTW as well, since
+this speeds up PSF convolution.
 
 \item (Optional) Install GNU Scientific Library (GSL) --- this is only necessary
 if you wish to use 2D image functions that rely on GSL.  Currently, the only
@@ -535,7 +537,7 @@ disk, using the Bessel-function solution of \citet{vdk81} for
 the radial profile and the generalized sech function of \citet{vdk88} 
 for the vertical profile. Note that this function requires that the GNU
 Scientific Library (GSL) be installed; if the GSL is not installed, \imfit{}
-should be compiled without the this function (see Section~\ref{sec:build}).
+should be compiled without this function (see Section~\ref{sec:build}).
 \item EdgeOnRing --- a simplistic model for an edge-on ring, using a
 Gaussian for the radial profile and another Gaussian (with
 different $\sigma$) for the vertical profile.
@@ -1049,7 +1051,7 @@ disk, using the Bessel-function solution of van der Kruit \& Searle (1981) for
 the radial profile and the generalized sech function of van der Kruit (1988) 
 for the vertical profile. Note that this function requires that the GNU
 Scientific Library (GSL) be installed; if the GSL is not installed, \imfit{}
-will be compiled without the this function.
+should be compiled without this function.
 
 \begin{verbatim}
 FUNCTION EdgeOnDisk
@@ -1094,6 +1096,14 @@ sigma_r_out
 sigma_z
 \end{verbatim}
 
+
+
+\section{Acknowledgments}
+
+\subsection{Minpack}
+
+This produce includes software developed by the University of Chicago, as Operator of
+the Argonne National Laboratory.
 
 
 

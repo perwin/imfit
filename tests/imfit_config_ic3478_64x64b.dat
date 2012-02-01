@@ -1,0 +1,23 @@
+# Sample input file format, for use in fitting trimmed SDSS r-band
+# image of IC 3478 (ic3478rss_small.fits)
+
+GAIN   4.725
+READNOISE   4.3
+ORIGINAL_SKY   130.1
+
+X0   32.0    1,64
+Y0   32.0    1,64
+FUNCTION Sersic
+PA    18.0    0,90
+ell    0.2    0,1
+n      1.5    0,5
+I_e    15     0,500
+r_e    25     0,100
+
+#FUNCTION   Exponential   # here is a comment
+#x0   127.0   100,200
+#y0   128.0   100,200      # a note
+#PA    18.0   0,90      # another note
+#ell    0.24  0,1
+#I_0  130.0   0,600
+#h     32.0   0,1000

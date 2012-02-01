@@ -1,51 +1,53 @@
-	Image file = tests/ic3478rss_32x32.fits
-	configuration file = tests/imfit_config_ic3478_32x32b.dat
+	Image file = tests/ic3478rss_64x64.fits
+	configuration file = tests/imfit_config_ic3478_64x64b.dat
 Value from config file: gain = 4.725000
 Value from config file: read noise = 4.300000
 Value from config file: original sky = 130.100000
-Reading data image ("tests/ic3478rss_32x32.fits") ...
-naxis1 [# pixels/row] = 32, naxis2 [# pixels/col] = 32; nPixels_tot = 1024
+Reading data image ("tests/ic3478rss_64x64.fits") ...
+naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
 * No noise image supplied ... will generate noise image from input image.
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 7 total parameters
-Model Object: 1024 data values (pixels)
+Model Object: 4096 data values (pixels)
 Setting up parameter information array ...
 
 Calling mpfit ...
-	mpfit iteration 1: chi^2 = 163127.882867
-	mpfit iteration 2: chi^2 = 20913.228940
-	mpfit iteration 3: chi^2 = 19774.730600
-	mpfit iteration 4: chi^2 = 12705.107620
-	mpfit iteration 5: chi^2 = 5478.667654
-	mpfit iteration 6: chi^2 = 2693.096622
-	mpfit iteration 7: chi^2 = 1675.709972
-	mpfit iteration 8: chi^2 = 1294.296649
-	mpfit iteration 9: chi^2 = 1277.068456
-	mpfit iteration 10: chi^2 = 1277.038369
-	mpfit iteration 11: chi^2 = 1277.038337
-	mpfit iteration 12: chi^2 = 1277.038337
+	mpfit iteration 1: chi^2 = 263212.806355
+	mpfit iteration 2: chi^2 = 38837.131453
+	mpfit iteration 3: chi^2 = 16396.744820
+	mpfit iteration 4: chi^2 = 16003.356814
+	mpfit iteration 5: chi^2 = 12384.829746
+	mpfit iteration 6: chi^2 = 10357.637822
+	mpfit iteration 7: chi^2 = 8966.518145
+	mpfit iteration 8: chi^2 = 7236.783389
+	mpfit iteration 9: chi^2 = 5499.553431
+	mpfit iteration 10: chi^2 = 4613.803347
+	mpfit iteration 11: chi^2 = 4559.194239
+	mpfit iteration 12: chi^2 = 4555.947659
+	mpfit iteration 13: chi^2 = 4555.947654
+	mpfit iteration 14: chi^2 = 4555.947654
 *** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
-  CHI-SQUARE = 1277.038337    (1017 DOF)
-  INITIAL CHI^2 = 304296.502806
+  CHI-SQUARE = 4555.947654    (4089 DOF)
+  INITIAL CHI^2 = 494330.961892
         NPAR = 7
        NFREE = 7
      NPEGGED = 0
-     NITER = 13
-      NFEV = 98
+     NITER = 15
+      NFEV = 114
 
-Reduced Chi^2 = 1.255692
-AIC = 1291.148573, BIC = 1325.558640
+Reduced Chi^2 = 1.114196
+AIC = 4569.975051, BIC = 4614.172017
 
 
-X0		16.950237 # +/- 0.013580
-Y0		18.098768 # +/- 0.016642
+X0		32.943948 # +/- 0.012827
+Y0		34.093323 # +/- 0.015582
 FUNCTION Sersic
-PA		17.775894 # +/- 0.477889
-ell		0.228324 # +/- 0.003550
-n		2.237415 # +/- 0.030004
-I_e		24.748948 # +/- 0.941264
-r_e		51.393930 # +/- 1.505380
+PA		18.261250 # +/- 0.309862
+ell		0.235989 # +/- 0.002316
+n		2.400282 # +/- 0.018072
+I_e		20.009385 # +/- 0.403964
+r_e		60.761217 # +/- 0.860606
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 Done!
