@@ -31,6 +31,8 @@
 /* ---------------- Definitions ---------------------------------------- */
 static string  UNDEFINED = "<undefined>";
 
+#define OPENMP_CHUNK_SIZE  10
+
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
@@ -248,6 +250,7 @@ void ModelObject1d::AddPSFVector1D( int nPixels_psf, double *xValVector, double 
 void ModelObject1d::CreateModelImage( double params[] )
 {
   double  x0, x, newVal;
+  int  i, n, z;
   int  offset = 0;
 
   // Check parameter values for sanity
@@ -255,7 +258,7 @@ void ModelObject1d::CreateModelImage( double params[] )
     printf("** ModelObject1d::CreateModelImage -- non-finite values detected in parameter vector!\n");
 #ifdef DEBUG
     printf("   Parameter values: %s = %g", parameterLabels[0].c_str(), params[0]);
-    for (int z = 1; z < nParamsTot; z++)
+    for (z = 1; z < nParamsTot; z++)
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
@@ -268,7 +271,7 @@ void ModelObject1d::CreateModelImage( double params[] )
   // The first component's parameters start at params[0]; the second's
   // start at params[paramSizes[0]], the third at 
   // params[paramSizes[0] + paramSizes[1]], and so forth...
-  for (int n = 0; n < nFunctions; n++) {
+  for (n = 0; n < nFunctions; n++) {
     if (setStartFlag[n] == true) {
       // start of new function set: extract x0 and then skip over them
       x0 = params[offset];
@@ -279,20 +282,30 @@ void ModelObject1d::CreateModelImage( double params[] )
   }
   
   // populate modelVector with the model
-  for (int i = 0; i < nModelVals; i++) {
+  // OpenMP Parallel Section
+  int  chunk = OPENMP_CHUNK_SIZE;
+// Note that we cannot specify modelVector as shared [or private] bcs it is part
+// of a class (not an independent variable); happily, by default all references in
+// an omp-parallel section are shared unless specified otherwise
+#pragma omp parallel private(i,n,x,newVal)
+  {
+  #pragma omp for schedule (static, chunk)
+  for (i = 0; i < nModelVals; i++) {
     x = modelXValues[i];
     newVal = 0.0;
-    for (int n = 0; n < nFunctions; n++)
+    for (n = 0; n < nFunctions; n++)
       newVal += functionObjects[n]->GetValue(x);
     modelVector[i] = newVal;
 #ifdef DEBUG
     printf("x = %g, newVal = %g,  ", x, newVal);
 #endif
   }
+  
+  } // end omp parallel section
 
 #ifdef DEBUG
     printf("   Parameter values: %s = %g", parameterLabels[0].c_str(), params[0]);
-    for (int z = 1; z < nParamsTot; z++)
+    for (z = 1; z < nParamsTot; z++)
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
@@ -304,7 +317,7 @@ void ModelObject1d::CreateModelImage( double params[] )
   
   // Convert to magnitudes, if required
   if (dataAreMagnitudes) {
-    for (int i = 0; i < nModelVals; i++) {
+    for (i = 0; i < nModelVals; i++) {
       modelVector[i] = zeroPoint - 2.5 * log10(modelVector[i]);
     }
   }

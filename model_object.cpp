@@ -443,7 +443,7 @@ void ModelObject::CreateModelImage( double params[] )
   // The first component's parameters start at params[0]; the second's
   // start at params[paramSizes[0]], the third at 
   // params[paramSizes[0] + paramSizes[1]], and so forth...
-  for (int n = 0; n < nFunctions; n++) {
+  for (n = 0; n < nFunctions; n++) {
     if (setStartFlag[n] == true) {
       // start of new function set: extract x0,y0 and then skip over them
       x0 = params[offset];
@@ -512,7 +512,7 @@ double * ModelObject::SingleFunctionImage( double params[], int functionIndex )
   // The first component's parameters start at params[0]; the second's
   // start at params[paramSizes[0]], the third at 
   // params[paramSizes[0] + paramSizes[1]], and so forth...
-  for (int n = 0; n < nFunctions; n++) {
+  for (n = 0; n < nFunctions; n++) {
     if (setStartFlag[n] == true) {
       // start of new function set: extract x0,y0 and then skip over them
       x0 = params[offset];
@@ -856,7 +856,7 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
   x0_all = 0.5*xSize;
   y0_all = 0.5*ySize;
   
-  for (int n = 0; n < nFunctions; n++) {
+  for (n = 0; n < nFunctions; n++) {
     if (setStartFlag[n] == true) {
       // start of new function set: skip over existing x0,y0 values
       offset += 2;

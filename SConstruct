@@ -22,6 +22,12 @@
 #    $ scons define=DEBUG <target-name>
 #
 
+# To add one or more directories to the header or library search paths:
+#    $ scons --header-path=/path/to/header/dir
+# OR $ scons --header-path=/path/to/header/dir:/alt/path:/another/path
+#    $ scons --lib-path=/path/to/lib/dir
+# etc.
+
 
 # Operating-system determination via os.uname:
 # First element of tuple is basic OS; 3rd element is version number;
@@ -99,10 +105,12 @@ AddOption("--openmp", dest="useOpenMP", action="store_true",
 	default=False, help="compile with OpenMP support [LIMITED AND EXPERIMENTAL!]")
 
 if GetOption("headerPath") is not None:
-	extraPaths = GetOption("headerPath").split()
+	extraPaths = GetOption("headerPath").split(":")
+	print "extra header search paths: ", extraPaths
 	include_path += extraPaths
 if GetOption("libraryPath") is not None:
-	extraPaths = GetOption("libraryPath").split()
+	extraPaths = GetOption("libraryPath").split(":")
+	print "extra library search paths: ", extraPaths
 	lib_path += extraPaths
 if GetOption("fftwThreading") is False:
 	useFFTWThreading = False
@@ -114,14 +122,18 @@ if GetOption("useOpenMP") is True:
 
 if useFFTWThreading:   # default is to do this
 	lib_list.insert(0, "fftw3_threads")
+	lib_list_1d.insert(0, "fftw3_threads")
 	if (os_type == "Linux"):
 		lib_list.append("pthread")
+		lib_list_1d.append("pthread")
 	extra_defines.append("FFTW_THREADING")
 
 if useGSL:   # default is to do this
 	lib_list.append("gsl")
+	lib_list_1d.append("gsl")
 	if (os_type == "Linux"):
 		lib_list.append("gslcblas")
+		lib_list_1d.append("gslcblas")
 else:
 	extra_defines.append("NO_GSL")
 

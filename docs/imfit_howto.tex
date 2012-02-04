@@ -47,7 +47,7 @@
 \section{What Is It?}
 
 \Imfit{} is a program for fitting astronomical images --- more
-specifically, for fitting images of galaxies, though it can in principle
+specifically, for fitting images of galaxies, though it could certainly
 be used for fitting other sources. The user specifies a set of one or
 more 2D functions (e.g., elliptical exponential, elliptical S\'ersic,
 circular Gaussian) which will be added together in order to generate a
@@ -90,7 +90,8 @@ under the GNU Public License (GPL).
 \textbf{System Requirements:} \Imfit{} has been built and tested on
 Intel-based MacOS X (Snow Leopard and Lion) and Linux (Ubuntu) systems. It uses standard C++ and
 should work on any Unix-style system with a modern C++ compiler and the
-Standard Template Library (e.g., GCC v4 or higher). It relies on two
+Standard Template Library (e.g., GCC v4 or higher\footnote{GCC v4.2 or higher is
+necessary to take advantage of OpenMP-related speedups.}). It relies on two
 external, open-source libraries: version 3 of the CFITSIO
 library\footnote{\url{http://heasarc.nasa.gov/fitsio/}} for FITS image I/O and
 version 3 of the FFTW (Fastest Fourier Transform in the West)
@@ -136,15 +137,15 @@ uses a modified Bessell function. \Imfit{} can be built without this component.
 
 \subsection{Building \Imfit{} from Source}\label{sec:build}
 
-Assuming that CFITSIO and FFTW (and optionally GSL) are already installed
-on your system, unpack the source-code tarball (.tar.gz file) in some convenient
+Assuming that CFITSIO and FFTW (and optionally GSL) have already been installed
+on your system, unpack the source-code tarball (imfit-x.x-source.tar.gz) in some convenient
 location.
 
 \Imfit{} uses SCons for the build process; SCons is a Python-based build system
 that is somewhat easier to use and more flexible than the traditional \texttt{make}
 system. SCons can be downloaded from \url{http://www.scons.org/}.
 
-Assuming things are simple, you should build \imfit{} and the companion
+Assuming things are simple, you should be able to build \imfit{} and the companion
 program \makeimage{} with the following commands:
 \begin{quote}
 \texttt{\$ scons imfit} \\
@@ -156,21 +157,61 @@ these to some convenient place on your path.
 If you do not have GSL installed, you will get compilation errors; use the following
 commands instead:
 \begin{quote}
-\texttt{\$ scons define=NO\_GSL imfit} \\
-\texttt{\$ scons define=NO\_GSL makeimage}
+\texttt{\$ scons --no-gsl imfit} \\
+\texttt{\$ scons --no-gsl makeimage}
 \end{quote}
 
-\subsubsection{Options: Multithreaded Programs}
+Various other compilation options may be useful; these are explained in the next
+subsections (note that all the SCons options can be combined on the command line).
 
-To speed up the Fast Fourier Transforms involved in PSF convolution, one
-can compile \imfit{} and \makeimage{} so that they make use of a multithreaded
-version of the FFTW library.  (This naturally requires that the FFTW
-library files have been compiled with threading support turned on.)
 
+\subsubsection{Telling SCons Where to Find Header Files and Libraries}
+
+By default, the SConstruct file (the equivalent of a Makefile for SCons) tells SCons
+to look for header files in \texttt{/usr/local/include} and library files in
+\texttt{/usr/local/lib}. If you have the FFTW, CFITSIO, and (optionally) GSL headers
+and libraries installed somewhere else, you can tell SCons about this by using the
+\texttt{--header-path} and \texttt{--lib-path} options:
 \begin{quote}
-\texttt{\$ scons define=FFTW\_THREADING imfit} \\
-\texttt{\$ scons define=FFTW\_THREADING makeimage}
+\texttt{\$ scons --header-path=/some/path ...} \\
+\texttt{\$ scons --lib-path=/some/other/path ...}
 \end{quote}
+(note that "\texttt{...}" is meant to stand for the rest of the compilation command,
+whatever that may be).
+
+Multiple paths can be specified if they are separated by colons, e.g.
+\begin{quote}
+\texttt{\$ scons --lib-path=/some/path:/some/other/path ...} \\
+\end{quote}
+
+
+\subsubsection{Option: Compiling with OpenMP Support}
+
+\Imfit{} and \makeimage{} can be compiled to take advantage of OpenMP compiler support,
+which speeds up image computation by splitting it up across multiple CPUs
+(and multiple cores within multi-core CPUs).
+Currently, the code uses OpenMP 2.5 options, which means that if you are using
+the GCC compiler, you need version 4.2 or higher.
+
+To activate OpenMP support, compile using the following options:
+\begin{quote}
+\texttt{\$ scons --openmp imfit} \\
+\texttt{\$ scons --openmp makeimage}
+\end{quote}
+
+\subsubsection{Options: Compiling without FFT Multithreading}
+
+By default, \imfit{} and \makeimage{} are compiled to take advantage of multi-core CPUs (and other
+shared-memory multiple-processor systems) when performing PSF convolutions by using the 
+multithreaded version of the
+FFTW library. If you do not have (or cannot build) the multithreaded FFTW library,
+you can turn off multithreaded FFT computation by compiling with the following commands:
+\begin{quote}
+\texttt{\$ scons --no-threading imfit} \\
+\texttt{\$ scons --no-threading makeimage}
+\end{quote}
+
+
 
 
 
@@ -284,8 +325,8 @@ The simplest way to run \imfit{} is:
 imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}mask ~ ic3478rss\_256\_mask.fits ~ \texttt{--}gain=4.725 \texttt{--}readnoise=4.3 ~ \texttt{--}sky=130.14
 \end{quote}
 
-This converges to a fit in about 2.5 seconds on a 2009 MacBook Pro (2.8 GHz Core 2 
-Duo processor).
+This converges to a fit in a few seconds or less (e.g., just over 0.5 seconds on a 
+2011 MacBook Pro with a 2.3 GHz Core i7 processor).
 
 Note that you can specify a subset of an image, thus:
 \begin{quote}
@@ -315,7 +356,8 @@ makeimage ~ \texttt{--}ncols=51 ~ \texttt{--}nrows=51 ~ -o ~ psf\_moffat\_51.fit
 
 \texttt{Imfit} always requires a configuration file, which specifies the
 model which will be fit to the input image, initial values for model parameters, any limits on
-parameter values (optional for L-M, required for DE fitting), and
+parameter values (optional for fitting with the Levenberg-Marquardt solver, but required for 
+fitting with the Differential Evolution solver), and
 possibly additional information (e.g, gain and read noise for the
 input image).
 
@@ -472,7 +514,7 @@ parameter values for the various 2D image functions is set by the functions
 themselves, but in general: 
 \begin{itemize}
 \item position angles are measured in degrees counter-clockwise
-from the image $+y$ axis (i.e., degrees E of N if the image has standard
+from the image's vertical ($+y$) axis (i.e., degrees E of N if the image has standard
 astronomical orientation);
 \item ellipticity $= 1 - b/a$, where $a$ and $b$ are the
 semi-major and semi-minor axes of an ellipse;
@@ -519,9 +561,9 @@ function, including their parameters.
 \item Exponential --- an elliptical 2D exponential function.
 \item Exponential\_GenEllipse --- an elliptical 2D exponential function using
 generalized ellipses (``boxy'' to ``disky'' shapes) for the isophote shapes.
-\item S\'ersic --- an elliptical 2D S\'ersic function.
+\item Sersic --- an elliptical 2D S\'ersic function.
 \item Sersic\_GenEllipse --- an elliptical 2D S\'ersic function using
-generalized ellipses (``boxy'' to ``disky'' shapes) for the isophote shapes.
+generalized ellipses (``boxy'' to ``disky'' shapes) for the isophotes.
 \item FlatExponential --- similar to Exponential, but with an inner radial zone
 of constant surface brightness for $r < R_{\rm break}$.
 \item BrokenExponential --- similar to Exponential, but with \textit{two}
@@ -570,19 +612,26 @@ obtained by running \imfit{} with the ``\texttt{--list-parameters}'' option:
 
 \subsection{Masks}
 
+TBD.
+
 \subsection{Noise, Variance, or Weight Maps}
 
-Note that \imfit{} does \textit{not} [, xxx by default,] try to obtain information
-from the FITS header of an image, for two reasons. First, there is little
+TBD.
+
+Note that \imfit{} does \textit{not} try to obtain information
+from the FITS header of an image. This is primarily because there is little
 consistency in header names across the wide range of astronomical images, so
 it is difficult pick one name, or even a small set, and assume that it will
-be present in a given image's header. Second, XXX
+be present in a given image's header. (This is even more true if an image
+is the result of a simulation.)
 % trying to explain that we don't do the dumb thing that GALFIT does,
 % which is to assume that the presence of an EXPTIME keyword means that
 % pixel values MUST be divided by EXPTIME ...
 
 
 \subsection{PSF Convolution}
+
+TBD.
 
 PSF images should ideally be square, with width = an odd number of pixels, and
 the PSF should be centered in the central pixel. (An off-center PSF can certainly
@@ -683,17 +732,17 @@ the ``params'' input changes from this:
 \begin{verbatim}
   PA = params[0 + offsetIndex];
   ell = params[1 + offsetIndex];
-  I_0 = params[2 + offsetIndex ];
-  sigma = params[3 + offsetIndex ];
+  I_0 = params[2 + offsetIndex];
+  sigma = params[3 + offsetIndex];
 \end{verbatim}
 
 to this:
 \begin{verbatim}
   PA = params[0 + offsetIndex];
   ell = params[1 + offsetIndex];
-  I_0 = params[2 + offsetIndex ];
-  fwhm = params[3 + offsetIndex ];
-  beta = params[4 + offsetIndex ];
+  I_0 = params[2 + offsetIndex];
+  fwhm = params[3 + offsetIndex];
+  beta = params[4 + offsetIndex];
 \end{verbatim}
 and at the end we replace this:
 \begin{verbatim}
@@ -715,7 +764,7 @@ This is the key place where your new function's algorithm is
 implemented: the computation of the intensity as a function of (scaled)
 radius.  Replace the original version of this method with the following:
 \begin{verbatim}
-double Moffat::CalculateIntensity( double r )
+double NewMoffat::CalculateIntensity( double r )
 {
   double  scaledR, denominator;
   
@@ -747,7 +796,7 @@ We need to do three simple things here:
 the top of the file, where the other header files are included:\\
 \texttt{\#include "func\_new-moffat.h"}
 
-\item Modify the list of function names: XXX
+\item Modify the list of function names: XXX TBD.
 
 \item Add code to generate an instance of our new class as part of the
 function-factory map. Inside the function PopulateFactoryMap, add the following lines:
@@ -777,9 +826,9 @@ output ``best-fitting parameters'' file generated by \imfit{} can be used as
 input to \makeimage, as can an \imfit{} configuration file.
 
 \Makeimage{} \textit{does} require an output image size.  This can be
-specified via command-line flags (``--ncols'' and ``--nrows''), via
+specified via command-line flags (``\texttt{--ncols}'' and ``\texttt{--nrows}''), via
 specifications in the configuration file (see below), or by supplying a
-reference image (``--refimage \textit{image-filename}''); in the latter case,
+reference image (``\texttt{--refimage} \textit{image-filename}''); in the latter case,
 the output image will have the same dimensions as the reference image.
 
 \Makeimage{} can also be run in a special mode to estimate the
@@ -872,6 +921,8 @@ listed for each function description.
 ``Elliptical'' functions are defined to have an intensity which is constant on
 concentric, similar ellipses (with specified position angle and ellipticity);
 the intensity profile is defined as a function of the major axis $a$.
+
+\medskip
 
 \textbf{Common parameters}: 
 \begin{itemize}

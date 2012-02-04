@@ -81,9 +81,9 @@ void Moffat::Setup( double params[], int offsetIndex, double xc, double yc )
   y0 = yc;
   PA = params[0 + offsetIndex];
   ell = params[1 + offsetIndex];
-  I_0 = params[2 + offsetIndex ];
-  fwhm = params[3 + offsetIndex ];
-  beta = params[4 + offsetIndex ];
+  I_0 = params[2 + offsetIndex];
+  fwhm = params[3 + offsetIndex];
+  beta = params[4 + offsetIndex];
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
