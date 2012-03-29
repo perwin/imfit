@@ -106,7 +106,7 @@ the Differential Evolution fitting code of Rainer Storn and Kenneth Price
 
 
 
-\section{Getting/Installing \Imfit{}}
+\section{Getting and Installing \Imfit{}}
 
 \subsection{Pre-Compiled Binaries}
 
@@ -118,20 +118,20 @@ source code, are available at
 \subsection{Compiling from Source: Outline}
 
 \begin{enumerate}
-\item Install CFITSIO
+\item Install the CFITSIO library.
 
-\item Install FFTW --- note that if you have a multi-core CPU (or multiple CPUs sharing
-main memory), you should install the threaded version of FFTW as well, since
-this speeds up PSF convolution.
+\item Install the FFTW library --- note that if you have a multi-core CPU (or
+multiple CPUs sharing main memory), you should install the threaded version of
+FFTW as well, since this speeds up PSF convolution.
 
-\item (Optional) Install GNU Scientific Library (GSL) --- this is only necessary
+\item (Optional) Install the GNU Scientific Library (GSL) --- this is only necessary
 if you wish to use 2D image functions that rely on GSL.  Currently, the only
 such function is the EdgeOnDisk (\texttt{func\_edge-on-disk.cpp}) component, which
 uses a modified Bessell function. \Imfit{} can be built without this component.
 
-\item Install SCons
+\item Install SCons.
 
-\item Build \imfit{}
+\item Build \imfit{}.
 
 \end{enumerate}
 
@@ -193,7 +193,7 @@ which speeds up image computation by splitting it up across multiple CPUs
 Currently, the code uses OpenMP 2.5 options, which means that if you are using
 the GCC compiler, you need version 4.2 or higher.
 
-To activate OpenMP support, compile using the following options:
+To include OpenMP support, compile using the following options:
 \begin{quote}
 \texttt{\$ scons --openmp imfit} \\
 \texttt{\$ scons --openmp makeimage}
@@ -213,6 +213,61 @@ you can turn off multithreaded FFT computation by compiling with the following c
 
 
 
+
+
+
+\section{Trying It Out}
+
+In the \texttt{examples/} directory are some sample galaxy images, masks, PSF images, and
+configuration files.
+
+To give \imfit{} a quick spin (and check that it's working on your system), change to the
+\texttt{examples/} directory and execute the following on the command line (assuming that
+\imfit{} is now in your path):
+\begin{quote}
+\$ imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}sky=130.14
+\end{quote}
+
+This converges to a fit in a few seconds or less (e.g., about 0.5 seconds on a 
+2011 MacBook Pro with a 2.3 GHz Core i7 processor). In addition to being printed to
+the screen, the final fit is saved in a file called \texttt{bestfit\_parameters\_imfit.dat}.
+
+The preceding command told \imfit{} to fit using every pixel in the image and to estimate
+the noise assuming an original (previously subtracted) sky level of 130.14, an A/D gain
+of 1.0, and zero read noise. A better approach would be to include a mask (telling \imfit{}
+to ignore, e.g., pixels occupied by bright stars) and to specify more accurate values
+of the gain and read noise:
+\begin{quote}
+\$ imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}mask ~ ic3478rss\_256\_mask.fits ~ \texttt{--}gain=4.725 \texttt{--}readnoise=4.3 ~ \texttt{--}sky=130.14
+\end{quote}
+
+If you want to see what the best-fitting model looks like, execute the following:
+\begin{quote}
+\$ makeimage ~ bestfit\_parameters\_imfit.dat ~ \texttt{--}refimage ~ ic3478rss\_256.fits
+\end{quote}
+This will generate and save the model image in a file called \texttt{modelimage.fits}.
+
+%Note that you can specify a subset of an image, thus:
+%\begin{quote}
+%ic3478rss\_256.fits[45:150,200:310]
+%\end{quote}
+%This will fit columns 45--150 and rows 200--310 of the image (column and row numbering starts
+%at 1); pixel coordinates in the configuration (and output) files will refer to locations within the
+%\textit{full} image.
+
+You can also fit the image using PSF convolution, by adding the ``\texttt{--psf}'' option and a
+valid FITS image for the PSF; the \texttt{examples/} directory contains a Moffat PSF image which
+matches stars in the original image fairly well:
+\begin{quote}
+imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}mask ~ ic3478rss\_256\_mask.fits ~ \texttt{--}gain=4.725 \texttt{--}readnoise=4.3 ~ \texttt{--}sky=130.14 ~ \texttt{--}psf ~ psf\_moffat\_51.fits
+\end{quote}
+
+
+The PSF image was generated using the companion program \makeimage{} and the configuration
+file \texttt{makeimage\_config\_moffat\_psf\_51\_for\_ic3478rss.dat}:
+\begin{quote}
+makeimage ~ \texttt{--}ncols=51 ~ \texttt{--}nrows=51 ~ -o ~ psf\_moffat\_51.fits ~ makeimage\_config\_moffat\_psf\_51\_for\_ic3478rss.dat  
+\end{quote}
 
 
 
@@ -315,61 +370,23 @@ for each functions that \imfit{} can use.
 
 
 
-\section{Trying It Out}
-
-In the \texttt{examples/} directory are some sample images, masks, PSF images, and
-configuration files.
-
-The simplest way to run \imfit{} is:
-\begin{quote}
-imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}mask ~ ic3478rss\_256\_mask.fits ~ \texttt{--}gain=4.725 \texttt{--}readnoise=4.3 ~ \texttt{--}sky=130.14
-\end{quote}
-
-This converges to a fit in a few seconds or less (e.g., just over 0.5 seconds on a 
-2011 MacBook Pro with a 2.3 GHz Core i7 processor).
-
-Note that you can specify a subset of an image, thus:
-\begin{quote}
-ic3478rss\_256.fits[45:150,200:310]
-\end{quote}
-This will fit columns 45--150 and rows 200--310 of the image (column and row numbering starts
-at 1); pixel coordinates in the configuration file should refer to locations within the
-\textit{full} image.
-
-You can also fit the image using PSF convolution, by adding the ``\texttt{--psf}'' option and a
-valid FITS image for the PSF; the \texttt{examples} directory contains a Moffat PSF image which
-matches stars in the original image fairly well:
-\begin{quote}
-imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}mask ~ ic3478rss\_256\_mask.fits ~ \texttt{--}gain=4.725 \texttt{--}readnoise=4.3 ~ \texttt{--}sky=130.14 ~ \texttt{--}psf ~ psf\_moffat\_51.fits
-\end{quote}
-
-
-The PSF image was generated using the companion program \makeimage{} and the configuration
-file \texttt{makeimage\_config\_moffat\_psf\_51\_for\_ic3478rss.dat}:
-\begin{quote}
-makeimage ~ \texttt{--}ncols=51 ~ \texttt{--}nrows=51 ~ -o ~ psf\_moffat\_51.fits ~ makeimage\_config\_moffat\_psf\_51\_for\_ic3478rss.dat  
-\end{quote}
-
-
-
 \section{The Configuration File}\label{sec:configfile}
 
-\texttt{Imfit} always requires a configuration file, which specifies the
-model which will be fit to the input image, initial values for model parameters, any limits on
-parameter values (optional for fitting with the Levenberg-Marquardt solver, but required for 
-fitting with the Differential Evolution solver), and
-possibly additional information (e.g, gain and read noise for the
-input image).
+\texttt{Imfit} always requires a configuration file, which specifies the model
+which will be fit to the input image, initial values for model parameters, any
+limits on parameter values (optional for fitting with the Levenberg-Marquardt
+solver, but required for fitting with the Differential Evolution solver), and
+possibly additional information (e.g, gain and read noise for the input image).
 
 The configuration file should be a plain text file. Blank lines and
 lines beginning with ``\#'' are ignored; in fact, anything after a
 ``\#'' is ignored, which allows for comments at the end of lines.
 
-A model for an image is specified by one or more ``function blocks'',
-each of which is a group of one or more 2D image functions sharing a
-common $(x,y)$ spatial position. Each function-specification consists of
-a line beginning with ``FUNCTION'' and containing the function name,
-followed by one or more lines with specifications for that function's parameters.
+A model for an image is specified by one or more ``function blocks'', each of
+which is a group of one or more 2D image functions sharing a common $(x,y)$
+spatial position. Each function-specification consists of a line beginning with
+``FUNCTION'' and containing the function name, followed by one or more lines
+with specifications for that function's parameters.
 
 \bigskip
 
@@ -424,16 +441,15 @@ some of the parameters (comments are colored red for clarity):
 \end{quote}
 
 Here we can see the use of comments (lines or parts of lines beginning with
-``\#'') and the use of parameter limits in the form of ``lower,upper'': the X0 and Y0 parameters are
-required to remain $\geq 148$ and $\leq 152$, the position angle is limited
-to 0--180, the ellipticity must be $\geq 0$ and $\leq 1$, and the central
-intensity I\_0 is held fixed at its initial value.
+``\#'') and the use of parameter limits in the form of ``lower,upper'': the X0
+and Y0 parameters are required to remain $\geq 148$ and $\leq 152$, the position
+angle is limited to 0--180, the ellipticity must be $\geq 0$ and $\leq 1$, and
+the central intensity I\_0 is held fixed at its initial value.
 
-Finally, here is a more elaborate example, specifying a model that has
-two function blocks, with the first block having two individual
-functions (so this could be a model for, e.g., simultaneously fitting
-two galaxies in the same image, one as S\'ersic + exponential, the other with just an
-exponential):
+Finally, here is a more elaborate example, specifying a model that has two
+function blocks, with the first block having two individual functions (so this
+could be a model for, e.g., simultaneously fitting two galaxies in the same
+image, one as S\'ersic + exponential, the other with just an exponential):
 
 \begin{quote}
   \texttt{\red{\# This line is a comment}}\\
@@ -459,7 +475,7 @@ exponential):
   \texttt{\red{\# This is the second function block: just a single exponential}}\\
   \texttt{X0 ~~   225.0  ~~ 224,226}\\
   \texttt{Y0 ~~   181.7  ~~ 180,183}\\
-  \texttt{FUNCTION   Exponential   \red{\# a different exponential!}}\\
+  \texttt{FUNCTION   Exponential} \\
   \texttt{PA   ~ 22.0  ~~ 0,180      }\\
   \texttt{ell  ~  0.25 ~ 0,1}\\
   \texttt{I\_0 ~  10.0  }\\
@@ -489,8 +505,8 @@ labeled ``PA'', ``PosAngle'', ``angle'', or any non-space-containing
 string --- though it's a good idea to have it be something relevant
 and understandable.
 
-\textbf{Important Note:} Do not change the \textit{order} of the parameters
-for a particular function!  Because the strings giving the parameter names
+\textbf{Important Note:} \textit{Do not change the order of the parameters
+for a particular function!}  Because the strings giving the parameter names
 can be anything at all, \imfit{} actually ignores them and simply assumes
 that all parameters are in the correct order for each function.
 
@@ -583,7 +599,7 @@ should be compiled without this function (see Section~\ref{sec:build}).
 \item EdgeOnRing --- a simplistic model for an edge-on ring, using a
 Gaussian for the radial profile and another Gaussian (with
 different $\sigma$) for the vertical profile.
-\item EdgeOnRing2Sdie --- like EdgeOnRing, but using an
+\item EdgeOnRing2Side --- like EdgeOnRing, but using an
 asymmetric Gaussian for the radial profile (see description of GaussianRing2Side).
 
 %Exponential, Exponential_GenEllipse, Sersic, Sersic_GenEllipse, Gaussian, 
@@ -598,7 +614,7 @@ by running \imfit{} with the ``\texttt{--list-functions}'' option:
 \begin{quote}
   \texttt{\$ \imfit{} --list-functions}
 \end{quote}
-and the complete list of function parameters for each function (suitable for copying
+The complete list of function parameters for each function (suitable for copying
 and pasting into a configuration file) can always be
 obtained by running \imfit{} with the ``\texttt{--list-parameters}'' option:
 \begin{quote}
@@ -610,9 +626,42 @@ obtained by running \imfit{} with the ``\texttt{--list-parameters}'' option:
 
 \section{Extras for Fitting Images}
 
+\subsection{Specifying Image Subsections}
+
+In many cases, you may want to fit an object which is much smaller than the whole
+image. You can always make a smaller cutout image and fit that, but it may be convenient to
+specify the image subsection directly. You can do this using a subset of the image-section
+syntax of CFITSIO (which will be familiar to you if you've ever worked with
+image sections in IRAF). An example:
+
+\begin{quote}
+ic3478rss\_256.fits[45:150,200:310]
+\end{quote}
+This will fit columns 45--150 and rows 200--310 of the image (column and row
+numbering starts at 1). Pixel coordinates in the configuration (and output)
+files will refer to locations within the \textit{full} image.
+
+The only kind of image section specification that's allowed is a simple [x1:x2,y1:y2]
+format; more complicated expressions which might extract part of a 3D datacube
+are not (currently) possible.
+
+Obviously, if you are also using a mask image (and/or a noise image), you should
+specify the same subsection in those images!
+
+
+
 \subsection{Masks}
 
-TBD.
+A mask image can be supplied to \imfit{} by using the command-line
+options \texttt{--mask}. The mask image should be an \textit{integer}-valued
+FITS file with the same dimensions as the image being fitted (IRAF \texttt{.pl}
+mask files are not recognized, but these can be converted to FITS format within
+IRAF). The default is to treat zero-valued pixels in the mask image as
+\textit{good} and pixels with values $> 0$ as \textit{bad} (i.e., to be excluded
+from the fit); however, you can specify that zero-valued pixels are \textit{bad}
+with the command-line flag \texttt{--mask-zero-is-bad}.
+
+
 
 \subsection{Noise, Variance, or Weight Maps}
 
@@ -816,6 +865,12 @@ In the SConstruct file, locate the place where the variable
 compact list of all the filenames containing function-object code. Insert our
 new function's name (``func\_new-moffat'') into the list.
 
+\bigskip
+
+That's it! You should now be able to recompile \imfit{} and \makeimage{} 
+(see Section~\ref{sec:build}) to use
+the new function. (Assuming there aren't any bugs in your new code\ldots.)
+
 
 
 \section{Makeimage}
@@ -880,7 +935,6 @@ can use
 for each functions that \makeimage{} can use
 
 
-
 \end{itemize}
 
 
@@ -903,7 +957,38 @@ following optional general parameters are available:
 
 
 
+\subsection{Using \Makeimage{} to Estimate Fluxes and Magnitudes}
 
+Given a configuration file, you
+can use \makeimage{} to estimate the total fluxes and magnitudes of different model
+components. For some components -- e.g., the purely elliptical versions of the Gaussian,
+Exponential, and Sersic functions -- there are analytical expressions which could be
+used. But since \imfit{} and \makeimage{} are designed to use arbitrary functions,
+including ones which do not have analytical expressions for total flux, \makeimage{}
+estimates the flux for each component by internally constructing a large model image 
+for each component function in the configuration file and summing
+the pixel values of that image. The output includes a list of total and relative
+fluxes for each component in the model image (and their magnitudes, if a zero point
+is supplied).
+
+
+\begin{quote}
+  \texttt{\$ \makeimage{} }  --print-fluxes ~ \textit{config-file}
+\end{quote}
+
+Useful comand-line flags and options:
+\begin{itemize}
+
+\item \texttt{--estimation-size} \textit{N\_columns\_and\_rows} --- size of the
+(square) image to construct (the default size is 5000 pixels on a side)
+
+\item \texttt{--zero-point} \textit{value} --- zero point to convert total counts
+to magnitudes
+
+\end{itemize}
+
+This enables you to compute things like bulge/total ratios -- but it's up to you
+which component(s) should be considered ``bulge'', ``disk'', etc.
 
 
 
@@ -962,7 +1047,22 @@ sigma
 
 \subsection{Moffat}
 
-an elliptical 2D Moffat function.
+This is an elliptical 2D Moffat function, with the major-axis intensity profile
+given by
+\begin{equation}
+I(a) \, = \, \frac{I_{0}  }{(1 + (a/\alpha)^{2})^{\beta} },
+\end{equation}
+where $\alpha$ is given by
+\begin{equation}
+\alpha \, = \, \frac{ {\rm FWHM}}{2 \sqrt{2^{1/\beta} - 1}}.
+\end{equation}
+In practice, FWHM describes the overall width of the profile, while $\beta$ describes that
+strength of the wings: lower values of $\beta$ mean more intensity in the wings
+than is the case for a Gaussian (as $\beta \rightarrow \infty$, the Moffat profile
+approaches a Gaussian).
+
+The Moffat function is often a good approximation to typical telescope PSFs (see, e.g.,
+\citealt{trujillo01}), and \makeimage{} can easily be used to generate Moffat PSF images.
 
 \begin{verbatim}
 FUNCTION Moffat
@@ -974,9 +1074,23 @@ beta
 \end{verbatim}
 
 
+%  double  exponent = pow(2.0, 1.0/beta);
+%  alpha = 0.5*fwhm/sqrt(exponent - 1.0);
+%  q = 1.0 - ell;
+%
+%  scaledR = r / alpha;
+%  denominator = pow((1.0 + scaledR*scaledR), beta);
+%  return (I_0 / denominator);
+
+
 \subsection{Exponential}
 
-an elliptical 2D exponential function.
+This is an elliptical 2D exponential function, with the major-axis intensity
+profile given by
+\begin{equation}
+I(a) \, = \, I_{0} \exp(-a/h),
+\end{equation}
+where $I_{0}$ is the central surface brightness and $h$ is the scale length.
 
 \begin{verbatim}
 FUNCTION Exponential
@@ -989,7 +1103,9 @@ h
 
 \subsection{Exponential\_GenEllipse}
 
-an elliptical 2D exponential function using generalized ellipses (``boxy'' to ``disky'' shapes).
+Similar to the Exponential function, but using generalized ellipses (``boxy'' to ``disky'' shapes)
+instead of pure ellipses.  The shape of the isophotes is controlled by the \texttt{c0}
+parameter: for XXX.
 
 \begin{verbatim}
 FUNCTION Exponential_GenEllipse
@@ -1003,7 +1119,21 @@ h
 
 \subsection{S\'ersic}
 
-an elliptical 2D S\'ersic function.
+This is an elliptical 2D S\'ersic function with the major-axis intensity
+profile given by
+\begin{equation}
+I(a) \; = \; I_{e} \: \exp \left\{ -b_{n} \left[ \left( \frac{a}{r_{e}} \right)^{1/n} \! - \: 1 \right] \right\},
+\end{equation}
+where $I_{e}$ is the surface brightness at the effective (half-light) radius $r_{e}$
+and $n$ is the S\'ersic index controlling the shape of the intensity profile. The
+value of $b_{n}$ is formally given by the solution to the transcendental equation
+\begin{equation}
+\Gamma(2 n) \; = \; 2 \gamma(2n, b_{n}),
+\end{equation}
+where $\Gamma(a)$ is the gamma function and $\gamma(a, x)$ is the incomplete gamma function.
+However, in the current implementation $b_{n}$ is calculated via the polynomial approximation
+of \citet{ciotti99} when $n > 0.36$ and the approximation of \citet{macarthur03} when
+$n \leq 0.36$.
 
 \begin{verbatim}
 FUNCTION Sersic
@@ -1016,8 +1146,10 @@ r_e
 
 
 \subsection{Sersic\_GenEllipse}
-an elliptical 2D S\'ersic function using
-generalized ellipses (``boxy'' to ``disky'' shapes).
+
+Similar to the Sersic function, but using generalized ellipses (``boxy'' to ``disky'' shapes)
+instead of pure ellipses.  The shape of the isophotes is controlled by the \texttt{c0}
+parameter: for XXX.
 
 \begin{verbatim}
 FUNCTION Sersic_GenEllipse
@@ -1032,8 +1164,8 @@ r_e
 
 \subsection{FlatExponential} 
 
-similar to Exponential, but with an inner radial zone
-of constant surface brightness.
+Similar to Exponential, but with an inner radial zone ($a < r_{\rm break}$)
+of constant surface brightness $I_{0}$.
 
 \begin{verbatim}
 FUNCTION FlatExponential
@@ -1048,9 +1180,24 @@ alpha
 
 \subsection{BrokenExponential}
 
-similar to Exponential, but with \textit{two}
+Similar to Exponential, but with \textit{two}
 exponential radial zones (with different scalelengths) joined by a transition region
-at $R_{\rm break}$ of variable sharpness.
+at $R_{b}$ of variable sharpness:
+\begin{equation}
+	I(a) \; = \; S \, I_{0} \, e^{-\frac{a}{h_{1}}} [1 + e^{\alpha(a \, - \,
+	R_{b})}]^{\frac{1}{\alpha} (\frac{1}{h_{1}} \, - \, \frac{1}{h_{2}})},
+\end{equation}
+where $I_{0}$ is the central intensity of the inner exponential, $h_{1}$ and
+$h_{2}$ are the inner and outer exponential scale lengths, $R_{b}$ is the break radius, and
+$\alpha$ parameterizes the sharpness of the break.  (See \citet{erwin08}.) Low values of $\alpha$
+mean very smooth, gradual breaks, while high values correspond to abrupt
+transitions.  $S$ is a scaling factor, given by
+\begin{equation}
+  S \; = \; (1 + e^{-\alpha R_{b}})^{\frac{1}{\alpha} (\frac{1}{h_{1}} \, - 
+  \, \frac{1}{h_{2}})}.
+\end{equation}
+
+Note that the parameter $\alpha$ has units of length$^{-1}$ (i.e., pixels$^{-1}$).
 
 \begin{verbatim}
 FUNCTION BrokenExponential
@@ -1097,12 +1244,36 @@ sigma_r_out
 
 \subsection{EdgeOnDisk}
 
-The analytical form for a perfectly edge-on exponential
-disk, using the Bessel-function solution of van der Kruit \& Searle (1981) for 
-the radial profile and the generalized sech function of van der Kruit (1988) 
-for the vertical profile. Note that this function requires that the GNU
-Scientific Library (GSL) be installed; if the GSL is not installed, \imfit{}
-should be compiled without this function.
+This function provides the analytical form for a perfectly edge-on disk with a radial exponential
+profile, using the Bessel-function solution of \citet{vdk81} for 
+the radial profile and the generalized sech function of \citet{vdk88} 
+for the vertical profile.
+
+% *      Sigma(r,z) = I_0 * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
+% *
+% *    with Sigma(0,0) = 2 * h * I_0
+% *
+% *   This should corresponds to a face-on disk with:
+% *      Sigma(r) = Sigma(0,0) * exp(-r/h)
+% *   although this is guaranteed to be true only for alpha = 2 [i.e., that is
+% * the most direct match to van der Kruit & Searle 1981]
+% *
+% *   Note that for the case of a sech^2 vertical profile (alpha = 2), our z0
+% * is 1/2 of the usual z0 in e.g. van der Kruit & Searle (1981).
+
+\begin{equation}
+I(r,z) \; = \; I_{0} \; (r/h) \; K_{1}(r/h) \; {\rm sech}^{\alpha} (r/(\alpha z_{0}))
+\end{equation}
+where $K_{1}$ is the modified Bessel function. When $\alpha = 2$, this reduces
+to the familiar $\mathrm{sech}^2$ model for the vertical distribution of a disk (with $z_{0}$
+corresponding to $1/2$ of the $z_0$ in the original definition of \citet{vdk81}). When
+$\alpha = \infty$, the vertical distribution becomes exponential (in practice,
+you can approximate this by setting $\alpha$ equal to some fixed, large number).
+
+Note that this particular function requires that the GNU Scientific Library
+(GSL) be installed; if the GSL is not installed, \imfit{} should be compiled
+without this function. (The pre-compiled binary versions include the necessary
+code from the GSL.)
 
 \begin{verbatim}
 FUNCTION EdgeOnDisk
@@ -1117,8 +1288,9 @@ z_0
 \subsection{EdgeOnRing}
 
 A simplistic model for an edge-on ring, using two offset components located
-at distance $\pm$\texttt{r} from the center of the function block. Gaussian with size
-\texttt{sigma\_r} for the radial profile and a Gaussian with
+at distance $\pm$\texttt{r} from the center of the function block. Each component
+(i.e., each side of the ring) is a symmetric Gaussian with size
+\texttt{sigma\_r} for the radial profile and a symmetric Gaussian with
 size \texttt{sigma\_z} for the vertical profile.
 
 \begin{verbatim}
@@ -1133,9 +1305,10 @@ sigma_z
 
 \subsection{EdgeOnRing2Side}
 
-Similar to EdgeOnRing, but now the radial profile is asymmetric, with size
-\texttt{sigma\_r\_in} for the inner side of the ring and \texttt{sigma\_r\_out} for the
-outer side.
+Similar to EdgeOnRing, but now the radial profile for the two components is
+asymmetric: the inner ($|R| < R_{\rm ring}$) side of each component is a Gaussian
+with radial size \texttt{sigma\_r\_in}, while the outer side has radial size
+\texttt{sigma\_r\_out}.
 
 \begin{verbatim}
 FUNCTION EdgeOnRing2Side
@@ -1151,9 +1324,17 @@ sigma_z
 
 \section{Acknowledgments}
 
-\subsection{Minpack}
+Major inspirations for \Imfit{} include both GALFIT \citep{peng02,peng10} and 
+BUDDA \citep{desouza04,gadotti08}.
 
-This produce includes software developed by the University of Chicago, as Operator of
+Thanks also to Michael Opitsch and Michael Williams for being (partly unwitting) beta
+testers.
+
+
+\subsection{Specific Software Acknowledgments}
+
+\subsubsection{Minpack}
+This product includes software developed by the University of Chicago, as Operator of
 the Argonne National Laboratory.
 
 
@@ -1162,12 +1343,49 @@ the Argonne National Laboratory.
 
 \begin{thebibliography}{}
 
+
+
+\bibitem[Ciotti \& Bertin(1999)]{ciotti99} Ciotti, L., \& Bertin, G. 1999,
+''Analytical properties of the R$^{1/m}$ law'', \textit{Astron.\ Astrophys.}
+\textbf{352}: 447.
+
+\bibitem[de Souza, Gadotti, \& dos Anjos(2004)]{desouza04} de Souza, R. E.,
+Gadotti, D. A., \& dos Anjos, S. 2004, ``BUDDA: A New Two-dimensional Bulge/Disk
+Decomposition Code for Detailed Structural Analysis of Galaxies'',
+\textit{Astrophys.J. Supplement} \textbf{153}: 411.
+
+\bibitem[Erwin, Pohlen, \& Beckman(2008)]{erwin08} Erwin, P.,
+Pohlen, B., \& Beckman, J. E. 2008, ``The Outer Disks of Early-Type Galaxies. I. 
+Surface-Brightness Profiles of Barred Galaxies'', \textit{Astron.J.} \textbf{135}: 20.
+
+\bibitem[Gadotti(2008)]{gadotti08} Gadotti, D. A. 2008, ``Image decomposition of barred galaxies and AGN hosts'',
+\textit{Monthly Notices of the Royal
+Astronomical Society} \textbf{384}: 420.
+
 \bibitem[Krist(1995)]{krist95} Krist, J. 1995, ``Simulation of HST PSFs using Tiny Tim'', 
 in \textit{Astronomical Data Analysis Software and Systems IV}, 
 R.A. Shaw, H.E. Payne, and J.J.E. Hayes, eds., \textit{ASP Conference Series} \textbf{77}: 349.
 
+\bibitem[MacArthur, Courteau, \& Holtzman(2003)]{macarthur03} MacArthur, L. A.,
+Courteau, S., \& Holtzman, J. A. 2003, ``Structure of Disk-dominated Galaxies.
+I. Bulge/Disk Parameters, Simulations, and Secular Evolution'',
+\textit{Astrophys.J.} \textbf{582}: 689.
+
+\bibitem[Peng et al.(2002)]{peng02} Peng, C. Y., Ho, L. C., Impey, C. D., \&
+Rix, H. W. 2002, ``Detailed Structural Decomposition of Galaxy Images'',
+\textit{Astron.J.} \textbf{124}: 266
+
+\bibitem[Peng et al.(2010)]{peng10} Peng, C. Y., Ho, L. C., Impey, C. D., \&
+Rix, H. W. 2010, ``Detailed Structural Decomposition of Galaxy Images'',
+\textit{Astron.J.} \textbf{139}: 2097
+
 \bibitem[S{\'e}rsic(1968)]{sersic68} S{\'e}rsic, J.-L. 1968, \textit{Atlas de 
 Galaxias Australes} (Cordoba: Obs.\ Astron.)
+
+\bibitem[Trujillo et al.(2001)]{trujillo01} Trujillo, I., Aguerri, J. A. L.,
+Cepa, J., \& Guti{\'e}rrez, C. M. 2001, ``The effects of seeing on S{\'e}rsic
+profiles -- II. The Moffat PSF'', \textit{Monthly Notices of the Royal
+Astronomical Society} \textbf{328}: 977.
 
 \bibitem[van der Kruit \& Searle(1981)]{vdk81} van der Kruit, P. C., \&
 Searle, L. 1981, ``Surface Photometry of Edge-on Spiral Galaxies: I. A
