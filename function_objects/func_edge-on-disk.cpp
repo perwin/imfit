@@ -7,12 +7,13 @@
  * sech function (van der Kruit 1988) for vertical profile.  My version of this
  * looks like the following (Sigma = surface brightness in counts/pixel):
  *
- *      Sigma(r,z) = I_0 * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
+ *      Sigma(r,z) = Sigma(0,0) * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
  *
- *    with Sigma(0,0) = 2 * h * I_0
+ *    with Sigma(0,0) = 2 * h * L_0
  *
  *   This should corresponds to a face-on disk with:
- *      Sigma(r) = Sigma(0,0) * exp(-r/h)
+ *      Sigma(r) = mu_0 * exp(-r/h)
+ *    where mu_0 = 2 * z0 * L_0
  *   although this is guaranteed to be true only for alpha = 2 [i.e., that is
  * the most direct match to van der Kruit & Searle 1981]
  *
@@ -61,7 +62,7 @@ using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 5;
-const char  PARAM_LABELS[][20] = {"PA", "I_0", "h", "alpha", "z_0"};
+const char  PARAM_LABELS[][20] = {"PA", "L_0", "h", "alpha", "z_0"};
 const char  FUNCTION_NAME[] = "Edge-on Disk function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -96,7 +97,7 @@ void EdgeOnDisk::Setup( double params[], int offsetIndex, double xc, double yc )
   x0 = xc;
   y0 = yc;
   PA = params[0 + offsetIndex];
-  I_0 = params[1 + offsetIndex ];
+  L_0 = params[1 + offsetIndex ];
   h = params[2 + offsetIndex ];
   alpha = params[3 + offsetIndex ];
   z_0 = params[4 + offsetIndex ];
@@ -108,7 +109,7 @@ void EdgeOnDisk::Setup( double params[], int offsetIndex, double xc, double yc )
   sinPA = sin(PA_rad);
 
   scaledZ0 = alpha*z_0;
-  Sigma_00 = 2.0*h*I_0;
+  Sigma_00 = 2.0*h*L_0;
 }
 
 

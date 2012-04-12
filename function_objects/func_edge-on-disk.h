@@ -7,15 +7,15 @@
  * sech function (van der Kruit 1988) for vertical profile.  My version of this
  * looks like the following (Sigma = surface brightness in counts/pixel):
  *
- *      Sigma(r,z) = I_0 * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
+ *      Sigma(r,z) = Sigma(0,) * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
  *
- *    with Sigma(0,0) = 2 * h * I_0
+ *    with Sigma(0,0) = 2 * h * L_0
  *
  * PARAMETERS:
  * x0 = xc;   -- center of component (pixels, x)
  * y0 = yc;   -- center of component (pixels, y)
  * PA = params[0 + offsetIndex];   -- PA of component, rel. to +y axis
- * I_0 = params[1 + offsetIndex ]; -- intensity scaling (ADU/pix)
+ * L_0 = params[1 + offsetIndex ]; -- intensity scaling (ADU/pix)
  * h = params[2 + offsetIndex ];   -- radial exp. scale length (pixels)
  * alpha = params[3 + offsetIndex ];     -- exponent for sech vertical function
  * z0 = params[4 + offsetIndex ] -- vertical scale height
@@ -54,7 +54,7 @@ class EdgeOnDisk : public FunctionObject
 
 
   private:
-    double  x0, y0, PA, I_0, h, alpha, z_0;   // parameters
+    double  x0, y0, PA, L_0, h, alpha, z_0;   // parameters
     double  PA_rad, cosPA, sinPA;   // other useful quantities
     double  scaledZ0, Sigma_00;   // other useful quantities
 };

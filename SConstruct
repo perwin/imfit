@@ -21,6 +21,9 @@
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
+# To build export version (with OpenMP, "fat" binaries, all libraries statically linked):
+#    $ scons --openmp --fat --static <target-name>
+#
 
 # To add one or more directories to the header or library search paths:
 #    $ scons --header-path=/path/to/header/dir
@@ -326,7 +329,8 @@ modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 # 1D FunctionObject classes:
 functionobject1d_obj_string = """function_object func1d_gaussian func1d_exp func1d_sersic 
 		func1d_core-sersic func1d_broken-exp func1d_moffat func1d_delta func1d_sech 
-		func1d_sech2 func1d_vdksech func1d_gaussian2side"""
+		func1d_sech2 func1d_vdksech func1d_gaussian2side 
+		func1d_n1543majmin_circbulge func1d_n1543majmin func1d_n1543majmin2"""
 functionobject1d_objs = [ FUNCTION_SUBDIR + name for name in functionobject1d_obj_string.split() ]
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 

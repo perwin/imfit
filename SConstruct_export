@@ -21,6 +21,9 @@
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
+# To build export version (with OpenMP, "fat" binaries, all libraries statically linked):
+#    $ scons --openmp --fat --static <target-name>
+#
 
 # To add one or more directories to the header or library search paths:
 #    $ scons --header-path=/path/to/header/dir
@@ -37,6 +40,13 @@
 #    os.uname()[0] = "Linux" --> Linux
 
 import os
+
+# the following is for when we want to force static linking to the GSL library
+# (Change these if the locations are different on your system)
+STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
+STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/lib/libgsl.a")
+STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/lib/libgslcblas.a")
+
 
 FUNCTION_SUBDIR = "function_objects/"
 
@@ -90,6 +100,7 @@ useGSL = True
 useFFTWThreading = True
 useOpenMP = False
 useStaticLibs = False
+buildFatBinary = False
 
 
 # Define some user options
@@ -103,6 +114,13 @@ AddOption("--no-gsl", dest="useGSL", action="store_false",
 	default=True, help="do *not* use GNU Scientific Library")
 AddOption("--openmp", dest="useOpenMP", action="store_true", 
 	default=False, help="compile with OpenMP support [LIMITED AND EXPERIMENTAL!]")
+
+# Define some more arcane options (e.g., for making binaries for distribution)
+AddOption("--static", dest="useStaticLibs", action="store_true", 
+	default=False, help="force static library linking")
+AddOption("--fat", dest="makeFatBinaries", action="store_true", 
+	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
+
 
 if GetOption("headerPath") is not None:
 	extraPaths = GetOption("headerPath").split(":")
@@ -118,6 +136,10 @@ if GetOption("useGSL") is False:
 	useGSL = False
 if GetOption("useOpenMP") is True:
 	useOpenMP = True
+if GetOption("useStaticLibs") is True:
+	useStaticLibs = True
+if GetOption("makeFatBinaries") is True:
+	buildFatBinary = True
 
 
 if useFFTWThreading:   # default is to do this
@@ -129,7 +151,17 @@ if useFFTWThreading:   # default is to do this
 	extra_defines.append("FFTW_THREADING")
 
 if useGSL:   # default is to do this
-	lib_list.append("gsl")
+	if useStaticLibs:
+		if (os_type == "Darwin"):
+			lib_list.append(STATIC_GSL_LIBRARY_FILE_MACOSX)
+		else:
+			# assuming we're on a Linux system
+			lib_list.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
+			lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
+	else:
+		lib_list.append("gsl")
+	
+	# and stuff for 1D programs:
 	lib_list_1d.append("gsl")
 	if (os_type == "Linux"):
 		lib_list.append("gslcblas")
@@ -137,10 +169,26 @@ if useGSL:   # default is to do this
 else:
 	extra_defines.append("NO_GSL")
 
-if useOpenMP:   # default is to *not* do this; user must specify with --
+if useOpenMP:   # default is to *not* do this; user must specify with "--openmp"
 	cflags_opt.append("-fopenmp")
 	cflags_db.append("-fopenmp")
 	link_flags.append("-fopenmp")
+
+
+if buildFatBinary and (os_type == "Darwin"):
+	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
+	# passes "-arch xxx" wrapped in quotation marks, which gcc/g++ chokes on.
+	cflags_opt += ["-arch", "i686", "-arch", "x86_64"]
+	cflags_db += ["-arch", "i686", "-arch", "x86_64"]
+	link_flags += ["-arch", "i686", "-arch", "x86_64"]
+
+# 	if key == 'mode':
+# 		if value == "export":   # "scons mode=export"  [for compiling "export" versions]
+# 			# build a fat Intel (32-bit/64-bit) binary (works on Mac OS X)
+# 			cflags_opt.append("-arch i386 -arch x86_64")
+# 			cflags_db.append("-arch i386 -arch x86_64")
+# 			link_flags.append("-arch i386 -arch x86_64")
+# 			useStaticLibs = True
 
 
 # Allow use to specify extra definitions via command line
@@ -220,7 +268,7 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
 		func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
 		func_edge-on-ring func_edge-on-ring2side"""
 if useGSL:
-	# these modules require GSL be present
+	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]

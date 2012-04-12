@@ -29,14 +29,19 @@
 #include "func1d_sech2.h"
 #include "func1d_vdksech.h"
 
+#include "func1d_n1543majmin_circbulge.h"
+#include "func1d_n1543majmin.h"
+#include "func1d_n1543majmin2.h"
+
+
 using namespace std;
 
 
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
 const char  FUNCTION_NAMES[][30] = {"Exponential-1D", "Gaussian-1D", "Gaussian2Side-1D",
             "Moffat-1D", "Sersic-1D", "Core-Sersic-1D", "BrokenExponential-1D", 
-            "Delta-1D", "Sech-1D", "Sech2-1D", "vdKSech-1D"};
-const int  N_FUNCTIONS = 11;
+            "Delta-1D", "Sech-1D", "Sech2-1D", "vdKSech-1D", "n1543majmin-1D", "n1543majmin2-1D"};
+const int  N_FUNCTIONS = 12;
 
 
 // Code to create FunctionObject object factories
@@ -99,6 +104,15 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   
   vdKSech1D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<vdKSech1D>();
+
+  n1543MajMinCircBulge1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<n1543MajMinCircBulge1D>();
+
+  n1543MajMin1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<n1543MajMin1D>();
+
+  n1543MajMin21D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<n1543MajMin21D>();
   
 }
 
