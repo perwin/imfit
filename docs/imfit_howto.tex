@@ -667,17 +667,34 @@ with the command-line flag \texttt{--mask-zero-is-bad}.
 
 \subsection{Noise, Variance, or Weight Maps}
 
-TBD.
+By default, \imfit{} calculates a weight map internally, using the input pixel
+intensities, the A/D gain, the read noise, and any previously subtracted
+background level to estimate Poisson errors $\sigma_{i}$ for each pixel $i$. The
+final weight map is then $w_{i} = 1/\sigma^{2}_{i}$. These weights are then used in the 
+$\chi^2$ calculation, summing over all $N$ pixels:
+\begin{equation}
+\chi^2 \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{{\rm mod}, i} - I_{{\rm im}, i})^2 ,
+\end{equation}
+where $I_{{\rm mod}, i}$ and $I_{{\rm im}, i}$ are the model and data intensities
+in counts/pixel, respectively. (Masking is handled by setting $w_{i} = 0$
+for all masked pixels.)
 
-Note that \imfit{} does \textit{not} try to obtain information
-from the FITS header of an image. This is primarily because there is little
-consistency in header names across the wide range of astronomical images, so
-it is difficult pick one name, or even a small set, and assume that it will
-be present in a given image's header. (This is even more true if an image
-is the result of a simulation.)
-% trying to explain that we don't do the dumb thing that GALFIT does,
-% which is to assume that the presence of an EXPTIME keyword means that
-% pixel values MUST be divided by EXPTIME ...
+If you have a pre-existing error map as a FITS image, you can tell \imfit{} to
+use that instead, via the \texttt{--noise} command-line option. By default, the
+pixel values in the FITS image are assumed to be errors $\sigma_{i}$ in
+ADU/pixel. If the values are \textit{variances} ($\sigma_{i}^2$), you can specify
+this with the \texttt{--errors-are-variances} flag. You can also tell \imfit{}
+that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via the
+\texttt{--errors-are-weights} flag, if that happens to be the case. (If a mask
+image is supplied, the weights of all masked pixels will still be set to 0,
+regardless of their individual values in the weight image.)
+
+Note that \imfit{} does \textit{not} try to obtain information (such as, e.g.,
+the A/D gain or read noise) from the FITS header of an image. This is primarily
+because there is little consistency in header names across the wide range of
+astronomical images, so it is difficult pick one name, or even a small set, and
+assume that it will be present in a given image's header. (This is even more
+true if an image is the result of a simulation.)
 
 
 \subsection{PSF Convolution}

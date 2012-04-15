@@ -46,6 +46,14 @@
 /* ---------------- Definitions ---------------------------------------- */
 static string  UNDEFINED = "<undefined>";
 
+// output formatting for printing parameters
+#define X0_FORMAT_WITH_ERRS "\nX0\t\t%.4f # +/- %.4f\n"
+#define Y0_FORMAT_WITH_ERRS "Y0\t\t%.4f # +/- %.4f\n"
+#define X0_FORMAT "\nX0\t\t%.4f\n"
+#define Y0_FORMAT "Y0\t\t%.4f\n"
+#define PARAM_FORMAT_WITH_ERRS "%s\t\t%7g # +/- %7g\n"
+#define PARAM_FORMAT "%s\t\t%7g\n"
+
 #define OPENMP_CHUNK_SIZE  10
 
 
@@ -651,11 +659,11 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
       x0 = params[k] + parameterInfo[k].offset;
       y0 = params[k + 1] + parameterInfo[k + 1].offset;
       if (errs != NULL) {
-        fprintf(output_ptr, "\nX0\t\t%f # +/- %f\n", x0, errs[k]);
-        fprintf(output_ptr, "Y0\t\t%f # +/- %f\n", y0, errs[k + 1]);
+        fprintf(output_ptr, X0_FORMAT_WITH_ERRS, x0, errs[k]);
+        fprintf(output_ptr, Y0_FORMAT_WITH_ERRS, y0, errs[k + 1]);
       } else {
-        fprintf(output_ptr, "\nX0\t\t%f\n", x0);
-        fprintf(output_ptr, "Y0\t\t%f\n", y0);
+        fprintf(output_ptr, X0_FORMAT, x0);
+        fprintf(output_ptr, Y0_FORMAT, y0);
       }
       indexOffset += 2;
     }
@@ -668,9 +676,9 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
       paramName = GetParameterName(indexOffset + i);
       paramVal = params[indexOffset + i];
       if (errs != NULL)
-        fprintf(output_ptr, "%s\t\t%f # +/- %f\n", paramName.c_str(), paramVal, errs[indexOffset + i]);
+        fprintf(output_ptr, PARAM_FORMAT_WITH_ERRS, paramName.c_str(), paramVal, errs[indexOffset + i]);
       else
-        fprintf(output_ptr, "%s\t\t%f\n", paramName.c_str(), paramVal);
+        fprintf(output_ptr, PARAM_FORMAT, paramName.c_str(), paramVal);
     }
     indexOffset += paramSizes[n];
   }
