@@ -710,7 +710,7 @@ true if an image is the result of a simulation.)
 
 TBD.
 
-PSF images should ideally be square, with width = an odd number of pixels, and
+PSF images should be square, with width = an odd number of pixels, and
 the PSF should be centered in the central pixel. (An off-center PSF can certainly
 be used, but the resulting convolved model images will be shifted.)
 
@@ -1065,7 +1065,13 @@ We need to do three simple things here:
 the top of the file, where the other header files are included:\\
 \texttt{\#include "func\_new-moffat.h"}
 
-\item Modify the list of function names: XXX TBD.
+\item Modify the list of function names: Look for the lines beginning with
+\begin{verbatim}
+const char  FUNCTION_NAMES[][30] =
+\end{verbatim}
+and add \texttt{"NewMoffat"} to the list (add the name to both lists if the
+function does not depend on the GNU Scientific Library; if it \textit{does} depend on GSL,
+then add it to the first list only)
 
 \item Add code to generate an instance of our new class as part of the
 function-factory map. Inside the function PopulateFactoryMap, add the following lines:
@@ -1204,9 +1210,20 @@ h
 
 \subsection{Exponential\_GenEllipse}
 
-Similar to the Exponential function, but using generalized ellipses (``boxy'' to ``disky'' shapes)
-instead of pure ellipses.  The shape of the isophotes is controlled by the \texttt{c0}
-parameter: for XXX.
+Similar to the Exponential function, but using generalized ellipses (``boxy'' to
+``disky'' shapes) instead of pure ellipses for the isophote shapes.  Following
+\citet{athanassoula90}, the shape of the elliptical isophotes is controlled by
+the \texttt{c0} parameter, such that a generalized ellipse with ellipticity $= 1
+- b/a$ is described by
+\begin{equation}
+%\left( \frac{|x|}{a}^{c_{0} + 2} \right) + \left( \frac{|y|}{b}^{c_{0} + 2} \right) \; = \; 1,
+\left( \frac{|x|}{a} \right)^{c_{0} + 2} + \left( \frac{|y|}{b} \right)^{c_{0} + 2} \; = \; 1,
+\end{equation}
+where $|x|$ and $|y|$ are distances from the ellipse center in the coordinate system
+aligned with the ellipse major axis ($c_{0}$ corresponds to $c - 2$ in the original
+formulation of Athanassoula et al).
+Thus, values of $c_{0} < 0$ correspond to disky isophotes, while values $> 0$ describe boxy
+isophotes; $c_{0} = 0$ corresponds to a perfect ellipse.
 
 \begin{verbatim}
 FUNCTION Exponential_GenEllipse
@@ -1248,9 +1265,10 @@ r_e
 
 \subsection{Sersic\_GenEllipse}
 
-Similar to the Sersic function, but using generalized ellipses (``boxy'' to ``disky'' shapes)
-instead of pure ellipses.  The shape of the isophotes is controlled by the \texttt{c0}
-parameter: for XXX.
+Similar to the Sersic function, but using generalized ellipses (``boxy'' to
+``disky'' shapes) instead of pure ellipses for the isophote shapes.  See the
+discussion of the \texttt{Exponential\_GenEllipse} function above for details of the isophote
+shapes.
 
 \begin{verbatim}
 FUNCTION Sersic_GenEllipse
@@ -1363,20 +1381,21 @@ the disk plane; there is no ellipticity parameter.
 % *   Note that for the case of a sech^2 vertical profile (alpha = 2), our z0
 % * is 1/2 of the usual z0 in e.g. van der Kruit & Searle (1981).
 
-The intensity at radius $r$ from the central axis (in the direction parallel to the galaxy plane) and
-at height $z$ from the midplane (corresponding to a cylindrical coordinate system for
-the disk) is given by
+In a coordinate system aligned with the edge-on disk, the intensity at radius $r$ from 
+the central axis (in the direction parallel to the galaxy plane) and
+at height $z$ from the midplane is given by
 \begin{equation}
 I(r,z) \; = \; \mu(0,0) \; (r/h) \; K_{1}(r/h) \; {\rm sech}^{\alpha} (r/(\alpha z_{0}))
 \end{equation}
 where $h$ is the exponential scale length in the disk plane, $z_{0}$ is the vertical
-scale height, and $K_{1}$ is the modified Bessel function. The central surface brightness $\mu(0,0)$
-is given by
+scale height, and $K_{1}$ is the modified Bessel function. The central surface brightness 
+$\mu(0,0)$ is given by
 \begin{equation}
 \mu(0,0) \; = \;  2 \, h \, L_{0},
 \end{equation}
-where $L_{0}$ is the central luminosity \textit{density} (see \citealt{vdk81}). Note that $L_{0}$ is the
-actual parameter required by the function ($\mu(0,0)$ is calculated internally).
+where $L_{0}$ is the central luminosity \textit{density} (see \citealt{vdk81}). Note that 
+$L_{0}$ is the actual parameter required by the function ($\mu(0,0)$ is calculated 
+internally).
 
 When $\alpha = 2$, this reduces to the familiar $\mathrm{sech}^2$ model for the
 vertical distribution of a disk (with $z_{0}$ corresponding to $1/2$ of the
@@ -1481,6 +1500,10 @@ the Argonne National Laboratory.
 
 \bibitem[Abazajian et al.(2009)]{abazajian09} Abazajian, K. N.., et al.\ 2009, ``The Seventh 
 Data Release of the Sloan Digital Sky Survey'', \textit{Astrophys.J. Supplement} \textbf{182}: 182
+
+\bibitem[Athanassoula et al.(1990)]{athanassoula90} Athanassoula, E., Morin, S., Wozniak, H.,
+Puy, D., Pierce, M. J., Lombard, J., \& Bosma, A. 1990, \textit{Monthly Notices of the Royal
+Astronomical Society} \textbf{245}: 130.
 
 \bibitem[Ciotti \& Bertin(1999)]{ciotti99} Ciotti, L., \& Bertin, G. 1999,
 ''Analytical properties of the R$^{1/m}$ law'', \textit{Astron.\ Astrophys.}
