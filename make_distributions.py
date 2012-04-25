@@ -4,7 +4,7 @@
 
 import sys, os, shutil, optparse, tarfile
 
-VERSION_STRING = "0.9"
+VERSION_STRING = "0.9.1"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -35,6 +35,7 @@ documentationFileDict = {"dir": "docs", "file_list": documentation_files.split()
 misc_required_files = """
 COPYING.txt
 DISCLAIMER
+README.txt
 """
 
 source_header_files = """
@@ -110,9 +111,54 @@ README_examples.txt
 """
 exampleFileDict = {"dir": "examples", "file_list": example_files.split()}
 
+testing_scripts = """
+do_imfit_tests
+do_makeimage_tests
+"""
+
+test_files = """
+config_imfit_expdisk32.dat
+imfit_config_ic3478_64x64.dat
+imfit_config_ic3478_64x64b.dat
+config_makeimage_sersictest512_bad1.dat
+config_makeimage_sersictest512_bad2.dat
+config_makeimage_sersictest512_bad3.dat
+config_makeimage_sersictest512_bad4.dat
+config_makeimage_sersictest512_bad5.dat
+config_imfit_sersictest512_badlimits1.dat
+config_imfit_sersictest512_badlimits2.dat
+uniform_image32.fits
+testimage_expdisk32.fits
+ic3478rss_64x64.fits
+imfit_textout1
+imfit_textout2
+imfit_textout3
+imfit_textout4
+imfit_textout5
+imfit_textout6
+imfit_textout7
+imfit_textout8
+imfit_textout9
+config_biggertest_4c.dat
+config_makeimage_gensersic512.dat
+config_makeimage_sersic+exp512.dat
+psf_moffat_35.fits
+makeimage_textout1
+makeimage_textout2
+makeimage_textout3
+makeimage_textout4
+makeimage_textout5
+makeimage_textout6
+makeimage_textout7
+makeimage_textout8
+makeimage_textout9
+"""
+testFileDict = {"dir": "tests", "file_list": test_files.split()}
+
 # file lists:
 binary_only_file_list = binary_only_files.split()
 misc_required_files_list = misc_required_files.split()
+testing_scripts_list = testing_scripts.split()
 
 header_file_list = [fname + ".h" for fname in source_header_files.split()]
 #print header_file_list
@@ -125,6 +171,7 @@ toplevel_source_list = c_file_list + cplusplus_file_list + header_file_list
 documentation_file_list = [ documentationFileDict["dir"] + "/" + fname for fname in documentationFileDict["file_list"] ]
 
 example_file_list = [ exampleFileDict["dir"] + "/" + fname for fname in exampleFileDict["file_list"] ]
+test_file_list = [ testFileDict["dir"] + "/" + fname for fname in testFileDict["file_list"] ]
 
 funcobj_file_list_cpp = [ funcObjFileDict["dir"] + "/" + fname + ".cpp" for fname in funcObjFileDict["file_list"] ]
 funcobj_file_list_h = [ funcObjFileDict["dir"] + "/" + fname + ".h" for fname in funcObjFileDict["file_list"] ]
@@ -133,8 +180,8 @@ funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 
 
 allFileLists = [binary_only_file_list, misc_required_files_list, toplevel_source_list, documentation_file_list,
-				example_file_list, funcobj_file_list]
-subdirs_list = ["docs", "examples", "function_objects"]
+				example_file_list, testing_scripts_list, test_file_list, funcobj_file_list]
+subdirs_list = ["docs", "examples", "tests", "function_objects"]
 
 
 
@@ -186,6 +233,8 @@ def MakeSourceDist( ):
 	final_file_list += c_file_list
 	final_file_list += cplusplus_file_list
 	final_file_list += funcobj_file_list
+	final_file_list += testing_scripts_list
+	final_file_list += test_file_list
 	final_file_list.append("SConstruct")
 	
 	tar = tarfile.open(SOURCE_TARFILE, 'w|gz') 

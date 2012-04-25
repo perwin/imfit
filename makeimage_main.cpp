@@ -33,10 +33,9 @@
 #define CMDLINE_ERROR1 "Usage: -p must be followed by a string containing initial parameter values for the model"
 
 #define DEFAULT_OUTPUT_FILENAME   "modelimage.fits"
-#define FITS_FILENAME   "testimage_expdisk_tiny.fits"
-#define FITS_ERROR_FILENAME   "tiny_uniform_image_0.1.fits"
 
 #define DEFAULT_ESTIMATION_IMAGE_SIZE  5000
+#define EST_SIZE_HELP_STRING "     --estimation-size <int>  Size of square image to use for estimating fluxes [default = 5000]"
 
 
 // Option names for use in config files
@@ -45,7 +44,7 @@ static string  kNCols2 = "NCOLUMNS";
 static string  kNRows = "NROWS";
 
 
-#define VERSION_STRING      "0.9"
+#define VERSION_STRING      "0.9.1"
 
 
 typedef struct {
@@ -344,17 +343,17 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image");
+  optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image [default = modelimage.fits]");
   optParser->AddUsageLine("     --refimage <reference-image.fits>   reference image (for image size)");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image (for convolution)");
   optParser->AddUsageLine("     --ncols <number-of-columns>   x-size of output image");
   optParser->AddUsageLine("     --nrows <number-of-rows>   y-size of output image");
   optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
-  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
+//  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
   optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing)");
   optParser->AddUsageLine("     --zero-point <value>     Zero point (for estimating component & total magnitudes)");
   optParser->AddUsageLine("     --print-fluxes           Estimate total component fluxes (& magnitudes, if zero point is given)");
-  optParser->AddUsageLine("     --estimation-size <int>  Size of square image to use for estimating fluxes");
+  optParser->AddUsageLine(EST_SIZE_HELP_STRING);
   optParser->AddUsageLine("     --output-functions <root-name>  Output individual function-images");
   optParser->AddUsageLine("");
 
