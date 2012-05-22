@@ -27,7 +27,7 @@ public:
 	ImfitSolver(int dim, int pop, ModelObject *inputModel) : DESolver(dim, pop)
 	{
 	  theModel = inputModel;
-	  theModel->SetupChisquaredCalcs();
+//	  theModel->SetupChisquaredCalcs();
 	  count = 0;
 	}
 	

@@ -1,8 +1,5 @@
-*** WARNING: number of input parameters (14) does not equal required number of parameters for specified functions (15)!
+*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!
+   (X0 specification on input line 20 should be followed by Y0 specification on next line)
 
-Value from config file: nColumns = 512
-Value from config file: nRows = 512
-* No PSF image supplied -- no image convolution will be done!
-Function: Sersic_GenEllipse
-Function: Sersic
-15 total parameters
+*** WARNING: Failure reading configuration file!
+

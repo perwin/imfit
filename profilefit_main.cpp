@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
       break;
     case NO_FITTING:
       printf("\nNO FITTING BEING DONE!\n");
-      theModel->SetupChisquaredCalcs();
+//      theModel->SetupChisquaredCalcs();
       options.saveBestProfile = true;
       break;
   } // end switch

@@ -7,5 +7,7 @@ Function: Exponential
 Model Object: 262144 data values (pixels)
 
 Saving output model image ("sersic+exp.fits") ...
+singleImage1_Sersic.fits
+singleImage2_Exponential.fits
 Done!
 

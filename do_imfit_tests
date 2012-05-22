@@ -12,6 +12,8 @@ echo "Running tests for imfit..."
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat &> test_dump3
 
 # test non-square image + PSF convolution?
+echo -n "   (now running fit with PSF convolution ...)"
+./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> test_dump3a
 
 #    Testing to see that bad config files are caught:
 ./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump4
@@ -42,6 +44,15 @@ else
 fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (take 2)... "
+if (diff --brief test_dump3a tests/imfit_textout3a)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump3a tests/imfit_textout3a
+fi
+
+echo -n "*** Diff comparison with archives: fit to larger (rectangular) SDSS image w/ PSF convolution... "
 if (diff --brief test_dump3 tests/imfit_textout3)
 then
   echo " OK"

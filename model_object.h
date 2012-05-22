@@ -49,7 +49,7 @@ class ModelObject
     													int nCombinedImages );
 
 		// 2D only
-    void SetupModelImage( int nDataValues, int nImageColumns, int nImageRows );
+    void SetupModelImage( int nImageColumns, int nImageRows );
     
 		// 2D only
     virtual void AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,
@@ -85,7 +85,7 @@ class ModelObject
     virtual void ComputeDeviates( double yResults[], double params[] );
 
     // common, not specialized
-    virtual void SetupChisquaredCalcs( );
+//    virtual void SetupChisquaredCalcs( );
     
     // common, not specialized
     virtual double ChiSquared( double params[] );
@@ -101,7 +101,7 @@ class ModelObject
 																		double errs[] );
 
     // 2D only; NOT USED ANYWHERE!
-    void PrintImage( double *pixelVector );
+    void PrintImage( double *pixelVector, int nColumns, int nRows );
 
 		// 2D only
     void PrintInputImage( );
@@ -137,6 +137,9 @@ class ModelObject
     double * GetModelImageVector( );
 
 		// 2D only
+    double * GetExpandedModelImageVector( );
+
+		// 2D only
     double * GetResidualImageVector( );
 
 		// 2D only
@@ -148,7 +151,7 @@ class ModelObject
 
     // Generate a model image using *one* of the FunctionObjects (the one indicated by
     // functionIndex) and the input parameter vector; returns pointer to modelVector.
-    double * SingleFunctionImage( double params[], int functionIndex );
+    double * GetSingleFunctionImage( double params[], int functionIndex );
 
     // 1D only
     virtual int GetModelVector( double *profileVector );
@@ -167,17 +170,18 @@ class ModelObject
     Convolver  *psfConvolver;
   
   protected:  // same as private, except accessible to derived classes
-    int  nDataVals, nColumns, nRows, nValidDataVals, nCombined;
+    int  nDataVals, nDataColumns, nDataRows, nValidDataVals, nCombined;
+    int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
     double  nCombined_sqrt;
 	  double  zeroPoint;
     int  debugLevel;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
-    bool  residualVectorAllocated;
+    bool  residualVectorAllocated, outputModelVectorAllocated;
     bool  setStartFlag_allocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists;
     bool  doConvolution;
-    bool  doChisquared;   // ModelObject will be asked to do chi-squared calculations
+    bool  deviatesVectorAllocated;   // for chi-squared calculations
     bool  zeroPointSet;
     int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;
     double  *dataVector;
@@ -186,6 +190,7 @@ class ModelObject
     double  *modelVector;
     double  *deviatesVector;
     double  *residualVector;
+    double  *outputModelVector;
     double  *parameterBounds;
     int  *functionSetStarts;
     bool  *setStartFlag;

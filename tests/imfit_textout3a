@@ -1,0 +1,70 @@
+	Image file = tests/n3073rss_small.fits
+	configuration file = tests/imfit_config_n3073.dat
+	PSF image = tests/psf_moffat_35.fits
+	mask image = tests/n3073rss_small_mask.fits
+Value from config file: gain = 4.725000
+Value from config file: read noise = 4.300000
+Value from config file: original sky = 154.330000
+Reading data image ("tests/n3073rss_small.fits") ...
+naxis1 [# pixels/row] = 150, naxis2 [# pixels/col] = 200; nPixels_tot = 30000
+Reading mask image ("tests/n3073rss_small_mask.fits") ...
+* No noise image supplied ... will generate noise image from input image.
+Reading PSF image ("tests/psf_moffat_35.fits") ...
+naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
+Function: Sersic
+Function: Exponential
+11 total parameters
+Model Object: 30000 data values (pixels)
+ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
+ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
+Setting up parameter information array ...
+
+Calling mpfit ...
+	mpfit iteration 1: chi^2 = 49037.299868
+	mpfit iteration 2: chi^2 = 37281.373764
+	mpfit iteration 3: chi^2 = 37051.452036
+	mpfit iteration 4: chi^2 = 36994.727841
+	mpfit iteration 5: chi^2 = 36930.569452
+	mpfit iteration 6: chi^2 = 36881.604460
+	mpfit iteration 7: chi^2 = 36843.191240
+	mpfit iteration 8: chi^2 = 36814.303963
+	mpfit iteration 9: chi^2 = 36793.589359
+	mpfit iteration 10: chi^2 = 36780.185963
+	mpfit iteration 11: chi^2 = 36773.248869
+	mpfit iteration 12: chi^2 = 36760.101882
+	mpfit iteration 13: chi^2 = 36759.632386
+	mpfit iteration 14: chi^2 = 36759.630304
+	mpfit iteration 15: chi^2 = 36759.629702
+	mpfit iteration 16: chi^2 = 36759.629663
+	mpfit iteration 17: chi^2 = 36759.629659
+	mpfit iteration 18: chi^2 = 36759.629658
+*** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
+  CHI-SQUARE = 36759.629658    (28743 DOF)
+  INITIAL CHI^2 = 235544.789433
+        NPAR = 11
+       NFREE = 11
+     NPEGGED = 0
+     NITER = 19
+      NFEV = 220
+
+Reduced Chi^2 = 1.278907
+AIC = 36781.638843, BIC = 36872.561512
+
+
+X0		100.7073 # +/- 0.0058
+Y0		97.0877 # +/- 0.0052
+FUNCTION Sersic
+PA		111.897 # +/- 0.264365
+ell		0.184115 # +/- 0.00159765
+n		3.28324 # +/- 0.034062
+I_e		78.0376 # +/- 2.68114
+r_e		26.8658 # +/- 0.649225
+FUNCTION Exponential
+PA		51.6875 # +/- 0.806829
+ell		0.353616 # +/- 0.0140884
+I_0		39.4493 # +/- 1.79263
+h		53.8652 # +/- 1.18091
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+Done!
+

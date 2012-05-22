@@ -335,6 +335,11 @@ int main(int argc, char *argv[])
   paramErrs = (double *) malloc(nParamsTot * sizeof(double));
   
   
+  // Add PSF image vector, if present (needs to be added prior to image data, so that
+  // ModelObject can figure out proper internal model-image size
+  if (options.psfImagePresent)
+    theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+
   /* Add image data, errors, and mask to the model object */
   theModel->AddImageDataVector(allPixels, nColumns, nRows, options.nCombined);
   theModel->PrintDescription();
@@ -353,10 +358,6 @@ int main(int argc, char *argv[])
     theModel->ApplyMask();
   }
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
-
-  // Add PSF image vector, if present
-  if (options.psfImagePresent)
-    theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
 
 
   
@@ -419,7 +420,7 @@ int main(int argc, char *argv[])
   // else call one of the solvers!
   if (options.printChiSquaredOnly) {
     printf("\n");
-    theModel->SetupChisquaredCalcs();
+//    theModel->SetupChisquaredCalcs();
     status = 1;
     PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");

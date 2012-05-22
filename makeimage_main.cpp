@@ -72,6 +72,7 @@ typedef struct {
   char  paramLimitsFileName[MAX_FILENAME_LENGTH];
   bool  printImages;
   bool  saveImage;
+  bool  saveExpandedImage;
   bool  saveAllFunctions;  // save individual-function images
   bool  printFluxes;
 } commandOptions;
@@ -135,6 +136,7 @@ int main(int argc, char *argv[])
   options.magZeroPoint = NO_MAGNITUDES;
   options.printImages = false;
   options.saveImage = true;
+  options.saveExpandedImage = false;
   options.saveAllFunctions = false;
   options.printFluxes = false;
 
@@ -218,13 +220,13 @@ int main(int argc, char *argv[])
   	exit(-1);
  }
     
-  /* Define the size of the requested model image */
-  theModel->SetupModelImage(nPixels_tot, nColumns, nRows);
-  theModel->PrintDescription();
-
   // Add PSF image vector, if present
   if (options.psfImagePresent)
     theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+
+  /* Define the size of the requested model image */
+  theModel->SetupModelImage(nColumns, nRows);
+  theModel->PrintDescription();
 
 
   /* Copy parameters into C array and generate the model image */
@@ -248,6 +250,13 @@ int main(int argc, char *argv[])
     printf("\nSaving output model image (\"%s\") ...\n", options.outputImageName.c_str());
     SaveVectorAsImage(theModel->GetModelImageVector(), options.outputImageName, 
                       nColumns, nRows, imageCommentsList);
+    // code for checking PSF convolution fixes [May 2012]
+    if (options.saveExpandedImage) {
+      string  tempName = "expanded_" + options.outputImageName;
+      printf("\nSaving full (expanded) output model image (\"%s\") ...\n", tempName.c_str());
+      SaveVectorAsImage(theModel->GetExpandedModelImageVector(), tempName, 
+                        nColumns + 2*nColumns_psf, nRows + 2*nRows_psf, imageCommentsList);
+    }
   }
   
   
@@ -266,7 +275,7 @@ int main(int argc, char *argv[])
       currentFilename += functionNames[i];
       currentFilename += ".fits";
       printf("%s\n", currentFilename.c_str());
-      SaveVectorAsImage(theModel->SingleFunctionImage(paramsVect, i), currentFilename, 
+      SaveVectorAsImage(theModel->GetSingleFunctionImage(paramsVect, i), currentFilename, 
                       nColumns, nRows, imageCommentsList);    }
   }
 
@@ -364,6 +373,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("list-functions");
   optParser->AddFlag("list-parameters");
   optParser->AddFlag("printimage");
+  optParser->AddFlag("save-expanded");
   optParser->AddFlag("nosubsampling");
   optParser->AddFlag("print-fluxes");
   optParser->AddFlag("nosave");
@@ -416,6 +426,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
   if (optParser->FlagSet("printimage")) {
     theOptions->printImages = true;
+  }
+  if (optParser->FlagSet("save-expanded")) {
+    theOptions->saveExpandedImage = true;
   }
   if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;

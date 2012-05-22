@@ -1,5 +1,20 @@
+Value from config file: nColumns = 512
+Value from config file: nRows = 512
+* No PSF image supplied -- no image convolution will be done!
+Function: Sersic
+Function: Exponential
+11 total parameters
+Model Object: 262144 data values (pixels)
 
-*** ReadConfigFile: Unable to find start of function section in configuration file! (no "X0" line found)
+Saving output model image ("modelimage.fits") ...
 
-*** WARNING: Failure reading configuration file!
+Estimating fluxes on 5000 x 5000 image...
+
+Component                 Flux        Magnitude  Fraction
+Sersic                    2.2632e+06      ---   0.86493
+Exponential               3.5343e+05      ---   0.13507
+
+Total                     2.6166e+06
+
+Done!
 

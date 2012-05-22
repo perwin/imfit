@@ -54,6 +54,8 @@ static string  UNDEFINED = "<undefined>";
 #define PARAM_FORMAT_WITH_ERRS "%s\t\t%7g # +/- %7g\n"
 #define PARAM_FORMAT "%s\t\t%7g\n"
 
+// current best size for OpenMP processing (works well with Intel Core 2 Duo and
+// Core i7 in MacBook Pro, under Mac OS X 10.6 and 10.7)
 #define OPENMP_CHUNK_SIZE  10
 
 
@@ -63,23 +65,30 @@ ModelObject::ModelObject( )
 {
   dataValsSet = weightValsSet = false;
   parameterBoundsSet = false;
+  
   parameterBounds = NULL;
   modelVector = NULL;
   residualVector = NULL;
+  outputModelVector = NULL;
   modelVectorAllocated = false;
   weightVectorAllocated = false;
   residualVectorAllocated = false;
+  outputModelVectorAllocated = false;
+  deviatesVectorAllocated = false;
   setStartFlag_allocated = false;
+  
   modelImageComputed = false;
   maskExists = false;
   doConvolution = false;
-  doChisquared = false;
   zeroPointSet = false;
+  
   nFunctions = 0;
   nFunctionSets = 0;
   nFunctionParams = 0;
   nParamsTot = 0;
   debugLevel = 0;
+  
+  nPSFRows = nPSFColumns = 0;
 }
 
 
@@ -160,32 +169,46 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 /* ---------------- PUBLIC METHOD: AddImageDataVector ------------------ */
 
 void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
-																			int nImageRows, int nCombinedImages )
+                                      int nImageRows, int nCombinedImages )
 {
-  nColumns = nImageColumns;
-  nRows = nImageRows;
-  nDataVals = nValidDataVals = nColumns * nRows;
+  nDataVals = nValidDataVals = nImageColumns * nImageRows;
   dataVector = pixelVector;
   nCombined = nCombinedImages;
   nCombined_sqrt = sqrt(nCombined);
   dataValsSet = true;
   
-  SetupModelImage(nDataVals, nColumns, nRows);
+  SetupModelImage(nImageColumns, nImageRows);
 }
 
 
 /* ---------------- PUBLIC METHOD: SetupModelImage -------------------- */
 // Called by AddImageDataVector(); can also be used by itself in make-image
 // mode. Tells ModelObject to allocate space for the model image.
-void ModelObject::SetupModelImage( int nDataValues, int nImageColumns,
-                                      int nImageRows )
+// Note that if PSF convolution is being done, then AddPSFVector() must be
+// called *before* this method.
+// nImageColumns and nImageRows should refer to the size of the data image
+// (in image-fitting mode) OR the requested size of the output model image
+// (in make-image mode).
+void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
 {
-  nDataVals = nDataValues;
-  nColumns = nImageColumns;
-  nRows = nImageRows;
+  nDataColumns = nImageColumns;
+  nDataRows = nImageRows;
+  nDataVals = nImageColumns*nImageRows;
   
+  if (doConvolution) {
+    nModelColumns = nDataColumns + 2*nPSFColumns;
+    nModelRows = nDataRows + 2*nPSFRows;
+    psfConvolver->SetupImage(nModelColumns, nModelRows);
+    psfConvolver->DoFullSetup(debugLevel);
+    nModelVals = nModelColumns*nModelRows;
+  }
+  else {
+    nModelColumns = nDataColumns;
+    nModelRows = nDataRows;
+    nModelVals = nDataVals;
+  }
   // Allocate modelimage vector
-  modelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
   modelVectorAllocated = true;
 }
 
@@ -196,8 +219,8 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
                                       int nImageRows, double *pixelVector,
                                       int inputType )
 {
-  assert( (nDataValues == nDataVals) && (nImageColumns == nColumns) && 
-          (nImageRows == nRows) );
+  assert( (nDataValues == nDataVals) && (nImageColumns == nDataColumns) && 
+          (nImageRows == nDataRows) );
   weightVector = pixelVector;
   
   // Convert noise values into weights, if needed.  Our standard approach is
@@ -314,8 +337,8 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
                                       int nImageRows, double *pixelVector,
                                       int inputType )
 {
-  assert( (nDataValues == nDataVals) && (nImageColumns == nColumns) && 
-          (nImageRows == nRows) );
+  assert( (nDataValues == nDataVals) && (nImageColumns == nDataColumns) && 
+          (nImageRows == nDataRows) );
 
   maskVector = pixelVector;
   nValidDataVals = 0;   // Since there's a mask, not all pixels from the original
@@ -380,25 +403,17 @@ void ModelObject::ApplyMask( )
 // This function is called to pass in the PSF image and dimensions; doing so
 // automatically triggers setup of a Convolver object to do convolutions (including
 // prep work such as computing the FFT of the PSF).
-// This function must be called *after* SetupModelImage() is called (to ensure
-// that we can tell the Convolver object the model image dimensions).
-// [Note that SetupModelImage() is called by AddImageDataVector().]
+// This function must be called *before* SetupModelImage() is called (to ensure
+// that we know the proper model-image dimensions
 void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels)
 {
 
-  if (modelVectorAllocated) {
-    psfConvolver = new Convolver();
-    psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
-    psfConvolver->SetupImage(nColumns, nRows);
-    psfConvolver->DoFullSetup(debugLevel);
-    doConvolution = true;
-  }
-  else {
-    printf("WARNING: PSF image was supplied before main image dimensions!\n");
-    printf("\tUnable to do convolution ...\n");
-    doConvolution = false;
-  }
+  nPSFColumns = nColumns_psf;
+  nPSFRows = nRows_psf;
+  psfConvolver = new Convolver();
+  psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
+  doConvolution = true;
 }
 
 
@@ -429,7 +444,7 @@ void ModelObject::FinalSetup( )
 
 void ModelObject::CreateModelImage( double params[] )
 {
-  double  x0, y0, x, y, newVal;
+  double  x0, y0, x, y, newValSum;
   int  i, j, n;
   int  offset = 0;
   
@@ -462,23 +477,33 @@ void ModelObject::CreateModelImage( double params[] )
     offset += paramSizes[n];
   }
   
+  double  tempSum, adjVal, storedError;
+  
   // OK, populate modelVector with the model image
   // OpenMP Parallel Section
   int  chunk = OPENMP_CHUNK_SIZE;
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
 // an omp-parallel section are shared unless specified otherwise
-#pragma omp parallel private(i,j,n,x,y,newVal)
+#pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
   {
   #pragma omp for schedule (static, chunk)
-  for (i = 0; i < nRows; i++) {   // step by row number = y
-    y = (double)(i + 1);              // Iraf counting: first row = 1
-    for (j = 0; j < nColumns; j++) {   // step by column number = x
-      x = (double)(j + 1);                 // Iraf counting: first column = 1
-      newVal = 0.0;
-      for (n = 0; n < nFunctions; n++)
-        newVal += functionObjects[n]->GetValue(x, y);
-      modelVector[i*nColumns + j] = newVal;
+  for (i = 0; i < nModelRows; i++) {   // step by row number = y
+    y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1 
+                                                 // (note that nPSFRows = 0 if not doing PSF convolution)
+    for (j = 0; j < nModelColumns; j++) {   // step by column number = x
+      x = (double)(j - nPSFColumns + 1);                 // Iraf counting: first column = 1
+                                                         // (note that nPSFColumns = 0 if not doing PSF convolution)
+      newValSum = 0.0;
+      storedError = 0.0;
+      for (n = 0; n < nFunctions; n++) {
+        // Use Kahan summation algorithm
+        adjVal = functionObjects[n]->GetValue(x, y) - storedError;
+        tempSum = newValSum + adjVal;
+        storedError = (tempSum - newValSum) - adjVal;
+        newValSum = tempSum;
+      }
+      modelVector[i*nModelColumns + j] = newValSum;
     }
   }
   
@@ -496,18 +521,25 @@ void ModelObject::CreateModelImage( double params[] )
 /* ---------------- PUBLIC METHOD: SingleFunctionImage ----------------- */
 // Generate a model image using *one* of the FunctionObjects (the one indicated by
 // functionIndex) and the input parameter vector; returns pointer to modelVector.
-double * ModelObject::SingleFunctionImage( double params[], int functionIndex )
+// If PSF convolution is requested, then a new output modelVector is created and
+// returned, excluding the expanded margin used for PSF convolution (so that the
+// returned image will be the same size as the data image).
+//
+// Meant to be called *externally* (i.e., do NOT call this from within ModelObject,
+// unless you are aware that it will NOT return the full (expanded) model image.
+double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex )
 {
   double  x0, y0, x, y, newVal;
   int  i, j, n;
   int  offset = 0;
+  int  iDataRow, iDataCol, z, zModel;
   
   // Check parameter values for sanity
   if (! CheckParamVector(nParamsTot, params)) {
     printf("** ModelObject::SingleFunctionImage -- non-finite values detected in parameter vector!\n");
 #ifdef DEBUG
     printf("   Parameter values: %s = %g, ", parameterLabels[0].c_str(), params[0]);
-    for (int z = 1; z < nParamsTot; z++)
+    for (z = 1; z < nParamsTot; z++)
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
@@ -540,12 +572,12 @@ double * ModelObject::SingleFunctionImage( double params[], int functionIndex )
 #pragma omp parallel private(i,j,n,x,y,newVal)
   {
   #pragma omp for schedule (static, chunk)
-  for (i = 0; i < nRows; i++) {   // step by row number = y
-    y = (double)(i + 1);              // Iraf counting: first row = 1
-    for (j = 0; j < nColumns; j++) {   // step by column number = x
-      x = (double)(j + 1);                 // Iraf counting: first column = 1
+  for (i = 0; i < nModelRows; i++) {   // step by row number = y
+    y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
+    for (j = 0; j < nModelColumns; j++) {   // step by column number = x
+      x = (double)(j - nPSFColumns + 1);                 // Iraf counting: first column = 1
       newVal = functionObjects[functionIndex]->GetValue(x, y);
-      modelVector[i*nColumns + j] = newVal;
+      modelVector[i*nModelColumns + j] = newVal;
     }
   }
   
@@ -553,10 +585,24 @@ double * ModelObject::SingleFunctionImage( double params[], int functionIndex )
   
   
   // Do PSF convolution, if requested
-  if (doConvolution)
+  if (doConvolution) {
+    if (! outputModelVectorAllocated) {
+      outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+      outputModelVectorAllocated = true;
+    }
     psfConvolver->ConvolveImage(modelVector);
-  
-  return modelVector;
+    // Step through model image so that we correctly match its pixels with corresponding
+    // pixels output image
+    for (z = 0; z < nDataVals; z++) {
+      iDataRow = z / nDataColumns;
+      iDataCol = z - iDataRow*nDataColumns;
+      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      outputModelVector[z] = modelVector[zModel];
+    }
+    return outputModelVector;
+  }
+  else
+    return modelVector;
 }
 
 
@@ -565,26 +611,42 @@ double * ModelObject::SingleFunctionImage( double params[], int functionIndex )
  * model and data pixel values).  Note that a proper chi^2 sum requires *squaring*
  * each deviate value before summing them; we assume this is done elsewhere, by 
  * whatever function calls ComputeDeviates().
+ *
+ * Primarily for use by Levenberg-Marquardt solver (mpfit.cpp); for standard
+ * chi^2 calculations, use ChiSquared().
  */
 void ModelObject::ComputeDeviates( double yResults[], double params[] )
 {
-
+  int  iDataRow, iDataCol, z, zModel;
+  
 #ifdef DEBUG
   printf("ComputeDeviates: Input parameters: ");
-  for (int z = 0; z < nParamsTot; z++)
+  for (z = 0; z < nParamsTot; z++)
     printf("p[%d] = %g, ", z, params[z]);
   printf("\n");
 #endif
 
   CreateModelImage(params);
-  
-  for (int z = 0; z < nDataVals; z++) {
-    yResults[z] = nCombined_sqrt * weightVector[z] * (dataVector[z] - modelVector[z]);
-// #ifdef DEBUG
-//     printf("yResults[%d] = %g = %g * (%g - %g)  ", z, yResults[z], weightVector[z],
-//     				dataVector[z], modelVector[z]);
-// #endif
+
+  if (doConvolution) {
+    // Step through model image so that we correctly match its pixels with corresponding
+    // pixels in data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      iDataRow = z / nDataColumns;
+      iDataCol = z - iDataRow*nDataColumns;
+      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      yResults[z] = nCombined_sqrt * weightVector[z] * (dataVector[z] - modelVector[zModel]);
+    }
   }
+  else {
+    // Model image is same size & shape as data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      yResults[z] = nCombined_sqrt * weightVector[z] * (dataVector[z] - modelVector[z]);
+    }
+  }
+//   for (int z = 0; z < nDataVals; z++) {
+//     yResults[z] = nCombined_sqrt * weightVector[z] * (dataVector[z] - modelVector[z]);
+
 }
 
 
@@ -592,11 +654,11 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 /* Function which tells object to prepare for making chi-square calculations
  * (i.e., allocate memory for self-stored deviates vector).
  */
-void ModelObject::SetupChisquaredCalcs( )
-{
-  deviatesVector = (double *) malloc(nDataVals * sizeof(double));
-  doChisquared = true;
-}
+// void ModelObject::SetupChisquaredCalcs( )
+// {
+//   deviatesVector = (double *) malloc(nDataVals * sizeof(double));
+//   doChisquared = true;
+// }
 
 
 
@@ -608,12 +670,35 @@ void ModelObject::SetupChisquaredCalcs( )
  */
 double ModelObject::ChiSquared( double params[] )
 {
+  int  iDataRow, iDataCol, z, zModel;
   double  chi;
+  
+  if (! deviatesVectorAllocated) {
+    deviatesVector = (double *) malloc(nDataVals * sizeof(double));
+    deviatesVectorAllocated = true;
+  }
   
   CreateModelImage(params);
   
-  for (int z = 0; z < nDataVals; z++)
-    deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+  if (doConvolution) {
+    // Step through model image so that we correctly match its pixels with corresponding
+    // pixels in data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      iDataRow = z / nDataColumns;
+      iDataCol = z - iDataRow*nDataColumns;
+      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
+    }
+  }
+  else {
+    // Model image is same size & shape as data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+    }
+  }
+//   for (int z = 0; z < nDataVals; z++)
+//     deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+  
   chi = mp_enorm(nDataVals, deviatesVector);
   
   return (nCombined*chi*chi);
@@ -689,7 +774,7 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
 // Basic function which prints an image to stdout.  Mainly meant to be
 // called by PrintInputImage, PrintModelImage, and PrintWeights.
 
-void ModelObject::PrintImage( double *pixelVector )
+void ModelObject::PrintImage( double *pixelVector, int nColumns, int nRows )
 {
 
   // The following fetches pixels row-by-row, starting with the bottom
@@ -712,7 +797,7 @@ void ModelObject::PrintInputImage( )
     return;
   }
   printf("The whole input image, row by row:\n");
-  PrintImage(dataVector);
+  PrintImage(dataVector, nDataColumns, nDataRows);
 }
 
 
@@ -727,7 +812,7 @@ void ModelObject::PrintModelImage( )
     return;
   }
   printf("The model image, row by row:\n");
-  PrintImage(modelVector);
+  PrintImage(modelVector, nModelColumns, nModelRows);
 }
 
 
@@ -741,7 +826,7 @@ void ModelObject::PrintWeights( )
     return;
   }
   printf("The weight image, row by row:\n");
-  PrintImage(weightVector);
+  PrintImage(weightVector, nDataColumns, nDataRows);
 }
 
 
@@ -810,11 +895,44 @@ int ModelObject::GetNValidPixels( )
 
 double * ModelObject::GetModelImageVector( )
 {
+  int  iDataRow, iDataCol, z, zModel;
+
   if (! modelImageComputed) {
     printf("* ModelObject: Model image has not yet been computed!\n\n");
     return NULL;
   }
   
+  outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  outputModelVectorAllocated = true;
+  
+  if (doConvolution) {
+    // Step through model image so that we correctly match its pixels with corresponding
+    // pixels output image
+    for (z = 0; z < nDataVals; z++) {
+      iDataRow = z / nDataColumns;
+      iDataCol = z - iDataRow*nDataColumns;
+      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      outputModelVector[z] = modelVector[zModel];
+    }
+    return outputModelVector;
+  }
+  else
+    return modelVector;
+}
+
+
+/* ---------------- PUBLIC METHOD: GetExpandedModelImageVector --------- */
+
+// This differs from GetModelImageVector() in that it always returns the full
+// model image, even in the case of PSF convolution (where the full model
+// image will be larger than the data image!)
+double * ModelObject::GetExpandedModelImageVector( )
+{
+
+  if (! modelImageComputed) {
+    printf("* ModelObject: Model image has not yet been computed!\n\n");
+    return NULL;
+  }
   return modelVector;
 }
 
@@ -823,6 +941,8 @@ double * ModelObject::GetModelImageVector( )
 
 double * ModelObject::GetResidualImageVector( )
 {
+  int  iDataRow, iDataCol, z, zModel;
+
   if (! modelImageComputed) {
     printf("* ModelObject: Model image has not yet been computed!\n\n");
     return NULL;
@@ -830,8 +950,26 @@ double * ModelObject::GetResidualImageVector( )
   
   residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   residualVectorAllocated = true;
-  for (int z = 0; z < nDataVals; z++)
-    residualVector[z] = (dataVector[z] - modelVector[z]);
+  
+  if (doConvolution) {
+    // Step through model image so that we correctly match its pixels with corresponding
+    // pixels in data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      iDataRow = z / nDataColumns;
+      iDataCol = z - iDataRow*nDataColumns;
+      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      residualVector[z] = (dataVector[z] - modelVector[zModel]);
+    }
+  }
+  else {
+    // Model image is same size & shape as data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      residualVector[z] = (dataVector[z] - modelVector[z]);
+    }
+  }
+//   for (int z = 0; z < nDataVals; z++)
+//     residualVector[z] = (dataVector[z] - modelVector[z]);
+
   return residualVector;
 }
 
@@ -1003,10 +1141,12 @@ ModelObject::~ModelObject()
     free(modelVector);
   if (weightVectorAllocated)
     free(weightVector);
-  if (doChisquared)
+  if (deviatesVectorAllocated)
     free(deviatesVector);
   if (residualVectorAllocated)
     free(residualVector);
+  if (outputModelVectorAllocated)
+    free(outputModelVector);
   
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)
