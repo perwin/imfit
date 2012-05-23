@@ -2,6 +2,14 @@
 
 FAILED_TEXT=" ** Test failed. **"
 
+do_fits_tests=$(./py_startup_test.py)
+if [ $do_fits_tests = "0" ]
+then
+  echo -n "Unable to load numpy and/or pyfits Python modules"
+  echo -n "Tests will skip comparison of FITS files"
+fi
+
+
 echo ""
 echo "Running test fits for makeimage..."
 # simple tests using small images
@@ -32,7 +40,10 @@ else
   echo "Diff output:"
   diff test_dump1 tests/makeimage_textout1
 fi
-./compare_fits_files.py biggertest.fits tests/biggertest_orig.fits
+if [ $do_fits_tests = "1" ]
+then
+  ./compare_fits_files.py biggertest.fits tests/biggertest_orig.fits
+fi
 
 echo -n "*** Diff comparison with archives: gensersictest... "
 if (diff --brief test_dump2 tests/makeimage_textout2)
@@ -42,7 +53,10 @@ else
   echo "Diff output:"
   diff test_dump2 tests/makeimage_textout2
 fi
-./compare_fits_files.py gensersictest.fits tests/gensersictest_orig.fits
+if [ $do_fits_tests = "1" ]
+then
+  ./compare_fits_files.py gensersictest.fits tests/gensersictest_orig.fits
+fi
 
 echo -n "*** Diff comparison with archives: sersic + exponential... "
 if (diff --brief test_dump3 tests/makeimage_textout3)
@@ -52,7 +66,10 @@ else
   echo "Diff output:"
   diff test_dump3 tests/makeimage_textout3
 fi
-./compare_fits_files.py sersic+exp.fits tests/sersic+exp_orig.fits
+if [ $do_fits_tests = "1" ]
+then
+  ./compare_fits_files.py sersic+exp.fits tests/sersic+exp_orig.fits
+fi
 
 echo -n "*** Diff comparison with archives: gensersictest + PSF convolution... "
 if (diff --brief test_dump4 tests/makeimage_textout4)
@@ -62,20 +79,17 @@ else
   echo "Diff output:"
   diff test_dump4 tests/makeimage_textout4
 fi
-./compare_fits_files.py gensersictest_conv.fits tests/gensersictest612_conv_cutout512.fits
+if [ $do_fits_tests = "1" ]
+then
+  ./compare_fits_files.py gensersictest_conv.fits tests/gensersictest612_conv_cutout512.fits
+fi
 
-# echo -n "*** Diff comparison with archives: --print-fluxes mode... "
-# if (diff --brief test_dump5 tests/makeimage_textout5)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff test_dump5 tests/makeimage_textout5
-# fi
-
-echo -n "*** Testing that single-function images add up to combined-function image... "
-echo ""
-./compare_fits_files.py --compare-sum singleImage_conv1_Sersic.fits singleImage_conv2_Exponential.fits sersic+exp_conv.fits
+if [ $do_fits_tests = "1" ]
+  echo -n "*** Testing that single-function images add up to combined-function image... "
+  echo ""
+then
+  ./compare_fits_files.py --compare-sum singleImage_conv1_Sersic.fits singleImage_conv2_Exponential.fits sersic+exp_conv.fits
+fi
 
 echo -n "*** Diff comparison with archives: bad config file 1... "
 if (diff --brief test_dump6 tests/makeimage_textout6)

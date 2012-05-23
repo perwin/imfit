@@ -2,17 +2,21 @@
 
 # script for generating distribution tarballs
 
-import sys, os, shutil, optparse, tarfile
+import sys, os, shutil, optparse, tarfile, subprocess, copy
 
-VERSION_STRING = "0.9.1"
+VERSION_STRING = "0.9.5"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
 
+# basic scons command (specifies OpenMP use and static linking)
+scons_string = "scons --openmp --static"
 
 SOURCE_TARFILE = "imfit-%s-source.tar.gz" % VERSION_STRING
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	BINARY_TARFILE = "imfit-%s-macintel.tar.gz" % VERSION_STRING
+	# and we can do "fat" compilation (combine 32-bit and 64-bit binaries)
+	scons_string += " --fat"
 else:
 	# assume it's Linux
 	if os_machine_type == "x86_64":
@@ -114,12 +118,15 @@ exampleFileDict = {"dir": "examples", "file_list": example_files.split()}
 testing_scripts = """
 do_imfit_tests
 do_makeimage_tests
+compare_fits_files.py
+py_startup_test.py
 """
 
 test_files = """
 config_imfit_expdisk32.dat
 imfit_config_ic3478_64x64.dat
 imfit_config_ic3478_64x64b.dat
+imfit_config_n3073.dat
 config_makeimage_sersictest512_bad1.dat
 config_makeimage_sersictest512_bad2.dat
 config_makeimage_sersictest512_bad3.dat
@@ -130,9 +137,16 @@ config_imfit_sersictest512_badlimits2.dat
 uniform_image32.fits
 testimage_expdisk32.fits
 ic3478rss_64x64.fits
+n3073rss_small.fits
+n3073rss_small_mask.fits
+biggertest_orig.fits
+gensersictest_orig.fits
+sersic+exp_orig.fits
+gensersictest612_conv_cutout512.fits
 imfit_textout1
 imfit_textout2
 imfit_textout3
+imfit_textout3a
 imfit_textout4
 imfit_textout5
 imfit_textout6
@@ -152,6 +166,7 @@ makeimage_textout6
 makeimage_textout7
 makeimage_textout8
 makeimage_textout9
+makeimage_textout10
 """
 testFileDict = {"dir": "tests", "file_list": test_files.split()}
 
@@ -219,7 +234,14 @@ def MakeDistributionDir( ):
 def MakeBinaryDist( ):
 	distDir = "imfit-%s/" % VERSION_STRING
 	final_file_list = binary_only_file_list + misc_required_files_list + documentation_file_list + example_file_list
-
+	
+	# Generate appropriate binaries
+	print("Calling scons to generate imfit binary...")
+	subprocess.check_output(scons_string + " imfit", shell=True)
+	print("Calling scons to generate makeimage binary...")
+	subprocess.check_output(scons_string + " makeimage", shell=True)
+	
+	print("Generating tar file %s..." % BINARY_TARFILE)
 	tar = tarfile.open(BINARY_TARFILE, 'w|gz') 
 	for fname in final_file_list:
 		tar.add(distDir + fname)
@@ -256,7 +278,7 @@ def main(argv):
 
 	(options, args) = parser.parse_args(argv)
 	
-	print("Making distribution directory and copying files into it...")
+	print("\nMaking distribution directory and copying files into it...")
 	MakeDistributionDir()
 	if options.binaryDist is True:
 		print("Generating binary-only distribution (%s)..." % BINARY_TARFILE)
@@ -264,6 +286,8 @@ def main(argv):
 	if options.sourceDist is True:
 		print("Generating source distribution (%s)..." % SOURCE_TARFILE)
 		MakeSourceDist()
+	
+	print("Done!\n")
 
 
 

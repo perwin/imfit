@@ -11,12 +11,6 @@ import pyfits
 
 TOLERANCE = 1e-6
 
-testDir = "psf_test/"
-refDir = testDir + "reference/"
-
-testFile1 = "sersic+exp.fits"
-refTestFile1 = refDir + "sersic+exp_orig.fits"
-
 
 
 def CompareImagesEqual( fname1, fname2 ):

@@ -67,7 +67,7 @@ static string  kNCombinedString = "NCOMBINED";
 static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
-#define VERSION_STRING      "0.9.1"
+#define VERSION_STRING      "0.9.5"
 
 
 

@@ -57,7 +57,7 @@ function_objects/func_edge-on-disk_n4762
 function_objects/func_edge-on-disk_n4762v2 
 function_objects/func_edge-on-ring 
 function_objects/func_edge-on-ring2side
-func_edge-on-disk
+function_objects/func_edge-on-disk
 
 # header-only:
 definitions.h

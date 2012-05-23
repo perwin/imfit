@@ -25,6 +25,10 @@
 #    $ scons --openmp --fat --static <target-name>
 #
 
+# *** EXPORT CONFIGURATIONS ***
+# MacOS X fat binaries
+# $ scons --openmp --static --fat
+
 # To add one or more directories to the header or library search paths:
 #    $ scons --header-path=/path/to/header/dir
 # OR $ scons --header-path=/path/to/header/dir:/alt/path:/another/path
