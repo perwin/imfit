@@ -230,16 +230,17 @@ def MakeDistributionDir( ):
 	shutil.copy("SConstruct_export", distDir + "SConstruct")
 
 
-
-def MakeBinaryDist( ):
-	distDir = "imfit-%s/" % VERSION_STRING
-	final_file_list = binary_only_file_list + misc_required_files_list + documentation_file_list + example_file_list
-	
+def MakeBinaries( ):
 	# Generate appropriate binaries
 	print("Calling scons to generate imfit binary...")
 	subprocess.check_output(scons_string + " imfit", shell=True)
 	print("Calling scons to generate makeimage binary...")
 	subprocess.check_output(scons_string + " makeimage", shell=True)
+	
+
+def MakeBinaryDist( ):
+	distDir = "imfit-%s/" % VERSION_STRING
+	final_file_list = binary_only_file_list + misc_required_files_list + documentation_file_list + example_file_list
 	
 	print("Generating tar file %s..." % BINARY_TARFILE)
 	tar = tarfile.open(BINARY_TARFILE, 'w|gz') 
@@ -279,12 +280,14 @@ def main(argv):
 	(options, args) = parser.parse_args(argv)
 	
 	print("\nMaking distribution directory and copying files into it...")
-	MakeDistributionDir()
 	if options.binaryDist is True:
 		print("Generating binary-only distribution (%s)..." % BINARY_TARFILE)
+		MakeBinaries()
+		MakeDistributionDir()
 		MakeBinaryDist()
 	if options.sourceDist is True:
 		print("Generating source distribution (%s)..." % SOURCE_TARFILE)
+		MakeDistributionDir()
 		MakeSourceDist()
 	
 	print("Done!\n")
