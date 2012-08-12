@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 #
-# This is a template for command-line Python scripts.
+# A Python script to compare two FITS image files to see if the image data matches
+# (assuming that some of the headers might not, so we can't simply do a binary
+# file comparison).
+# Can also be used to compare the sum of two images to a third, to see if they
+# match within some tolerance (currently hard-coded as 10^-6).
+
 from __future__ import print_function
 
 
@@ -41,17 +46,11 @@ def main(argv=None):
  	usageString = "%prog FITS_file_1 FITS_file_2\n"
  	usageString = "OR: %prog --compare-sum FITS_file_1 FITS_file_2 reference_sum_FITS_file\n"
  	parser = optparse.OptionParser(usage=usageString, version="%prog ")
-# 
-# 
 	parser.add_option("--compare-sum", action="store_true", dest="compareSum",
 					  default=False, help="test that sum of first two images matches third image within tolerances")
-# 	parser.add_option("--delta", type="float", dest="delta_ratio", default=0.0,
-# 						help="maximum difference in ratio of two images")
-# 	parser.add_option("--xmin", type="int", dest="x_min", default=-1,
-# 						help="integer value")
-# 	
+
  	(options, args) = parser.parse_args(argv)
-# 
+ 
 	# args[0] = name program was called with
 	# args[1] = first actual argument, etc.
 

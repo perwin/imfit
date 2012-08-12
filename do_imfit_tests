@@ -2,6 +2,9 @@
 
 FAILED_TEXT=" ** Test failed. **"
 
+test_fits_files=1
+
+
 echo ""
 echo "Running tests for imfit..."
 # simple tests using small images
