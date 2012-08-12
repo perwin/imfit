@@ -20,7 +20,7 @@ echo "Running test fits for makeimage..."
 # test using PSF convolution:
 ./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest_conv.fits --psf tests/psf_moffat_35.fits > test_dump4
 # test doing --print-fluxes:
-# ./makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes > test_dump5
+./makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > test_dump5
 # tests of --output-functions with PSF convolution:
 ./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_conv.fits --output-functions singleImage_conv > test_dump_null
 
@@ -89,6 +89,15 @@ if [ $do_fits_tests = "1" ]
   echo ""
 then
   ./compare_fits_files.py --compare-sum singleImage_conv1_Sersic.fits singleImage_conv2_Exponential.fits sersic+exp_conv.fits
+fi
+
+echo -n "*** Diff comparison with archives: print-fluxes mode... "
+if (diff --brief test_dump5 tests/makeimage_textout5)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump5 tests/makeimage_textout5
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 1... "
