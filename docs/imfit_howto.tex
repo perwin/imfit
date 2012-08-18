@@ -71,7 +71,7 @@ that allows relatively easy addition of new, user-specified 2D image
 functions. This is accomplished by writing C++ code for a new
 image-function class (this can be done by copying and modifying an
 existing pair of \texttt{.h/.cpp} files for one of the pre-supplied
-image functions), modifying one additional file to include references to
+image functions), making small modifications to two additional files to include references to
 the new function, and re-compiling the program. 
 %Notes are [WILL BE] provided
 %to guide the interested user in adding new functions; in most cases, a
@@ -177,7 +177,7 @@ numpy\footnote{\url{http://numpy.scipy.org/}} and
 pyfits\footnote{\url{http://www.stsci.edu/institute/software_hardware/pyfits}} Python 
 libraries. If these are not available, then the
 parts of the tests which compare output images with reference versions will
-be skipped, but this should not be a significant problem.)
+simply be skipped.)
 
 
 \subsubsection{Telling SCons Where to Find Header Files and Libraries}
@@ -249,7 +249,7 @@ the screen, the final fit is saved in a file called \texttt{bestfit\_parameters\
 
 The preceding command told \imfit{} to fit using every pixel in the image and to estimate
 the noise assuming an original (previously subtracted) sky level of 130.14, an A/D gain
-of 1.0, and zero read noise. A better approach would be to include a mask (telling \imfit{}
+of 1.0, and zero read noise (the latter two are default values). A better approach would be to include a mask (telling \imfit{}
 to ignore, e.g., pixels occupied by bright stars) and to specify more accurate values
 of the gain and read noise:
 \begin{quote}
@@ -460,7 +460,7 @@ some of the parameters (comments are colored red for clarity):
 Here we can see the use of comments (lines or parts of lines beginning with
 ``\#'') and the use of parameter limits in the form of ``lower,upper'': the X0
 and Y0 parameters are required to remain $\geq 148$ and $\leq 152$, the position
-angle is limited to 0--180, the ellipticity must be $\geq 0$ and $\leq 1$, and
+angle is limited to 0--180, the ellipticity must stay $\geq 0$ and $\leq 1$, and
 the central intensity I\_0 is held fixed at its initial value.
 
 Finally, here is a more elaborate example, specifying a model that has two
@@ -704,12 +704,13 @@ that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via t
 image is supplied, the weights of all masked pixels will still be set to 0,
 regardless of their individual values in the weight image.)
 
-Note that \imfit{} does \textit{not} try to obtain information (such as, e.g.,
+Note that \imfit{} does \textit{not} try to obtain information (such as
 the A/D gain or read noise) from the FITS header of an image. This is primarily
 because there is little consistency in header names across the wide range of
 astronomical images, so it is difficult pick one name, or even a small set, and
-assume that it will be present in a given image's header. (This is even more
-true if an image is the result of a simulation.)
+assume that it will be present in a given image's header; this is even more
+true if an image is the result of a simulation. (And some image headers
+use ``gain'' to mean \textit{inverse} gain (electrons/ADU) \ldots.)
 
 
 \subsection{PSF Convolution}
@@ -758,16 +759,54 @@ TBD. [more details of DE implementation]
 
 \medskip
 
+Note that the DE algorithm does \textit{not} produce error estimates for the best-fitting
+parameter values, in contrast to
+the Levenberg-Marquardt approach. However, the L-M error estimates are themselves only
+reliable if the minimum in the $\chi^{2}$ landscape is symmetric and parabolic, and if
+the errors for the input image are truly Gaussian and well-determined.
+
+\medskip
+
 The fact that the minimization algorithms are relatively decoupled from the rest
 of the code means that future versions of \imfit{} could potentially include other minimization
 techniques.
 
 
 
+\section{Output}
+
+TBD.
+
+Assuming that the fitting process converges, \imfit{} will print a summary of
+the results, including the final, best-fitting parameter values. The output
+parameter list is in the same format as the configuration file, except that
+error estimates are listed after each parameter value.\footnote{If Differential
+Evolution is used as the minimization technique, no errors are estimated.} The
+error estimates are separated from the parameter values by ``\#''; this means
+that you can copy and paste the parameter list into a text file and use that
+file as an input configuration file for \imfit{} or \makeimage. 
+
+The best-fitting parameters will also be written to an output text file (default
+name = \texttt{bestfit\_parameters\_imfit.dat}; use \texttt{--save-params} to
+specify a different name), \textit{without} the error estimates. The output file
+will also include a copy of the original command used to start \imfit{} and the
+date and time it was generated; these are commented out so that the file can be
+used as an \imfit{} or \makeimage{} configuration file.
+
+Also printed are the total $\chi^{2}$, the reduced $\chi^{2}$ (which accounts for the
+total number of unmasked pixels and non-fixed parameter values), and two alternate
+measures of the fit: the Akaike Information Criterion (AIC) and the Bayesian Information
+Criterion (BIC). The latter two are included on a provisional basis; they are,
+in principle, useful for comparing different models fit to the same data.
+
+TBD.
+
+
+
 \section{Makeimage}
 
 \Imfit{} has a companion program called \makeimage, which will generate model
-images using the same functions (and parameter files) as \imfit. In fact, the
+images using the same functions (and parameter files) as \imfit. In fact (as noted above), the
 output ``best-fitting parameters'' file generated by \imfit{} can be used as
 input to \makeimage, as can an \imfit{} configuration file.
 
@@ -878,17 +917,17 @@ and the result would be three FITS files, named \texttt{mod1\_Sersic.fits},
 
 \subsection{Using \Makeimage{} to Estimate Fluxes and Magnitudes}
 
-Given a configuration file, you
-can use \makeimage{} to estimate the total fluxes and magnitudes of different model
-components. For some components -- e.g., the purely elliptical versions of the Gaussian,
-Exponential, and Sersic functions -- there are analytical expressions which could be
-used. But since \imfit{} and \makeimage{} are designed to use arbitrary functions,
-including ones which do not have analytical expressions for total flux, \makeimage{}
-estimates the flux for each component by internally constructing a large model image 
-for each component function in the configuration file and summing
-the pixel values of that image. The output includes a list of total and relative
-fluxes for each component in the model image (and their magnitudes, if a zero point
-is supplied).
+Given a configuration file, you can use \makeimage{} to estimate the total
+fluxes and magnitudes of different model components. For some components --
+e.g., the purely elliptical versions of the Gaussian, Exponential, and Sersic
+functions -- there are analytical expressions which could be used. But since
+\imfit{} and \makeimage{} are designed to use arbitrary functions, including
+ones which do not have analytical expressions for total flux, \makeimage{}
+estimates the flux for each component by internally constructing a large model
+image for each component function in the configuration file, centering the
+component within the image and summing the pixel values of that image. The
+output includes a list of total and relative fluxes for each component in the
+model image (and their magnitudes, if a zero point is supplied).
 
 
 \begin{quote}
@@ -901,15 +940,19 @@ Useful command-line flags and options:
 \item \texttt{--estimation-size} \textit{N\_columns\_and\_rows} --- size of the
 (square) image to construct (the default size is 5000 pixels on a side)
 
-\item \texttt{--zero-point} \textit{value} --- zero point to convert total counts
-to magnitudes
+\item \texttt{--zero-point} \textit{value} --- zero point for converting total counts
+to magnitudes:
+\begin{equation}
+m \; = \; Z - 2.5 \log_{10}( {\rm counts} )
+\end{equation}
 
 \end{itemize}
 
 This enables you to compute things like bulge/total ratios -- but it's up to you
 which component(s) should be considered ``bulge'', ``disk'', etc.
 
-When run in this mode, \makeimage{} does \textit{not} produce an output image file.
+When run in this mode, \makeimage{} will still produce an output image file --
+unless you also specify the \texttt{--nosave} option.
 
 
 
@@ -1093,7 +1136,8 @@ function-factory map. Inside the function PopulateFactoryMap, add the following 
 \subsubsection{Edit the SConstruct File}
 
 In the SConstruct file, locate the place where the variable
-``functionobject\_obj\_string'' is defined. This is a string containing a
+``functionobject\_obj\_string'' is defined (currently somewhere near line 269,
+though this might change in the future). This is a string containing a
 compact list of all the filenames containing function-object code. Insert our
 new function's name (``func\_new-moffat'') into the list.
 
@@ -1117,15 +1161,16 @@ A sample function specification (giving the parameters in their proper order) is
 listed for each function description.
 
 ``Elliptical'' functions are defined to have an intensity which is constant on
-concentric, similar ellipses (with specified position angle and ellipticity);
+concentric, similar ellipses (with specified ellipticity and major-axis position angle);
 the intensity profile is defined as a function of the major axis $a$.
 
 \medskip
 
 \textbf{Common parameters}: 
 \begin{itemize}
-\item \texttt{PA} = position angle, measured in degrees CCW from
-the image +y axis.
+\item \texttt{PA} = position angle (e.g., of the major axis), measured in degrees CCW from
+the image +y axis. This is equivalent to standard astronomical position angles \textit{if}
+your image has standard astronomical orientation (N up, E to the left).
 \item \texttt{ell} = ellipticity ($1 - b/a$, where $a$ and $b$ are semi-major and semi-minor
 axes of the ellipse, respectively).
 \end{itemize}
@@ -1165,7 +1210,7 @@ given by
 \begin{equation}
 I(a) \, = \, \frac{I_{0}  }{(1 + (a/\alpha)^{2})^{\beta} },
 \end{equation}
-where $\alpha$ is given by
+where $\alpha$ is defined as
 \begin{equation}
 \alpha \, = \, \frac{ {\rm FWHM}}{2 \sqrt{2^{1/\beta} - 1}}.
 \end{equation}
@@ -1258,6 +1303,9 @@ where $\Gamma(a)$ is the gamma function and $\gamma(a, x)$ is the incomplete gam
 However, in the current implementation $b_{n}$ is calculated via the polynomial approximation
 of \citet{ciotti99} when $n > 0.36$ and the approximation of \citet{macarthur03} when
 $n \leq 0.36$.
+
+Note that the S\'ersic function is equivalent to the de Vaucouleurs ``$r^{1/4}$'' profile
+when $n = 4$, to an exponential when $n = 1$, and to a Gaussian when $n = 0.5$.
 
 \begin{verbatim}
 FUNCTION Sersic

@@ -380,11 +380,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --nrows <number-of-rows>   y-size of output image");
   optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
 //  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
-  optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing)");
-  optParser->AddUsageLine("     --zero-point <value>     Zero point (for estimating component & total magnitudes)");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --output-functions <root-name>  Output individual function-images");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --print-fluxes           Estimate total component fluxes (& magnitudes, if zero point is given)");
   optParser->AddUsageLine(EST_SIZE_HELP_STRING);
-  optParser->AddUsageLine("     --output-functions <root-name>  Output individual function-images");
+  optParser->AddUsageLine("     --zero-point <value>     Zero point (for estimating component & total magnitudes)");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing, or for use with --print-fluxes))");
   optParser->AddUsageLine("");
 
 
