@@ -164,6 +164,8 @@ if useGSL:   # default is to do this
 			lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 	else:
 		lib_list.append("gsl")
+		# KLUDGE (adding Pnl library)...
+		#lib_list.append("pnl")
 	
 	# and stuff for 1D programs:
 	lib_list_1d.append("gsl")
@@ -274,6 +276,7 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
 if useGSL:
 	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"
+	functionobject_obj_string += " func_expdisk3d func_gaussianring3d integrator"
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 

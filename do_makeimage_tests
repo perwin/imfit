@@ -11,7 +11,7 @@ fi
 
 
 echo ""
-echo "Running test fits for makeimage..."
+echo "Running tests for makeimage..."
 # simple tests using small images
 ./makeimage tests/config_biggertest_4c.dat -o biggertest.fits --ncols 64 --nrows 64 > test_dump1
 ./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest.fits > test_dump2

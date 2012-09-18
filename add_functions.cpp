@@ -34,6 +34,8 @@
 // modules requiring GSL:
 #ifndef NO_GSL
 #include "func_edge-on-disk.h"
+#include "func_expdisk3d.h"
+#include "func_gaussianring3d.h"
 #endif
 
 #include "func_edge-on-disk_n4762.h"
@@ -48,8 +50,8 @@ const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Se
             "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
             "BrokenExponential2D", "EdgeOnDisk", "Moffat", "FlatSky",
             "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
-            "GaussianRing", "GaussianRing2Side"};
-const int  N_FUNCTIONS = 17;
+            "GaussianRing", "GaussianRing2Side", "ExponentialDisk3D", "GaussianRing3D"};
+const int  N_FUNCTIONS = 19;
 #else
 const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
             "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
@@ -141,6 +143,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 #ifndef NO_GSL 
   EdgeOnDisk::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDisk>();
+
+  ExponentialDisk3D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<ExponentialDisk3D>();
+
+  GaussianRing3D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GaussianRing3D>();
 #endif
 }
 
