@@ -119,15 +119,60 @@ void StripBrackets( const string& inputFilename, string& strippedFilename )
 
 
 
+/* ---------------- FUNCTION: GetCoordsFromBracket() ---------------- */
+// Given a string of the form "x1:x2,y1:y2", return x1 and y1
+// Special case: "*,y1:y2" ==> return 1, y1
+// Special case: "x1:x2,*" ==> return x1, 1
+void GetCoordsFromBracket( const string& bracketString, int *x1, int *y1,
+                           const string& fileName )
+{
+  vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
+  const string star = string("*");
+
+  // default values indicating errors:
+  *x1 = 0;
+  *y1 = 0;
+  
+  SplitString(bracketString, sectionPieces, ",");
+  // handle the x part of the section specification
+  if (sectionPieces[0] == star)
+    *x1 = 1;
+  else {
+    SplitString(sectionPieces[0], subsectionPieces_x, ":");
+    if (subsectionPieces_x.size() != 2) {
+      printf("\nWARNING1: Incorrect image section format in \"%s\"!\n",
+    					fileName.c_str());
+      printf("\t\"%s\"\n", bracketString.c_str());
+      return;
+    }
+    *x1 = atoi(subsectionPieces_x[0].c_str());
+  }
+  // handle the y part of the section specification
+  if (sectionPieces[1] == star)
+    *y1 = 1;
+  else {
+    SplitString(sectionPieces[1], subsectionPieces_y, ":");
+    if (subsectionPieces_y.size() != 2) {
+      printf("\nWARNING2: Incorrect image section format in \"%s\"!\n",
+    					fileName.c_str());
+      printf("\t\"%s\"\n", bracketString.c_str());
+      return;
+    }
+    *y1 = atoi(subsectionPieces_y[0].c_str());
+  }
+}
+
+
 /* ---------------- FUNCTION: GetPixelStartCoords() ---------------- */
 
 void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart )
 {
-  string::size_type  loc1, loc2;
+  string::size_type  loc1, loc2, loc3, loc4;
   int  nPieces;
   string  sectionSubstring;
   vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
   const string star = string("*");
+  bool  twoSections = false;
   
   // default values indicating errors:
   *xStart = 0;
@@ -139,49 +184,69 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
     *xStart = 1;
     *yStart = 1;
     return;
-  } else {
-    // OK, there's an image section
-    loc2 = inputFilename.find(']', loc1);
-    if (loc2 == string::npos) {
+  }
+  
+  // OK, if we get here, then there's apparently an image section
+  loc2 = inputFilename.find(']', loc1);
+  if (loc2 == string::npos) {
+    printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+    				inputFilename.c_str());
+    return;
+  }
+  // check for possible second bracket group
+  loc3 = inputFilename.find("[", loc2);
+  if (loc3 != string::npos) {
+    // OK, there's more than one set of []
+    loc4 = inputFilename.find(']', loc3);
+    if (loc4 == string::npos) {
       printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
       				inputFilename.c_str());
       return;
-    } else {
-      // extract what's inside the []
-      sectionSubstring = inputFilename.substr(loc1 + 1, loc2 - loc1 - 1);
-      SplitString(sectionSubstring, sectionPieces, ",");
-      nPieces = sectionPieces.size();
-      if (nPieces != 2) {
-        printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
-      					inputFilename.c_str());
-        return;
-      }
-      // handle the x part of the section specification
-      if (sectionPieces[0] == star)
-        *xStart = 1;
-      else {
-        SplitString(sectionPieces[0], subsectionPieces_x, ":");
-        if (nPieces != 2) {
-          printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
-        					inputFilename.c_str());
-          return;
-        }
-        *xStart = atoi(subsectionPieces_x[0].c_str());
-      }
-      // handle the y part of the section specification
-      if (sectionPieces[1] == star)
-        *yStart = 1;
-      else {
-        SplitString(sectionPieces[1], subsectionPieces_y, ":");
-        if (nPieces != 2) {
-          printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
-        					inputFilename.c_str());
-          return;
-        }
-        *yStart = atoi(subsectionPieces_y[0].c_str());
-      }
     }
+    twoSections = true;
   }
+      
+  // extract what's inside the first (and possibly only) []
+  sectionSubstring = inputFilename.substr(loc1 + 1, loc2 - loc1 - 1);
+  SplitString(sectionSubstring, sectionPieces, ",");
+  nPieces = sectionPieces.size();
+  // two valid possibilites: an image section (nPieces = 2) or an extension number
+  // (nPieces = 1)
+  if (nPieces == 2) {
+    // apparently an image section
+    GetCoordsFromBracket(sectionSubstring, xStart, yStart, inputFilename);
+    // we found a valid (or invalid) image section; ignore anything else...
+    return;
+  }
+  // if we don't have an image section, we need to have an image extension number
+  if ((nPieces != 1) || (sectionSubstring.size() < 1)) {
+    printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+  					inputFilename.c_str());
+    return;
+  }
+  if (twoSections == false) {
+    // OK, just an image extension and nothing else
+    *xStart = 1;
+    *yStart = 1;
+    return;
+  }
+      
+  if (twoSections == true) {
+    // OK, if we get here, there are two bracket groups, and the first was
+    // apparently an extension number, so we should expect the second group
+    // to be a proper image section
+    sectionSubstring = inputFilename.substr(loc3 + 1, loc4 - loc3 - 1);
+    SplitString(sectionSubstring, sectionPieces, ",");
+    nPieces = sectionPieces.size();
+    if (nPieces != 2) {
+      printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+    					inputFilename.c_str());
+      return;
+    }
+    // apparently an image section
+    GetCoordsFromBracket(sectionSubstring, xStart, yStart, inputFilename);
+  }
+
 }
 
 

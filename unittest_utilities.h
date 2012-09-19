@@ -1,5 +1,5 @@
 
-// $ cxxtestgen.py --error-printer -o test_runner.cpp unittest_utilities.h 
+// $ cxxtestgen.py --error-printer -o test_runner.cpp unittest_utilities.h
 // $ g++ -o test_runner test_runner.cpp utilities.cpp -I/usr/local/include
 
 #include <cxxtest/TestSuite.h>
@@ -153,12 +153,12 @@ public:
   
   void testImageFileExists_RealFile( void )
   {
-    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/testing/n3073rss_small.fits") == true);
+    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/tests/n3073rss_small.fits") == true);
   }
   
   void testImageFileExists_RealFileWithSection( void )
   {
-    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/testing/n3073rss_small.fits[100:200,200:300]") == true);
+    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/tests/n3073rss_small.fits[100:200,200:300]") == true);
   }
   
   
@@ -223,7 +223,7 @@ public:
   {
     string  s1("image.fits[100:200,200:400");
     string  s2("complicated_name_image.fit[100:200,200:400[");
-    string  s3("image.fits[100:200]");
+    string  s3("image.fits[][100:200,200:400]");
     int  x1, y1, x2, y2, x3, y3;
     int  correct_xoff = 0;
     int  correct_yoff = 0;
@@ -268,6 +268,31 @@ public:
     GetPixelStartCoords(s2, &x2, &y2);
     TS_ASSERT( x2 == correct_xoff2 );
     TS_ASSERT( y2 == correct_yoff2 );
+  }
+
+
+  void testGetPixelStartCoords_ComplexSections( void )
+  {
+    string  s1("image.fits[2][100:200,200:400]");
+    string  s2("image.fits[105][100:200,*]");
+    string  s3("complicated_name_image.fit[5]");
+
+    int  x1, y1, x2, y2, x3, y3;
+    int  correct_xoff1 = 100;
+    int  correct_yoff1 = 200;
+    int  correct_xoff2 = 100;
+    int  correct_yoff2 = 1;
+    int  correct_xoff3 = 1;
+    int  correct_yoff3 = 1;
+    GetPixelStartCoords(s1, &x1, &y1);
+    TS_ASSERT( x1 == correct_xoff1 );
+    TS_ASSERT( y1 == correct_yoff1 );
+    GetPixelStartCoords(s2, &x2, &y2);
+    TS_ASSERT( x2 == correct_xoff2 );
+    TS_ASSERT( y2 == correct_yoff2 );
+    GetPixelStartCoords(s3, &x3, &y3);
+    TS_ASSERT( x3 == correct_xoff3 );
+    TS_ASSERT( y3 == correct_yoff3 );
   }
 
 
