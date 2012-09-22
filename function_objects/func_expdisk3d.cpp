@@ -96,6 +96,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <gsl/gsl_errno.h>
 
 #include "func_expdisk3d.h"
 #include "integrator.h"
@@ -139,6 +140,7 @@ ExponentialDisk3D::ExponentialDisk3D( )
   }
 
   // Stuff related to GSL integration  
+  gsl_set_error_handler_off();
   F.function = LuminosityDensity;
   
   doSubsampling = false;

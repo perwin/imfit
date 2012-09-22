@@ -22,7 +22,8 @@
 #include "func_exp.h"
 #include "func_gen-exp.h"
 #include "func_gen-sersic.h"
-#include "func_flat-exp.h"
+#include "func_core-sersic.h"
+//#include "func_flat-exp.h"
 #include "func_broken-exp.h"
 #include "func_broken-exp2d.h"
 #include "func_edge-on-ring.h"
@@ -47,14 +48,14 @@ using namespace std;
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
 #ifndef NO_GSL
 const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
-            "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
+            "Sersic_GenEllipse", "Core-Sersic", "Gaussian", "BrokenExponential", 
             "BrokenExponential2D", "EdgeOnDisk", "Moffat", "FlatSky",
             "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
             "GaussianRing", "GaussianRing2Side", "ExponentialDisk3D", "GaussianRing3D"};
 const int  N_FUNCTIONS = 19;
 #else
 const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
-            "Sersic_GenEllipse", "Gaussian", "FlatExponential", "BrokenExponential", 
+            "Sersic_GenEllipse", "Core-Sersic", "Gaussian", "BrokenExponential", 
             "BrokenExponential2D", "Moffat", "FlatSky",
             "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
             "GaussianRing", "GaussianRing2Side"};
@@ -99,14 +100,17 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   GenSersic::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GenSersic>();
   
+  CoreSersic::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<CoreSersic>();
+  
   GenExponential::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GenExponential>();
   
   BrokenExponential::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential>();
   
-  FlatExponential::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<FlatExponential>();
+//   FlatExponential::GetClassShortName(classFuncName);
+//   input_factory_map[classFuncName] = new funcobj_factory<FlatExponential>();
   
   BrokenExponential2D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential2D>();

@@ -73,6 +73,8 @@ typedef struct {
   bool  saveExpandedImage;
   bool  saveAllFunctions;  // save individual-function images
   bool  printFluxes;
+  int  maxThreads;
+  bool  maxThreadsSet;
 } commandOptions;
 
 
@@ -399,6 +401,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing, or for use with --print-fluxes))");
   optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
+  optParser->AddUsageLine("");
 
 
   /* by default all options are checked on the command line and from option/resource file */
@@ -419,6 +423,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("zero-point");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("estimation-size");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("output-functions");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("max-threads");      /* an option (takes an argument), supporting only long form */
 
   /* parse the command line:  */
   int status = optParser->ParseCommandLine( argc, argv );
@@ -524,6 +529,15 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->OptionSet("output-functions")) {
     theOptions->functionRootName = optParser->GetTargetString("output-functions");
     theOptions->saveAllFunctions = true;
+  }
+  if (optParser->OptionSet("max-threads")) {
+    if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** WARNING: max-threads should be a positive integer!\n\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->maxThreads = atol(optParser->GetTargetString("max-threads").c_str());
+    theOptions->maxThreadsSet = true;
   }
 
   if ((theOptions->nColumns) && (theOptions->nRows))
