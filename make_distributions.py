@@ -4,7 +4,7 @@
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
 
-VERSION_STRING = "0.9.5"
+VERSION_STRING = "0.9.6"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -90,7 +90,7 @@ func_exp
 func_gen-exp  
 func_sersic 
 func_gen-sersic 
-func_flat-exp 
+func_core-sersic 
 func_broken-exp 
 func_broken-exp2d
 func_moffat 
@@ -102,6 +102,9 @@ func_edge-on-disk_n4762v2
 func_edge-on-ring 
 func_edge-on-ring2side
 func_edge-on-disk
+func_expdisk3d 
+func_gaussianring3d 
+integrator
 """
 funcObjFileDict = {"dir": "function_objects", "file_list": source_files_funcobj.split()}
 
