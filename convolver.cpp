@@ -113,6 +113,7 @@ Convolver::Convolver( )
   imageInfoSet = false;
   fftVectorsAllocated = false;
   fftPlansCreated = false;
+  maxRequestedThreads = 0;   // default value --> use all available processors/cores
 }
 
 
@@ -135,6 +136,15 @@ Convolver::~Convolver( )
     fftw_free(convolvedImage_cmplx);
 
   }
+}
+
+
+/* ---------------- SetMaxThreads -------------------------------------- */
+// User specifies maximum number of FFTW threads to use (ignored if not compiled
+// with multithreaded FFTW library)
+void Convolver::SetMaxThreads( int maximumThreadNumber )
+{
+  maxRequestedThreads = maximumThreadNumber;
 }
 
 
@@ -213,11 +223,16 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
                              fftwFlags);
 
 #ifdef FFTW_THREADING
-  // Default: 1 thread per available core
-  int  nCores = sysconf(_SC_NPROCESSORS_ONLN);
-  if (nCores < 1)
-    nCores = 1;
-  fftw_plan_with_nthreads(nCores);
+  int  nThreads, nCores;
+  nCores = sysconf(_SC_NPROCESSORS_ONLN);
+  if (maxRequestedThreads == 0) {
+    // Default: 1 thread per available core
+    nThreads = nCores;
+  } else
+    nThreads = maxRequestedThreads;
+  if (nThreads < 1)
+    nThreads = 1;
+  fftw_plan_with_nthreads(nThreads);
 #endif  // FFTW_THREADING
 
   plan_inputImage = fftw_plan_dft_2d(nRows_padded, nColumns_padded, image_in_cmplx, image_fft_cmplx, FFTW_FORWARD,

@@ -30,6 +30,8 @@ class ModelObject
 
     void SetDebugLevel( int debuggingLevel );
     
+    void SetMaxThreads( int maxThreadNumber );
+    
     // common, not specialized
     // Adds a new FunctionObject pointer to the internal vector
     void AddFunction( FunctionObject *newFunctionObj_ptr );
@@ -173,8 +175,9 @@ class ModelObject
     int  nDataVals, nDataColumns, nDataRows, nValidDataVals, nCombined;
     int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
     double  nCombined_sqrt;
-	  double  zeroPoint;
+	double  zeroPoint;
     int  debugLevel;
+    int  maxRequestedThreads;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;
     bool  setStartFlag_allocated;

@@ -4,7 +4,7 @@
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
 
-VERSION_STRING = "0.9.6"
+VERSION_STRING = "0.9.7"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.

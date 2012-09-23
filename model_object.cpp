@@ -88,6 +88,8 @@ ModelObject::ModelObject( )
   nParamsTot = 0;
   debugLevel = 0;
   
+  maxRequestedThreads = 0;   // default value --> use all available processors/cores
+  
   nPSFRows = nPSFColumns = 0;
 }
 
@@ -102,6 +104,15 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
   }
   else
     debugLevel = debuggingLevel;
+}
+
+
+/* ---------------- PUBLIC METHOD: SetMaxThreads ----------------------- */
+
+void ModelObject::SetMaxThreads( int maxThreadNumber )
+{
+  maxRequestedThreads = maxThreadNumber;
+  omp_set_num_threads(maxRequestedThreads);
 }
 
 
@@ -413,6 +424,7 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
   nPSFRows = nRows_psf;
   psfConvolver = new Convolver();
   psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
+  psfConvolver->SetMaxThreads(maxRequestedThreads);
   doConvolution = true;
 }
 

@@ -22,7 +22,7 @@ echo "Running tests for makeimage..."
 # test doing --print-fluxes:
 ./makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > test_dump5
 # tests of --output-functions with PSF convolution:
-./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_conv.fits --output-functions singleImage_conv > test_dump_null
+./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_conv.fits --output-functions singleImage_conv --psf tests/psf_moffat_35.fits > test_dump_null
 
 # testing that bad config files are caught (redirect stderr to test_dump* files):
 ./makeimage tests/config_makeimage_sersictest512_bad1.dat &> test_dump6

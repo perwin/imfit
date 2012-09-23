@@ -42,7 +42,7 @@ static string  kNCols2 = "NCOLUMNS";
 static string  kNRows = "NROWS";
 
 
-#define VERSION_STRING      "0.9.6"
+#define VERSION_STRING      "0.9.7"
 
 
 typedef struct {
@@ -214,8 +214,14 @@ int main(int argc, char *argv[])
   if (! options.subsamplingFlag)
     printf("* Pixel subsampling has been turned OFF.\n");
 
+
+  
   /* Set up the model object */
   theModel = new ModelObject();
+  // Put limits on number of FFTW and OpenMP threads, if user requested it
+  if (options.maxThreadsSet)
+    theModel->SetMaxThreads(options.maxThreads);
+
   
   /* Add functions to the model object; also tells model object where function
      sets start */
@@ -387,7 +393,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image [default = modelimage.fits]");
   optParser->AddUsageLine("     --refimage <reference-image.fits>   reference image (for image size)");
-  optParser->AddUsageLine("     --psf <psf.fits>         PSF image (for convolution)");
+  optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use (for convolution)");
   optParser->AddUsageLine("     --ncols <number-of-columns>   x-size of output image");
   optParser->AddUsageLine("     --nrows <number-of-rows>   y-size of output image");
   optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");

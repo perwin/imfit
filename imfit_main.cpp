@@ -56,7 +56,7 @@ static string  kNCombinedString = "NCOMBINED";
 static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
-#define VERSION_STRING      "0.9.6"
+#define VERSION_STRING      "0.9.7"
 
 
 
@@ -105,6 +105,8 @@ typedef struct {
   bool  printImages;
   bool printChiSquaredOnly;
   int  solver;
+  int  maxThreads;
+  bool  maxThreadsSet;
 } commandOptions;
 
 
@@ -262,7 +264,7 @@ int main(int argc, char *argv[])
     printf("Reading mask image (\"%s\") ...\n", options.maskFileName.c_str());
     allMaskPixels = ReadImageAsVector(options.maskFileName, &nMaskColumns, &nMaskRows);
     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
-      fprintf(stderr, "\n*** WARNING: Dimenstions of mask image (%s: %d columns, %d rows)\n",
+      fprintf(stderr, "\n*** WARNING: Dimensions of mask image (%s: %d columns, %d rows)\n",
              options.maskFileName.c_str(), nMaskColumns, nMaskRows);
       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
              options.imageFileName.c_str(), nColumns, nRows);
@@ -278,7 +280,7 @@ int main(int argc, char *argv[])
     allErrorPixels = ReadImageAsVector(options.noiseFileName, &nErrColumns, &nErrRows);
     errorPixels_allocated = true;
     if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
-      fprintf(stderr, "\n*** WARNING: Dimenstions of error image (%s: %d columns, %d rows)\n",
+      fprintf(stderr, "\n*** WARNING: Dimensions of error image (%s: %d columns, %d rows)\n",
              noiseImage.c_str(), nErrColumns, nErrRows);
       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
              options.imageFileName.c_str(), nColumns, nRows);
@@ -306,6 +308,10 @@ int main(int argc, char *argv[])
 
   /* Create the model object */
   theModel = new ModelObject();
+  // Put limits on number of FFTW and OpenMP threads, if user requested it
+  if (options.maxThreadsSet)
+    theModel->SetMaxThreads(options.maxThreads);
+
   /* Add functions to the model object */
   status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
   if (status < 0) {
@@ -510,11 +516,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" -c  --config <config-file>   configuration file");
   optParser->AddUsageLine("     --chisquare-only         Print chi^2 of input model and quit");
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
-  optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image");
-  optParser->AddUsageLine("     --mask <mask.fits>       Mask image");
-  optParser->AddUsageLine("     --psf <psf.fits>         PSF image");
+  optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image to use");
+  optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
+  optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
   optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
-  optParser->AddUsageLine("     --save-params <output-file>          Save best-fit parameters in config-file format");
+  optParser->AddUsageLine("     --save-params <output-file>          Save best-fit parameters in config-file format [default = bestfit_parameters_imfit.dat]");
   optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
   optParser->AddUsageLine("     --save-residual <outputname.fits>       Save residual (input - model) image");
   optParser->AddUsageLine("     --save-weights <outputname.fits>       Save weight image");
@@ -527,7 +533,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
   optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --quiet                  Turn off printing of mpfit interation updates");
+  optParser->AddUsageLine("     --quiet                  Turn off printing of mpfit iteration updates");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
 //  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
@@ -561,6 +569,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("readnoise");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("ncombined");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("config", "c");
+  optParser->AddOption("max-threads");      /* an option (takes an argument), supporting only long form */
 
   /* parse the command line:  */
   int status = optParser->ParseCommandLine( argc, argv );
@@ -708,6 +717,15 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->nCombined = atoi(optParser->GetTargetString("ncombined").c_str());
     theOptions->nCombinedSet = true;
     printf("\tn_combined = %d\n", theOptions->nCombined);
+  }
+  if (optParser->OptionSet("max-threads")) {
+    if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** WARNING: max-threads should be a positive integer!\n\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->maxThreads = atol(optParser->GetTargetString("max-threads").c_str());
+    theOptions->maxThreadsSet = true;
   }
 
   delete optParser;

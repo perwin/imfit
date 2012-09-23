@@ -48,6 +48,8 @@ class Convolver
     // Public member functions:
     void SetupPSF( double *psfPixels_input, int nColumns, int nRows );
     
+    void SetMaxThreads( int maximumThreadNumber );
+    
     void SetupImage( int nColumns, int nRows );
     
     void DoFullSetup( int debugLevel=0, bool doFFTWMeasure=false );
@@ -64,6 +66,7 @@ class Convolver
   int  nRows_psf, nColumns_psf;
   int  nRows_image, nColumns_image;
   int  nRows_padded, nColumns_padded;
+  int  maxRequestedThreads;
   double  rescaleFactor;
   double  *imagePixels;
   double  *psfPixels;
