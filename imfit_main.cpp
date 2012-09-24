@@ -733,6 +733,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 }
 
 
+
 // Note that we only use options from the config file if they have *not*
 // already been set by the command line (i.e., command-line options override
 // config-file values).
@@ -794,6 +795,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *
 }
 
 
+
 /* Function which takes the user-supplied image filename and determines what,
  * if any, x0 and y0 pixel offsets are implied by any section specification
  * in the filename.  Note that offsets are always >= 0.
@@ -807,6 +809,7 @@ void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
   *x_offset = xStart - 1;
   *y_offset = yStart - 1;
 }
+
 
 
 void PrepareImageComments( vector<string> *comments, const string &programName, 
@@ -825,8 +828,6 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
     comments->push_back(string(my_string));
   }
 }
-
-
 
 
 

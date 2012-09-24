@@ -5,4 +5,5 @@ Value from config file: nRows = 512
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic_GenEllipse
 Function: Sersic
+Model Object: 262144 data values (pixels)
 15 total parameters

@@ -50,6 +50,50 @@ static void PrintError( int status );
 
 
 
+/* ---------------- FUNCTION: GetImageSize ----------------------------- */
+/*    Given a filename, it opens the file, reads the size of the image and
+ * stores that size in *nRows and *nColumns
+ */
+void GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose )
+{
+  fitsfile  *imfile_ptr;
+  int  status, nfound;
+  int  problems;
+  long  naxes[2];
+  int  n_rows, n_columns;
+
+  status = problems = 0;
+  
+   /* Open the FITS file: */
+  problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
+  if ( problems ) {
+    printf("\n*** ERROR: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    PrintError(status);
+  }
+
+  /* read the NAXIS1 and NAXIS2 keyword to get image size */
+  problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
+				  &status);
+  if ( problems ) {
+    printf("\n*** ERROR: Problems reading FITS keywords from file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    PrintError(status);
+  }
+  if (verbose)
+    printf("ReadImageAsVector: Image keywords: NAXIS1 = %ld, NAXIS2 = %ld\n", naxes[0], naxes[1]);
+
+  n_columns = naxes[0];      // FITS keyword NAXIS1 = # columns
+  *nColumns = n_columns;
+  n_rows = naxes[1];         // FITS keyword NAXIS2 = # rows
+  *nRows = n_rows;
+
+  if ( problems ) {
+    printf("\n*** ERROR: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    PrintError(status);
+  }
+}
+
+
+
 /* ---------------- FUNCTION: ReadImageAsVector ------------------------ */
 /*    Given a filename, it opens the file, reads the size of the image and
  * stores that size in *nRows and *nColumns, then allocates memory for a 1-D

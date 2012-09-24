@@ -227,7 +227,7 @@ QUESTIONS AND ISSUES:
 	
 	
 	
-	[] How to handle convolution when object/component center is close to edge
+	[x] How to handle convolution when object/component center is close to edge
 	of image? (ideally, we would need to make the model image larger, do
 	convolution, then crop back to data-image size)
 	
@@ -510,10 +510,10 @@ ModelObject
 [] Improvements to noise-image generation
 	[x] Check GALFIT README against our current code
 		-- are we using the sky value incorrectly? [ANSWER: YES]
-	[] Prototype option to output weight map
+	[x] Prototype option to output weight map
 	[] Generate trial sigma maps using GALFIT and compare them with our
 	   version using the same input galaxy image
-	<>[] Prototype use of an optional "n_combined" input parameter
+	<>[x] Prototype use of an optional "n_combined" input parameter
 		-- number of combined images used to generate input image
 		-- true flux (and pre-sub. sky background, if any) = n_combined*image_flux
 		-- total readnoise^2 = N * rdnoise^2 (add individual rdnoise inputs in
@@ -523,7 +523,7 @@ ModelObject
 		[x] Prototype command-line setting of "n_combined"
 		[x] Prototype internal storage of "n_combined"
 		[x] Prototype passing "n_combined" to ModelObject
-		[] Prototype use of "n_combined" in ModelObject
+		[x] Prototype use of "n_combined" in ModelObject
 	[-] Prototype use of an optional "t_exp" input parameter?
 		-- GALFIT README indicates that GALFIT does *not* use EXPTIME for
 		noise calculation (instead, user is advised to multiply the image
@@ -563,21 +563,21 @@ ModelObject
 	-- try it with fft_measure option
 	-- try it with fft_measure option *and* fftw threading compiled in
 
-[] Prototype code for saving final residual image?
+[x] Prototype code for saving final residual image?
 	-- should be deviates vector in ModelObject
 
-[] Prototype code for better pretty-printing of best-fit result
+[x] Prototype code for better pretty-printing of best-fit result
 	-- should print function names and id separate function blocks
 	-- could be similar/identical to output to config file
 
-[] Prototype code for saving best-fit parameter file
+[x] Prototype code for saving best-fit parameter file
 	-- suitable as intput to makeimage, or as starting point for new fitting attempt
 	-- should also have timestamp, name of file fitted, command-line invocation,
 	final chi^2, etc. (all as comments, with # in front)
-	[] Prototype saving information about fit (filename, command-line used, etc.)
-	[] Prototype saving best-fit parameters and functions
+	[x] Prototype saving information about fit (filename, command-line used, etc.)
+	[x] Prototype saving best-fit parameters and functions
 	
-<>[] Prototype code for getting non-function-related data from config file
+<>[x] Prototype code for getting non-function-related data from config file
 	-- denote in config file via ALL_CAPS (e.g., GAIN, ORIGINAL_SKY, etc.)
 	-- these should go *before* function listings
 	-- for makeimage: IMAGE_SIZE_X, IMAGE_SIZE_Y (or _NCOLS, _NROWS)
@@ -598,7 +598,7 @@ ModelObject
 	[] Prototype processing of userConfigOptions data structure within makeimage
 	[] Modify profilefile_main.cpp to use new version(s) of ReadConfigFile
 
-[] Prototype code for outputting best-fit model profile in profilefit?
+[x] Prototype code for outputting best-fit model profile in profilefit?
 
 [] Prototype code for unit testing
 	[x] Decide on C++ unit testing framework to use (CxxTest?)
@@ -616,16 +616,16 @@ image
 	[] prototype code to read header values from an image
 	[] implement reading of header values from input image
 
-[] Prototype a generalized-ellipse function object
+[x] Prototype a generalized-ellipse function object
 
-[] Add option to makeimage (and imfit?) to output one image per *function*
+[x] Add option to makeimage (and imfit?) to output one image per *function*
 	-- specialized option within ModelObject, to go through function list
 	(associating correct X0,Y0) and generating and saving images (re-use
 	the model-image vector?)
 		-- public member function which takes image filename root, appends
 		<function-name><integer> to filename
 
-[] Option for makeimage -- or separate program? -- to calculate "luminosities" 
+[x] Option for makeimage -- or separate program? -- to calculate "luminosities" 
    for individual functions?
 	-- define a nominal very large image (user-specified size?), with function 
 	centered in the middle, then integrate over the "image", summing up pixel 
@@ -662,7 +662,7 @@ image
 		relative to complete image, but these need to be transformed to section-
 		relative coords for the actual fitting process -- and the same applies
 		to the user-specified limits on X0 and Y0!
-	[] Prototype code for handling more complex image sections
+	[.] Prototype code for handling more complex image sections
 		-- utilities.cpp: GetPixelStartCoords
 		-- e.g., [3][x1:x2,y1:y2] or [3,x1:x2,y1:y2]
 	[x] Prototype handling of "http://" or "ftp://" prefixes to file names, to
@@ -720,6 +720,17 @@ code ...
 
 I.e., fit two (or more) images of the same object simultaneously.
 
+Conceptually, there are *two* general modes:
+	1. Fit two or more images in same filter (e.g., high-res image of center
+	and low-res image of entire object); all parameter values should be the
+	same for all image, modulo pixel-scales, rotation offsets, and zero-point
+	differences
+	2. Fit two or more images in *different* filters (e.g., ugriz SDSS images);
+	in this case, some parameters *should* differ (intensity, scale lengths),
+	but others might not [ACTUALLY, I'M NOT SURE WHY THIS NEEDS TO BE A
+	MULTI-FITTING MODE AT ALL, INSTEAD OF JUST INDIVIDUALLY FITTING THE
+	DIFFERENT IMAGES]
+
 Total chi^2 = Sum_{i=1}^{N_im}( k_i * chi_i^2 ), where N_im = number of
 images and k_i = some kind of relative weight (user-supplied guess) for
 each image.
@@ -734,11 +745,23 @@ and relative rotations and pixel scales
 	to adopt fixed user-supplied values, or at most allow the positional
 	offsets to be free parameters)
 
+Things associated with individual images:
+	image data
+	mask data
+	error data (incl. gain, readnoise)
+	derived weight map
+	notional/abstract: orientation (PA rotation), pixel scale, overall intensity scaling
+	[x0,y0 offsets -- however, ModelObject does not need to know about this]
+	optional: Convolver object (PSF image)
+	
 Modification of ModelObject class
 	-- holds data, masks, noise-maps for multiple images
 	-- holds multiple Convolver objects, one for each image
 	-- handles translation of main parameter set (seen & manipulated by
 	solvers) into per-image parameter sets
+	OR: split ModelObject into MultiImageModelObject (which handles
+	overall setup, chi^2 calculation, etc.) and subordinate ModelObject class,
+	which holds individual sets of image, mask, errors, PSF + Convolver object, etc.
 
 Modify FunctionObjects to include an optional pixel-scale parameter
 (special method to pass in pixel scale; default value is 1.0).  Individual
@@ -747,8 +770,20 @@ they're the only one who know which parameters are size-related).
 	-- Underlying logic: FunctionObjects should always work in pixel sizes,
 	since x0,y0 are always pixel values. So while the (e.g.) scale-length *parameter*
 	may have a value of arcsec (or even, who knows, kpc!), when its Setup()
-	function is called, it converts the parameter into pixels, using
+	function is called, it converts the parameter into pixels, using the pixel-scale
+	parameter
+	-- This should, ideally, *not* be a free parameter of the fit
+Also modify FunctionObjects to include an optional intensity-scaling parameter
+(default value is 1.0)
+	-- This could, in principle (though probably a bad idea in practice), be a free
+	parameter of the fit...
+Maybe have a single method of FunctionObject which allows the user to pass in scaling
+parameters (pixel size, intensity scaling, rotation offsets[?])
 
+Side note on usage: how to handle case of high-resoln central image (e.g., HST)
+and lower-resolution ground-based image? One approach might be to construct a
+mask for the low-res. image which masks out the nuclear pixels, so we don't have to
+worry about doing PSF convolution
 
 
 

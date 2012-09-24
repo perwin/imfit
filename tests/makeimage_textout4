@@ -4,8 +4,8 @@ Value from config file: nRows = 512
 Reading PSF image ("tests/psf_moffat_35.fits") ...
 naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
 Function: Sersic_GenEllipse
-8 total parameters
 Model Object: 262144 data values (pixels)
+8 total parameters
 
 Saving output model image ("gensersictest_conv.fits") ...
 Done!

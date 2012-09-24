@@ -6,8 +6,8 @@ Function: Sersic
 Function: Gaussian
 Function: Exponential
 Function: Gaussian
-36 total parameters
 Model Object: 4096 data values (pixels)
+36 total parameters
 
 Saving output model image ("biggertest.fits") ...
 Done!

@@ -9,6 +9,8 @@
 #include <vector>
 
 
+void GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose=false );
+
 double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 														bool verbose=false );
 

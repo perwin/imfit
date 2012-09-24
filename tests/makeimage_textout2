@@ -2,8 +2,8 @@ Value from config file: nColumns = 512
 Value from config file: nRows = 512
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic_GenEllipse
-8 total parameters
 Model Object: 262144 data values (pixels)
+8 total parameters
 
 Saving output model image ("gensersictest.fits") ...
 Done!

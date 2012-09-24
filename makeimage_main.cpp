@@ -106,9 +106,9 @@ int main(int argc, char *argv[])
   int  nPixels_psf, nRows_psf, nColumns_psf;
   int  nParamsTot;
   int  status;
-  double  *allPixels;
+//  double  *allPixels;
   double  *psfPixels;
-  bool  allPixels_allocated = false;
+//  bool  allPixels_allocated = false;
   double  *paramsVect;
   ModelObject  *theModel;
   vector<string>  functionList;
@@ -185,8 +185,9 @@ int main(int argc, char *argv[])
   /* Get image size from reference image, if necessary */
   if ((! printFluxesOnly) && (options.noImageDimensions)) {
     // Note that we rely on the cfitsio library to catch errors like nonexistent files
-    allPixels = ReadImageAsVector(options.referenceImageName, &nColumns, &nRows);
-    allPixels_allocated = true;
+    GetImageSize(options.referenceImageName, &nColumns, &nRows);
+//    allPixels = ReadImageAsVector(options.referenceImageName, &nColumns, &nRows);
+//    allPixels_allocated = true;
     // Reminder: nColumns = n_pixels_per_row
     // Reminder: nRows = n_pixels_per_column
     printf("Reference image read: naxis1 [# rows] = %d, naxis2 [# columns] = %d\n",
@@ -232,6 +233,15 @@ int main(int argc, char *argv[])
   }
 
   
+  // Add PSF image vector, if present
+  if (options.psfImagePresent)
+    theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+
+  /* Define the size of the requested model image */
+  theModel->SetupModelImage(nColumns, nRows);
+  theModel->PrintDescription();
+
+
   // Set up parameter vector(s), now that we know how many total parameters
   // there will be
   nParamsTot = theModel->GetNParams();
@@ -244,15 +254,6 @@ int main(int argc, char *argv[])
   	exit(-1);
  }
     
-  // Add PSF image vector, if present
-  if (options.psfImagePresent)
-    theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
-
-  /* Define the size of the requested model image */
-  theModel->SetupModelImage(nColumns, nRows);
-  theModel->PrintDescription();
-
-
   /* Copy parameters into C array and generate the model image */
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));
   for (int i = 0; i < nParamsTot; i++)
@@ -271,11 +272,6 @@ int main(int argc, char *argv[])
     if (options.saveImage) {
       string  progName = "makeimage ";
       progName += VERSION_STRING;
-//      imageCommentsList.push_back(aString + VERSION_STRING);
-//      char *my_string;
-//      asprintf(&my_string, "Using config file %s", options.configFileName.c_str());
-//      aString = my_string;
-//      imageCommentsList.push_back(aString);
       PrepareImageComments(&imageCommentsList, progName, &options);
       printf("\nSaving output model image (\"%s\") ...\n", options.outputImageName.c_str());
       SaveVectorAsImage(theModel->GetModelImageVector(), options.outputImageName, 
@@ -366,8 +362,8 @@ int main(int argc, char *argv[])
 
 
   // Free up memory
-  if (allPixels_allocated)
-    free(allPixels);
+//  if (allPixels_allocated)
+//    free(allPixels);
   if (options.psfImagePresent)
     free(psfPixels);
   free(paramsVect);
@@ -554,9 +550,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 }
 
 
-// Note that we only use options from the config file if they have *not*
-// already been set by the command line (i.e., command-line options override
-// config-file values).
+// Note that we only use options from the config file if they have *not* already been set
+// by the command line (i.e., command-line options override config-file values).
 void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *mainOptions )
 {
 	double  newDblVal;

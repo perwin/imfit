@@ -6,8 +6,8 @@ User requested that no images be saved!
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 Function: Exponential
-11 total parameters
 Model Object: 262144 data values (pixels)
+11 total parameters
 
 Estimating fluxes on 5000 x 5000 image...
 

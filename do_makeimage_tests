@@ -17,6 +17,8 @@ echo "Running tests for makeimage..."
 ./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest.fits > test_dump2
 # test two functions and also --output-functions mode
 ./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp.fits --output-functions singleImage > test_dump3
+# same, but now testing --refimage
+./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > test_dump3b
 # test using PSF convolution:
 ./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest_conv.fits --psf tests/psf_moffat_35.fits > test_dump4
 # test doing --print-fluxes:
@@ -69,6 +71,10 @@ fi
 if [ $do_fits_tests = "1" ]
 then
   ./compare_fits_files.py sersic+exp.fits tests/sersic+exp_orig.fits
+fi
+if [ $do_fits_tests = "1" ]
+then
+  ./compare_fits_files.py sersic+exp_b.fits tests/sersic+exp_orig.fits
 fi
 
 echo -n "*** Diff comparison with archives: gensersictest + PSF convolution... "

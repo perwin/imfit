@@ -3,8 +3,8 @@ Value from config file: nRows = 512
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 Function: Exponential
-11 total parameters
 Model Object: 262144 data values (pixels)
+11 total parameters
 
 Saving output model image ("sersic+exp.fits") ...
 singleImage1_Sersic.fits
