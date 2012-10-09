@@ -15,6 +15,9 @@
 # To build a version with OpenMP enabled
 #    $ scons --openmp <target-name>
 #
+# To build a version with extra, experimental functions
+#    $ scons --extra-funcs <target-name>
+#
 # To build a version *without* FFTW threading:
 #    $ scons --no-threading <target-name>
 #
@@ -103,6 +106,7 @@ extra_defines = []
 useGSL = True
 useFFTWThreading = True
 useOpenMP = False
+useExtraFuncs = False
 useStaticLibs = False
 buildFatBinary = False
 
@@ -117,7 +121,9 @@ AddOption("--no-threading", dest="fftwThreading", action="store_false",
 AddOption("--no-gsl", dest="useGSL", action="store_false", 
 	default=True, help="do *not* use GNU Scientific Library")
 AddOption("--openmp", dest="useOpenMP", action="store_true", 
-	default=False, help="compile with OpenMP support [LIMITED AND EXPERIMENTAL!]")
+	default=False, help="compile with OpenMP support")
+AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
+	default=False, help="compile additional FunctionObject classes for testing")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -140,6 +146,8 @@ if GetOption("useGSL") is False:
 	useGSL = False
 if GetOption("useOpenMP") is True:
 	useOpenMP = True
+if GetOption("useExtraFuncs") is True:
+	useExtraFuncs = True
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
 if GetOption("makeFatBinaries") is True:
@@ -179,6 +187,10 @@ if useOpenMP:   # default is to *not* do this; user must specify with "--openmp"
 	cflags_opt.append("-fopenmp")
 	cflags_db.append("-fopenmp")
 	link_flags.append("-fopenmp")
+	extra_defines.append("USE_OPENMP")
+
+if useExtraFuncs:   # default is to *not* do this; user must specify with "--openmp"
+	extra_defines.append("USE_EXTRA_FUNCS")
 
 
 if buildFatBinary and (os_type == "Darwin"):
@@ -269,7 +281,7 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
 # Function objects:
 functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
-		func_sersic func_gen-sersic func_core-sersic func_broken-exp 
+		func_sersic func_gen-sersic func_core-sersic func_broken-exp
 		func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
 		func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
 		func_edge-on-ring func_edge-on-ring2side"""
@@ -277,6 +289,10 @@ if useGSL:
 	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"
 	functionobject_obj_string += " func_expdisk3d func_gaussianring3d integrator"
+if useExtraFuncs:
+	# experimental extra functions for personal testing
+	functionobject_obj_string += " func_broken-exp-bar"
+
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 

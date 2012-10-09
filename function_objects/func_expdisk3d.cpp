@@ -106,7 +106,7 @@ using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 5;
-const char  PARAM_LABELS[][20] = {"PA", "inc", "I_0", "h", "h_z"};
+const char  PARAM_LABELS[][20] = {"PA", "inc", "J_0", "h", "h_z"};
 const char  FUNCTION_NAME[] = "ExponentialDisk3D function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -155,7 +155,7 @@ void ExponentialDisk3D::Setup( double params[], int offsetIndex, double xc, doub
   y0 = yc;
   PA = params[0 + offsetIndex];
   inclination = params[1 + offsetIndex];
-  I_0 = params[2 + offsetIndex ];
+  J_0 = params[2 + offsetIndex ];
   h = params[3 + offsetIndex ];
   h_z = params[4 + offsetIndex ];
 
@@ -203,7 +203,7 @@ double ExponentialDisk3D::GetValue( double x, double y )
   xyParameters[2] = z_d0;
   xyParameters[3] = cosInc;
   xyParameters[4] = sinInc;
-  xyParameters[5] = I_0;
+  xyParameters[5] = J_0;
   xyParameters[6] = h;
   xyParameters[7] = h_z;
   F.params = xyParameters;
@@ -242,7 +242,7 @@ double LuminosityDensity( double s, void *params )
   double z_d0 = paramsVect[2];
   double cosInc = paramsVect[3];
   double sinInc = paramsVect[4];
-  double I_0 = paramsVect[5];
+  double J_0 = paramsVect[5];
   double h = paramsVect[6];
   double h_z = paramsVect[7];
   
@@ -255,7 +255,7 @@ double LuminosityDensity( double s, void *params )
   R = sqrt(x_d0*x_d0 + y_d*y_d);
   z = fabs(z_d);
   
-  lumDensity = I_0 * exp(-R/h) * exp(-z/h_z);
+  lumDensity = J_0 * exp(-R/h) * exp(-z/h_z);
   return lumDensity;
 }
 

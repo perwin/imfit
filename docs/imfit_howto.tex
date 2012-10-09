@@ -7,6 +7,8 @@
 % FOLLOWING DOES NOT WORK [EULER FONTS NOT INSTALLED?]
 %\usepackage[]{mathpple}
 
+\usepackage{amssymb}
+
 \usepackage{natbib}
 \usepackage{hyperref}
 \usepackage{color}
@@ -21,6 +23,8 @@
 \newcommand{\Imfit}{\texttt{Imfit}}
 \newcommand{\makeimage}{\texttt{makeimage}}
 \newcommand{\Makeimage}{\texttt{Makeimage}}
+
+\newcommand{\arcdeg}{\ensuremath{^{\circ}}}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -126,12 +130,13 @@ not need to have those installed.
 multiple CPUs sharing main memory), you should install the threaded version of
 FFTW as well, since this speeds up PSF convolution.
 
-\item (Optional) Install the GNU Scientific Library (GSL) --- this is only necessary
-if you wish to use 2D image functions that rely on GSL.  Currently, the only
-such functions are the EdgeOnDisk (\texttt{func\_edge-on-disk.cpp}) component, which
-uses a modified Bessell function, and the sample 3D line-of-sight integration functions
-(e.g., \texttt{func\_expdisk3d.cpp}). \Imfit{} can easily be built without these components,
-if for some reason you don't have access to the GSL.
+\item (Optional) Install the GNU Scientific Library (GSL) --- this is only
+necessary if you wish to use 2D image functions that rely on GSL.  Currently,
+the only such functions are the EdgeOnDisk (\texttt{func\_edge-on-disk.cpp})
+component, which uses a modified Bessell function, and the sample 3D
+line-of-sight integration functions (e.g., ExponentialDisk3D,
+\texttt{func\_expdisk3d.cpp}). \Imfit{} can easily be built without these
+components, if for some reason you don't have access to the GSL.
 
 \item Install SCons.
 
@@ -147,9 +152,9 @@ Assuming that CFITSIO and FFTW (and optionally GSL) have already been installed
 on your system, unpack the source-code tarball (imfit-x.x-source.tar.gz) in some convenient
 location.
 
-\Imfit{} uses SCons for the build process; SCons is a Python-based build system
+\Imfit{} uses SCons for the build process. SCons is a Python-based build system
 that is somewhat easier to use and more flexible than the traditional \texttt{make}
-system. SCons can be downloaded from \url{http://www.scons.org/}.
+system; it can be downloaded from \url{http://www.scons.org/}.
 
 If things are simple, you should be able to build \imfit{} and the companion
 program \makeimage{} with the following commands:
@@ -378,6 +383,11 @@ the $\chi^2$ minimization technique (WARNING: much slower!)
 \item \texttt{--chisquare-only} --- Evaluate the $\chi^2$ value for the initial input
 model as a fit to the input image, \textit{without} doing any minimization to find
 a better solution.
+
+bigskip
+\item \texttt{--max-threads} --- specifies the maximum number of CPU cores to use
+during computation (the default is to use \textit{all} available CPU cores); has no
+effect if \imfit{} was compiled without OpenMP or FFTW multithreading support.
 
 \bigskip
 
@@ -622,6 +632,10 @@ Gaussian for the radial profile and another Gaussian (with
 different $\sigma$) for the vertical profile.
 \item EdgeOnRing2Side --- like EdgeOnRing, but using an
 asymmetric Gaussian for the radial profile (see description of GaussianRing2Side).
+\item ExponentialDisk3D --- an experimental component which uses line-of-sight
+integration through a 3D luminosity-density model of an exponential disk, observed
+at an arbitrary inclination, to generate a projected surface-brightness image. As
+in the case of the EdgeOnDisk component, the GSL is required for this component.
 
 \end{itemize}
 
@@ -641,7 +655,31 @@ obtained by running \imfit{} with the ``\texttt{--list-parameters}'' option:
 
 
 
-\section{Extras for Fitting Images}
+\section{Images}
+
+\Imfit{} is designed to fit 2D astronomical images in FITS format, where pixel
+values are some form of linear surface-brightness (or surface density)
+measurement. The default internal error calculations (see
+Section~\ref{sec:noise-maps}, below) assume that pixel values are integrated
+counts (e.g., ADUs), which can be converted to detected photons using
+the $A/D$ gain. However, since \imfit{} can also accept a user-supplied
+noise/error image in FITS format, you can use any linear pixel values as long as
+the corresponding noise image is appropriately scaled to match.
+
+If your image is in counts/second, you should multiply it by the exposure time to recover
+the integrated counts (or incorporate the exposure time into the gain  value), otherwise
+\imfit{} will overestimate the errors. (Future versions of \imfit{} may include a
+means of directly specifying the exposure time.)
+
+If the image is an \textit{average} of $N$ input images of the same exposure time, you
+can either multipy the image by $N$ \textit{or} use the ``\texttt{--ncombined}'' option
+to tell \imfit{} how to adjust the error estimations.
+
+\Imfit{} does \textit{not} assume the presence of any particular header
+keywords in the FITS file.
+
+
+
 
 \subsection{Specifying Image Subsections, Compressed Images, etc.}
 
@@ -682,6 +720,8 @@ cannot \textit{save} files to URLs, however).
 
 
 
+\section{Extras for Fitting Images}
+
 \subsection{Masks}
 
 A mask image can be supplied to \imfit{} by using the command-line
@@ -695,23 +735,23 @@ with the command-line flag \texttt{--mask-zero-is-bad}.
 
 
 
-\subsection{Noise, Variance, or Weight Maps}
+\subsection{Noise, Variance, or Weight Maps}\label{sec:noise-maps}
 
 By default, \imfit{} calculates a weight map internally, using the input pixel
-intensities, the A/D gain, the read noise, and any previously subtracted
-background level to estimate Poisson errors $\sigma_{i}$ for each pixel $i$. The
-final weight map is then $w_{i} = 1/\sigma^{2}_{i}$. These weights are then used in the 
-$\chi^2$ calculation, summing over all $N$ pixels:
+intensities, the A/D gain, any previously subtracted background
+level, and the read noise to estimate Gaussian errors $\sigma_{i}$ for each
+pixel $i$. The final weight map is $w_{i} = 1/\sigma^{2}_{i}$. These weights are
+then used in the $\chi^2$ calculation, summing over all $N$ pixels:
 \begin{equation}
 \chi^2 \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{{\rm mod}, i} - I_{{\rm im}, i})^2 ,
 \end{equation}
 where $I_{{\rm mod}, i}$ and $I_{{\rm im}, i}$ are the model and data intensities
 in counts/pixel, respectively. (Masking is handled by setting $w_{i} = 0$
-for all masked pixels.)
+for masked pixels.)
 
 If you have a pre-existing error map as a FITS image, you can tell \imfit{} to
 use that instead, via the \texttt{--noise} command-line option. By default, the
-pixel values in the FITS image are assumed to be errors $\sigma_{i}$ in
+pixel values in this image are assumed to be errors $\sigma_{i}$ in units of
 ADU/pixel. If the values are \textit{variances} ($\sigma_{i}^2$), you can specify
 this with the \texttt{--errors-are-variances} flag. You can also tell \imfit{}
 that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via the
@@ -975,11 +1015,55 @@ unless you also specify the \texttt{--nosave} option.
 
 \section{Rolling Your Own Functions}
 
+\subsection{Basic Requirements}
+
+A new image function should be implemented in C++ as a subclass of
+the FunctionObject base class (\texttt{function\_object.h}, \texttt{function\_object.cpp}).
+At a minimum, it should provide its own implementation of the following public methods,
+which are defined as virtual methods in the base class:
+\begin{itemize}
+\item Setup() --- this is used by the calling program to supply the current set of
+function parameters (including the $(x_{0},y_{0})$ pixel values for the center) prior
+to determining intensity values for individual pixels. This
+is a convenient place to do any general calculations which don't depend on the
+exact pixel $(x,y)$ values.
+\item GetValue() --- this is used by the calling program to obtain the surface
+brightness for a given pixel location $(x,y)$. In existing FunctionObject classes,
+this method often calls other (private) methods to handle details of the calculation.
+\item GetClassShortName() -- this is a class function which is used to obtain
+the short version of the class name as a string.
+
+\end{itemize}
+
+The new class should also redefine the following internal class constants:
+\begin{itemize}
+\item \texttt{N\_PARAMS};
+\item \texttt{PARAM\_LABELS};
+\item \texttt{FUNCTION\_NAME}.
+\end{itemize}
+
+The \texttt{add\_functions.cpp} file should then be updated by:
+\begin{enumerate}
+\item including the header file for the new class;
+%\item adding the class short name as a string to the \texttt{FUNCTION\_NAMES} array;
+%\item incrementing the \texttt{N\_FUNCTIONS} constant;
+\item adding 2 lines to the PopulateFactoryMap() function to add the ability to create an instance of
+the new class.
+\end{enumerate}
+
+Finally, the name of the C++ implementation file for the new class should be added
+to the \texttt{Sconstruct} file to ensure it gets included in the compilation.
+
+Existing examples of FunctionObject subclasses can be found in the ``\texttt{function\_objects}''
+subdirectory of the source-code distribution, and are the best place to look in order
+to get a better sense of how to implement new FunctionObject subclasses.
+
+
 \subsection{A Simple Example}
 
-To illustrate how one might make a new function, we'll make a new version of
-the Moffat function (which already exists, so this is purely for pedagogical purposes)
-by copying and modifying the code for the Gaussian function.
+To illustrate, we'll make a new version of the Moffat function (which already
+exists, so this is purely for pedagogical purposes) by copying and modifying the
+code for the Gaussian function.
 
 \bigskip
 
@@ -1094,9 +1178,20 @@ with this:
 \noindent \textit{Changes to CalculateIntensity method:}
 \smallskip
 
-This is the key place where your new function's algorithm is
-implemented: the computation of the intensity as a function of (scaled)
-radius.  Replace the original version of this method with the following:
+Although it is the public method GetValue() which is called by other parts of
+the program, we don't actually need to change the current version of that method
+in this simple example. The code in the original Gaussian version of GetValue()
+just converts pixel positions to a scaled radius value, given input values for
+the center, ellipticity, and position angle, and then calls the private method
+CalculateIntensity() to determine the intensity as a function of the radius.
+Since we're still assuming a perfectly elliptical shape, we can keep the
+existing code.  It probably doesn't make sense to change the CalculateSubsamples
+method, either, so we can leave that alone.
+
+Instead, we actually implement the details of the new function's algorithm in
+CalculateIntensity(). Replace the original version of this method with the
+following:
+
 \begin{verbatim}
 double NewMoffat::CalculateIntensity( double r )
 {
@@ -1110,36 +1205,36 @@ double NewMoffat::CalculateIntensity( double r )
 
 \bigskip
 
-In this simple example, we aren't changing the isophote geometry (i.e.,
-we're still assuming a perfectly elliptical shape), so we don't need to
-change the GetValue method, which converts pixel position to a scaled
-radius value.  It probably doesn't make sense to change the
-CalculateSubsamples method, either, so we can leave that alone.
+%In this simple example, we aren't changing the isophote geometry (i.e.,
+%we're still assuming a perfectly elliptical shape), so we don't need to
+%change the GetValue method, which converts pixel position to a scaled
+%radius value.  It probably doesn't make sense to change the
+%CalculateSubsamples method, either, so we can leave that alone.
 
 At this point, most of the work is done.  We only need to update
 \texttt{add\_functions.cpp} so it knows about the new function and
 update the SConstruct file so that the new function is included in the
-compilation, as described in the next section.
+compilation.
 
 
 \subsubsection{Edit add\_functions.cpp}
 
-We need to do three simple things here:
+We need to do two simple things here:
 \begin{enumerate}
 \item Include the header file for our new function. Add the following line near
 the top of the file, where the other header files are included:\\
 \texttt{\#include "func\_new-moffat.h"}
 
-\item Modify the list of function names: Look for the lines beginning with
-\begin{verbatim}
-const char  FUNCTION_NAMES[][30] =
-\end{verbatim}
-and add \texttt{"NewMoffat"} to the list (add the name to both lists if the
-function does not depend on the GNU Scientific Library; if it \textit{does} depend on GSL,
-then add it to the first list only)
-
-\item Increment the constant \texttt{N\_FUNCTIONS} by one, to reflect the fact that
-you've added one new function to the total.
+%\item Modify the list of function names: Look for the lines beginning with
+%\begin{verbatim}
+%const char  FUNCTION_NAMES[][30] =
+%\end{verbatim}
+%and add \texttt{"NewMoffat"} to the list (add the name to both lists if the
+%function does not depend on the GNU Scientific Library; if it \textit{does} depend on GSL,
+%then add it to the first list only)
+%
+%\item Increment the constant \texttt{N\_FUNCTIONS} by one, to reflect the fact that
+%you've added one new function to the total.
 
 \item Add code to generate an instance of our new class as part of the
 function-factory map. Inside the function PopulateFactoryMap, add the following lines:
@@ -1305,7 +1400,7 @@ h
 \end{verbatim}
 
 
-\subsection{S\'ersic}
+\subsection{Sersic}
 
 This is an elliptical 2D S\'ersic function with the major-axis intensity
 profile given by
@@ -1355,10 +1450,10 @@ r_e
 
 
 
-\subsection{Core-S\'ersic}
+\subsection{Core-Sersic}
 
 This generates an elliptical 2D function with the major-axis intensity profile
-given by the Core-S\'sersic model \citep{graham03,trujillo04}. This has a
+given by the Core-S{\'e}rsic model \citep{graham03,trujillo04}. This has a
 S\'ersic profile (parameterized by $n$ and $r_{e}$) for radii $>$ the break
 radius $r_{b}$ and a single power law with index $\gamma$ for radii $< r_{b}$.
 The transition between the two regimes is mediated by the parameter $\alpha$:
@@ -1495,8 +1590,8 @@ $\mu(0,0)$ is given by
 \mu(0,0) \; = \;  2 \, h \, L_{0},
 \end{equation}
 where $L_{0}$ is the central luminosity \textit{density} (see \citealt{vdk81}). Note that 
-$L_{0}$ is the actual parameter required by the function ($\mu(0,0)$ is calculated 
-internally).
+$L_{0}$ is the actual parameter required by the function; $\mu(0,0)$ is calculated 
+internally.
 
 When $\alpha = 2$, this reduces to the familiar $\mathrm{sech}^2$ model for the
 vertical distribution of a disk (with $z_{0}$ corresponding to $1/2$ of the
@@ -1556,13 +1651,52 @@ sigma_z
 
 
 
+\subsection{ExponentialDisk3D}
+
+In contrast to the EdgeOnDisk function (above), which is the analytic solution to
+a perfectly edge-on exponential disk, this function implements a 3D luminosity density
+model of an exponential disk, and uses line-of-sight integration to create the projected
+surface-brightness profile for any inclination.
+
+In a cylindrical coordinate system $(r, z)$ aligned with the disk (where the disk
+midplane has $z = 0$), the luminosity density at radius $r$ from 
+the central axis and
+at height $z$ from the midplane is given by
+\begin{equation}
+j(r,z) \; = \; J_{0} \; \exp(-r/h) \, \exp(-z/h_{z})
+\end{equation}
+where $h$ is the exponential scale length in the disk plane, $h_{z}$ is the vertical
+exponential scale height, and $J_{0}$ is the central luminosity density.
+
+\begin{verbatim}
+FUNCTION ExponentialDisk3D
+PA
+inc
+J_0
+h
+h_z
+\end{verbatim}
+
+Because this function performs numerical integration for each pixel value, it can be
+slower than the analytic EdgeOnDisk function (though the latter is correct only in
+the $i= 90\arcdeg$ case), and even slower than the standard Exponential function.
+
+Note that this particular function requires that the GNU Scientific Library
+(GSL) be installed; if the GSL is not installed, \imfit{} should be compiled
+without this function. (The pre-compiled binary versions include the necessary
+code from the GSL.)
+
+
+
 \section{Acknowledgments}
 
 Major inspirations for \Imfit{} include both GALFIT \citep{peng02,peng10} and 
 BUDDA \citep{desouza04,gadotti08}.
 
 Thanks also to Michael Opitsch and Michael Williams for being (partly unwitting)
-beta testers, and for their feedback, and to Maximilian Fabricius for suggesting
+beta testers, and for their feedback, to Martin Kuemmel for suggestion
+an improvement (and finding a related bug), to Roberto Saglia for urging me
+to implement the Core-S{\'e}rsic function, and to Maximilian Fabricius for suggesting
 improvements to the documentation.
 
 \subsection{Data Sources}

@@ -39,28 +39,33 @@
 #include "func_gaussianring3d.h"
 #endif
 
+// extra functions
+#ifdef USE_EXTRA_FUNCS
+#include "func_broken-exp-bar.h"
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
+#endif
 
 using namespace std;
 
 
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
-#ifndef NO_GSL
-const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
-            "Sersic_GenEllipse", "Core-Sersic", "Gaussian", "BrokenExponential", 
-            "BrokenExponential2D", "EdgeOnDisk", "Moffat", "FlatSky",
-            "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
-            "GaussianRing", "GaussianRing2Side", "ExponentialDisk3D", "GaussianRing3D"};
-const int  N_FUNCTIONS = 19;
-#else
-const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
-            "Sersic_GenEllipse", "Core-Sersic", "Gaussian", "BrokenExponential", 
-            "BrokenExponential2D", "Moffat", "FlatSky",
-            "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
-            "GaussianRing", "GaussianRing2Side"};
-const int  N_FUNCTIONS = 16;
-#endif
+// FUNCTION_NAMES is only used by PrintAvailableFunctions
+// #ifndef NO_GSL
+// const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
+//             "Sersic_GenEllipse", "Core-Sersic", "Gaussian", "BrokenExponential", 
+//             "BrokenExponentialBar", "BrokenExponential2D", "EdgeOnDisk", "Moffat", "FlatSky",
+//             "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
+//             "GaussianRing", "GaussianRing2Side", "ExponentialDisk3D", "GaussianRing3D"};
+// const int  N_FUNCTIONS = 20;
+// #else
+// const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
+//             "Sersic_GenEllipse", "Core-Sersic", "Gaussian", "BrokenExponential", 
+//             "BrokenExponentialBar", "BrokenExponential2D", "Moffat", "FlatSky",
+//             "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
+//             "GaussianRing", "GaussianRing2Side"};
+// const int  N_FUNCTIONS = 17;
+// #endif
 
 
 // Code to create FunctionObject object factories
@@ -109,12 +114,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   BrokenExponential::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential>();
   
+  BrokenExponential2D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential2D>();
+  
 //   FlatExponential::GetClassShortName(classFuncName);
 //   input_factory_map[classFuncName] = new funcobj_factory<FlatExponential>();
   
-  BrokenExponential2D::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential2D>();
-
   EdgeOnRing::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnRing>();
   
@@ -136,13 +141,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   FlatSky::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatSky>();
 
-  // weird extra stuff we may not keep
-  EdgeOnDiskN4762::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762>();
-
-  EdgeOnDiskN4762v2::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762v2>();
-
 // functions requring GSL:
 #ifndef NO_GSL 
   EdgeOnDisk::GetClassShortName(classFuncName);
@@ -153,6 +151,20 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   GaussianRing3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRing3D>();
+#endif
+
+// extra functions
+#ifdef USE_EXTRA_FUNCS
+  // weird extra stuff we may not keep
+  EdgeOnDiskN4762::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762>();
+
+  EdgeOnDiskN4762v2::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762v2>();
+
+  // in testing/developement
+  BrokenExponentialBar::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<BrokenExponentialBar>();
 #endif
 }
 
@@ -182,8 +194,7 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
       theModel->AddFunction(thisFunctionObj);
     }
   }
-  // OK, we're done adding functions; now tell the model object to do some
-  // final setup work
+  // OK, we're done adding functions; now tell the model object to do some final setup
   // Tell model object about arrangement of functions into common-center sets
   theModel->DefineFunctionSets(functionSetIndices);
   
@@ -194,15 +205,37 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
 
 
 
+// void PrintAvailableFunctions( )
+// {
+//   
+//   printf("\nAvailable function/components:\n");
+//   for (int i = 0; i < N_FUNCTIONS - 1; i++) {
+//     printf("%s, ", FUNCTION_NAMES[i]);
+//   }
+//   printf("%s.\n\n", FUNCTION_NAMES[N_FUNCTIONS - 1]);
+//     
+// }
+
 void PrintAvailableFunctions( )
 {
-  
-  printf("\nAvailable function/components:\n");
-  for (int i = 0; i < N_FUNCTIONS - 1; i++) {
-    printf("%s, ", FUNCTION_NAMES[i]);
+  string  currentName;
+  FunctionObject  *thisFunctionObj;
+  map<string, factory*>  factory_map;
+
+  PopulateFactoryMap(factory_map);
+
+  // get list of keys (function names) and step through it
+  map<string, factory*>::iterator  w;
+
+  printf("\nAvailable function/components:\n\n");
+  for (w = factory_map.begin(); w != factory_map.end(); w++) {
+//    printf("%s, ", w->first.c_str());
+    thisFunctionObj = w->second->create();
+    currentName = thisFunctionObj->GetShortName();
+    printf("%s\n", currentName.c_str());
+    delete thisFunctionObj;
   }
-  printf("%s.\n\n", FUNCTION_NAMES[N_FUNCTIONS - 1]);
-    
+  printf("\n\n");    
 }
 
 

@@ -721,7 +721,7 @@ code ...
 I.e., fit two (or more) images of the same object simultaneously.
 
 Conceptually, there are *two* general modes:
-	1. Fit two or more images in same filter (e.g., high-res image of center
+	[*]1. Fit two or more images in same filter (e.g., high-res image of center
 	and low-res image of entire object); all parameter values should be the
 	same for all image, modulo pixel-scales, rotation offsets, and zero-point
 	differences
@@ -757,8 +757,11 @@ Things associated with individual images:
 Modification of ModelObject class
 	-- holds data, masks, noise-maps for multiple images
 	-- holds multiple Convolver objects, one for each image
+	e.g., vector of (or array of pointers to) data images; same for mask images, weight images;
+	vector of Convolver objects; float array of relative image weights
 	-- handles translation of main parameter set (seen & manipulated by
 	solvers) into per-image parameter sets
+	
 	OR: split ModelObject into MultiImageModelObject (which handles
 	overall setup, chi^2 calculation, etc.) and subordinate ModelObject class,
 	which holds individual sets of image, mask, errors, PSF + Convolver object, etc.

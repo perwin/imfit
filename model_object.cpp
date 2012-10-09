@@ -112,7 +112,9 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
 void ModelObject::SetMaxThreads( int maxThreadNumber )
 {
   maxRequestedThreads = maxThreadNumber;
+#ifdef USE_OPENMP
   omp_set_num_threads(maxRequestedThreads);
+#endif
 }
 
 

@@ -10,7 +10,7 @@
  * y0 = yc;   -- center of component (pixels, y)
  * PA = params[0 + offsetIndex];   -- PA of component, rel. to +x axis
  * inclination = params[1 + offsetIndex];  -- inclination to line of sight (i=0 for face-on)
- * I_0 = params[2 + offsetIndex ];  -- central luminosity density (ADU)
+ * J_0 = params[2 + offsetIndex ];  -- central luminosity density (ADU)
  * h = params[3 + offsetIndex ];   -- radial exp. scale length (pixels)
  * h_z = params[4 + offsetIndex ];   -- vertical exp. scale height (pixels)
  *
@@ -47,7 +47,7 @@ class ExponentialDisk3D : public FunctionObject
 
 
   private:
-    double  x0, y0, PA, inclination, I_0, h, h_z;   // parameters
+    double  x0, y0, PA, inclination, J_0, h, h_z;   // parameters
     double  PA_rad, cosPA, sinPA, inc_rad, cosInc, sinInc;   // other useful quantities
     gsl_function  F;
 };
