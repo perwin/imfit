@@ -174,6 +174,9 @@ commands instead:
 
 Various other compilation options may be useful; these are explained in the next
 subsections (note that all the SCons options can be combined on the command line).
+In particular, it is recommended that \imfit{} and \makeimage{} be compiled with OpenMP
+support if your computer has multiple CPU cores, since this will speed the programs
+up considerably.
 
 Finally, there are two shell scripts -- \texttt{do\_imfit\_tests} and
 \texttt{do\_makeimage\_tests} -- which can be run to do some very simple sanity
@@ -185,6 +188,21 @@ numpy\footnote{\url{http://numpy.scipy.org/}} and
 pyfits\footnote{\url{http://www.stsci.edu/institute/software_hardware/pyfits}}
 Python libraries. If these are not available, then the parts of the tests which
 compare output images with reference versions will simply be skipped.)
+
+
+\subsubsection{Option: Compiling with OpenMP Support}
+
+\Imfit{} and \makeimage{} can be compiled to take advantage of OpenMP compiler support,
+which speeds up image computation by splitting it up across multiple CPUs
+(and multiple cores within multi-core CPUs).
+Currently, the code uses OpenMP 2.5 options, which means that if you are using
+the GCC compiler, you need version 4.2 or higher.
+
+To include OpenMP support, compile using the following options:
+\begin{quote}
+\texttt{\$ scons --openmp imfit} \\
+\texttt{\$ scons --openmp makeimage}
+\end{quote}
 
 
 \subsubsection{Telling SCons Where to Find Header Files and Libraries}
@@ -207,21 +225,7 @@ Multiple paths can be specified if they are separated by colons, e.g.
 \end{quote}
 
 
-\subsubsection{Option: Compiling with OpenMP Support}
-
-\Imfit{} and \makeimage{} can be compiled to take advantage of OpenMP compiler support,
-which speeds up image computation by splitting it up across multiple CPUs
-(and multiple cores within multi-core CPUs).
-Currently, the code uses OpenMP 2.5 options, which means that if you are using
-the GCC compiler, you need version 4.2 or higher.
-
-To include OpenMP support, compile using the following options:
-\begin{quote}
-\texttt{\$ scons --openmp imfit} \\
-\texttt{\$ scons --openmp makeimage}
-\end{quote}
-
-\subsubsection{Options: Compiling without FFT Multithreading}
+\subsubsection{Options: Compiling Without FFT Multithreading}
 
 By default, \imfit{} and \makeimage{} are compiled to take advantage of multi-core CPUs (and other
 shared-memory multiple-processor systems) when performing PSF convolutions by using the 
@@ -384,7 +388,8 @@ the $\chi^2$ minimization technique (WARNING: much slower!)
 model as a fit to the input image, \textit{without} doing any minimization to find
 a better solution.
 
-bigskip
+\bigskip
+
 \item \texttt{--max-threads} --- specifies the maximum number of CPU cores to use
 during computation (the default is to use \textit{all} available CPU cores); has no
 effect if \imfit{} was compiled without OpenMP or FFTW multithreading support.
@@ -1022,6 +1027,8 @@ the FunctionObject base class (\texttt{function\_object.h}, \texttt{function\_ob
 At a minimum, it should provide its own implementation of the following public methods,
 which are defined as virtual methods in the base class:
 \begin{itemize}
+\item The class constructor --- in most cases the code for this can be copied from any of the
+existing FunctionObject subclasses, unless some special extra initialization is needed.
 \item Setup() --- this is used by the calling program to supply the current set of
 function parameters (including the $(x_{0},y_{0})$ pixel values for the center) prior
 to determining intensity values for individual pixels. This
@@ -1037,9 +1044,12 @@ the short version of the class name as a string.
 
 The new class should also redefine the following internal class constants:
 \begin{itemize}
-\item \texttt{N\_PARAMS};
-\item \texttt{PARAM\_LABELS};
-\item \texttt{FUNCTION\_NAME}.
+\item \texttt{N\_PARAMS} --- the number of input parameters (\textit{excluding} the
+central pixel coordinates);
+\item \texttt{PARAM\_LABELS} --- an array of string labels for the input parameters;
+\item \texttt{FUNCTION\_NAME} --- a short string describing the function;
+\item \texttt{className} --- a string (no spaces allowed) giving the official name
+of the function.
 \end{itemize}
 
 The \texttt{add\_functions.cpp} file should then be updated by:
@@ -1565,18 +1575,6 @@ the radial profile and the generalized sech function of \citet{vdk88}
 for the vertical profile. The position angle parameter (PA) describes the angle of
 the disk plane; there is no ellipticity parameter.
 
-% *      Sigma(r,z) = I_0 * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
-% *
-% *    with Sigma(0,0) = 2 * h * I_0
-% *
-% *   This should corresponds to a face-on disk with:
-% *      Sigma(r) = Sigma(0,0) * exp(-r/h)
-% *   although this is guaranteed to be true only for alpha = 2 [i.e., that is
-% * the most direct match to van der Kruit & Searle 1981]
-% *
-% *   Note that for the case of a sech^2 vertical profile (alpha = 2), our z0
-% * is 1/2 of the usual z0 in e.g. van der Kruit & Searle (1981).
-
 In a coordinate system aligned with the edge-on disk, the intensity at radius $r$ from 
 the central axis (in the direction parallel to the galaxy plane) and
 at height $z$ from the midplane is given by
@@ -1595,9 +1593,12 @@ internally.
 
 When $\alpha = 2$, this reduces to the familiar $\mathrm{sech}^2$ model for the
 vertical distribution of a disk (with $z_{0}$ corresponding to $1/2$ of the
-$z_0$ in the original definition of \citet{vdk81}). When $\alpha = \infty$, the
-vertical distribution becomes exponential; in practice, you can approximate this
-by setting $\alpha$ equal to some fixed, large number.
+$z_0$ in the original definition of \citet{vdk81}). As $\alpha \rightarrow 0$,
+the vertical distribution approaches an exponential with $\exp(-z/z_{0})$; in
+practice, you can approximate this by setting $\alpha$ equal to some fixed, very
+small number (setting $\alpha = 0$ will produce division-by-zero
+errors).\footnote{The parameter $\alpha$ corresponds to $2/n$ in the original
+formulation of \citet{vdk88}.}
 
 Note that this particular function requires that the GNU Scientific Library
 (GSL) be installed; if the GSL is not installed, \imfit{} should be compiled
@@ -1694,7 +1695,7 @@ Major inspirations for \Imfit{} include both GALFIT \citep{peng02,peng10} and
 BUDDA \citep{desouza04,gadotti08}.
 
 Thanks also to Michael Opitsch and Michael Williams for being (partly unwitting)
-beta testers, and for their feedback, to Martin Kuemmel for suggestion
+beta testers and for their feedback, to Martin Kuemmel for suggestion
 an improvement (and finding a related bug), to Roberto Saglia for urging me
 to implement the Core-S{\'e}rsic function, and to Maximilian Fabricius for suggesting
 improvements to the documentation.

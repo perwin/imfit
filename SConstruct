@@ -288,10 +288,12 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
 if useGSL:
 	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"
-	functionobject_obj_string += " func_expdisk3d func_gaussianring3d integrator"
+	functionobject_obj_string += " func_expdisk3d integrator"
 if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
+	if useGSL:
+		functionobject_obj_string += " func_gaussianring3d"
 
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]

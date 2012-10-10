@@ -13,18 +13,21 @@
  *
  *   This should corresponds to a face-on disk with:
  *      Sigma(r) = mu_0 * exp(-r/h)
- *    where mu_0 = 2 * z0 * L_0
+ *   where mu_0 = 2 * z0 * L_0
  *   although this is guaranteed to be true only for alpha = 2 [i.e., that is
  * the most direct match to van der Kruit & Searle 1981]
  *
  *   Note that for the case of a sech^2 vertical profile (alpha = 2), our z0
  * is 1/2 of the usual z0 in e.g. van der Kruit & Searle (1981).
  *
+ *   The main notational change from van der Kruit's original version is that
+ * our alpha = his n/2
+ *
  *   TO-DO:
  *      [] SPECULATIVE: have an option where alpha = 0 invokes calculation of
  * z-profile with exact exponential calculation (note that for continuity,
  * we need to keep using z0 and have it correspond to the correct exponential
- * calculation; see van der Kruit 9188).
+ * calculation; see van der Kruit 1988).
  *
  *   
  *   BASIC IDEA:
