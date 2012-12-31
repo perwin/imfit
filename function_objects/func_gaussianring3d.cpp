@@ -1,9 +1,11 @@
 /* FILE: func_gaussianring3d.cpp -------------------------------------- */
-/* VERSION 0.1
+/* VERSION 0.2
  *
- *   Experimental function object class for a circular 3D ring (luminosity
- * density = Gaussian centered at r0 with width sigma and vertical exponential with
- * scale heigh h_z), seen at position angle PA and inclination inc.
+ *   Experimental function object class for an elliptical 3D ring (luminosity
+ * density = Gaussian centered at radius a_ring along major axis, with width sigma 
+ * and vertical exponential with scale heigh h_z); ring has intrinsic (in-plane) 
+ * ellipticity ell and position angle PA_ring w.r.t. to line of nodes; system is 
+ * seem with line of nodes at angle PA (w.r.t. image +y axis) and inclination inc.
  *   
  *   BASIC IDEA:
  *      Setup() is called as the first part of invoking the function;
@@ -19,6 +21,7 @@
  * convert it to radians] relative to +x axis.
  *
  *   MODIFICATION HISTORY:
+ *     [v0.2]: 21 Oct 2012: Modified from circular to elliptical ring shape.
  *     [v0.1]: 24 Aug 2012: Created (as modification of func_exp3d.cpp).
  */
 
@@ -40,8 +43,8 @@
 using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
-const int   N_PARAMS = 6;
-const char  PARAM_LABELS[][20] = {"PA", "inc", "I_0", "R_0", "sigma", "h_z"};
+const int   N_PARAMS = 8;
+const char  PARAM_LABELS[][20] = {"PA", "inc", "PA_ring", "ell", "J_0", "a_ring", "sigma", "h_z"};
 const char  FUNCTION_NAME[] = "GaussianRing3D function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -86,27 +89,40 @@ GaussianRing3D::GaussianRing3D( )
 
 void GaussianRing3D::Setup( double params[], int offsetIndex, double xc, double yc )
 {
+  double  PA_rad, inc_rad, ringPA_rad;
+  
   x0 = xc;
   y0 = yc;
   PA = params[0 + offsetIndex];
   inclination = params[1 + offsetIndex];
-  I_0 = params[2 + offsetIndex ];
-  R_0 = params[3 + offsetIndex ];
-  sigma = params[4 + offsetIndex ];
-  h_z = params[5 + offsetIndex ];
+  ringPA = params[2 + offsetIndex];
+  ell = params[3 + offsetIndex];
+  J_0 = params[4 + offsetIndex ];
+  a_ring = params[5 + offsetIndex ];
+  sigma = params[6 + offsetIndex ];
+  h_z = params[7 + offsetIndex ];
 
   // pre-compute useful things for this round of invoking the function
+  q = 1.0 - ell;
   // convert PA to +x-axis reference
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
+  
+  // bar PA rotations are computed relative to +y axis; convert to +x-axis reference
+  ringPA_rad = (ringPA + 90.0) * DEG2RAD;
+  cosRingPA = cos(ringPA_rad);
+  sinRingPA = sin(ringPA_rad);
+  
   inc_rad = inclination * DEG2RAD;
   cosInc = cos(inc_rad);
   sinInc = sin(inc_rad);
-  //tanInc = tan(inc_rad);
-  
-  // Don't try doing the following here; it make the whole thing ~ 4 times slower!
-  //integLimit = INTEGRATION_MULTIPLIER * h;
+
+  twosigma_squared = 2.0 * sigma*sigma;
+
+  // We could do this here using integLimit as a class data member, but it tends
+  // to be marginally slower this way
+//  integLimit = INTEGRATION_MULTIPLIER * a_ring;
 }
 
 
@@ -118,7 +134,7 @@ double GaussianRing3D::GetValue( double x, double y )
   double  y_diff = y - y0;
   double  xp, yp, x_d0, y_d0, z_d0, totalIntensity, error;
   double  integLimit;
-  double  xyParameters[9];
+  double  xyParameters[13];
   int  nSubsamples;
   int  nEvals;
   
@@ -139,19 +155,18 @@ double GaussianRing3D::GetValue( double x, double y )
   xyParameters[2] = z_d0;
   xyParameters[3] = cosInc;
   xyParameters[4] = sinInc;
-  xyParameters[5] = I_0;
-  xyParameters[6] = R_0;
-  xyParameters[7] = sigma;
-  xyParameters[8] = h_z;
+  xyParameters[5] = cosRingPA;
+  xyParameters[6] = sinRingPA;
+  xyParameters[7] = q;
+  xyParameters[8] = J_0;
+  xyParameters[9] = a_ring;
+  xyParameters[10] = sigma;
+  xyParameters[11] = h_z;
+  xyParameters[12] = twosigma_squared;
   F.params = xyParameters;
 
   // integrate out to +/- integLimit, which is multiple of ring radius
-  // (NOTE: it seems like it would be faster to precalculate integLimit in the
-  // Setup() call above; for some reason doing it that way makes the whole thing
-  // take ~ 4 times longer!)
-  integLimit = INTEGRATION_MULTIPLIER * R_0;
-//  printf("x,y = %f,%f; x_d0,y_d0,z_d0 = %f,%f,%f; cosInc,sinInc = %f,%f\n",
-//  	x,y, x_d0,y_d0,z_d0, cosInc,sinInc);
+  integLimit = INTEGRATION_MULTIPLIER * a_ring;
   totalIntensity = Integrate(F, -integLimit, integLimit);
 
   return totalIntensity;
@@ -172,30 +187,44 @@ double GaussianRing3D::GetValue( double x, double y )
  */ 
 double LuminosityDensityRing( double s, void *params )
 {
-  double  y_d, z_d, z, R, deltaR, exponent, lumDensity;
+  double  y_d, z_d, R, deltaR, lumDensity;
+  double  x_ring, y_ring, z_ring, y_ring_scaled;
   double  *paramsVect = (double *)params;
-  double x_d0 = paramsVect[0];
-  double y_d0 = paramsVect[1];
-  double z_d0 = paramsVect[2];
-  double cosInc = paramsVect[3];
-  double sinInc = paramsVect[4];
-  double I_0 = paramsVect[5];
-  double R_0 = paramsVect[6];
-  double sigma = paramsVect[7];
-  double h_z = paramsVect[8];
+  double  x_d0 = paramsVect[0];
+  double  y_d0 = paramsVect[1];
+  double  z_d0 = paramsVect[2];
+  double  cosInc = paramsVect[3];
+  double  sinInc = paramsVect[4];
+  double  cosRingPA = paramsVect[5];
+  double  sinRingPA = paramsVect[6];
+  double  q = paramsVect[7];
+  double  J_0 = paramsVect[8];
+  double  a_ring = paramsVect[9];
+  double  sigma = paramsVect[10];
+  double  h_z = paramsVect[11];
+  double  twosigma_squared = paramsVect[12];
   
-  // Given s and the pre-defined parameters, determine our 3D location (x_d,y_d,z_d)
-  // [by construction, x_d = x_d0]
+  // Given current value of s and the pre-defined parameters, determine our 
+  // 3D location (x_d,y_d,z_d) [by construction, x_d = x_d0]
   y_d = y_d0 + s*sinInc;
   z_d = z_d0 - s*cosInc;
   
-  // Convert 3D Cartesian coordinate to R,z coordinate
-  R = sqrt(x_d0*x_d0 + y_d*y_d);
-  z = fabs(z_d);
+  // Convert 3D Cartesian coordinate to rotated x_ring,y_ring,z_ring coordinate,
+  // where x_ring is along ring major axis
+  x_ring = x_d0*cosRingPA + y_d*sinRingPA;
+  y_ring = -x_d0*sinRingPA + y_d*cosRingPA;
+  z_ring = fabs(z_d);
   
-  deltaR = R - R_0;
-  exponent = deltaR/sigma;
-  lumDensity = I_0 * exp(-exponent*exponent) * exp(-z/h_z);
+  // NOTE: FOR A CONSTANT-WIDTH RING (i.e., where sigma does *not* scale with ellipticity),
+  // we could: scale *a_ring* and compute R without scaling...
+  // OR: proceed as normal, but rescale sigma to account for ellipticity...
+  
+  // Convert x_ring,y_ring to scaled radius R
+  y_ring_scaled = y_ring/q;
+  R = sqrt(x_ring*x_ring + y_ring_scaled*y_ring_scaled);
+
+  deltaR = R - a_ring;
+  lumDensity = J_0 * exp(-deltaR*deltaR/twosigma_squared) * exp(-z_ring/h_z);
   return lumDensity;
 }
 

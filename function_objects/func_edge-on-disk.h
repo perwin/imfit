@@ -1,13 +1,12 @@
 /*   Class interface definition for func_edge-on-disk.cpp
- *   VERSION 0.1
+ *   VERSION 0.3
  *
- *   Highly experimental class (derived from FunctionObject; function_object.h)
- * which produces a generalized edge-on exponential disk, using Bessel-function
- * solution (van der Kruit & Searle 1981) for radial profile and generalized
- * sech function (van der Kruit 1988) for vertical profile.  My version of this
- * looks like the following (Sigma = surface brightness in counts/pixel):
+ *   Class derived from FunctionObject (function_object.h/cpp) which produces
+ * surface brightnesses for a generalized edge-on exponential disk, using 
+ * Bessel-function solution of van der Kruit & Searle (1981) for radial profile 
+ * and generalized sech function (van der Kruit 1988) for vertical profile:
  *
- *      Sigma(r,z) = Sigma(0,) * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
+ *      Sigma(r,z) = Sigma(0,) * (r/h) * K_1(r/h) * sech^(2/n)(n*z/(2*z0))
  *
  *    with Sigma(0,0) = 2 * h * L_0
  *
@@ -17,7 +16,7 @@
  * PA = params[0 + offsetIndex];   -- PA of component, rel. to +y axis
  * L_0 = params[1 + offsetIndex ]; -- intensity scaling (ADU/pix)
  * h = params[2 + offsetIndex ];   -- radial exp. scale length (pixels)
- * alpha = params[3 + offsetIndex ];     -- exponent for sech vertical function
+ * n = params[3 + offsetIndex ];     -- exponent used in sech vertical function
  * z0 = params[4 + offsetIndex ] -- vertical scale height
  *
  *
@@ -54,7 +53,7 @@ class EdgeOnDisk : public FunctionObject
 
 
   private:
-    double  x0, y0, PA, L_0, h, alpha, z_0;   // parameters
+    double  x0, y0, PA, L_0, h, n, z_0;   // parameters
     double  PA_rad, cosPA, sinPA;   // other useful quantities
-    double  scaledZ0, Sigma_00;   // other useful quantities
+    double  alpha, scaledZ0, Sigma_00, two_to_alpha;   // other useful quantities
 };

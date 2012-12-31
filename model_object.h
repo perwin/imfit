@@ -41,7 +41,7 @@ class ModelObject
     
     // 1D only, but needs to be part of base interface
     virtual void AddDataVectors( int nDataValues, double *xValVector, 
-    						double *yValVector, bool magnitudeData );
+    						double *yValVector, bool magnitudeData ) { nDataVals = nDataValues; };
 
     // Probably 1D only, but might be usable by 2D version later...
     virtual void SetZeroPoint( double zeroPointValue );
@@ -58,10 +58,10 @@ class ModelObject
                          double *pixelVector, int inputType );
 
     // 1D only
-    virtual void AddErrorVector1D( int nDataValues, double *pixelVector, int inputType );
+    virtual void AddErrorVector1D( int nDataValues, double *pixelVector, int inputType ) { ; };
 
     // 1D only
-    virtual void AddMaskVector1D( int nDataValues, double *inputVector, int inputType );
+    virtual void AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { ; };
 
 		// 2D only
     virtual void GenerateErrorVector( double gain, double readNoise, double skyValue );
@@ -75,7 +75,7 @@ class ModelObject
                          double *psfPixels );
 
     // 1D only
-    virtual void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector );
+    virtual void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector ) { ; };
     
 		// 2D only [1D maybe needs something similar, but with diff. interface]
     virtual void ApplyMask( );
@@ -86,9 +86,6 @@ class ModelObject
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
-    // common, not specialized
-//    virtual void SetupChisquaredCalcs( );
-    
     // common, not specialized
     virtual double ChiSquared( double params[] );
     
@@ -156,13 +153,13 @@ class ModelObject
     double * GetSingleFunctionImage( double params[], int functionIndex );
 
     // 1D only
-    virtual int GetModelVector( double *profileVector );
+    virtual int GetModelVector( double *profileVector ) { return -1; };
 
     // 1D only
-    virtual void UseBootstrap( );
+    virtual void UseBootstrap( ) { ; };
     
     // 1D only
-    virtual void MakeBootstrapSample( );
+    virtual void MakeBootstrapSample( ) { ; };
     
     // Destructor
     virtual ~ModelObject();

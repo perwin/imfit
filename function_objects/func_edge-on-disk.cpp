@@ -1,30 +1,20 @@
 /* FILE: func_edge-on-disk.cpp ----------------------------------------- */
-/* VERSION 0.2
+/* VERSION 0.3
  *
- *   Highly experimental class (derived from FunctionObject; function_object.h)
- * which produces a generalized edge-on exponential disk, using Bessel-function
- * solution (van der Kruit & Searle 1981) for radial profile and generalized
- * sech function (van der Kruit 1988) for vertical profile.  My version of this
- * looks like the following (Sigma = surface brightness in counts/pixel):
+ *   Class derived from FunctionObject (function_object.h/cpp) which produces
+ * surface brightnesses for a generalized edge-on exponential disk, using 
+ * Bessel-function solution of van der Kruit & Searle (1981) for radial profile 
+ * and generalized sech function (van der Kruit 1988) for vertical profile:
  *
- *      Sigma(r,z) = Sigma(0,0) * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
+ *      Sigma(r,z) = Sigma(0,) * (r/h) * K_1(r/h) * sech^(2/n)(n*z/(2*z0))
  *
  *    with Sigma(0,0) = 2 * h * L_0
  *
- *   This should corresponds to a face-on disk with:
- *      Sigma(r) = mu_0 * exp(-r/h)
- *   where mu_0 = 2 * z0 * L_0
- *   although this is guaranteed to be true only for alpha = 2 [i.e., that is
- * the most direct match to van der Kruit & Searle 1981]
- *
- *   Note that for the case of a sech^2 vertical profile (alpha = 2), our z0
+ *   Note that for the case of a sech^2 vertical profile (n = 1), our z0
  * is 1/2 of the usual z0 in e.g. van der Kruit & Searle (1981).
  *
- *   The main notational change from van der Kruit's original version is that
- * our alpha = his n/2
- *
  *   TO-DO:
- *      [] SPECULATIVE: have an option where alpha = 0 invokes calculation of
+ *      [] SPECULATIVE: have an option where n > SOME_LARGE_NUMBER invokes calculation of
  * z-profile with exact exponential calculation (note that for continuity,
  * we need to keep using z0 and have it correspond to the correct exponential
  * calculation; see van der Kruit 1988).
@@ -44,6 +34,9 @@
  * convert it to radians] relative to +x axis.
  *
  *   MODIFICATION HISTORY:
+ *     [v0.3]  28 Oct 2012: Changed input parameters to use n instead of alpha,
+ * to better match original van der Kruit specification; internally, we still
+ * use alpha = 2/n.
  *     [v0.2]  25 Sept: Corrected calculation of r to be actual cylindrical
  * radius; changed xp and z_perp to R and z; updated subsample calculations
  * to incorporate z-dependence as well as r-dependence.
@@ -65,7 +58,7 @@ using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 5;
-const char  PARAM_LABELS[][20] = {"PA", "L_0", "h", "alpha", "z_0"};
+const char  PARAM_LABELS[][20] = {"PA", "L_0", "h", "n", "z_0"};
 const char  FUNCTION_NAME[] = "Edge-on Disk function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -102,7 +95,7 @@ void EdgeOnDisk::Setup( double params[], int offsetIndex, double xc, double yc )
   PA = params[0 + offsetIndex];
   L_0 = params[1 + offsetIndex ];
   h = params[2 + offsetIndex ];
-  alpha = params[3 + offsetIndex ];
+  n = params[3 + offsetIndex ];
   z_0 = params[4 + offsetIndex ];
 
   // pre-compute useful things for this round of invoking the function
@@ -111,6 +104,7 @@ void EdgeOnDisk::Setup( double params[], int offsetIndex, double xc, double yc )
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
 
+  alpha = 2.0/n;
   scaledZ0 = alpha*z_0;
   Sigma_00 = 2.0*h*L_0;
 }

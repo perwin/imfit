@@ -158,17 +158,6 @@ void ModelObject::DefineFunctionSets( vector<int>& functionStartIndices )
 
 
 
-/* ---------------- PUBLIC METHOD: AddDataVectors --------------------- */
-
-void ModelObject::AddDataVectors( int nDataValues, double *xValVector, double *yValVector,
-																	bool magnitudeData )
-{
-  // Just a placeholder for now (needs to be modified & overridden in derived
-  // class ModelObject1D
-  nDataVals = nDataValues;
-}
-
-
 /* ---------------- PUBLIC METHOD: SetZeroPoint ----------------------- */
 
 void ModelObject::SetZeroPoint( double zeroPointValue )
@@ -269,28 +258,6 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
     exit(-1);
   }
 }
-
-
-/* ---------------- PUBLIC METHOD: AddErrorVector1D -------------------- */
-// This is a stub function; it is meant to be properly defined in the derived
-// class ModelObject1d
-void ModelObject::AddErrorVector1D( int nDataValues, double *inputVector,
-                                      int inputType )
-{
-  ;
-}
-
-
-
-/* ---------------- PUBLIC METHOD: AddMaskVector1D --------------------- */
-// This is a stub function; it is meant to be properly defined in the derived
-// class ModelObject1d
-void ModelObject::AddMaskVector1D( int nDataValues, double *inputVector,
-                                      int inputType )
-{
-  ;
-}
-
 
 
 /* ---------------- PUBLIC METHOD: GenerateErrorVector ----------------- */
@@ -428,15 +395,6 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
   psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
   psfConvolver->SetMaxThreads(maxRequestedThreads);
   doConvolution = true;
-}
-
-
-/* ---------------- PUBLIC METHOD: AddPSFVector1D ---------------------- */
-// This is a stub function; it is meant to be properly defined in the derived
-// class ModelObject1d
-void ModelObject::AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector )
-{
-  ;
 }
 
 
@@ -644,7 +602,8 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding
-    // pixels in data and weight images
+    // pixels in data and weight images (excluding the outer borders which are only
+    // for ensuring proper PSF convolution)
     for (z = 0; z < nDataVals; z++) {
       iDataRow = z / nDataColumns;
       iDataCol = z - iDataRow*nDataColumns;
@@ -658,22 +617,8 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
       yResults[z] = nCombined_sqrt * weightVector[z] * (dataVector[z] - modelVector[z]);
     }
   }
-//   for (int z = 0; z < nDataVals; z++) {
-//     yResults[z] = nCombined_sqrt * weightVector[z] * (dataVector[z] - modelVector[z]);
 
 }
-
-
-/* ---------------- PUBLIC METHOD: SetupChisquaredCalcs ---------------- */
-/* Function which tells object to prepare for making chi-square calculations
- * (i.e., allocate memory for self-stored deviates vector).
- */
-// void ModelObject::SetupChisquaredCalcs( )
-// {
-//   deviatesVector = (double *) malloc(nDataVals * sizeof(double));
-//   doChisquared = true;
-// }
-
 
 
 /* ---------------- PUBLIC METHOD: ChiSquared -------------------------- */
@@ -807,7 +752,7 @@ void ModelObject::PrintInputImage( )
 {
 
   if (! dataValsSet) {
-    printf("* ModelObject: No image data supplied!\n\n");
+    printf("* ModelObject::PrintInputImage -- No image data supplied!\n\n");
     return;
   }
   printf("The whole input image, row by row:\n");
@@ -822,7 +767,7 @@ void ModelObject::PrintModelImage( )
 {
 
   if (! modelImageComputed) {
-    printf("* ModelObject: Model image has not yet been computed!\n\n");
+    printf("* ModelObject::PrintMoelImage -- Model image has not yet been computed!\n\n");
     return;
   }
   printf("The model image, row by row:\n");
@@ -836,7 +781,7 @@ void ModelObject::PrintWeights( )
 {
 
   if (! weightValsSet) {
-    printf("* ModelObject: Weight vector has not yet been computed!\n\n");
+    printf("* ModelObject::PrintWeights -- Weight vector has not yet been computed!\n\n");
     return;
   }
   printf("The weight image, row by row:\n");
@@ -912,7 +857,7 @@ double * ModelObject::GetModelImageVector( )
   int  iDataRow, iDataCol, z, zModel;
 
   if (! modelImageComputed) {
-    printf("* ModelObject: Model image has not yet been computed!\n\n");
+    printf("* ModelObject::GetModelImageVector -- Model image has not yet been computed!\n\n");
     return NULL;
   }
   
@@ -944,7 +889,7 @@ double * ModelObject::GetExpandedModelImageVector( )
 {
 
   if (! modelImageComputed) {
-    printf("* ModelObject: Model image has not yet been computed!\n\n");
+    printf("* ModelObject::GetExpandedModelImageVector -- Model image has not yet been computed!\n\n");
     return NULL;
   }
   return modelVector;
@@ -958,7 +903,7 @@ double * ModelObject::GetResidualImageVector( )
   int  iDataRow, iDataCol, z, zModel;
 
   if (! modelImageComputed) {
-    printf("* ModelObject: Model image has not yet been computed!\n\n");
+    printf("* ModelObject::GetResidualImageVector -- Model image has not yet been computed!\n\n");
     return NULL;
   }
   
@@ -993,7 +938,7 @@ double * ModelObject::GetResidualImageVector( )
 double * ModelObject::GetWeightImageVector( )
 {
   if (! weightValsSet) {
-    printf("* ModelObject: Weight image has not yet been computed!\n\n");
+    printf("* ModelObject::GetWeightImageVector -- Weight image has not yet been computed!\n\n");
     return NULL;
   }
   
@@ -1050,36 +995,6 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
 
   return totalModelFlux;
 }
-
-
-/* ---------------- PUBLIC METHOD: GetModelVector ---------------------- */
-// This is a stub function; it is meant to be properly defined in the derived
-// class ModelObject1d
-int ModelObject::GetModelVector( double *profileVector )
-{
-  ;
-}
-
-
-
-/* ---------------- PUBLIC METHOD: UseBootstrap ------------------------ */
-// This is a stub function; it is meant to be properly defined in the derived
-// class ModelObject1d
-void ModelObject::UseBootstrap( )
-{
-  ;
-}
-
-
-
-/* ---------------- PUBLIC METHOD: MakeBootstrapSample ----------------- */
-// This is a stub function; it is meant to be properly defined in the derived
-// class ModelObject1d
-void ModelObject::MakeBootstrapSample( )
-{
-  ;
-}
-
 
 
 /* ---------------- PROTECTED METHOD: CheckParamVector ----------------- */

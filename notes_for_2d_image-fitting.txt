@@ -194,9 +194,72 @@ QUESTIONS AND ISSUES:
 		and past into main image.
 		-- does GALFIT do something like this?
 		
+		Issues/things to think about:
+			-- Secondary stage to apply CTE or similar pixel diffusion kernel,
+			after resampling to original pixel scale?
+			-- Need to translate pixel coordinates to subsampled grid -- look at
+			current pixel-subsampling code in function objects...
+			-- Do we need to rescale things like pixel sizes (prob. not -- we just
+			work with same pixel dimensions on a smaller subgrid, as we do for
+			pixel subsampling)
+			-- Do we need to rescale intensities (counts/pixel, etc.)?
+				-- current pixel subsampling just divides by number of subpixels
+				to normalize; we can probably do the same (i.e., sum up the subpixels
+				to form a final original pixel, then divide by number of subpixels)
+			
+			-- Need separate subimage model vector (but not error, weight, mask, etc.)
+			-- Need separate subsampled PSF image vector
+			-- Need separate Convolver component
+			
+			-- Insert code into ModelImage::CreateModelImage *just* before end of
+			current code (so we do all the normal image creation & convolution first,
+			and then replace the central NxM pixels with the rebinned subset)
+		
+			-- command-line option to specify region to oversample and oversampled PSF
+			to use, along with oversampling factor
+			-- optional CTE diffusion kernel
+			-- possible extreme scenarios:
+				1. Do oversampled PSF on central region + *no* PSF convolution for rest of image
+				2. Do entire image with oversampled PSF
+					-- This requires *skipping* the normal image creation!
+		
+		-- Possible future architecture: plug-ins for post-convolution processing
+			e.g., after convolution, an optional stage where one (or more?) functions
+			is called (or objects which get passed the image as input) which can perform user-specified
+			post-processing (such as applying a CTE kernel)
+				-- need to allow user to specify which plug-in to use
+					-- command-line option? line in main config file?
+				-- need to figure out how to allow user to specify input information
+				for their plug-in: special configuration file? (this would require
+				config-file option-parsing code in the plug-in, which is probably OK)
+				-- if more than one plug-in: main program builds up list of miscellaneous 
+				configuration files, and then queries each of the user-specified plug-ins whether
+			-- Could also replace our current convolution architecture with a more plug-in-style
+			approach, so that the user to could specify standard single-PSF convolution *or*
+			some kind of spatially-varying PSF approach
+		
+		-- Post-convolution processing: CTE, etc.
+			One major form of post-convolution processing would be incorporating the effects
+			of CTE (charge-transfer efficiency) for CCDs or IPC (interpixel capacitance) for
+			IR arrays
+			
+			Really complicated examples would account for geometric distortion correctsions, etc.
+			E.g.: convolution (with spatially varying PSF?) at image plane, then CTE/IPC
+			effects, then geometric-distortion correction (e.g., HST's ACS and WFC3)
+		
 		[] Test spline-subsampling of PSF by comparing result of subsampling
 		TinyTim standard-sampled PSF to TinyTim-generated subampled PSF
 
+
+	[] Spatially varying PSFs and other exotica
+		Hartung+2012, "GPU Acceleration of Image Convolution using Spatially-varying Kernel"
+		http://arxiv.org/abs/1209.5823
+		-- Notes that convolution via FFTs *cannot* be done when PSF is spatially varying
+		
+		C. Alard, "Image subtraction using a space-varying kernel," Astron. Astrophys. Suppl. Ser., vol. 144, pp. 363-370, 2000.
+		C. Alard and R. H. Lupton, "A Method for Optimal Image Subtraction," The Astrophysical Journal, p. 325, 1998.
+		J. P. Miller, et al., "Optimal Image Subtraction Method: Summary Derivations, Applications, and Publicly Shared Application Using IDL," Publications of the Astronomical Society of the Pacific, vol. 120, pp. 449-464, 2008.
+		
 
 
 	[] Create a subclass of FunctionObject which includes pixel-subsampling
@@ -725,6 +788,10 @@ Conceptually, there are *two* general modes:
 	and low-res image of entire object); all parameter values should be the
 	same for all image, modulo pixel-scales, rotation offsets, and zero-point
 	differences
+		A. Images on different scales, etc. (HST vs ground-based)
+		B. Multiple exposures using same camera+filters -- gets around issues
+		such as noise correlation introduced by coaddition (possible approaches being
+		debated by LSST, EUCLID; apparently some lensing studies do this)
 	2. Fit two or more images in *different* filters (e.g., ugriz SDSS images);
 	in this case, some parameters *should* differ (intensity, scale lengths),
 	but others might not [ACTUALLY, I'M NOT SURE WHY THIS NEEDS TO BE A

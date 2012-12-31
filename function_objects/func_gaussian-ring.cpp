@@ -1,8 +1,8 @@
-/* FILE: gaussian-on-ring.cpp ------------------------------------------ */
+/* FILE: func_gaussian-ring.cpp ---------------------------------------- */
 /* VERSION 0.1
  *
- *   Highly experimental class (derived from FunctionObject; function_object.h)
- * which produces an elliptical ring with a Gaussian profile.
+ *   Class derived from FunctionObject; function_object.h) which produces an elliptical 
+ * ring with a Gaussian profile.
  *
  *   
  *   BASIC IDEA:
@@ -88,11 +88,8 @@ void GaussianRing::Setup( double params[], int offsetIndex, double xc, double yc
 
 
 /* ---------------- PRIVATE METHOD: CalculateIntensity ----------------- */
-// This function calculates the intensity for an edge-on ring 2D function, at
-// cylindrical radius r (along the major-axis of the component) and height z 
-// (perpendicular to the major-axis of the component).
-// NOTE: This function requires that z be *non-negative*!
-// input r is assumed to always be positive
+// This function calculates the intensity for a 1-D Gaussian function with
+// center = R_ring at position r.
 double GaussianRing::CalculateIntensity( double r )
 {
   double  I;
@@ -161,4 +158,4 @@ int GaussianRing::CalculateSubsamples( double r )
 
 
 
-/* END OF FILE: gaussian-on-ring.cpp ----------------------------------- */
+/* END OF FILE: func_gaussian-ring.cpp --------------------------------- */

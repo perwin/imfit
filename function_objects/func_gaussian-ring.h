@@ -1,8 +1,8 @@
 /*   Class interface definition for func_gaussian-ring.cpp
  *   VERSION 0.1
  *
- *   Highly experimental class (derived from FunctionObject; function_object.h)
- * which produces an elliptical ring with a Gaussian profile.
+ *   Class (derived from FunctionObject; function_object.h) which produces an elliptical 
+ * ring with a Gaussian profile.
  *
  * PARAMETERS:
  * x0 = xc;   -- center of component (pixels, x)

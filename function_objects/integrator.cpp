@@ -10,13 +10,18 @@
  * inclination >~ 55 deg, though i = 90 worked).
  * Conclusion: safer to stick with gsl_integration_qags and do finite integration
  * to +/- large_number (s1 and s2).
-*/
+ *
+ * NOTE: Trial change of LIMIT_SIZE from 1000 to 10000, or RELATIVE_TOL from 1.0e-6 to
+ * 1.0e-5, had no effect on integration failures for edges of moderately inclined 
+ * Ferrers bar, so not much reason to change them.
+ */
  
 //#include <math.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
 #include "integrator.h"
 
+#define LIMIT_SIZE   1000
 #define RELATIVE_TOL  1.0e-6
 
 double  Integrate( gsl_function F, double s1, double s2 )
@@ -27,9 +32,9 @@ double  Integrate( gsl_function F, double s1, double s2 )
   
   // allocate and free the workspace object here (referencing it with a local
   // variable) to ensure thread safety
-  workspace = gsl_integration_workspace_alloc(1000);
+  workspace = gsl_integration_workspace_alloc(LIMIT_SIZE);
 //  gsl_integration_qagi(&F, 0, 1e-6, 1000, workspace, &result, &error);
-  status = gsl_integration_qags(&F, s1, s2, 0, RELATIVE_TOL, 1000, workspace, &result, &error);
+  status = gsl_integration_qags(&F, s1, s2, 0, RELATIVE_TOL, LIMIT_SIZE, workspace, &result, &error);
   gsl_integration_workspace_free(workspace);
   
   return result;
