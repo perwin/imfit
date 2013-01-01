@@ -1,0 +1,180 @@
+/* FILE: nmsimplex_fit.cpp ----------------------------------------------- */
+
+// * Return values from nlopt library:
+// NLOPT_SUCCESS = 1
+// Generic success return value.
+// NLOPT_STOPVAL_REACHED = 2
+// Optimization stopped because stopval (above) was reached.
+// NLOPT_FTOL_REACHED = 3
+// Optimization stopped because ftol_rel or ftol_abs (above) was reached.
+// NLOPT_XTOL_REACHED = 4
+// Optimization stopped because xtol_rel or xtol_abs (above) was reached.
+// NLOPT_MAXEVAL_REACHED = 5
+// Optimization stopped because maxeval (above) was reached.
+// NLOPT_MAXTIME_REACHED = 6
+// Optimization stopped because maxtime (above) was reached.
+// [edit]
+// Error codes (negative return values)
+// NLOPT_FAILURE = -1
+// Generic failure code.
+// NLOPT_INVALID_ARGS = -2
+// Invalid arguments (e.g. lower bounds are bigger than upper bounds, an unknown algorithm was specified, etcetera).
+// NLOPT_OUT_OF_MEMORY = -3
+// Ran out of memory.
+// NLOPT_ROUNDOFF_LIMITED = -4
+// Halted because roundoff errors limited progress. (In this case, the optimization still typically returns a useful result.)
+// NLOPT_FORCED_STOP = -5
+// Halted because of a forced termination: the user called nlopt_force_stop(opt) on the optimization’s nlopt_opt object opt from the user’s objective function or constraints.
+
+
+// Note : the following are the default tolerance values we are currently using
+// in mpfitfun.cpp:
+//  conf.ftol = 1e-10;   [relative changes in chi^2]
+//  conf.xtol = 1e-10;   [relative changes in parameter values]
+
+#include <string>
+#include <sstream>
+#include <vector>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#include <nlopt.h>
+
+#include "model_object.h"
+#include "param_struct.h"   // for mp_par structure
+#include "nmsimplex_fit.h"
+
+const int  MAXEVAL_BASE = 10000;
+const double  FTOL = 1.0e-8;
+const double  XTOL = 1.0e-8;
+
+
+// Objective function: calculates the objective value (ignore gradient calculation)
+double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_data)
+{
+  ModelObject *theModel = (ModelObject *)my_func_data;
+  // following is a necessary kludge bcs theModel->ChiSquared() won't accept const double*
+  double  *params = (double *)x;
+  double  fitStatistic;
+  
+  fitStatistic = theModel->ChiSquared(params);
+	
+  return(fitStatistic);
+}
+
+
+
+void InterpretResult( nlopt_result  resultValue )
+{
+  string  description;
+  string  returnVal_str;
+  ostringstream converter;   // stream used for the conversion
+  
+  description = "Nelder-Mead Simplex status = ";
+  converter << resultValue;      // insert the textual representation of resultValue in the characters in the stream
+  description += converter.str();
+  
+  if (resultValue < 0) {
+    description += " -- ERROR:";
+    if (resultValue == -1)
+      description += " generic (unspecified) failure";
+    else if (resultValue == -2)
+      description += " invalid arguments!";
+    else if (resultValue == -3)
+      description += " ran out of memory";
+    else if (resultValue == -4)
+      description += " roundoff errors limited progress";
+    else if (resultValue == -5)
+      description += " forced termination called from objective function";
+  }
+  else if ((resultValue > 0) && (resultValue < 5)) {
+    description += " -- SUCCESS:";
+    if (resultValue == 1)
+      description += " generic (unspecified) success";
+    else if (resultValue == 2)
+      description += " minimum allowed fit statistic (stopval) reached";
+    else if (resultValue == 3)
+      description += " ftol_rel or ftol_abs reached";
+    else if (resultValue == 4)
+      description += " xtol or xtol_abs reached";
+  }
+  else if (resultValue == 5)
+    description += " -- FAILED: reached maximum number of function evaluations";
+  else if (resultValue == 6)
+    description += " -- FAILED: reached maximum time";
+
+  printf("%s\n", description.c_str());
+}
+
+
+
+int NMSimplexFix( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
+                  ModelObject *theModel, double ftol )
+{
+  nlopt_opt  optimizer;
+  nlopt_result  result;
+  int  maxEvaluations;
+  double  finalStatisticVal;
+  double  *minParamValues;
+  double  *maxParamValues;
+  bool  paramLimitsExist = true;
+  
+  minParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
+  maxParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
+
+  // Check for possible parameter limits
+  if (parameterLimits == NULL)
+    paramLimitsExist = false;
+  else {
+    for (int i = 0; i < nParamsTot; i++) {
+      // default state is to have no limits on a parameter
+      minParamValues[i] = -HUGE_VAL;
+      maxParamValues[i] = HUGE_VAL;
+      // check to see if user specified a fixed value for this parameter
+      if (parameterLimits[i].fixed == 1) {
+        minParamValues[i] = paramVector[i];
+        maxParamValues[i] = paramVector[i];
+      }
+      else if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[0] == 1)) {
+        // user specified parameter limits for this parameter
+        minParamValues[i] = parameterLimits[i].limits[0];
+        maxParamValues[i] = parameterLimits[i].limits[1];
+      }
+    }
+  }
+  
+  // Create an nlopt object, specifying Nelder-Mead Simplex algorithm
+  optimizer = nlopt_create(NLOPT_LN_NELDERMEAD, nParamsTot); /* algorithm and dimensionality */
+  
+  // Specify stopping conditions (desired tolerances, max # function calls)
+  // specify relative tolerance (same as ftol in mpfit.cpp)
+  nlopt_set_ftol_abs(optimizer, ftol);
+  // specify relative tolerance for all parameters
+  nlopt_set_xtol_abs1(optimizer, XTOL);
+  // maximum number of function calls (MAXEVAL_BASE * total number of parameters)
+  maxEvaluations = nParamsTot * MAXEVAL_BASE;
+  nlopt_set_maxeval(optimizer, maxEvaluations);
+  
+  // Set up the optimizer for minimization
+  nlopt_set_min_objective(optimizer, myfunc_nlopt, theModel);  
+  // Specify parameter boundaries, if they exist
+  if (paramLimitsExist) {
+    nlopt_set_lower_bounds(optimizer, minParamValues);
+    nlopt_set_upper_bounds(optimizer, maxParamValues);
+  }
+  
+  result = nlopt_optimize(optimizer, paramVector, &finalStatisticVal);
+  //double stopval = nlopt_get_stopval(optimizer);
+  InterpretResult(result);
+
+
+  // Dispose of nl_opt object and free arrays:
+  nlopt_destroy(optimizer);
+  free(minParamValues);
+  free(maxParamValues);
+  return 1;
+}
+
+
+/* END OF FILE: nmsimplex_fit.cpp ---------------------------------------- */

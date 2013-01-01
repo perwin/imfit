@@ -65,7 +65,7 @@ cflags_db = ["-Wall", "-g3"]
 base_defines = ["ANSI"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-lib_list = ["fftw3", "cfitsio", "m"]
+lib_list = ["fftw3", "cfitsio", "nlopt", "m"]
 # libraries needed for profilefit and psfconvolve1d compilation
 lib_list_1d = ["fftw3", "m"]
 
@@ -306,7 +306,7 @@ functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
 # Base files for imfit:
 imfit_base_obj_string = """commandline_parser utilities image_io mpfit diff_evoln_fit DESolver
-		config_file_parser add_functions print_results imfit_main"""
+		nmsimplex_fit config_file_parser add_functions print_results imfit_main"""
 imfit_base_objs = imfit_base_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 

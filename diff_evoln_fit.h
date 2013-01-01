@@ -9,8 +9,9 @@
 #include "model_object.h"
 
 
-int DiffEvolnFit(int nParamsTot, double *initialParams, mp_par *parameterLimits, 
-									ModelObject *theModel, int maxGenerations);
+int DiffEvolnFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
+									ModelObject *theModel, int maxGenerations,
+									double ftol );
 
 
 #endif  // _DIFF_EVOLN_FIT_H_

@@ -12,9 +12,9 @@
 
 // Various modifications by Peter Erwin, 5--16 April 2010
 //    We now include a convergence test:
-// we sample relative change in best chi^2 every ten generations; if the
-// relative change is < TOLERANCE (1e-10) for three samples in a row, we declare
-// convergence.
+// we sample relative change in best fit statistic (e.g., chi^2) every ten generations; 
+// if the relative change is < TOLERANCE (default = 1e-8) for three samples in a row, 
+// we declare convergence.
 
 
 #include <memory.h>
@@ -26,13 +26,13 @@
 #define RowVector(a,b)  (&a[b*nDim])
 #define CopyVector(a,b) memcpy((a),(b),nDim*sizeof(double))
 
-#define TOLERANCE  1.0e-10
+#define DEFAULT_TOLERANCE  1.0e-8
 
 
-bool TestConverged( double *relativeDeltas );
+bool TestConverged( double *relativeDeltas, double ftol );
 
 
-DESolver::DESolver(int dim, int popSize) :
+DESolver::DESolver( int dim, int popSize ) :
           nDim(dim), nPop(popSize),
           generations(0), strategy(stRand1Exp),
           scale(0.7), probability(0.5), bestEnergy(0.0),
@@ -48,6 +48,8 @@ DESolver::DESolver(int dim, int popSize) :
   oldValues = new double[nDim];
   minBounds = new double[nDim];
   maxBounds = new double[nDim];
+  // tolerance for convergence testing
+  tolerance = DEFAULT_TOLERANCE;
   
   return;
 }
@@ -69,14 +71,15 @@ DESolver::~DESolver(void)
 }
 
 
-void DESolver::Setup(double *min, double *max,
-            int deStrategy, double diffScale, double crossoverProb)
+void DESolver::Setup( double *min, double *max,
+            int deStrategy, double diffScale, double crossoverProb, double ftol )
 {
   int i;
 
   strategy = deStrategy;
   scale = diffScale;
   probability = crossoverProb;
+  tolerance = ftol;
   
   CopyVector(minBounds, min);
   CopyVector(maxBounds, max);
@@ -140,7 +143,7 @@ void DESolver::Setup(double *min, double *max,
 
 
 // Added by PE
-void DESolver::CalcTrialSolution(int candidate)
+void DESolver::CalcTrialSolution( int candidate )
 {
   switch (strategy)
   {
@@ -250,7 +253,7 @@ bool DESolver::Solve(int maxGenerations)
         relativeDeltas[2] = relativeDeltas[1];
         relativeDeltas[1] = relativeDeltas[0];
         relativeDeltas[0] = relativeDeltaEnergy;
-        if (TestConverged(relativeDeltas)) {
+        if (TestConverged(relativeDeltas, tolerance)) {
           generations = generation;
           bAtSolution = true;
           return(bAtSolution);
@@ -267,7 +270,7 @@ bool DESolver::Solve(int maxGenerations)
 }
 
 
-void DESolver::StoreSolution(double *theSolution)
+void DESolver::StoreSolution( double *theSolution )
 {
   for (int i = 0; i < nDim; i++)
     theSolution[i] = bestSolution[i];
@@ -275,7 +278,7 @@ void DESolver::StoreSolution(double *theSolution)
 
 
 
-void DESolver::Best1Exp(int candidate)
+void DESolver::Best1Exp( int candidate )
 {
   int r1, r2;
   int n;
@@ -295,7 +298,7 @@ void DESolver::Best1Exp(int candidate)
 }
 
 
-void DESolver::Rand1Exp(int candidate)
+void DESolver::Rand1Exp( int candidate )
 {
   int r1, r2, r3;
   int n;
@@ -315,7 +318,7 @@ void DESolver::Rand1Exp(int candidate)
 }
 
 
-void DESolver::RandToBest1Exp(int candidate)
+void DESolver::RandToBest1Exp( int candidate )
 {
   int r1, r2;
   int n;
@@ -335,7 +338,7 @@ void DESolver::RandToBest1Exp(int candidate)
 }
 
 
-void DESolver::Best2Exp(int candidate)
+void DESolver::Best2Exp( int candidate )
 {
   int r1, r2, r3, r4;
   int n;
@@ -357,7 +360,7 @@ void DESolver::Best2Exp(int candidate)
 }
 
 
-void DESolver::Rand2Exp(int candidate)
+void DESolver::Rand2Exp( int candidate )
 {
   int r1, r2, r3, r4, r5;
   int n;
@@ -379,7 +382,7 @@ void DESolver::Rand2Exp(int candidate)
 }
 
 
-void DESolver::Best1Bin(int candidate)
+void DESolver::Best1Bin( int candidate )
 {
   int r1, r2;
   int n;
@@ -400,7 +403,7 @@ void DESolver::Best1Bin(int candidate)
 }
 
 
-void DESolver::Rand1Bin(int candidate)
+void DESolver::Rand1Bin( int candidate )
 {
   int r1, r2, r3;
   int n;
@@ -421,7 +424,7 @@ void DESolver::Rand1Bin(int candidate)
 }
 
 
-void DESolver::RandToBest1Bin(int candidate)
+void DESolver::RandToBest1Bin( int candidate )
 {
   int r1, r2;
   int n;
@@ -442,7 +445,7 @@ void DESolver::RandToBest1Bin(int candidate)
 }
 
 
-void DESolver::Best2Bin(int candidate)
+void DESolver::Best2Bin( int candidate )
 {
   int r1, r2, r3, r4;
   int n;
@@ -465,7 +468,7 @@ void DESolver::Best2Bin(int candidate)
 }
 
 
-void DESolver::Rand2Bin(int candidate)
+void DESolver::Rand2Bin( int candidate )
 {
   int r1, r2, r3, r4, r5;
   int n;
@@ -488,8 +491,8 @@ void DESolver::Rand2Bin(int candidate)
 }
 
 
-void DESolver::SelectSamples(int candidate, int *r1, int *r2,
-                    int *r3, int *r4, int *r5)
+void DESolver::SelectSamples( int candidate, int *r1, int *r2, int *r3, int *r4, 
+								int *r5 )
 {
   if (r1) {
     do {
@@ -543,7 +546,7 @@ void DESolver::SelectSamples(int candidate, int *r1, int *r2,
 #define EPS 1.2e-7
 #define RNMX (1.0-EPS)
 
-double DESolver::RandomUniform(double minValue, double maxValue)
+double DESolver::RandomUniform( double minValue, double maxValue )
 {
   long j;
   long k;
@@ -606,10 +609,10 @@ double DESolver::RandomUniform(double minValue, double maxValue)
 // Function added by PE: test for convergence
 // If the last three stored delta-Chi^2 values (values are stored every 10
 // generations) are all < TOLERANCE, then we decide that we have converged.
-bool TestConverged( double *relativeDeltas )
+bool TestConverged( double *relativeDeltas, double ftol )
 {
-  if ((relativeDeltas[0] < TOLERANCE) && (relativeDeltas[1] < TOLERANCE) 
-      && (relativeDeltas[2] < TOLERANCE))
+  if ((relativeDeltas[0] < ftol) && (relativeDeltas[1] < ftol) 
+      && (relativeDeltas[2] < ftol))
     return true;
   else
     return false;

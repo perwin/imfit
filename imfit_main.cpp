@@ -28,8 +28,12 @@
 #include "function_object.h"
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
+
+// Solvers (optimization algorithms)
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
 #include "diff_evoln_fit.h"
+#include "nmsimplex_fit.h"
+
 #include "commandline_parser.h"
 #include "config_file_parser.h"
 #include "print_results.h"
@@ -38,7 +42,9 @@
 /* ---------------- Definitions & Constants ----------------------------- */
 #define MPFIT_SOLVER        1
 #define DIFF_EVOLN_SOLVER   2
+#define NMSIMPLEX_SOLVER    3
 
+#define DEFAULT_FTOL	1.0e-8
 #define MAX_DE_GENERATIONS	600
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
@@ -90,6 +96,8 @@ typedef struct {
   bool  nCombinedSet;
   double  originalSky;
   bool  originalSkySet;
+  double  ftol;
+  bool  ftolSet;
   char  modelName[MAXLINE];
   bool  noModel;
   char  paramString[MAXLINE];
@@ -212,6 +220,8 @@ int main(int argc, char *argv[])
   options.nCombinedSet = false;
   options.originalSky = 0.0;
   options.originalSkySet = false;
+  options.ftol = DEFAULT_FTOL;
+  options.ftolSet = false;
   options.noModel = true;
   options.noParamLimits = true;
   options.newParameters = false;
@@ -247,11 +257,11 @@ int main(int argc, char *argv[])
   }
 
   /* Get image data and sizes */
-  // Note that we rely on the cfitsio library to catch errors like nonexistent files
+  // (for this and other image-access, we rely on the cfitsio library to catch errors 
+  // like nonexistent files)
   printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
   allPixels = ReadImageAsVector(options.imageFileName, &nColumns, &nRows);
-  // Reminder: nColumns = n_pixels_per_row = x-size
-  // Reminder: nRows = n_pixels_per_column = y-size
+  // Reminder: nColumns = n_pixels_per_row = x-size; nRows = n_pixels_per_column = y-size
   nPixels_tot = nColumns * nRows;
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
            nColumns, nRows, nPixels_tot);
@@ -260,7 +270,6 @@ int main(int argc, char *argv[])
 
   /* Get and check mask image */
   if (options.maskImagePresent) {
-    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading mask image (\"%s\") ...\n", options.maskFileName.c_str());
     allMaskPixels = ReadImageAsVector(options.maskFileName, &nMaskColumns, &nMaskRows);
     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
@@ -275,7 +284,6 @@ int main(int argc, char *argv[])
            
   /* Get and check error image, if supplied */
   if (options.noiseImagePresent) {
-    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading noise image (\"%s\") ...\n", options.noiseFileName.c_str());
     allErrorPixels = ReadImageAsVector(options.noiseFileName, &nErrColumns, &nErrRows);
     errorPixels_allocated = true;
@@ -292,7 +300,6 @@ int main(int argc, char *argv[])
   
   /* Read in PSF image, if supplied */
   if (options.psfImagePresent) {
-    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
     psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
     nPixels_psf = nColumns_psf * nRows_psf;
@@ -308,7 +315,7 @@ int main(int argc, char *argv[])
 
   /* Create the model object */
   theModel = new ModelObject();
-  // Put limits on number of FFTW and OpenMP threads, if user requested it
+  // Put limits on number of FFTW and OpenMP threads, if requested by user
   if (options.maxThreadsSet)
     theModel->SetMaxThreads(options.maxThreads);
 
@@ -360,7 +367,7 @@ int main(int argc, char *argv[])
   
   /* START OF MINIMIZATION-ROUTINE-RELATED CODE */
   // Parameter limits and other info:
-  // OK, first we create a C-style array of mp_par structures, containing parameter constraints
+  // First we create a C-style array of mp_par structures, containing parameter constraints
   // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
   // by DiffEvolnFit (if called) and by PrintResults.  We also decrement nFreeParams for
   // each *fixed* parameter.
@@ -429,6 +436,8 @@ int main(int argc, char *argv[])
       mpfitResult.xerror = paramErrs;
       bzero(&mpConfig, sizeof(mpConfig));
       mpConfig.maxiter = 1000;
+      if (options.ftolSet)
+        mpConfig.ftol = options.ftol;
       if (options.verbose)
         mpConfig.verbose = 1;
       else
@@ -439,9 +448,17 @@ int main(int argc, char *argv[])
       PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
     }
-    else {
+    else if (options.solver == DIFF_EVOLN_SOLVER) {
       printf("\nCalling DiffEvolnFit ..\n");
-      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, MAX_DE_GENERATIONS);
+      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, 
+      						MAX_DE_GENERATIONS, options.ftol);
+      printf("\n");
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+    }
+    else if (options.solver == NMSIMPLEX_SOLVER) {
+      printf("\nCalling Nelder-Mead Simplex solver ..\n");
+      status = NMSimplexFix(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol);
       printf("\n");
       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
@@ -515,7 +532,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -c  --config <config-file>   configuration file");
   optParser->AddUsageLine("     --chisquare-only         Print chi^2 of input model and quit");
-  optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
@@ -532,6 +548,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --errors-are-variances   Indicates that values in noise image = variances (instead of sigmas)");
   optParser->AddUsageLine("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
   optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --ftol                   Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
+  optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
+  optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver instead of L-M");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of mpfit iteration updates");
   optParser->AddUsageLine("");
@@ -550,12 +570,13 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("list-parameters");
   optParser->AddFlag("printimage");
   optParser->AddFlag("chisquare-only");
-  optParser->AddFlag("de");
   optParser->AddFlag("use-headers");
   optParser->AddFlag("errors-are-variances");
   optParser->AddFlag("errors-are-weights");
   optParser->AddFlag("mask-zero-is-bad");
   optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("de");
+  optParser->AddFlag("nm");
   optParser->AddFlag("quiet");
   optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("mask");      /* an option (takes an argument), supporting only long form */
@@ -568,6 +589,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("gain");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("readnoise");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("ncombined");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("ftol");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("config", "c");
   optParser->AddOption("max-threads");      /* an option (takes an argument), supporting only long form */
 
@@ -620,6 +642,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("de")) {
   	printf("\t Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
+  }
+  if (optParser->FlagSet("nm")) {
+  	printf("\t Nelder-Mead simplex solver selected!\n");
+  	theOptions->solver = NMSIMPLEX_SOLVER;
   }
   if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;
@@ -717,6 +743,16 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->nCombined = atoi(optParser->GetTargetString("ncombined").c_str());
     theOptions->nCombinedSet = true;
     printf("\tn_combined = %d\n", theOptions->nCombined);
+  }
+  if (optParser->OptionSet("ftol")) {
+    if (NotANumber(optParser->GetTargetString("ftol").c_str(), 0, kPosReal)) {
+      fprintf(stderr, "*** WARNING: ftol should be a positive real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->ftol = atof(optParser->GetTargetString("ftol").c_str());
+    theOptions->ftolSet = true;
+    printf("\tfractional tolerance ftol for chi^2 convergence = %g\n", theOptions->ftol);
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {

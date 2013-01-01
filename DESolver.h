@@ -36,27 +36,27 @@ class DESolver;
 class DESolver
 {
 public:
-	DESolver(int dim, int popSize);
-	~DESolver(void);
+	DESolver( int dim, int popSize );
+	~DESolver( void );
 	
 	// Setup() must be called before solve to set min, max, strategy etc.
-	void Setup(double min[], double max[], int deStrategy,
-							double diffScale, double crossoverProb);
+	void Setup( double min[], double max[], int deStrategy,
+							double diffScale, double crossoverProb, double ftol );
 
   // CalcTrialSolution is used to determine which strategy to use (added by PE
   // to replace tricky and non-working use of pointers to member functions in
   // original code)
-  void CalcTrialSolution(int candidate);
+  void CalcTrialSolution( int candidate );
   
 	// Solve() returns true if EnergyFunction() returns true.
 	// Otherwise it runs maxGenerations generations and returns false.
-	virtual bool Solve(int maxGenerations);
+	virtual bool Solve( int maxGenerations );
 
 	// EnergyFunction must be overridden for problem to solve
 	// testSolution[] is nDim array for a candidate solution
 	// setting bAtSolution = true indicates solution is found
 	// and Solve() immediately returns true.
-	virtual double EnergyFunction(double testSolution[], bool &bAtSolution) = 0;
+	virtual double EnergyFunction( double testSolution[], bool &bAtSolution ) = 0;
 	
 	int Dimension(void) { return(nDim); }
 	int Population(void) { return(nPop); }
@@ -64,14 +64,14 @@ public:
 	// Call these functions after Solve() to get results.
 	double Energy(void) { return(bestEnergy); }
 	
-	void StoreSolution(double *theSolution);
+	void StoreSolution( double *theSolution );
 
 	int Generations(void) { return(generations); }
 
 protected:
-	void SelectSamples(int candidate, int *r1, int *r2=0, int *r3=0, 
-												int *r4=0, int *r5=0);
-	double RandomUniform(double min, double max);
+	void SelectSamples( int candidate, int *r1, int *r2=0, int *r3=0, 
+												int *r4=0, int *r5=0 );
+	double RandomUniform( double min, double max );
 
 	int nDim;
 	int nPop;
@@ -94,6 +94,8 @@ protected:
 	double *oldValues;
 	double *minBounds;
 	double *maxBounds;
+  // added by PE for user specification of fractional tolerance (for convergence test)
+    double  tolerance;
 	
 	// added by PE for debugging purposes
 	double  lastBestEnergy;

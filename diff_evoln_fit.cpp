@@ -24,36 +24,35 @@
 class ImfitSolver : public DESolver
 {
 public:
-	ImfitSolver(int dim, int pop, ModelObject *inputModel) : DESolver(dim, pop)
-	{
-	  theModel = inputModel;
-//	  theModel->SetupChisquaredCalcs();
-	  count = 0;
-	}
-	
-	double EnergyFunction(double trial[], bool &bAtSolution);
+  ImfitSolver( int dim, int pop, ModelObject *inputModel ) : DESolver(dim, pop)
+  {
+    theModel = inputModel;
+    count = 0;
+  }
+
+  double EnergyFunction( double trial[], bool &bAtSolution );
 
 private:
-	int count;
-	double  lastChiSquared;
+  int count;
+  double  lastChiSquared;
   ModelObject  *theModel;
 };
 
 
-double ImfitSolver::EnergyFunction(double *trial, bool &bAtSolution)
+double ImfitSolver::EnergyFunction( double *trial, bool &bAtSolution )
 {
   double  chiSquared;
   
   chiSquared = theModel->ChiSquared(trial);
-	
-	return(chiSquared);
+
+  return(chiSquared);
 }
 
 
 
-
-int DiffEvolnFit(int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, int maxGenerations)
+// main function called by exterior routines to set up and run the minimization
+int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
+                  ModelObject *theModel, int maxGenerations, double ftol )
 {
   ImfitSolver  solver(nParamsTot, 10*nParamsTot, theModel);
   double  *minParamValues;
@@ -77,7 +76,7 @@ int DiffEvolnFit(int nParamsTot, double *paramVector, mp_par *parameterLimits,
       }
       else {
         // OK, either we have actual parameter limits, or nothing at all
-        if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[0] == 1)) {
+        if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
           // parameter limits for this parameter
           minParamValues[i] = parameterLimits[i].limits[0];
           maxParamValues[i] = parameterLimits[i].limits[1];
@@ -103,11 +102,11 @@ int DiffEvolnFit(int nParamsTot, double *paramVector, mp_par *parameterLimits,
   deStrategy = stRandToBest1Exp;
   F = 0.85;
   CR = 1.0;
-	solver.Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR);
+  solver.Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
 
-	solver.Solve(maxGenerations);
+  solver.Solve(maxGenerations);
 
-	solver.StoreSolution(paramVector);
+  solver.StoreSolution(paramVector);
 
   free(minParamValues);
   free(maxParamValues);
