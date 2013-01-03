@@ -109,7 +109,7 @@ void InterpretResult( nlopt_result  resultValue )
 
 
 
-int NMSimplexFix( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
+int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
                   ModelObject *theModel, double ftol )
 {
   nlopt_opt  optimizer;

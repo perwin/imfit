@@ -12,7 +12,7 @@ Function: Sersic
 Model Object: 4096 data values (pixels)
 Setting up parameter information array ...
 
-Calling mpfit ...
+Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: chi^2 = 263212.806355
 	mpfit iteration 2: chi^2 = 38837.131453
 	mpfit iteration 3: chi^2 = 16396.744820
@@ -26,15 +26,15 @@ Calling mpfit ...
 	mpfit iteration 11: chi^2 = 4559.194239
 	mpfit iteration 12: chi^2 = 4555.947659
 	mpfit iteration 13: chi^2 = 4555.947654
-	mpfit iteration 14: chi^2 = 4555.947654
+
 *** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
   CHI-SQUARE = 4555.947654    (4089 DOF)
   INITIAL CHI^2 = 494330.961892
         NPAR = 7
        NFREE = 7
      NPEGGED = 0
-     NITER = 15
-      NFEV = 114
+     NITER = 14
+      NFEV = 106
 
 Reduced Chi^2 = 1.114196
 AIC = 4569.975051, BIC = 4614.172017
@@ -43,11 +43,11 @@ AIC = 4569.975051, BIC = 4614.172017
 X0		32.9439 # +/- 0.0128
 Y0		34.0933 # +/- 0.0156
 FUNCTION Sersic
-PA		18.2612 # +/- 0.309862
-ell		0.235989 # +/- 0.00231649
-n		2.40028 # +/- 0.0180716
-I_e		20.0094 # +/- 0.403964
-r_e		60.7612 # +/- 0.860606
+PA		18.2612 # +/- 0.309869
+ell		0.235989 # +/- 0.0023165
+n		2.40028 # +/- 0.0180713
+I_e		20.0094 # +/- 0.403968
+r_e		60.7612 # +/- 0.860575
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 Done!

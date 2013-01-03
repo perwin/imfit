@@ -42,7 +42,11 @@ static string  kNCols2 = "NCOLUMNS";
 static string  kNRows = "NROWS";
 
 
-#define VERSION_STRING      "0.9.8"
+#ifdef USE_OPENMP
+#define VERSION_STRING      "0.9.9 (OpenMP-enabled)"
+#else
+#define VERSION_STRING      "0.9.9"
+#endif
 
 
 typedef struct {

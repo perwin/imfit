@@ -4,12 +4,12 @@
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
 
-VERSION_STRING = "0.9.8"
+VERSION_STRING = "0.9.9"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
 
-# basic scons command (specifies OpenMP use and static linking)
+# basic scons command (specifies use of OpenMP and static linking)
 scons_string = "scons --openmp --static"
 
 SOURCE_TARFILE = "imfit-%s-source.tar.gz" % VERSION_STRING
@@ -49,8 +49,11 @@ mp_enorm
 param_struct
 statistics
 utilities_pub
+levmar_fit
 mpfit_cpp
+diff_evoln_fit
 DESolver
+nmsimplex_fit
 add_functions
 commandline_parser
 config_file_parser
@@ -73,9 +76,11 @@ convolver
 commandline_parser 
 utilities 
 image_io 
+levmar_fit
 mpfit 
 diff_evoln_fit
 DESolver
+nmsimplex_fit
 config_file_parser 
 add_functions 
 print_results 

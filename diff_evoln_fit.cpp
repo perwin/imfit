@@ -17,6 +17,8 @@
 #include "diff_evoln_fit.h"
 
 
+#define MAX_DE_GENERATIONS	600
+
 
 
 // Derived DESolver class for our fitting problem
@@ -52,12 +54,13 @@ double ImfitSolver::EnergyFunction( double *trial, bool &bAtSolution )
 
 // main function called by exterior routines to set up and run the minimization
 int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, int maxGenerations, double ftol )
+                  ModelObject *theModel, double ftol )
 {
   ImfitSolver  solver(nParamsTot, 10*nParamsTot, theModel);
   double  *minParamValues;
   double  *maxParamValues;
   int  deStrategy;
+  int  maxGenerations;
   double  F, CR;   // DE parameters (weight factor (aka "scale"), crossover probability)
   bool  paramLimitsOK = true;
   
@@ -102,6 +105,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   deStrategy = stRandToBest1Exp;
   F = 0.85;
   CR = 1.0;
+  maxGenerations = MAX_DE_GENERATIONS;
   solver.Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
 
   solver.Solve(maxGenerations);

@@ -8,7 +8,7 @@
 #include "model_object.h"
 
 
-int NMSimplexFix(int nParamsTot, double *initialParams, mp_par *parameterLimits, 
+int NMSimplexFit(int nParamsTot, double *initialParams, mp_par *parameterLimits, 
 									ModelObject *theModel, double ftol );
 
 

@@ -54,6 +54,11 @@ STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
 STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/lib/libgsl.a")
 STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/lib/libgslcblas.a")
 
+# the following is for when we want to force static linking to the NLopt library
+# (Change these if the locations are different on your system)
+STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/lib/libnlopt.a")
+
 
 FUNCTION_SUBDIR = "function_objects/"
 
@@ -65,7 +70,7 @@ cflags_db = ["-Wall", "-g3"]
 base_defines = ["ANSI"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-lib_list = ["fftw3", "cfitsio", "nlopt", "m"]
+lib_list = ["fftw3", "cfitsio", "m"]
 # libraries needed for profilefit and psfconvolve1d compilation
 lib_list_1d = ["fftw3", "m"]
 
@@ -104,6 +109,7 @@ extra_defines = []
 
 # Default settings for compilation
 useGSL = True
+useNLopt = True
 useFFTWThreading = True
 useOpenMP = False
 useExtraFuncs = False
@@ -120,6 +126,8 @@ AddOption("--no-threading", dest="fftwThreading", action="store_false",
 	default=True, help="compile programs *without* FFTW threading")
 AddOption("--no-gsl", dest="useGSL", action="store_false", 
 	default=True, help="do *not* use GNU Scientific Library")
+AddOption("--no-nlopt", dest="useNLopt", action="store_false", 
+	default=True, help="do *not* use NLopt library")
 AddOption("--openmp", dest="useOpenMP", action="store_true", 
 	default=False, help="compile with OpenMP support")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
@@ -144,6 +152,8 @@ if GetOption("fftwThreading") is False:
 	useFFTWThreading = False
 if GetOption("useGSL") is False:
 	useGSL = False
+if GetOption("useNLopt") is False:
+	useNLopt = False
 if GetOption("useOpenMP") is True:
 	useOpenMP = True
 if GetOption("useExtraFuncs") is True:
@@ -172,8 +182,6 @@ if useGSL:   # default is to do this
 			lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 	else:
 		lib_list.append("gsl")
-		# KLUDGE (adding Pnl library)...
-		#lib_list.append("pnl")
 	
 	# and stuff for 1D programs:
 	lib_list_1d.append("gsl")
@@ -182,6 +190,18 @@ if useGSL:   # default is to do this
 		lib_list_1d.append("gslcblas")
 else:
 	extra_defines.append("NO_GSL")
+
+if useNLopt:   # default is to do this
+	if useStaticLibs:
+		if (os_type == "Darwin"):
+			lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
+		else:
+			# assuming we're on a Linux system
+			lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
+	else:
+		lib_list.append("nlopt")	
+else:
+	extra_defines.append("NO_NLOPT")
 
 if useOpenMP:   # default is to *not* do this; user must specify with "--openmp"
 	cflags_opt.append("-fopenmp")
@@ -208,45 +228,6 @@ if buildFatBinary and (os_type == "Darwin"):
 # 			link_flags.append("-arch i386 -arch x86_64")
 # 			useStaticLibs = True
 
-
-# Allow use to specify extra definitions via command line
-# (e.g., "scons define=NO_FFTW_THREADING mode=openmp"):
-# extra_defines = ["FFTW_THREADING"]
-# for key, value in ARGLIST:
-# 	if key == 'define':
-# 		extra_defines.append(value)
-# 		if value == "NO_FFTW_THREADING":   # "scons define=NO_FFTW_THREADING"
-# 			# OK, user has requested FFTW threading *not* be used
-# 			lib_list.remove("fftw3_threads")
-# 			if (os_type == "Linux"):
-# 				lib_list.remove("pthread")
-# 			extra_defines.remove("FFTW_THREADING")
-# 		if value == "NO_GSL":   # "scons define=NO_GSL"
-# 			# OK, user does *not* have GSL library installed
-# 			defines_opt.append("NO_GSL")
-# 			defines_db.append("NO_GSL")
-# 			lib_list.remove("gsl")
-# 			lib_list.remove("gslcblas")
-# 			useGSL = False
-# 		if value == "STATIC":   # "scons define=STATIC"
-# 			# force compilation with static linking to libraries
-# 			link_flags.append("-static")
-# 	if key == 'mode':
-# 		if value == "export":   # "scons mode=export"  [for compiling "export" versions]
-# 			# build a fat Intel (32-bit/64-bit) binary (works on Mac OS X)
-# 			cflags_opt.append("-arch i386 -arch x86_64")
-# 			cflags_db.append("-arch i386 -arch x86_64")
-# 			link_flags.append("-arch i386 -arch x86_64")
-# 			useStaticLibs = True
-# 		if value == "openmp":   # "scons mode=openmp"  [for compiling with OpenMP enabled]
-# 			cflags_opt.append("-fopenmp")
-# 			cflags_db.append("-fopenmp")
-# 			link_flags.append("-fopenmp")
-# 		if value == "profile":   # "scons mode=profile"  [for profiling the code]
-# 			if (os_type == "Linux"):
-# 				cflags_opt.append("-pg")
-# 				cflags_db.append("-pg")
-# 				link_flags.append("-pg")
 
 defines_db = defines_db + extra_defines
 defines_opt = defines_opt + extra_defines
@@ -305,8 +286,10 @@ functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
 
 # Base files for imfit:
-imfit_base_obj_string = """commandline_parser utilities image_io mpfit diff_evoln_fit DESolver
-		nmsimplex_fit config_file_parser add_functions print_results imfit_main"""
+imfit_base_obj_string = """commandline_parser utilities image_io levmar_fit mpfit 
+		diff_evoln_fit DESolver config_file_parser add_functions print_results imfit_main"""
+if useNLopt:
+	imfit_base_obj_string += " nmsimplex_fit"
 imfit_base_objs = imfit_base_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 

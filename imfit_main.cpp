@@ -30,9 +30,11 @@
 #include "param_struct.h"   // for mp_par structure
 
 // Solvers (optimization algorithms)
-#include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
+#include "levmar_fit.h"
 #include "diff_evoln_fit.h"
+#ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
+#endif
 
 #include "commandline_parser.h"
 #include "config_file_parser.h"
@@ -45,7 +47,6 @@
 #define NMSIMPLEX_SOLVER    3
 
 #define DEFAULT_FTOL	1.0e-8
-#define MAX_DE_GENERATIONS	600
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
 //#define MONTE_CARLO_ITER   100
@@ -62,8 +63,11 @@ static string  kNCombinedString = "NCOMBINED";
 static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
-#define VERSION_STRING      "0.9.8"
-
+#ifdef USE_OPENMP
+#define VERSION_STRING      "0.9.9 (OpenMP-enabled)"
+#else
+#define VERSION_STRING      "0.9.9"
+#endif
 
 
 typedef struct {
@@ -128,8 +132,6 @@ void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								commandOptions *mainOptions );
-int myfunc( int nDataVals, int nParams, double *params, double *deviates,
-           double **derivatives, ModelObject *aModel );
 void PrepareImageComments( vector<string> *comments, const string &programName, 
                            commandOptions *mainOptions );
 
@@ -140,18 +142,6 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
 
 
 
-
-/* This is the function used by mpfit() to compute the vector of deviates.
- * In our case, it's a wrapper which tells the ModelObject to compute the
- * deviates.
- */
-int myfunc( int nDataVals, int nParams, double *params, double *deviates,
-           double **derivatives, ModelObject *theModel )
-{
-
-  theModel->ComputeDeviates(deviates, params);
-  return 0;
-}
 
 
 
@@ -171,7 +161,7 @@ int main(int argc, char *argv[])
   double  *allMaskPixels;
   bool  maskAllocated = false;
   double  *paramsVect;
-  double  *paramErrs;
+//  double  *paramErrs;
   double  X0_offset = 0.0;
   double  Y0_offset = 0.0;
   std::string  noiseImage;
@@ -184,8 +174,8 @@ int main(int argc, char *argv[])
   vector<int>  functionSetIndices;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
-  mp_result  mpfitResult;
-  mp_config  mpConfig;
+//  mp_result  mpfitResult;
+//  mp_config  mpConfig;
   mp_par  *parameterInfo;
   mp_par  *mpfitParameterConstraints;
   int  status;
@@ -336,7 +326,6 @@ int main(int argc, char *argv[])
   	       nParamsTot);
   	exit(-1);
   }
-  paramErrs = (double *) malloc(nParamsTot * sizeof(double));
   
   
   // Add PSF image vector, if present (needs to be added prior to image data, so that
@@ -399,13 +388,13 @@ int main(int argc, char *argv[])
       parameterInfo[i].limits[1] -= Y0_offset;
     }
   }
-  if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
-    // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
-    printf("No parameter constraints!\n");
-    mpfitParameterConstraints = NULL;
-  } else {
-    mpfitParameterConstraints = parameterInfo;
-  }
+//   if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
+//     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
+//     printf("No parameter constraints!\n");
+//     mpfitParameterConstraints = NULL;
+//   } else {
+//     mpfitParameterConstraints = parameterInfo;
+//   }
   
   
   /* Copy initial parameter values into C array, correcting for X0,Y0 offsets */
@@ -432,37 +421,41 @@ int main(int argc, char *argv[])
   else {
     // DO THE FIT!
     if (options.solver == MPFIT_SOLVER) {
-      bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
-      mpfitResult.xerror = paramErrs;
-      bzero(&mpConfig, sizeof(mpConfig));
-      mpConfig.maxiter = 1000;
-      if (options.ftolSet)
-        mpConfig.ftol = options.ftol;
-      if (options.verbose)
-        mpConfig.verbose = 1;
-      else
-        mpConfig.verbose = 0;
-      printf("\nCalling mpfit ...\n");
-      status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints,
-      							&mpConfig, theModel, &mpfitResult);
-      PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
-      printf("\n");
+// 
+//       bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
+//       mpfitResult.xerror = paramErrs;
+//       bzero(&mpConfig, sizeof(mpConfig));
+//       mpConfig.maxiter = 1000;
+//       if (options.ftolSet)
+//         mpConfig.ftol = options.ftol;
+//       if (options.verbose)
+//         mpConfig.verbose = 1;
+//       else
+//         mpConfig.verbose = 0;
+      printf("\nCalling Levenberg-Marquardt solver ...\n");
+//       status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints,
+//       							&mpConfig, theModel, &mpfitResult);
+      status = LevMarFit(nParamsTot, nFreeParams, nPixels_tot, paramsVect, parameterInfo, 
+      					theModel, options.ftol, paramLimitsExist, options.verbose);
+//      PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
+//      printf("\n");
     }
     else if (options.solver == DIFF_EVOLN_SOLVER) {
-      printf("\nCalling DiffEvolnFit ..\n");
-      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, 
-      						MAX_DE_GENERATIONS, options.ftol);
+      printf("\nCalling Differential Evolution solver ..\n");
+      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol);
       printf("\n");
       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
     }
+#ifndef NO_NLOPT
     else if (options.solver == NMSIMPLEX_SOLVER) {
       printf("\nCalling Nelder-Mead Simplex solver ..\n");
-      status = NMSimplexFix(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol);
+      status = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol);
       printf("\n");
       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
     }
+#endif
   }
 
 
@@ -505,7 +498,6 @@ int main(int argc, char *argv[])
   if (maskAllocated)
     free(allMaskPixels);
   free(paramsVect);
-  free(paramErrs);
   if (parameterInfo_allocated)
     free(parameterInfo);
   delete theModel;
@@ -551,7 +543,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
+#ifndef NO_NLOPT
   optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver instead of L-M");
+#endif
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of mpfit iteration updates");
   optParser->AddUsageLine("");
@@ -576,7 +570,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("mask-zero-is-bad");
   optParser->AddFlag("nosubsampling");
   optParser->AddFlag("de");
+#ifndef NO_NLOPT
   optParser->AddFlag("nm");
+#endif
   optParser->AddFlag("quiet");
   optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("mask");      /* an option (takes an argument), supporting only long form */
@@ -643,10 +639,12 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   	printf("\t Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
   }
+#ifndef NO_NLOPT
   if (optParser->FlagSet("nm")) {
   	printf("\t Nelder-Mead simplex solver selected!\n");
   	theOptions->solver = NMSIMPLEX_SOLVER;
   }
+#endif
   if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;
   }

@@ -12,11 +12,11 @@ echo "Running tests for imfit..."
 # test using cutout SDSS image
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> test_dump2
 # same, now with gain, etc. put into config file
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat &> test_dump3
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat  &> test_dump3
 
 # test non-square image + PSF convolution?
 echo -n "   (now running fit with PSF convolution ...)"
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> test_dump3a
+./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --ftol=1.0e-8 &> test_dump3a
 
 #    Testing to see that bad config files are caught:
 ./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump4

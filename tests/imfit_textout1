@@ -11,13 +11,14 @@ Function: Exponential
 Model Object: 1024 data values (pixels)
 Setting up parameter information array ...
 
-Calling mpfit ...
+Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: chi^2 = 690.413627
 	mpfit iteration 2: chi^2 = 0.239584
 	mpfit iteration 3: chi^2 = 0.000000
 	mpfit iteration 4: chi^2 = 0.000000
 	mpfit iteration 5: chi^2 = 0.000000
 	mpfit iteration 6: chi^2 = 0.000000
+
 *** mpfit status = 2 -- SUCCESS: Convergence in parameter value.
   CHI-SQUARE = 0.000000    (1018 DOF)
   INITIAL CHI^2 = 124738.278679

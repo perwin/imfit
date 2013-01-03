@@ -2,6 +2,7 @@
 	configuration file = tests/imfit_config_n3073.dat
 	PSF image = tests/psf_moffat_35.fits
 	mask image = tests/n3073rss_small_mask.fits
+	fractional tolerance ftol for chi^2 convergence = 1e-08
 Value from config file: gain = 4.725000
 Value from config file: read noise = 4.300000
 Value from config file: original sky = 154.330000
@@ -19,7 +20,7 @@ ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
 ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
 Setting up parameter information array ...
 
-Calling mpfit ...
+Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: chi^2 = 49037.299868
 	mpfit iteration 2: chi^2 = 37281.373764
 	mpfit iteration 3: chi^2 = 37051.452036
@@ -36,34 +37,33 @@ Calling mpfit ...
 	mpfit iteration 14: chi^2 = 36759.630304
 	mpfit iteration 15: chi^2 = 36759.629702
 	mpfit iteration 16: chi^2 = 36759.629663
-	mpfit iteration 17: chi^2 = 36759.629659
-	mpfit iteration 18: chi^2 = 36759.629658
+
 *** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
-  CHI-SQUARE = 36759.629658    (28743 DOF)
+  CHI-SQUARE = 36759.629663    (28743 DOF)
   INITIAL CHI^2 = 235544.789433
         NPAR = 11
        NFREE = 11
      NPEGGED = 0
-     NITER = 19
-      NFEV = 220
+     NITER = 17
+      NFEV = 196
 
 Reduced Chi^2 = 1.278907
-AIC = 36781.638843, BIC = 36872.561512
+AIC = 36781.638848, BIC = 36872.561517
 
 
 X0		100.7073 # +/- 0.0058
 Y0		97.0877 # +/- 0.0052
 FUNCTION Sersic
-PA		111.897 # +/- 0.264365
-ell		0.184115 # +/- 0.00159765
-n		3.28324 # +/- 0.034062
-I_e		78.0376 # +/- 2.68114
-r_e		26.8658 # +/- 0.649225
+PA		111.898 # +/- 0.264356
+ell		0.184116 # +/- 0.00159766
+n		 3.2832 # +/- 0.0340613
+I_e		78.0405 # +/-  2.6811
+r_e		26.8651 # +/- 0.649205
 FUNCTION Exponential
-PA		51.6875 # +/- 0.806829
-ell		0.353616 # +/- 0.0140884
-I_0		39.4493 # +/- 1.79263
-h		53.8652 # +/- 1.18091
+PA		51.6881 # +/- 0.806721
+ell		0.353602 # +/- 0.014088
+I_0		39.4522 # +/- 1.79261
+h		53.8633 # +/- 1.18081
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 Done!
