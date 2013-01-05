@@ -1,13 +1,13 @@
 /* FILE: imfit_main.cpp -------------------------------------------------- */
 /*
- * 
- * The proper translations are:
+ * This is the main program file for imfit.
+ *
+ * Useful reminder about FITS image sizes -- the proper translations are:
  * NAXIS1 = naxes[0] = nColumns = sizeX;
  * NAXIS2 = naxes[1] = nRows = sizeY.
  *
  *
  * HISTORY
- *     3--5 Dec 2009 [v0.2]: Added handling of mask images and parameter limits.
  *    10 Nov--2 Dec 2009: Early stages of developement
 */
 
@@ -49,8 +49,6 @@
 #define DEFAULT_FTOL	1.0e-8
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
-//#define MONTE_CARLO_ITER   100
-//#define BOOTSTRAP_ITER     200
 
 #define DEFAULT_CONFIG_FILE   "imfit_config.dat"
 #define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_imfit.dat"
@@ -96,6 +94,7 @@ typedef struct {
   bool  gainSet;
   double  readNoise;
   bool  readNoiseSet;
+  bool  useCashStatistic;
   int  nCombined;
   bool  nCombinedSet;
   double  originalSky;
@@ -107,11 +106,6 @@ typedef struct {
   char  paramString[MAXLINE];
   bool  newParameters;
   bool  verbose;
-//  bool  doBootstrap;
-//  int  bootstrapIterations;
-//  bool  doMonteCarlo;
-//  int  mcIterations;
-//  double  monteCarloOffset;
   double  magZeroPoint;
   bool  noParamLimits;
   bool  printImages;
@@ -161,7 +155,6 @@ int main(int argc, char *argv[])
   double  *allMaskPixels;
   bool  maskAllocated = false;
   double  *paramsVect;
-//  double  *paramErrs;
   double  X0_offset = 0.0;
   double  Y0_offset = 0.0;
   std::string  noiseImage;
@@ -174,8 +167,6 @@ int main(int argc, char *argv[])
   vector<int>  functionSetIndices;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
-//  mp_result  mpfitResult;
-//  mp_config  mpConfig;
   mp_par  *parameterInfo;
   mp_par  *mpfitParameterConstraints;
   int  status;
@@ -206,6 +197,7 @@ int main(int argc, char *argv[])
   options.gainSet = false;
   options.readNoise = 0.0;
   options.readNoiseSet = false;
+  options.useCashStatistic = false;
   options.nCombined = 1;
   options.nCombinedSet = false;
   options.originalSky = 0.0;
@@ -339,18 +331,29 @@ int main(int argc, char *argv[])
   if (options.printImages)
     theModel->PrintInputImage();
   
-  if (options.noiseImagePresent)
-    theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
-                             options.errorType);
-  else
-    theModel->GenerateErrorVector(options.gain, options.readNoise, options.originalSky);
-
+  if (options.useCashStatistic) {
+    // experimental Cash statistic stuff
+    if (options.solver == MPFIT_SOLVER) {
+      fprintf(stderr, "*** ERROR -- Cannot use Cash statistic with L-M solver!\n\n");
+      return -1;
+    }
+    theModel->UseCashStatistic();
+    theModel->SetGain(options.gain);
+    // do other stuff
+  } else {
+    // normal chi^2 statistics
+    if (options.noiseImagePresent)
+      theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
+                               options.errorType);
+    else
+      theModel->GenerateErrorVector(options.gain, options.readNoise, options.originalSky);
+  }
+  
   if (maskAllocated) {
     theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
                              options.maskFormat);
     theModel->ApplyMask();
   }
-  nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
 
 
   
@@ -388,13 +391,8 @@ int main(int argc, char *argv[])
       parameterInfo[i].limits[1] -= Y0_offset;
     }
   }
-//   if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
-//     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
-//     printf("No parameter constraints!\n");
-//     mpfitParameterConstraints = NULL;
-//   } else {
-//     mpfitParameterConstraints = parameterInfo;
-//   }
+  nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
+  printf("%d free parameters (%d degrees of freedom)\n", nFreeParams, nDegFreedom);
   
   
   /* Copy initial parameter values into C array, correcting for X0,Y0 offsets */
@@ -413,7 +411,6 @@ int main(int argc, char *argv[])
   // else call one of the solvers!
   if (options.printChiSquaredOnly) {
     printf("\n");
-//    theModel->SetupChisquaredCalcs();
     status = 1;
     PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
@@ -421,28 +418,14 @@ int main(int argc, char *argv[])
   else {
     // DO THE FIT!
     if (options.solver == MPFIT_SOLVER) {
-// 
-//       bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
-//       mpfitResult.xerror = paramErrs;
-//       bzero(&mpConfig, sizeof(mpConfig));
-//       mpConfig.maxiter = 1000;
-//       if (options.ftolSet)
-//         mpConfig.ftol = options.ftol;
-//       if (options.verbose)
-//         mpConfig.verbose = 1;
-//       else
-//         mpConfig.verbose = 0;
       printf("\nCalling Levenberg-Marquardt solver ...\n");
-//       status = mpfit(myfunc, nPixels_tot, nParamsTot, paramsVect, mpfitParameterConstraints,
-//       							&mpConfig, theModel, &mpfitResult);
       status = LevMarFit(nParamsTot, nFreeParams, nPixels_tot, paramsVect, parameterInfo, 
       					theModel, options.ftol, paramLimitsExist, options.verbose);
-//      PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
-//      printf("\n");
     }
     else if (options.solver == DIFF_EVOLN_SOLVER) {
       printf("\nCalling Differential Evolution solver ..\n");
-      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol);
+      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      			options.verbose);
       printf("\n");
       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
@@ -450,7 +433,8 @@ int main(int argc, char *argv[])
 #ifndef NO_NLOPT
     else if (options.solver == NMSIMPLEX_SOLVER) {
       printf("\nCalling Nelder-Mead Simplex solver ..\n");
-      status = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol);
+      status = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      			options.verbose);
       printf("\n");
       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
@@ -541,6 +525,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
   optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
   optParser->AddUsageLine("");
+//  optParser->AddUsageLine("     --cashstat               Use Cash statistic instead of chi^2");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
 #ifndef NO_NLOPT
@@ -569,6 +554,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("errors-are-weights");
   optParser->AddFlag("mask-zero-is-bad");
   optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("cashstat");
   optParser->AddFlag("de");
 #ifndef NO_NLOPT
   optParser->AddFlag("nm");
@@ -634,6 +620,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("chisquare-only")) {
     printf("\t No fitting will be done!\n");
     theOptions->printChiSquaredOnly = true;
+  }
+  if (optParser->FlagSet("cashstat")) {
+  	printf("\t Using Cash statistic instead of chi^2 for minimization!\n");
+  	theOptions->useCashStatistic = true;
   }
   if (optParser->FlagSet("de")) {
   	printf("\t Differential Evolution selected!\n");

@@ -45,15 +45,17 @@ class ModelObject
 
     // Probably 1D only, but might be usable by 2D version later...
     virtual void SetZeroPoint( double zeroPointValue );
-    
-		// 2D only
+
+    void SetGain( double gainValue );
+
+	// 2D only
     void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows,
     													int nCombinedImages );
 
-		// 2D only
+	// 2D only
     void SetupModelImage( int nImageColumns, int nImageRows );
     
-		// 2D only
+	// 2D only
     virtual void AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
@@ -62,22 +64,22 @@ class ModelObject
 
     // 1D only
     virtual void AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { ; };
-
-		// 2D only
+    
+	// 2D only
     virtual void GenerateErrorVector( double gain, double readNoise, double skyValue );
 
-		// 2D only
+	// 2D only
     virtual void AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
-		// 2D only
+	// 2D only
     void AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels );
 
     // 1D only
     virtual void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector ) { ; };
     
-		// 2D only [1D maybe needs something similar, but with diff. interface]
+	// 2D only [1D maybe needs something similar, but with diff. interface]
     virtual void ApplyMask( );
 
     // common, but Specialized by ModelObject1D
@@ -86,8 +88,20 @@ class ModelObject
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
+     // common, not specialized
+    virtual void UseCashStatistic( );
+ 
+     // common, not specialized
+    virtual bool UsingCashStatistic( );
+ 
+    // common, not specialized
+    virtual double GetFitStatistic( double params[] );
+    
     // common, not specialized
     virtual double ChiSquared( double params[] );
+    
+    // common, not specialized
+    virtual double CashStatistic( double params[] );
     
     // common, but Specialized by ModelObject1D
     virtual void PrintDescription( );
@@ -173,6 +187,7 @@ class ModelObject
     int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
     double  nCombined_sqrt;
 	double  zeroPoint;
+	double gain;
     int  debugLevel;
     int  maxRequestedThreads;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
@@ -181,6 +196,7 @@ class ModelObject
     bool  modelImageComputed;
     bool  weightValsSet, maskExists;
     bool  doConvolution;
+    bool  useCashStatistic;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
     bool  zeroPointSet;
     int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;

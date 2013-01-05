@@ -10,7 +10,7 @@
 
 
 int DiffEvolnFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
-									ModelObject *theModel, double ftol );
+									ModelObject *theModel, double ftol, bool verbose );
 
 
 #endif  // _DIFF_EVOLN_FIT_H_

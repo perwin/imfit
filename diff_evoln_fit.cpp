@@ -1,7 +1,10 @@
 /* FILE: diff_evoln_fit.cpp ---------------------------------------------- */
 /*
- * Code for doing Differential Evolution fits; currently only designed for 1-D
- * fitting.
+ * Code for doing Differential Evolution fits. Implements a subclass of DESolver,
+ * specialized for working with ModelObject objects.
+ *
+ * Main function DiffEvolnFit sets up and runs the fitting process; meant to be 
+ * called from other functions (e.g., main() of imfit_main.cpp)
  *
  */
 
@@ -16,7 +19,8 @@
 #include "param_struct.h"   // for mp_par structure
 #include "diff_evoln_fit.h"
 
-
+// "Population" size should be POP_SIZE_PER_PARAMETER * nParametersTot
+#define POP_SIZE_PER_PARAMETER  10
 #define MAX_DE_GENERATIONS	600
 
 
@@ -43,24 +47,25 @@ private:
 
 double ImfitSolver::EnergyFunction( double *trial, bool &bAtSolution )
 {
-  double  chiSquared;
+  double  fitStatistic;
   
-  chiSquared = theModel->ChiSquared(trial);
+  fitStatistic = theModel->GetFitStatistic(trial);
 
-  return(chiSquared);
+  return(fitStatistic);
 }
 
 
 
 // main function called by exterior routines to set up and run the minimization
 int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, double ftol )
+                  ModelObject *theModel, double ftol, bool verbose )
 {
-  ImfitSolver  solver(nParamsTot, 10*nParamsTot, theModel);
+  ImfitSolver  *solver;
   double  *minParamValues;
   double  *maxParamValues;
   int  deStrategy;
   int  maxGenerations;
+  int  nFreeParameters = nParamsTot;
   double  F, CR;   // DE parameters (weight factor (aka "scale"), crossover probability)
   bool  paramLimitsOK = true;
   
@@ -76,6 +81,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
       if (parameterLimits[i].fixed == 1) {
         minParamValues[i] = paramVector[i];
         maxParamValues[i] = paramVector[i];
+        nFreeParameters--;
       }
       else {
         // OK, either we have actual parameter limits, or nothing at all
@@ -106,12 +112,16 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   F = 0.85;
   CR = 1.0;
   maxGenerations = MAX_DE_GENERATIONS;
-  solver.Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
+  // Instantiate and set up the DE solver:
+//  solver = new ImfitSolver(nParamsTot, POP_SIZE_PER_PARAMETER*nParamsTot, theModel);
+  solver = new ImfitSolver(nParamsTot, POP_SIZE_PER_PARAMETER*nFreeParameters, theModel);
+  solver->Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
 
-  solver.Solve(maxGenerations);
+  solver->Solve(maxGenerations);
 
-  solver.StoreSolution(paramVector);
+  solver->StoreSolution(paramVector);
 
+  delete solver;
   free(minParamValues);
   free(maxParamValues);
   return 1;

@@ -10,6 +10,7 @@ Function: Exponential
 6 total parameters
 Model Object: 1024 data values (pixels)
 Setting up parameter information array ...
+6 free parameters (1018 degrees of freedom)
 
 Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: chi^2 = 690.413627

@@ -1,4 +1,7 @@
 # !bin/sh
+#
+# How to skip the DE test: run script as
+# $ ./do_imfit_tests --node
 
 FAILED_TEXT=" ** Test failed. **"
 
@@ -9,22 +12,34 @@ echo ""
 echo "Running tests for imfit..."
 # simple tests using small images
 ./imfit --config tests/config_imfit_expdisk32.dat --noise tests/uniform_image32.fits tests/testimage_expdisk32.fits --nosubsampling &> test_dump1
+
 # test using cutout SDSS image
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> test_dump2
 # same, now with gain, etc. put into config file
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat  &> test_dump3
+# same, using N-M Simplex fitting
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --nm &> test_dump3b
+# same, using DE fitting [skip if requested by user, since it's slow!]
+if [ "$1" != "--node" ]
+then
+  echo -n "   (now running fit with DE ...)"
+  ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --de &>  test_dump3c
+  echo ""
+else
+  echo "   (skipping DE test)"
+fi
 
 # test non-square image + PSF convolution?
 echo -n "   (now running fit with PSF convolution ...)"
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --ftol=1.0e-8 &> test_dump3a
+./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --ftol=1.0e-8 &> test_dump4
 
 #    Testing to see that bad config files are caught:
-./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump4
-./imfit --config tests/config_makeimage_sersictest512_bad2.dat &> test_dump5
-./imfit --config tests/config_makeimage_sersictest512_bad3.dat &> test_dump6
-./imfit --config tests/config_makeimage_sersictest512_bad4.dat &> test_dump7
-./imfit --config tests/config_imfit_sersictest512_badlimits1.dat &> test_dump8
-./imfit --config tests/config_imfit_sersictest512_badlimits2.dat &> test_dump9
+./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump_bad1
+./imfit --config tests/config_makeimage_sersictest512_bad2.dat &> test_dump_bad2
+./imfit --config tests/config_makeimage_sersictest512_bad3.dat &> test_dump_bad3
+./imfit --config tests/config_makeimage_sersictest512_bad4.dat &> test_dump_bad4
+./imfit --config tests/config_imfit_sersictest512_badlimits1.dat &> test_dump_bad5
+./imfit --config tests/config_imfit_sersictest512_badlimits2.dat &> test_dump_bad6
 
 echo ""
 
@@ -47,15 +62,6 @@ else
 fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (take 2)... "
-if (diff --brief test_dump3a tests/imfit_textout3a)
-then
-  echo " OK"
-else
-  echo "Diff output:"
-  diff test_dump3a tests/imfit_textout3a
-fi
-
-echo -n "*** Diff comparison with archives: fit to larger (rectangular) SDSS image w/ PSF convolution... "
 if (diff --brief test_dump3 tests/imfit_textout3)
 then
   echo " OK"
@@ -64,7 +70,29 @@ else
   diff test_dump3 tests/imfit_textout3
 fi
 
-echo -n "*** Diff comparison with archives: bad config file 1... "
+echo -n "*** Diff comparison with archives: tiny SDSS cutout image (N-M simplex fit)... "
+if (diff --brief test_dump3b tests/imfit_textout3b)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump3b tests/imfit_textout3b
+fi
+
+if [ "$1" != "--node" ]
+then
+  tail -n 18 test_dump3c > test_dump3c_tail
+  echo -n "*** Diff comparison with archives: tiny SDSS cutout image (DE fit)... "
+  if (diff --brief test_dump3c_tail tests/imfit_textout3c_tail)
+  then
+    echo " OK"
+  else
+    echo "Diff output:"
+    diff test_dump3c_tail tests/imfit_textout3c_tail
+  fi
+fi
+
+echo -n "*** Diff comparison with archives: fit to larger (rectangular) SDSS image w/ PSF convolution... "
 if (diff --brief test_dump4 tests/imfit_textout4)
 then
   echo " OK"
@@ -73,49 +101,59 @@ else
   diff test_dump4 tests/imfit_textout4
 fi
 
-echo -n "*** Diff comparison with archives: bad config file 2... "
-if (diff --brief test_dump5 tests/imfit_textout5)
+
+echo -n "*** Diff comparison with archives: bad config file 1... "
+if (diff --brief test_dump_bad1 tests/imfit_textout_bad1)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump5 tests/imfit_textout5
+  diff test_dump_bad1 tests/imfit_textout_bad1
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 2... "
+if (diff --brief test_dump_bad2 tests/imfit_textout_bad2)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump_bad2 tests/imfit_textout_bad2
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 3... "
-if (diff --brief test_dump6 tests/imfit_textout6)
+if (diff --brief test_dump_bad3 tests/imfit_textout_bad3)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump6 tests/imfit_textout6
+  diff test_dump_bad3 tests/imfit_textout_bad3
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 4... "
-if (diff --brief test_dump7 tests/imfit_textout7)
+if (diff --brief test_dump_bad4 tests/imfit_textout_bad4)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump7 tests/imfit_textout7
+  diff test_dump_bad4 tests/imfit_textout_bad4
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 5... "
-if (diff --brief test_dump8 tests/imfit_textout8)
+if (diff --brief test_dump_bad5 tests/imfit_textout_bad5)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump8 tests/imfit_textout8
+  diff test_dump_bad5 tests/imfit_textout_bad5
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 6... "
-if (diff --brief test_dump9 tests/imfit_textout9)
+if (diff --brief test_dump_bad6 tests/imfit_textout_bad6)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump9 tests/imfit_textout9
+  diff test_dump_bad6 tests/imfit_textout_bad6
 fi
 
 

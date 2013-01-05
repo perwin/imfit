@@ -11,6 +11,7 @@ Function: Sersic
 7 total parameters
 Model Object: 4096 data values (pixels)
 Setting up parameter information array ...
+7 free parameters (4089 degrees of freedom)
 
 Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: chi^2 = 263212.806355

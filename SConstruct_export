@@ -57,7 +57,7 @@ STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/lib/libgslcblas.a")
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
 STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/lib/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 
 FUNCTION_SUBDIR = "function_objects/"

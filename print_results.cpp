@@ -44,17 +44,24 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
   double  aic, bic;
   
   if (result == 0) {
-    // PrintResult was called with result from Differential Evolution fit, not mpfit
+    // PrintResult was called with result from Nelder-Mead simplex or 
+    // Differential Evolution fit, not mpfit
     // Only print results of fit if fitStatus >= 1
     if (fitStatus < 1)
       return;
-    double  chiSquared = model->ChiSquared(params);
-    printf("  CHI-SQUARE = %lf    (%d DOF)\n", chiSquared, nDegreesFreedom);
-    printf("\n");
-    aic = AIC_corrected(chiSquared, nFreeParameters, nValidPixels, 1);
-    bic = BIC(chiSquared, nFreeParameters, nValidPixels, 1);
-    printf("Reduced Chi^2 = %f\n", chiSquared / nDegreesFreedom);
-    printf("AIC = %f, BIC = %f\n\n", aic, bic);
+    double  fitStatistic = model->GetFitStatistic(params);
+    bool usingCashStatistic = model->UsingCashStatistic();
+    if (! usingCashStatistic) {
+      printf("  CHI-SQUARE = %lf    (%d DOF)\n", fitStatistic, nDegreesFreedom);
+      printf("\n");
+      aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
+      bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
+      printf("Reduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
+      printf("AIC = %f, BIC = %f\n\n", aic, bic);
+    } else {
+      printf("  CASH STATISTIC = %lf\n", fitStatistic);
+      printf("\n");
+    }
     // output the best-fit parameters
     model->PrintModelParams(stdout, params, parameterInfo, NULL);
 //    for (i = 0; i < model->GetNParams(); i++) {

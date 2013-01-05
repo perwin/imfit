@@ -77,6 +77,7 @@ ModelObject::ModelObject( )
   deviatesVectorAllocated = false;
   setStartFlag_allocated = false;
   
+  useCashStatistic = false;
   modelImageComputed = false;
   maskExists = false;
   doConvolution = false;
@@ -87,6 +88,7 @@ ModelObject::ModelObject( )
   nFunctionParams = 0;
   nParamsTot = 0;
   debugLevel = 0;
+  gain = 1.0;
   
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
   
@@ -165,6 +167,14 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 
   zeroPoint = zeroPointValue;
   zeroPointSet = true;
+}
+
+
+/* ---------------- PUBLIC METHOD: SetGain ---------------------------- */
+
+void ModelObject::SetGain( double gainValue )
+{
+  gain = gainValue;
 }
 
 
@@ -621,11 +631,38 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 }
 
 
+/* ---------------- PUBLIC METHOD: UseCashStatistic ------------------- */
+
+void ModelObject::UseCashStatistic( )
+{
+  useCashStatistic = true;
+}
+
+
+/* ---------------- PUBLIC METHOD: UseCashStatistic ------------------- */
+
+bool ModelObject::UsingCashStatistic( )
+{
+  return useCashStatistic;
+}
+
+
+/* ---------------- PUBLIC METHOD: GetFitStatistic --------------------- */
+/* Function for calculating chi^2 value for a model.
+ *
+ */
+double ModelObject::GetFitStatistic( double params[] )
+{
+  if (useCashStatistic)
+    return CashStatistic(params);
+  else
+    return ChiSquared(params);
+}
+
+
 /* ---------------- PUBLIC METHOD: ChiSquared -------------------------- */
 /* Function for calculating chi^2 value for a model.
  *
- * IMPORTANT: SetupChisquaredCalcs() should be called (once) prior to any calls
- * to this function!
  */
 double ModelObject::ChiSquared( double params[] )
 {
@@ -655,12 +692,52 @@ double ModelObject::ChiSquared( double params[] )
       deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
     }
   }
-//   for (int z = 0; z < nDataVals; z++)
-//     deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
   
   chi = mp_enorm(nDataVals, deviatesVector);
   
   return (nCombined*chi*chi);
+}
+
+
+/* ---------------- PUBLIC METHOD: CashStatistic ----------------------- */
+/* Function for calculating Cash statistic for a model
+ *
+ */
+double ModelObject::CashStatistic( double params[] )
+{
+  int  iDataRow, iDataCol, z, zModel;
+  double  modVal, dataVal;
+  double  cashStat = 0.0;
+  
+  CreateModelImage(params);
+  
+  if (doConvolution) {
+    // Step through model image so that we correctly match its pixels with corresponding
+    // pixels in data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      iDataRow = z / nDataColumns;
+      iDataCol = z - iDataRow*nDataColumns;
+      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      // Mi − Di + DilogDi − DilogMi
+//      cashStat += weightVector[z] * (dataVector[z] - modelVector[zModel]);
+      modVal = modelVector[zModel];
+      dataVal = dataVector[z];
+      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
+    }
+  }
+  else {
+    // Model image is same size & shape as data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      modVal = modelVector[z];
+      dataVal = dataVector[z];
+      // FIXME: Need to insert safeguards against attempting to take log of
+      // possible <= 0 values of dataVal or modVal
+      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
+    }
+  }
+  
+  
+  return (2.0*cashStat);
 }
 
 
@@ -926,8 +1003,6 @@ double * ModelObject::GetResidualImageVector( )
       residualVector[z] = (dataVector[z] - modelVector[z]);
     }
   }
-//   for (int z = 0; z < nDataVals; z++)
-//     residualVector[z] = (dataVector[z] - modelVector[z]);
 
   return residualVector;
 }

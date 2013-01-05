@@ -9,7 +9,7 @@
 
 
 int NMSimplexFit(int nParamsTot, double *initialParams, mp_par *parameterLimits, 
-									ModelObject *theModel, double ftol );
+									ModelObject *theModel, double ftol, bool verbose );
 
 
 #endif  // _NM_SIMPLEX_FIT_H_

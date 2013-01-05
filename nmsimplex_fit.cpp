@@ -54,11 +54,11 @@ const double  XTOL = 1.0e-8;
 double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_data)
 {
   ModelObject *theModel = (ModelObject *)my_func_data;
-  // following is a necessary kludge bcs theModel->ChiSquared() won't accept const double*
+  // following is a necessary kludge bcs theModel->GetFitStatistic() won't accept const double*
   double  *params = (double *)x;
   double  fitStatistic;
   
-  fitStatistic = theModel->ChiSquared(params);
+  fitStatistic = theModel->GetFitStatistic(params);
 	
   return(fitStatistic);
 }
@@ -110,7 +110,7 @@ void InterpretResult( nlopt_result  resultValue )
 
 
 int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, double ftol )
+                  ModelObject *theModel, double ftol, bool verbose )
 {
   nlopt_opt  optimizer;
   nlopt_result  result;
@@ -164,6 +164,7 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     nlopt_set_upper_bounds(optimizer, maxParamValues);
   }
   
+  printf("\t(Note: N-M simplex sover currently provides no in-progress feedback)\n");
   result = nlopt_optimize(optimizer, paramVector, &finalStatisticVal);
   //double stopval = nlopt_get_stopval(optimizer);
   InterpretResult(result);
