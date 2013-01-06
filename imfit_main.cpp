@@ -105,7 +105,7 @@ typedef struct {
   bool  noModel;
   char  paramString[MAXLINE];
   bool  newParameters;
-  bool  verbose;
+  int  verbose;
   double  magZeroPoint;
   bool  noParamLimits;
   bool  printImages;
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
   options.printChiSquaredOnly = false;
   options.printImages = false;
   options.solver = MPFIT_SOLVER;
-  options.verbose = true;
+  options.verbose = 1;
 
   ProcessInput(argc, argv, &options);
 
@@ -527,12 +527,13 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
 //  optParser->AddUsageLine("     --cashstat               Use Cash statistic instead of chi^2");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
-  optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
 #ifndef NO_NLOPT
   optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver instead of L-M");
 #endif
+  optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --quiet                  Turn off printing of mpfit iteration updates");
+  optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
+//  optParser->AddUsageLine("     --verbose                  Print extra info during the fit");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
 //  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
@@ -560,6 +561,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("nm");
 #endif
   optParser->AddFlag("quiet");
+  optParser->AddFlag("verbose");
   optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("mask");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
@@ -618,28 +620,31 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->printImages = true;
   }
   if (optParser->FlagSet("chisquare-only")) {
-    printf("\t No fitting will be done!\n");
+    printf("\t* No fitting will be done!\n");
     theOptions->printChiSquaredOnly = true;
   }
   if (optParser->FlagSet("cashstat")) {
-  	printf("\t Using Cash statistic instead of chi^2 for minimization!\n");
+  	printf("\t* Using Cash statistic instead of chi^2 for minimization!\n");
   	theOptions->useCashStatistic = true;
-  }
-  if (optParser->FlagSet("de")) {
-  	printf("\t Differential Evolution selected!\n");
-  	theOptions->solver = DIFF_EVOLN_SOLVER;
   }
 #ifndef NO_NLOPT
   if (optParser->FlagSet("nm")) {
-  	printf("\t Nelder-Mead simplex solver selected!\n");
+  	printf("\t* Nelder-Mead simplex solver selected!\n");
   	theOptions->solver = NMSIMPLEX_SOLVER;
   }
 #endif
+  if (optParser->FlagSet("de")) {
+  	printf("\t* Differential Evolution selected!\n");
+  	theOptions->solver = DIFF_EVOLN_SOLVER;
+  }
   if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;
   }
   if (optParser->FlagSet("quiet")) {
-    theOptions->verbose = false;
+    theOptions->verbose = 0;
+  }
+  if (optParser->FlagSet("verbose")) {
+    theOptions->verbose = 2;
   }
   if (optParser->FlagSet("use-headers")) {
     theOptions->useImageHeader = true;

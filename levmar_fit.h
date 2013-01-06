@@ -10,7 +10,7 @@
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nPixelsTot, double *paramVector, 
 				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
-				bool paramLimitsExist, bool verbose );
+				bool paramLimitsExist, int verbose );
 
 
 #endif  // _LEVMAR_FIT_H_

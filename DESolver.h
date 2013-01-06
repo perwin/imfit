@@ -50,7 +50,7 @@ public:
   
 	// Solve() returns true if EnergyFunction() returns true.
 	// Otherwise it runs maxGenerations generations and returns false.
-	virtual bool Solve( int maxGenerations, bool verbose=true );
+	virtual bool Solve( int maxGenerations, int verbose=1 );
 
 	// EnergyFunction must be overridden for problem to solve
 	// testSolution[] is nDim array for a candidate solution

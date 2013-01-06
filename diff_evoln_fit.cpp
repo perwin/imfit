@@ -58,7 +58,7 @@ double ImfitSolver::EnergyFunction( double *trial, bool &bAtSolution )
 
 // main function called by exterior routines to set up and run the minimization
 int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, double ftol, bool verbose )
+                  ModelObject *theModel, double ftol, int verbose )
 {
   ImfitSolver  *solver;
   double  *minParamValues;
@@ -117,7 +117,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   solver = new ImfitSolver(nParamsTot, POP_SIZE_PER_PARAMETER*nFreeParameters, theModel);
   solver->Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
 
-  solver->Solve(maxGenerations);
+  solver->Solve(maxGenerations, verbose);
 
   solver->StoreSolution(paramVector);
 

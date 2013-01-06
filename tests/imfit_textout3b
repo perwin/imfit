@@ -15,7 +15,6 @@ Setting up parameter information array ...
 7 free parameters (4089 degrees of freedom)
 
 Calling Nelder-Mead Simplex solver ..
-	(Note: N-M simplex sover currently provides no in-progress feedback)
 Nelder-Mead Simplex status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
 
   CHI-SQUARE = 4555.947654    (4089 DOF)

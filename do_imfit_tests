@@ -18,7 +18,7 @@ echo "Running tests for imfit..."
 # same, now with gain, etc. put into config file
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat  &> test_dump3
 # same, using N-M Simplex fitting
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --nm &> test_dump3b
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --nm --quiet &> test_dump3b
 # same, using DE fitting [skip if requested by user, since it's slow!]
 if [ "$1" != "--node" ]
 then

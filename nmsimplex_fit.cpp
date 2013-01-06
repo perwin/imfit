@@ -48,9 +48,17 @@
 const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
 const double  XTOL = 1.0e-8;
+const int  FUNCS_PER_REPORTING_STEP = 20;
+
+
+// Module variables -- used to control user feedback within myfunc_nlopt
+static int  verboseOutput;
+static int  funcCount = 0;
 
 
 // Objective function: calculates the objective value (ignore gradient calculation)
+// Keep track of how many times this function has been called, and report current
+// chi^2 (or other objective-function value) every 20 calls
 double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_data)
 {
   ModelObject *theModel = (ModelObject *)my_func_data;
@@ -59,7 +67,16 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
   double  fitStatistic;
   
   fitStatistic = theModel->GetFitStatistic(params);
-	
+
+  // feedback to user
+  funcCount++;
+  if (verboseOutput > 0) {
+    if ((funcCount % FUNCS_PER_REPORTING_STEP) == 0) {
+      printf("\tN-M simplex: function call %d: objective = %f\n", funcCount, fitStatistic);
+      //theModel->PrintModelParams(stdout, params, NULL, NULL);
+    }
+  }
+  
   return(fitStatistic);
 }
 
@@ -110,7 +127,7 @@ void InterpretResult( nlopt_result  resultValue )
 
 
 int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, double ftol, bool verbose )
+                  ModelObject *theModel, double ftol, int verbose )
 {
   nlopt_opt  optimizer;
   nlopt_result  result;
@@ -164,7 +181,8 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     nlopt_set_upper_bounds(optimizer, maxParamValues);
   }
   
-  printf("\t(Note: N-M simplex sover currently provides no in-progress feedback)\n");
+  // Specify level of verbosity and start the optimization
+  verboseOutput = verbose;
   result = nlopt_optimize(optimizer, paramVector, &finalStatisticVal);
   //double stopval = nlopt_get_stopval(optimizer);
   InterpretResult(result);

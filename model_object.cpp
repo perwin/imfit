@@ -763,6 +763,7 @@ void ModelObject::GetFunctionNames( vector<string>& functionNames )
 /* ---------------- PUBLIC METHOD: PrintModelParams --------=---------- */
 // Basic function which prints to a file (or, e.g. stdout) a summary of the
 // best-fitting model, in form suitable for future use as an input config file.
+// If parameterInfo != NULL, then x0,y0 are corrected for any offsets.
 // If errs != NULL, then +/- errors are printed as well
 
 void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
@@ -777,8 +778,12 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
     if (setStartFlag[n] == true) {
       // start of new function set: extract x0,y0 and then skip over them
       k = indexOffset;
-      x0 = params[k] + parameterInfo[k].offset;
-      y0 = params[k + 1] + parameterInfo[k + 1].offset;
+      x0 = params[k];
+      y0 = params[k + 1];
+      if (parameterInfo != NULL) {
+        x0 += parameterInfo[k].offset;
+        y0 += parameterInfo[k + 1].offset;
+      }
       if (errs != NULL) {
         fprintf(output_ptr, X0_FORMAT_WITH_ERRS, x0, errs[k]);
         fprintf(output_ptr, Y0_FORMAT_WITH_ERRS, y0, errs[k + 1]);

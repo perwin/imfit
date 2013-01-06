@@ -33,7 +33,8 @@ void PrintParam( FILE *outFile, string& paramName, double paramValue, double par
 
 // This is a function to print the results of a fit.  It's based on code from
 // Craig Markwardt's testmpfit.c, but will also accomodate results from a fit
-// done with differential evolution (call with result=0 to indicate the latter).
+// done with other minimization algorithms, such as Nelder-Mead simplex or
+// differential evolution (call with result=0 to indicate non-LM optimizer).
 void PrintResults( double *params, double *xact, mp_result *result, ModelObject *model,
 									int nFreeParameters, mp_par *parameterInfo, int fitStatus )
 {

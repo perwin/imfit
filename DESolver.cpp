@@ -190,7 +190,7 @@ void DESolver::CalcTrialSolution( int candidate )
 }
 
 
-bool DESolver::Solve( int maxGenerations, bool verbose )
+bool DESolver::Solve( int maxGenerations, int verbose )
 {
   int generation;
   int candidate;
@@ -235,19 +235,19 @@ bool DESolver::Solve( int maxGenerations, bool verbose )
     // Debugging printout code added by PE -- print an update every 10 generations
     double  relativeDeltaEnergy;
     if ((generation % 10) == 0) {
-      if (verbose)
+      if (verbose > 0)
         printf("\nGeneration %4d: bestEnergy = %12.10lf", generation, bestEnergy);
       if (generation == 20) {
         relativeDeltaEnergy = fabs(1.0 - lastBestEnergy/bestEnergy);
         relativeDeltas[0] = relativeDeltaEnergy;
-        if (verbose)
+        if (verbose > 0)
           printf("   (relative change = %e)", relativeDeltaEnergy);
       }
       else if (generation == 30) {
         relativeDeltaEnergy = fabs(1.0 - lastBestEnergy/bestEnergy);
         relativeDeltas[1] = relativeDeltas[0];
         relativeDeltas[0] = relativeDeltaEnergy;
-        if (verbose)
+        if (verbose > 0)
           printf("   (relative change = %e)", relativeDeltaEnergy);
       }
       else if (generation >= 40) {
@@ -255,7 +255,7 @@ bool DESolver::Solve( int maxGenerations, bool verbose )
         relativeDeltas[2] = relativeDeltas[1];
         relativeDeltas[1] = relativeDeltas[0];
         relativeDeltas[0] = relativeDeltaEnergy;
-        if (verbose)
+        if (verbose > 0)
           printf("   (relative change = %e)", relativeDeltaEnergy);
         if (TestConverged(relativeDeltas, tolerance)) {
           generations = generation;
