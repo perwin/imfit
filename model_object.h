@@ -46,7 +46,10 @@ class ModelObject
     // Probably 1D only, but might be usable by 2D version later...
     virtual void SetZeroPoint( double zeroPointValue );
 
+ 
     void SetGain( double gainValue );
+
+    void SetSkyBackground( double originalSkyValue );
 
 	// 2D only
     void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows,
@@ -187,7 +190,7 @@ class ModelObject
     int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
     double  nCombined_sqrt;
 	double  zeroPoint;
-	double gain;
+	double gain, originalSky;
     int  debugLevel;
     int  maxRequestedThreads;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;

@@ -5,11 +5,11 @@
 	read noise = 4.3 e-
 Reading data image ("tests/ic3478rss_64x64.fits") ...
 naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
-* No noise image supplied ... will generate noise image from input image.
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 7 total parameters
 Model Object: 4096 data values (pixels)
+* No noise image supplied ... will generate noise image from input image.
 Setting up parameter information array ...
 7 free parameters (4089 degrees of freedom)
 

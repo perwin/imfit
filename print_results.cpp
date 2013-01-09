@@ -52,17 +52,15 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
       return;
     double  fitStatistic = model->GetFitStatistic(params);
     bool usingCashStatistic = model->UsingCashStatistic();
-    if (! usingCashStatistic) {
-      printf("  CHI-SQUARE = %lf    (%d DOF)\n", fitStatistic, nDegreesFreedom);
-      printf("\n");
-      aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
-      bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
-      printf("Reduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
-      printf("AIC = %f, BIC = %f\n\n", aic, bic);
-    } else {
+    if (usingCashStatistic)
       printf("  CASH STATISTIC = %lf\n", fitStatistic);
-      printf("\n");
+    else {
+      printf("  CHI-SQUARE = %lf    (%d DOF)\n", fitStatistic, nDegreesFreedom);
+      printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
     }
+    aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
+    bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
+    printf("AIC = %f, BIC = %f\n\n", aic, bic);
     // output the best-fit parameters
     model->PrintModelParams(stdout, params, parameterInfo, NULL);
 //    for (i = 0; i < model->GetNParams(); i++) {

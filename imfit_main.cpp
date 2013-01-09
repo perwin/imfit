@@ -62,9 +62,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "0.9.9 (OpenMP-enabled)"
+#define VERSION_STRING      "1.0b1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "0.9.9"
+#define VERSION_STRING      "1.0b1"
 #endif
 
 
@@ -277,8 +277,6 @@ int main(int argc, char *argv[])
       return -1;
     }
   }
-  else
-    printf("* No noise image supplied ... will generate noise image from input image.\n");
   
   /* Read in PSF image, if supplied */
   if (options.psfImagePresent) {
@@ -339,16 +337,20 @@ int main(int argc, char *argv[])
     }
     theModel->UseCashStatistic();
     theModel->SetGain(options.gain);
+    theModel->SetSkyBackground(options.originalSky);
     // do other stuff
   } else {
     // normal chi^2 statistics
     if (options.noiseImagePresent)
       theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
                                options.errorType);
-    else
+    else {
+      printf("* No noise image supplied ... will generate noise image from input image.\n");
       theModel->GenerateErrorVector(options.gain, options.readNoise, options.originalSky);
+    }
   }
   
+  // If user supplied a mask image, add it and apply it to the internal weight image
   if (maskAllocated) {
     theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
                              options.maskFormat);
@@ -525,7 +527,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
   optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
   optParser->AddUsageLine("");
-//  optParser->AddUsageLine("     --cashstat               Use Cash statistic instead of chi^2");
+  optParser->AddUsageLine("     --cashstat               Use Cash statistic instead of chi^2");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
 #ifndef NO_NLOPT
   optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver instead of L-M");

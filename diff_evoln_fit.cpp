@@ -40,7 +40,7 @@ public:
 
 private:
   int count;
-  double  lastChiSquared;
+//  double  lastChiSquared;
   ModelObject  *theModel;
 };
 

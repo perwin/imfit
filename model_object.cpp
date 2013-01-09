@@ -54,6 +54,10 @@ static string  UNDEFINED = "<undefined>";
 #define PARAM_FORMAT_WITH_ERRS "%s\t\t%7g # +/- %7g\n"
 #define PARAM_FORMAT "%s\t\t%7g\n"
 
+// very small value for Cash statistic calculations (replaces log(x) if x <= 0)
+// Based on http://cxc.harvard.edu/sherpa/ahelp/cstat.html
+#define LOG_SMALL_VALUE 1.0e-25
+
 // current best size for OpenMP processing (works well with Intel Core 2 Duo and
 // Core i7 in MacBook Pro, under Mac OS X 10.6 and 10.7)
 #define OPENMP_CHUNK_SIZE  10
@@ -175,6 +179,14 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 void ModelObject::SetGain( double gainValue )
 {
   gain = gainValue;
+}
+
+
+/* ---------------- PUBLIC METHOD: SetGain ---------------------------- */
+
+void ModelObject::SetSkyBackground( double originalSkyValue )
+{
+  originalSky = originalSkyValue;
 }
 
 
@@ -636,6 +648,21 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 void ModelObject::UseCashStatistic( )
 {
   useCashStatistic = true;
+
+  // Allocate storage for weight image (do this here because we assume that
+  // AddErrorVector() or GenerateErrorVector() will NOT be called if we're using 
+  // Cash statistic), and set all values = 1
+  if (weightVectorAllocated) {
+    printf("ERROR: ModelImage::UseCashStatistic -- weight vector already allocated!\n");
+    printf("Exiting ...\n\n");
+    exit(-1);
+  }
+  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  for (int z = 0; z < nDataVals; z++) {
+    weightVector[z] = 1.0;
+  }
+  weightVectorAllocated = true;
+
 }
 
 
@@ -706,7 +733,7 @@ double ModelObject::ChiSquared( double params[] )
 double ModelObject::CashStatistic( double params[] )
 {
   int  iDataRow, iDataCol, z, zModel;
-  double  modVal, dataVal;
+  double  modVal, dataVal, logData, logModel;
   double  cashStat = 0.0;
   
   CreateModelImage(params);
@@ -720,22 +747,29 @@ double ModelObject::CashStatistic( double params[] )
       zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
       // Mi − Di + DilogDi − DilogMi
 //      cashStat += weightVector[z] * (dataVector[z] - modelVector[zModel]);
-      modVal = modelVector[zModel];
-      dataVal = dataVector[z];
-      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
+      modVal = modelVector[zModel] + originalSky;
+      dataVal = dataVector[z] + originalSky;
+      if (modVal <= 0)
+        logModel = LOG_SMALL_VALUE;
+      else
+        logModel = log(modVal);
+      cashStat += weightVector[z] * (modVal - dataVal*logModel);
+//      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
     }
   }
   else {
     // Model image is same size & shape as data and weight images
     for (z = 0; z < nDataVals; z++) {
-      modVal = modelVector[z];
-      dataVal = dataVector[z];
-      // FIXME: Need to insert safeguards against attempting to take log of
-      // possible <= 0 values of dataVal or modVal
-      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
+      modVal = modelVector[z] + originalSky;
+      dataVal = dataVector[z] + originalSky;
+      if (modVal <= 0)
+        logModel = LOG_SMALL_VALUE;
+      else
+        logModel = log(modVal);
+      cashStat += weightVector[z] * (modVal - dataVal*logModel);
+//      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
     }
   }
-  
   
   return (2.0*cashStat);
 }

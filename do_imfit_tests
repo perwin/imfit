@@ -32,6 +32,11 @@ fi
 # test non-square image + PSF convolution?
 echo -n "   (now running fit with PSF convolution ...)"
 ./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --ftol=1.0e-8 &> test_dump4
+echo ""
+
+# test fitting with Cash statistic
+echo -n "   (now running Cash-statistic fit ...)"
+./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nm &> test_dump5
 
 #    Testing to see that bad config files are caught:
 ./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump_bad1
@@ -42,6 +47,8 @@ echo -n "   (now running fit with PSF convolution ...)"
 ./imfit --config tests/config_imfit_sersictest512_badlimits2.dat &> test_dump_bad6
 
 echo ""
+
+
 
 echo -n "*** Diff comparison with archives: first test... "
 if (diff --brief test_dump1 tests/imfit_textout1)
@@ -99,6 +106,16 @@ then
 else
   echo "Diff output:"
   diff test_dump4 tests/imfit_textout4
+fi
+
+echo -n "*** Diff comparison with archives: fit using Cash statistic... "
+tail -n 19 test_dump5 > test_dump5_tail
+if (diff --brief test_dump5_tail tests/imfit_textout5_tail)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump5_tail tests/imfit_textout5_tail
 fi
 
 

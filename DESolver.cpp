@@ -610,7 +610,7 @@ double DESolver::RandomUniform( double minValue, double maxValue )
 
 
 // Function added by PE: test for convergence
-// If the last three stored delta-Chi^2 values (values are stored every 10
+// If the last three stored objective-function values (values are stored every 10
 // generations) are all < TOLERANCE, then we decide that we have converged.
 bool TestConverged( double *relativeDeltas, double ftol )
 {
