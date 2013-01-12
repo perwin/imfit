@@ -248,7 +248,7 @@ env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 # source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
 
 # Pure C code
-c_obj_string = """mp_enorm statistics"""
+c_obj_string = """mp_enorm statistics mersenne_twister"""
 c_objs = c_obj_string.split()
 c_sources = [name + ".c" for name in c_objs]
 
@@ -330,9 +330,9 @@ env_1d = Environment( CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 # mersenne_twister code is only used by profilefit
-c_mersenne_obj_string = """mersenne_twister"""
-c_mersenne_objs = c_mersenne_obj_string.split()
-c_mersenne_sources = [name + ".c" for name in c_mersenne_objs]
+#c_mersenne_obj_string = """mersenne_twister"""
+#c_mersenne_objs = c_mersenne_obj_string.split()
+#c_mersenne_sources = [name + ".c" for name in c_mersenne_objs]
 
 # ModelObject1d and related classes:
 modelobject1d_obj_string = """model_object model_object_1d"""
@@ -355,8 +355,8 @@ profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
 # profilefit: put all the object and source-code lists together
-profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + c_objs + c_mersenne_objs
-profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + c_sources + c_mersenne_sources
+profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + c_objs
+profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + c_sources
 
 # psfconvolve1d: put all the object and source-code lists together
 psfconvolve1d_objs = ["psfconvolve1d_main", "commandline_parser", "utilities",

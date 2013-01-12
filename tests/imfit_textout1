@@ -32,7 +32,6 @@ Calling Levenberg-Marquardt solver ...
 Reduced Chi^2 = 0.000000
 AIC = 12.082596, BIC = 41.588831
 
-
 X0		15.0000 # +/- 0.0214
 Y0		15.0000 # +/- 0.0091
 FUNCTION Exponential

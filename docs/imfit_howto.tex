@@ -25,6 +25,7 @@
 \newcommand{\Makeimage}{\texttt{Makeimage}}
 
 \newcommand{\arcdeg}{\ensuremath{^{\circ}}}
+\newcommand{\chisquare}{\ensuremath{\chi^{2}}}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -50,14 +51,15 @@
 
 \section{What Is It?}
 
-\Imfit{} is a program for fitting astronomical images --- more
+\Imfit{} is a program for fitting astronomical images --- 
 specifically, for fitting images of galaxies, though it could certainly
 be used for fitting other sources. The user specifies a set of one or
-more 2D functions (e.g., elliptical exponential, elliptical S\'ersic,
+more 2D surface-brightness functions (e.g., elliptical exponential, elliptical S\'ersic,
 circular Gaussian) which will be added together in order to generate a
 model image; this model image will then be matched to the input image by
 adjusting the 2D function parameters via nonlinear minimization of the total
-$\chi^2$.
+\chisquare{} (or of the total Cash statistic in the alternate case of pure Poisson
+statistics).
 
 The 2D functions can be grouped into arbitrary sets sharing a common $(x,y)$
 position on the image plane; this allows galaxies with off-center components
@@ -101,8 +103,9 @@ library\footnote{\url{http://heasarc.nasa.gov/fitsio/}} for FITS image I/O and
 version 3 of the FFTW (Fastest Fourier Transform in the West)
 library\footnote{\url{http://www.fftw.org/}} for PSF convolution. Some optional
 components require the GNU Scientific Library
-(GSL),\footnote{\url{http://www.gnu.org/s/gsl/}} but the program can also be built
-without it.
+(GSL),\footnote{\url{http://www.gnu.org/s/gsl/}} and the NLopt
+library\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}}, but the
+program can also be built without these.
 
 \bigskip
 
@@ -120,18 +123,23 @@ the Differential Evolution fitting code of Rainer Storn and Kenneth Price
 Pre-built binaries for Intel-based MacOS X and Linux systems, along with the
 source code, are available at
 \url{http://www.mpe.mpg.de/~erwin/code/imfit/}. The pre-compiled binaries included
-statically linked versions of the CFITSIO, FFTW, and GSL libraries, so you do
+statically linked versions of the CFITSIO, FFTW, GSL, and NLopt libraries, so you do
 not need to have those installed.
 
 
 \subsection{Building \Imfit{} from Source: Outline}
 
 \begin{enumerate}
-\item Install the CFITSIO library.
+\item Install the CFITSIO library (version 3.0 or higher).
 
-\item Install the FFTW library --- note that if you have a multi-core CPU (or
-multiple CPUs sharing main memory), you should install the threaded version of
-FFTW as well, since this speeds up PSF convolution.
+\item Install the FFTW library (version 3.0 or higher) --- note that if you have a
+multi-core CPU (or multiple CPUs sharing main memory), you should
+install the threaded version of FFTW as well, since this speeds up PSF
+convolution.
+
+\item (Optional) Install the NLopt library --- this is only necessary if you
+wish to use the Nelder-Mead minimization algorithm. \Imfit{} can easily be built
+without this, if for some reason you don't have access to the NLopt library.
 
 \item (Optional) Install the GNU Scientific Library (GSL) --- this is only
 necessary if you wish to use image functions that rely on GSL.  Currently,
@@ -151,7 +159,7 @@ components, if for some reason you don't have access to the GSL.
 
 \subsection{Building \Imfit{} from Source: Details}\label{sec:build}
 
-Assuming that CFITSIO and FFTW (and optionally GSL) have already been installed
+Assuming that CFITSIO and FFTW (and optionally NLopt and GSL) have already been installed
 on your system, unpack the source-code tarball (imfit-x.x-source.tar.gz) in some convenient
 location.
 
@@ -175,6 +183,13 @@ commands instead:
 \texttt{\$ scons --no-gsl makeimage}
 \end{quote}
 
+Similarly, you will get compilation errors if you do not have the NLopt library installed;
+this can be dealt with by using:
+\begin{quote}
+\texttt{\$ scons --no-nlopt imfit} \\
+\texttt{\$ scons --no-nlopt makeimage}
+\end{quote}
+
 Various other compilation options may be useful; these are explained in the next
 subsections (note that all the SCons options can be combined on the command
 line). In particular, it is recommended that \imfit{} and \makeimage{} be
@@ -194,7 +209,7 @@ Python libraries. If these are not available, then the parts of the tests which
 compare output images with reference versions will simply be skipped.)
 
 
-\subsubsection{Option: Compiling with OpenMP Support}
+\subsubsection{Recommended Option: Compiling with OpenMP Support}
 
 \Imfit{} and \makeimage{} can be compiled to take advantage of OpenMP compiler support,
 which speeds up image computation by splitting it up across multiple CPUs
@@ -213,7 +228,7 @@ To include OpenMP support, compile using the following options:
 
 By default, the SConstruct file (the equivalent of a Makefile for SCons) tells SCons
 to look for header files in \texttt{/usr/local/include} and library files in
-\texttt{/usr/local/lib}. If you have the FFTW, CFITSIO, and (optionally) GSL headers
+\texttt{/usr/local/lib}. If you have the FFTW, CFITSIO, and (optionally) NLopt and GSL headers
 and libraries installed somewhere else, you can tell SCons about this by using the
 \texttt{--header-path} and \texttt{--lib-path} options:
 \begin{quote}
@@ -277,7 +292,9 @@ on the output file:
 \begin{quote}
 \$ makeimage ~ bestfit\_parameters\_imfit.dat ~ \texttt{--}refimage ~ ic3478rss\_256.fits
 \end{quote}
-This will generate and save the model image in a file called \texttt{modelimage.fits}.
+This will generate and save the model image in a file called \texttt{modelimage.fits}. (\Imfit{} itself 
+can save the best-fitting model image at the end of the fitting process if
+the \texttt{--save-model} option is used.)
 
 %Note that you can specify a subset of an image, thus:
 %\begin{quote}
@@ -339,6 +356,11 @@ cannot merge a one-character option and its target
 
 Some notable and useful command-line flags and options include:
 \begin{itemize}
+\item \texttt{-c, --config} \textit{config-file} --- the only \textit{required}
+command-line option, which tells \imfit{} the name of the configuration file.
+
+\bigskip
+
 \item \texttt{--psf} \textit{psf-image} --- specifies a FITS image to be convolved
 with the model image.
 
@@ -354,27 +376,32 @@ $\geq 1.0$ being good pixels.
 \bigskip
 
 \item \texttt{--noise} \textit{noisemap-image} --- specifies a pre-existing noise
-or error FITS image to use in the fitting process (by default, pixel values in the
-noise map are assumed to be sigma values).
+or error FITS image to use in the \chisquare{} fitting process (by default, pixel values in the
+noise map are assumed to be Gaussian sigma values).
 \item \texttt{--errors-are-variances} --- indicates that pixel values in the noise
 map are variances (sigma$^2$) instead of sigmas.
 \item \texttt{--errors-are-weights} --- indicates that pixel values in the noise
-map should be interpreted as weights, not as sigmas or variances.
+map should be interpreted as weights, not as sigmas or variances. (None
+of these three options are usable with Cash statistic minimization.)
 
 \bigskip
 
-\item \texttt{--sky} \textit{sky-level} --- specifies an original sky background
+\item \texttt{--sky} \textit{sky-level} --- specifies an original constant sky background
 level (in counts/pixel) that was subtracted from the image; used for internal
-computation of the noise map.
+computation of the noise map (for \chisquare{} minimization) or for correcting the 
+Cash statistic computation.
 \item \texttt{--gain} \textit{value} --- specifies the A/D gain (in electrons/ADU)
-of the input image; used for internal computation of the noise map.
+of the input image; used for internal computation of the noise map for \chisquare{}
+minimization.
 \item \texttt{--readnoise} \textit{value} --- specifies the read noise (in electrons)
-of the input image; used for internal computation of the noise map.
-\item \texttt{--ncombined} \textit{value} --- if values in the input image are the
-result of averaging (or computing the median of) two or more original images, then
-this option should be used to specify the number of original images; used for internal 
-computation of the noise map.  If multiple images were \textit{added} together
-with no rescaling, then do not use this option.
+of the input image; used for internal computation of the noise map for \chisquare{}
+minimization.
+\item \texttt{--ncombined} \textit{value} --- if values in the input
+image are the result of averaging (or computing the median of) two or
+more original images, then this option should be used to specify the
+number of original images; used for internal computation of the noise
+map for \chisquare{} minimization.  If multiple images were
+\textit{added} together with no rescaling, then do not use this option.
 
 \bigskip
 
@@ -387,9 +414,22 @@ will be saved using the specified filename.
 image $-$ best-fitting model image) will be saved using the specified filename.
 
 \bigskip
+
+\item \texttt{--nm} --- use Nelder-Mead simplex instead of Levenberg-Marquardt as
+the minimization technique (WARNING: slower)
 \item \texttt{--de} --- use Differential Evolution instead of Levenberg-Marquardt as
-the $\chi^2$ minimization technique (WARNING: much slower!)
-\item \texttt{--chisquare-only} --- Evaluate the $\chi^2$ value for the initial input
+the minimization technique (WARNING: much slower!)
+
+\bigskip
+\item \texttt{--cashstat} --- use Cash statistic instead of \chisquare{} as the fit
+statistic for minimization; for use in the case of Poisson statistics and zero read
+noise. Cannot be used with the (default) Levenberg-Marquardt minimization technique.
+
+\item \texttt{--ftol} \textit{FTOL-value} --- specify tolerance for fractional improvements
+in the fit statistic (\chisquare{} or Cash statistic) value; if further iterations do not reduce the
+fit statistic by more than this,
+the minimization is considered a success and halted  (default = $10^{-8}$)
+\item \texttt{--chisquare-only} --- Evaluate the \chisquare{} value for the initial input
 model as a fit to the input image, \textit{without} doing any minimization to find
 a better solution.
 
@@ -585,7 +625,7 @@ to stick to these conventions.
 Individual parameters can be limited in two ways:
 \begin{enumerate}
 \item Held fixed;
-\item Restricted to values between lower and upper limits.
+\item Bounded between lower and upper limits.
 \end{enumerate}
 To hold a parameter fixed, use the string ``fixed'' after the initial-value
 specification. E.g.:
@@ -624,8 +664,8 @@ background level that was subtracted from the image)
 \end{itemize}
 
 In situations where a configuration file contains one of these specifications
-and the corresponding command-line option is also used, the command-line option
-always overrides whatever value is  in the configuration file.
+and the corresponding command-line option is also used, \textit{the command-line option
+always overrides whatever value is  in the configuration file}.
 
 
 
@@ -651,7 +691,7 @@ generalized ellipses (``boxy'' to ``disky'' shapes) for the isophote shapes.
 \item Sersic --- an elliptical 2D S\'ersic function.
 \item Sersic\_GenEllipse --- an elliptical 2D S\'ersic function using
 generalized ellipses (``boxy'' to ``disky'' shapes) for the isophotes.
-\item Core-Sersic --- an elliptical 2D Core-S\'ersic function.
+\item Core-Sersic --- an elliptical 2D Core-S\'ersic function \citep{graham03,trujillo04}.
 %\item FlatExponential --- similar to Exponential, but with an inner radial zone
 %of constant surface brightness for $r < R_{\rm break}$.
 \item BrokenExponential --- similar to Exponential, but with \textit{two}
@@ -676,19 +716,18 @@ asymmetric Gaussian for the radial profile (see description of GaussianRing2Side
 
 \end{itemize}
 
-In addition, two experimental ``3D'' functions are available; with these, the
-intensity value for each pixel is based on line-of-sight
+In addition, two experimental ``3D'' functions are available. With these, the
+intensity value for each pixel comes from line-of-sight
 integration through a 3D luminosity-density model, generating a projected 2D
 model image given input specifications of the orientation and inclination
 to the line of sight. Both of these require the GSL for compilation from source (see Section~\ref{sec:build}).
 \begin{itemize}
-\item ExponentialDisk3D --- uses line-of-sight
-integration through a 3D luminosity-density model of an axisymmetric exponential disk (with
-different radial and vertical scale lengths), observed
+\item ExponentialDisk3D --- uses a 3D luminosity-density model of an axisymmetric 
+exponential disk (with different radial and vertical scale lengths), observed
 at an arbitrary inclination, to generate a projected surface-brightness image.
-\item GaussianRing3D --- another somewhat experimental component using line-of-sight
-integration, this time for a 3D luminosity-density model of an elliptical ring with
-Gaussian radial and exponential vertical profiles.
+\item GaussianRing3D --- uses a 3D 
+luminosity-density model of an elliptical ring with Gaussian radial and exponential 
+vertical profiles.
 
 \end{itemize}
 
@@ -777,7 +816,7 @@ cannot \textit{save} files to URLs, however.
 \subsection{Masks}
 
 A mask image can be supplied to \imfit{} by using the command-line
-options \texttt{--mask}. The mask image should be an \textit{integer}-valued
+option \texttt{--mask}. The mask image should be an \textit{integer}-valued
 FITS file with the same dimensions as the image being fitted (IRAF \texttt{.pl}
 mask files are not recognized, but these can be converted to FITS format within
 IRAF). The default is to treat zero-valued pixels in the mask image as
@@ -789,15 +828,16 @@ with the command-line flag \texttt{--mask-zero-is-bad}.
 
 \subsection{Noise, Variance, or Weight Maps}\label{sec:noise-maps}
 
-By default, \imfit{} calculates a weight map internally, using the input pixel
+By default, \imfit{} uses \chisquare{} as the statistic for minimization. As
+part of this, \imfit{} normally calculates an internal weight map, using the input pixel
 intensities, the A/D gain, any previously subtracted background
 level, and the read noise to estimate Gaussian errors $\sigma_{i}$ for each
 pixel $i$. The final weight map is $w_{i} = 1/\sigma^{2}_{i}$. These weights are
-then used in the $\chi^2$ calculation, summing over all $N$ pixels:
+then used in the \chisquare{} calculation, summing over all $N$ pixels:
 \begin{equation}
-\chi^2 \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{{\rm mod}, i} - I_{{\rm im}, i})^2 ,
+\chisquare \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{m, i} - I_{d, i})^2 ,
 \end{equation}
-where $I_{{\rm mod}, i}$ and $I_{{\rm im}, i}$ are the model and data intensities
+where $I_{m, i}$ and $I_{d, i}$ are the model and data intensities
 in counts/pixel, respectively. (Masking is handled by setting $w_{i} = 0$
 for masked pixels.)
 
@@ -808,7 +848,7 @@ ADU/pixel. If the values are \textit{variances} ($\sigma_{i}^2$), you can specif
 this with the \texttt{--errors-are-variances} flag. You can also tell \imfit{}
 that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via the
 \texttt{--errors-are-weights} flag, if that happens to be the case. (If a mask
-image is supplied, the weights of all masked pixels will still be set to 0,
+image is supplied, the weights of masked pixels will still be set to 0,
 regardless of their individual values in the weight image.)
 
 Note that \imfit{} does \textit{not} try to obtain information (such as
@@ -816,17 +856,25 @@ the A/D gain or read noise) from the FITS header of an image. This is primarily
 because there is little consistency in header names across the wide range of
 astronomical images, so it is difficult pick one name, or even a small set, and
 assume that it will be present in a given image's header; this is even more
-true if an image is the result of a simulation. (And some image headers
-use ``gain'' to mean \textit{inverse} gain (electrons/ADU) \ldots.)
+true if an image is the result of a simulation.
+
+If the user has specified the Cash statistic $C$ instead of \chisquare, the
+minimization uses
+\begin{equation}
+C \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{m, i} \, - \, I_{d, i} \ln I_{m, i}),
+\end{equation}
+where $I_{m, i}$ and $I_{d, i}$ are again the model and data intensities
+in counts/pixel, respectively. In this case, all weights are
+automatically $= 1$, except for masked pixels, which are still set $= 0$.
 
 
 \subsection{PSF Convolution}
 
-TBD.
-
-PSF convolution uses an input FITS file which contains the point spread function.
-The actual convolution uses Fast Fourier Transforms of the interally-generated
-model image and the PSF image to compute the output convolved model image.
+To simulate the effects of seeing and other telescope resolution effects, model
+images can be convolved with a PSF (point-spread function) image. This uses an
+input FITS file which contains the point spread function. The actual convolution
+uses Fast Fourier Transforms of the interally-generated model image and the PSF
+image to compute the output convolved model image.
 
 PSF images should be square, ideally with width = an odd number of pixels, and
 the PSF should be centered in the central pixel. (An off-center PSF can certainly
@@ -834,37 +882,63 @@ be used, but the resulting convolved model images will be shifted.) The PSF does
 \textit{not} need to be normalized, as \imfit{} will automatically normalize the
 PSF image internally.
 
+Although \imfit{} uses a multi-threaded version version of the FFTW library, which
+is itself quite fast, adding PSF convolution to the image-fitting process \textit{does}
+slow things down considerably. This is particularly true if the Differential
+Evolution minimization algorithm is used (see below).
 
 
-\section{Minimization Options: Levenberg-Marquardt vs.\ Differential Evolution}
 
-The default $\chi^2$ minimization  used by \imfit{} is a Levenberg-Marquardt
-algorithm, based on the classic MINPACK-1 implementation with enhancements by
-Craig Markwardt.\footnote{Original C version available at
-\url{http://www.physics.wisc.edu/~craigm/idl/cmpfit.html}} This is very fast and
-robust, but requires an initial guess for the parameter values and can sometimes
-become trapped in local minima in the $\chi^2$ landscape.
+\section{Minimization Options: Levenberg-Marquardt, Differential Evolution, Nelder-Mead Simplex}
 
-A semi-experimental alternate minimization algorithm is available via the
-\texttt{--de} flag. This performs the $\chi^2$ minimization using Differential
-Evolution (DE) \citep{de}, a genetic-algorithms approach which is, at least in
-principle, more likely to find the global $\chi^2$
-minimum.\footnote{\url{http://www.icsi.berkeley.edu/~storn/code.html}} It has
-the drawback of being \textit{much} slower than Levenberg-Marquardt
-minimization. For example, fitting a single S\'ersic function to the $256
-\times 256$ image in the \texttt{examples/} subdirectory takes $\sim 60$ times
-as long when using Differential Evolution as it does when using L-M minimization
-(though this might be improved by specifying narrower parameter ranges in the
-configuration file).
+The default \chisquare{} minimization  used by \imfit{} is a
+Levenberg-Marquardt algorithm, based on the classic MINPACK-1
+implementation with enhancements by Craig Markwardt.\footnote{Original C
+version available at
+\url{http://www.physics.wisc.edu/~craigm/idl/cmpfit.html}} This is very
+fast and robust, and is the most extensively tested algorithm in \imfit,
+but requires an initial guess for the parameter values and can sometimes
+become trapped in local minima in the \chisquare{} landscape. In
+addition, it is \textit{not} appropriate if one is using the Cash
+statistic, since the latter can potentially have both per-pixel and total values
+$< 0$, which the Levenberg-Marquardt algorithm cannot handle.
 
-The Differential Evolution approach \textit{requires} lower and upper limits for
-\textit{all} parameters in the configuration file (see
+The first alternate algorithm is available via the \texttt{--de} flag.
+This performs the fit-statistic (\chisquare{} or Cash
+statistic) minimization using Differential Evolution (DE) \citep{de}, a
+genetic-algorithms
+approach.\footnote{\url{http://www.icsi.berkeley.edu/~storn/code.html}}
+It has the drawback of being slower than the Nelder-Mead simplex (below)
+and \textit{much} slower than Levenberg-Marquardt minimization. For
+example, fitting a single S\'ersic function to the $256 \times 256$
+image in the \texttt{examples/} subdirectory takes $\sim 60$ times as
+long when using Differential Evolution as it does when using L-M
+minimization. It does has the advantage of being the least likely (at
+least in principle) of being trapped in local minima in the
+fit-statistic landscape; it also does \textit{not} require an initial
+guess for the parameter values.
+
+The Differential Evolution algorithm does, however, \textit{require} lower and upper
+limits for \textit{all} parameters in the configuration file (see
 Section~\ref{sec:param-limits}); this is because DE generates parameter-value
 ``genomes'' by random uniform sampling from within the ranges specified by the
 parameter limits. The format of the configuration file still requires that
-initial-guess values be present for all parameters as well, though these are
+initial-guess values be present for all parameters as well, but these are
 actually ignored by the DE algorithm. (This is to ensure that the same
-configuration file can be used with either minimization routine.)
+configuration file can be used with all minimization routines.)
+
+A second alternative algorithm (the least thoroughly tested) is a version of the
+Nelder-Mead simplex, as implemented by the NLopt
+library.\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}} This is
+significantly slower than Levenberg-Marquardt minimization ($\sim 10$ times
+slower for fits with one or two components), but significantly faster than DE.
+Like the Levenberg-Marquardt method, it does require an initial guess for the
+parameter values, but is probably less likely to become trapped in local minima
+in the fit-statistic landscape. Like DE, it can be used for both \chisquare{}
+and Cash-statistic minimization. This algorithm can be selected with the \texttt{--nm}
+flag. If you compile \imfit{} from source and want to use this altorithm, you
+need to have the NLopt library installed on your system. A minor drawback of the
+current implementation is that it provides no feedback while running.
 
 \medskip
 
@@ -872,18 +946,41 @@ TBD. [more details of DE implementation]
 
 \medskip
 
-Note that the DE algorithm does \textit{not} produce error estimates for the
-best-fitting parameter values, in contrast to the Levenberg-Marquardt approach.
-However, the L-M error estimates are themselves only reliable if the minimum in
-the $\chi^{2}$ landscape is symmetric and parabolic, and if the errors for the
-input image are truly Gaussian and well-determined.
+Note that the DE and N-M simplex algorithms do \textit{not} produce error
+estimates for the best-fitting parameter values, in contrast to the
+Levenberg-Marquardt approach. However, the L-M error estimates are themselves
+only reliable if the minimum in the \chisquare{} landscape is symmetric and
+parabolic, and if the errors for the input image are truly Gaussian and
+well-determined.
 
 \medskip
 
 The fact that the minimization algorithms are relatively decoupled from the rest
 of the code means that future versions of \imfit{} could potentially include
-other minimization techniques.
+other minimization techniques, or that an ambitious user could add such techniques
+on their own.
 
+
+\subsection{Controlling the Tolerance for Minimization}
+
+All three minimization algorithms have stop conditions based on
+fractional changes in the fit-statistic (\chisquare{} or Cash statistic)
+value: if further iterations do not improve the current value by more
+than FTOL $\times$ the fit statistic, then the algorithm declares success and
+terminates. (In the case of DE, the test condition is actually no
+further improvement after 30 generations.) The default value of FTOL is
+$10^{-8}$, which seems to do a reasonable job for typical images (in
+fact, it's probably overkill). If you want to experiment with different
+values of FTOL, you can do this via the command-line option
+\texttt{--ftol}.
+
+There are also built-in stopping conditions based on maximum number of
+iterations for the L-M algorithm (1000), maximum number of generations for DE
+(600), or maximum number of function evaluations (i.e., computations of model
+images) for the Nelder-Mead simplex algorithm (10000 times the number of free
+parameters).
+
+TBD: info about extra stopping conditions for the L-M and N-M simplex algorithms
 
 
 \section{Outputs}
@@ -965,7 +1062,7 @@ equals sign.
 
 Some notable and useful command-line flags and options include:
 \begin{itemize}
-\item \texttt{--output} \textit{filename} --- filename for the output model
+\item \texttt{-o, --output} \textit{filename} --- filename for the output model
 image (default = ``modelimage.fits'').
 
 \item \texttt{--refimage} \textit{filename} --- existing reference image to
@@ -979,6 +1076,12 @@ use for determining output image dimensions.
 
 \item \texttt{--psf} \textit{psf-image} --- specifies a FITS image to be convolved
 with the model image.
+
+\bigskip
+
+
+\item \texttt{--nosave} --- do \textit{not} save the model image (useful for testing
+purposes, or when using \makeimage{} to estimate fluxes)
 
 \bigskip
 
@@ -1036,7 +1139,8 @@ functions), one could execute the following command
   \texttt{\$ \makeimage} ~ \textit{config-file} ~ \texttt{--output-functions mod}
 \end{quote}
 and the result would be three FITS files, named \texttt{mod1\_Sersic.fits},
-\texttt{mod2\_Exponential.fits}, and \texttt{mod3\_Exponential.fits}.
+\texttt{mod2\_Exponential.fits}, and \texttt{mod3\_Exponential.fits} (in addition
+to \texttt{model.fits}, which is the sum of all three functions).
 
 
 \subsection{Using \Makeimage{} to Estimate Fluxes and Magnitudes}
@@ -1298,17 +1402,6 @@ We need to do two simple things here:
 the top of the file, where the other header files are included:\\
 \texttt{\#include "func\_new-moffat.h"}
 
-%\item Modify the list of function names: Look for the lines beginning with
-%\begin{verbatim}
-%const char  FUNCTION_NAMES[][30] =
-%\end{verbatim}
-%and add \texttt{"NewMoffat"} to the list (add the name to both lists if the
-%function does not depend on the GNU Scientific Library; if it \textit{does} depend on GSL,
-%then add it to the first list only)
-%
-%\item Increment the constant \texttt{N\_FUNCTIONS} by one, to reflect the fact that
-%you've added one new function to the total.
-
 \item Add code to generate an instance of our new class as part of the
 function-factory map. Inside the function PopulateFactoryMap, add the following lines:
 \begin{verbatim}
@@ -1343,6 +1436,7 @@ reference the current URL (\url{http://www.mpe.mpg.de/~erwin/code/imfit/}) if \i
 been useful in your research.
 
 
+\newpage
 
 \appendix
 \section{Standard Functions in Detail}\label{app:functions}
@@ -1351,8 +1445,9 @@ Unless otherwise noted, all ``intensity'' parameters (\texttt{I\_sky},
 \texttt{I\_0}, \texttt{I\_e}, etc.) are in units of counts per pixel, and all
 lengths are in pixels.
 
-A sample function specification (giving the parameters in their proper order) is
-listed for each function description.
+A sample function specification (giving the parameters in their proper order),
+as you would use in a configuration file, is listed for each function
+description.
 
 ``Elliptical'' functions are defined to have an intensity which is constant on
 concentric, similar ellipses (with specified ellipticity and major-axis position angle);
@@ -1542,7 +1637,7 @@ r_e
 This generates an elliptical 2D function with the major-axis intensity profile
 given by the Core-S{\'e}rsic model \citep{graham03,trujillo04}. This has a
 S\'ersic profile (parameterized by $n$ and $r_{e}$) for radii $>$ the break
-radius $r_{b}$ and a single power law with index $\gamma$ for radii $< r_{b}$.
+radius $r_{b}$ and a single power law with index $-\gamma$ for radii $< r_{b}$.
 The transition between the two regimes is mediated by the parameter $\alpha$:
 for low values of $\alpha$, the transition is very gradual and smooth, while for
 high values of $\alpha$ the transition becomes very abrupt (a perfectly sharp
@@ -1788,12 +1883,6 @@ When $n = 1$, the vertical distribution is the familiar $\mathrm{sech}^2$ model
 an exponential with $\exp(-z/z_{0})$; in practice, the can be approximated by
 setting $n$ equal to some fixed, large number.
 
-
-%For a perfectly
-%face-on disk, this is equivalent to a circular Exponential function (above) with a
-%central intensity of $2 h_{z} J_{0}$ counts/pixel. (Pixel subsampling is currently not
-%implemented for the 3D functions, so the equivalence will not be exact unless pixel
-%subsampling is turned off when generating an image with the Exponential function.)
 
 \begin{verbatim}
 FUNCTION ExponentialDisk3D

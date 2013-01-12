@@ -40,7 +40,6 @@ Calling Levenberg-Marquardt solver ...
 Reduced Chi^2 = 1.114196
 AIC = 4569.975051, BIC = 4614.172017
 
-
 X0		32.9439 # +/- 0.0128
 Y0		34.0933 # +/- 0.0156
 FUNCTION Sersic

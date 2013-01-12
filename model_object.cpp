@@ -36,6 +36,7 @@
 #include <assert.h>
 #include <math.h>
 #include <iostream>
+#include "mersenne_twister.h"
 
 #include "definitions.h"
 #include "model_object.h"
@@ -47,9 +48,9 @@
 static string  UNDEFINED = "<undefined>";
 
 // output formatting for printing parameters
-#define X0_FORMAT_WITH_ERRS "\nX0\t\t%.4f # +/- %.4f\n"
+#define X0_FORMAT_WITH_ERRS "X0\t\t%.4f # +/- %.4f\n"
 #define Y0_FORMAT_WITH_ERRS "Y0\t\t%.4f # +/- %.4f\n"
-#define X0_FORMAT "\nX0\t\t%.4f\n"
+#define X0_FORMAT "X0\t\t%.4f\n"
 #define Y0_FORMAT "Y0\t\t%.4f\n"
 #define PARAM_FORMAT_WITH_ERRS "%s\t\t%7g # +/- %7g\n"
 #define PARAM_FORMAT "%s\t\t%7g\n"
@@ -79,6 +80,7 @@ ModelObject::ModelObject( )
   residualVectorAllocated = false;
   outputModelVectorAllocated = false;
   deviatesVectorAllocated = false;
+  bootstrapIndicesAllocated = false;
   setStartFlag_allocated = false;
   
   useCashStatistic = false;
@@ -845,6 +847,48 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
 }
 
 
+/* ---------------- PUBLIC METHOD: UseBootstrap ------------------------ */
+// Tells ModelObject1d object that from now on we'll operate in bootstrap
+// resampling mode, so that bootstrapIndices vector is used to access the
+// data and model values (and weight values, if any).
+
+void ModelObject::UseBootstrap( )
+{
+  doBootstrap = true;
+  MakeBootstrapSample();
+}
+
+
+/* ---------------- PUBLIC METHOD: MakeBootstrapSample ----------------- */
+// Generate a new bootstrap resampling of the data (actually, we generate a
+// bootstrap resampling of the data *indices*)
+
+void ModelObject::MakeBootstrapSample( )
+{
+  int  n;
+  bool  badIndex;
+  
+  if (! bootstrapIndicesAllocated) {
+    bootstrapIndices = (int *) calloc((size_t)nValidDataVals, sizeof(int));
+    bootstrapIndicesAllocated = true;
+  }
+  for (int i = 0; i < nValidDataVals; i++) {
+    // pick random data point between 0 and nDataVals - 1, inclusive;
+    // reject masked pixels
+    //n = round( (random()/MAX_RANDF)*(nDataVals - 1) );
+    badIndex = true;
+    do {
+      n = (int)floor( genrand_real2()*nDataVals );
+      if (weightVector[n] > 0.0)
+        badIndex = false;
+    } while (badIndex);
+    bootstrapIndices[i] = n;
+  }
+}
+
+
+
+
 /* ---------------- PUBLIC METHOD: PrintImage ------------------------- */
 // Basic function which prints an image to stdout.  Mainly meant to be
 // called by PrintInputImage, PrintModelImage, and PrintWeights.
@@ -1207,6 +1251,11 @@ ModelObject::~ModelObject()
   
   if (doConvolution)
     delete psfConvolver;
+
+  if (bootstrapIndicesAllocated) {
+    free(bootstrapIndices);
+    bootstrapIndicesAllocated = false;
+  }
 }
 
 

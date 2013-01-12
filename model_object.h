@@ -172,11 +172,11 @@ class ModelObject
     // 1D only
     virtual int GetModelVector( double *profileVector ) { return -1; };
 
-    // 1D only
-    virtual void UseBootstrap( ) { ; };
+    // 1D or 2D
+    virtual void UseBootstrap( );
     
-    // 1D only
-    virtual void MakeBootstrapSample( ) { ; };
+    // 1D or 2D
+    virtual void MakeBootstrapSample( );
     
     // Destructor
     virtual ~ModelObject();
@@ -197,7 +197,7 @@ class ModelObject
     bool  residualVectorAllocated, outputModelVectorAllocated;
     bool  setStartFlag_allocated;
     bool  modelImageComputed;
-    bool  weightValsSet, maskExists;
+    bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
     bool  useCashStatistic;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
@@ -211,6 +211,7 @@ class ModelObject
     double  *residualVector;
     double  *outputModelVector;
     double  *parameterBounds;
+    int  *bootstrapIndices;
     int  *functionSetStarts;
     bool  *setStartFlag;
     vector<FunctionObject *> functionObjects;

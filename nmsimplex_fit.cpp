@@ -49,6 +49,7 @@ const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
 const double  XTOL = 1.0e-8;
 const int  FUNCS_PER_REPORTING_STEP = 20;
+const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;
 
 
 // Module variables -- used to control user feedback within myfunc_nlopt
@@ -73,7 +74,9 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
   if (verboseOutput > 0) {
     if ((funcCount % FUNCS_PER_REPORTING_STEP) == 0) {
       printf("\tN-M simplex: function call %d: objective = %f\n", funcCount, fitStatistic);
-      //theModel->PrintModelParams(stdout, params, NULL, NULL);
+      if ( (verboseOutput > 1) && ((funcCount % (REPORT_STEPS_PER_VERBOSE_OUTPUT*FUNCS_PER_REPORTING_STEP)) == 0) ) {
+        theModel->PrintModelParams(stdout, params, NULL, NULL);
+      }
     }
   }
   

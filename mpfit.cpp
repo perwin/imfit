@@ -92,7 +92,7 @@ int CheckFinite(int ntot, double *matrix);
 *                      if the default configuration is to be used.
 *                      See README and mpfit.h for definition and use
 *                      of config.
-*     void *privateData  - any private user data which is to be passed directly
+*     void *theModel  - any private user data which is to be passed directly
 *                      to funct without modification by mpfit().
 *     mp_result *result - pointer to structure, which upon return, contains
 *                      the results of the fit.  The user should zero this
@@ -279,7 +279,7 @@ int CheckFinite(int ntot, double *matrix);
 
 
 int mpfit(mp_func funct, int m, int npar,
-          double *xall, mp_par *pars, mp_config *config, ModelObject *privateData, 
+          double *xall, mp_par *pars, mp_config *config, ModelObject *theModel, 
           mp_result *result)
 {
   mp_config conf;
@@ -457,7 +457,7 @@ int mpfit(mp_func funct, int m, int npar,
 #ifdef DEBUG
   printf("\n*mpfit: First call to user function\n");
 #endif
-  iflag = mp_call(funct, m, npar, xall, fvec, 0, privateData);
+  iflag = mp_call(funct, m, npar, xall, fvec, 0, theModel);
   nfev += 1;
   if (iflag < 0) {
     goto CLEANUP;
@@ -497,7 +497,7 @@ int mpfit(mp_func funct, int m, int npar,
   printf("\n*mpfit: (iter=%d) calling mp_fdjac2...\n", iter);
 #endif
   iflag = mp_fdjac2(funct, m, nfree, ifree, npar, xnew, fvec, fjac, ldfjac,
-                    conf.epsfcn, wa4, privateData, &nfev,
+                    conf.epsfcn, wa4, theModel, &nfev,
                     step, dstep, mpside, qulim, ulim,
                     ddebug, ddrtol, ddatol);
 #ifdef DEBUG
@@ -767,7 +767,7 @@ int mpfit(mp_func funct, int m, int npar,
 #ifdef DEBUG
   printf("\n*mpfit(inner-loop): call to user function\n");
 #endif
-  iflag = mp_call(funct, m, npar, xnew, wa4, 0, privateData);
+  iflag = mp_call(funct, m, npar, xnew, wa4, 0, theModel);
   nfev += 1;
   if (iflag < 0) goto L300;
 
@@ -859,6 +859,9 @@ int mpfit(mp_func funct, int m, int npar,
     // Added by PE: printing updates
     if (config->verbose > 0) {
       printf("\tmpfit iteration %d: chi^2 = %f\n", iter, fnorm*fnorm);
+      if (config->verbose >1) {
+        theModel->PrintModelParams(stdout, x, NULL, NULL);
+      }
     }
     iter += 1;
   }
@@ -928,7 +931,7 @@ int mpfit(mp_func funct, int m, int npar,
   }
   
   if ((conf.nprint > 0) && (info > 0)) {
-    iflag = mp_call(funct, m, npar, xall, fvec, 0, privateData);
+    iflag = mp_call(funct, m, npar, xall, fvec, 0, theModel);
     nfev += 1;
   }
 

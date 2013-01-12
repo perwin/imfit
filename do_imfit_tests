@@ -88,7 +88,7 @@ fi
 
 if [ "$1" != "--node" ]
 then
-  tail -n 18 test_dump3c > test_dump3c_tail
+  tail -n 17 test_dump3c > test_dump3c_tail
   echo -n "*** Diff comparison with archives: tiny SDSS cutout image (DE fit)... "
   if (diff --brief test_dump3c_tail tests/imfit_textout3c_tail)
   then
@@ -109,7 +109,7 @@ else
 fi
 
 echo -n "*** Diff comparison with archives: fit using Cash statistic... "
-tail -n 19 test_dump5 > test_dump5_tail
+tail -n 18 test_dump5 > test_dump5_tail
 if (diff --brief test_dump5_tail tests/imfit_textout5_tail)
 then
   echo " OK"

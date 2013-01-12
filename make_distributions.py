@@ -45,6 +45,7 @@ README.txt
 source_header_files = """
 definitions
 function_object
+mersenne_twister
 mp_enorm
 param_struct
 statistics
@@ -65,6 +66,7 @@ print_results
 """
 
 source_files_c = """
+mersenne_twister
 mp_enorm
 statistics
 """

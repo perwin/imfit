@@ -22,7 +22,6 @@ Nelder-Mead Simplex status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
 Reduced Chi^2 = 1.114196
 AIC = 4569.975051, BIC = 4614.172017
 
-
 X0		32.9439
 Y0		34.0933
 FUNCTION Sersic
