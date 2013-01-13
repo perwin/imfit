@@ -28,6 +28,7 @@
 #include "function_object.h"
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
+#include "bootstrap_errors.h"
 
 // Solvers (optimization algorithms)
 #include "levmar_fit.h"
@@ -111,6 +112,8 @@ typedef struct {
   bool  printImages;
   bool printChiSquaredOnly;
   int  solver;
+  bool  doBootstrap;
+  int  bootstrapIterations;
   int  maxThreads;
   bool  maxThreadsSet;
 } commandOptions;
@@ -168,7 +171,7 @@ int main(int argc, char *argv[])
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
   mp_par  *parameterInfo;
-  mp_par  *mpfitParameterConstraints;
+//  mp_par  *mpfitParameterConstraints;
   int  status;
   vector<string>  imageCommentsList;
   commandOptions  options;
@@ -211,6 +214,8 @@ int main(int argc, char *argv[])
   options.printChiSquaredOnly = false;
   options.printImages = false;
   options.solver = MPFIT_SOLVER;
+  options.doBootstrap = false;
+  options.bootstrapIterations = 0;
   options.verbose = 1;
 
   ProcessInput(argc, argv, &options);
@@ -445,6 +450,16 @@ int main(int argc, char *argv[])
   }
 
 
+  // Optional bootstrap resampling
+  if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
+    printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
+           options.bootstrapIterations);
+    printf("[NOT YET PROPERLY IMPLEMENTED!]\n");
+    BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
+                    options.bootstrapIterations, nFreeParams, options.useCashStatistic);
+  }
+
+
   // TESTING (remove later)
   if (options.printImages)
     theModel->PrintModelImage();
@@ -534,6 +549,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 #endif
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
   optParser->AddUsageLine("");
+//  optParser->AddUsageLine(" --bootstrap <int>            do this many iterations of bootstrap resampling to estimate errors");
+//  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
 //  optParser->AddUsageLine("     --verbose                  Print extra info during the fit");
   optParser->AddUsageLine("");
@@ -576,6 +593,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("readnoise");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("ncombined");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("ftol");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("bootstrap");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("config", "c");
   optParser->AddOption("max-threads");      /* an option (takes an argument), supporting only long form */
 
@@ -748,6 +766,16 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->ftol = atof(optParser->GetTargetString("ftol").c_str());
     theOptions->ftolSet = true;
     printf("\tfractional tolerance ftol for chi^2 convergence = %g\n", theOptions->ftol);
+  }
+  if (optParser->OptionSet("bootstrap")) {
+    if (NotANumber(optParser->GetTargetString("bootstrap").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: number of bootstrap iterations should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->doBootstrap = true;
+    theOptions->bootstrapIterations = atol(optParser->GetTargetString("bootstrap").c_str());
+    printf("\tnumber of bootstrap iterations = %d\n", theOptions->bootstrapIterations);
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {

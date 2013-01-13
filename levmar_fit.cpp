@@ -78,9 +78,11 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nPixelsTot, double *paramVec
   status = mpfit(myfunc_mpfit, nPixelsTot, nParamsTot, paramVector, mpfitParameterConstraints,
 					&mpConfig, theModel, &mpfitResult);
 
-  printf("\n");
-  PrintResults(paramVector, 0, &mpfitResult, theModel, nFreeParams, parameterLimits, status);
-  printf("\n");
+  if (verbose >= 0) {
+    printf("\n");
+    PrintResults(paramVector, 0, &mpfitResult, theModel, nFreeParams, parameterLimits, status);
+    printf("\n");
+  }
 
   return status;
 }

@@ -47,8 +47,9 @@ class ExponentialDisk3D : public FunctionObject
 
 
   private:
-    double  x0, y0, PA, inclination, J_0, h, h_z;   // parameters
+    double  x0, y0, PA, inclination, J_0, h, n, z_0;   // parameters
     double  PA_rad, cosPA, sinPA, inc_rad, cosInc, sinInc;   // other useful quantities
+    double  scaledZ0, two_to_alpha, alpha;
     gsl_function  F;
 };
 

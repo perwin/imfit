@@ -764,7 +764,14 @@ means of directly specifying the exposure time.)
 
 If the image is an \textit{average} of $N$ input images of the same exposure time, you
 can either multipy the image by $N$ \textit{or} use the ``\texttt{--ncombined}'' option
-to tell \imfit{} how to adjust the error estimations.
+to tell \imfit{} how to adjust the error estimations. 
+
+(There are actually two effects involved in averaging multiple images: the simple one of
+rescaling the flux, which needs to be accounted for in order to generate the correct
+Poisson errors; and the fact that the read noise from multiple exposures should
+ideally be added in quadrature when multiple images are combined. \Imfit{} currently
+ignores the second effect; as long as the total counts are high, so that the noise
+is dominated by the Poisson-based term, this should not be a significant problem.)
 
 \Imfit{} does \textit{not} assume the presence of any particular header
 keywords in the FITS file.

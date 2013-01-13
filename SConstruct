@@ -287,7 +287,8 @@ functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
 # Base files for imfit:
 imfit_base_obj_string = """commandline_parser utilities image_io levmar_fit mpfit 
-		diff_evoln_fit DESolver config_file_parser add_functions print_results imfit_main"""
+		diff_evoln_fit DESolver config_file_parser add_functions print_results 
+		bootstrap_errors imfit_main"""
 if useNLopt:
 	imfit_base_obj_string += " nmsimplex_fit"
 imfit_base_objs = imfit_base_obj_string.split()

@@ -188,7 +188,8 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   verboseOutput = verbose;
   result = nlopt_optimize(optimizer, paramVector, &finalStatisticVal);
   //double stopval = nlopt_get_stopval(optimizer);
-  InterpretResult(result);
+  if (verbose >= 0)
+    InterpretResult(result);
 
 
   // Dispose of nl_opt object and free arrays:

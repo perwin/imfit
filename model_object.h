@@ -188,9 +188,9 @@ class ModelObject
   protected:  // same as private, except accessible to derived classes
     int  nDataVals, nDataColumns, nDataRows, nValidDataVals, nCombined;
     int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
-    double  nCombined_sqrt;
+//    double  nCombined_sqrt;
 	double  zeroPoint;
-	double gain, originalSky;
+	double gain, exposureTime, originalSky;
     int  debugLevel;
     int  maxRequestedThreads;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;

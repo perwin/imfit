@@ -1,9 +1,9 @@
-/* FILE: func_exp3d.cpp ------------------------------------------------ */
-/* VERSION 0.2
+/* FILE: func_expdisk3d.cpp -------------------------------------------- */
+/* VERSION 0.1
  *
  *   Experimental function object class for a 3D exponential disk (luminosity
- * density = radial exponential with scale length h and vertical exponential with
- * scale heigh h_z), seen at position angle PA and inclination inc.
+ * density = radial exponential with scale length h and vertical sech^(2/n) profile
+ * with scale heigh h_z), seen at position angle PA and inclination inc.
  *   
  *   BASIC IDEA:
  *      Setup() is called as the first part of invoking the function;
@@ -105,11 +105,13 @@
 using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
-const int   N_PARAMS = 5;
-const char  PARAM_LABELS[][20] = {"PA", "inc", "J_0", "h", "h_z"};
+const int   N_PARAMS = 6;
+const char  PARAM_LABELS[][20] = {"PA", "inc", "J_0", "h", "n", "z_0"};
 const char  FUNCTION_NAME[] = "ExponentialDisk3D function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
+
+const double  COSH_LIMIT = 100.0;
 
 const double  INTEGRATION_MULTIPLIER = 20;
 
@@ -157,7 +159,8 @@ void ExponentialDisk3D::Setup( double params[], int offsetIndex, double xc, doub
   inclination = params[1 + offsetIndex];
   J_0 = params[2 + offsetIndex ];
   h = params[3 + offsetIndex ];
-  h_z = params[4 + offsetIndex ];
+  n = params[4 + offsetIndex ];
+  z_0 = params[5 + offsetIndex ];
 
   // pre-compute useful things for this round of invoking the function
   // convert PA to +x-axis reference
@@ -169,8 +172,9 @@ void ExponentialDisk3D::Setup( double params[], int offsetIndex, double xc, doub
   sinInc = sin(inc_rad);
   //tanInc = tan(inc_rad);
   
-  // Don't try doing the following here; it make the whole thing ~ 4 times slower!
-  //integLimit = INTEGRATION_MULTIPLIER * h;
+  alpha = 2.0/n;
+  scaledZ0 = alpha*z_0;
+  two_to_alpha = pow(2.0, alpha);
 }
 
 
@@ -182,7 +186,7 @@ double ExponentialDisk3D::GetValue( double x, double y )
   double  y_diff = y - y0;
   double  xp, yp, x_d0, y_d0, z_d0, totalIntensity, error;
   double  integLimit;
-  double  xyParameters[8];
+  double  xyParameters[11];
   int  nSubsamples;
   int  nEvals;
   
@@ -205,7 +209,10 @@ double ExponentialDisk3D::GetValue( double x, double y )
   xyParameters[4] = sinInc;
   xyParameters[5] = J_0;
   xyParameters[6] = h;
-  xyParameters[7] = h_z;
+  xyParameters[7] = z_0;
+  xyParameters[8] = scaledZ0;
+  xyParameters[9] = two_to_alpha;
+  xyParameters[10] = alpha;
   F.params = xyParameters;
 
   // integrate out to +/- integLimit, which is multiple of exp. scale length
@@ -236,6 +243,7 @@ double ExponentialDisk3D::GetValue( double x, double y )
 double LuminosityDensity( double s, void *params )
 {
   double  y_d, z_d, z, R, lumDensity;
+  double  verticalScaling, sech;
   double  *paramsVect = (double *)params;
   double x_d0 = paramsVect[0];
   double y_d0 = paramsVect[1];
@@ -244,7 +252,10 @@ double LuminosityDensity( double s, void *params )
   double sinInc = paramsVect[4];
   double J_0 = paramsVect[5];
   double h = paramsVect[6];
-  double h_z = paramsVect[7];
+  double z_0 = paramsVect[7];
+  double scaledZ0 = paramsVect[8];
+  double two_to_alpha = paramsVect[9];
+  double alpha = paramsVect[10];
   
   // Given s and the pre-defined parameters, determine our 3D location (x_d,y_d,z_d)
   // [by construction, x_d = x_d0]
@@ -254,11 +265,19 @@ double LuminosityDensity( double s, void *params )
   // Convert 3D Cartesian coordinate to R,z coordinate
   R = sqrt(x_d0*x_d0 + y_d*y_d);
   z = fabs(z_d);
-  
-  lumDensity = J_0 * exp(-R/h) * exp(-z/h_z);
+
+  // if combination of n*z/z_0 is large enough, switch to simple exponential
+  if ((z/scaledZ0) > COSH_LIMIT)
+    verticalScaling = two_to_alpha * exp(-z/z_0);
+  else {
+    sech = 1.0 / cosh(z/scaledZ0);
+    verticalScaling = pow(sech, alpha);
+  }
+
+  lumDensity = J_0 * exp(-R/h) * verticalScaling;
   return lumDensity;
 }
 
 
 
-/* END OF FILE: func_exp3d.cpp ----------------------------------------- */
+/* END OF FILE: func_expdisk3d.cpp ------------------------------------- */
