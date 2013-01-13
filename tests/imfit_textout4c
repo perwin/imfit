@@ -1,0 +1,44 @@
+	Image file = tests/n3073rss_small.fits
+	* No fitting will be done!
+	configuration file = tests/imfit_config_n3073.dat
+	PSF image = tests/psf_moffat_35.fits
+	mask image = tests/n3073rss_small_mask.fits
+Value from config file: gain = 4.725000 e-/ADU
+Value from config file: read noise = 4.300000 e-
+Value from config file: original sky = 154.330000
+Reading data image ("tests/n3073rss_small.fits") ...
+naxis1 [# pixels/row] = 150, naxis2 [# pixels/col] = 200; nPixels_tot = 30000
+Reading mask image ("tests/n3073rss_small_mask.fits") ...
+Reading PSF image ("tests/psf_moffat_35.fits") ...
+naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
+Function: Sersic
+Function: Exponential
+11 total parameters
+Model Object: 30000 data values (pixels)
+* No noise image supplied ... will generate noise image from input image.
+ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
+ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
+Setting up parameter information array ...
+11 free parameters (28743 degrees of freedom)
+
+  CHI-SQUARE = 235606.146670    (28743 DOF)
+
+Reduced Chi^2 = 8.196992
+AIC = 235628.155855, BIC = 235719.078524
+
+X0		101.0000
+Y0		97.0000
+FUNCTION Sersic
+PA		    110
+ell		    0.2
+n		    1.5
+I_e		    150
+r_e		     15
+FUNCTION Exponential
+PA		     55
+ell		    0.2
+I_0		     70
+h		     45
+
+Done!
+

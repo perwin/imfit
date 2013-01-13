@@ -29,10 +29,13 @@ else
   echo "   (skipping DE test)"
 fi
 
-# test non-square image + PSF convolution; then just do chisquare-only calculation
+# test non-square SDSS image + PSF convolution; then test count/sec version with --exptim
+# option; then just do chisquare-only calculation
 echo -n "   (now running fit with PSF convolution ...)"
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --ftol=1.0e-8 &> test_dump4
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> test_dump4b
+./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> test_dump4
+# test on count/sec image using --exptime; remember to rescale --sky as well! (= 154.33 / 53.907456)
+./imfit tests/n3073rss_small_cps.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --exptime=53.907456 --sky=2.8628692847238053 &> test_dump4b
+./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> test_dump4c
 echo ""
 
 # test fitting with Cash statistic
@@ -109,13 +112,22 @@ else
   diff test_dump4 tests/imfit_textout4
 fi
 
-echo -n "*** Diff comparison with archives: chisquare-only calculation... "
+echo -n "*** Diff comparison with archives: same, but using counts/sec image + --exptime option... "
 if (diff --brief test_dump4b tests/imfit_textout4b)
 then
   echo " OK"
 else
   echo "Diff output:"
   diff test_dump4b tests/imfit_textout4b
+fi
+
+echo -n "*** Diff comparison with archives: chisquare-only calculation... "
+if (diff --brief test_dump4c tests/imfit_textout4c)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump4c tests/imfit_textout4c
 fi
 
 echo -n "*** Diff comparison with archives: fit using Cash statistic... "

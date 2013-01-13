@@ -249,7 +249,7 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
 void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise, double expTime, 
 									int nCombinedImages, double originalSkyBackground )
 {
-  assert( (imageGain > 0.0) && (readNoise >= 0.0) );
+  assert( (imageGain > 0.0) && (readoutNoise >= 0.0) );
   assert( (expTime > 0.0) && (nCombinedImages >= 1) );
 
   gain = imageGain;
@@ -353,6 +353,8 @@ void ModelObject::GenerateErrorVector( )
       totalFlux = 0.0;
 //    noise_squared = totalFlux/imageGain + readNoise_sqrd;
     noise_squared = totalFlux/effectiveGain + nCombined*readNoise_sqrd;
+    // Note that we store 1/sigma instead of 1/sigma^2, since the chi^2 calculation in 
+    // ChiSquared() [or the equivalent in mpfit.cpp) will square the individual terms
     weightVector[z] = 1.0 / sqrt(noise_squared);
   }
 

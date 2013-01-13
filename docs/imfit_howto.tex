@@ -1047,7 +1047,65 @@ to disk.
 
 TBD.
 
-\subsection{Uncertainties on Parameter Estimates}
+\subsection{Uncertainties on Parameter Values: L-M Estimates vs.\ Bootstrap Resampling}
+\label{sec:bootstrap}
+
+The (default) Levenberg-Marquardt minimization algorithm used by
+\imfit{} automatically generates a set of (symmetric) uncertainty
+estimates for each  free parameter at the conclusion of the fitting
+process; these are printed to the terminal as part of the summary
+output. (In the printout, each parameter line has the ``$\pm x$''
+uncertainty  separated from the best-fit value by the ``\#'' character,
+so that the summary output can be copied and pasted into a text file to
+make a usable configuration file  for \makeimage.)
+
+These values come from XXX, and should be viewed with caution: for
+example, they assume that the $\chisquare$ landscape in the vicinity of
+the best-fit solution is parabolic XXX. In practice, they should probably be
+seen as \textit{lower limits} on the uncertainty.
+
+The other fitting algorithms used by \imfit{} do not compute gradients
+in the fit landscape, and so they do not produce automatic uncertainty
+estimates. Although one could certainly take the solution of a
+fit done with the N-M simplex or DE algorithms and use it as input to a
+L-M run of \imfit, thus generating L-M--based uncertainties, this is not
+possible when using the Cash statistic.
+
+As an alternative to the somewhat dubious L-M uncertainty estimates --
+and as a method for estimating uncertainties in the case of
+Cash-statistic minimization -- \imfit{} offers bootstrap resampling as
+an option. This is done with the ``\texttt{--bootstrap}'' command-line option,
+which takes the \textit{number} of iterations as its corresponding value; e.g.
+\begin{verbatim}
+imfit someimage.fits -c config.dat [. . .] --bootstrap 200
+\end{verbatim}
+
+Each iteration of bootstrap resampling generates a new data image by
+sampling pixel values (with replacement) from the original data image,
+and then re-runs the fit to generate a new set of parameter
+values.\footnote{To speed things up, the original best-fit parameters
+are used as starting values for the new fit.} After $n$ iterations, the
+combined set of bootstrapped parameter values can be used as a
+distribution for estimating confidence intervals; \imfit{} finds and
+outputs the 68.3\% confidence intervals and the standard deviation for
+each parameter. While this approach is likely to produce more plausible
+uncertainties for the best-fit parameters -- and can be used with both
+\chisquare{} and Cash-statistic minimization and as an adjunct to any of
+the three minimization algorithms -- it \textit{is} slow, as one is
+essentially repeating (a somewhat faster version of) the fitting process
+$n$ times. Ideally, one should do at least 200 iterations -- 1000 or
+more is preferable -- to get reasonably consistent confidence intervals.
+Since this can take \textit{much} longer than the original fitting
+process, it is probably not a good idea to use bootstrap resampling when one is
+engaged in exploratory fitting, but to instead postpone it until one is
+reasonably certain one has the final fit. To keep things as fast
+as possible, \imfit{} automatically chooses L-M minimization for the
+bootstrap process -- unless the Cash statistic is being used, in which
+case the N-M simplex method is used.
+
+(Future versions of \imfit{} may include the option of dumping all bootstrapped
+parameter values to a text file, to allow more detailed inspection of the
+distributions.)
 
 TBD.
 

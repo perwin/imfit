@@ -2,7 +2,6 @@
 	configuration file = tests/imfit_config_n3073.dat
 	PSF image = tests/psf_moffat_35.fits
 	mask image = tests/n3073rss_small_mask.fits
-	fractional tolerance ftol for chi^2 convergence = 1e-08
 Value from config file: gain = 4.725000 e-/ADU
 Value from config file: read noise = 4.300000 e-
 Value from config file: original sky = 154.330000
