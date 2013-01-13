@@ -47,14 +47,17 @@ class ModelObject
     virtual void SetZeroPoint( double zeroPointValue );
 
  
-    void SetGain( double gainValue );
-
-    void SetSkyBackground( double originalSkyValue );
+//     void SetGain( double gainValue );
+// 
+//     void SetSkyBackground( double originalSkyValue );
 
 	// 2D only
-    void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows,
-    													int nCombinedImages );
+    void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
 
+	// 2D only
+    void AddImageCharacteristics( double imageGain, double readoutNoise, double expTime, 
+    							int nCombinedImages, double originalSkyBackground );
+    
 	// 2D only
     void SetupModelImage( int nImageColumns, int nImageRows );
     
@@ -69,7 +72,7 @@ class ModelObject
     virtual void AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { ; };
     
 	// 2D only
-    virtual void GenerateErrorVector( double gain, double readNoise, double skyValue );
+    virtual void GenerateErrorVector( );
 
 	// 2D only
     virtual void AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
@@ -190,7 +193,7 @@ class ModelObject
     int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
 //    double  nCombined_sqrt;
 	double  zeroPoint;
-	double gain, exposureTime, originalSky;
+	double gain, readNoise, exposureTime, originalSky, effectiveGain;
     int  debugLevel;
     int  maxRequestedThreads;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;

@@ -58,6 +58,7 @@
 // Option names for use in config files
 static string  kGainString = "GAIN";
 static string  kReadNoiseString = "READNOISE";
+static string  kExpTimeString = "EXPTIME";
 static string  kNCombinedString = "NCOMBINED";
 static string  kOriginalSkyString = "ORIGINAL_SKY";
 
@@ -95,11 +96,13 @@ typedef struct {
   bool  gainSet;
   double  readNoise;
   bool  readNoiseSet;
-  bool  useCashStatistic;
+  double  expTime;
+  bool  expTimeSet;
   int  nCombined;
   bool  nCombinedSet;
   double  originalSky;
   bool  originalSkySet;
+  bool  useCashStatistic;
   double  ftol;
   bool  ftolSet;
   char  modelName[MAXLINE];
@@ -200,11 +203,13 @@ int main(int argc, char *argv[])
   options.gainSet = false;
   options.readNoise = 0.0;
   options.readNoiseSet = false;
-  options.useCashStatistic = false;
+  options.expTime = 1.0;
+  options.expTimeSet = false;
   options.nCombined = 1;
   options.nCombinedSet = false;
   options.originalSky = 0.0;
   options.originalSkySet = false;
+  options.useCashStatistic = false;
   options.ftol = DEFAULT_FTOL;
   options.ftolSet = false;
   options.noModel = true;
@@ -328,12 +333,15 @@ int main(int argc, char *argv[])
   if (options.psfImagePresent)
     theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
 
-  /* Add image data, errors, and mask to the model object */
-  theModel->AddImageDataVector(allPixels, nColumns, nRows, options.nCombined);
+  // Add image data and useful information about image (gain, read noise, t_exp, etc.)
+  theModel->AddImageDataVector(allPixels, nColumns, nRows);
+  theModel->AddImageCharacteristics(options.gain, options.readNoise, options.expTime, options.nCombined,
+  							options.originalSky);
   theModel->PrintDescription();
   if (options.printImages)
     theModel->PrintInputImage();
   
+  // Handling of image noise/errors -- different for Cash statistic vs chi^2
   if (options.useCashStatistic) {
     // experimental Cash statistic stuff
     if (options.solver == MPFIT_SOLVER) {
@@ -341,17 +349,15 @@ int main(int argc, char *argv[])
       return -1;
     }
     theModel->UseCashStatistic();
-    theModel->SetGain(options.gain);
-    theModel->SetSkyBackground(options.originalSky);
     // do other stuff
   } else {
-    // normal chi^2 statistics
+    // normal chi^2 statistics, so we either add error/noise image, or calculate it
     if (options.noiseImagePresent)
       theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
                                options.errorType);
     else {
       printf("* No noise image supplied ... will generate noise image from input image.\n");
-      theModel->GenerateErrorVector(options.gain, options.readNoise, options.originalSky);
+      theModel->GenerateErrorVector();
     }
   }
   
@@ -421,6 +427,8 @@ int main(int argc, char *argv[])
     status = 1;
     PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
+    // turn off saveing of parameter file
+    options.saveBestFitParams = false;
   }
   else {
     // DO THE FIT!
@@ -454,7 +462,7 @@ int main(int argc, char *argv[])
   if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
-    printf("[NOT YET PROPERLY IMPLEMENTED!]\n");
+//    printf("[NOT YET PROPERLY IMPLEMENTED!]\n");
     BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
                     options.bootstrapIterations, nFreeParams, options.useCashStatistic);
   }
@@ -534,10 +542,13 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --save-residual <outputname.fits>       Save residual (input - model) image");
   optParser->AddUsageLine("     --save-weights <outputname.fits>       Save weight image");
 //  optParser->AddUsageLine("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   optParser->AddUsageLine("     --gain <value>           Image gain (e-/ADU)");
   optParser->AddUsageLine("     --readnoise <value>      Image read noise (e-)");
+  optParser->AddUsageLine("     --exptime <value>        Exposure time in sec (only if image is in ADU/sec)");
   optParser->AddUsageLine("     --ncombined <value>      Number of images averaged to make final image (if counts are average or median)");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --errors-are-variances   Indicates that values in noise image = variances (instead of sigmas)");
   optParser->AddUsageLine("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
   optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
@@ -549,8 +560,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 #endif
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
   optParser->AddUsageLine("");
-//  optParser->AddUsageLine(" --bootstrap <int>            do this many iterations of bootstrap resampling to estimate errors");
-//  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
 //  optParser->AddUsageLine("     --verbose                  Print extra info during the fit");
   optParser->AddUsageLine("");
@@ -591,6 +602,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("sky");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("gain");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("readnoise");        /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("exptime");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("ncombined");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("ftol");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("bootstrap");        /* an option (takes an argument), supporting only long form */
@@ -747,6 +759,16 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->readNoiseSet = true;
     printf("\tread noise = %g e-\n", theOptions->readNoise);
   }
+  if (optParser->OptionSet("exptime")) {
+    if (NotANumber(optParser->GetTargetString("exptime").c_str(), 0, kPosReal)) {
+      fprintf(stderr, "*** WARNING: exptime should be a positive real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->expTime = atof(optParser->GetTargetString("exptime").c_str());
+    theOptions->expTimeSet = true;
+    printf("\texposure time = %g sec\n", theOptions->expTime);
+  }
   if (optParser->OptionSet("ncombined")) {
     if (NotANumber(optParser->GetTargetString("ncombined").c_str(), 0, kPosInt)) {
       fprintf(stderr, "*** WARNING: ncombined should be a positive integer!\n");
@@ -811,7 +833,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *
         printf("Gain value in config file ignored (using command-line value)\n");
       } else {
         newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
-        printf("Value from config file: gain = %f\n", newDblVal);
+        printf("Value from config file: gain = %f e-/ADU\n", newDblVal);
         mainOptions->gain = newDblVal;
       }
       continue;
@@ -821,8 +843,18 @@ void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *
         printf("Read-noise value in config file ignored (using command-line value)\n");
       } else {
         newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
-        printf("Value from config file: read noise = %f\n", newDblVal);
+        printf("Value from config file: read noise = %f e-\n", newDblVal);
         mainOptions->readNoise = newDblVal;
+      }
+      continue;
+    }
+    if (configFileOptions->optionNames[i] == kExpTimeString) {
+      if (mainOptions->expTimeSet) {
+        printf("Read-noise value in config file ignored (using command-line value)\n");
+      } else {
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        printf("Value from config file: exposure time = %f sec\n", newDblVal);
+        mainOptions->expTime = newDblVal;
       }
       continue;
     }

@@ -183,28 +183,28 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 
 /* ---------------- PUBLIC METHOD: SetGain ---------------------------- */
 
-void ModelObject::SetGain( double gainValue )
-{
-  gain = gainValue;
-}
+// void ModelObject::SetGain( double gainValue )
+// {
+//   gain = gainValue;
+// }
 
 
 /* ---------------- PUBLIC METHOD: SetGain ---------------------------- */
 
-void ModelObject::SetSkyBackground( double originalSkyValue )
-{
-  originalSky = originalSkyValue;
-}
+// void ModelObject::SetSkyBackground( double originalSkyValue )
+// {
+//   originalSky = originalSkyValue;
+// }
 
 
 /* ---------------- PUBLIC METHOD: AddImageDataVector ------------------ */
 
 void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
-                                      int nImageRows, int nCombinedImages )
+                                      int nImageRows )
 {
   nDataVals = nValidDataVals = nImageColumns * nImageRows;
   dataVector = pixelVector;
-  nCombined = nCombinedImages;
+//  nCombined = nCombinedImages;
 //  nCombined_sqrt = sqrt(nCombined);
   dataValsSet = true;
   
@@ -241,6 +241,24 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   // Allocate modelimage vector
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
   modelVectorAllocated = true;
+}
+
+
+/* ---------------- PUBLIC METHOD: AddImageCharacteristics ------------ */
+
+void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise, double expTime, 
+									int nCombinedImages, double originalSkyBackground )
+{
+  assert( (imageGain > 0.0) && (readNoise >= 0.0) );
+  assert( (expTime > 0.0) && (nCombinedImages >= 1) );
+
+  gain = imageGain;
+  readNoise = readoutNoise;
+  exposureTime = expTime;
+  nCombined = nCombinedImages;
+  originalSky = originalSkyBackground;
+
+  effectiveGain = gain * exposureTime * nCombined;
 }
 
 
@@ -308,17 +326,18 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
 // that the read noise term is multiplied by N_combined, so that we end up with
 //    noise(adu)^2 = (object_flux(adu) + sky(adu))/gain_eff + N_combined * rdnoise^2/gain_eff^2
 // (where "adu" can be adu/sec if t_exp != 1)
-void ModelObject::GenerateErrorVector( double imageGain, double readNoise, double skyValue )
+
+void ModelObject::GenerateErrorVector( )
 {
   double  noise_squared, totalFlux, readNoise_sqrd;
-  double  effectiveGain;
+//  double  effectiveGain;
   
-  assert( (imageGain > 0.0) && (readNoise >= 0.0) );
-  if ( skyValue <= 0.0 ) {
-    printf("ModelObject::GenerateErrorVector -- original sky value (%g) is zero or negative.\n",
-           skyValue);
-  }
-  effectiveGain = imageGain * exposureTime * nCombined;
+//   assert( (imageGain > 0.0) && (readNoise >= 0.0) );
+//   if ( skyValue <= 0.0 ) {
+//     printf("ModelObject::GenerateErrorVector -- original sky value (%g) is zero or negative.\n",
+//            skyValue);
+//   }
+//  effectiveGain = gain * exposureTime * nCombined;
 
   // Allocate storage for weight image:
   weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
@@ -329,7 +348,7 @@ void ModelObject::GenerateErrorVector( double imageGain, double readNoise, doubl
   // Note that we assume a constant sky background (presumably already subtracted)
   for (int z = 0; z < nDataVals; z++) {
     // total flux = nCombined*(source + subtracted_sky_value)
-    totalFlux = dataVector[z] + skyValue;
+    totalFlux = dataVector[z] + originalSky;
     if (totalFlux < 0.0)
       totalFlux = 0.0;
 //    noise_squared = totalFlux/imageGain + readNoise_sqrd;
@@ -734,11 +753,12 @@ double ModelObject::GetFitStatistic( double params[] )
  */
 double ModelObject::ChiSquared( double params[] )
 {
-  int  iDataRow, iDataCol, z, zModel;
+  int  iDataRow, iDataCol, z, zModel, b, bModel;
   double  chi;
   
   if (! deviatesVectorAllocated) {
-    deviatesVector = (double *) malloc(nDataVals * sizeof(double));
+//    deviatesVector = (double *) malloc(nDataVals * sizeof(double));
+    deviatesVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     deviatesVectorAllocated = true;
   }
   
@@ -747,21 +767,41 @@ double ModelObject::ChiSquared( double params[] )
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding
     // pixels in data and weight images
-    for (z = 0; z < nDataVals; z++) {
-      iDataRow = z / nDataColumns;
-      iDataCol = z - iDataRow*nDataColumns;
-      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-      deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
+    if (doBootstrap) {
+      for (z = 0; z < nValidDataVals; z++) {
+        b = bootstrapIndices[z];
+        iDataRow = b / nDataColumns;
+        iDataCol = b - iDataRow*nDataColumns;
+        bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        deviatesVector[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
+      }
+    } else {
+      for (z = 0; z < nDataVals; z++) {
+        iDataRow = z / nDataColumns;
+        iDataCol = z - iDataRow*nDataColumns;
+        zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
+      }
     }
   }
   else {
     // Model image is same size & shape as data and weight images
-    for (z = 0; z < nDataVals; z++) {
-      deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+    if (doBootstrap) {
+      for (z = 0; z < nValidDataVals; z++) {
+        b = bootstrapIndices[z];
+        deviatesVector[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
+      }
+    } else {
+      for (z = 0; z < nDataVals; z++) {
+        deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+      }
     }
   }
   
-  chi = mp_enorm(nDataVals, deviatesVector);
+  if (doBootstrap)
+    chi = mp_enorm(nValidDataVals, deviatesVector);
+  else
+    chi = mp_enorm(nDataVals, deviatesVector);
   
   return (chi*chi);
 }
@@ -773,7 +813,7 @@ double ModelObject::ChiSquared( double params[] )
  */
 double ModelObject::CashStatistic( double params[] )
 {
-  int  iDataRow, iDataCol, z, zModel;
+  int  iDataRow, iDataCol, z, zModel, b, bModel;
   double  modVal, dataVal, logModel;
   double  cashStat = 0.0;
   
@@ -782,33 +822,62 @@ double ModelObject::CashStatistic( double params[] )
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding
     // pixels in data and weight images
-    for (z = 0; z < nDataVals; z++) {
-      iDataRow = z / nDataColumns;
-      iDataCol = z - iDataRow*nDataColumns;
-      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-      // Mi − Di + DilogDi − DilogMi
+    if (doBootstrap) {
+      for (z = 0; z < nValidDataVals; z++) {
+        b = bootstrapIndices[z];
+        iDataRow = b / nDataColumns;
+        iDataCol = b - iDataRow*nDataColumns;
+        bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        modVal = effectiveGain*(modelVector[bModel] + originalSky);
+        dataVal = effectiveGain*(dataVector[b] + originalSky);
+        if (modVal <= 0)
+          logModel = LOG_SMALL_VALUE;
+        else
+          logModel = log(modVal);
+        cashStat += weightVector[b] * (modVal - dataVal*logModel);
+      }
+    } else {
+      for (z = 0; z < nDataVals; z++) {
+        iDataRow = z / nDataColumns;
+        iDataCol = z - iDataRow*nDataColumns;
+        zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        // Mi − Di + DilogDi − DilogMi
 //      cashStat += weightVector[z] * (dataVector[z] - modelVector[zModel]);
-      modVal = modelVector[zModel] + originalSky;
-      dataVal = dataVector[z] + originalSky;
-      if (modVal <= 0)
-        logModel = LOG_SMALL_VALUE;
-      else
-        logModel = log(modVal);
-      cashStat += weightVector[z] * (modVal - dataVal*logModel);
+        modVal = effectiveGain*(modelVector[zModel] + originalSky);
+        dataVal = effectiveGain*(dataVector[z] + originalSky);
+        if (modVal <= 0)
+          logModel = LOG_SMALL_VALUE;
+        else
+          logModel = log(modVal);
+        cashStat += weightVector[z] * (modVal - dataVal*logModel);
 //      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
+      }
     }
   }
   else {
     // Model image is same size & shape as data and weight images
-    for (z = 0; z < nDataVals; z++) {
-      modVal = modelVector[z] + originalSky;
-      dataVal = dataVector[z] + originalSky;
-      if (modVal <= 0)
-        logModel = LOG_SMALL_VALUE;
-      else
-        logModel = log(modVal);
-      cashStat += weightVector[z] * (modVal - dataVal*logModel);
+    if (doBootstrap) {
+      for (z = 0; z < nValidDataVals; z++) {
+        b = bootstrapIndices[z];
+        modVal = effectiveGain*(modelVector[b] + originalSky);
+        dataVal = effectiveGain*(dataVector[b] + originalSky);
+        if (modVal <= 0)
+          logModel = LOG_SMALL_VALUE;
+        else
+          logModel = log(modVal);
+        cashStat += weightVector[z] * (modVal - dataVal*logModel);
+      }
+    } else {
+      for (z = 0; z < nDataVals; z++) {
+        modVal = effectiveGain*(modelVector[z] + originalSky);
+        dataVal = effectiveGain*(dataVector[z] + originalSky);
+        if (modVal <= 0)
+          logModel = LOG_SMALL_VALUE;
+        else
+          logModel = log(modVal);
+        cashStat += weightVector[z] * (modVal - dataVal*logModel);
 //      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
+      }
     }
   }
   
