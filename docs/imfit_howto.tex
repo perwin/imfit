@@ -109,10 +109,11 @@ program can also be built without these.
 
 \bigskip
 
-\Imfit{} also makes use of Craig Markwardt's \texttt{mpfit} code (an enhanced
-version of the MINPACK-1 Levernberg-Marquardt least-squares fitting code) and 
-the Differential Evolution fitting code of Rainer Storn and Kenneth Price
-(more specifically, a C++ wrapper written by Lester E. Godwin).
+\Imfit{} also includes modified versions of Craig Markwardt's
+\texttt{mpfit} code (an enhanced version of the MINPACK-1
+Levernberg-Marquardt least-squares fitting code) and the Differential
+Evolution fitting code of Rainer Storn and Kenneth Price (more
+specifically, a C++ wrapper written by Lester E. Godwin).
 
 
 
@@ -358,6 +359,9 @@ Some notable and useful command-line flags and options include:
 \begin{itemize}
 \item \texttt{-c, --config} \textit{config-file} --- the only \textit{required}
 command-line option, which tells \imfit{} the name of the configuration file.
+(Actually, if you don't supply this option, \imfit{} will look for a file
+called ``imfit\_config.dat'', but it's best to explicitly specify your own
+configuration files.)
 
 \bigskip
 
@@ -367,8 +371,8 @@ with the model image.
 \bigskip
 
 \item \texttt{--mask} \textit{mask-image} --- specifies a FITS image which marks
-bad pixels to be ignored in the fitting process (by default, zero values in
-the mask indicate \textit{good} pixels, and positive values indicate bad pixels).
+bad pixels to be ignored in the fitting process. By default, zero values in
+the mask indicate \textit{good} pixels, and positive values indicate bad pixels.
 \item \texttt{--mask-zero-is-bad} --- indicates that zero values (actually,
 any value $< 1.0$) in the mask correspond to \textit{bad} pixels, with values
 $\geq 1.0$ being good pixels.
@@ -389,7 +393,9 @@ of these three options are usable with Cash statistic minimization.)
 \item \texttt{--sky} \textit{sky-level} --- specifies an original constant sky background
 level (in counts/pixel) that was subtracted from the image; used for internal
 computation of the noise map (for \chisquare{} minimization) or for correcting the 
-Cash statistic computation.
+Cash statistic computation. (If the pixel units are counts/sec, then the sky level
+should also be in those units, and you should use the ``\texttt{--exptime}'' option
+to specify the original exposure time.)
 \item \texttt{--gain} \textit{value} --- specifies the A/D gain (in electrons/ADU)
 of the input image; used for internal computation of the noise map for \chisquare{}
 minimization.
@@ -397,7 +403,7 @@ minimization.
 of the input image; used for internal computation of the noise map for \chisquare{}
 minimization.
 \item \texttt{--exptime} \textit{value} --- specifies the exposure time of the image;
-this should only be used \textit{if} the image has been divided by the exposure time
+this should \textbf{only} be used \textit{if} the image has been divided by the exposure time
 (i.e., if the pixel units are counts/sec).
 \item \texttt{--ncombined} \textit{value} --- if values in the input
 image are the result of averaging (or computing the median of) two or
@@ -432,16 +438,18 @@ noise. Cannot be used with the (default) Levenberg-Marquardt minimization techni
 fractional improvements in the fit statistic (\chisquare{} or Cash
 statistic) value; if further iterations do not reduce the fit statistic
 by more than this, the minimization is considered a success and halted 
-(default = $10^{-8}$)
-
-\item \texttt{--chisquare-only} --- Evaluate the \chisquare{} value for
-the initial input model as a fit to the input image, \textit{without}
-doing any minimization to find a better solution.
+(default value = $10^{-8}$)
 
 \bigskip
 
 \item \texttt{--bootstrap} \textit{n-iterations}--- Do \textit{n-iterations} rounds
 of bootstrap resampling after the fit, to estimate parameter errors.
+
+\bigskip
+
+\item \texttt{--chisquare-only} --- Evaluate the \chisquare{} value for
+the initial input model as a fit to the input image, \textit{without}
+doing any minimization to find a better solution.
 
 \bigskip
 
@@ -842,22 +850,22 @@ with the command-line flag \texttt{--mask-zero-is-bad}.
 
 \subsection{Noise, Variance, or Weight Maps}\label{sec:noise-maps}
 
-By default, \imfit{} uses \chisquare{} as the statistic for minimization. As
-part of this, \imfit{} normally calculates an internal weight map, using the input pixel
-intensities, the A/D gain, exposure time any previously subtracted background
-level, and the read noise to estimate Gaussian errors $\sigma_{i}$ for each
-pixel $i$. The error-based weight map is $w_{i} = 1/\sigma^{2}_{i}$, with the
-dispersion defined as
+By default, \imfit{} uses \chisquare{} as the statistic for
+minimization. As part of this, \imfit{} normally calculates an internal
+weight map, using the input pixel intensities, the A/D gain, any
+previously subtracted background level, and the read noise to estimate
+Gaussian errors $\sigma_{i}$ for each pixel $i$. The error-based weight
+map is $w_{i} = 1/\sigma^{2}_{i}$, with the dispersion defined as
 \begin{equation}
 \sigma^{2}_{i} \; = \; (I_{d, i} + I_{\rm sky})/g_{\rm eff} \, + \, N_{\rm c} \, \sigma_{\rm rdn}^{2}/g_{\rm eff}^{2} \, ,
 \end{equation}
-where $I_{d, i}$ is the data intensity in counts/pixel, $I_{\rm sky}$ is the
-original subtracted sky background (if any), $\sigma_{\rm rdn}$ is the read noise,
-$N_{\rm c}$ is the number of separate images averaged to form the data image,
-and $g_{\rm eff}$ is the ``effective gain'' (the product of the $A/D$ gain, the
-exposure time, and $N_{\rm c}$).\footnote{If the exposure time xxx}
-These weights are
-then used in the \chisquare{} calculation, summing over all $N$ pixels:
+where $I_{d, i}$ is the data intensity in counts/pixel, $I_{\rm sky}$ is
+the original subtracted sky background (if any), $\sigma_{\rm rdn}$ is
+the read noise, $N_{\rm c}$ is the number of separate images averaged to
+form the data image, and $g_{\rm eff}$ is the ``effective gain'' (the
+product of the $A/D$ gain,  $N_{\rm c}$, and optionally the exposure
+time, if the image units are counts/pixel). These weights are then used
+in the \chisquare{} calculation, summing over all $N$ pixels:
 \begin{equation}
 \chisquare \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{m, i} - I_{d, i})^2 ,
 \end{equation}
@@ -909,14 +917,13 @@ PSF image internally.
 
 Although \imfit{} uses a multi-threaded version version of the FFTW library, which
 is itself quite fast, adding PSF convolution to the image-fitting process \textit{does}
-slow things down considerably. This is particularly true if the Differential
-Evolution minimization algorithm is used (see below).
+slow things down considerably.
 
 
 
 \section{Minimization Options: Levenberg-Marquardt, Differential Evolution, Nelder-Mead Simplex}
 
-The default \chisquare{} minimization  used by \imfit{} is a
+The default method for \chisquare{} minimization  used by \imfit{} is the
 Levenberg-Marquardt algorithm, based on the classic MINPACK-1
 implementation with enhancements by Craig Markwardt.\footnote{Original C
 version available at
@@ -928,20 +935,33 @@ addition, it is \textit{not} appropriate if one is using the Cash
 statistic, since the latter can potentially have both per-pixel and total values
 $< 0$, which the Levenberg-Marquardt algorithm cannot handle.
 
-The first alternate algorithm is available via the \texttt{--de} flag.
-This performs the fit-statistic (\chisquare{} or Cash
-statistic) minimization using Differential Evolution (DE) \citep{de}, a
+An alternative algorithm, available via the \texttt{--nm} flag,  is a
+version of the Nelder-Mead simplex, as implemented by the NLopt
+library.\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}}
+This is significantly slower than Levenberg-Marquardt minimization
+($\sim 10$ times slower for fits with one or two components), but
+significantly faster than Differential Evolution (below). Like the
+Levenberg-Marquardt method, it does require an initial guess for the
+parameter values, but is considered less likely to become trapped in
+local minima in the fit-statistic landscape. Unlike the L-M algorithm,
+it can be used for both \chisquare{} and Cash-statistic minimization. If
+you compile \imfit{} from source and want to use this algorithm, you
+need to have the NLopt library installed on your system.
+
+The second alternate algorithm is available via the \texttt{--de} flag.
+This performs the fit-statistic (\chisquare{} or Cash statistic)
+minimization using Differential Evolution (DE) \citep{de}, a
 genetic-algorithms
 approach.\footnote{\url{http://www.icsi.berkeley.edu/~storn/code.html}}
-It has the drawback of being slower than the Nelder-Mead simplex (below)
-and \textit{much} slower than Levenberg-Marquardt minimization. For
-example, fitting a single S\'ersic function to the $256 \times 256$
-image in the \texttt{examples/} subdirectory takes $\sim 60$ times as
-long when using Differential Evolution as it does when using L-M
-minimization. It does has the advantage of being the least likely (at
-least in principle) of being trapped in local minima in the
-fit-statistic landscape; it also does \textit{not} require an initial
-guess for the parameter values.
+It has the drawback of being $\sim$ an order of magnitude slower than
+the Nelder-Mead simplex method, and \textit{much} slower ($\sim$ two
+orders of magnitude) than Levenberg-Marquardt minimization. For example,
+fitting a single S\'ersic function to the $256 \times 256$ image in the
+\texttt{examples/} subdirectory takes $\sim 60$ times as long when using
+Differential Evolution as it does when using L-M minimization. It does
+has the advantage of being the least likely (at least in principle) of
+being trapped in local minima in the fit-statistic landscape; it also
+does \textit{not} require an initial guess for the parameter values.
 
 The Differential Evolution algorithm does, however, \textit{require} lower and upper
 limits for \textit{all} parameters in the configuration file (see
@@ -952,18 +972,6 @@ initial-guess values be present for all parameters as well, but these are
 actually ignored by the DE algorithm. (This is to ensure that the same
 configuration file can be used with all minimization routines.)
 
-A second alternative algorithm (the least thoroughly tested) is a version of the
-Nelder-Mead simplex, as implemented by the NLopt
-library.\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}} This is
-significantly slower than Levenberg-Marquardt minimization ($\sim 10$ times
-slower for fits with one or two components), but significantly faster than DE.
-Like the Levenberg-Marquardt method, it does require an initial guess for the
-parameter values, but is probably less likely to become trapped in local minima
-in the fit-statistic landscape. Like DE, it can be used for both \chisquare{}
-and Cash-statistic minimization. This algorithm can be selected with the \texttt{--nm}
-flag. If you compile \imfit{} from source and want to use this altorithm, you
-need to have the NLopt library installed on your system. A minor drawback of the
-current implementation is that it provides no feedback while running.
 
 \medskip
 
@@ -971,7 +979,7 @@ TBD. [more details of DE implementation]
 
 \medskip
 
-Note that the DE and N-M simplex algorithms do \textit{not} produce uncertainty
+Note that the N-M simplex and DE algorithms do \textit{not} produce uncertainty
 estimates for the best-fitting parameter values, in contrast to the
 Levenberg-Marquardt approach. However, the L-M error estimates are themselves
 only reliable if the minimum in the \chisquare{} landscape is symmetric and
@@ -982,7 +990,7 @@ more accurate) way of estimating the parameter uncertainties.
 \medskip
 
 The fact that the minimization algorithms are relatively decoupled from the rest
-of the code means that future versions of \imfit{} could potentially include
+of the code means that future versions of \imfit{} could include
 other minimization techniques, or that an ambitious user could add such techniques
 on their own.
 
@@ -1011,16 +1019,18 @@ TBD: info about extra stopping conditions for the L-M and N-M simplex algorithms
 
 \section{Outputs}
 
-TBD.
+\subsection{Main Outputs}
 
-Assuming that the fitting process converges, \imfit{} will print a summary of
-the results, including the final, best-fitting parameter values. The output
-parameter list is in the same format as the configuration file, except that
-error estimates are listed after each parameter value.\footnote{If Differential
-Evolution is used as the minimization technique, no errors are estimated.} The
-error estimates are separated from the parameter values by ``\#''; this means
-that you can copy and paste the parameter list into a text file and use that
-file as an input configuration file for \imfit{} or \makeimage. 
+Assuming that the fitting process converges, \imfit{} will print a
+summary of the results, including the final, best-fitting parameter
+values. The output parameter list is in the same format as the
+configuration file, except that if the L-M algorithm is used, its error
+estimates are listed after each parameter value.\footnote{No in-line
+error estimates are produced if the Nelder-Mead simplex or Differential
+Evolution algorithms were used for the minimization.} These error
+estimates are separated from the parameter values by ``\#''; this means
+that you can copy and paste the parameter list into a text file and use
+that file as an input configuration file for \imfit{} or \makeimage. 
 
 The best-fitting parameters will also be written to an output text file (default
 name = \texttt{bestfit\_parameters\_imfit.dat}; use \texttt{--save-params} to
@@ -1030,15 +1040,18 @@ date and time it was generated; these are commented out so that the file can be
 subsequently used as an \imfit{} or \makeimage{} configuration file without
 modification.
 
-Also printed are the total $\chi^{2}$, the reduced $\chi^{2}$ (which accounts for the
-total number of unmasked pixels and non-fixed parameter values),\footnote{The reduced $\chi^{2}$
-value should be interpreted with caution; it is valid in absolute terms only if the
-noise has been correctly estimated \textit{and} if all differences between the model
-and the data are solely due to noise, which is rarely true for galaxies and other
-astronomical objects.} and two alternate
-measures of the fit: the Akaike Information Criterion (AIC) and the Bayesian Information
-Criterion (BIC). The latter two are included on a provisional basis; they are,
-in principle, useful for comparing different models fit to the same data.
+The final value of the fit statistic (\chisquare{} or Cash statistic) is
+also printed; if the fit statistic was \chisquare, then  the reduced
+$\chi^{2}$ (which accounts for the total number of unmasked pixels and
+non-fixed parameter values)\footnote{The reduced $\chi^{2}$ value should
+be interpreted with caution; it is valid in absolute terms only if the
+noise has been correctly estimated \textit{and} if all differences
+between the model and the data are solely due to noise, which is rarely
+true for galaxies and other astronomical objects.} is also printed.
+Finally, two alternate measures of the fit are also printed: the Akaike
+Information Criterion (AIC) and the Bayesian Information Criterion
+(BIC). The latter two are included on a provisional basis; they are, in
+principle, useful for comparing different models fit to the same data.
 
 By default, no model or residual (image $-$ model) images are saved, but the
 command-line options \texttt{--save-model} and \texttt{save-residual} can be used
@@ -1053,31 +1066,29 @@ TBD.
 The (default) Levenberg-Marquardt minimization algorithm used by
 \imfit{} automatically generates a set of (symmetric) uncertainty
 estimates for each  free parameter at the conclusion of the fitting
-process; these are printed to the terminal as part of the summary
-output. (In the printout, each parameter line has the ``$\pm x$''
-uncertainty  separated from the best-fit value by the ``\#'' character,
-so that the summary output can be copied and pasted into a text file to
-make a usable configuration file  for \makeimage.)
+process; as noted above, these are printed to the terminal as part of
+the summary output.
 
-These values come from XXX, and should be viewed with caution: for
-example, they assume that the $\chisquare$ landscape in the vicinity of
+These values come from the covariance matrix derived from the final Jacobian
+matrix corresponding to the best-fit solution, and should be viewed with caution: for
+example, they assume that the \chisquare{} landscape in the vicinity of
 the best-fit solution is parabolic XXX. In practice, they should probably be
 seen as \textit{lower limits} on the uncertainty.
 
 The other fitting algorithms used by \imfit{} do not compute gradients
 in the fit landscape, and so they do not produce automatic uncertainty
 estimates. Although one could certainly take the solution of a
-fit done with the N-M simplex or DE algorithms and use it as input to a
+\chisquare{} fit done with the N-M simplex or DE algorithms and use it as input to a
 L-M run of \imfit, thus generating L-M--based uncertainties, this is not
 possible when using the Cash statistic.
 
 As an alternative to the somewhat dubious L-M uncertainty estimates --
 and as a method for estimating uncertainties in the case of
-Cash-statistic minimization -- \imfit{} offers bootstrap resampling as
-an option. This is done with the ``\texttt{--bootstrap}'' command-line option,
-which takes the \textit{number} of iterations as its corresponding value; e.g.
-\begin{verbatim}
-imfit someimage.fits -c config.dat [. . .] --bootstrap 200
+Cash-statistic minimization -- \imfit{} offers the option of bootstrap
+resampling. This is done with the ``\texttt{--bootstrap}'' command-line
+option, which takes the \textit{number} of iterations as its
+corresponding value; e.g. 
+\begin{verbatim} imfit someimage.fits -c config.dat [. . .] --bootstrap 200 
 \end{verbatim}
 
 Each iteration of bootstrap resampling generates a new data image by

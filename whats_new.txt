@@ -1,0 +1,61 @@
+NOTES FOR MAILING-LIST UPDATE, ETC.:
+
+New things and changes as of 14 Jan 2013, compared to v0.9.9 [2 Jan 2013]:
+
+MAJOR ADDITIONS:
+Cash statistic [requires N-M or DE]
+
+Bootstrap resampling for error estimation
+(Uses L-M for Gaussian/chi^2 case and N-M simplex for 
+
+IMPORTANT FIXES:
+Corrections to calculation of per-pixel errors; should be more correct for
+cases where sky was previously subtracted and the "--sky" argument is used to
+indicate the original background level. Previous fits may change slightly
+as a result, though probably only at the 10^-3 or 10^-4 level in parameter values.
+
+ADDITIONAL CHANGES:
+--exptime
+
+ExponentialDisk3D uses sech^(2/n) for vertical profile instead of exponential
+
+N-M simplex model now provides minimal feedback while doing the fit (prints
+current chi^2 every 20 function calls, where "function call" = generating
+model image and computing chi^2 or Cash statistic)
+
+Minor speedup to Differential Evolution fitting when one or more parameters are fixed.
+
+
+==============
+
+Email sent out on 2 Jan 2013:
+
+Just a short note to let people know that I've posted an updated version of imfit on
+my web page (now at version 0.9.9 ...):
+http://www.mpe.mpg.de/~erwin/code/imfit/
+
+Changes include:
+	command-line switch to limit the number of CPU threads used [*];
+	command-line switch to specify the chi^2 tolerance for fitting;
+	an additional nonlinear fitting algorithm (Nelder-Mead simplex, which is slower
+than Levenberg-Marquardt but less likely to be trapped in local minima in the chi^2
+landscape; faster than Differential Evolution) 
+	lowered default chi^2 tolerance (speeds up fits slightly; trivial changes to final
+best-fit solutions in some cases, but much smaller than errors)
+
+[*] As originally requested by Martin Kuemmel
+
+
+I'm having problems with the 32-bit Linux installation on my virtual machine, so the
+updated binaries are just the Mac OS X and 64-bit Linux ones at the moment.
+
+
+==============
+
+Email sent out 4 June 2012:
+Subject: Updated version of imfit (0.95)
+
+You're getting this email because you've used (or expressed an interest in) my 2D
+image-fitting program. There's an updated version available (which handles the edges
+of images when doing PSF convolution) at the usual place:
+http://www.mpe.mpg.de/~erwin/code/imfit/
