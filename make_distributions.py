@@ -4,7 +4,7 @@
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
 
-VERSION_STRING = "0.9.9"
+VERSION_STRING = "1.0b1"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -49,6 +49,7 @@ mp_enorm
 param_struct
 statistics
 utilities_pub
+bootstrap_errors
 levmar_fit
 mpfit_cpp
 diff_evoln_fit
@@ -73,6 +74,7 @@ statistics
 # the following are C++ files
 source_files = """
 model_object
+bootstrap_errors
 convolver
 commandline_parser 
 utilities 
@@ -136,6 +138,7 @@ config_imfit_expdisk32.dat
 imfit_config_ic3478_64x64.dat
 imfit_config_ic3478_64x64b.dat
 imfit_config_n3073.dat
+config_imfit_poisson.dat
 config_makeimage_sersictest512_bad1.dat
 config_makeimage_sersictest512_bad2.dat
 config_makeimage_sersictest512_bad3.dat
@@ -155,13 +158,18 @@ gensersictest612_conv_cutout512.fits
 imfit_textout1
 imfit_textout2
 imfit_textout3
-imfit_textout3a
+imfit_textout3b
+imfit_textout3c_tail
 imfit_textout4
-imfit_textout5
-imfit_textout6
-imfit_textout7
-imfit_textout8
-imfit_textout9
+imfit_textout4b
+imfit_textout4c
+imfit_textout5_tail
+imfit_textout_bad1
+imfit_textout_bad2
+imfit_textout_bad3
+imfit_textout_bad4
+imfit_textout_bad5
+imfit_textout_bad6
 config_biggertest_4c.dat
 config_makeimage_gensersic512.dat
 config_makeimage_sersic+exp512.dat

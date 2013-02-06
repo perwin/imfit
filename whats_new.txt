@@ -1,29 +1,53 @@
 NOTES FOR MAILING-LIST UPDATE, ETC.:
 
-New things and changes as of 14 Jan 2013, compared to v0.9.9 [2 Jan 2013]:
+Just a short note to let people know that I've posted an updated version of imfit on
+my web page (now at version 1.0b1 ...):
+http://www.mpe.mpg.de/~erwin/code/imfit/
+
+New things and changes as of 7 Feb 2013, compared to v0.9.9 [2 Jan 2013]:
 
 MAJOR ADDITIONS:
-Cash statistic [requires N-M or DE]
 
-Bootstrap resampling for error estimation
-(Uses L-M for Gaussian/chi^2 case and N-M simplex for 
+* Imfit now includes an option (--cashstat) to use the Cash C statistic
+(Cash 1979) instead of chi^2 as the "fit statistic" for the minimization; 
+this is appropriate when the image noise statistics are pure Poisson (as 
+true for most images when there is zero read noise), rather than Gaussian. (In
+fact, some testing suggests this is better even when moderate Gaussian
+read noise is present.)
+
+The only drawback to using the Cash statistic is that it *cannot* be used with
+the (default) Levenberg-Marquardt minimization algorithm, so you have to use the
+Nelder-Mead simplex (--nm) or Differential Evolution (--de) instead. Also, you
+cannot use it with separate error or variance map images (since those are for
+the Gaussian-statistics case, which is what chi^2 is for).
+
+* Bootstrap resampling for generating parameter error/confidence-interval estimates, 
+via "--bootstrap N" [where N is the number of rounds of bootstrap resampling to do]
+(Uses L-M for Gaussian/chi^2 case and N-M simplex for the Cash-statistic case.)
+
 
 IMPORTANT FIXES:
-Corrections to calculation of per-pixel errors; should be more correct for
-cases where sky was previously subtracted and the "--sky" argument is used to
-indicate the original background level. Previous fits may change slightly
+* Corrections to calculation of per-pixel errors (in the chi^2 case); should be more 
+correct for cases where sky was previously subtracted and the "--sky" argument is 
+used to indicate the original background level. Previous fits may change slightly
 as a result, though probably only at the 10^-3 or 10^-4 level in parameter values.
 
+
 ADDITIONAL CHANGES:
---exptime
+* If the image you're fitting has been divided by the exposure time (so that the
+pixel values are counts/sec), you can specify the original exposure time
+with the "--exptime" option.
 
-ExponentialDisk3D uses sech^(2/n) for vertical profile instead of exponential
+* The ExponentialDisk3D function uses sech^(2/n) for the vertical profile instead of 
+a simple exponential (making it more like the analytic EdgeOnDisk function).
 
-N-M simplex model now provides minimal feedback while doing the fit (prints
-current chi^2 every 20 function calls, where "function call" = generating
-model image and computing chi^2 or Cash statistic)
+* The N-M simplex minimization algorithm now provides some minimal
+feedback while doing the fit (prints current chi^2 or Cash statistic
+value every 20 function calls, where "function call" = generating model
+image and computing chi^2 or Cash statistic)
 
-Minor speedup to Differential Evolution fitting when one or more parameters are fixed.
+* Minor speedups to Differential Evolution fitting when one or more
+parameters are fixed.
 
 
 ==============

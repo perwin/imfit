@@ -1,0 +1,10 @@
+X0	74	72,78
+Y0	74	72,78
+FUNCTION Exponential
+PA		5		0,180
+ell		0.4		0,0.9
+I_0		90		1,200
+h		15		1,50
+FUNCTION FlatSky
+I_sky	20		fixed
+
