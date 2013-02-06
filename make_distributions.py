@@ -44,7 +44,6 @@ README.txt
 
 source_header_files = """
 definitions
-function_object
 mersenne_twister
 mp_enorm
 param_struct

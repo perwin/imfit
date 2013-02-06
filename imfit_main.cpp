@@ -25,7 +25,6 @@
 #include "utilities_pub.h"
 #include "image_io.h"
 #include "model_object.h"
-#include "function_object.h"
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
 #include "bootstrap_errors.h"

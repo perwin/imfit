@@ -47,6 +47,7 @@ FunctionObject::FunctionObject( )
 
 
 /* ---------------- PUBLIC METHOD: SetSubsampling ---------------------- */
+/// Turn pixel subsampling on or off (true = on, false = off).
 void FunctionObject::SetSubsampling( bool subsampleFlag )
 {
   doSubsampling = subsampleFlag;
@@ -54,6 +55,7 @@ void FunctionObject::SetSubsampling( bool subsampleFlag )
 
 
 /* ---------------- PUBLIC METHOD: SetZeroPoint ------------------------ */
+/// Used to specify a magnitude zero point (for *1D* functions).
 void FunctionObject::SetZeroPoint( double zeroPoint )
 {
   ZP = zeroPoint;
@@ -61,50 +63,44 @@ void FunctionObject::SetZeroPoint( double zeroPoint )
 
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
-// Base method for 2D functions
+/// Base method for 2D functions: pass current parameters into the function object,
+/// storing them for when GetValue() is called, and pre-compute useful quantities.
+/// The parameter array params contains *all* parameters for *all* components
+/// in the overall model; offsetIndex is used to select the correct starting point
+/// for *this* component's parameters.
 void FunctionObject::Setup( double params[], int offsetIndex, double xc, double yc )
 {
-  // This method is for passing the current parameters into the function
-  // object, storing them for when GetValue() is called, and for pre-computing
-  // various useful quantities.
-  // The parameter array params contains *all* parameters for *all* components
-  // in the overall model; offsetIndex is used to select the correct starting point
-  // for *this* component's parameters.
   ;
 }
 
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
-// Base method for 1D functions
+/// Base method for 1D functions: pass current parameters into the function object,
+/// storing them for when GetValue() is called, and pre-compute useful quantities.
+/// The parameter array params contains *all* parameters for *all* components
+/// in the overall model; offsetIndex is used to select the correct starting point
+/// for *this* component's parameters.
 void FunctionObject::Setup( double params[], int offsetIndex, double xc )
 {
-  // This method is for passing the current parameters into the function
-  // object, storing them for when GetValue() is called, and for pre-computing
-  // various useful quantities.
-  // The parameter array params contains *all* parameters for *all* components
-  // in the overall model; offsetIndex is used to select the correct starting point
-  // for *this* component's parameters.
   ;
 }
 
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
-// Base method for 2D functions
+/// Base method for 2D functions: Compute and return actual function value at
+/// pixel coordinates (x,y). This will be called once per pixel.
 double FunctionObject::GetValue( double x, double y )
 {
-  // This method is for computing the actual function value at the 
-  // pixel coordinates (x,y).  It will be called once per pixel.
   return -1.0;   // dummy (bad) value indicating the user has accidentally
                  // accessed the base class, which should never happen...
 }
 
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
-// Base method for 1D functions
+/// Base method for 1D functions: Compute and return actual function value at
+/// specified value of independent variable x.
 double FunctionObject::GetValue( double x )
 {
-  // This method is for computing the actual function value at for the
-  // specified independent variable value x.
   return -1.0;   // dummy (bad) value indicating the user has accidentally
                  // accessed the base class, which should never happen...
 }
@@ -113,6 +109,7 @@ double FunctionObject::GetValue( double x )
 /* ---------------- PUBLIC METHOD: GetDescription ---------------------- */
 
 string FunctionObject::GetDescription( )
+/// Return a string containing function name + short description.
 {
   return functionName;
 }
@@ -121,13 +118,14 @@ string FunctionObject::GetDescription( )
 /* ---------------- PUBLIC METHOD: GetShortName ----------------------- */
 
 string& FunctionObject::GetShortName( )
+/// Return a string containing just the function name.
 {
   return shortFunctionName;
 }
 
 
 /* ---------------- PUBLIC METHOD: GetParameterNames ------------------- */
-// Add this function's parameter names to a vector of strings
+/// Add this function's parameter names to a vector of strings
 void FunctionObject::GetParameterNames( vector<string> &paramNameList )
 {
   for (int i = 0; i < nParams; i++)
@@ -136,7 +134,7 @@ void FunctionObject::GetParameterNames( vector<string> &paramNameList )
 
 
 /* ---------------- PUBLIC METHOD: GetNParams -------------------------- */
-
+/// Get number of parameters used by this function.
 int FunctionObject::GetNParams( )
 {
   return nParams;

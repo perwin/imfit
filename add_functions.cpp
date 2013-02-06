@@ -16,7 +16,7 @@
 #include "model_object.h"
 
 // CHANGE WHEN ADDING FUNCTION -- add corresponding header file
-#include "function_object.h"
+#include "function_objects/function_object.h"
 #include "func_gaussian.h"
 #include "func_sersic.h"
 #include "func_exp.h"

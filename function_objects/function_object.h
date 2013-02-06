@@ -73,7 +73,7 @@ class FunctionObject
 
     // class member (constant char-vector string) which will hold name of
     // individual class in derived classes
-    static const char  shortFuncName[];
+    static const char  shortFuncName[];  ///< Class data member holding name of individual class
   
 };
 

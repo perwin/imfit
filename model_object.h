@@ -15,7 +15,7 @@
 #include <string>
 
 #include "definitions.h"
-#include "function_object.h"
+#include "function_objects/function_object.h"
 #include "convolver.h"
 #include "param_struct.h"
 
