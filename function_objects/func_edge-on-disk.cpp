@@ -63,6 +63,8 @@ const char  FUNCTION_NAME[] = "Edge-on Disk function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
+const double  COSH_LIMIT = 100.0;
+
 const char EdgeOnDisk::className[] = "EdgeOnDisk";
 
 
@@ -107,6 +109,7 @@ void EdgeOnDisk::Setup( double params[], int offsetIndex, double xc, double yc )
   alpha = 2.0/n;
   scaledZ0 = alpha*z_0;
   Sigma_00 = 2.0*h*L_0;
+  two_to_alpha = pow(2.0, alpha);
 }
 
 
@@ -127,8 +130,13 @@ double EdgeOnDisk::CalculateIntensity( double r, double z )
     I_radial = Sigma_00 * scaledR * gsl_sf_bessel_K1(scaledR);
   }
 
-  sech = 1.0 / cosh(z/scaledZ0);
-  verticalScaling = pow(sech, alpha);
+  // if combination of n*z/z_0 is large enough, switch to simple exponential
+  if ((z/scaledZ0) > COSH_LIMIT)
+    verticalScaling = two_to_alpha * exp(-z/z_0);
+  else {
+    sech = 1.0 / cosh(z/scaledZ0);
+    verticalScaling = pow(sech, alpha);
+  }
   return I_radial * verticalScaling;
 }
 
