@@ -29,7 +29,7 @@ else
   echo "   (skipping DE test)"
 fi
 
-# test non-square SDSS image + PSF convolution; then test count/sec version with --exptim
+# test non-square SDSS image + PSF convolution; then test count/sec version with --exptime
 # option; then just do chisquare-only calculation
 echo -n "   (now running fit with PSF convolution ...)"
 ./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> test_dump4

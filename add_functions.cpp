@@ -8,6 +8,10 @@
  *
  */
 
+#ifndef USING_SCONS
+#include "config.h"
+#endif
+
 #include <string>
 #include <vector>
 #include <map>

@@ -12,11 +12,11 @@
 
 
 # *** SPECIAL STUFF ***
-# To build a version with OpenMP enabled
-#    $ scons --openmp <target-name>
-#
 # To build a version with extra, experimental functions
 #    $ scons --extra-funcs <target-name>
+#
+# To build a version *without* OpenMP enabled
+#    $ scons --no-openmp <target-name>
 #
 # To build a version *without* FFTW threading:
 #    $ scons --no-threading <target-name>
@@ -24,8 +24,8 @@
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
-# To build export version (with OpenMP, "fat" binaries, all libraries statically linked):
-#    $ scons --openmp --fat --static <target-name>
+# To build export version ("fat" binaries, all libraries statically linked):
+#    $ scons --fat --static <target-name>
 #
 
 # *** EXPORT CONFIGURATIONS ***
@@ -48,6 +48,9 @@
 
 import os
 
+# Version definition for imfit + makeimage
+PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0b1\""
+
 # the following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
 STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
@@ -67,7 +70,7 @@ os_type = os.uname()[0]
 cflags_opt = ["-O2", "-g0"]
 cflags_db = ["-Wall", "-g3"]
 
-base_defines = ["ANSI"]
+base_defines = ["ANSI", "USING_SCONS", PACKAGE_VERSION]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
 lib_list = ["fftw3", "cfitsio", "m"]
@@ -111,7 +114,7 @@ extra_defines = []
 useGSL = True
 useNLopt = True
 useFFTWThreading = True
-useOpenMP = False
+useOpenMP = True
 useExtraFuncs = False
 useStaticLibs = False
 buildFatBinary = False
@@ -128,8 +131,8 @@ AddOption("--no-gsl", dest="useGSL", action="store_false",
 	default=True, help="do *not* use GNU Scientific Library")
 AddOption("--no-nlopt", dest="useNLopt", action="store_false", 
 	default=True, help="do *not* use NLopt library")
-AddOption("--openmp", dest="useOpenMP", action="store_true", 
-	default=False, help="compile with OpenMP support")
+AddOption("--no-openmp", dest="useOpenMP", action="store_false", 
+	default=False, help="compile *without* OpenMP support")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
 	default=False, help="compile additional FunctionObject classes for testing")
 
@@ -329,11 +332,6 @@ env_opt.Program("makeimage", makeimage_sources)
 
 env_1d = Environment( CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-
-# mersenne_twister code is only used by profilefit
-#c_mersenne_obj_string = """mersenne_twister"""
-#c_mersenne_objs = c_mersenne_obj_string.split()
-#c_mersenne_sources = [name + ".c" for name in c_mersenne_objs]
 
 # ModelObject1d and related classes:
 modelobject1d_obj_string = """model_object model_object_1d"""

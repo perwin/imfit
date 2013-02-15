@@ -193,9 +193,10 @@ this can be dealt with by using:
 
 Various other compilation options may be useful; these are explained in the next
 subsections (note that all the SCons options can be combined on the command
-line). In particular, it is recommended that \imfit{} and \makeimage{} be
-compiled with OpenMP support (see below) if your computer has multiple CPU
-cores, since this will speed the programs up considerably.
+line).
+% In particular, it is recommended that \imfit{} and \makeimage{} be
+%compiled with OpenMP support (see below) if your computer has multiple CPU
+%cores, since this will speed the programs up considerably.
 
 Finally, there are two shell scripts -- \texttt{do\_imfit\_tests} and
 \texttt{do\_makeimage\_tests} -- which can be run to do some very simple sanity
@@ -210,19 +211,19 @@ Python libraries. If these are not available, then the parts of the tests which
 compare output images with reference versions will simply be skipped.)
 
 
-\subsubsection{Recommended Option: Compiling with OpenMP Support}
-
-\Imfit{} and \makeimage{} can be compiled to take advantage of OpenMP compiler support,
-which speeds up image computation by splitting it up across multiple CPUs
-(and multiple cores within multi-core CPUs).
-Currently, the code uses OpenMP 2.5 options, which means that if you are using
-the GCC compiler, you need version 4.2 or higher.
-
-To include OpenMP support, compile using the following options:
-\begin{quote}
-\texttt{\$ scons --openmp imfit} \\
-\texttt{\$ scons --openmp makeimage}
-\end{quote}
+%\subsubsection{Recommended Option: Compiling with OpenMP Support}
+%
+%\Imfit{} and \makeimage{} can be compiled to take advantage of OpenMP compiler support,
+%which speeds up image computation by splitting it up across multiple CPUs
+%(and multiple cores within multi-core CPUs).
+%Currently, the code uses OpenMP 2.5 options, which means that if you are using
+%the GCC compiler, you need version 4.2 or higher.
+%
+%To include OpenMP support, compile using the following options:
+%\begin{quote}
+%\texttt{\$ scons --openmp imfit} \\
+%\texttt{\$ scons --openmp makeimage}
+%\end{quote}
 
 
 \subsubsection{Telling SCons Where to Find Header Files and Libraries}
@@ -242,6 +243,22 @@ whatever that may be).
 Multiple paths can be specified if they are separated by colons, e.g.
 \begin{quote}
 \texttt{\$ scons --lib-path=/some/path:/some/other/path ...} \\
+\end{quote}
+
+
+\subsubsection{Options: Compiling Without OpenMP Support}
+
+By default, \imfit{} and \makeimage{} are compiled to take advantage of
+OpenMP compiler support, which speeds up image computation by splitting
+it up across multiple CPUs (and multiple cores within multi-core CPUs).
+Currently, the code uses OpenMP 2.5 options, which means that if you are
+using the GCC compiler, you need version 4.2 or higher. If your compiler
+does not support OpenMP -- or you want, for whatever reason, a version
+that does not include OpenMP support, you can disable it by compiling
+with the following commands:
+\begin{quote}
+\texttt{\$ scons --no-openmp imfit} \\
+\texttt{\$ scons --no-openmp makeimage}
 \end{quote}
 
 
