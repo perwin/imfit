@@ -40,6 +40,7 @@ const int   N_PARAMS = 4;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h"};
 const char  FUNCTION_NAME[] = "Exponential function";
 const double  DEG2RAD = 0.017453292519943295;
+const double PI  =3.14159265358979;
 const int  SUBSAMPLE_R = 10;
 
 const char Exponential::className[] = "Exponential";
@@ -172,6 +173,22 @@ int Exponential::CalculateSubsamples( double r )
     }
   }
   return nSamples;
+}
+
+
+/* ---------------- PUBLIC METHOD: CanCalculateTotalFlux --------------- */
+
+bool Exponential::CanCalculateTotalFlux( )
+{
+  return true;
+}
+
+
+/* ---------------- PUBLIC METHOD: TotalFlux --------------------------- */
+
+double Exponential::TotalFlux( )
+{
+  return (1.0 - ell)*2.0*PI*I_0*h*h;
 }
 
 

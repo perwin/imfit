@@ -237,6 +237,7 @@ defines_opt = defines_opt + extra_defines
 
 
 
+
 # "Environments" for compilation:
 # "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling
@@ -245,6 +246,41 @@ env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+
+
+# Checks for libraries and headers -- if we're not doing scons -c:
+if not env_opt.GetOption('clean'):
+	conf_opt = Configure(env_opt)
+	cfitsioFound = conf_opt.CheckLibWithHeader('cfitsio', 'fitsio.h', 'c')
+	fftwFound = conf_opt.CheckLibWithHeader('fftw3', 'fftw3.h', 'c')
+	fftwThreadsFound = conf_opt.CheckLib('fftw3_threads')
+	nloptFound = conf_opt.CheckLibWithHeader('nlopt', 'nlopt.h', 'c')
+	gslFound = conf_opt.CheckLib('gsl')
+	libsOK = False
+	if cfitsioFound and fftwFound:
+		libsOK = True
+	else:
+		print("ERROR: Failed to find one or more required libraries and/or header files (cfitsio and/or fftw3)!")
+		print("\tMake sure they are installed; if necessary, include correct path to library with --lib-path option")
+		print("\tand correct path to header with --header-path option")
+		exit(1)
+	if useFFTWThreading and not fftwThreadsFound:
+		print("ERROR: Failed to find fftw3_threading library!")
+		print("\tSuggestion: include correct path to library with --lib-path option")
+		print("\tOR run SCons with --no-threading option")
+		exit(1)
+	if useGSL and not gslFound:
+		print("ERROR: Failed to find gsl library!")
+		print("\tSuggestion: include correct path to library with --lib-path option")
+		print("\tOR run SCons with --no-gsl option")
+		exit(1)
+	if useNLopt and not nloptFound:
+		print("ERROR: Failed to find nlopt library!")
+		print("\tSuggestion: include correct path to library with --lib-path option")
+		print("\tOR run SCons with --no-nlopt option")
+		exit(1)
+	env_opt = conf_opt.Finish()
+
 
 
 # We have separate lists of object names (what we want the .o files to be called) and
@@ -279,7 +315,6 @@ if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
 	if useGSL:
-		functionobject_obj_string += " func_expdisk3dv2"
 		functionobject_obj_string += " func_brokenexpbar3d"
 		functionobject_obj_string += " func_brokenexpdisk3d"
 		functionobject_obj_string += " func_boxytest3d"
@@ -382,6 +417,7 @@ psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 # test_parser: put all the object and source-code lists together
 testparser_objs = ["test_parser", "config_file_parser", "utilities"]
 testparser_sources = [name + ".cpp" for name in testparser_objs]
+
 
 
 

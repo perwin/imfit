@@ -9,8 +9,6 @@
 #include <string>
 #include <math.h>
 
-#include "fftw3.h"
-
 #include "convolver.h"
 #include "image_io.h"
 #include "commandline_parser.h"
@@ -26,6 +24,7 @@ typedef struct {
   std::string  inputImageName;
   std::string  psfImageName;
   std::string  outputImageName;
+  bool  copyHeader;
   bool  printImages;
   bool  outputPaddedImage;
   int  debugLevel;
@@ -55,6 +54,7 @@ int main(int argc, char *argv[])
   options.inputImageName = INPUT_IMAGE_FILENAME;
   options.psfImageName = PSF_FILENAME;
   options.outputImageName = DEFAULT_OUTPUT_FILENAME;
+  options.copyHeader = false;
   options.printImages = false;
   options.outputPaddedImage = false;
   options.debugLevel = 0;
@@ -128,12 +128,15 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("Usage: ");
   optParser->AddUsageLine("   psfconvolve input-image psf-image [ouput-image-name]");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine("     --copyheader             Copy input image header to output (convolved) image");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --printimages            Print out images (for debugging)");
 //  optParser->AddUsageLine("     --savepadded             Save zero-padded output image also");
   optParser->AddUsageLine("");
 
 
   optParser->AddFlag("help", "h");
+  optParser->AddFlag("copyheader");
   optParser->AddFlag("printimages");
 //  optParser->AddFlag("savepadded");
 
@@ -158,6 +161,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     optParser->PrintUsage();
     delete optParser;
     exit(1);
+  }
+  if (optParser->FlagSet("copyheader")) {
+    theOptions->copyHeader = true;
   }
   if (optParser->FlagSet("printimages")) {
     theOptions->printImages = true;

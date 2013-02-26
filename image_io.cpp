@@ -171,7 +171,7 @@ void SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
                          int nRows, std::vector<std::string> comments )
 {
   fitsfile  *imfile_ptr;
-  std::string  finalFilename = "!";
+  std::string  finalFilename = "!";   // starting filename with "!" ==> clobber any existing file
   int  status, problems;
   long  naxes[2];
   int  nPixels;

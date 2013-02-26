@@ -46,6 +46,12 @@ class FunctionObject
     // all derived classes working with 1D data must override this:
     virtual double GetValue( double x );
 
+    // override in derived classes only if said class *can* calcluate total flux
+    virtual bool CanCalculateTotalFlux(  ) { return(false); }
+
+    // override in derived classes only if said class *can* calcluate total flux
+    virtual double TotalFlux( ) { return -1.0; }
+
     // no need to modify this:
     virtual string GetDescription( );
 

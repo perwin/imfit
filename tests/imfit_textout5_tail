@@ -1,15 +1,15 @@
-Nelder-Mead Simplex status = 4 -- SUCCESS: xtol or xtol_abs reached
+Nelder-Mead Simplex status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
 
-  CASH STATISTIC = -2611601.292405
-AIC = -2611589.288671, BIC = -2611541.164782
+  CASH STATISTIC = -2611601.272876
+AIC = -2611589.269141, BIC = -2611541.145252
 
-X0		75.0296
-Y0		74.9377
+X0		75.0318
+Y0		74.9458
 FUNCTION Exponential
-PA		1.01869e-06
-ell		0.499929
-I_0		99.7606
-h		 19.953
+PA		0.0387723
+ell		0.500019
+I_0		  99.72
+h		19.9584
 FUNCTION FlatSky
 I_sky		     20
 

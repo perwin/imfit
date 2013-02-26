@@ -23,6 +23,8 @@
 #define POP_SIZE_PER_PARAMETER  10
 #define MAX_DE_GENERATIONS	600
 
+const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;
+
 
 
 // Derived DESolver class for our fitting problem

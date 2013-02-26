@@ -1244,25 +1244,28 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
     offset += paramSizes[n];
   }
 
-
   int  chunk = OPENMP_CHUNK_SIZE;
 
   totalModelFlux = 0.0;
   // Integrate over the image, once per function
   for (n = 0; n < nFunctions; n++) {
-    totalComponentFlux = 0.0;
+    if (functionObjects[n]->CanCalculateTotalFlux()) {
+      totalComponentFlux = functionObjects[n]->TotalFlux();
+    } else {
+      totalComponentFlux = 0.0;
 // OpenMP code currently produces wrong answers!
 #pragma omp parallel private(i,j,x,y) reduction(+:totalComponentFlux)
-    {
-    #pragma omp for schedule (static, chunk)
-    for (i = 0; i < ySize; i++) {   // step by row number = y
-      y = (double)(i + 1);              // Iraf counting: first row = 1
-      for (j = 0; j < xSize; j++) {   // step by column number = x
-        x = (double)(j + 1);                 // Iraf counting: first column = 1
-        totalComponentFlux += functionObjects[n]->GetValue(x, y);
+      {
+      #pragma omp for schedule (static, chunk)
+      for (i = 0; i < ySize; i++) {   // step by row number = y
+        y = (double)(i + 1);              // Iraf counting: first row = 1
+        for (j = 0; j < xSize; j++) {   // step by column number = x
+          x = (double)(j + 1);                 // Iraf counting: first column = 1
+          totalComponentFlux += functionObjects[n]->GetValue(x, y);
+        }
       }
-    }
-  } // end omp parallel section
+    } // end omp parallel section
+    } // end else [integrate total flux for component]
     individualFluxes[n] = totalComponentFlux;
     totalModelFlux += totalComponentFlux;
   }  // end for loop over functions

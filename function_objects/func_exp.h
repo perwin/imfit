@@ -37,7 +37,9 @@ class Exponential : public FunctionObject
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
-    // No destructor for now
+    bool CanCalculateTotalFlux(  );
+    double TotalFlux( );
+   // No destructor for now
 
     // class method for returning official short name of class
     static void GetClassShortName( string& classname ) { classname = className; };

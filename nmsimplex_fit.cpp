@@ -169,9 +169,12 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   
   // Specify stopping conditions (desired tolerances, max # function calls)
   // specify relative tolerance (same as ftol in mpfit.cpp)
+  nlopt_set_ftol_rel(optimizer, ftol);
+  // specify absolute tolerance (same as ftol in mpfit.cpp)
   nlopt_set_ftol_abs(optimizer, ftol);
   // specify relative tolerance for all parameters
-  nlopt_set_xtol_abs1(optimizer, XTOL);
+  nlopt_set_xtol_rel(optimizer, ftol);
+//  nlopt_set_xtol_abs1(optimizer, XTOL);
   // maximum number of function calls (MAXEVAL_BASE * total number of parameters)
   maxEvaluations = nParamsTot * MAXEVAL_BASE;
   nlopt_set_maxeval(optimizer, maxEvaluations);

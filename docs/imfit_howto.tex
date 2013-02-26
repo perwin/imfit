@@ -150,7 +150,7 @@ line-of-sight integration functions (e.g., ExponentialDisk3D,
 \texttt{func\_expdisk3d.cpp}). \Imfit{} can easily be built without these
 components, if for some reason you don't have access to the GSL.
 
-\item Install SCons.
+\item Install SCons (if needed; see below).
 
 \item Build \imfit{} and \makeimage.
 
@@ -164,7 +164,9 @@ Assuming that CFITSIO and FFTW (and optionally NLopt and GSL) have already been 
 on your system, unpack the source-code tarball (imfit-x.x-source.tar.gz) in some convenient
 location.
 
-\Imfit{} uses SCons for the build process. SCons is a Python-based build system
+\subsubsection{Building with SCons}
+
+By default, \imfit{} uses SCons for the build process. SCons is a Python-based build system
 that is somewhat easier to use and more flexible than the traditional \texttt{make}
 system; it can be downloaded from \url{http://www.scons.org/}.
 
@@ -194,9 +196,26 @@ this can be dealt with by using:
 Various other compilation options may be useful; these are explained in the next
 subsections (note that all the SCons options can be combined on the command
 line).
-% In particular, it is recommended that \imfit{} and \makeimage{} be
-%compiled with OpenMP support (see below) if your computer has multiple CPU
-%cores, since this will speed the programs up considerably.
+
+
+\subsubsection{Alternative: Building with Make}
+
+As an alternative to using SCons, a preliminary version of a configure script and Makefile are
+included; you can use them to build \imfit{} and \makeimage{} via
+\begin{quote}
+\texttt{\$ ./configure} \\
+\texttt{\$ make all}
+\end{quote}
+The configure script will check for the presence of the various required and optional
+libraries in standard locations; if it cannot find the GSL or NLopt libraries, then
+compilation will be done without them (see below for specifying the path to the libraries
+manually).
+
+As in the case of using SCons, this will produce two binary executable
+files: \imfit{} and \makeimage{}. Copy these to some convenient place on
+your path.
+
+\subsubsection{Tests}
 
 Finally, there are two shell scripts -- \texttt{do\_imfit\_tests} and
 \texttt{do\_makeimage\_tests} -- which can be run to do some very simple sanity
@@ -226,7 +245,7 @@ compare output images with reference versions will simply be skipped.)
 %\end{quote}
 
 
-\subsubsection{Telling SCons Where to Find Header Files and Libraries}
+\subsubsection{Telling the Compiler Where to Find Header Files and Libraries}
 
 By default, the SConstruct file (the equivalent of a Makefile for SCons) tells SCons
 to look for header files in \texttt{/usr/local/include} and library files in
@@ -245,6 +264,12 @@ Multiple paths can be specified if they are separated by colons, e.g.
 \texttt{\$ scons --lib-path=/some/path:/some/other/path ...} \\
 \end{quote}
 
+If you are using \texttt{configure + make} instead of SCons, you can specify the
+paths to the relevant header and library files via:
+\begin{quote}
+./configure CPPFLAGS=-I/the/location/include LDFLAGS=-L/the/location/lib
+\end{quote}
+
 
 \subsubsection{Options: Compiling Without OpenMP Support}
 
@@ -261,6 +286,12 @@ with the following commands:
 \texttt{\$ scons --no-openmp makeimage}
 \end{quote}
 
+If you are using the \texttt{configure + make} approach instead, you can use the
+following when running \texttt{configure}:
+\begin{quote}
+\texttt{\$ ./configure --disable-openmp}
+\end{quote}
+
 
 \subsubsection{Options: Compiling Without FFT Multithreading}
 
@@ -274,6 +305,10 @@ you can remove multithreaded FFT computation by compiling with the following com
 \texttt{\$ scons --no-threading makeimage}
 \end{quote}
 
+Or, with the \texttt{configure + make} approach:
+\begin{quote}
+\texttt{\$ ./configure --disable-threading}
+\end{quote}
 
 
 

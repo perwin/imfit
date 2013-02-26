@@ -5,8 +5,10 @@ FAILED_TEXT=" ** Test failed. **"
 echo ""
 echo "Running tests for psfconvolve ..."
 # simple tests
-./psfconvolve gaussian_5x5.fits deltafn_5x5.fits convolve_out_new1.fits --printimages &> test_dump1
-./psfconvolve deltafn_5x5.fits gaussian_5x5.fits convolve_out_new2.fits --printimages &> test_dump2
+./psfconvolve tests/gaussian_5x5.fits tests/deltafn_5x5.fits convolve_out_new1.fits --printimages &> test_dump1
+./psfconvolve tests/deltafn_5x5.fits tests/gaussian_5x5.fits convolve_out_new2.fits --printimages &> test_dump2
+# more complex test using HST image
+./psfconvolve tests/n5419f555w_pc_derot_cutout.fits tests/n5419_sin100_psf_pc2scale.fits convolve_out_hst.fits &> test_dump3
 
 
 echo ""
@@ -38,6 +40,22 @@ fi
 
 echo -n "*** cmp comparison of output FITS file... "
 if (cmp convolve_out_new2.fits tests/convolve_out_deltafn-c-gauss5.fits -i 724)
+then
+  echo " OK"
+fi
+
+
+echo -n "*** Diff comparison with archives: HST-image convolution... "
+if (diff --brief test_dump3 tests/psfconvolve_out3.txt)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump3 tests/psfconvolve_out3.txt
+fi
+
+echo -n "*** cmp comparison of output FITS file... "
+if (cmp convolve_out_hst.fits tests/convolve_out_n5419.fits -i 724)
 then
   echo " OK"
 fi
