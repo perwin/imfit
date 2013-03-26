@@ -128,7 +128,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("Usage: ");
   optParser->AddUsageLine("   psfconvolve input-image psf-image [ouput-image-name]");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
-  optParser->AddUsageLine("     --copyheader             Copy input image header to output (convolved) image");
+  optParser->AddUsageLine("     --copyheader             Copy input image header to output (convolved) image [NOT YET IMPLEMENTED!]");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --printimages            Print out images (for debugging)");
 //  optParser->AddUsageLine("     --savepadded             Save zero-padded output image also");

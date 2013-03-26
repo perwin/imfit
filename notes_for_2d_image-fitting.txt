@@ -857,10 +857,10 @@ Modification of ModelObject class
 	overall setup, chi^2 calculation, etc.) and subordinate ModelObject class,
 	which holds individual sets of image, mask, errors, PSF + Convolver object, etc.
 
-Modify FunctionObjects to include an optional pixel-scale parameter
+* Modify FunctionObjects to include an optional pixel-scale parameter
 (special method to pass in pixel scale; default value is 1.0).  Individual
 function objects can then scale input parameters accordingly (since nominally
-they're the only one who know which parameters are size-related).
+they're the only bits of code which know which particular parameters are size-related).
 	-- Underlying logic: FunctionObjects should always work in pixel sizes,
 	since x0,y0 are always pixel values. So while the (e.g.) scale-length *parameter*
 	may have a value of arcsec (or even, who knows, kpc!), when its Setup()
@@ -874,6 +874,33 @@ Also modify FunctionObjects to include an optional intensity-scaling parameter
 Maybe have a single method of FunctionObject which allows the user to pass in scaling
 parameters (pixel size, intensity scaling, rotation offsets[?])
 
+	Outline of steps:
+	1. Minimization algorithm calls ModelObject::FitStatistic and passes in current
+	set of parameter values
+	2. Generate model images
+		For each image:
+			Generate transformed X0,Y0,PA for that image [could even start with RA,Dec]
+				For first image: F(X0,Y0,PA) = (X0,Y0,PA) [unchanged, unless we start with RA,Dec]
+				For 2nd+ images: F(X0,Y0,PA) = (f(X0), f(Y0), f(PA)
+				                             =? (X0 + dx_2, Y0 + dy_2, PA = dPA_2)
+			For each function
+				Call FunctionObject::Setup with pixel scale, intensity scale, rest of parameters
+			Step through pixels of model image and call FunctionObjects
+			Do PSF convolution and post-processing (e.g., charge-diffusion)
+	3. Compute chi^2 vector and/or total fit statistic
+	
+	Complete list of possible (i.e., possibly non-fixed) per-image parameters: 
+		x-offset
+		y-offset
+		PA (rotation offset)
+		pixel scale
+		intensity scale
+	
+	Note that allowing x-offset and y-offset to vary effectively incorporates
+	scale differences between images, though it's not the best approach if you
+	*know* what the real offset or transformation should be...
+
+	
 Side note on usage: how to handle case of high-resoln central image (e.g., HST)
 and lower-resolution ground-based image? One approach might be to construct a
 mask for the low-res. image which masks out the nuclear pixels, so we don't have to
