@@ -8,7 +8,7 @@
 #include "model_object.h"
 
 
-int LevMarFit( int nParamsTot, int nFreeParams, int nPixelsTot, double *paramVector, 
+int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
 				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
 				bool paramLimitsExist, int verbose );
 

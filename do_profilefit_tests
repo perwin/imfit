@@ -5,9 +5,13 @@ FAILED_TEXT=" ** Test failed. **"
 echo ""
 echo "Running tests for profilefit (L-M solver only)..."
 # simple tests
-./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat &> test_dump1
-./profilefit profile_data/n3348_total_fix.dat tests/config_profilefit_core-sersic.dat &> test_dump2
-./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --de &> test_dump3
+./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --quiet &> test_dump1
+# run the next fit with ftol = 10^-10 since that's what we used originally to generate the
+# reference output
+./profilefit profile_data/n3348_total_fix.dat tests/config_profilefit_core-sersic.dat --ftol=1.0e-10 --quiet &> test_dump2
+./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --nm &> test_dump3a
+./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --de &> test_dump3b
+./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --chisquare-only &> test_dump4
 
 
 echo ""
@@ -30,14 +34,33 @@ else
   diff test_dump2 tests/profilefit_textout2
 fi
 
-echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Differential Evoln.)... "
-tail -n 11 test_dump3 > test_dump3_tail
-if (diff --brief test_dump3_tail tests/profilefit_textout3)
+echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Nelder-Mead Simplex)... "
+tail -n 11 test_dump3a > test_dump3a_tail
+if (diff --brief test_dump3a_tail tests/profilefit_textout3a)
 then
   echo " OK"
 else
   echo "Diff output (last 11 lines):"
-  diff test_dump3_tail tests/profilefit_textout3
+  diff test_dump3a_tail tests/profilefit_textout3a
+fi
+
+echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Differential Evoln.)... "
+tail -n 11 test_dump3b > test_dump3b_tail
+if (diff --brief test_dump3b_tail tests/profilefit_textout3b)
+then
+  echo " OK"
+else
+  echo "Diff output (last 11 lines):"
+  diff test_dump3b_tail tests/profilefit_textout3b
+fi
+
+echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit -- print initial chi^2 only... "
+if (diff --brief test_dump4 tests/profilefit_textout4)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump4 tests/profilefit_textout4
 fi
 
 

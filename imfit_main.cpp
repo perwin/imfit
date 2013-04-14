@@ -113,7 +113,6 @@ typedef struct {
   bool  noModel;
   char  paramString[MAXLINE];
   bool  newParameters;
-  int  verbose;
   double  magZeroPoint;
   bool  noParamLimits;
   bool  printImages;
@@ -123,6 +122,7 @@ typedef struct {
   int  bootstrapIterations;
   int  maxThreads;
   bool  maxThreadsSet;
+  int  verbose;
 } commandOptions;
 
 
@@ -601,10 +601,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("nosubsampling");
   optParser->AddFlag("model-errors");
   optParser->AddFlag("cashstat");
-  optParser->AddFlag("de");
 #ifndef NO_NLOPT
   optParser->AddFlag("nm");
 #endif
+  optParser->AddFlag("de");
   optParser->AddFlag("quiet");
   optParser->AddFlag("verbose");
   optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */

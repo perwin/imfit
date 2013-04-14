@@ -198,11 +198,14 @@ if useNLopt:   # default is to do this
 	if useStaticLibs:
 		if (os_type == "Darwin"):
 			lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
+			lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
 		else:
 			# assuming we're on a Linux system
 			lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
+			lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
 	else:
 		lib_list.append("nlopt")	
+		lib_list_1d.append("nlopt")	
 else:
 	extra_defines.append("NO_NLOPT")
 
@@ -382,9 +385,11 @@ functionobject1d_objs = [ FUNCTION_SUBDIR + name for name in functionobject1d_ob
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
-profilefit_base_obj_string = """utilities commandline_parser mpfit diff_evoln_fit DESolver
-		read_profile config_file_parser add_functions_1d print_results 
+profilefit_base_obj_string = """commandline_parser utilities levmar_fit mpfit 
+		diff_evoln_fit DESolver read_profile config_file_parser add_functions_1d print_results 
 		convolver convolver1d bootstrap_errors_1d profilefit_main"""
+if useNLopt:
+	profilefit_base_obj_string += " nmsimplex_fit"
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 

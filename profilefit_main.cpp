@@ -26,9 +26,18 @@
 #include "function_object.h"
 #include "func1d_exp.h"
 #include "param_struct.h"   // for mp_par structure
-#include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
-#include "diff_evoln_fit.h"
+//#include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
+//#include "diff_evoln_fit.h"
 #include "bootstrap_errors_1d.h"
+
+
+// Solvers (optimization algorithms)
+#include "levmar_fit.h"
+#include "diff_evoln_fit.h"
+#ifndef NO_NLOPT
+#include "nmsimplex_fit.h"
+#endif
+
 #include "commandline_parser.h"
 #include "config_file_parser.h"
 #include "print_results.h"
@@ -40,12 +49,13 @@
 #define NO_FITTING          0 
 #define MPFIT_SOLVER        1
 #define DIFF_EVOLN_SOLVER   2
-
-#define MAX_DE_GENERATIONS  800
+#define NMSIMPLEX_SOLVER    3
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
 #define MONTE_CARLO_ITER   100
 #define BOOTSTRAP_ITER     1000
+
+#define DEFAULT_FTOL	1.0e-8
 
 #define CMDLINE_ERROR1 "Usage: -p must be followed by a string containing initial parameter values for the model"
 #define CMDLINE_ERROR2 "Usage: -l must be followed by a filename for a file containing parameter limits"
@@ -59,7 +69,7 @@
 #define DEFAULT_MODEL_OUTPUT_FILE   "model_profile_save.dat"
 #define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_profilefit.dat"
 
-#define VERSION_STRING      " v0.8"
+#define VERSION_STRING      "v0.9"
 
 
 
@@ -78,13 +88,17 @@ typedef struct {
   bool  noErrors;
   bool  noMask;
   int  maskFormat;
+  double  ftol;
+  bool  ftolSet;
   bool  subsamplingFlag;
   bool  saveBestProfile;
   bool  saveBestFitParams;
   std::string  outputParameterFileName;
+  bool printChiSquaredOnly;
   int  solver;
   bool  doBootstrap;
   int  bootstrapIterations;
+  int  verbose;
 } commandOptions;
 
 
@@ -123,6 +137,7 @@ int main(int argc, char *argv[])
   int  nPixels_psf;
   int  startDataRow, endDataRow;
   int  nParamsTot, nFreeParams;
+  int  nDegFreedom;
   double  *xVals, *yVals, *yWeights, *maskVals;
   double  *xVals_psf, *yVals_psf;
   int  weightMode;
@@ -136,8 +151,8 @@ int main(int argc, char *argv[])
   bool  maskAllocated = false;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
-  mp_config  mpConfig;
-  mp_result  mpfitResult;
+//  mp_config  mpConfig;
+//  mp_result  mpfitResult;
   int  status;
   vector<string>  functionList;
   vector<double>  parameterList;
@@ -162,6 +177,9 @@ int main(int argc, char *argv[])
   options.noErrors = true;
   options.noMask = true;
   options.maskFormat = MASK_ZERO_IS_GOOD;
+  options.ftol = DEFAULT_FTOL;
+  options.ftolSet = false;
+  options.printChiSquaredOnly = false;
   options.solver = MPFIT_SOLVER;
   options.doBootstrap = false;
   options.bootstrapIterations = 0;
@@ -169,6 +187,7 @@ int main(int argc, char *argv[])
   options.saveBestProfile = false;
   options.saveBestFitParams = true;
   options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
+  options.verbose = 1;
 
   ProcessInput(argc, argv, &options);
 
@@ -334,6 +353,7 @@ int main(int argc, char *argv[])
   theModel->FinalSetup();   // calls ApplyMask(), VetDataVector()
   theModel->PrintDescription();
 
+
   // Parameter limits and other info:
   // OK, first we create a C-style array of mp_par structures, containing parameter constraints
   // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
@@ -356,6 +376,9 @@ int main(int argc, char *argv[])
     parameterInfo[i].limits[0] = paramLimits[i].limits[0];
     parameterInfo[i].limits[1] = paramLimits[i].limits[1];
   }
+  nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
+  printf("%d free parameters (%d degrees of freedom)\n", nFreeParams, nDegFreedom);
+
   if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
     printf("No parameter constraints!\n");
@@ -363,35 +386,45 @@ int main(int argc, char *argv[])
   } else {
     mpfitParameterConstraints = parameterInfo;
   }
+  
 
-  
-  switch (options.solver) {
-    case MPFIT_SOLVER:
-      bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero the results structure */
-      mpfitResult.xerror = paramErrs;
-      bzero(&mpConfig, sizeof(mpConfig));
-      mpConfig.maxiter = 1000;
-      printf("\nCalling mpfit ...\n");
-      status = mpfit(myfunc, nStoredDataVals, nParamsTot, paramsVect, mpfitParameterConstraints,
-                      &mpConfig, theModel, &mpfitResult);
-  
-      printf("\n");
-      PrintResults(paramsVect, 0, &mpfitResult, theModel, nFreeParams, parameterInfo, status);
-      printf("\n");
-      break;
-    case DIFF_EVOLN_SOLVER:
-      printf("\nCalling DiffEvolnFit ..\n");
-      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, MAX_DE_GENERATIONS);
+
+  // OK, now we either print chi^2 value for the input parameters and quit, or
+  // else call one of the solvers!
+  if (options.printChiSquaredOnly) {
+    printf("\n");
+    status = 1;
+    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+    printf("\n");
+    // turn off saveing of parameter file
+    options.saveBestFitParams = false;
+  }
+  else {
+    // DO THE FIT!
+    if (options.solver == MPFIT_SOLVER) {
+      printf("\nCalling Levenberg-Marquardt solver ...\n");
+      status = LevMarFit(nParamsTot, nFreeParams, nStoredDataVals, paramsVect, parameterInfo, 
+      					theModel, options.ftol, paramLimitsExist, options.verbose);
+    }
+    else if (options.solver == DIFF_EVOLN_SOLVER) {
+      printf("\nCalling Differential Evolution solver ..\n");
+      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      			options.verbose);
       printf("\n");
       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
-      break;
-    case NO_FITTING:
-      printf("\nNO FITTING BEING DONE!\n");
-//      theModel->SetupChisquaredCalcs();
-      options.saveBestProfile = true;
-      break;
-  } // end switch
+    }
+#ifndef NO_NLOPT
+    else if (options.solver == NMSIMPLEX_SOLVER) {
+      printf("\nCalling Nelder-Mead Simplex solver ..\n");
+      status = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      			options.verbose);
+      printf("\n");
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+    }
+#endif
+  }
 
 
 
@@ -473,9 +506,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" --usemask                    Use mask from data file (4th column)");
   optParser->AddUsageLine(" --intensities                Data y-values are intensities, not magnitudes");
   optParser->AddUsageLine(" --psf <psf_file>             PSF profile (centered on middle row, y-values = intensities)");
+#ifndef NO_NLOPT
+  optParser->AddUsageLine(" --nm                         Use Nelder-Mead simplex solver instead of L-M");
+#endif
   optParser->AddUsageLine(" --de                         Solve using differential evolution");
+  optParser->AddUsageLine(" --ftol                       Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
+  optParser->AddUsageLine(" --chisquare-only             Print chi^2 of input model and quit");
   optParser->AddUsageLine(" --no-fitting                 Don't do fitting (just save input model)");
-  optParser->AddUsageLine(" --x1 <int>                   start data value");
+  optParser->AddUsageLine(" --x1 <int>                   start data value (1 = first, 2 = second, etc.)");
   optParser->AddUsageLine(" --x2 <int>                   end data value");
   optParser->AddUsageLine(" --zp <float>                 magnitude zero point of the data");
   optParser->AddUsageLine(" --bootstrap <int>            do this many iterations of bootstrap resampling to estimate errors");
@@ -492,8 +530,15 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("useerrors");
   optParser->AddFlag("usemask");
   optParser->AddFlag("intensities");
+  optParser->AddFlag("quiet");
+  optParser->AddFlag("verbose");
   optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
+#ifndef NO_NLOPT
+  optParser->AddFlag("nm");
+#endif
   optParser->AddFlag("de");
+  optParser->AddOption("ftol");
+  optParser->AddFlag("chisquare-only");
   optParser->AddFlag("no-fitting");
   optParser->AddOption("x1");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("x2");        /* an option (takes an argument), supporting only long form */
@@ -502,8 +547,17 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("save-params");
   optParser->AddOption("save-best-fit");
   
+  // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
+  // to be ignored only, rather than causing program to exit
+  optParser->UnrecognizedAreErrors();
+  
   /* parse the command line:  */
-  optParser->ParseCommandLine( argc, argv );
+  int status = optParser->ParseCommandLine( argc, argv );
+  if (status < 0) {
+    printf("\nError on command line... quitting...\n\n");
+    delete optParser;
+    exit(1);
+  }
 
 
   /* Process the results: actual arguments, if any: */
@@ -557,13 +611,29 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->psfPresent = true;
     printf("\tPSF profile = %s\n", theOptions->psfFileName.c_str());
   }
+#ifndef NO_NLOPT
+  if (optParser->FlagSet("nm")) {
+  	printf("\t* Nelder-Mead simplex solver selected!\n");
+  	theOptions->solver = NMSIMPLEX_SOLVER;
+  }
+#endif
   if (optParser->FlagSet("de")) {
     printf("\t Differential Evolution selected!\n");
     theOptions->solver = DIFF_EVOLN_SOLVER;
   }
+  if (optParser->FlagSet("chisquare-only")) {
+    printf("\t* No fitting will be done!\n");
+    theOptions->printChiSquaredOnly = true;
+  }
   if (optParser->FlagSet("no-fitting")) {
     printf("\t No fitting will be done!\n");
     theOptions->solver = NO_FITTING;
+  }
+  if (optParser->FlagSet("quiet")) {
+    theOptions->verbose = 0;
+  }
+  if (optParser->FlagSet("verbose")) {
+    theOptions->verbose = 2;
   }
   if (optParser->OptionSet("x1")) {
     if (NotANumber(optParser->GetTargetString("x1").c_str(), 0, kPosInt)) {
@@ -591,6 +661,16 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     }
     theOptions->zeroPoint = atof(optParser->GetTargetString("zp").c_str());
     printf("\tmagnitude zero point = %f\n", theOptions->zeroPoint);
+  }
+  if (optParser->OptionSet("ftol")) {
+    if (NotANumber(optParser->GetTargetString("ftol").c_str(), 0, kPosReal)) {
+      fprintf(stderr, "*** WARNING: ftol should be a positive real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->ftol = atof(optParser->GetTargetString("ftol").c_str());
+    theOptions->ftolSet = true;
+    printf("\tfractional tolerance ftol for chi^2 convergence = %g\n", theOptions->ftol);
   }
   if (optParser->OptionSet("bootstrap")) {
     if (NotANumber(optParser->GetTargetString("bootstrap").c_str(), 0, kPosInt)) {

@@ -56,7 +56,6 @@ ModelObject1d::ModelObject1d( )
   dataStartOffset = 0;
   debugLevel = 0;
   nCombined = 1;
-  nCombined_sqrt = 1.0;
   zeroPoint = 0.0;
 }
 

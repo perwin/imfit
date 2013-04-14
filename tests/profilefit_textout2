@@ -1,5 +1,6 @@
 	data file = profile_data/n3348_total_fix.dat
 	config file = tests/config_profilefit_core-sersic.dat
+	fractional tolerance ftol for chi^2 convergence = 1e-10
 Data file "profile_data/n3348_total_fix.dat": 43 data points
 Adding functions to model object...
 	Function: Core-Sersic-1D
@@ -7,8 +8,9 @@ Adding functions to model object...
 ModelObject(1d): 43 data values
 Setting up parameter information array ...
 Fixed parameter detected (i = 0)
+6 free parameters (37 degrees of freedom)
 
-Calling mpfit ...
+Calling Levenberg-Marquardt solver ...
 
 *** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
   CHI-SQUARE = 0.062599    (37 DOF)

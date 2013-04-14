@@ -1,0 +1,11 @@
+
+
+X0		0.000000
+FUNCTION Sersic-1D
+n		4.714192
+mu_e		21.071309
+r_e		25.377943
+
+Saving best-fit parameters in file "bestfit_parameters_profilefit.dat"
+All done!
+

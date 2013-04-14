@@ -46,7 +46,7 @@ int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
 
 
 
-int LevMarFit( int nParamsTot, int nFreeParams, int nPixelsTot, double *paramVector, 
+int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
 				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
 				bool paramLimitsExist, int verbose )
 {
@@ -75,7 +75,7 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nPixelsTot, double *paramVec
 //   else
 //     mpConfig.verbose = 0;
 
-  status = mpfit(myfunc_mpfit, nPixelsTot, nParamsTot, paramVector, mpfitParameterConstraints,
+  status = mpfit(myfunc_mpfit, nDataVals, nParamsTot, paramVector, mpfitParameterConstraints,
 					&mpConfig, theModel, &mpfitResult);
 
   if (verbose >= 0) {
