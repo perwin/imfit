@@ -67,9 +67,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.0b1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.0b2 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.0b1"
+#define VERSION_STRING      "1.0b2"
 #endif
 
 
@@ -105,6 +105,7 @@ typedef struct {
   bool  nCombinedSet;
   double  originalSky;
   bool  originalSkySet;
+  bool  useModelForErrors;
   bool  useCashStatistic;
   double  ftol;
   bool  ftolSet;
@@ -212,6 +213,7 @@ int main(int argc, char *argv[])
   options.nCombinedSet = false;
   options.originalSky = 0.0;
   options.originalSkySet = false;
+  options.useModelForErrors = false;
   options.useCashStatistic = false;
   options.ftol = DEFAULT_FTOL;
   options.ftolSet = false;
@@ -359,8 +361,14 @@ int main(int argc, char *argv[])
       theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
                                options.errorType);
     else {
-      printf("* No noise image supplied ... will generate noise image from input image.\n");
-      theModel->GenerateErrorVector();
+      if (options.useModelForErrors) {
+        printf("* No noise image supplied ... will generate noise image from model image.\n");
+        theModel->UseModelErrors();
+      }
+      else {
+        printf("* No noise image supplied ... will generate noise image from input image.\n");
+        theModel->GenerateErrorVector();
+      }
     }
   }
   
@@ -478,8 +486,10 @@ int main(int argc, char *argv[])
   // Handle assorted output requests
   if (options.saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
+    string  progNameVersion = "imfit ";
+    progNameVersion += VERSION_STRING;
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-    								argc, argv);
+    								progNameVersion, argc, argv);
   }
   if (options.saveModel) {
     string  progName = "imfit ";
@@ -556,6 +566,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --errors-are-weights     Indicates that values in noise image = weights (instead of sigmas)");
   optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
   optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --model-errors           Use model values (instead of data) to estimate errors for chi^2 computation");
   optParser->AddUsageLine("     --cashstat               Use Cash statistic instead of chi^2");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
 #ifndef NO_NLOPT
@@ -588,6 +599,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("errors-are-weights");
   optParser->AddFlag("mask-zero-is-bad");
   optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("model-errors");
   optParser->AddFlag("cashstat");
   optParser->AddFlag("de");
 #ifndef NO_NLOPT
@@ -596,22 +608,26 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("quiet");
   optParser->AddFlag("verbose");
   optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("mask");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("save-params");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("save-model");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("save-residual");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("save-weights");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("sky");        /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("gain");        /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("readnoise");        /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("exptime");        /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("ncombined");        /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("ftol");        /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("bootstrap");        /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("config", "c");
-  optParser->AddOption("max-threads");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("mask");
+  optParser->AddOption("psf");
+  optParser->AddOption("save-params");
+  optParser->AddOption("save-model");
+  optParser->AddOption("save-residual");
+  optParser->AddOption("save-weights");
+  optParser->AddOption("sky");
+  optParser->AddOption("gain");
+  optParser->AddOption("readnoise");
+  optParser->AddOption("exptime");
+  optParser->AddOption("ncombined");
+  optParser->AddOption("ftol");
+  optParser->AddOption("bootstrap");
+  optParser->AddOption("config", "c");        /* an option (takes an argument), supporting both short & long forms */
+  optParser->AddOption("max-threads");
 
+  // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
+  // to be ignored only, rather than causing program to exit
+  optParser->UnrecognizedAreErrors();
+  
   /* parse the command line:  */
   int status = optParser->ParseCommandLine( argc, argv );
   if (status < 0) {
@@ -657,6 +673,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("chisquare-only")) {
     printf("\t* No fitting will be done!\n");
     theOptions->printChiSquaredOnly = true;
+  }
+  if (optParser->FlagSet("model-errors")) {
+  	printf("\t* Using model counts instead of data to compute errors for chi^2\n");
+  	theOptions->useModelForErrors = true;
   }
   if (optParser->FlagSet("cashstat")) {
   	printf("\t* Using Cash statistic instead of chi^2 for minimization!\n");

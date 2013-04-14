@@ -40,15 +40,15 @@
 #ifndef NO_GSL
 #include "func_edge-on-disk.h"
 #include "func_expdisk3d.h"
+#include "func_brokenexpdisk3d.h"
 #include "func_gaussianring3d.h"
 #endif
 
 // extra functions
 #ifdef USE_EXTRA_FUNCS
-#include "func_expdisk3dv2.h"
+//#include "func_expdisk3dv2.h"
 #include "func_broken-exp-bar.h"
 #include "func_brokenexpbar3d.h"
-#include "func_brokenexpdisk3d.h"
 #include "func_boxytest3d.h"
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
@@ -157,6 +157,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   ExponentialDisk3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<ExponentialDisk3D>();
 
+  BrokenExponentialDisk3D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<BrokenExponentialDisk3D>();
+
   GaussianRing3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRing3D>();
 #endif
@@ -164,17 +167,14 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 // extra functions
 #ifdef USE_EXTRA_FUNCS
   // in testing/development
-  ExponentialDisk3Dv2::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<ExponentialDisk3Dv2>();
+//  ExponentialDisk3Dv2::GetClassShortName(classFuncName);
+//  input_factory_map[classFuncName] = new funcobj_factory<ExponentialDisk3Dv2>();
 
   BrokenExponentialBar::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponentialBar>();
 
   BrokenExpBar3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExpBar3D>();
-
-  BrokenExponentialDisk3D::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<BrokenExponentialDisk3D>();
 
   BoxyTest3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BoxyTest3D>();

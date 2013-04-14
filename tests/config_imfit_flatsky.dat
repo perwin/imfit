@@ -1,0 +1,11 @@
+# Config file for imfit; fits flat sky background to image
+
+GAIN   2.0
+READNOISE   10.0
+
+# Flat sky background (note that X0 and Y0 are not needed by the FlatSky
+# function object, but *are* needed to make this a readable config file).
+X0    26.0
+Y0    26.0
+FUNCTION   FlatSky
+I_sky		100.0

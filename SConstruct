@@ -310,13 +310,13 @@ if useGSL:
 	functionobject_obj_string += " func_edge-on-disk"
 	functionobject_obj_string += " integrator"
 	functionobject_obj_string += " func_expdisk3d"  # requires integrator
+	functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
 	functionobject_obj_string += " func_gaussianring3d"  # requires integrator
 if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
 	if useGSL:
 		functionobject_obj_string += " func_brokenexpbar3d"
-		functionobject_obj_string += " func_brokenexpdisk3d"
 		functionobject_obj_string += " func_boxytest3d"
 
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]

@@ -482,6 +482,11 @@ the minimization technique (WARNING: slower)
 the minimization technique (WARNING: much slower!)
 
 \bigskip
+
+\item \texttt{--model-errors} --- use the model image pixel values
+(instead of the data values) to estimate the individual-pixel dispersions
+$\sigma_{i}$ for \chisquare{} minimization
+
 \item \texttt{--cashstat} --- use Cash statistic instead of \chisquare{} as the fit
 statistic for minimization; for use in the case of Poisson statistics and zero read
 noise. Cannot be used with the (default) Levenberg-Marquardt minimization technique.
@@ -787,15 +792,17 @@ asymmetric Gaussian for the radial profile (see description of GaussianRing2Side
 
 \end{itemize}
 
-In addition, two experimental ``3D'' functions are available. With these, the
+In addition, three experimental ``3D'' functions are available. With these, the
 intensity value for each pixel comes from line-of-sight
 integration through a 3D luminosity-density model, generating a projected 2D
 model image given input specifications of the orientation and inclination
-to the line of sight. Both of these require the GSL for compilation from source (see Section~\ref{sec:build}).
+to the line of sight. All of these require the GSL for compilation from source (see Section~\ref{sec:build}).
 \begin{itemize}
 \item ExponentialDisk3D --- uses a 3D luminosity-density model of an axisymmetric 
 exponential disk (with different radial and vertical scale lengths), observed
 at an arbitrary inclination, to generate a projected surface-brightness image.
+\item BrokenExponentialDisk3D --- similar to ExponentialDisk3D, except that the
+radial luminosity-density profile is a broken exponential.
 \item GaussianRing3D --- uses a 3D 
 luminosity-density model of an elliptical ring with Gaussian radial and exponential 
 vertical profiles.
@@ -907,16 +914,23 @@ minimization. As part of this, \imfit{} normally calculates an internal
 weight map, using the input pixel intensities, the A/D gain, any
 previously subtracted background level, and the read noise to estimate
 Gaussian errors $\sigma_{i}$ for each pixel $i$. The error-based weight
-map is $w_{i} = 1/\sigma^{2}_{i}$, with the dispersion defined as
+map is $w_{i} = 1/\sigma^{2}_{i}$, with the dispersion (in ADU) defined as
 \begin{equation}
 \sigma^{2}_{i} \; = \; (I_{d, i} + I_{\rm sky})/g_{\rm eff} \, + \, N_{\rm c} \, \sigma_{\rm rdn}^{2}/g_{\rm eff}^{2} \, ,
 \end{equation}
 where $I_{d, i}$ is the data intensity in counts/pixel, $I_{\rm sky}$ is
 the original subtracted sky background (if any), $\sigma_{\rm rdn}$ is
-the read noise, $N_{\rm c}$ is the number of separate images averaged to
+the read noise (in electrons), $N_{\rm c}$ is the number of separate images combined
+(averaged or median) to
 form the data image, and $g_{\rm eff}$ is the ``effective gain'' (the
 product of the $A/D$ gain,  $N_{\rm c}$, and optionally the exposure
-time, if the image units are counts/pixel). These weights are then used
+time, if the image units are counts/pixel). As an alternative, the \textit{model}
+intensity values $I_{m, i}$ can be used instead of $I_{d, i}$, by specifying
+the \texttt{--model-errors} command-line flag. This is marginally slower (since
+the weights must be recalculated every time the model image is updated), but
+can lead to smaller biases in fitted parameters \citep[see][]{humphrey09,erwin13}.
+
+The weights are then used
 in the \chisquare{} calculation, summing over all $N$ pixels:
 \begin{equation}
 \chisquare \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{m, i} - I_{d, i})^2 ,
@@ -2147,14 +2161,22 @@ Decomposition Code for Detailed Structural Analysis of Galaxies'',
 Pohlen, B., \& Beckman, J. E. 2008, ``The Outer Disks of Early-Type Galaxies. I. 
 Surface-Brightness Profiles of Barred Galaxies'', \textit{Astron.J.} \textbf{135}: 20.
 
-\bibitem[Gadotti(2008)]{gadotti08} Gadotti, D. A. 2008, ``Image decomposition of barred galaxies and AGN hosts'',
-\textit{Monthly Notices of the Royal
-Astronomical Society} \textbf{384}: 420.
+\bibitem[Erwin(2013)]{erwin13} Erwin, P. 2013, ``Imfit: A Fast, Flexible
+New Program for Astronomical Image Fitting'', in prep.
+
+\bibitem[Gadotti(2008)]{gadotti08} Gadotti, D. A. 2008, ``Image
+decomposition of barred galaxies and AGN hosts'', \textit{Monthly
+Notices of the Royal Astronomical Society} \textbf{384}: 420.
 
 \bibitem[Graham et al.(2003)]{graham03} Graham, A., Erwin, P., Trujillo, I., \&
 Asensio Ramos, A. 2003 ``A New Empirical Model for the Structural Analysis of
 Early-Type Galaxies, and A Critical Review of the Nuker Model'',
 \textit{Astron.J.} \textbf{125}: 2951
+
+\bibitem[Humphrey, Liu, \& Buote(2009)]{humphrey09} Humphrey, P.~J.,
+Liu, W., \& Buote, D.~A. 2009, ``{$\chi$}$^{2}$ and Poissonian Data:
+Biases Even in the High-Count Regime and How to Avoid Them'',
+\textit{Astrophys.J.} \textbf{693}: 822.
 
 \bibitem[Krist(1995)]{krist95} Krist, J. 1995, ``Simulation of HST PSFs using
 Tiny Tim'', in \textit{Astronomical Data Analysis Software and Systems IV}, R.A.

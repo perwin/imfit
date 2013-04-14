@@ -18,7 +18,7 @@
 void PrintResults( double *params, double *xact, mp_result *result,
 					ModelObject *model, int nFreeParameters, mp_par *parameterInfo, int fitStatus );
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
-          string& outputFilename, int argc, char *argv[] );
+          string& outputFilename, string& programName, int argc, char *argv[] );
 
 
 #endif /* _PRINT_RESULTS_H_ */

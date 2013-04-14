@@ -104,7 +104,7 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
 
 
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
-                    string& outputFilename, int argc, char *argv[] )
+                    string& outputFilename, string& programName, int argc, char *argv[] )
 {
   FILE  *file_ptr;
   
@@ -115,7 +115,7 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
 
   char  *timeStamp;
   timeStamp = TimeStamp();
-  fprintf(file_ptr, "# Best-fit model results for imfit or profilefit\n");
+  fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
   fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
           timeStamp);
   for (int i = 0; i < argc; i++)

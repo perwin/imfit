@@ -91,8 +91,14 @@ class ModelObject
     // common, but Specialized by ModelObject1D
     virtual void CreateModelImage( double params[] );
     
+    // 2D only
+    void UpdateWeightVector(  );
+
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
+
+     // common, not specialized
+    virtual void UseModelErrors( );
 
      // common, not specialized
     virtual void UseCashStatistic( );
@@ -193,7 +199,8 @@ class ModelObject
     int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
 //    double  nCombined_sqrt;
 	double  zeroPoint;
-	double gain, readNoise, exposureTime, originalSky, effectiveGain;
+	double  gain, readNoise, exposureTime, originalSky, effectiveGain;
+	double  readNoise_adu_squared;
     int  debugLevel;
     int  maxRequestedThreads;
     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
@@ -202,6 +209,7 @@ class ModelObject
     bool  modelImageComputed;
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
+    bool  modelErrors;
     bool  useCashStatistic;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
     bool  zeroPointSet;

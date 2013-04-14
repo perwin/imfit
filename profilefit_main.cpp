@@ -408,8 +408,10 @@ int main(int argc, char *argv[])
   
   if (options.saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
+    string  progNameVer = "profilefit ";
+    progNameVer += VERSION_STRING;
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-                    argc, argv);
+                    progNameVer, argc, argv);
   }
 
   if (options.saveBestProfile) {

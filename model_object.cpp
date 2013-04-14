@@ -89,6 +89,7 @@ ModelObject::ModelObject( )
   bootstrapIndicesAllocated = false;
   setStartFlag_allocated = false;
   
+  modelErrors = false;
   useCashStatistic = false;
   modelImageComputed = false;
   maskExists = false;
@@ -129,6 +130,7 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
 
 void ModelObject::SetMaxThreads( int maxThreadNumber )
 {
+  assert( (maxThreadNumber >= 1) );
   maxRequestedThreads = maxThreadNumber;
 #ifdef USE_OPENMP
   omp_set_num_threads(maxRequestedThreads);
@@ -147,7 +149,6 @@ void ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
   nNewParams = newFunctionObj_ptr->GetNParams();
   paramSizes.push_back(nNewParams);
   nFunctionParams += nNewParams;
-//  newFunctionObj_ptr->GetParameterNames(parameterLabels);
 }
 
 
@@ -186,22 +187,6 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 }
 
 
-/* ---------------- PUBLIC METHOD: SetGain ---------------------------- */
-
-// void ModelObject::SetGain( double gainValue )
-// {
-//   gain = gainValue;
-// }
-
-
-/* ---------------- PUBLIC METHOD: SetGain ---------------------------- */
-
-// void ModelObject::SetSkyBackground( double originalSkyValue )
-// {
-//   originalSky = originalSkyValue;
-// }
-
-
 /* ---------------- PUBLIC METHOD: AddImageDataVector ------------------ */
 
 void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
@@ -209,8 +194,6 @@ void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
 {
   nDataVals = nValidDataVals = nImageColumns * nImageRows;
   dataVector = pixelVector;
-//  nCombined = nCombinedImages;
-//  nCombined_sqrt = sqrt(nCombined);
   dataValsSet = true;
   
   SetupModelImage(nImageColumns, nImageRows);
@@ -227,6 +210,8 @@ void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
 // (in make-image mode).
 void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
 {
+  assert( (nImageColumns >= 1) && (nImageRows >= 1) );
+  
   nDataColumns = nImageColumns;
   nDataRows = nImageRows;
   nDataVals = nImageColumns*nImageRows;
@@ -256,6 +241,7 @@ void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise
 {
   assert( (imageGain > 0.0) && (readoutNoise >= 0.0) );
   assert( (expTime > 0.0) && (nCombinedImages >= 1) );
+  assert( (originalSkyBackground >= 0.0) );
 
   gain = imageGain;
   readNoise = readoutNoise;
@@ -264,6 +250,7 @@ void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise
   originalSky = originalSkyBackground;
 
   effectiveGain = gain * exposureTime * nCombined;
+  readNoise_adu_squared = readNoise*readNoise/(effectiveGain*effectiveGain);
 }
 
 
@@ -313,7 +300,7 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
 
 
 /* ---------------- PUBLIC METHOD: GenerateErrorVector ----------------- */
-// Generate an error vector based on Poisson statistics.
+// Generate an error vector based on the Gaussian approximation of Poisson statistics.
 //    noise^2 = object_flux + sky + rdnoise^2
 //
 // Since sigma_adu = sigma_e/gain, we can go from
@@ -334,21 +321,13 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
 
 void ModelObject::GenerateErrorVector( )
 {
-  double  noise_squared, totalFlux, readNoise_sqrd;
-//  double  effectiveGain;
-  
-//   assert( (imageGain > 0.0) && (readNoise >= 0.0) );
-//   if ( skyValue <= 0.0 ) {
-//     printf("ModelObject::GenerateErrorVector -- original sky value (%g) is zero or negative.\n",
-//            skyValue);
-//   }
-//  effectiveGain = gain * exposureTime * nCombined;
+  double  noise_squared, totalFlux;
 
   // Allocate storage for weight image:
   weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   weightVectorAllocated = true;
   
-  readNoise_sqrd = readNoise*readNoise/(effectiveGain*effectiveGain);
+//  readNoise_adu_squared = readNoise*readNoise/(effectiveGain*effectiveGain);
   // Compute noise estimate for each pixel (see above for derivation)
   // Note that we assume a constant sky background (presumably already subtracted)
   for (int z = 0; z < nDataVals; z++) {
@@ -356,8 +335,7 @@ void ModelObject::GenerateErrorVector( )
     totalFlux = dataVector[z] + originalSky;
     if (totalFlux < 0.0)
       totalFlux = 0.0;
-//    noise_squared = totalFlux/imageGain + readNoise_sqrd;
-    noise_squared = totalFlux/effectiveGain + nCombined*readNoise_sqrd;
+    noise_squared = totalFlux/effectiveGain + nCombined*readNoise_adu_squared;
     // Note that we store 1/sigma instead of 1/sigma^2, since the chi^2 calculation in 
     // ChiSquared() [or the equivalent in mpfit.cpp) will square the individual terms
     weightVector[z] = 1.0 / sqrt(noise_squared);
@@ -456,7 +434,8 @@ void ModelObject::ApplyMask( )
 void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels)
 {
-
+  assert( (nPixels_psf >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
+  
   nPSFColumns = nColumns_psf;
   nPSFRows = nRows_psf;
   psfConvolver = new Convolver();
@@ -464,6 +443,7 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
   psfConvolver->SetMaxThreads(maxRequestedThreads);
   doConvolution = true;
 }
+
 
 
 /* ---------------- PUBLIC METHOD: FinalSetup -------------------------- */
@@ -574,6 +554,7 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   int  offset = 0;
   int  iDataRow, iDataCol, z, zModel;
   
+  assert( (functionIndex >= 0) );
   // Check parameter values for sanity
   if (! CheckParamVector(nParamsTot, params)) {
     printf("** ModelObject::SingleFunctionImage -- non-finite values detected in parameter vector!\n");
@@ -646,6 +627,50 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
 }
 
 
+/* ---------------- PUBLIC METHOD: UpdateWeightVector ------------------ */
+/* This function computes new error-based weights using the current model
+ * image and the Gaussian approximation to Poisson statistics. Used if we
+ * are doing chi^2 minimization with sigma estimated from *model* values
+ * (Pearson's chi^2).
+ */
+void ModelObject::UpdateWeightVector(  )
+{
+  int  iDataRow, iDataCol, z, zModel;
+  double  totalFlux, noise_squared;
+	
+  if (doConvolution) {
+    for (z = 0; z < nDataVals; z++) {
+      if ( (! maskExists) || (maskExists && (maskVector[z] > 0)) ) {
+        // only update values that aren't masked out
+        // (don't rely on previous weightVector[z] value, since sometimes model flux
+        // might be zero for an unmasked pixel)
+        iDataRow = z / nDataColumns;
+        iDataCol = z - iDataRow*nDataColumns;
+        zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        totalFlux = modelVector[zModel] + originalSky;
+        noise_squared = totalFlux/effectiveGain + nCombined*readNoise_adu_squared;
+        // POSSIBLE PROBLEM: if originalSky = model flux = read noise = 0, we'll have /0 error!
+        weightVector[z] = 1.0 / sqrt(noise_squared);
+      }
+    }
+  }
+  else {
+    // No convolution, so model image is same size & shape as data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      if ( (! maskExists) || (maskExists && (maskVector[z] > 0)) ) {
+        // only update values that aren't masked out
+        // (don't rely on previous weightVector[z] value, since sometimes model flux
+        // might be zero for an unmasked pixel)
+        totalFlux = modelVector[z] + originalSky;
+        noise_squared = totalFlux/effectiveGain + nCombined*readNoise_adu_squared;
+        // POSSIBLE PROBLEM: if originalSky = model flux = read noise = 0, we'll have /0 error!
+        weightVector[z] = 1.0 / sqrt(noise_squared);
+      }
+    }
+  }  
+}
+
+
 /* ---------------- PUBLIC METHOD: ComputeDeviates --------------------- */
 /* This function computes the vector of weighted deviates (differences between
  * model and data pixel values).  Note that a proper chi^2 sum requires *squaring*
@@ -667,6 +692,8 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 #endif
 
   CreateModelImage(params);
+  if (modelErrors)
+    UpdateWeightVector();
 
   // In standard case, z = index into dataVector, weightVector, and yResults; it comes 
   // from linearly stepping through (0, ..., nDataVals).
@@ -710,6 +737,28 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 }
 
 
+/* ---------------- PUBLIC METHOD: UseModelErrors --------==----------- */
+
+void ModelObject::UseModelErrors( )
+{
+  modelErrors = true;
+  // Allocate storage for weight image (do this here because we assume that
+  // AddErrorVector() or GenerateErrorVector() will NOT be called if we're using 
+  // Cash statistic), and set all values = 1
+  if (weightVectorAllocated) {
+    printf("ERROR: ModelImage::UseModelErrors -- weight vector already allocated!\n");
+    printf("Exiting ...\n\n");
+    exit(-1);
+  }
+  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  for (int z = 0; z < nDataVals; z++) {
+    weightVector[z] = 1.0;
+  }
+  weightVectorAllocated = true;
+  weightValsSet = true;
+}
+
+
 /* ---------------- PUBLIC METHOD: UseCashStatistic ------------------- */
 
 void ModelObject::UseCashStatistic( )
@@ -730,7 +779,6 @@ void ModelObject::UseCashStatistic( )
   }
   weightVectorAllocated = true;
   weightValsSet = true;
-
 }
 
 
@@ -771,6 +819,8 @@ double ModelObject::ChiSquared( double params[] )
   }
   
   CreateModelImage(params);
+  if (modelErrors)
+    UpdateWeightVector();
   
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding
@@ -806,6 +856,7 @@ double ModelObject::ChiSquared( double params[] )
     }
   }
   
+  // Recall that mp_enorm returns sqrt( Sum_i(chi_i^2) ) = sqrt( Sum_i(deviatesVector[i]^2) )
   if (doBootstrap)
     chi = mp_enorm(nValidDataVals, deviatesVector);
   else
@@ -850,7 +901,6 @@ double ModelObject::CashStatistic( double params[] )
         iDataCol = z - iDataRow*nDataColumns;
         zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
         // Mi − Di + DilogDi − DilogMi
-//      cashStat += weightVector[z] * (dataVector[z] - modelVector[zModel]);
         modVal = effectiveGain*(modelVector[zModel] + originalSky);
         dataVal = effectiveGain*(dataVector[z] + originalSky);
         if (modVal <= 0)
@@ -858,7 +908,6 @@ double ModelObject::CashStatistic( double params[] )
         else
           logModel = log(modVal);
         cashStat += weightVector[z] * (modVal - dataVal*logModel);
-//      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
       }
     }
   }
@@ -884,7 +933,6 @@ double ModelObject::CashStatistic( double params[] )
         else
           logModel = log(modVal);
         cashStat += weightVector[z] * (modVal - dataVal*logModel);
-//      cashStat += modVal - dataVal + dataVal*log(dataVal) - dataVal*log(modVal);
       }
     }
   }
@@ -1231,6 +1279,8 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
   int  i, j, n;
   int  offset = 0;
 
+  assert( (xSize >= 1) && (ySize >= 1) );
+  
   // Define x0_all, y0_all as center of nominal giant image
   x0_all = 0.5*xSize;
   y0_all = 0.5*ySize;

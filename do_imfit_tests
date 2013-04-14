@@ -5,7 +5,12 @@
 
 FAILED_TEXT=" ** Test failed. **"
 
-test_fits_files=1
+do_fits_tests=$(./py_startup_test.py)
+if [ $do_fits_tests = "0" ]
+then
+  echo -n "Unable to load numpy and/or pyfits Python modules"
+  echo -n "Tests will skip comparison of FITS files"
+fi
 
 
 echo ""
@@ -41,6 +46,11 @@ echo ""
 # test fitting with Cash statistic
 echo -n "   (now running Cash-statistic fit ...)"
 ./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nm &> test_dump5
+
+# testing error-image generation and saving
+# first using data values for errors, then using model values (should be identical)
+./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --save-weights=test_weights_data.fits &> /dev/null
+./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --model-errors --save-weights=test_weights_model.fits &> /dev/null
 
 #    Testing to see that bad config files are caught:
 ./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump_bad1
@@ -138,6 +148,12 @@ then
 else
   echo "Diff output:"
   diff test_dump5_tail tests/imfit_textout5_tail
+fi
+
+
+if [ $do_fits_tests = "1" ]
+then
+  ./compare_fits_files.py test_weights_data.fits test_weights_model.fits
 fi
 
 

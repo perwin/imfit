@@ -796,8 +796,76 @@ Class attributes:
 
 
 
+** Possible model-based chi^2 statistics
 
-** Fitting multiple images:
+Use model values instead of data values to determine sigma values.
+
+AddErrorVector():
+weightVector = input_pixel_vector
+weightVector[z] = 1.0 / weightVector[z];
+
+GenerateErrorVector():
+  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  readNoise_sqrd = readNoise*readNoise/(effectiveGain*effectiveGain);
+
+  for (int z = 0; z < nDataVals; z++) {
+    // total flux = nCombined*(source + subtracted_sky_value)
+    totalFlux = dataVector[z] + originalSky;
+    if (totalFlux < 0.0)
+      totalFlux = 0.0;
+//    noise_squared = totalFlux/imageGain + readNoise_sqrd;
+    noise_squared = totalFlux/effectiveGain + nCombined*readNoise_sqrd;
+    // Note that we store 1/sigma instead of 1/sigma^2, since the chi^2 calculation in 
+    // ChiSquared() [or the equivalent in mpfit.cpp) will square the individual terms
+    weightVector[z] = 1.0 / sqrt(noise_squared);
+  }
+
+ApplyMask():
+  if ( (weightValsSet) && (maskExists) ) {
+    for (int z = 0; z < nDataVals; z++) {
+      weightVector[z] = maskVector[z] * weightVector[z];
+    }
+    printf("ModelObject: mask vector applied to weight vector. ");
+    printf("(%d valid pixels remain)\n", nValidDataVals);
+  }
+
+
+New function/method: UpdateWeightVector
+	Called in e.g. ComputeDeviates(), ChiSquared(), after CreateModelImage is called
+	
+  if (doConvolution) {
+      for (z = 0; z < nDataVals; z++) {
+        if (maskVector[z] > 0) {
+          // only update values that aren't masked out
+          // (don't rely on previous weightVector[z] value, since sometimes model flux
+          // might be zero for an unmasked pixel)
+          iDataRow = z / nDataColumns;
+          iDataCol = z - iDataRow*nDataColumns;
+          zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+          totalFlux = modelVector[zModel] + originalSky;
+          noise_squared = totalFlux/effectiveGain + nCombined*readNoise_sqrd;
+          // POSSIBLE PROBLEM: if originalSky = model flux = read noise = 0, we'll have /0 error!
+          weightVector[z] = 1.0 / sqrt(noise_squared);
+        }
+      }
+  } else {
+    // No convolution, so model image is same size & shape as data and weight images
+    for (z = 0; z < nDataVals; z++) {
+      if (maskVector[z] > 0) {
+        // only update values that aren't masked out
+        // (don't rely on previous weightVector[z] value, since sometimes model flux
+        // might be zero for an unmasked pixel)
+        totalFlux = modelVector[z] + originalSky;
+        noise_squared = totalFlux/effectiveGain + nCombined*readNoise_sqrd;
+        // POSSIBLE PROBLEM: if originalSky = model flux = read noise = 0, we'll have /0 error!
+        weightVector[z] = 1.0 / sqrt(noise_squared);
+    }
+  }
+
+
+
+
+*** Fitting multiple images:
 
 I.e., fit two (or more) images of the same object simultaneously.
 
@@ -840,6 +908,7 @@ Things associated with individual images:
 	image data
 	mask data
 	error data (incl. gain, readnoise)
+	chi^2 vs Cash statistic?
 	derived weight map
 	notional/abstract: orientation (PA rotation), pixel scale, overall intensity scaling
 	[x0,y0 offsets -- however, ModelObject does not need to know about this]
@@ -856,6 +925,18 @@ Modification of ModelObject class
 	OR: split ModelObject into MultiImageModelObject (which handles
 	overall setup, chi^2 calculation, etc.) and subordinate ModelObject class,
 	which holds individual sets of image, mask, errors, PSF + Convolver object, etc.
+		1. Minimization code calls MultiImageModelObject with new parameter vector;
+		2. MultiImageModelObject tweaks parameter vector to produce per-image x0,y0,PA,etc.
+	data, OR calls individual ModelObjects to do this; passes parameter vectors to
+	individual ModelObjects and tells them to compute deviates vector or chi^2 (or Cash stat);
+		3. Individual ModelObjects compute model image & apply PSF convolution (and post-PSF
+	convolution) as needed; compute deviates vector or chi^2
+		4. MultiImageModelObject collects individual chi^2/deviates, combines them
+	according to user-determined weighting scheme, passes result back to minimization
+	code.
+	
+	Ideally, individual ModelObject can still be used by itself in single-image case.
+
 
 * Modify FunctionObjects to include an optional pixel-scale parameter
 (special method to pass in pixel scale; default value is 1.0).  Individual
