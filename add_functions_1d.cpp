@@ -38,10 +38,10 @@ using namespace std;
 
 
 // CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
-const char  FUNCTION_NAMES[][30] = {"Exponential-1D", "Gaussian-1D", "Gaussian2Side-1D",
-            "Moffat-1D", "Sersic-1D", "Core-Sersic-1D", "BrokenExponential-1D", 
-            "Delta-1D", "Sech-1D", "Sech2-1D", "vdKSech-1D", "n1543majmin-1D", "n1543majmin2-1D"};
-const int  N_FUNCTIONS = 12;
+// const char  FUNCTION_NAMES[][30] = {"Exponential-1D", "Gaussian-1D", "Gaussian2Side-1D",
+//             "Moffat-1D", "Sersic-1D", "Core-Sersic-1D", "BrokenExponential-1D", 
+//             "Delta-1D", "Sech-1D", "Sech2-1D", "vdKSech-1D", "n1543majmin-1D", "n1543majmin2-1D"};
+// const int  N_FUNCTIONS = 12;
 
 
 // Code to create FunctionObject object factories
@@ -62,6 +62,11 @@ class funcobj_factory : public factory
 public:
    FunctionObject* create() { return new function_object_type(); }
 };
+
+
+// Miscellaneous function prototypes -- private to this module
+
+void FreeFactories( map<string, factory*>& factory_map );
 
 
 
@@ -147,22 +152,60 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
   
   // Tell model object to create vector of parameter labels
   theModel->PopulateParameterNames();
+
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
+
   return 0;
 }
+
+
+// Function which frees the individual funcobj_factory objects inside the factory map
+void FreeFactories( map<string, factory*>& factory_map )
+{
+  for (map<string, factory*>::iterator it = factory_map.begin(); it != factory_map.end(); ++it)
+    delete it->second;
+}
+
+
+
+// void PrintAvailableFunctions( )
+// {
+//   
+//   printf("\nAvailable function/components:\n");
+//   for (int i = 0; i < N_FUNCTIONS - 1; i++) {
+//     printf("%s, ", FUNCTION_NAMES[i]);
+//   }
+//   printf("%s.\n\n", FUNCTION_NAMES[N_FUNCTIONS - 1]);
+//     
+// }
 
 
 
 void PrintAvailableFunctions( )
 {
-  
-  printf("\nAvailable function/components:\n");
-  for (int i = 0; i < N_FUNCTIONS - 1; i++) {
-    printf("%s, ", FUNCTION_NAMES[i]);
-  }
-  printf("%s.\n\n", FUNCTION_NAMES[N_FUNCTIONS - 1]);
-    
-}
+  string  currentName;
+  FunctionObject  *thisFunctionObj;
+  map<string, factory*>  factory_map;
 
+  PopulateFactoryMap(factory_map);
+
+  // get list of keys (function names) and step through it
+  map<string, factory*>::iterator  w;
+
+  printf("\nAvailable function/components:\n\n");
+  for (w = factory_map.begin(); w != factory_map.end(); w++) {
+//    printf("%s, ", w->first.c_str());
+    thisFunctionObj = w->second->create();
+    currentName = thisFunctionObj->GetShortName();
+    printf("%s\n", currentName.c_str());
+    delete thisFunctionObj;
+  }
+  printf("\n\n");    
+
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
+}
 
 
 void ListFunctionParameters( )
@@ -195,6 +238,8 @@ void ListFunctionParameters( )
   }
   printf("\n\n");
     
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
 }
 
 

@@ -96,6 +96,12 @@ public:
 };
 
 
+// Miscellaneous function prototypes -- private to this module
+
+void FreeFactories( map<string, factory*>& factory_map );
+
+
+
 
 void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 {
@@ -199,6 +205,7 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
   string  currentName;
   FunctionObject  *thisFunctionObj;
   map<string, factory*>  factory_map;
+  vector<string> factory_map_names;
 
   PopulateFactoryMap(factory_map);
 
@@ -221,9 +228,20 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
   
   // Tell model object to create vector of parameter labels
   theModel->PopulateParameterNames();
+  
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
+  
   return 0;
 }
 
+
+// Function which frees the individual funcobj_factory objects inside the factory map
+void FreeFactories( map<string, factory*>& factory_map )
+{
+  for (map<string, factory*>::iterator it = factory_map.begin(); it != factory_map.end(); ++it)
+    delete it->second;
+}
 
 
 // void PrintAvailableFunctions( )
@@ -257,6 +275,9 @@ void PrintAvailableFunctions( )
     delete thisFunctionObj;
   }
   printf("\n\n");    
+
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
 }
 
 
@@ -290,6 +311,8 @@ void ListFunctionParameters( )
   }
   printf("\n\n");
     
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
 }
 
 
