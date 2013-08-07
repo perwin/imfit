@@ -16,9 +16,10 @@ using namespace std;
 
 /* constants for use parameter "restriction" when calling NotANumber(): */
 #define kAnyInt          0
-#define kPosInt          1
-#define kAnyReal         2
-#define kPosReal         3
+#define kNonzeroInt      1
+#define kPosInt          2
+#define kAnyReal         3
+#define kPosReal         4
 
 
 // String-processing functions

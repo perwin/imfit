@@ -2,6 +2,9 @@
 # function with FWHM = 2.59 pixels and beta = 3.1 (appropriate for SDSS r-band
 # image of IC 3478)
 
+NCOLS  51
+NROWS  51
+
 # Circular Moffat
 X0    26.0
 Y0    26.0

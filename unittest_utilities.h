@@ -165,7 +165,7 @@ public:
   // Tests for FileExists()
   void testFileExists_RealFile( void )
   {
-    TS_ASSERT( FileExists("/Users/erwin/coding/testing/thread1.c") == true);
+    TS_ASSERT( FileExists("/bin/ls") == true);
   }
    
   void testFileExists_NonexistentFile( void )

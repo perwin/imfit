@@ -120,7 +120,7 @@ example_files = """
 config_sersic_ic3478_256.dat
 ic3478rss_256.fits
 ic3478rss_256_mask.fits
-makeimage_config_moffat_psf_51_for_ic3478rss.dat
+config_makeimage_moffat_psf.dat
 psf_moffat_51.fits
 README_examples.txt
 """

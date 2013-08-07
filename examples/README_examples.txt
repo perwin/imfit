@@ -36,10 +36,10 @@ $ imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_
 --gain=4.725 --readnoise=4.3 --sky=130.14 --psf psf_moffat_51.fits
 
 
-The PSF image is a simple Moffat function (matched to stars in the SDSS image); it was
-generating using the makeimage program and the configuration file
-makeimage_config_moffat_psf_51_for_ic3478rss.dat
+The PSF image is a simple Moffat function (matched to stars in the SDSS
+image); it was generating using the makeimage program and the
+configuration file config_makeimage_moffat_psf.dat (which specifies an
+output image 51 x 51 pixels on a side)
 
-$ makeimage --ncols 51 --nrows 51 makeimage_config_moffat_psf_51_for_ic3478rss.dat \
--o psf_moffat_51.fits
+$ makeimage config_makeimage_moffat_psf.dat -o psf_moffat_51.fits
 

@@ -2,6 +2,24 @@
 /*   Several utility routines used by imfit, makeimage, etc.
  */
 
+// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// 
+// This file is part of Imfit.
+// 
+// Imfit is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// Imfit is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with Imfit.  If not, see <http://www.gnu.org/licenses/>.
+
+
 #include <ctype.h>   /* for isdigit() */
 #include <stdio.h>
 #include <stdlib.h>  /* for exit() */
@@ -330,6 +348,12 @@ bool NotANumber( const char theString[], int index, int restriction )
     case kAnyInt:
       if (theCharacter == '-')
         return NotANumber( theString, index + 1, kAnyInt );
+      else
+        return (bool)( ! isdigit(theCharacter) );
+    
+    case kNonzeroInt:
+      if (theCharacter == '-')
+        return false;
       else
         return (bool)( ! isdigit(theCharacter) );
     

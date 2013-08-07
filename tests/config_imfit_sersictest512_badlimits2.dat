@@ -4,9 +4,9 @@
 
 # Generalized-ellipse Sersic object
 X0    256.0		250.0,260.0
-Y0    255.0		250.0,260.0      # bad line: parameter limits are out-of-order
+Y0    255.0		250.0,260.0
 FUNCTION   Sersic_GenEllipse
-PA    30.0		45.0,100.0
+PA    30.0		45.0,100.0      # bad line: initial value is outside parameter limits
 ell    0.5
 c0    -1.0
 n      2.5

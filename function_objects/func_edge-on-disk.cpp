@@ -43,6 +43,24 @@
  *     [v0.1]  21 Sept 2010: Created as modification of func_broken-exp2d.cpp.
  */
 
+// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// 
+// This file is part of Imfit.
+// 
+// Imfit is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// Imfit is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with Imfit.  If not, see <http://www.gnu.org/licenses/>.
+
+
 
 /* ------------------------ Include Files (Header Files )--------------- */
 #include <math.h>
@@ -130,7 +148,8 @@ double EdgeOnDisk::CalculateIntensity( double r, double z )
     I_radial = Sigma_00 * scaledR * gsl_sf_bessel_K1(scaledR);
   }
 
-  // if combination of n*z/z_0 is large enough, switch to simple exponential
+  // if combination of n*z/z_0 is large enough, switch to simple exponential,
+  // otherwise the cosh function will eventually overflow
   if ((z/scaledZ0) > COSH_LIMIT)
     verticalScaling = two_to_alpha * exp(-z/z_0);
   else {

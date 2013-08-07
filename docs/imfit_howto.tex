@@ -1,5 +1,27 @@
-\documentclass[10pt]{article}
-\usepackage[]{mathpazo}
+\documentclass[10pt,a4paper,article]{memoir}
+
+\usepackage[T1]{fontenc}
+
+\usepackage[lf]{MinionPro}
+\usepackage{MnSymbol}
+% specify Inconsolata for tt (including verbatim environment)
+%\usepackage{inconsolata}
+
+% microtypography package -- mainly so we can firmly turn off ligatures for tt font
+% (otherwise we sometimes get "--" --> en-dash, which we don't want in command-line
+% and code examples!
+\usepackage[expansion=false]{microtype}
+\DisableLigatures{encoding = T1, family = tt* }
+
+
+% Palatino options:
+% specify "sc" option to get true small caps, not scaled-down regular caps
+%\usepackage[sc]{mathpazo}
+% the following works find (and has slightly nicer Greek letters than mathpazo),
+% but doesn't let you use true small caps:
+%\usepackage{mathpple}
+
+% Note: the following warnings may not be true anymore (2013); at least, mathpple works
 % FOLLOWING DOES NOT WORK [URW Garamond NOT INSTALLED?]
 %\usepackage[garamond]{mathdesign}
 % FOLLOWING DOES NOT WORK [SOME METRIC FILES ARE MISSING]
@@ -7,17 +29,31 @@
 % FOLLOWING DOES NOT WORK [EULER FONTS NOT INSTALLED?]
 %\usepackage[]{mathpple}
 
-\usepackage{amssymb}
+
+% current Small Caps policy: things that are 3+ characters *and* that are like
+% names: thus, GNU, GCC, FITS, MINPACK; but CPU and PSF are not "names", and thus remains
+% as full caps.
+
+%\usepackage{amssymb}
 
 \usepackage{natbib}
 \usepackage{hyperref}
 \usepackage{color}
 
+%\usepackage{fancyhdr}
+%\pagestyle{fancy}
+%\lhead{\textsc{Imfit Howto}}
+%\chead{}
+
 \usepackage{listings}
 \lstset{language=C}
 
+% Document layout and typography
 \setlength{\oddsidemargin}{1.0cm}
 \setlength{\textwidth}{13.5cm}
+% increase leading to 1.1 * (1.2 * type size)
+%    --> 1.07 * 1.2 * 10pt = 12.8 pt
+\linespread{1.07}
 
 \newcommand{\imfit}{\texttt{imfit}}
 \newcommand{\Imfit}{\texttt{Imfit}}
@@ -49,7 +85,7 @@
 \tableofcontents
 
 
-\section{What Is It?}
+\chapter{What Is It?}
 
 \Imfit{} is a program for fitting astronomical images --- 
 specifically, for fitting images of galaxies, though it could certainly
@@ -88,67 +124,69 @@ codebase, exists for generating artificial galaxy images (using the same
 input/output parameter-file format as \imfit{}).
 
 \Imfit{} is an open-source project; the source code is freely available
-under the GNU Public License (GPL).
+under the \textsc{gnu} Public License (\textsc{gpl}).
 
 
 \bigskip
 
-\textbf{System Requirements:} \Imfit{} has been built and tested on Intel-based
-MacOS X (Snow Leopard and Lion) and Linux (Ubuntu) systems. It uses standard C++
-and should work on any Unix-style system with a modern C++ compiler and the
-Standard Template Library (e.g., GCC v4 or higher\footnote{GCC v4.2 or higher is
-necessary to take advantage of OpenMP-related speedups.}). It relies on two
-external, open-source libraries: version 3 of the CFITSIO
-library\footnote{\url{http://heasarc.nasa.gov/fitsio/}} for FITS image I/O and
-version 3 of the FFTW (Fastest Fourier Transform in the West)
-library\footnote{\url{http://www.fftw.org/}} for PSF convolution. Some optional
-components require the GNU Scientific Library
-(GSL),\footnote{\url{http://www.gnu.org/s/gsl/}} and the NLopt
-library\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}}, but the
-program can also be built without these.
+\textbf{System Requirements:} \Imfit{} has been built and tested on
+Intel-based MacOS X 10.6--10.8 (Snow Leopard, Lion, and Mountain Lion)
+and Linux (Ubuntu) systems. It uses standard C++ and should work on any
+Unix-style system with a modern C++ compiler and the Standard Template
+Library (e.g., \textsc{gcc} v4 or higher\footnote{\textsc{gcc} v4.2 or
+higher is necessary to take advantage of OpenMP-related speedups.}). It
+relies on two external, open-source libraries: version 3 of the
+\textsc{cfitsio} library\footnote{\url{http://heasarc.nasa.gov/fitsio/}}
+for \textsc{fits} image I/O and version 3 of the \textsc{fftw} (Fastest
+Fourier Transform in the West)
+library\footnote{\url{http://www.fftw.org/}} for PSF convolution. Some
+optional components require the \textsc{gnu} Scientific Library
+(\textsc{gsl}),\footnote{\url{http://www.gnu.org/s/gsl/}} and the NLopt
+library\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}},
+but the program can also be built without these.
 
 \bigskip
 
 \Imfit{} also includes modified versions of Craig Markwardt's
-\texttt{mpfit} code (an enhanced version of the MINPACK-1
+\texttt{mpfit} code (an enhanced version of the \textsc{minpack-1}
 Levernberg-Marquardt least-squares fitting code) and the Differential
 Evolution fitting code of Rainer Storn and Kenneth Price (more
 specifically, a C++ wrapper written by Lester E. Godwin).
 
 
 
-\section{Getting and Installing \Imfit{}}
+\chapter{Getting and Installing \Imfit{}}
 
-\subsection{Pre-Compiled Binaries}
+\section{Pre-Compiled Binaries}
 
 Pre-built binaries for Intel-based MacOS X and Linux systems, along with the
 source code, are available at
 \url{http://www.mpe.mpg.de/~erwin/code/imfit/}. The pre-compiled binaries included
-statically linked versions of the CFITSIO, FFTW, GSL, and NLopt libraries, so you do
+statically linked versions of the \textsc{cfitsio}, \textsc{fftw}, \textsc{gsl}, and NLopt libraries, so you do
 not need to have those installed.
 
 
-\subsection{Building \Imfit{} from Source: Outline}
+\section{Building \Imfit{} from Source: Outline}
 
 \begin{enumerate}
-\item Install the CFITSIO library (version 3.0 or higher).
+\item Install the \textsc{cfitsio} library (version 3.0 or higher).
 
-\item Install the FFTW library (version 3.0 or higher) --- note that if you have a
+\item Install the \textsc{fftw} library (version 3.0 or higher) --- note that if you have a
 multi-core CPU (or multiple CPUs sharing main memory), you should
-install the threaded version of FFTW as well, since this speeds up PSF
+install the threaded version of \textsc{fftw} as well, since this speeds up PSF
 convolution.
 
 \item (Optional) Install the NLopt library --- this is only necessary if you
 wish to use the Nelder-Mead minimization algorithm. \Imfit{} can easily be built
 without this, if for some reason you don't have access to the NLopt library.
 
-\item (Optional) Install the GNU Scientific Library (GSL) --- this is only
-necessary if you wish to use image functions that rely on GSL.  Currently,
-the only such functions are the EdgeOnDisk (\texttt{func\_edge-on-disk.cpp})
-component, which uses a modified Bessell function, and the sample 3D
-line-of-sight integration functions (e.g., ExponentialDisk3D,
-\texttt{func\_expdisk3d.cpp}). \Imfit{} can easily be built without these
-components, if for some reason you don't have access to the GSL.
+\item (Optional) Install the \textsc{gnu} Scientific Library
+(\textsc{gsl}) --- this is only necessary if you wish to use image
+functions that rely on \textsc{gsl}.  Currently, the only such functions
+are the EdgeOnDisk component, which uses a modified Bessell function,
+and the sample 3D line-of-sight integration functions (e.g.,
+ExponentialDisk3D). \Imfit{} can easily be built without these
+components, if for some reason you don't have access to the \textsc{gsl}.
 
 \item Install SCons (if needed; see below).
 
@@ -158,9 +196,9 @@ components, if for some reason you don't have access to the GSL.
 
 \end{enumerate}
 
-\subsection{Building \Imfit{} from Source: Details}\label{sec:build}
+\section{Building \Imfit{} from Source: Details}\label{sec:build}
 
-Assuming that CFITSIO and FFTW (and optionally NLopt and GSL) have already been installed
+Assuming that \textsc{cfitsio} and \textsc{fftw} (and optionally NLopt and \textsc{gsl}) have already been installed
 on your system, unpack the source-code tarball (imfit-x.x-source.tar.gz) in some convenient
 location.
 
@@ -179,18 +217,18 @@ program \makeimage{} with the following commands:
 This will produce two binary executable files: \imfit{} and \makeimage{}. Copy
 these to some convenient place on your path.
 
-If you do not have GSL installed, you will get compilation errors; use the following
+If you do not have \textsc{gsl} installed, you will get compilation errors; use the following
 commands instead:
 \begin{quote}
-\texttt{\$ scons --no-gsl imfit} \\
-\texttt{\$ scons --no-gsl makeimage}
+\verb+$ scons --no-gsl imfit+ \\
+\verb+$ scons --no-gsl makeimage+
 \end{quote}
 
 Similarly, you will get compilation errors if you do not have the NLopt library installed;
 this can be dealt with by using:
 \begin{quote}
-\texttt{\$ scons --no-nlopt imfit} \\
-\texttt{\$ scons --no-nlopt makeimage}
+\verb+$ scons --no-nlopt imfit+ \\
+\verb+$ scons --no-nlopt makeimage+
 \end{quote}
 
 Various other compilation options may be useful; these are explained in the next
@@ -207,7 +245,7 @@ included; you can use them to build \imfit{} and \makeimage{} via
 \texttt{\$ make all}
 \end{quote}
 The configure script will check for the presence of the various required and optional
-libraries in standard locations; if it cannot find the GSL or NLopt libraries, then
+libraries in standard locations; if it cannot find the \textsc{gsl} or NLopt libraries, then
 compilation will be done without them (see below for specifying the path to the libraries
 manually).
 
@@ -236,7 +274,7 @@ compare output images with reference versions will simply be skipped.)
 %which speeds up image computation by splitting it up across multiple CPUs
 %(and multiple cores within multi-core CPUs).
 %Currently, the code uses OpenMP 2.5 options, which means that if you are using
-%the GCC compiler, you need version 4.2 or higher.
+%the \textsc{gcc} compiler, you need version 4.2 or higher.
 %
 %To include OpenMP support, compile using the following options:
 %\begin{quote}
@@ -247,10 +285,12 @@ compare output images with reference versions will simply be skipped.)
 
 \subsubsection{Telling the Compiler Where to Find Header Files and Libraries}
 
-By default, the SConstruct file (the equivalent of a Makefile for SCons) tells SCons
-to look for header files in \texttt{/usr/local/include} and library files in
-\texttt{/usr/local/lib}. If you have the FFTW, CFITSIO, and (optionally) NLopt and GSL headers
-and libraries installed somewhere else, you can tell SCons about this by using the
+By default, the SConstruct file (the equivalent of a Makefile for SCons)
+tells SCons to look for header files in \texttt{/usr/local/include} and
+library files in \texttt{/usr/local/lib}. If you have the \textsc{fftw},
+\textsc{cfitsio}, and (optionally) NLopt and \textsc{gsl} headers and
+libraries installed somewhere else, you can tell SCons about this by
+using the
 \texttt{--header-path} and \texttt{--lib-path} options:
 \begin{quote}
 \texttt{\$ scons --header-path=/some/path ...} \\
@@ -277,7 +317,7 @@ By default, \imfit{} and \makeimage{} are compiled to take advantage of
 OpenMP compiler support, which speeds up image computation by splitting
 it up across multiple CPUs (and multiple cores within multi-core CPUs).
 Currently, the code uses OpenMP 2.5 options, which means that if you are
-using the GCC compiler, you need version 4.2 or higher. If your compiler
+using the \textsc{gcc} compiler, you need version 4.2 or higher. If your compiler
 does not support OpenMP -- or you want, for whatever reason, a version
 that does not include OpenMP support, you can disable it by compiling
 with the following commands:
@@ -298,7 +338,7 @@ following when running \texttt{configure}:
 By default, \imfit{} and \makeimage{} are compiled to take advantage of multi-core CPUs (and other
 shared-memory multiple-processor systems) when performing PSF convolutions by using the 
 multithreaded version of the
-FFTW library. If you do not have (or cannot build) the multithreaded FFTW library,
+\textsc{fftw} library. If you do not have (or cannot build) the multithreaded \textsc{fftw} library,
 you can remove multithreaded FFT computation by compiling with the following commands:
 \begin{quote}
 \texttt{\$ scons --no-threading imfit} \\
@@ -314,16 +354,14 @@ Or, with the \texttt{configure + make} approach:
 
 
 
-\section{Trying It Out}
+\chapter{Trying It Out}
 
 In the \texttt{examples/} directory are some sample galaxy images, masks, PSF images, and
-configuration files.
-
-To give \imfit{} a quick spin (and check that it's working on your system), change to the
+configuration files. To give \imfit{} a quick spin (and check that it's working on your system), change to the
 \texttt{examples/} directory and execute the following on the command line (assuming that
 \imfit{} is now in your path):
 \begin{quote}
-\$ imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}sky=130.14
+\texttt{\$ imfit ic3478rss\_256.fits \texttt{-c} config\_sersic\_ic3478\_256.dat \texttt{--}sky=130.14}
 \end{quote}
 
 This converges to a fit in a few seconds or less (e.g., about 0.5 seconds on a 
@@ -358,7 +396,7 @@ the \texttt{--save-model} option is used.)
 %\textit{full} image.
 
 You can also fit the image using PSF convolution, by adding the ``\texttt{--psf}'' option and a
-valid FITS image for the PSF; the \texttt{examples/} directory contains a Moffat PSF image which
+valid \textsc{fits} image for the PSF; the \texttt{examples/} directory contains a Moffat PSF image which
 matches stars in the original image fairly well:
 \begin{quote}
 imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \texttt{--}mask ~ ic3478rss\_256\_mask.fits ~ \texttt{--}gain=4.725 \texttt{--}readnoise=4.3 ~ \texttt{--}sky=130.14 ~ \texttt{--}psf ~ psf\_moffat\_51.fits
@@ -367,15 +405,15 @@ imfit ~ ic3478rss\_256.fits ~ \texttt{-c} ~ config\_sersic\_ic3478\_256.dat ~ \t
 
 The PSF image was generated using \makeimage{} and the configuration
 file \\
-\texttt{makeimage\_config\_moffat\_psf\_51\_for\_ic3478rss.dat}:
+\texttt{config\_makeimage\_moffat\_psf.dat}:
 \begin{quote}
-makeimage ~ \texttt{--}ncols=51 ~ \texttt{--}nrows=51 ~ -o ~ psf\_moffat\_51.fits ~ makeimage\_config\_moffat\_psf\_51\_for\_ic3478rss.dat  
+\texttt{makeimage -o psf\_moffat\_51.fits config\_makeimage\_moffat\_psf.dat}
 \end{quote}
 
 
 
 
-\section{Using \Imfit{}}\label{sec:using-imfit}
+\chapter{Using \Imfit{}}\label{sec:using-imfit}
 
 Basic use of \imfit{} from the command line looks like this:
 \begin{quote}
@@ -384,7 +422,7 @@ Basic use of \imfit{} from the command line looks like this:
 where \textit{config-file} is the name of the configuration file
 which describes the model (the combination of 2D functions, initial values
 for parameters, and possible limits on parameter values) and \textit{input-image}
-is the FITS image we want to fit with the model.
+is the \textsc{fits} image we want to fit with the model.
 
 The ``options'' are a set of command-line flags and options (use ``\imfit{} \texttt{-h}''
 or ``\imfit{} \texttt{--help}'' to see the complete list). Options must be followed by
@@ -395,8 +433,8 @@ In other words, both of the following are valid:
 \imfit{} ~ \texttt{--}gain 2.5 \\
 \imfit{} ~ \texttt{--}gain=2.5
 \end{quote}
-Note that \imfit{} does not follow the full GNU standard for
-command-line options and flags (as implemented by, e.g., the GNU
+Note that \imfit{} does not follow the full \textsc{gnu} standard for
+command-line options and flags (as implemented by, e.g., the \textsc{gnu}
 \texttt{getopt} library): you cannot merge multiple one-character flags
 into a single item (if ``\texttt{-a}'' and ``\texttt{-b}'' are flags,
 ``\texttt{-a -b}'' will work, but ``\texttt{-ab}'' will \textit{not}), and you
@@ -405,7 +443,7 @@ cannot merge a one-character option and its target
 ``\texttt{-c foo.dat}'').
 
 
-\subsection{Command-line Flags and Options}\label{sec:imfit-flags}
+\section{Command-line Flags and Options}\label{sec:imfit-flags}
 
 Some notable and useful command-line flags and options include:
 \begin{itemize}
@@ -417,12 +455,12 @@ configuration files.)
 
 \bigskip
 
-\item \texttt{--psf} \textit{psf-image} --- specifies a FITS image to be convolved
+\item \texttt{--psf} \textit{psf-image} --- specifies a \textsc{fits} image to be convolved
 with the model image.
 
 \bigskip
 
-\item \texttt{--mask} \textit{mask-image} --- specifies a FITS image which marks
+\item \texttt{--mask} \textit{mask-image} --- specifies a \textsc{fits} image which marks
 bad pixels to be ignored in the fitting process. By default, zero values in
 the mask indicate \textit{good} pixels, and positive values indicate bad pixels.
 \item \texttt{--mask-zero-is-bad} --- indicates that zero values (actually,
@@ -432,7 +470,7 @@ $\geq 1.0$ being good pixels.
 \bigskip
 
 \item \texttt{--noise} \textit{noisemap-image} --- specifies a pre-existing noise
-or error FITS image to use in the \chisquare{} fitting process (by default, pixel values in the
+or error \textsc{fits} image to use in the \chisquare{} fitting process (by default, pixel values in the
 noise map are assumed to be Gaussian sigma values).
 \item \texttt{--errors-are-variances} --- indicates that pixel values in the noise
 map are variances (sigma$^2$) instead of sigmas.
@@ -467,7 +505,7 @@ map for \chisquare{} minimization.  If multiple images were
 \bigskip
 
 \item \texttt{--save-params} \textit{output-filename} --- specifies that parameters 
-for best-fitting model should be saved using the specified filename (default is
+for best-fitting model should be saved using the specified filename (the default is
 for these to be saved in a file named \texttt{bestfit\_parameters\_imfit.dat}).
 \item \texttt{--save-model} \textit{output-filename} --- the best-fitting model image
 will be saved using the specified filename.
@@ -477,9 +515,9 @@ image $-$ best-fitting model image) will be saved using the specified filename.
 \bigskip
 
 \item \texttt{--nm} --- use Nelder-Mead simplex instead of Levenberg-Marquardt as
-the minimization technique (WARNING: slower)
+the minimization technique (\textsc{Warning}: slower)
 \item \texttt{--de} --- use Differential Evolution instead of Levenberg-Marquardt as
-the minimization technique (WARNING: much slower!)
+the minimization technique (\textsc{Warning}: much slower!)
 
 \bigskip
 
@@ -512,7 +550,7 @@ doing any minimization to find a better solution.
 
 \item \texttt{--max-threads} \textit{n-threads} --- specifies the maximum number of CPU cores to use
 during computation (the default is to use \textit{all} available CPU cores); has no
-effect if \imfit{} was compiled without OpenMP or FFTW multithreading support.
+effect if \imfit{} was compiled without OpenMP or \textsc{fftw} multithreading support.
 
 \bigskip
 
@@ -525,7 +563,7 @@ for each of the functions that \imfit{} can use.
 
 
 
-\section{The Configuration File}\label{sec:configfile}
+\chapter{The Configuration File}\label{sec:configfile}
 
 \texttt{Imfit} always requires a configuration file, which specifies the model
 which will be fit to the input image, initial values for model parameters, any
@@ -638,7 +676,7 @@ image, one as S\'ersic + exponential, the other with just an exponential):
 \end{quote}
 
 
-\subsection{Parameter Names, Specifications, and Values}
+\section{Parameter Names, Specifications, and Values}
 
 The X0/Y0 position lines at the start of each function block and the
 individual parameter lines for each function all share a common format:
@@ -673,7 +711,7 @@ to see what these are for each function).
 
 \textbf{Values for Positional Parameter (X0, Y0)}: The positional parameters
 for each function block are pixel values -- X0 for the column number and
-Y0 for the row number. \Imfit{} uses the IRAF pixel-numbering
+Y0 for the row number. \Imfit{} uses the \textsc{iraf} pixel-numbering
 convention: the center of first pixel in the image (the lower left pixel
 in a standard display) is at $(1.0,1.0)$, with the lower-left corner of that
 pixel having the coordinates $(0.5,0.5)$.
@@ -695,7 +733,7 @@ semi-major and semi-minor axes of an ellipse;
 If you write your own functions, you are encouraged
 to stick to these conventions.
 
-\subsection{Parameter Limits}\label{sec:param-limits}
+\section{Parameter Limits}\label{sec:param-limits}
 
 Individual parameters can be limited in two ways:
 \begin{enumerate}
@@ -714,7 +752,7 @@ pair following the initial-value specification. E.g.:
 \end{quote}
 
 
-\subsection{Optional Image-Description Parameters}
+\section{Optional Image-Description Parameters}
 
 The configuration file can, optionally, contain one or more specifications of 
 parameters describing the whole image, which take the place of certain command-line
@@ -741,11 +779,11 @@ background level that was subtracted from the image)
 
 In situations where a configuration file contains one of these specifications
 and the corresponding command-line option is also used, \textit{the command-line option
-always overrides whatever value is  in the configuration file}.
+always overrides whatever value is  in the configuration file.}
 
 
 
-\section{Standard Image Functions}
+\chapter{Standard Image Functions}
 
 \Imfit{} comes with the following 2D image functions, each of
 which can be used as many times as desired. (As mentioned above, \imfit{}
@@ -768,21 +806,19 @@ generalized ellipses (``boxy'' to ``disky'' shapes) for the isophote shapes.
 \item Sersic\_GenEllipse --- an elliptical 2D S\'ersic function using
 generalized ellipses (``boxy'' to ``disky'' shapes) for the isophotes.
 \item Core-Sersic --- an elliptical 2D Core-S\'ersic function \citep{graham03,trujillo04}.
-%\item FlatExponential --- similar to Exponential, but with an inner radial zone
-%of constant surface brightness for $r < R_{\rm break}$.
 \item BrokenExponential --- similar to Exponential, but with \textit{two}
 exponential radial zones (with different scalelengths) joined by a transition region
-at $R_{\rm break}$ of variable sharpness.
+at $R_{\mathrm{break}}$ of variable sharpness.
 \item GaussianRing --- an elliptical ring with a radial profile
-consisting of a Gaussian centered at $r = R_{\rm ring}$.
+consisting of a Gaussian centered at $r = R_{\mathrm{ring}}$.
 \item GaussianRing2Side --- like GaussianRing, but with a radial profile
 consisting of an asymmetric Gaussian (different values of $\sigma$ for
-$r < R_{\rm ring}$ and $r > R_{\rm ring}$).
+$r < R_{\mathrm{ring}}$ and $r > R_{\mathrm{ring}}$).
 \item EdgeOnDisk --- the analytical form for a perfectly edge-on exponential
 disk, using the Bessel-function solution of \citet{vdk81} for 
 the radial profile and the generalized sech function of \citet{vdk88} 
-for the vertical profile. Note that this function requires that the GNU
-Scientific Library (GSL) be installed; if the GSL is not installed, \imfit{}
+for the vertical profile. Note that this function requires that the \textsc{gnu}
+Scientific Library (\textsc{gsl}) be installed; if the \textsc{gsl} is not installed, \imfit{}
 should be compiled without this function (see Section~\ref{sec:build}).
 \item EdgeOnRing --- a simplistic model for an edge-on ring, using a
 Gaussian for the radial profile and another Gaussian (with
@@ -796,13 +832,13 @@ In addition, three experimental ``3D'' functions are available. With these, the
 intensity value for each pixel comes from line-of-sight
 integration through a 3D luminosity-density model, generating a projected 2D
 model image given input specifications of the orientation and inclination
-to the line of sight. All of these require the GSL for compilation from source (see Section~\ref{sec:build}).
+to the line of sight. All of these require the \textsc{gsl} for compilation from source (see Section~\ref{sec:build}).
 \begin{itemize}
 \item ExponentialDisk3D --- uses a 3D luminosity-density model of an axisymmetric 
 exponential disk (with different radial and vertical scale lengths), observed
 at an arbitrary inclination, to generate a projected surface-brightness image.
 \item BrokenExponentialDisk3D --- similar to ExponentialDisk3D, except that the
-radial luminosity-density profile is a broken exponential.
+radial profile of the luminosity density is a broken exponential.
 \item GaussianRing3D --- uses a 3D 
 luminosity-density model of an elliptical ring with Gaussian radial and exponential 
 vertical profiles.
@@ -824,16 +860,16 @@ obtained by running \imfit{} with the ``\texttt{--list-parameters}'' option:
 
 
 
-\section{Images}
+\chapter{Images}
 
-\Imfit{} is designed to fit 2D astronomical images in FITS format, where
+\Imfit{} is designed to fit 2D astronomical images in \textsc{fits} format, where
 pixel values are some form of linear surface-brightness (or surface
 density) measurement. The default internal error calculations (see
 Section~\ref{sec:noise-maps}, below) assume that pixel values are
 integrated counts (e.g., ADUs), which can be converted to detected
 photons using the $A/D$ gain (provided by ``\texttt{--gain}'' option, or
 by the GAIN keyword in a configuration file). However, since \imfit{} can
-also accept a user-supplied noise/error image in FITS format, you can
+also accept a user-supplied noise/error image in \textsc{fits} format, you can
 use any linear pixel values as long as the corresponding noise image is
 appropriately scaled to match.
 
@@ -848,24 +884,24 @@ to tell \imfit{} how to adjust the error estimations.  The latter option is slig
 better, because \imfit{} will also scale the read noise accordingly.
 
 \Imfit{} does \textit{not} assume the presence of any particular header
-keywords in the FITS file.
+keywords in the \textsc{fits} file.
 
 
 
 
-\subsection{Specifying Image Subsections, Compressed Images, etc.}
+\section{Specifying Image Subsections, Compressed Images, etc.}
 
 In many cases, you may want to fit an object which is much smaller than the whole
 image. You can always make a smaller cutout image and fit that, but it may be convenient to
 specify the image subsection directly. You can do this using a subset of the image-section
-syntax of CFITSIO (which will be familiar to you if you've ever worked with
-image sections in IRAF). An example:
+syntax of \textsc{cfitsio} (which will be familiar to you if you've ever worked with
+image sections in \textsc{iraf}). An example:
 
 \begin{quote}
 ic3478rss\_256.fits[45:150,200:310]
 \end{quote}
 This will fit columns 45--150 and rows 200--310 of the image (column and row
-numbering starts at 1). Pixel coordinates in the configuration (and output)
+numbering starts at~1). Pixel coordinates in the configuration (and output)
 files refer to locations within the \textit{full} image.
 
 The only kind of image section specification that's allowed is a simple
@@ -873,7 +909,7 @@ The only kind of image section specification that's allowed is a simple
 an asterisk (e.g., [*,y1:y2] to specify the full range of x values). More
 complicated expressions which might extract part of a 3D datacube are not
 (currently) possible. However, you \textit{can} specify a particular extension
-(header-data unit) in a multi-extension FITS file, e.g.:
+(header-data unit) in a multi-extension \textsc{fits} file, e.g.:
 
 \begin{quote}
 ic3478rss.fits[2]
@@ -887,27 +923,27 @@ specify the same subsection in those images!
 You can also use fit (or generate) images which have been compressed with gzip or
 Unix compress -- e.g., \texttt{ic3478rss\_256.fits.gz}.
 Images, masks, etc., can even be read via \texttt{http://} or \texttt{ftp://} URLs which point directly to
-accessible FITS files -- e.g., \texttt{http://someplace.net/images/somefile.fits}; you
+accessible \textsc{fits} files; you
 cannot \textit{save} files to URLs, however.
 
 
 
-\section{Extras for Fitting Images}
+\chapter{Extras for Fitting Images}
 
-\subsection{Masks}
+\section{Masks}
 
 A mask image can be supplied to \imfit{} by using the command-line
 option \texttt{--mask}. The mask image should be an \textit{integer}-valued
-FITS file with the same dimensions as the image being fitted (IRAF \texttt{.pl}
-mask files are not recognized, but these can be converted to FITS format within
-IRAF). The default is to treat zero-valued pixels in the mask image as
+\textsc{fits} file with the same dimensions as the image being fitted (\textsc{iraf} \texttt{.pl}
+mask files are not recognized, but these can be converted to \textsc{fits} format within
+\textsc{iraf}). The default is to treat zero-valued pixels in the mask image as
 \textit{good} and pixels with values $> 0$ as \textit{bad} (i.e., to be excluded
 from the fit); however, you can specify that zero-valued pixels are \textit{bad}
 with the command-line flag \texttt{--mask-zero-is-bad}.
 
 
 
-\subsection{Noise, Variance, or Weight Maps}\label{sec:noise-maps}
+\section{Noise, Variance, or Weight Maps}\label{sec:noise-maps}
 
 By default, \imfit{} uses \chisquare{} as the statistic for
 minimization. As part of this, \imfit{} normally calculates an internal
@@ -916,14 +952,14 @@ previously subtracted background level, and the read noise to estimate
 Gaussian errors $\sigma_{i}$ for each pixel $i$. The error-based weight
 map is $w_{i} = 1/\sigma^{2}_{i}$, with the dispersion (in ADU) defined as
 \begin{equation}
-\sigma^{2}_{i} \; = \; (I_{d, i} + I_{\rm sky})/g_{\rm eff} \, + \, N_{\rm c} \, \sigma_{\rm rdn}^{2}/g_{\rm eff}^{2} \, ,
+\sigma^{2}_{i} \; = \; (I_{d, i} + I_{\mathrm{sky}})/g_{\mathrm{eff}} \, + \, N_{\mathrm{c}} \, \sigma_{\mathrm{rdn}}^{2}/g_{\mathrm{eff}}^{2} \, ,
 \end{equation}
-where $I_{d, i}$ is the data intensity in counts/pixel, $I_{\rm sky}$ is
-the original subtracted sky background (if any), $\sigma_{\rm rdn}$ is
-the read noise (in electrons), $N_{\rm c}$ is the number of separate images combined
+where $I_{d, i}$ is the data intensity in counts/pixel, $I_{\mathrm{sky}}$ is
+the original subtracted sky background (if any), $\sigma_{\mathrm{rdn}}$ is
+the read noise (in electrons), $N_{\mathrm{c}}$ is the number of separate images combined
 (averaged or median) to
-form the data image, and $g_{\rm eff}$ is the ``effective gain'' (the
-product of the $A/D$ gain,  $N_{\rm c}$, and optionally the exposure
+form the data image, and $g_{\mathrm{eff}}$ is the ``effective gain'' (the
+product of the $A/D$ gain,  $N_{\mathrm{c}}$, and optionally the exposure
 time, if the image units are counts/pixel). As an alternative, the \textit{model}
 intensity values $I_{m, i}$ can be used instead of $I_{d, i}$, by specifying
 the \texttt{--model-errors} command-line flag. This is marginally slower (since
@@ -939,7 +975,7 @@ where $I_{m, i}$ and $I_{d, i}$ are the model and data intensities
 in counts/pixel, respectively. (Masking is handled by setting $w_{i} = 0$
 for masked pixels.)
 
-If you have a pre-existing error map as a FITS image, you can tell \imfit{} to
+If you have a pre-existing error map as a \textsc{fits} image, you can tell \imfit{} to
 use that instead, via the \texttt{--noise} command-line option. By default, the
 pixel values in this image are assumed to be errors $\sigma_{i}$ in units of
 ADU/pixel. If the values are \textit{variances} ($\sigma_{i}^2$), you can specify
@@ -950,7 +986,7 @@ image is supplied, the weights of masked pixels will still be set to 0,
 regardless of their individual values in the weight image.)
 
 Note that \imfit{} does \textit{not} try to obtain information (such as
-the A/D gain or read noise) from the FITS header of an image. This is primarily
+the A/D gain or read noise) from the \textsc{fits} header of an image. This is primarily
 because there is little consistency in header names across the wide range of
 astronomical images, so it is difficult pick one name, or even a small set, and
 assume that it will be present in a given image's header; this is even more
@@ -962,16 +998,15 @@ minimization uses
 C \; = \; \sum_{i = 0}^{N} w_{i} \, (I^{\prime}_{m, i} \, - \, I^{\prime}_{d, i} \ln I^{\prime}_{m, i}),
 \end{equation}
 where $I^{\prime}_{m, i}$ and $I^{\prime}_{d, i}$ are the model and data
-intensities in counts/pixel, multiplied by the effective gain $g_{\rm
-eff}$ as defined above. In this case, all weights are automatically $=
+intensities in counts/pixel, multiplied by the effective gain $g_{\mathrm{eff}}$ as defined above. In this case, all weights are automatically $=
 1$, except for masked pixels, which are still set $= 0$.
 
 
-\subsection{PSF Convolution}
+\section{PSF Convolution}
 
 To simulate the effects of seeing and other telescope resolution effects, model
 images can be convolved with a PSF (point-spread function) image. This uses an
-input FITS file which contains the point spread function. The actual convolution
+input \textsc{fits} file which contains the point spread function. The actual convolution
 uses Fast Fourier Transforms of the interally-generated model image and the PSF
 image to compute the output convolved model image.
 
@@ -981,16 +1016,16 @@ be used, but the resulting convolved model images will be shifted.) The PSF does
 \textit{not} need to be normalized, as \imfit{} will automatically normalize the
 PSF image internally.
 
-Although \imfit{} uses a multi-threaded version version of the FFTW library, which
+Although \imfit{} uses a multi-threaded version version of the \textsc{fftw} library, which
 is itself quite fast, adding PSF convolution to the image-fitting process \textit{does}
 slow things down considerably.
 
 
 
-\section{Minimization Options: Levenberg-Marquardt, Differential Evolution, Nelder-Mead Simplex}
+\chapter{Minimization Options: Levenberg-Marquardt, Differential Evolution, Nelder-Mead Simplex}
 
 The default method for \chisquare{} minimization  used by \imfit{} is the
-Levenberg-Marquardt algorithm, based on the classic MINPACK-1
+Levenberg-Marquardt algorithm, based on the classic \textsc{minpack-1}
 implementation with enhancements by Craig Markwardt.\footnote{Original C
 version available at
 \url{http://www.physics.wisc.edu/~craigm/idl/cmpfit.html}} This is very
@@ -1061,7 +1096,7 @@ other minimization techniques, or that an ambitious user could add such techniqu
 on their own.
 
 
-\subsection{Controlling the Tolerance for Minimization}
+\section{Controlling the Tolerance for Minimization}
 
 All three minimization algorithms have stop conditions based on
 fractional changes in the fit-statistic (\chisquare{} or Cash statistic)
@@ -1083,9 +1118,9 @@ parameters).
 TBD: info about extra stopping conditions for the L-M and N-M simplex algorithms
 
 
-\section{Outputs}
+\chapter{Outputs}
 
-\subsection{Main Outputs}
+\section{Main Outputs}
 
 Assuming that the fitting process converges, \imfit{} will print a
 summary of the results, including the final, best-fitting parameter
@@ -1098,8 +1133,8 @@ estimates are separated from the parameter values by ``\#''; this means
 that you can copy and paste the parameter list into a text file and use
 that file as an input configuration file for \imfit{} or \makeimage. 
 
-The best-fitting parameters will also be written to an output text file (default
-name = \texttt{bestfit\_parameters\_imfit.dat}; use \texttt{--save-params} to
+The best-fitting parameters will also be written to an output text file (the default
+name for this is \texttt{bestfit\_parameters\_imfit.dat}; use \texttt{--save-params} to
 specify a different name), \textit{without} the error estimates. The output file
 will also include a copy of the original command used to start \imfit{} and the
 date and time it was generated; these are commented out so that the file can be
@@ -1115,18 +1150,18 @@ noise has been correctly estimated \textit{and} if all differences
 between the model and the data are solely due to noise, which is rarely
 true for galaxies and other astronomical objects.} is also printed.
 Finally, two alternate measures of the fit are also printed: the Akaike
-Information Criterion (AIC) and the Bayesian Information Criterion
-(BIC). The latter two are included on a provisional basis; they are, in
+Information Criterion (\textsc{aic}) and the Bayesian Information Criterion
+(\textsc{bic}). The latter two are included on a provisional basis; they are, in
 principle, useful for comparing different models fit to the same data.
 
 By default, no model or residual (image $-$ model) images are saved, but the
 command-line options \texttt{--save-model} and \texttt{save-residual} can be used
-to specify output names for those images, and corresponding FITS files will be saved
+to specify output names for those images, and corresponding \textsc{fits} files will be saved
 to disk.
 
 TBD.
 
-\subsection{Uncertainties on Parameter Values: L-M Estimates vs.\ Bootstrap Resampling}
+\section{Uncertainties on Parameter Values: L-M Estimates vs.\ Bootstrap Resampling}
 \label{sec:bootstrap}
 
 The (default) Levenberg-Marquardt minimization algorithm used by
@@ -1188,7 +1223,7 @@ TBD.
 
 
 
-\section{Makeimage}
+\chapter{Makeimage}
 
 \Imfit{} has a companion program called \makeimage, which will generate model
 images using the same functions (and parameter files) as \imfit. In fact (as
@@ -1198,7 +1233,7 @@ can be used as input to \makeimage, as can an \imfit{} configuration file.
 \Makeimage{} \textit{does} require an output image size.  This can be specified
 via command-line flags (``\texttt{--ncols}'' and ``\texttt{--nrows}''), via
 specifications in the configuration file (see below), or by supplying a
-reference FITS image (``\texttt{--refimage} \textit{image-filename}''); in the
+reference \textsc{fits} image (``\texttt{--refimage} \textit{image-filename}''); in the
 latter case, the output image will have the same dimensions as the reference
 image.
 
@@ -1207,7 +1242,7 @@ magnitudes and fractional luminosities of different components in a
 model.
 
 
-\subsection{Using \Makeimage{}}
+\section{Using \Makeimage{}}
 
 Basic use of \makeimage{} from the command line looks like this:
 \begin{quote}
@@ -1239,14 +1274,14 @@ use for determining output image dimensions.
 
 \bigskip
 
-\item \texttt{--psf} \textit{psf-image} --- specifies a FITS image to be convolved
+\item \texttt{--psf} \textit{psf-image} --- specifies a \textsc{fits} image to be convolved
 with the model image.
 
 \bigskip
 
 
 \item \texttt{--nosave} --- do \textit{not} save the model image (useful for testing
-purposes, or when using \makeimage{} to estimate fluxes)
+purposes, or when estimating fluxes with \makeimage)
 
 \bigskip
 
@@ -1261,7 +1296,7 @@ for each functions that \makeimage{} can use
 
 
 
-\subsection{Configuration Files for \Makeimage{}}
+\section{Configuration Files for \Makeimage{}}
 
 The configuration file for \makeimage{} has essentially the same format as
 that for \imfit; any parameter limits that might be present are ignored.
@@ -1279,12 +1314,12 @@ following optional general parameters are available:
 
 
 
-\subsection{Generating Single-Function Output Images}
+\section{Generating Single-Function Output Images}
 
 \Makeimage{} can also output individual images for each function
 in the configuration file. For example, if the configuration file specifies
 a model with one S\'ersic function and two exponential functions, \makeimage{}
-can generate three separate FITS files, in addition to the (standard) sum of
+can generate three separate \textsc{fits} files, in addition to the (standard) sum of
 all three functions.  This is done with the \texttt{--output-functions} option:
 \begin{quote}
   \texttt{--output-functions} ~ \textit{root-name}
@@ -1303,12 +1338,12 @@ functions), one could execute the following command
 \begin{quote}
   \texttt{\$ \makeimage} ~ \textit{config-file} ~ \texttt{--output-functions mod}
 \end{quote}
-and the result would be three FITS files, named \texttt{mod1\_Sersic.fits},
+and the result would be three \textsc{fits} files, named \texttt{mod1\_Sersic.fits},
 \texttt{mod2\_Exponential.fits}, and \texttt{mod3\_Exponential.fits} (in addition
 to \texttt{model.fits}, which is the sum of all three functions).
 
 
-\subsection{Using \Makeimage{} to Estimate Fluxes and Magnitudes}
+\section{Using \Makeimage{} to Estimate Fluxes and Magnitudes}
 
 Given a configuration file, you can use \makeimage{} to estimate the total
 fluxes and magnitudes of different model components. For some components --
@@ -1336,7 +1371,7 @@ Useful command-line flags and options:
 \item \texttt{--zero-point} \textit{value} --- zero point for converting total counts
 to magnitudes:
 \begin{equation}
-m \; = \; Z - 2.5 \log_{10}( {\rm counts} )
+m \; = \; Z - 2.5 \log_{10}( {\mathrm{counts}} )
 \end{equation}
 
 \end{itemize}
@@ -1350,9 +1385,9 @@ unless you also specify the \texttt{--nosave} option.
 
 
 
-\section{Rolling Your Own Functions}
+\chapter{Rolling Your Own Functions}
 
-\subsection{Basic Requirements}
+\section{Basic Requirements}
 
 A new image function should be implemented in C++ as a subclass of
 the FunctionObject base class (\texttt{function\_object.h}, \texttt{function\_object.cpp}).
@@ -1401,7 +1436,7 @@ subdirectory of the source-code distribution, and are the best place to look in 
 to get a better sense of how to implement new FunctionObject subclasses.
 
 
-\subsection{A Simple Example}
+\section{A Simple Example}
 
 To illustrate, we'll make a new version of the Moffat function (which already
 exists, so this is purely for pedagogical purposes) by copying and modifying the
@@ -1420,7 +1455,7 @@ We need to make three sets of changes:
 \subsubsection{Create and Edit the Header File}
 
 Change directory to the directory with the \imfit{} source code, and then
-\texttt{cd} to the ``\texttt{function\_objects}'' subdirectory. Copy the file
+to the subdirectory named ``\texttt{function\_objects}''. Copy the file
 \texttt{func\_gaussian.h} and rename it to \texttt{func\_new-moffat.h}. Edit
 this file and change the following lines:
 
@@ -1594,7 +1629,7 @@ the new function. (Assuming there aren't any bugs in your new code\ldots.)
 
 
 
-\section{Acknowledging Use of \Imfit}
+\chapter{Acknowledging Use of \Imfit}
 
 A paper describing \imfit{} is currently in preparation; until it is available, you can
 reference the current URL (\url{http://www.mpe.mpg.de/~erwin/code/imfit/}) if \imfit{} has
@@ -1604,7 +1639,7 @@ been useful in your research.
 \newpage
 
 \appendix
-\section{Standard Functions in Detail}\label{app:functions}
+\chapter{Standard Functions in Detail}\label{app:functions}
 
 Unless otherwise noted, all ``intensity'' parameters (\texttt{I\_sky},
 \texttt{I\_0}, \texttt{I\_e}, etc.) are in units of counts per pixel, and all
@@ -1619,7 +1654,7 @@ concentric, similar ellipses (with specified ellipticity and major-axis position
 the intensity profile is defined as a function of the semi-major axis $a$.
 
 
-\subsection{2D Functions}
+\section{2D Functions}
 
 The main set of image functions provided create 2D intensity distributions
 directly. These include most of the usual suspects used in 2D image fitting:
@@ -1639,7 +1674,7 @@ axes of the ellipse, respectively).
 
 \subsubsection{FlatSky}
 
-A uniform background: $I(x,y) = I_{\rm sky}$ everywhere.
+A uniform background: $I(x,y) = I_{\mathrm{sky}}$ everywhere.
 
 \begin{verbatim}
 FUNCTION FlatSky
@@ -1673,7 +1708,7 @@ I(a) \, = \, \frac{I_{0}  }{(1 + (a/\alpha)^{2})^{\beta} },
 \end{equation}
 where $\alpha$ is defined as
 \begin{equation}
-\alpha \, = \, \frac{ {\rm FWHM}}{2 \sqrt{2^{1/\beta} - 1}}.
+\alpha \, = \, \frac{ {\mathrm{FWHM}}}{2 \sqrt{2^{1/\beta} - 1}}.
 \end{equation}
 In practice, FWHM describes the overall width of the profile, while $\beta$ describes that
 strength of the wings: lower values of $\beta$ mean more intensity in the wings
@@ -1729,7 +1764,7 @@ the \texttt{c0} parameter, such that a generalized ellipse with ellipticity $= 1
 - b/a$ is described by
 \begin{equation}
 %\left( \frac{|x|}{a}^{c_{0} + 2} \right) + \left( \frac{|y|}{b}^{c_{0} + 2} \right) \; = \; 1,
-\left( \frac{|x|}{a} \right)^{c_{0} + 2} + \left( \frac{|y|}{b} \right)^{c_{0} + 2} \; = \; 1,
+\left( \frac{|x|}{a} \right)^{c_{0} + 2} \! \! + \; \left( \frac{|y|}{b} \right)^{c_{0} + 2}  = \; 1,
 \end{equation}
 where $|x|$ and $|y|$ are distances from the ellipse center in the coordinate system
 aligned with the ellipse major axis ($c_{0}$ corresponds to $c - 2$ in the original
@@ -1876,7 +1911,7 @@ alpha
 \subsubsection{GaussianRing}
 
 An elliptical ring with a radial profile consisting of a Gaussian
-centered at $r = R_{\rm ring}$.
+centered at $r = R_{\mathrm{ring}}$.
 
 \begin{verbatim}
 FUNCTION GaussianRing
@@ -1891,7 +1926,7 @@ sigma_r
 \subsubsection{GaussianRing2Side}
 
 Similar to GaussianRing, but now using an asymmetric Gaussian (different
-values of $\sigma$ for $r < R_{\rm ring}$ and $r > R_{\rm ring}$).
+values of $\sigma$ for $r < R_{\mathrm{ring}}$ and $r > R_{\mathrm{ring}}$).
 
 \begin{verbatim}
 FUNCTION GaussianRing2Side
@@ -1919,7 +1954,7 @@ axis (parallel to the major axis) and $z$ is the perpendicular direction, with $
 on the major axis. (The latter corresponds to height $z$ from the galaxy midplane.) The 
 intensity at $(r,z)$ is given by
 \begin{equation}
-I(r,z) \; = \; \mu(0,0) \; (r/h) \; K_{1}(r/h) \;\, {\rm sech}^{2/n} (n \, z/(2 \, z_{0}))
+I(r,z) \; = \; \mu(0,0) \; (r/h) \; K_{1}(r/h) \;\, {\mathrm{sech}}^{2/n} (n \, z/(2 \, z_{0}))
 \end{equation}
 where $h$ is the exponential scale length in the disk plane, $z_{0}$ is the vertical
 scale height, and $K_{1}$ is the modified Bessel function. The central surface brightness 
@@ -1938,10 +1973,10 @@ the vertical distribution approaches an exponential with $\exp(-z/z_{0})$; in
 practice, the can be approximated by setting $n$ equal to some fixed, large
 number.
 
-Note that this particular function requires that the GNU Scientific Library
-(GSL) be installed; if the GSL is not installed, \imfit{} should be compiled
+Note that this particular function requires that the \textsc{gnu} Scientific Library
+(\textsc{gsl}) be installed; if the \textsc{gsl} is not installed, \imfit{} should be compiled
 without this function. (The pre-compiled binary versions include the necessary
-code from the GSL.)
+code from the \textsc{gsl}.)
 
 \begin{verbatim}
 FUNCTION EdgeOnDisk
@@ -1976,7 +2011,7 @@ sigma_z
 \subsubsection{EdgeOnRing2Side}
 
 Similar to EdgeOnRing, but now the radial profile for the two components is
-asymmetric: the inner ($|R| < R_{\rm ring}$) side of each component is a Gaussian
+asymmetric: the inner ($|R| < R_{\mathrm{ring}}$) side of each component is a Gaussian
 with radial size \texttt{sigma\_r\_in}, while the outer side has radial size
 \texttt{sigma\_r\_out}.
 
@@ -1991,7 +2026,7 @@ sigma_z
 \end{verbatim}
 
 
-\subsection{3D Functions}
+\section{3D Functions}
 
 The following are experimental image functions which use line-of-sight
 integration through a 3D luminosity-density model to create a projected 2D
@@ -2020,15 +2055,15 @@ conventions with respect to the image +y axis. You are, of course, free to
 change this if you write 3D components of your own, though I will probably
 continue to follow it in the future.)
 
-These functions use integration routines from the GNU Scientific Library (GSL);
-if the GSL is not installed, \imfit{} should be compiled without them. (The
-pre-compiled binary versions include the necessary code from the GSL.)
+These functions use integration routines from the \textsc{gnu} Scientific Library (\textsc{gsl});
+if the \textsc{gsl} is not installed, \imfit{} should be compiled without them. (The
+pre-compiled binary versions include the necessary code from the \textsc{gsl}.)
 
 
 \subsubsection{ExponentialDisk3D}
 
 This function implements a 3D luminosity density model for an axisymmetric
-disk with an exponential radial profile and a ${\rm sech}^{2/n}$ vertical profile
+disk with an exponential radial profile and a ${\mathrm{sech}}^{2/n}$ vertical profile
 (as for the EdgeOnDisk function), using line-of-sight integration to create the projected
 surface-brightness profile for arbitrary inclinations.
 
@@ -2037,7 +2072,7 @@ midplane has $z = 0$), the luminosity density at radius $r$ from
 the central axis and
 at height $z$ from the midplane is given by
 \begin{equation}
-j(r,z) \; = \; J_{0} \; \exp(-r/h) \, {\rm sech}^{2/n} (n \, z/(2 \, z_{0}))
+j(r,z) \; = \; J_{0} \; \exp(-r/h) \, {\mathrm{sech}}^{2/n} (n \, z/(2 \, z_{0}))
 \end{equation}
 where $h$ is the exponential scale length in the disk plane, $z_{0}$ is the vertical
 scale height, and $J_{0}$ is the central luminosity density.
@@ -2095,10 +2130,10 @@ h_z
 
 
 
-\section{Acknowledgments}
+\chapter{Acknowledgments}
 
-Major inspirations for \Imfit{} include both GALFIT \citep{peng02,peng10} and 
-BUDDA \citep{desouza04,gadotti08}.
+Major inspirations for \Imfit{} include both \textsc{galfit} \citep{peng02,peng10} and 
+\textsc{budda} \citep{desouza04,gadotti08}.
 
 Thanks also to Michael Opitsch and Michael Williams for being (partly unwitting)
 beta testers and for their feedback, to Martin Kuemmel for suggestion
@@ -2106,29 +2141,29 @@ an improvement (and finding a related bug), to Roberto Saglia for urging me
 to implement the Core-S{\'e}rsic function, and to Maximilian Fabricius for suggesting
 improvements to the documentation.
 
-\subsection{Data Sources}
+\section{Data Sources}
 
-Sample FITS images for demonstration and testing use are taken from Data Release
+Sample \textsc{fits} images for demonstration and testing use are taken from Data Release
 7 \citep{abazajian09} of the Sloan Digital Sky Survey \citep{york00}. Funding
-for the creation and distribution of the SDSS Archive has been provided by the
+for the creation and distribution of the Sloan Digital Sky Survey Archive has been provided by the
 Alfred P. Sloan Foundation, the Participating Institutions, the National
 Aeronautics and Space Administration, the National Science Foundation, the U.S.
 Department of Energy, the Japanese Monbukagakusho, and the Max Planck Society. 
-The SDSS Web site is \url{http://www.sdss.org/}.
+The \textsc{sdss} Web site is \url{http://www.sdss.org/}.
 
-The SDSS is managed by the Astrophysical Research Consortium (ARC) for
+The \textsc{sdss} is managed by the Astrophysical Research Consortium (\textsc{arc}) for
 the Participating Institutions.  The Participating Institutions are
 The University of Chicago, Fermilab, the Institute for Advanced Study,
 the Japan Participation Group, The Johns Hopkins University, the
 Korean Scientist Group, Los Alamos National Laboratory, the
-Max-Planck-Institute for Astronomy (MPIA), the Max-Planck-Institute
-for Astrophysics (MPA), New Mexico State University, University of
+Max-Planck-Institute for Astronomy (\textsc{mpia}), the Max-Planck-Institute
+for Astrophysics (\textsc{mpa}), New Mexico State University, University of
 Pittsburgh, University of Portsmouth, Princeton University, the United
 States Naval Observatory, and the University of Washington.
 
 
 
-\subsection{Specific Software Acknowledgments}
+\section{Specific Software Acknowledgments}
 
 \subsubsection{Minpack}
 This product includes software developed by the University of Chicago, as Operator of

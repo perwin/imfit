@@ -24,46 +24,24 @@
  *     [v0.1]: 18--19 Aug 2012: Created (as modification of func_exp.cpp.
  */
 
-
-// Sample GSL code:
+// Copyright 2012, 2013 by Peter Erwin.
 // 
-//      #include <stdio.h>
-//      #include <math.h>
-//      #include <gsl/gsl_integration.h>
-//      
-//      double f (double x, void * params) {
-//        double alpha = *(double *) params;
-//        double f = log(alpha*x) / sqrt(x);
-//        return f;
-//      }
-//      
-//      int
-//      main (void)
-//      {
-//        gsl_integration_workspace * w 
-//          = gsl_integration_workspace_alloc (1000);
-//        
-//        double result, error;
-//        double expected = -4.0;
-//        double alpha = 1.0;
-//      
-//        gsl_function F;
-//        F.function = &f;
-//        F.params = &alpha;
-//      
-//        gsl_integration_qags (&F, 0, 1, 0, 1e-7, 1000,
-//                              w, &result, &error); 
-//      
-//        printf ("result          = % .18f\n", result);
-//        printf ("exact result    = % .18f\n", expected);
-//        printf ("estimated error = % .18f\n", error);
-//        printf ("actual error    = % .18f\n", result - expected);
-//        printf ("intervals =  %d\n", w->size);
-//      
-//        gsl_integration_workspace_free (w);
-//      
-//        return 0;
-//      }
+// This file is part of Imfit.
+// 
+// Imfit is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// Imfit is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with Imfit.  If not, see <http://www.gnu.org/licenses/>.
+
+
 
 
 // Working Python code:

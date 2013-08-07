@@ -519,6 +519,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" --bootstrap <int>            do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine(" --save-params <output-file>  Save best-fit parameters in config-file format");
   optParser->AddUsageLine(" --save-best-fit <output-file>  Save best-fit profile");
+  optParser->AddUsageLine(" --quiet                      Turn off printing of mpfit interation updates");
   optParser->AddUsageLine("");
 
 
@@ -530,8 +531,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("useerrors");
   optParser->AddFlag("usemask");
   optParser->AddFlag("intensities");
-  optParser->AddFlag("quiet");
-  optParser->AddFlag("verbose");
   optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
 #ifndef NO_NLOPT
   optParser->AddFlag("nm");
@@ -546,7 +545,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("bootstrap");        /* an option (takes an argument), supporting only long form */
   optParser->AddOption("save-params");
   optParser->AddOption("save-best-fit");
-  
+  optParser->AddFlag("verbose");
+  optParser->AddFlag("quiet");
+
   // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
   // to be ignored only, rather than causing program to exit
   optParser->UnrecognizedAreErrors();
@@ -701,4 +702,4 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
 
 
-/* END OF FILE: imfit1d_main.cpp  ---------------------------------------- */
+/* END OF FILE: profilefit_main.cpp  ------------------------------------- */
