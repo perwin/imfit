@@ -110,6 +110,7 @@ func_edge-on-disk_n4762v2
 func_edge-on-ring 
 func_edge-on-ring2side
 func_edge-on-disk
+func_brokenexpdisk3d 
 func_expdisk3d 
 func_gaussianring3d 
 integrator
