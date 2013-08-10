@@ -12,11 +12,11 @@
 
 
 # *** SPECIAL STUFF ***
-# To build a version with OpenMP enabled
-#    $ scons --openmp <target-name>
-#
 # To build a version with extra, experimental functions
 #    $ scons --extra-funcs <target-name>
+#
+# To build a version *without* OpenMP enabled
+#    $ scons --no-openmp <target-name>
 #
 # To build a version *without* FFTW threading:
 #    $ scons --no-threading <target-name>
@@ -24,19 +24,37 @@
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
-# To build export version (with OpenMP, "fat" binaries, all libraries statically linked):
-#    $ scons --openmp --fat --static <target-name>
+# To build export version ("fat" binaries, all libraries statically linked):
+#    $ scons --fat --static <target-name>
 #
 
 # *** EXPORT CONFIGURATIONS ***
 # MacOS X fat binaries
-# $ scons --openmp --static --fat
+# $ scons --static --fat
 
 # To add one or more directories to the header or library search paths:
 #    $ scons --header-path=/path/to/header/dir
 # OR $ scons --header-path=/path/to/header/dir:/alt/path:/another/path
 #    $ scons --lib-path=/path/to/lib/dir
 # etc.
+
+
+# Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+# 
+# This file is part of Imfit.
+# 
+# Imfit is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+# 
+# Imfit is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with Imfit.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # Operating-system determination via os.uname:
@@ -47,6 +65,9 @@
 #    os.uname()[0] = "Linux" --> Linux
 
 import os
+
+# Version definition for imfit + makeimage
+PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0b1\""
 
 # the following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
@@ -67,7 +88,7 @@ os_type = os.uname()[0]
 cflags_opt = ["-O2", "-g0"]
 cflags_db = ["-Wall", "-g3"]
 
-base_defines = ["ANSI"]
+base_defines = ["ANSI", "USING_SCONS", PACKAGE_VERSION]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
 lib_list = ["fftw3", "cfitsio", "m"]
@@ -111,7 +132,7 @@ extra_defines = []
 useGSL = True
 useNLopt = True
 useFFTWThreading = True
-useOpenMP = False
+useOpenMP = True
 useExtraFuncs = False
 useStaticLibs = False
 buildFatBinary = False
@@ -128,8 +149,8 @@ AddOption("--no-gsl", dest="useGSL", action="store_false",
 	default=True, help="do *not* use GNU Scientific Library")
 AddOption("--no-nlopt", dest="useNLopt", action="store_false", 
 	default=True, help="do *not* use NLopt library")
-AddOption("--openmp", dest="useOpenMP", action="store_true", 
-	default=False, help="compile with OpenMP support")
+AddOption("--no-openmp", dest="useOpenMP", action="store_false", 
+	default=False, help="compile *without* OpenMP support")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
 	default=False, help="compile additional FunctionObject classes for testing")
 
@@ -195,15 +216,18 @@ if useNLopt:   # default is to do this
 	if useStaticLibs:
 		if (os_type == "Darwin"):
 			lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
+			lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
 		else:
 			# assuming we're on a Linux system
 			lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
+			lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
 	else:
 		lib_list.append("nlopt")	
+		lib_list_1d.append("nlopt")	
 else:
 	extra_defines.append("NO_NLOPT")
 
-if useOpenMP:   # default is to *not* do this; user must specify with "--openmp"
+if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
 	cflags_opt.append("-fopenmp")
 	cflags_db.append("-fopenmp")
 	link_flags.append("-fopenmp")
@@ -234,6 +258,7 @@ defines_opt = defines_opt + extra_defines
 
 
 
+
 # "Environments" for compilation:
 # "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling
@@ -242,6 +267,41 @@ env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+
+
+# Checks for libraries and headers -- if we're not doing scons -c:
+if not env_opt.GetOption('clean'):
+	conf_opt = Configure(env_opt)
+	cfitsioFound = conf_opt.CheckLibWithHeader('cfitsio', 'fitsio.h', 'c')
+	fftwFound = conf_opt.CheckLibWithHeader('fftw3', 'fftw3.h', 'c')
+	fftwThreadsFound = conf_opt.CheckLib('fftw3_threads')
+	nloptFound = conf_opt.CheckLibWithHeader('nlopt', 'nlopt.h', 'c')
+	gslFound = conf_opt.CheckLib('gsl')
+	libsOK = False
+	if cfitsioFound and fftwFound:
+		libsOK = True
+	else:
+		print("ERROR: Failed to find one or more required libraries and/or header files (cfitsio and/or fftw3)!")
+		print("\tMake sure they are installed; if necessary, include correct path to library with --lib-path option")
+		print("\tand correct path to header with --header-path option")
+		exit(1)
+	if useFFTWThreading and not fftwThreadsFound:
+		print("ERROR: Failed to find fftw3_threading library!")
+		print("\tSuggestion: include correct path to library with --lib-path option")
+		print("\tOR run SCons with --no-threading option")
+		exit(1)
+	if useGSL and not gslFound:
+		print("ERROR: Failed to find gsl library!")
+		print("\tSuggestion: include correct path to library with --lib-path option")
+		print("\tOR run SCons with --no-gsl option")
+		exit(1)
+	if useNLopt and not nloptFound:
+		print("ERROR: Failed to find nlopt library!")
+		print("\tSuggestion: include correct path to library with --lib-path option")
+		print("\tOR run SCons with --no-nlopt option")
+		exit(1)
+	env_opt = conf_opt.Finish()
+
 
 
 # We have separate lists of object names (what we want the .o files to be called) and
@@ -271,14 +331,13 @@ if useGSL:
 	functionobject_obj_string += " func_edge-on-disk"
 	functionobject_obj_string += " integrator"
 	functionobject_obj_string += " func_expdisk3d"  # requires integrator
+	functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
 	functionobject_obj_string += " func_gaussianring3d"  # requires integrator
 if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
 	if useGSL:
-		functionobject_obj_string += " func_expdisk3dv2"
 		functionobject_obj_string += " func_brokenexpbar3d"
-		functionobject_obj_string += " func_brokenexpdisk3d"
 		functionobject_obj_string += " func_boxytest3d"
 
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]

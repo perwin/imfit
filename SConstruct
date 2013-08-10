@@ -30,7 +30,7 @@
 
 # *** EXPORT CONFIGURATIONS ***
 # MacOS X fat binaries
-# $ scons --openmp --static --fat
+# $ scons --static --fat
 
 # To add one or more directories to the header or library search paths:
 #    $ scons --header-path=/path/to/header/dir
@@ -227,7 +227,7 @@ if useNLopt:   # default is to do this
 else:
 	extra_defines.append("NO_NLOPT")
 
-if useOpenMP:   # default is to *not* do this; user must specify with "--openmp"
+if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
 	cflags_opt.append("-fopenmp")
 	cflags_db.append("-fopenmp")
 	link_flags.append("-fopenmp")

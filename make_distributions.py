@@ -10,7 +10,7 @@ os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
 
 # basic scons command (specifies use of OpenMP and static linking)
-scons_string = "scons --openmp --static"
+scons_string = "scons --static"
 
 SOURCE_TARFILE = "imfit-%s-source.tar.gz" % VERSION_STRING
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
