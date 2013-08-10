@@ -59,7 +59,7 @@ echo -n "   (now running Cash-statistic fit ...)"
 ./imfit --config tests/config_makeimage_sersictest512_bad4.dat &> test_dump_bad4
 ./imfit --config tests/config_imfit_sersictest512_badlimits1.dat &> test_dump_bad5
 ./imfit --config tests/config_imfit_sersictest512_badlimits2.dat &> test_dump_bad6
-./imfit --config tests/config_imfit_sersictest512_badx0y0.dat &> test_dump_bad7
+./imfit --config tests/config_imfit_sersictest512_badlimits3.dat &> test_dump_bad7
 
 echo ""
 

@@ -1,0 +1,24 @@
+# Config file for imfit, meant to be used for fitting a 512x512 image.
+# This is an example of a BAD config file (in the second function set,
+# X0 declared, but not Y0).
+
+# Generalized-ellipse Sersic object
+X0    256.0		250.0,260.0
+Y0    255.0		250.0,260.0
+FUNCTION   Sersic_GenEllipse
+PA    30.0		30,30      # bad line: parameter limits are equal
+ell    0.5
+c0    -1.0
+n      2.5
+I_e  100.0
+r_e   50.0
+
+# Sersic object
+X0    256.0
+Y0    255.0		250.0,260.0
+FUNCTION   Sersic
+PA    30.0
+ell    0.5
+n      2.5
+I_e  100.0
+r_e   50.0

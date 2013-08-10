@@ -112,9 +112,12 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
         newParamLimit.limited[1] = 1;
         lowerLimit = strtod(newPieces[0].c_str(), NULL);
         upperLimit = strtod(newPieces[1].c_str(), NULL);
-        if (lowerLimit > upperLimit) {
-          fprintf(stderr, "*** WARNING: first parameter limit for \"%s\" (%g) must be <= second limit (%g)!\n",
+        if (lowerLimit >= upperLimit) {
+          fprintf(stderr, "*** WARNING: first parameter limit for \"%s\" (%g) must be < second limit (%g)!\n",
           				stringPieces[0].c_str(), lowerLimit, upperLimit);
+          if (lowerLimit == upperLimit) {
+             fprintf(stderr, "    (To specify fixed parameters, use \"fixed\" keyword, not identical upper & lower parameter limits)\n");
+          }
           fprintf(stderr, "    (Error on input line %d of configuration file)\n", origLineNumber);
           return -1;
         }
