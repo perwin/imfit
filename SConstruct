@@ -67,7 +67,7 @@
 import os
 
 # Version definition for imfit + makeimage
-PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0b2\""
+PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0\""
 
 # the following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)

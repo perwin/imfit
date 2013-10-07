@@ -149,7 +149,7 @@ but the program can also be built without these.
 
 \Imfit{} also includes modified versions of Craig Markwardt's
 \texttt{mpfit} code (an enhanced version of the \textsc{minpack-1}
-Levernberg-Marquardt least-squares fitting code) and the Differential
+Levenberg-Marquardt least-squares fitting code) and the Differential
 Evolution fitting code of Rainer Storn and Kenneth Price (more
 specifically, a C++ wrapper written by Lester E. Godwin).
 
@@ -159,11 +159,12 @@ specifically, a C++ wrapper written by Lester E. Godwin).
 
 \section{Pre-Compiled Binaries}
 
-Pre-built binaries for Intel-based MacOS X and Linux systems, along with the
-source code, are available at
-\url{http://www.mpe.mpg.de/~erwin/code/imfit/}. The pre-compiled binaries included
-statically linked versions of the \textsc{cfitsio}, \textsc{fftw}, \textsc{gsl}, and NLopt libraries, so you do
-not need to have those installed.
+Pre-built binaries for Intel-based MacOS X and Linux systems, along with
+the source code, are available at
+\url{http://www.mpe.mpg.de/~erwin/code/imfit/}. The pre-compiled
+binaries included statically linked versions of the \textsc{cfitsio},
+\textsc{fftw}, \textsc{gsl}, and NLopt libraries, so you do not need to
+have those installed.
 
 
 \section{Building \Imfit{} from Source: Outline}
@@ -176,16 +177,16 @@ multi-core CPU (or multiple CPUs sharing main memory), you should
 install the threaded version of \textsc{fftw} as well, since this speeds up PSF
 convolution.
 
-\item (Optional) Install the NLopt library --- this is only necessary if you
-wish to use the Nelder-Mead minimization algorithm. \Imfit{} can easily be built
-without this, if for some reason you don't have access to the NLopt library.
+\item (Optional, but strongly recommended) Install the NLopt library ---
+this is necessary if you wish to use the Nelder-Mead minimization
+algorithm. \Imfit{} can be built without this, if for some reason
+you don't have access to the NLopt library.
 
 \item (Optional) Install the \textsc{gnu} Scientific Library
 (\textsc{gsl}) --- this is only necessary if you wish to use image
 functions that rely on \textsc{gsl}.  Currently, the only such functions
-are the EdgeOnDisk component, which uses a modified Bessell function,
-and the sample 3D line-of-sight integration functions (e.g.,
-ExponentialDisk3D). \Imfit{} can easily be built without these
+are the EdgeOnDisk component and the sample 3D line-of-sight integration
+functions (e.g., ExponentialDisk3D). \Imfit{} can be built without these
 components, if for some reason you don't have access to the \textsc{gsl}.
 
 \item Install SCons (if needed; see below).
@@ -750,6 +751,9 @@ pair following the initial-value specification. E.g.:
 \begin{quote}
 \texttt{X0} ~~ 442.85 ~~ 441.0,443.5
 \end{quote}
+Note that specifying \textit{equal} lower and upper limits for a parameter (or a lower limit
+which is higher than the upper limit) is not allowed; to specify that a parameter
+value should remain constant, used the ``fixed'' keyword as described above.
 
 
 \section{Optional Image-Description Parameters}
@@ -854,7 +858,7 @@ The complete list of function parameters for each function (suitable for copying
 and pasting into a configuration file) can always be
 obtained by running \imfit{} with the ``\texttt{--list-parameters}'' option:
 \begin{quote}
-  \texttt{\$ \imfit{} --list-paremeters}
+  \texttt{\$ \imfit{} --list-parameters}
 \end{quote}
 
 
@@ -879,7 +883,7 @@ exposure time via the ``\texttt{--exptime}'' option (or the EXPTIME keyword
 in a configuration file).
 
 If the image is an \textit{average} of $N$ input images of the same exposure time, you
-can either multipy the image by $N$ \textit{or} use the ``\texttt{--ncombined}'' option
+can either multiply the image by $N$ \textit{or} use the ``\texttt{--ncombined}'' option
 to tell \imfit{} how to adjust the error estimations.  The latter option is slightly
 better, because \imfit{} will also scale the read noise accordingly.
 
@@ -1007,7 +1011,7 @@ intensities in counts/pixel, multiplied by the effective gain $g_{\mathrm{eff}}$
 To simulate the effects of seeing and other telescope resolution effects, model
 images can be convolved with a PSF (point-spread function) image. This uses an
 input \textsc{fits} file which contains the point spread function. The actual convolution
-uses Fast Fourier Transforms of the interally-generated model image and the PSF
+uses Fast Fourier Transforms of the internally-generated model image and the PSF
 image to compute the output convolved model image.
 
 PSF images should be square, ideally with width = an odd number of pixels, and
@@ -1448,7 +1452,7 @@ We need to make three sets of changes:
 \begin{itemize}
 \item Change the class name from ``Gaussian'' to our new name (``NewMoffat'');
 \item Change the relevant code which computes the function;
-\item Rename, add, or delete variables to accomodate the new algorithm.
+\item Rename, add, or delete variables to accommodate the new algorithm.
 \end{itemize}
 
 
@@ -1875,7 +1879,7 @@ gamma
 %\end{verbatim}
 
 
-\subsubsection{BrokenExponential}
+\subsubsection{BrokenExponential}\label{sec:brokenexp}
 
 Similar to Exponential, but with \textit{two}
 exponential radial zones (with different scalelengths) joined by a transition region
@@ -1890,7 +1894,7 @@ $\alpha$ parameterizes the sharpness of the break.  (See \citet{erwin08}.) Low v
 mean very smooth, gradual breaks, while high values correspond to abrupt
 transitions.  $S$ is a scaling factor, given by
 \begin{equation}
-  S \; = \; (1 + e^{-\alpha R_{b}})^{\frac{1}{\alpha} (\frac{1}{h_{1}} \, - 
+  S \; = \; (1 + e^{-\alpha R_{b}})^{-\frac{1}{\alpha} (\frac{1}{h_{1}} \, - 
   \, \frac{1}{h_{2}})}.
 \end{equation}
 
@@ -1969,9 +1973,11 @@ internally.
 When $n = 1$, this becomes the familiar $\mathrm{sech}^2$ model for the
 vertical distribution of a disk (with $z_{0}$ corresponding to $1/2$ of the
 $z_0$ in the original definition of \citet{vdk81}). As $n \rightarrow \infty$,
-the vertical distribution approaches an exponential with $\exp(-z/z_{0})$; in
-practice, the can be approximated by setting $n$ equal to some fixed, large
-number.
+the vertical distribution approaches an exponential with $\exp(-z/z_{0})$. In practice,
+the code substitutes a pure exponential function for the $\mathrm{sech}^{2/n}$ term whenever 
+\begin{equation}
+\frac{n}{2} \frac{z}{z_{0}} > 100.
+\end{equation}
 
 Note that this particular function requires that the \textsc{gnu} Scientific Library
 (\textsc{gsl}) be installed; if the \textsc{gsl} is not installed, \imfit{} should be compiled
@@ -2072,7 +2078,7 @@ midplane has $z = 0$), the luminosity density at radius $r$ from
 the central axis and
 at height $z$ from the midplane is given by
 \begin{equation}
-j(r,z) \; = \; J_{0} \; \exp(-r/h) \, {\mathrm{sech}}^{2/n} (n \, z/(2 \, z_{0}))
+j(r,z) \; = \; J_{0} \; \exp(-r/h) \; {\mathrm{sech}}^{2/n} (n \, z/(2 \, z_{0}))
 \end{equation}
 where $h$ is the exponential scale length in the disk plane, $z_{0}$ is the vertical
 scale height, and $J_{0}$ is the central luminosity density.
@@ -2102,8 +2108,8 @@ the $i= 90\arcdeg$ case), and even slower than the standard Exponential function
 
 \subsubsection{BrokenExponentialDisk3D}
 
-This function is similar to the ExponentialDisk3D function, except that the radial
-profile of the luminosity density follows a broken-exponential profile (e.g., Section~\ref{})
+This function is identical to the ExponentialDisk3D function, except that the radial
+profile of the luminosity density follows a broken-exponential function (e.g., Section~\ref{sec:brokenexp})
 instead of a simple exponential. Consequently, it has the following parameters:
 
 \begin{verbatim}
@@ -2130,7 +2136,7 @@ with a radial Gaussian profile (centered at \texttt{a\_ring} along ring's major
 axis, with in-plane width $\sigma$) and a vertical exponential profile
 (with scale height \texttt{h\_z}). The ring can be envisioned as residing in an
 (invisible) plane which has a line of nodes at angle \texttt{PA} and inclination
-\texttt{inc} (as for the ExponendialDisk3D function, above); within this plane,
+\texttt{inc} (as for the ExponentialDisk3D function, above); within this plane,
 the ring's major axis is at position angle \texttt{PA\_ring} \textit{relative to
 the perpendicular to the line of nodes}, and the ring has an ellipticity given
 by \texttt{ell}.
