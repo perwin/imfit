@@ -84,31 +84,31 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.0 (OpenMP-enabled)"
+#define VERSION_STRING      "1.0.1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.0"
+#define VERSION_STRING      "1.0.1"
 #endif
 
 
 typedef struct {
   std::string  configFileName;
-  std::string  imageFileName;
+  std::string  imageFileName;   // [] = assign default value in main?
   bool  noImage;
-  std::string  psfFileName;
+  std::string  psfFileName;     // []
   bool  psfImagePresent;
-  std::string  noiseFileName;
+  std::string  noiseFileName;   // []
   bool  noiseImagePresent;
   int  errorType;
-  std::string  maskFileName;
+  std::string  maskFileName;   //  []
   bool  maskImagePresent;
   int  maskFormat;
   bool  subsamplingFlag;
   bool  saveModel;
-  std::string  outputModelFileName;
+  std::string  outputModelFileName;   // []
   bool  saveResidualImage;
-  std::string  outputResidualFileName;
+  std::string  outputResidualFileName;   // []
   bool  saveWeightImage;
-  std::string  outputWeightFileName;
+  std::string  outputWeightFileName;    // []
   bool  saveBestFitParams;
   std::string  outputParameterFileName;
   bool  useImageHeader;
@@ -127,13 +127,13 @@ typedef struct {
   double  ftol;
   bool  ftolSet;
   char  modelName[MAXLINE];
-  bool  noModel;
-  char  paramString[MAXLINE];
-  bool  newParameters;
+//  bool  noModel;
+//  char  paramString[MAXLINE];
+//  bool  newParameters;
   double  magZeroPoint;
   bool  noParamLimits;
   bool  printImages;
-  bool printChiSquaredOnly;
+  bool printFitStatisticOnly;
   int  solver;
   bool  doBootstrap;
   int  bootstrapIterations;
@@ -234,15 +234,17 @@ int main(int argc, char *argv[])
   options.useCashStatistic = false;
   options.ftol = DEFAULT_FTOL;
   options.ftolSet = false;
-  options.noModel = true;
-  options.noParamLimits = true;
-  options.newParameters = false;
+//  options.noModel = true;
+//  options.newParameters = false;
   options.magZeroPoint = NO_MAGNITUDES;
-  options.printChiSquaredOnly = false;
+  options.noParamLimits = true;
   options.printImages = false;
+  options.printFitStatisticOnly = false;
   options.solver = MPFIT_SOLVER;
   options.doBootstrap = false;
   options.bootstrapIterations = 0;
+  options.maxThreads = 0;
+  options.maxThreadsSet = false;
   options.verbose = 1;
 
   ProcessInput(argc, argv, &options);
@@ -366,7 +368,7 @@ int main(int argc, char *argv[])
   // Handling of image noise/errors -- different for Cash statistic vs chi^2
   if (options.useCashStatistic) {
     // experimental Cash statistic stuff
-    if (options.solver == MPFIT_SOLVER) {
+    if ((options.solver == MPFIT_SOLVER) && (! options.printFitStatisticOnly)) {
       fprintf(stderr, "*** ERROR -- Cannot use Cash statistic with L-M solver!\n\n");
       return -1;
     }
@@ -404,9 +406,6 @@ int main(int argc, char *argv[])
   // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
   // by DiffEvolnFit (if called) and by PrintResults.  We also decrement nFreeParams for
   // each *fixed* parameter.
-  // Then we point the mp_par-array variable mpfitParameterConstraints to this array *if*
-  // there are actual parameter constraints; if not, mpfitParameterConstraints is set = NULL,
-  // since that's what mpfit() expects when there are no constraints.
   printf("Setting up parameter information array ...\n");
   parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
   parameterInfo_allocated = true;
@@ -450,7 +449,7 @@ int main(int argc, char *argv[])
   
   // OK, now we either print chi^2 value for the input parameters and quit, or
   // else call one of the solvers!
-  if (options.printChiSquaredOnly) {
+  if (options.printFitStatisticOnly) {
     printf("\n");
     status = 1;
     PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
@@ -460,13 +459,21 @@ int main(int argc, char *argv[])
   }
   else {
     // DO THE FIT!
+    printf("\nPerforming fit by minimizing ");
+    if (options.useCashStatistic)
+      printf("Cash statistic:\n");
+    else if (options.useModelForErrors)
+      printf("chi^2 (model-based errors):\n");
+    else
+      printf("chi^2 (data-based errors):\n");
+    
     if (options.solver == MPFIT_SOLVER) {
-      printf("\nCalling Levenberg-Marquardt solver ...\n");
+      printf("Calling Levenberg-Marquardt solver ...\n");
       status = LevMarFit(nParamsTot, nFreeParams, nPixels_tot, paramsVect, parameterInfo, 
       					theModel, options.ftol, paramLimitsExist, options.verbose);
     }
     else if (options.solver == DIFF_EVOLN_SOLVER) {
-      printf("\nCalling Differential Evolution solver ..\n");
+      printf("Calling Differential Evolution solver ..\n");
       status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
       			options.verbose);
       printf("\n");
@@ -475,7 +482,7 @@ int main(int argc, char *argv[])
     }
 #ifndef NO_NLOPT
     else if (options.solver == NMSIMPLEX_SOLVER) {
-      printf("\nCalling Nelder-Mead Simplex solver ..\n");
+      printf("Calling Nelder-Mead Simplex solver ..\n");
       status = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
       			options.verbose);
       printf("\n");
@@ -490,7 +497,6 @@ int main(int argc, char *argv[])
   if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
-//    printf("[NOT YET PROPERLY IMPLEMENTED!]\n");
     BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
                     options.bootstrapIterations, nFreeParams, options.useCashStatistic);
   }
@@ -689,7 +695,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->FlagSet("chisquare-only")) {
     printf("\t* No fitting will be done!\n");
-    theOptions->printChiSquaredOnly = true;
+    theOptions->printFitStatisticOnly = true;
   }
   if (optParser->FlagSet("model-errors")) {
   	printf("\t* Using model counts instead of data to compute errors for chi^2\n");

@@ -8,7 +8,7 @@
  * NAXIS2 = naxes[1] = nRows = sizeY.
 */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2014 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -60,21 +60,21 @@ static string  kNRows = "NROWS";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.0 (OpenMP-enabled)"
+#define VERSION_STRING      "1.0.1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.0"
+#define VERSION_STRING      "1.0.1"
 #endif
 
 
 typedef struct {
   std::string  outputImageName;
-  std::string  functionRootName;   // root name for individual-image functions
+  std::string  functionRootName;   // root name for individual-image functions  []
   bool  noImageName;
-  std::string  referenceImageName;
+  std::string  referenceImageName;   // []
   bool  noRefImage;
   bool  subsamplingFlag;
   bool  noImageDimensions;
-  std::string  psfFileName;
+  std::string  psfFileName;   // []
   bool  psfImagePresent;
   int  nColumns;
   int  nRows;
@@ -82,13 +82,13 @@ typedef struct {
   bool  nColumnsSet;
   bool  nRowsSet;
   bool  noConfigFile;
-  std::string  configFileName;
-  char  modelName[MAXLINE];
-  bool  noModel;
-  char  paramString[MAXLINE];
-  bool  newParameters;
+  std::string  configFileName;   // []
+//  char  modelName[MAXLINE];
+//  bool  noModel;
+//  char  paramString[MAXLINE];
+//  bool  newParameters;
   double  magZeroPoint;
-  char  paramLimitsFileName[MAX_FILENAME_LENGTH];
+//  char  paramLimitsFileName[MAX_FILENAME_LENGTH];
   bool  printImages;
   bool  saveImage;
   bool  saveExpandedImage;
@@ -127,9 +127,7 @@ int main( int argc, char *argv[] )
   int  nPixels_psf, nRows_psf, nColumns_psf;
   int  nParamsTot;
   int  status;
-//  double  *allPixels;
   double  *psfPixels;
-//  bool  allPixels_allocated = false;
   double  *paramsVect;
   ModelObject  *theModel;
   vector<string>  functionList;
@@ -154,15 +152,17 @@ int main( int argc, char *argv[] )
   options.nColumnsSet = false;
   options.nRowsSet = false;
   options.noConfigFile = true;
-  options.noModel = true;
-  options.paramLimitsFileName[0] = '-';
-  options.newParameters = false;
+//  options.noModel = true;
+//  options.newParameters = false;
+//  options.paramLimitsFileName[0] = '-';
   options.magZeroPoint = NO_MAGNITUDES;
   options.printImages = false;
   options.saveImage = true;
   options.saveExpandedImage = false;
   options.saveAllFunctions = false;
   options.printFluxes = false;
+  options.maxThreads = 0;
+  options.maxThreadsSet = false;
 
   ProcessInput(argc, argv, &options);
   
@@ -207,8 +207,6 @@ int main( int argc, char *argv[] )
   if ((! printFluxesOnly) && (options.noImageDimensions)) {
     // Note that we rely on the cfitsio library to catch errors like nonexistent files
     GetImageSize(options.referenceImageName, &nColumns, &nRows);
-//    allPixels = ReadImageAsVector(options.referenceImageName, &nColumns, &nRows);
-//    allPixels_allocated = true;
     // Reminder: nColumns = n_pixels_per_row
     // Reminder: nRows = n_pixels_per_column
     printf("Reference image read: naxis1 [# rows] = %d, naxis2 [# columns] = %d\n",
@@ -383,8 +381,6 @@ int main( int argc, char *argv[] )
 
 
   // Free up memory
-//  if (allPixels_allocated)
-//    free(allPixels);
   if (options.psfImagePresent)
     free(psfPixels);
   free(paramsVect);

@@ -64,10 +64,10 @@
 #    os.uname()[0] = "SunOS" --> Solaris
 #    os.uname()[0] = "Linux" --> Linux
 
-import os
+import os, subprocess, platform
 
 # Version definition for imfit + makeimage
-PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0b2\""
+PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0\""
 
 # the following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
@@ -100,7 +100,62 @@ include_path = ["/usr/local/include", FUNCTION_SUBDIR]
 lib_path = ["/usr/local/lib"]
 link_flags = []
 
+
+# older version, only works for MacOS X 10.8 and earlier:
+# def CheckForXcode5( ):
+# 	# code to check whether installed version of XCode is 5.0 or later, in which case
+# 	# we should specify llvm-g++-4.2 explicitly instead of relying on SCons to use g++
+# 	# [which for XCode 5 is Apple's llvm-based version *without* OpenMP support]
+# 	if #OS 10.8 or earlier:
+# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"
+# 	else:  # OS X 10.9 case
+# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.CLTools_Executables"
+# 	output = subprocess.check_output(["pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"],shell=True)
+# 	else:
+# 	output = subprocess.check_output([checkCommand],shell=True)
+# 	lines = output.splitlines()
+# 	for line in lines:
+# 		if line.find("version:") >= 0:
+# 			versionString = line.split()[1]
+# 			# version "number" is something like "5.0.1.0.1.1377666378", which can't
+# 			# be converted directly to a floating-point number; but we only need the
+# 			# major version, which is the very first part...
+# 			pp = versionString.split(".")
+# 			majorVersion = int(pp[0])
+# 			if (majorVersion >= 5):
+# 				return True
+# 	return False
+
+# newer version, should work on MacOS X 10.9 (and also earlier versions?)
+def CheckForXcode5( ):
+	# code to check whether installed version of XCode is 5.0 or later, in which case
+	# we should specify llvm-g++-4.2 explicitly instead of relying on SCons to use g++
+	# [which for XCode 5 is Apple's llvm-based version *without* OpenMP support]
+	
+	macOSVersion = int(platform.mac_ver()[0].split(".")[1])
+	
+	if macOSVersion >= 9:  # Mavericks or later[?]
+		checkCommand = "pkgutil --pkg-info=com.apple.pkg.CLTools_Executables"
+	else:  # older OS versions (Mountain Lion or earlier)
+		checkCommand = "pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"
+	
+	output = subprocess.check_output([checkCommand],shell=True)
+	lines = output.splitlines()
+	for line in lines:
+		if line.find("version:") >= 0:
+			versionString = line.split()[1]
+			# version "number" is something like "5.0.1.0.1.1377666378", which can't
+			# be converted directly to a floating-point number; but we only need the
+			# major version, which is the very first part...
+			pp = versionString.split(".")
+			majorVersion = int(pp[0])
+			if (majorVersion >= 5):
+				return True
+	return False
+
+
 # system-specific setup
+xcode5 = False
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
 	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
@@ -108,6 +163,7 @@ if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 #	cflags_opt.append("-m32")
 #	link_flags = ["-m32"]
 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
+	xcode5 = CheckForXcode5()
 if (os_type == "Linux"):
 	# change the following path definitions as needed
 	include_path.append("/usr/include")
@@ -149,7 +205,7 @@ AddOption("--no-gsl", dest="useGSL", action="store_false",
 	default=True, help="do *not* use GNU Scientific Library")
 AddOption("--no-nlopt", dest="useNLopt", action="store_false", 
 	default=True, help="do *not* use NLopt library")
-AddOption("--no-openmp", dest="useOpenMP", action="store_false", 
+AddOption("--no-openmp", dest="noOpenMP", action="store_true", 
 	default=False, help="compile *without* OpenMP support")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
 	default=False, help="compile additional FunctionObject classes for testing")
@@ -175,8 +231,8 @@ if GetOption("useGSL") is False:
 	useGSL = False
 if GetOption("useNLopt") is False:
 	useNLopt = False
-if GetOption("useOpenMP") is True:
-	useOpenMP = True
+if GetOption("noOpenMP") is True:
+	useOpenMP = False
 if GetOption("useExtraFuncs") is True:
 	useExtraFuncs = True
 if GetOption("useStaticLibs") is True:
@@ -233,7 +289,7 @@ if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
 	link_flags.append("-fopenmp")
 	extra_defines.append("USE_OPENMP")
 
-if useExtraFuncs:   # default is to *not* do this; user must specify with "--openmp"
+if useExtraFuncs:   # default is to NOT do this; user must specify with "--extra-funcs"
 	extra_defines.append("USE_EXTRA_FUNCS")
 
 
@@ -265,42 +321,53 @@ defines_opt = defines_opt + extra_defines
 
 env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+if xcode5 is True:
+	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
+	# to ensure we can use OpenMP
+	env_opt = Environment( CC="llvm-gcc-4.2", CXX="llvm-g++-4.2", CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+else:
+	env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 
 
 # Checks for libraries and headers -- if we're not doing scons -c:
-if not env_opt.GetOption('clean'):
-	conf_opt = Configure(env_opt)
-	cfitsioFound = conf_opt.CheckLibWithHeader('cfitsio', 'fitsio.h', 'c')
-	fftwFound = conf_opt.CheckLibWithHeader('fftw3', 'fftw3.h', 'c')
-	fftwThreadsFound = conf_opt.CheckLib('fftw3_threads')
-	nloptFound = conf_opt.CheckLibWithHeader('nlopt', 'nlopt.h', 'c')
-	gslFound = conf_opt.CheckLib('gsl')
-	libsOK = False
-	if cfitsioFound and fftwFound:
-		libsOK = True
-	else:
-		print("ERROR: Failed to find one or more required libraries and/or header files (cfitsio and/or fftw3)!")
-		print("\tMake sure they are installed; if necessary, include correct path to library with --lib-path option")
-		print("\tand correct path to header with --header-path option")
-		exit(1)
-	if useFFTWThreading and not fftwThreadsFound:
-		print("ERROR: Failed to find fftw3_threading library!")
-		print("\tSuggestion: include correct path to library with --lib-path option")
-		print("\tOR run SCons with --no-threading option")
-		exit(1)
-	if useGSL and not gslFound:
-		print("ERROR: Failed to find gsl library!")
-		print("\tSuggestion: include correct path to library with --lib-path option")
-		print("\tOR run SCons with --no-gsl option")
-		exit(1)
-	if useNLopt and not nloptFound:
-		print("ERROR: Failed to find nlopt library!")
-		print("\tSuggestion: include correct path to library with --lib-path option")
-		print("\tOR run SCons with --no-nlopt option")
-		exit(1)
-	env_opt = conf_opt.Finish()
+# WARNING: This is NOT a good idea for us at the moment, because
+#    1. It fails to work on our Linux VM installation
+#    2. It automatically inserts "-l<libname>" if it finds the libraries, which ends
+#       up forcing the linking of dynamic-library versions even if we're trying to
+#       do static compilation
+# if not env_opt.GetOption('clean'):
+# 	conf_opt = Configure(env_opt)
+# 	cfitsioFound = conf_opt.CheckLibWithHeader('cfitsio', 'fitsio.h', 'c')
+# 	fftwFound = conf_opt.CheckLibWithHeader('fftw3', 'fftw3.h', 'c')
+# 	fftwThreadsFound = conf_opt.CheckLib('fftw3_threads')
+# 	nloptFound = conf_opt.CheckLibWithHeader('nlopt', 'nlopt.h', 'c')
+# 	gslFound = conf_opt.CheckLib('gsl')
+# 	libsOK = False
+# 	if cfitsioFound and fftwFound:
+# 		libsOK = True
+# 	else:
+# 		print("ERROR: Failed to find one or more required libraries and/or header files (cfitsio and/or fftw3)!")
+# 		print("\tMake sure they are installed; if necessary, include correct path to library with --lib-path option")
+# 		print("\tand correct path to header with --header-path option")
+# 		exit(1)
+# 	if useFFTWThreading and not fftwThreadsFound:
+# 		print("ERROR: Failed to find fftw3_threading library!")
+# 		print("\tSuggestion: include correct path to library with --lib-path option")
+# 		print("\tOR run SCons with --no-threading option")
+# 		exit(1)
+# 	if useGSL and not gslFound:
+# 		print("ERROR: Failed to find gsl library!")
+# 		print("\tSuggestion: include correct path to library with --lib-path option")
+# 		print("\tOR run SCons with --no-gsl option")
+# 		exit(1)
+# 	if useNLopt and not nloptFound:
+# 		print("ERROR: Failed to find nlopt library!")
+# 		print("\tSuggestion: include correct path to library with --lib-path option")
+# 		print("\tOR run SCons with --no-nlopt option")
+# 		exit(1)
+# 	env_opt = conf_opt.Finish()
 
 
 

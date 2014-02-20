@@ -276,7 +276,40 @@ was computed.]
 
 Handle the x=0 case for Core-Sersic-1D!
 	[] ? if (x < x_min) ==> x = x_min 
-	
+
+
+
+
+*** 20 Feb 2014: Problem with using OpenMP multi-threading on 32-bit Linux
+
+Persistent, confusing problem running imfit and makeimage on 32-bit
+Linux systems (some, anyway) with OpenMP enabled.  Result was mysterious
+crashes, sometimes with error messages related to "libgomp" (the GCC
+OpenMP library).
+
+* PROBLEM FOUND: uninitialized boolean and integer variables!
+
+Basically, the boolean flag options.maxThreadsSet and the integer
+variable options.maxThreads were never given default values at the start
+of main(). When compiled on MacOS X (and my 64-bit Linux installation),
+they ended up with default values of 0, but on 32-bit Linux they
+received random integer values. This had the effect of making
+options.maxThreadsSet be interpreted as "true" -- so that
+ModelObject->SetMaxThreads(options.maxThreads) was called, with
+options.maxThreads having an absurdly large value for the number of
+threads (e.g., 134528901). Then, in ModelObject->SetMaxThreads, the
+OpenMP function omp_set_num_threads() was called with the
+options.maxThreads value... (OpenMP is not meant to use millions of
+threads!)
+
+* FIXES:
+
+Added two lines to the early part of main() [the second line is the really
+critical one]:
+  options.maxThreads = 0;
+  options.maxThreadsSet = false;
+
+
 
 
 *** TROUBLESHOOTING TIPS:

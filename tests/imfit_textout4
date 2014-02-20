@@ -20,6 +20,7 @@ ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
 Setting up parameter information array ...
 11 free parameters (28743 degrees of freedom)
 
+Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: chi^2 = 49095.069977
 	mpfit iteration 2: chi^2 = 37345.298143

@@ -14,6 +14,7 @@ Model Object: 4096 data values (pixels)
 Setting up parameter information array ...
 7 free parameters (4089 degrees of freedom)
 
+Performing fit by minimizing chi^2 (data-based errors):
 Calling Nelder-Mead Simplex solver ..
 Nelder-Mead Simplex status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
 

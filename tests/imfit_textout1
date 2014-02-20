@@ -12,6 +12,7 @@ Model Object: 1024 data values (pixels)
 Setting up parameter information array ...
 6 free parameters (1018 degrees of freedom)
 
+Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: chi^2 = 690.413627
 	mpfit iteration 2: chi^2 = 0.239584

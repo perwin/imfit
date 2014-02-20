@@ -28,6 +28,7 @@
 #include "func1d_sech.h"
 #include "func1d_sech2.h"
 #include "func1d_vdksech.h"
+#include "func1d_nuker.h"
 
 #include "func1d_n1543majmin_circbulge.h"
 #include "func1d_n1543majmin.h"
@@ -94,6 +95,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   
   CoreSersic1D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<CoreSersic1D>();
+  
+  NukerLaw1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<NukerLaw1D>();
   
   BrokenExponential1D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential1D>();

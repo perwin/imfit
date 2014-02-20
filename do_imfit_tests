@@ -35,12 +35,13 @@ else
 fi
 
 # test non-square SDSS image + PSF convolution; then test count/sec version with --exptime
-# option; then just do chisquare-only calculation
+# option; then just do chisquare-only calculations (for chi^2 and Cash statistic)
 echo -n "   (now running fit with PSF convolution ...)"
 ./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> test_dump4
 # test on count/sec image using --exptime; remember to rescale --sky as well! (= 154.33 / 53.907456)
 ./imfit tests/n3073rss_small_cps.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --exptime=53.907456 --sky=2.8628692847238053 &> test_dump4b
 ./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> test_dump4c
+./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only --cashstat &> test_dump4d
 echo ""
 
 # test fitting with Cash statistic
@@ -139,6 +140,15 @@ then
 else
   echo "Diff output:"
   diff test_dump4c tests/imfit_textout4c
+fi
+
+echo -n "*** Diff comparison with archives: chisquare-only (Cash statistic) calculation... "
+if (diff --brief test_dump4d tests/imfit_textout4d)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump4d tests/imfit_textout4d
 fi
 
 echo -n "*** Diff comparison with archives: fit using Cash statistic... "

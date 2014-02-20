@@ -1,6 +1,5 @@
 /* FILE: model_object.cpp ---------------------------------------------- */
-/* VERSION 0.5
- *
+/* 
  * This is intended to be an abstract base class for the various
  * "model" objects (e.g., image data + fitting functions).
  * 
@@ -11,6 +10,7 @@
  *       -- prepares deviates vector, which L-M code then squares and sums
  *
  *
+ * Older history:
  *     [v0.5]: 16 Apr 2010: Convolution with PSF now works, at least in principle.
  *     [v0.4]: 20--26 Mar 2010: Added stub functions to accomodate PSF image and
  * convolution.
@@ -26,7 +26,7 @@
  *
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2014 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

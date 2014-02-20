@@ -61,7 +61,10 @@
 \newcommand{\Makeimage}{\texttt{Makeimage}}
 
 \newcommand{\arcdeg}{\ensuremath{^{\circ}}}
+
 \newcommand{\chisquare}{\ensuremath{\chi^{2}}}
+\newcommand{\chisquaredata}{\ensuremath{\chi_{d}^{2}}}
+\newcommand{\chisquaremodel}{\ensuremath{\chi_{m}^{2}}}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -94,7 +97,7 @@ more 2D surface-brightness functions (e.g., elliptical exponential, elliptical S
 circular Gaussian) which will be added together in order to generate a
 model image; this model image will then be matched to the input image by
 adjusting the 2D function parameters via nonlinear minimization of the total
-\chisquare{} (or of the total Cash statistic in the alternate case of pure Poisson
+\chisquare{} (or of the total Cash statistic in the alternate case of Poisson
 statistics).
 
 The 2D functions can be grouped into arbitrary sets sharing a common $(x,y)$
@@ -488,19 +491,19 @@ Cash statistic computation. (If the pixel units are counts/sec, then the sky lev
 should also be in those units, and you should use the ``\texttt{--exptime}'' option
 to specify the original exposure time.)
 \item \texttt{--gain} \textit{value} --- specifies the A/D gain (in electrons/ADU)
-of the input image; used for internal computation of the noise map for \chisquare{}
-minimization.
+of the input image; used for internal computation of the noise map (for \chisquare{}
+minimization) or for correcting the Cash statistic computation.
 \item \texttt{--readnoise} \textit{value} --- specifies the read noise (in electrons)
 of the input image; used for internal computation of the noise map for \chisquare{}
-minimization.
+minimization (this is ignored in the case of Cash statistic minimization).
 \item \texttt{--exptime} \textit{value} --- specifies the exposure time of the image;
 this should \textbf{only} be used \textit{if} the image has been divided by the exposure time
 (i.e., if the pixel units are counts/sec).
 \item \texttt{--ncombined} \textit{value} --- if values in the input
 image are the result of averaging (or computing the median of) two or
 more original images, then this option should be used to specify the
-number of original images; used for internal computation of the noise
-map for \chisquare{} minimization.  If multiple images were
+number of original images; used for internal computation of the noise map (for \chisquare{}
+minimization) or for correcting the Cash statistic computation.  If multiple images were
 \textit{added} together with no rescaling, then do not use this option.
 
 \bigskip
@@ -526,9 +529,12 @@ the minimization technique (\textsc{Warning}: much slower!)
 (instead of the data values) to estimate the individual-pixel dispersions
 $\sigma_{i}$ for \chisquare{} minimization
 
-\item \texttt{--cashstat} --- use Cash statistic instead of \chisquare{} as the fit
-statistic for minimization; for use in the case of Poisson statistics and zero read
-noise. Cannot be used with the (default) Levenberg-Marquardt minimization technique.
+\item \texttt{--cashstat} --- use Cash statistic instead of \chisquare{}
+as the fit statistic for minimization. This is especially useful in the
+case of Poisson statistics and low or zero read noise, but it also provides less
+biased fits than the \chisquare{} approach even when count levels are
+high. Cannot be used with the (default) Levenberg-Marquardt minimization
+technique.
 
 \item \texttt{--ftol} \textit{FTOL-value} --- specify tolerance for
 fractional improvements in the fit statistic (\chisquare{} or Cash
@@ -545,7 +551,8 @@ of bootstrap resampling after the fit, to estimate parameter errors.
 
 \item \texttt{--chisquare-only} --- Evaluate the \chisquare{} value for
 the initial input model as a fit to the input image, \textit{without}
-doing any minimization to find a better solution.
+doing any minimization to find a better solution. (If \texttt{--cashstat} is
+also specified, then the Cash statistic is evaluated instead.)
 
 \bigskip
 
@@ -1170,15 +1177,16 @@ TBD.
 
 The (default) Levenberg-Marquardt minimization algorithm used by
 \imfit{} automatically generates a set of (symmetric) uncertainty
-estimates for each  free parameter at the conclusion of the fitting
+estimates for each free parameter at the conclusion of the fitting
 process; as noted above, these are printed to the terminal as part of
 the summary output.
 
-These values come from the covariance matrix derived from the final Jacobian
-matrix corresponding to the best-fit solution, and should be viewed with caution: for
-example, they assume that the \chisquare{} landscape in the vicinity of
-the best-fit solution is parabolic XXX. In practice, they should probably be
-seen as \textit{lower limits} on the uncertainty.
+These values come from the covariance matrix derived from the final
+Hessian matrix corresponding to the best-fit solution, and should be
+viewed with caution: for example, they assume that the \chisquare{}
+landscape in the vicinity of the best-fit solution is parabolic. In
+practice, they should probably be seen as \textit{lower limits} on the
+uncertainty.
 
 The other fitting algorithms used by \imfit{} do not compute gradients
 in the fit landscape, and so they do not produce automatic uncertainty
@@ -1187,7 +1195,7 @@ estimates. Although one could certainly take the solution of a
 L-M run of \imfit, thus generating L-M--based uncertainties, this is not
 possible when using the Cash statistic.
 
-As an alternative to the somewhat dubious L-M uncertainty estimates --
+As an alternative to the L-M uncertainty estimates --
 and as a method for estimating uncertainties in the case of
 Cash-statistic minimization -- \imfit{} offers the option of bootstrap
 resampling. This is done with the ``\texttt{--bootstrap}'' command-line
@@ -1204,7 +1212,7 @@ are used as starting values for the new fit.} After $n$ iterations, the
 combined set of bootstrapped parameter values can be used as a
 distribution for estimating confidence intervals; \imfit{} finds and
 outputs the 68.3\% confidence intervals and the standard deviation for
-each parameter. While this approach is likely to produce more plausible
+each parameter. While this approach may produce more plausible
 uncertainties for the best-fit parameters -- and can be used with both
 \chisquare{} and Cash-statistic minimization and as an adjunct to any of
 the three minimization algorithms -- it \textit{is} slow, as one is
@@ -1212,12 +1220,15 @@ essentially repeating (a somewhat faster version of) the fitting process
 $n$ times. Ideally, one should do at least 200 iterations -- 1000 or
 more is preferable -- to get reasonably consistent confidence intervals.
 Since this can take \textit{much} longer than the original fitting
-process, it is probably not a good idea to use bootstrap resampling when one is
-engaged in exploratory fitting, but to instead postpone it until one is
-reasonably certain one has the final fit. To keep things as fast
+process, it is probably not a good idea to use bootstrap resampling when
+one is engaged in exploratory fitting, but to instead postpone it until
+one is reasonably certain one has the final fit. To keep things as fast
 as possible, \imfit{} automatically chooses L-M minimization for the
 bootstrap process -- unless the Cash statistic is being used, in which
-case the N-M simplex method is used.
+case the N-M simplex method is used.\footnote{If \imfit{} was compiled
+without the NLopt library, then the N-M simplex method is not available
+and \imfit{} uses DE instead -- which will make the bootstrap estimation
+\textit{very} slow.}
 
 (Future versions of \imfit{} may include the option of dumping all bootstrapped
 parameter values to a text file, to allow more detailed inspection of the
@@ -2163,10 +2174,12 @@ Major inspirations for \Imfit{} include both \textsc{galfit} \citep{peng02,peng1
 \textsc{budda} \citep{desouza04,gadotti08}.
 
 Thanks also to Michael Opitsch and Michael Williams for being (partly unwitting)
-beta testers and for their feedback, to Martin Kuemmel for suggestion
+beta testers and for their feedback, to Martin Kuemmel for suggesting
 an improvement (and finding a related bug), to Roberto Saglia for urging me
 to implement the Core-S{\'e}rsic function, and to Maximilian Fabricius for suggesting
-improvements to the documentation.
+improvements to the documentation. Additional bug reports and suggestions from 
+Giulia Savorgnan, Guillermo Barro, and Sergio Pascual are gratefully appreciated.
+
 
 \section{Data Sources}
 
