@@ -140,6 +140,7 @@ imfit_config_ic3478_64x64.dat
 imfit_config_ic3478_64x64b.dat
 imfit_config_n3073.dat
 config_imfit_poisson.dat
+config_imfit_flatsky.dat
 config_makeimage_sersictest512_bad1.dat
 config_makeimage_sersictest512_bad2.dat
 config_makeimage_sersictest512_bad3.dat
@@ -147,15 +148,19 @@ config_makeimage_sersictest512_bad4.dat
 config_makeimage_sersictest512_bad5.dat
 config_imfit_sersictest512_badlimits1.dat
 config_imfit_sersictest512_badlimits2.dat
+config_imfit_sersictest512_badlimits3.dat
 uniform_image32.fits
 testimage_expdisk32.fits
+testimage_poisson_lowsn20.fits
 ic3478rss_64x64.fits
 n3073rss_small.fits
+n3073rss_small_cps.fits
 n3073rss_small_mask.fits
 biggertest_orig.fits
 gensersictest_orig.fits
 sersic+exp_orig.fits
 gensersictest612_conv_cutout512.fits
+flatsky_128x128.fits
 imfit_textout1
 imfit_textout2
 imfit_textout3
@@ -164,6 +169,7 @@ imfit_textout3c_tail
 imfit_textout4
 imfit_textout4b
 imfit_textout4c
+imfit_textout4d
 imfit_textout5_tail
 imfit_textout_bad1
 imfit_textout_bad2
@@ -171,6 +177,7 @@ imfit_textout_bad3
 imfit_textout_bad4
 imfit_textout_bad5
 imfit_textout_bad6
+imfit_textout_bad7
 config_biggertest_4c.dat
 config_makeimage_gensersic512.dat
 config_makeimage_sersic+exp512.dat

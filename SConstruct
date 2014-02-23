@@ -2,7 +2,7 @@
 # 
 # To use this, type the following on the command line:
 #    $ scons <target-name>
-# where <target-name> is, e.g., "imft", "imfit_db", etc.
+# where <target-name> is, e.g., "imft", "makeimage", etc.
 # "scons" by itself will build *all* targets
 # 
 # To clean up files associated with a given target:
@@ -39,7 +39,7 @@
 # etc.
 
 
-# Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+# Copyright 2010--2014 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -67,7 +67,7 @@
 import os, subprocess, platform
 
 # Version definition for imfit + makeimage
-PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0\""
+PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0.1\""
 
 # the following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
@@ -126,7 +126,7 @@ link_flags = []
 # 				return True
 # 	return False
 
-# newer version, should work on MacOS X 10.9 (and also earlier versions?)
+# newer version, should work on MacOS X 10.9 (and also earlier versions)
 def CheckForXcode5( ):
 	# code to check whether installed version of XCode is 5.0 or later, in which case
 	# we should specify llvm-g++-4.2 explicitly instead of relying on SCons to use g++
@@ -209,6 +209,8 @@ AddOption("--no-openmp", dest="noOpenMP", action="store_true",
 	default=False, help="compile *without* OpenMP support")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
 	default=False, help="compile additional FunctionObject classes for testing")
+AddOption("--extra-checks", dest="doExtraChecks", action="store_true", 
+	default=False, help="turn on additional error-checking and warning flags during compilation")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -235,6 +237,9 @@ if GetOption("noOpenMP") is True:
 	useOpenMP = False
 if GetOption("useExtraFuncs") is True:
 	useExtraFuncs = True
+doExtraChecks = False
+if GetOption("doExtraChecks") is True:
+	doExtraChecks = True
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
 if GetOption("makeFatBinaries") is True:
@@ -292,6 +297,10 @@ if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
 if useExtraFuncs:   # default is to NOT do this; user must specify with "--extra-funcs"
 	extra_defines.append("USE_EXTRA_FUNCS")
 
+if doExtraChecks:   # default is to NOT do this; user must specify with "--extra-checks"
+	cflags_opt.append(["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith",
+					"-Wextra", "-pedantic"])
+
 
 if buildFatBinary and (os_type == "Darwin"):
 	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
@@ -323,8 +332,11 @@ env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 if xcode5 is True:
 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
-	# to ensure we can use OpenMP
-	env_opt = Environment( CC="llvm-gcc-4.2", CXX="llvm-g++-4.2", CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+	# to ensure we can use OpenMP.
+	# Replace the following with alternate compilers if needed (e.g., "gcc-4.8", "g++-4.8")
+	ALT_CC = "llvm-gcc-4.2"
+	ALT_CPP = "llvm-g++-4.2"
+	env_opt = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 else:
 	env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,

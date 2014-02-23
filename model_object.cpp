@@ -1350,7 +1350,7 @@ bool ModelObject::CheckParamVector( int nParams, double paramVector[] )
   bool  vectorOK = true;
   
   for (int z = 0; z < nParams; z++) {
-    if (! finite(paramVector[z]))
+    if (! isfinite(paramVector[z]))
       vectorOK = false;
   }
   
@@ -1368,7 +1368,7 @@ bool ModelObject::VetDataVector( )
   bool  vectorOK = true;
   
   for (int z = 0; z < nDataVals; z++) {
-    if (! finite(dataVector[z])) {
+    if (! isfinite(dataVector[z])) {
       if (weightVector[z] == 0.0)
         dataVector[z] = 0.0;
       else
@@ -1394,7 +1394,7 @@ bool ModelObject::CheckWeightVector( )
   bool  weightVectorOK = true;
   
   for (int z = 0; z < nDataVals; z++) {
-    if (! finite(weightVector[z]))
+    if (! isfinite(weightVector[z]))
       nonFinitePixels = true;
     else if (weightVector[z] < 0.0)
       negativePixels = true;

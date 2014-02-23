@@ -22,19 +22,19 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: chi^2 = 49095.069977
-	mpfit iteration 2: chi^2 = 37345.298143
-	mpfit iteration 3: chi^2 = 37110.187572
-	mpfit iteration 4: chi^2 = 37053.537461
-	mpfit iteration 5: chi^2 = 36993.750814
-	mpfit iteration 6: chi^2 = 36947.464167
-	mpfit iteration 7: chi^2 = 36910.890009
-	mpfit iteration 8: chi^2 = 36882.958315
-	mpfit iteration 9: chi^2 = 36862.501507
-	mpfit iteration 10: chi^2 = 36848.786595
-	mpfit iteration 11: chi^2 = 36841.049102
-	mpfit iteration 12: chi^2 = 36831.937115
-	mpfit iteration 13: chi^2 = 36828.584569
+	mpfit iteration 1: chi^2 = 49095.069849
+	mpfit iteration 2: chi^2 = 37345.298244
+	mpfit iteration 3: chi^2 = 37110.187454
+	mpfit iteration 4: chi^2 = 37053.537318
+	mpfit iteration 5: chi^2 = 36993.750760
+	mpfit iteration 6: chi^2 = 36947.464152
+	mpfit iteration 7: chi^2 = 36910.890037
+	mpfit iteration 8: chi^2 = 36882.958351
+	mpfit iteration 9: chi^2 = 36862.501535
+	mpfit iteration 10: chi^2 = 36848.786603
+	mpfit iteration 11: chi^2 = 36841.049089
+	mpfit iteration 12: chi^2 = 36831.937340
+	mpfit iteration 13: chi^2 = 36828.584572
 	mpfit iteration 14: chi^2 = 36828.578485
 	mpfit iteration 15: chi^2 = 36828.577740
 	mpfit iteration 16: chi^2 = 36828.577653
@@ -49,7 +49,7 @@ Calling Levenberg-Marquardt solver ...
       NFEV = 196
 
 Reduced Chi^2 = 1.281306
-AIC = 36850.586838, BIC = 36941.509507
+AIC = 36850.586838, BIC = 36941.509506
 
 X0		100.7073 # +/- 0.0058
 Y0		97.0877 # +/- 0.0052
@@ -57,12 +57,12 @@ FUNCTION Sersic
 PA		111.919 # +/- 0.264349
 ell		0.184262 # +/- 0.00159888
 n		 3.2805 # +/- 0.0340844
-I_e		78.2972 # +/- 2.69301
-r_e		26.7976 # +/- 0.648101
+I_e		78.2973 # +/- 2.69301
+r_e		26.7975 # +/-  0.6481
 FUNCTION Exponential
 PA		 51.724 # +/- 0.806494
 ell		0.35226 # +/- 0.014009
-I_0		39.7753 # +/- 1.80085
+I_0		39.7754 # +/- 1.80085
 h		53.6058 # +/- 1.16411
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"

@@ -24,15 +24,15 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: chi^2 = 1377100.519497
-	mpfit iteration 2: chi^2 = 1050144.168912
-	mpfit iteration 3: chi^2 = 120519.142864
-	mpfit iteration 4: chi^2 = 71408.075304
-	mpfit iteration 5: chi^2 = 43868.103584
-	mpfit iteration 6: chi^2 = 36912.002582
-	mpfit iteration 7: chi^2 = 36828.859318
-	mpfit iteration 8: chi^2 = 36828.611699
-	mpfit iteration 9: chi^2 = 36828.581709
+	mpfit iteration 1: chi^2 = 1377099.829071
+	mpfit iteration 2: chi^2 = 1050144.572367
+	mpfit iteration 3: chi^2 = 120515.160455
+	mpfit iteration 4: chi^2 = 71407.494491
+	mpfit iteration 5: chi^2 = 43868.835836
+	mpfit iteration 6: chi^2 = 36912.006263
+	mpfit iteration 7: chi^2 = 36828.859324
+	mpfit iteration 8: chi^2 = 36828.611700
+	mpfit iteration 9: chi^2 = 36828.581710
 	mpfit iteration 10: chi^2 = 36828.578450
 	mpfit iteration 11: chi^2 = 36828.578059
 	mpfit iteration 12: chi^2 = 36828.578011
@@ -58,7 +58,7 @@ n		3.28046 # +/- 0.0340831
 I_e		1.45249 # +/- 0.0499468
 r_e		 26.797 # +/- 0.648142
 FUNCTION Exponential
-PA		51.7246 # +/- 0.806569
+PA		51.7246 # +/- 0.806568
 ell		0.352234 # +/- 0.0140126
 I_0		0.737829 # +/- 0.0333997
 h		53.6064 # +/- 1.16482

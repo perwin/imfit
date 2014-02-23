@@ -133,9 +133,10 @@ under the \textsc{gnu} Public License (\textsc{gpl}).
 \bigskip
 
 \textbf{System Requirements:} \Imfit{} has been built and tested on
-Intel-based MacOS X 10.6--10.8 (Snow Leopard, Lion, and Mountain Lion)
-and Linux (Ubuntu) systems. It uses standard C++ and should work on any
-Unix-style system with a modern C++ compiler and the Standard Template
+Intel-based MacOS X 10.6--10.9 (Snow Leopard, Lion, Mountain Lion, and
+Mavericks)
+and Linux (Ubuntu) systems. It uses standard C++ and should work on most
+Unix-style systems with a modern C++ compiler and the Standard Template
 Library (e.g., \textsc{gcc} v4 or higher\footnote{\textsc{gcc} v4.2 or
 higher is necessary to take advantage of OpenMP-related speedups.}). It
 relies on two external, open-source libraries: version 3 of the
@@ -329,6 +330,15 @@ with the following commands:
 \texttt{\$ scons --no-openmp imfit} \\
 \texttt{\$ scons --no-openmp makeimage}
 \end{quote}
+
+\textit{Note for compiling on MacOS X:} the
+command-line compilers which come with the current Apple-supplied
+development environment (Xcode 5) are based on Clang instead of
+\textsc{gcc} and so do \textit{not} support OpenMP. In order to compile
+with OpenMP, you will need either a previous version of Xcode (e.g.,
+from a prior installation) or a separate installation of \textsc{gcc}
+4.2 or later (such as those available at
+\url{http://hpc.sourceforge.net/}).
 
 %If you are using the \texttt{configure + make} approach instead, you can use the
 %following when running \texttt{configure}:

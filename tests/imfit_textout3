@@ -15,16 +15,16 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: chi^2 = 263212.803537
-	mpfit iteration 2: chi^2 = 38837.129202
-	mpfit iteration 3: chi^2 = 16396.743497
-	mpfit iteration 4: chi^2 = 15936.984570
-	mpfit iteration 5: chi^2 = 11825.745955
-	mpfit iteration 6: chi^2 = 10981.749968
-	mpfit iteration 7: chi^2 = 7634.446898
-	mpfit iteration 8: chi^2 = 5413.887234
-	mpfit iteration 9: chi^2 = 4618.412592
-	mpfit iteration 10: chi^2 = 4555.964470
+	mpfit iteration 1: chi^2 = 263212.803151
+	mpfit iteration 2: chi^2 = 38837.128820
+	mpfit iteration 3: chi^2 = 16396.740351
+	mpfit iteration 4: chi^2 = 15832.708634
+	mpfit iteration 5: chi^2 = 12632.906252
+	mpfit iteration 6: chi^2 = 12632.231379
+	mpfit iteration 7: chi^2 = 8059.268939
+	mpfit iteration 8: chi^2 = 5159.059511
+	mpfit iteration 9: chi^2 = 4584.294047
+	mpfit iteration 10: chi^2 = 4555.971690
 	mpfit iteration 11: chi^2 = 4555.947660
 	mpfit iteration 12: chi^2 = 4555.947654
 
@@ -43,11 +43,11 @@ AIC = 4569.975051, BIC = 4614.172017
 X0		32.9439 # +/- 0.0128
 Y0		34.0933 # +/- 0.0156
 FUNCTION Sersic
-PA		18.2612 # +/- 0.309861
+PA		18.2612 # +/- 0.309862
 ell		0.235989 # +/- 0.00231649
-n		2.40028 # +/- 0.018072
-I_e		20.0094 # +/- 0.403957
-r_e		60.7612 # +/- 0.860651
+n		2.40028 # +/- 0.0180719
+I_e		20.0094 # +/- 0.403959
+r_e		60.7612 # +/- 0.860637
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 Done!

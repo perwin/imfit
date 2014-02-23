@@ -949,6 +949,11 @@ void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 
 
 
+/* Function which prepares a vector of strings containing useful information
+ * about the fit -- currently just the name of the saved best-fit parameter file
+ * the name of the PSF image used (if any), and the name and version number
+ * of imfit -- which will be written to the FITS header of an output image.
+ */
 void PrepareImageComments( vector<string> *comments, const string &programName, 
                            commandOptions *mainOptions )
 {

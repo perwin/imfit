@@ -14,7 +14,7 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: chi^2 = 690.413627
+	mpfit iteration 1: chi^2 = 690.413630
 	mpfit iteration 2: chi^2 = 0.239584
 	mpfit iteration 3: chi^2 = 0.000000
 	mpfit iteration 4: chi^2 = 0.000000

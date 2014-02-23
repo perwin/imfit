@@ -625,7 +625,7 @@ int mpfit(mp_func funct, int m, int npar,
     
     for (j = 0; j < nfree; j++) {
       for (i = 0; i < nfree; i++) {
-        if (finite(fjac[off+i]) == 0) nonfinite = 1;
+        if (isfinite(fjac[off+i]) == 0) nonfinite = 1;
       }
       off += ldfjac;
     }
@@ -2330,7 +2330,7 @@ int CheckFinite(int ntot, double *matrix)
 {
 
   for (int j = 0; j < ntot; j++) {
-    if (! finite(matrix[j]))
+    if (! isfinite(matrix[j]))
       return 0;
   }
   return 1;
