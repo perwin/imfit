@@ -71,9 +71,9 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     double  fitStatistic = model->GetFitStatistic(params);
     bool usingCashStatistic = model->UsingCashStatistic();
     if (usingCashStatistic)
-      printf("  CASH STATISTIC = %lf\n", fitStatistic);
+      printf("  CASH STATISTIC = %f\n", fitStatistic);
     else {
-      printf("  CHI-SQUARE = %lf    (%d DOF)\n", fitStatistic, nDegreesFreedom);
+      printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
     }
     aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);

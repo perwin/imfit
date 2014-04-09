@@ -236,7 +236,7 @@ bool DESolver::Solve( int maxGenerations, int verbose )
     double  relativeDeltaEnergy;
     if ((generation % 10) == 0) {
       if (verbose > 0)
-        printf("\nGeneration %4d: bestEnergy = %12.10lf", generation, bestEnergy);
+        printf("\nGeneration %4d: bestEnergy = %12.10f", generation, bestEnergy);
       if (generation == 20) {
         relativeDeltaEnergy = fabs(1.0 - lastBestEnergy/bestEnergy);
         relativeDeltas[0] = relativeDeltaEnergy;

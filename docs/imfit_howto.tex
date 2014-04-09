@@ -293,7 +293,7 @@ compare output images with reference versions will simply be skipped.)
 By default, the SConstruct file (the equivalent of a Makefile for SCons)
 tells SCons to look for header files in \texttt{/usr/local/include} and
 library files in \texttt{/usr/local/lib}. If you have the \textsc{fftw},
-\textsc{cfitsio}, and (optionally) NLopt and \textsc{gsl} headers and
+\textsc{cfitsio}, and/or (optionally) NLopt and \textsc{gsl} headers and
 libraries installed somewhere else, you can tell SCons about this by
 using the
 \texttt{--header-path} and \texttt{--lib-path} options:
@@ -302,7 +302,9 @@ using the
 \texttt{\$ scons --lib-path=/some/other/path ...}
 \end{quote}
 (note that "\texttt{...}" is meant to stand for the rest of the compilation command,
-whatever that may be).
+whatever that may be). This will add the specified directories to the
+header and library search paths (\texttt{/usr/local/include} and \texttt{/usr/local/lib}
+will still be searched as well).
 
 Multiple paths can be specified if they are separated by colons, e.g.
 \begin{quote}

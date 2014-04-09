@@ -397,7 +397,37 @@ in SetupModelImage:
 		(e.g., L-M code doesn't waste time calculating derivates w.r.t. to those
 		parameters)
 
+
+
+2014: Testing detection and masking of NaN values in images:
+
+
+Images from Giulia S.:
+> Could you supply me with examples of an input image and a sigma image,
+> with NaN values -- and a mask image that should mask out the NaN values but
+> apparently doesn't -- that are giving you trouble (one each would be enough), so
+> I can use them to test improvements?
+
+Galaxy image: <ic1459_op_mos.fits>
+
+Sigma image: <ic1459_op_unc.fits>
+
+Mask: <ic1459_op_mos_edgestarmask_extra.fits>
+
+
+relevant uses of isfinite():
+VetDataVector
+CheckWeightVector
+
+
+AddErrorVector:
+	calls CheckWeightVector; exits w/ error if "false" is returned
+
+FinalSetup
+	calls VetDataVector; exits w/ error if "false" is returned
 		
+
+
 
 
 OUTLINE OF PROGRAM:

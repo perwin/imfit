@@ -109,7 +109,7 @@ void GaussianRing3D::Setup( double params[], int offsetIndex, double xc, double 
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
   
-  // bar PA rotations are computed relative to +y axis; convert to +x-axis reference
+  // ring PA rotations are computed relative to +y axis; convert to +x-axis reference
   ringPA_rad = (ringPA + 90.0) * DEG2RAD;
   cosRingPA = cos(ringPA_rad);
   sinRingPA = sin(ringPA_rad);
@@ -132,11 +132,10 @@ double GaussianRing3D::GetValue( double x, double y )
 {
   double  x_diff = x - x0;
   double  y_diff = y - y0;
-  double  xp, yp, x_d0, y_d0, z_d0, totalIntensity, error;
+  double  xp, yp, x_d0, y_d0, z_d0, totalIntensity;
   double  integLimit;
   double  xyParameters[13];
   int  nSubsamples;
-  int  nEvals;
   
   // Calculate x,y in component's (projected sky) reference frame: xp,yp
   xp = x_diff*cosPA + y_diff*sinPA;

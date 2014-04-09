@@ -134,6 +134,9 @@ def CheckForXcode5( ):
 	
 	macOSVersion = int(platform.mac_ver()[0].split(".")[1])
 	
+	if macOSVersion <= 7:
+		# XCode 5 cannot run on Lion or earlier
+		return False
 	if macOSVersion >= 9:  # Mavericks or later[?]
 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.CLTools_Executables"
 	else:  # older OS versions (Mountain Lion or earlier)
@@ -418,6 +421,7 @@ if useExtraFuncs:
 	if useGSL:
 		functionobject_obj_string += " func_brokenexpbar3d"
 		functionobject_obj_string += " func_boxytest3d"
+		functionobject_obj_string += " func_logspiral"
 
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]

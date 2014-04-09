@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
  }
     
   /* Define the size of the requested model image */
-  theModel->SetupModelImage(nPixels_tot, nColumns, nRows);
+  theModel->SetupModelImage(nColumns, nRows);
   theModel->PrintDescription();
 
   // Add PSF image vector, if present

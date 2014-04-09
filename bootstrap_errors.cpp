@@ -60,7 +60,7 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
   double  lower, upper, plus, minus, halfwidth;
   int  i, status, nIter;
   int  nParams = theModel->GetNParams();
-  int  nStoredDataVals = theModel->GetNDataValues();
+//  int  nStoredDataVals = theModel->GetNDataValues();
   int  nValidPixels = theModel->GetNValidPixels();
   int  verboseLevel = -1;
   
