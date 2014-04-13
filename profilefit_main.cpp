@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
   // Add PSF vector, if present, and thereby enable convolution
   if (options.psfPresent)
     theModel->AddPSFVector1D(nPixels_psf, xVals_psf, yVals_psf);
-  theModel->FinalSetup();   // calls ApplyMask(), VetDataVector()
+  theModel->FinalSetupForFitting();   // calls ApplyMask(), VetDataVector()
   theModel->PrintDescription();
 
 

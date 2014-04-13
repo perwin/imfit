@@ -98,17 +98,24 @@ ModelObject::ModelObject( )
   modelVector = NULL;
   residualVector = NULL;
   outputModelVector = NULL;
+  
   modelVectorAllocated = false;
+  maskVectorAllocated = false;
   weightVectorAllocated = false;
   residualVectorAllocated = false;
   outputModelVectorAllocated = false;
   deviatesVectorAllocated = false;
+  
   doBootstrap = false;
   bootstrapIndicesAllocated = false;
   setStartFlag_allocated = false;
   
+  // default setup = use data-based Gaussian errors + chi^2 minimization
+  dataErrors = true;
+  externalErrorVectorSupplied = false;
   modelErrors = false;
   useCashStatistic = false;
+  
   modelImageComputed = false;
   maskExists = false;
   doConvolution = false;
@@ -307,13 +314,16 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
       ;
   }
   
-  if (CheckWeightVector())
-    weightValsSet = true;
-  else {
-    printf("ModelObject::AddErrorVector -- Conversion of error vector resulted in bad values!\n");
-    printf("Exiting ...\n\n");
-    exit(-1);
-  }
+  weightValsSet = true;
+//   if (CheckWeightVector())
+//     weightValsSet = true;
+//   else {
+//     printf("ModelObject::AddErrorVector -- Conversion of error vector resulted in bad values!\n");
+//     printf("Exiting ...\n\n");
+//     exit(-1);
+//   }
+  
+  externalErrorVectorSupplied = true;
 }
 
 
@@ -359,13 +369,16 @@ void ModelObject::GenerateErrorVector( )
     weightVector[z] = 1.0 / sqrt(noise_squared);
   }
 
-  if (CheckWeightVector())
-    weightValsSet = true;
-  else {
-    printf("ModelObject::GenerateErrorVector -- Calculation of error vector resulted in bad values!\n");
-    printf("Exiting ...\n\n");
-    exit(-1);
-  }
+  weightValsSet = true;
+//   if (CheckWeightVector()) {
+//     weightValsSet = true;
+//     printf("ModelObject::GenerateErrorVector -- Internal error/weight vector calculated from data values.\n");
+//   }
+//   else {
+//     printf("ModelObject::GenerateErrorVector -- Calculation of error vector resulted in bad values!\n");
+//     printf("Exiting ...\n\n");
+//     exit(-1);
+//   }
 }
 
 
@@ -429,9 +442,16 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
 
 void ModelObject::ApplyMask( )
 {
+  double  newVal;
+  
   if ( (weightValsSet) && (maskExists) ) {
     for (int z = 0; z < nDataVals; z++) {
-      weightVector[z] = maskVector[z] * weightVector[z];
+      newVal = maskVector[z] * weightVector[z];
+      // check to make sure that masked non-finite values (e.g. NaN) get zeroed
+      // (if weightVector[z] = NaN, then product will automatically be NaN)
+      if ( (! isfinite(newVal)) && (maskVector[z] == 0.0) )
+        newVal = 0.0;
+      weightVector[z] = newVal;
     }
     printf("ModelObject: mask vector applied to weight vector. ");
     printf("(%d valid pixels remain)\n", nValidDataVals);
@@ -464,16 +484,73 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 
 
 
-/* ---------------- PUBLIC METHOD: FinalSetup -------------------------- */
-void ModelObject::FinalSetup( )
+/* ---------------- PUBLIC METHOD: FinalSetupForFitting ---------------- */
+// Call this when using ModelObject for fitting. Not necessary 
+// when just using ModelObject for generating model image or vector.
+void ModelObject::FinalSetupForFitting( )
 {
-  if (maskExists)
+  int  nNonFinitePixels = 0;
+  
+  // Create a default all-pixels-valid mask if no mask already exists
+  if (! maskExists) {
+    maskVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    for (int z = 0; z < nDataVals; z++) {
+      maskVector[z] = 1.0;
+    }
+    maskVectorAllocated = true;
+    maskExists = true;
+  }
+
+  // Identify currently unmasked data pixels which have non-finite values and 
+  // add those pixels to the mask
+  for (int z = 0; z < nDataVals; z++) {
+    if ( (maskVector[z] > 0.0) && (! isfinite(dataVector[z])) ) {
+      maskVector[z] = 0.0;
+      nNonFinitePixels++;
+      nValidDataVals--;
+    }
+  }
+  if (nNonFinitePixels > 0) {
+  	if (nNonFinitePixels == 1)
+      printf("ModelObject: One pixel with non-finite value found (and masked) in data image\n");
+    else
+      printf("ModelObject: %d pixels with non-finite values found (and masked) in data image\n", nNonFinitePixels);
+  }
+  
+  // Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
+  if ((! useCashStatistic) && (dataErrors) && (! externalErrorVectorSupplied))
+    GenerateErrorVector();
+  
+#ifdef DEBUG
+  PrintWeights();
+#endif
+
+  // Apply mask to weight vector (i.e., weight -> 0 for masked pixels)
+  if (CheckWeightVector())
     ApplyMask();
-  bool dataOK = VetDataVector();
-  if (! dataOK) {
-    fprintf(stderr, "ERROR: bad (non-masked) data values!\n\n");
+  else {
+    printf("ModelObject::FinalSetup -- bad values detected in weight vector!\n");
+    printf("Exiting ...\n\n");
     exit(-1);
   }
+#ifdef DEBUG
+  PrintWeights();
+#endif
+
+  if (dataValsSet) {
+    bool dataOK = VetDataVector();
+    if (! dataOK) {
+      fprintf(stderr, "ERROR: bad (non-masked) data values!\n\n");
+      exit(-1);
+    }
+  }
+  
+#ifdef DEBUG
+  PrintInputImage();
+  PrintMask();
+  PrintWeights();
+#endif
+
 }
 
 
@@ -760,9 +837,11 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 void ModelObject::UseModelErrors( )
 {
   modelErrors = true;
+  dataErrors = false;
   // Allocate storage for weight image (do this here because we assume that
-  // AddErrorVector() or GenerateErrorVector() will NOT be called if we're using 
-  // Cash statistic), and set all values = 1
+  // AddErrorVector() will NOT be called if we're using model-based errors).
+  // Set all values = 1 to start with, since we'll update this later with
+  // model-based error values using UpdateWeightVector.
   if (weightVectorAllocated) {
     printf("ERROR: ModelImage::UseModelErrors -- weight vector already allocated!\n");
     printf("Exiting ...\n\n");
@@ -886,6 +965,8 @@ double ModelObject::ChiSquared( double params[] )
 
 /* ---------------- PUBLIC METHOD: CashStatistic ----------------------- */
 /* Function for calculating Cash statistic for a model
+ *
+ * Note that weightVector is used here *only* for its masking purposes
  *
  */
 double ModelObject::CashStatistic( double params[] )
@@ -1114,6 +1195,20 @@ void ModelObject::PrintModelImage( )
   }
   printf("The model image, row by row:\n");
   PrintImage(modelVector, nModelColumns, nModelRows);
+}
+
+
+/* ---------------- PUBLIC METHOD: PrintMask ------------------------- */
+
+void ModelObject::PrintMask( )
+{
+
+  if (! maskExists) {
+    printf("* ModelObject::PrintMask -- Mask vector does not exist!\n\n");
+    return;
+  }
+  printf("The mask image, row by row:\n");
+  PrintImage(maskVector, nDataColumns, nDataRows);
 }
 
 
@@ -1360,8 +1455,10 @@ bool ModelObject::CheckParamVector( int nParams, double paramVector[] )
 
 /* ---------------- PROTECTED METHOD: VetDataVector -------------------- */
 // The purpose of this method is to check the data vector (profile or image)
-// to ensure that all non-masked pixels are finite; any non-finite pixels 
-// which *are* masked will be set = 0.
+// to ensure that all non-masked pixels are finite.
+// Any non-finite pixels which *are* masked will be set = 0.
+// If any valid (non-masked) pixels with non-finite values are found, then 
+// the method returns false.
 bool ModelObject::VetDataVector( )
 {
   bool  nonFinitePixels = false;
@@ -1369,10 +1466,10 @@ bool ModelObject::VetDataVector( )
   
   for (int z = 0; z < nDataVals; z++) {
     if (! isfinite(dataVector[z])) {
-      if (weightVector[z] == 0.0)
-        dataVector[z] = 0.0;
-      else
+      if (maskVector[z] > 0.0)
         nonFinitePixels = true;
+      else
+        dataVector[z] = 0.0;
     }
   }
   
@@ -1386,18 +1483,29 @@ bool ModelObject::VetDataVector( )
 
 /* ---------------- PROTECTED METHOD: CheckWeightVector ---------------- */
 // The purpose of this method is to check the weight vector (image) to ensure
-// that all pixels are finite *and* positive.
+// that all pixels are finite *and* nonnegative.
 bool ModelObject::CheckWeightVector( )
 {
   bool  nonFinitePixels = false;
   bool  negativePixels = false;
   bool  weightVectorOK = true;
   
-  for (int z = 0; z < nDataVals; z++) {
-    if (! isfinite(weightVector[z]))
-      nonFinitePixels = true;
-    else if (weightVector[z] < 0.0)
-      negativePixels = true;
+  // check individual pixels in weightVector, but only if they aren't masked by maskVector
+  if (maskExists) {
+    for (int z = 0; z < nDataVals; z++) {
+      if (maskVector[z] > 0.0) {
+        if (! isfinite(weightVector[z]))
+          nonFinitePixels = true;
+        else if (weightVector[z] < 0.0)
+          negativePixels = true;
+      }
+    }  
+  }
+  else {
+    for (int z = 0; z < nDataVals; z++) {
+      if (! isfinite(weightVector[z]))
+        nonFinitePixels = true;
+    }
   }
   
   if (nonFinitePixels) {
@@ -1422,6 +1530,8 @@ ModelObject::~ModelObject()
     free(modelVector);
   if (weightVectorAllocated)
     free(weightVector);
+  if (maskVectorAllocated)   // only true if we construct mask vector internally
+    free(maskVector);
   if (deviatesVectorAllocated)
     free(deviatesVector);
   if (residualVectorAllocated)

@@ -15,8 +15,8 @@ Function: Sersic
 Function: Exponential
 11 total parameters
 Model Object: 30000 data values (pixels)
-* No noise image supplied ... will generate noise image from input image.
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
+* No noise image supplied ... will generate noise image from input image.
 ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
 Setting up parameter information array ...
 11 free parameters (28743 degrees of freedom)

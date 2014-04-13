@@ -125,6 +125,7 @@ class ModelObject
     virtual void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
 																		double errs[] );
 
+
     // 2D only; NOT USED ANYWHERE!
     void PrintImage( double *pixelVector, int nColumns, int nRows );
 
@@ -137,11 +138,15 @@ class ModelObject
     // 2D only; NOT USED ANYWHERE!
     void PrintWeights( );
 
+    // 2D only; NOT USED ANYWHERE!
+    void PrintMask( );
+
+
     // common, but Specialized by ModelObject1D
     virtual void PopulateParameterNames( );
 
     // common, might be specialized...
-    virtual void FinalSetup( );
+    virtual void FinalSetupForFitting( );
 
     // common, not specialized
     string& GetParameterName( int i );
@@ -203,13 +208,14 @@ class ModelObject
 	double  readNoise_adu_squared;
     int  debugLevel;
     int  maxRequestedThreads;
-    bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, weightVectorAllocated;
+    bool  dataValsSet, parameterBoundsSet;
+    bool  modelVectorAllocated, weightVectorAllocated, maskVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;
     bool  setStartFlag_allocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
-    bool  modelErrors;
+    bool  modelErrors, dataErrors, externalErrorVectorSupplied;
     bool  useCashStatistic;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
     bool  zeroPointSet;

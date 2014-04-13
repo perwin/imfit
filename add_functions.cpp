@@ -227,7 +227,7 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
   string  currentName;
   FunctionObject  *thisFunctionObj;
   map<string, factory*>  factory_map;
-  vector<string> factory_map_names;
+//  vector<string> factory_map_names;
 
   PopulateFactoryMap(factory_map);
 

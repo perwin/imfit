@@ -17,7 +17,7 @@ echo "Generating and compiling unit tests for command-line parser..."
 cxxtestgen.py --error-printer -o test_runner_cmparser.cpp unittest_commandline_parser.h 
 g++ -Wno-write-strings -o test_runner_cmparser test_runner_cmparser.cpp commandline_parser.cpp utilities.cpp -I/usr/local/include
 echo
-echo "Running unit tests for utilities:"
+echo "Running unit tests for command-line parser:"
 ./test_runner_cmparser
 
 # Unit tests for config-file parser
@@ -26,7 +26,7 @@ echo "Generating and compiling unit tests for config-file parser..."
 cxxtestgen.py --error-printer -o test_runner_config.cpp unittest_config_parser.h
 g++ -o test_runner_config test_runner_config.cpp config_file_parser.cpp utilities.cpp -I/usr/local/include
 echo
-echo "Running unit tests for utilities:"
+echo "Running unit tests for config-file parser:"
 ./test_runner_config
 
 # Unit tests for function objects

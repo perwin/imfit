@@ -364,6 +364,12 @@ int main(int argc, char *argv[])
   theModel->PrintDescription();
   if (options.printImages)
     theModel->PrintInputImage();
+
+  // If user supplied a mask image, add it and apply it to the internal weight image
+  if (maskAllocated) {
+    theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
+                             options.maskFormat);
+  }
   
   // Handling of image noise/errors -- different for Cash statistic vs chi^2
   if (options.useCashStatistic) {
@@ -386,17 +392,17 @@ int main(int argc, char *argv[])
       }
       else {
         printf("* No noise image supplied ... will generate noise image from input image.\n");
-        theModel->GenerateErrorVector();
+        // this is the default mode of ModelObject, so we don't need to do anything
+        // special here
+//        theModel->GenerateErrorVector();
       }
     }
   }
   
-  // If user supplied a mask image, add it and apply it to the internal weight image
-  if (maskAllocated) {
-    theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
-                             options.maskFormat);
-    theModel->ApplyMask();
-  }
+  // Final fitting-oriented setup for ModelObject instance (generates data-based error
+  // vector if needed, created final weight vector from mask and optionally from
+  // error vector)
+  theModel->FinalSetupForFitting();
 
 
   

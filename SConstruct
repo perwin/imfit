@@ -304,6 +304,11 @@ if doExtraChecks:   # default is to NOT do this; user must specify with "--extra
 	cflags_opt.append(["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith",
 					"-Wextra", "-pedantic"])
 
+# Add any additional, user-specified preprocessor definitions (e.g., "define=DEBUG")
+for key, value in ARGLIST:
+	if key == 'define':
+		extra_defines.append(value)
+
 
 if buildFatBinary and (os_type == "Darwin"):
 	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
@@ -331,8 +336,6 @@ defines_opt = defines_opt + extra_defines
 # "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling
 
-env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 if xcode5 is True:
 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
 	# to ensure we can use OpenMP.
@@ -341,9 +344,13 @@ if xcode5 is True:
 	ALT_CPP = "llvm-g++-4.2"
 	env_opt = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+	env_debug = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 else:
 	env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+	env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 
 # Checks for libraries and headers -- if we're not doing scons -c:
@@ -469,7 +476,17 @@ env_opt.Program("makeimage", makeimage_sources)
 
 # *** Other programs (nonlinfit, psfconvolve, older stuff)
 
-env_1d = Environment( CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
+if xcode5 is True:
+	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
+	# to ensure we can use OpenMP.
+	# Replace the following with alternate compilers if needed (e.g., "gcc-4.8", "g++-4.8")
+	ALT_CC = "llvm-gcc-4.2"
+	ALT_CPP = "llvm-g++-4.2"
+	print("HI THERE TIGER!")
+	env_1d = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
+						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
+else:
+	env_1d = Environment( CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 # ModelObject1d and related classes:
@@ -530,6 +547,7 @@ testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 # profile fit is fast, so we don't really need an "optimized" version
 profilefit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(profilefit_objs, profilefit_sources) ]
+#profilefit_objlist = [ env_debug.Object(obj, src) for (obj,src) in zip(profilefit_objs, profilefit_sources) ]
 env_1d.Program("profilefit", profilefit_dbg_objlist)
 
 psfconvolve_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve_objs, psfconvolve_sources) ]
