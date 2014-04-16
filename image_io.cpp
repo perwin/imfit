@@ -1,5 +1,5 @@
 /* FILE: image_io.cpp -------------------------------------------------- */
-/* VERSION 0.2
+/* VERSION 0.3
  *
  *   Function for dealing with FITS files, using cfitsio routines:
  *   1. Read in a FITS image and store it in a 1-D array
@@ -23,7 +23,7 @@
  * include SaveVectorAsImage().
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010, 2011, 2012, 2014 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -70,9 +70,11 @@ static void PrintError( int status );
 
 /* ---------------- FUNCTION: GetImageSize ----------------------------- */
 /*    Given a filename, it opens the file, reads the size of the image and
- * stores that size in *nRows and *nColumns
+ * stores that size in *nRows and *nColumns.
+ *
+ *    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
  */
-void GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose )
+int GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose )
 {
   fitsfile  *imfile_ptr;
   int  status, nfound;
@@ -85,19 +87,21 @@ void GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose
    /* Open the FITS file: */
   problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
   if ( problems ) {
-    printf("\n*** ERROR: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    fprintf(stderr, "\n*** WARNING: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return -1;
   }
 
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
 				  &status);
   if ( problems ) {
-    printf("\n*** ERROR: Problems reading FITS keywords from file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    fprintf(stderr, "\n*** WARNING: Problems reading FITS keywords from file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return -1;
   }
   if (verbose)
-    printf("ReadImageAsVector: Image keywords: NAXIS1 = %ld, NAXIS2 = %ld\n", naxes[0], naxes[1]);
+    printf("GetImageSize: Image keywords: NAXIS1 = %ld, NAXIS2 = %ld\n", naxes[0], naxes[1]);
 
   n_columns = naxes[0];      // FITS keyword NAXIS1 = # columns
   *nColumns = n_columns;
@@ -105,9 +109,12 @@ void GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose
   *nRows = n_rows;
 
   if ( problems ) {
-    printf("\n*** ERROR: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    fprintf(stderr, "\n*** WARNING: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return -1;
   }
+  
+  return 0;
 }
 
 
@@ -122,6 +129,9 @@ void GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose
  *    Note that this function does *not* use Numerical Recipes functions; instead
  * it allocates a standard 1-D C vector [this means that the first index will
  * be 0, not 1].
+ *
+ *    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
+ *
  */
 double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 														bool verbose )
@@ -140,16 +150,18 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
    /* Open the FITS file: */
   problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
   if ( problems ) {
-    printf("\n*** ERROR: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    fprintf(stderr, "\n*** WARNING: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return NULL;
   }
 
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
 				  &status);
   if ( problems ) {
-    printf("\n*** ERROR: Problems reading FITS keywords from file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    fprintf(stderr, "\n*** WARNING: Problems reading FITS keywords from file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return NULL;
   }
   if (verbose)
     printf("ReadImageAsVector: Image keywords: NAXIS1 = %ld, NAXIS2 = %ld\n", naxes[0], naxes[1]);
@@ -166,8 +178,9 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
   problems = fits_read_pix(imfile_ptr, TDOUBLE, firstPixel, nPixelsTot, NULL, imageVector,
                             NULL, &status);
   if ( problems ) {
-    printf("\n*** ERROR: Problems reading pixel data from FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
-    PrintError(status);   // Calling PrintError() will exit program...
+    fprintf(stderr, "\n*** WARNING: Problems reading pixel data from FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
+    PrintError(status);
+    return NULL;
   }
 
   if (verbose)
@@ -175,8 +188,9 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 
   problems = fits_close_file(imfile_ptr, &status);
   if ( problems ) {
-    printf("\n*** ERROR: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    fprintf(stderr, "\n*** WARNING: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return NULL;
   }
 
   return imageVector;
@@ -185,7 +199,10 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 
 
 /* ---------------- FUNCTION: SaveVectorAsImage ------------------------ */
-void SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
+/*
+ *    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
+ */
+int SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
                          int nRows, std::vector<std::string> comments )
 {
   fitsfile  *imfile_ptr;
@@ -221,15 +238,19 @@ void SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
   problems = fits_write_pix(imfile_ptr, TDOUBLE, firstPixel, nPixels, pixelVector,
                             &status);
   if ( problems ) {
-    printf("\n*** ERROR: Problems writing pixel data to FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    fprintf(stderr, "\n*** WARNING: Problems writing pixel data to FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return -1;
   }
 
   problems = fits_close_file(imfile_ptr, &status);
   if ( problems ) {
-    printf("\n*** ERROR: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:\n", filename.c_str());
+    fprintf(stderr, "\n*** WARNING: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return -1;
   }
+  
+  return 0;
 }
 
 
@@ -242,8 +263,8 @@ static void PrintError( int status )
 
   if ( status ) {
     fits_report_error(stderr, status);
-    printf("\n");
-    exit(status);
+    fprintf(stderr, "\n");
+//    exit(status);
   }
 }
 

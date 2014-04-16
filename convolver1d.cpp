@@ -83,7 +83,7 @@ void Convolver1D::SetupProfile( int nPixels )
 // General setup prior to actually supplying the profiles data and doing the
 // convolution: determine padding size; allocate FFTW arrays and plans;
 // normalize, shift, and Fourier transform the PSF profiles.
-void Convolver1D::DoFullSetup( int debugLevel, bool doFFTWMeasure )
+int Convolver1D::DoFullSetup( int debugLevel, bool doFFTWMeasure )
 {
   int  k;
   unsigned  fftwFlags;
@@ -93,8 +93,8 @@ void Convolver1D::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   
   // compute padding dimensions
   if ((! psfInfoSet) || (! profileInfoSet)) {
-    printf("*** WARNING: Convolver1D.DoFullSetup: PSF and/or data-profile parameters not set!\n");
-    exit(-1);
+    fprintf(stderr, "*** WARNING: Convolver1D.DoFullSetup: PSF and/or data-profile parameters not set!\n");
+    return -1;
   }
   nPixels_padded = nPixels_data + nPixels_psf - 1;
   rescaleFactor = 1.0 / nPixels_padded;
@@ -176,6 +176,8 @@ void Convolver1D::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   if (debugStatus >= 1)
     printf("Performing FFT of PSF profile ...\n");
   fftw_execute(plan_psf);
+  
+  return 0;
 }
 
 

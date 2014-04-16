@@ -1,0 +1,14 @@
+
+*** WARNING: Problems opening FITS file "_nofilewiththisname_wehope.fits"!
+    FITSIO error messages follow:
+FITSIO status = 104: could not open the named file
+failed to find or open the following file: (ffopen)
+_nofilewiththisname_wehope.fits
+
+
+*** ERROR: Unable to read PSF image file "_nofilewiththisname_wehope.fits"!
+
+	PSF image = _nofilewiththisname_wehope.fits
+Value from config file: nColumns = 512
+Value from config file: nRows = 512
+Reading PSF image ("_nofilewiththisname_wehope.fits") ...

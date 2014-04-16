@@ -1,0 +1,12 @@
+
+*** WARNING: Problems opening FITS file "tests/config_makeimage_gensersic512.dat"!
+    FITSIO error messages follow:
+FITSIO status = 108: error reading from FITS file
+Error reading data buffer from file:
+tests/config_makeimage_gensersic512.dat
+ffopen could not interpret primary array header of file: 
+tests/config_makeimage_gensersic512.dat
+
+
+*** ERROR: Failure determining size of image file "tests/config_makeimage_gensersic512.dat"!
+

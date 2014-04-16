@@ -176,7 +176,7 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
         minParamValues[i] = paramVector[i];
         maxParamValues[i] = paramVector[i];
       }
-      else if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[0] == 1)) {
+      else if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
         // user specified parameter limits for this parameter
         minParamValues[i] = parameterLimits[i].limits[0];
         maxParamValues[i] = parameterLimits[i].limits[1];
@@ -219,8 +219,10 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   nlopt_destroy(optimizer);
   free(minParamValues);
   free(maxParamValues);
-  return 1;
+  return (int)result;
 }
+
+
 
 
 /* END OF FILE: nmsimplex_fit.cpp ---------------------------------------- */

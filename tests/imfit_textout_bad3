@@ -2,6 +2,6 @@
 *** ReadConfigFile: Initial Y0 value (start of function section) missing in configuration file!
     (X0 specification on input line 8 should be followed by Y0 specification on next line)
 
-*** WARNING: Failure reading configuration file!
+*** ERROR: Failure reading configuration file!
 
 	configuration file = tests/config_makeimage_sersictest512_bad3.dat

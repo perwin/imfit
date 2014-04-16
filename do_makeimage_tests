@@ -17,8 +17,8 @@ echo "Running tests for makeimage..."
 ./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest.fits > test_dump2
 # test two functions and also --output-functions mode
 ./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp.fits --output-functions singleImage > test_dump3
-# same, but now testing --refimage
-./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > test_dump3b
+# same, but now testing --refimage [we assume that tests/gensersictest_orig.fits is 512x512]
+./makeimage tests/config_makeimage_sersic+exp512_nosize.dat -o sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > test_dump3b
 # test using PSF convolution:
 ./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest_conv.fits --psf tests/psf_moffat_35.fits > test_dump4
 # test doing --print-fluxes:
@@ -32,6 +32,14 @@ echo "Running tests for makeimage..."
 ./makeimage tests/config_makeimage_sersictest512_bad3.dat &> test_dump8
 ./makeimage tests/config_makeimage_sersictest512_bad4.dat &> test_dump9
 ./makeimage tests/config_makeimage_sersictest512_bad5.dat &> test_dump10
+./makeimage tests/config_makeimage_sersic+exp512_nosize.dat &> test_dump11
+
+# testing that bad reference files are caught (redirect stderr to test_dump* files):
+./makeimage tests/config_makeimage_sersic+exp512_nosize.dat --refimage=tests/config_makeimage_gensersic512.dat &> test_dump12
+# testing that bad PSF files (non-FITS or nonexistent) are caught (redirect stderr to test_dump* files):
+./makeimage tests/config_makeimage_sersic+exp512.dat --psf=tests/config_makeimage_gensersic512.dat  &> test_dump13
+./makeimage tests/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> test_dump14
+
 echo ""
 
 echo -n "*** Diff comparison with archives: biggertest... "
@@ -149,6 +157,42 @@ then
 else
   echo "Diff output:"
   diff test_dump10 tests/makeimage_textout10
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 6... "
+if (diff --brief test_dump11 tests/makeimage_textout11)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump11 tests/makeimage_textout11
+fi
+
+echo -n "*** Diff comparison with archives: bad reference file... "
+if (diff --brief test_dump12 tests/makeimage_textout12)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump12 tests/makeimage_textout12
+fi
+
+echo -n "*** Diff comparison with archives: bad PSF-image file... "
+if (diff --brief test_dump13 tests/makeimage_textout13)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump13 tests/makeimage_textout13
+fi
+
+echo -n "*** Diff comparison with archives: non-existent PSF-image file... "
+if (diff --brief test_dump14 tests/makeimage_textout14)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump14 tests/makeimage_textout14
 fi
 
 

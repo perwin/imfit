@@ -1,5 +1,5 @@
 
 *** ReadConfigFile: No actual functions found in configuration file!
 
-*** WARNING: Failure reading configuration file!
+*** ERROR: Failure reading configuration file "tests/config_makeimage_sersictest512_bad2.dat"!
 

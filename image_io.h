@@ -9,12 +9,12 @@
 #include <vector>
 
 
-void GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose=false );
+int GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose=false );
 
 double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 														bool verbose=false );
 
-void SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
+int SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
                          int nRows, std::vector<std::string> comments );
 
 #endif  // _IMAGE_IO_H

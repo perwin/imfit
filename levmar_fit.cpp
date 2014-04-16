@@ -107,5 +107,4 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
 
 
 
-
 /* END OF FILE: levmar_fit.cpp ------------------------------------------- */

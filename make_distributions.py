@@ -181,6 +181,7 @@ imfit_textout_bad7
 config_biggertest_4c.dat
 config_makeimage_gensersic512.dat
 config_makeimage_sersic+exp512.dat
+config_makeimage_sersic+exp512_nosize.dat
 psf_moffat_35.fits
 makeimage_textout1
 makeimage_textout2
@@ -192,6 +193,10 @@ makeimage_textout7
 makeimage_textout8
 makeimage_textout9
 makeimage_textout10
+makeimage_textout11
+makeimage_textout12
+makeimage_textout13
+makeimage_textout14
 """
 testFileDict = {"dir": "tests", "file_list": test_files.split()}
 

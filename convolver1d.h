@@ -50,7 +50,7 @@ class Convolver1D
     
     void SetupProfile( int nPixels );
     
-    void DoFullSetup( int debugLevel=0, bool doFFTWMeasure=false );
+    int DoFullSetup( int debugLevel=0, bool doFFTWMeasure=false );
 
     void ConvolveProfile( double *pixelVector );
 

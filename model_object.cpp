@@ -235,6 +235,7 @@ void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
 // (in make-image mode).
 void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
 {
+  int  result;
   assert( (nImageColumns >= 1) && (nImageRows >= 1) );
   
   nDataColumns = nImageColumns;
@@ -245,7 +246,10 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
     nModelColumns = nDataColumns + 2*nPSFColumns;
     nModelRows = nDataRows + 2*nPSFRows;
     psfConvolver->SetupImage(nModelColumns, nModelRows);
-    psfConvolver->DoFullSetup(debugLevel);
+    // NOTE: for now we're ignoring the status of psfConvolver->DoFullSetup because
+    // we assume that it can't fail (we give psfConvolver the PSF info before
+    // setting doConvolution to true, and we give it the image info in the line above)
+    result = psfConvolver->DoFullSetup(debugLevel);
     nModelVals = nModelColumns*nModelRows;
   }
   else {

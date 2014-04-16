@@ -482,7 +482,6 @@ if xcode5 is True:
 	# Replace the following with alternate compilers if needed (e.g., "gcc-4.8", "g++-4.8")
 	ALT_CC = "llvm-gcc-4.2"
 	ALT_CPP = "llvm-g++-4.2"
-	print("HI THERE TIGER!")
 	env_1d = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 else:

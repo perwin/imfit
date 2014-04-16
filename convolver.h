@@ -52,7 +52,7 @@ class Convolver
     
     void SetupImage( int nColumns, int nRows );
     
-    void DoFullSetup( int debugLevel=0, bool doFFTWMeasure=false );
+    int DoFullSetup( int debugLevel=0, bool doFFTWMeasure=false );
 
     void ConvolveImage( double *pixelVector );
 

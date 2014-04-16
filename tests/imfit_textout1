@@ -9,6 +9,7 @@ Reading noise image ("tests/uniform_image32.fits") ...
 Function: Exponential
 6 total parameters
 Model Object: 1024 data values (pixels)
+ModelObject: mask vector applied to weight vector. (1024 valid pixels remain)
 Setting up parameter information array ...
 6 free parameters (1018 degrees of freedom)
 

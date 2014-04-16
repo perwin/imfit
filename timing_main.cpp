@@ -89,9 +89,7 @@ int main(int argc, char *argv[])
   int  nPixels_psf, nRows_psf, nColumns_psf;
   int  nParamsTot;
   int  status;
-  double  *allPixels;
   double  *psfPixels;
-  bool  allPixels_allocated = false;
   double  *paramsVect;
   ModelObject  *theModel;
   vector<string>  functionList;
@@ -124,27 +122,30 @@ int main(int argc, char *argv[])
 
   /* Read configuration file */
   if (! FileExists(options.configFileName.c_str())) {
-    fprintf(stderr, "\n*** WARNING: Unable to find configuration file \"%s\"!\n\n", 
+    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n\n", 
            options.configFileName.c_str());
     return -1;
   }
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList,
   							functionSetIndices, userConfigOptions);
   if (status != 0) {
-    fprintf(stderr, "\n*** WARNING: Failure reading configuration file!\n\n");
+    fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
   }
 
   if ((options.noRefImage) and (options.noImageDimensions)) {
-    fprintf(stderr, "\n*** WARNING: Insufficient image dimensions (or no reference image) supplied!\n\n");
+    fprintf(stderr, "\n*** ERROR: Insufficient image dimensions (or no reference image) supplied!\n\n");
     return -1;
   }
 
   /* Get image size from reference image, if necessary */
   if (options.noImageDimensions) {
-    // Note that we rely on the cfitsio library to catch errors like nonexistent files
-    allPixels = ReadImageAsVector(options.referenceImageName, &nColumns, &nRows);
-    allPixels_allocated = true;
+    status = GetImageSize(options.referenceImageName, &nColumns, &nRows);
+    if (status != 0) {
+      fprintf(stderr,  "\n*** ERROR: Failure determining size of image file \"%s\"!\n\n", 
+      			options.referenceImageName.c_str());
+      exit(-1);
+    }
     // Reminder: nColumns = n_pixels_per_row
     // Reminder: nRows = n_pixels_per_column
     printf("Reference image read: naxis1 [# rows] = %d, naxis2 [# columns] = %d\n",
@@ -155,13 +156,17 @@ int main(int argc, char *argv[])
     nRows = options.nRows;
   }
   nPixels_tot = nColumns * nRows;
-  
+
 
   /* Read in PSF image, if supplied */
   if (options.psfImagePresent) {
-    // Note that we rely on the cfitsio library to catch errors like nonexistent files
     printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
     psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
+    if (psfPixels == NULL) {
+      fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
+      			options.psfFileName.c_str());
+      exit(-1);
+    }
     nPixels_psf = nColumns_psf * nRows_psf;
     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
            nColumns_psf, nRows_psf, nPixels_psf);
@@ -180,7 +185,7 @@ int main(int argc, char *argv[])
      sets start */
   status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
   if (status < 0) {
-  	fprintf(stderr, "*** WARNING: Failure in AddFunctions!\n\n");
+  	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
   }
 
@@ -190,7 +195,7 @@ int main(int argc, char *argv[])
   nParamsTot = theModel->GetNParams();
   printf("%d total parameters\n", nParamsTot);
   if (nParamsTot != (int)parameterList.size()) {
-  	fprintf(stderr, "*** WARNING: number of input parameters (%d) does not equal", 
+  	fprintf(stderr, "*** ERROR: number of input parameters (%d) does not equal", 
   	       (int)parameterList.size());
   	fprintf(stderr, " required number of parameters for specified functions (%d)!\n\n",
   	       nParamsTot);
@@ -234,8 +239,6 @@ int main(int argc, char *argv[])
 
 
   // Free up memory
-  if (allPixels_allocated)
-    free(allPixels);
   if (options.psfImagePresent)
     free(psfPixels);
   free(paramsVect);
@@ -320,7 +323,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("niterations")) {
     if (NotANumber(optParser->GetTargetString("niterations").c_str(), 0, kPosInt)) {
-      fprintf(stderr, "*** WARNING: niterations should be a positive integer!\n");
+      fprintf(stderr, "*** ERROR: niterations should be a positive integer!\n");
       delete optParser;
       exit(1);
     }
@@ -328,7 +331,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("ncols")) {
     if (NotANumber(optParser->GetTargetString("ncols").c_str(), 0, kPosInt)) {
-      fprintf(stderr, "*** WARNING: ncols should be a positive integer!\n");
+      fprintf(stderr, "*** ERROR: ncols should be a positive integer!\n");
       delete optParser;
       exit(1);
     }
@@ -336,7 +339,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("nrows")) {
     if (NotANumber(optParser->GetTargetString("nrows").c_str(), 0, kPosInt)) {
-      fprintf(stderr, "*** WARNING: nrows should be a positive integer!\n");
+      fprintf(stderr, "*** ERROR: nrows should be a positive integer!\n");
       delete optParser;
       exit(1);
     }
@@ -344,7 +347,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("debug")) {
     if (NotANumber(optParser->GetTargetString("debug").c_str(), 0, kAnyInt)) {
-      fprintf(stderr, "*** WARNING: debug should be an integer!\n");
+      fprintf(stderr, "*** ERROR: debug should be an integer!\n");
       delete optParser;
       exit(1);
     }

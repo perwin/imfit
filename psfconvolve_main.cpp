@@ -22,7 +22,7 @@
 
 typedef struct {
   std::string  inputImageName;
-  std::string  psfImageName;
+  std::string  psfFileName;
   std::string  outputImageName;
   bool  copyHeader;
   bool  printImages;
@@ -43,7 +43,8 @@ int main(int argc, char *argv[])
   int  nPixels_input, nPixels_psf;
   int  nRows, nColumns;
   int  nRows_psf, nColumns_psf;
-  std::string  imageFilename, psfFilename, outputFilename;
+  int  status;
+  std::string  psfFilename, outputFilename;
   double  *allPixels;
   double  *psfPixels;
   commandOptions  options;
@@ -52,7 +53,7 @@ int main(int argc, char *argv[])
 
   /* Process command line: */
   options.inputImageName = INPUT_IMAGE_FILENAME;
-  options.psfImageName = PSF_FILENAME;
+  options.psfFileName = PSF_FILENAME;
   options.outputImageName = DEFAULT_OUTPUT_FILENAME;
   options.copyHeader = false;
   options.printImages = false;
@@ -64,6 +65,11 @@ int main(int argc, char *argv[])
 
   printf("\nReading input image (\"%s\") ...\n", options.inputImageName.c_str());
   allPixels = ReadImageAsVector(options.inputImageName, &nColumns, &nRows);
+  if (allPixels == NULL) {
+    fprintf(stderr,  "\n*** ERROR: Unable to read image file \"%s\"!\n\n", 
+    			options.inputImageName.c_str());
+    exit(-1);
+  }
   nPixels_input = nColumns * nRows;
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_input = %d\n", 
            nColumns, nRows, nPixels_input);
@@ -80,8 +86,13 @@ int main(int argc, char *argv[])
     printf("\n");
   }
 
-  printf("Reading PSF image (\"%s\") ...\n", options.psfImageName.c_str());
-  psfPixels = ReadImageAsVector(options.psfImageName, &nColumns_psf, &nRows_psf);
+  printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
+  psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
+  if (psfPixels == NULL) {
+    fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
+    			options.psfFileName.c_str());
+    exit(-1);
+  }
   nPixels_psf = nColumns_psf * nRows_psf;
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
            nColumns_psf, nRows_psf, nPixels_psf);
@@ -96,7 +107,11 @@ int main(int argc, char *argv[])
   
 
   // NEW: tell Convolver object to finish setup work
-  psfConvolver.DoFullSetup(options.debugLevel);
+  status = psfConvolver.DoFullSetup(options.debugLevel);
+  if (status != 0) {
+    fprintf(stderr, "psfconvolve: ERROR: failure in psfConvolver.DoFullSetup!\n");
+    return -1;
+  }
   
 
   // NEW: tell Convolver object to do the convolution
@@ -110,8 +125,8 @@ int main(int argc, char *argv[])
 
 
   
- free(allPixels);
- free(psfPixels);
+  free(allPixels);
+  free(psfPixels);
   
   return 0;
 }
@@ -149,7 +164,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (nArgsFound > 0) {
     theOptions->inputImageName = optParser->GetArgument(0);
     if (nArgsFound > 1) {
-      theOptions->psfImageName = optParser->GetArgument(1);
+      theOptions->psfFileName = optParser->GetArgument(1);
       if (nArgsFound > 2) {
         theOptions->outputImageName = optParser->GetArgument(2);
       }

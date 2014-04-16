@@ -1,0 +1,16 @@
+
+*** WARNING: Problems opening FITS file "tests/config_makeimage_gensersic512.dat"!
+    FITSIO error messages follow:
+FITSIO status = 108: error reading from FITS file
+Error reading data buffer from file:
+tests/config_makeimage_gensersic512.dat
+ffopen could not interpret primary array header of file: 
+tests/config_makeimage_gensersic512.dat
+
+
+*** ERROR: Unable to read PSF image file "tests/config_makeimage_gensersic512.dat"!
+
+	PSF image = tests/config_makeimage_gensersic512.dat
+Value from config file: nColumns = 512
+Value from config file: nRows = 512
+Reading PSF image ("tests/config_makeimage_gensersic512.dat") ...

@@ -252,14 +252,14 @@ int main(int argc, char *argv[])
 
   /* Read configuration file */
   if (! FileExists(options.configFileName.c_str())) {
-    fprintf(stderr, "\n*** WARNING: Unable to find configuration file \"%s\"!\n\n", 
+    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n\n", 
            options.configFileName.c_str());
     return -1;
   }
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
   								paramLimits, functionSetIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
-    fprintf(stderr, "\n*** WARNING: Failure reading configuration file!\n\n");
+    fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
   }
 
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 
   
   if (options.noImage) {
-    fprintf(stderr, "*** WARNING: No image to fit!\n\n");
+    fprintf(stderr, "*** ERROR: No image to fit!\n\n");
     return -1;
   }
 
@@ -277,6 +277,11 @@ int main(int argc, char *argv[])
   // like nonexistent files)
   printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
   allPixels = ReadImageAsVector(options.imageFileName, &nColumns, &nRows);
+  if (allPixels == NULL) {
+    fprintf(stderr,  "\n*** ERROR: Unable to read image file \"%s\"!\n\n", 
+    			options.imageFileName.c_str());
+    exit(-1);
+  }
   // Reminder: nColumns = n_pixels_per_row = x-size; nRows = n_pixels_per_column = y-size
   nPixels_tot = nColumns * nRows;
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
@@ -288,8 +293,13 @@ int main(int argc, char *argv[])
   if (options.maskImagePresent) {
     printf("Reading mask image (\"%s\") ...\n", options.maskFileName.c_str());
     allMaskPixels = ReadImageAsVector(options.maskFileName, &nMaskColumns, &nMaskRows);
+    if (allMaskPixels == NULL) {
+      fprintf(stderr,  "\n*** ERROR: Unable to read mask file \"%s\"!\n\n", 
+    			options.maskFileName.c_str());
+      exit(-1);
+    }
     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
-      fprintf(stderr, "\n*** WARNING: Dimensions of mask image (%s: %d columns, %d rows)\n",
+      fprintf(stderr, "\n*** ERROR: Dimensions of mask image (%s: %d columns, %d rows)\n",
              options.maskFileName.c_str(), nMaskColumns, nMaskRows);
       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
              options.imageFileName.c_str(), nColumns, nRows);
@@ -302,9 +312,14 @@ int main(int argc, char *argv[])
   if (options.noiseImagePresent) {
     printf("Reading noise image (\"%s\") ...\n", options.noiseFileName.c_str());
     allErrorPixels = ReadImageAsVector(options.noiseFileName, &nErrColumns, &nErrRows);
+    if (allErrorPixels == NULL) {
+      fprintf(stderr,  "\n*** ERROR: Unable to read noise-image file \"%s\"!\n\n", 
+    			options.noiseFileName.c_str());
+      exit(-1);
+    }
     errorPixels_allocated = true;
     if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
-      fprintf(stderr, "\n*** WARNING: Dimensions of error image (%s: %d columns, %d rows)\n",
+      fprintf(stderr, "\n*** ERROR: Dimensions of error image (%s: %d columns, %d rows)\n",
              noiseImage.c_str(), nErrColumns, nErrRows);
       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
              options.imageFileName.c_str(), nColumns, nRows);
@@ -316,6 +331,11 @@ int main(int argc, char *argv[])
   if (options.psfImagePresent) {
     printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
     psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
+    if (psfPixels == NULL) {
+      fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
+    			options.psfFileName.c_str());
+      exit(-1);
+    }
     nPixels_psf = nColumns_psf * nRows_psf;
     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
            nColumns_psf, nRows_psf, nPixels_psf);
@@ -336,7 +356,7 @@ int main(int argc, char *argv[])
   /* Add functions to the model object */
   status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
   if (status < 0) {
-  	fprintf(stderr, "*** WARNING: Failure in AddFunctions!\n\n");
+  	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
  }
   
@@ -344,7 +364,7 @@ int main(int argc, char *argv[])
   nParamsTot = nFreeParams = theModel->GetNParams();
   printf("%d total parameters\n", nParamsTot);
   if (nParamsTot != (int)parameterList.size()) {
-  	fprintf(stderr, "*** WARNING: number of input parameters (%d) does not equal", 
+  	fprintf(stderr, "*** ERROR: number of input parameters (%d) does not equal", 
   	       (int)parameterList.size());
   	fprintf(stderr, " required number of parameters for specified functions (%d)!\n\n",
   	       nParamsTot);
@@ -513,6 +533,9 @@ int main(int argc, char *argv[])
     theModel->PrintModelImage();
 
   // Handle assorted output requests
+  // Note that from this point on, we handle failures reported by SaveVectorAsImage as
+  // "warnings" and don't immediately exit, since we're close to the end of the program
+  // anyway, and the user might just have given us a bad path for one of the output images
   if (options.saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
     string  progNameVersion = "imfit ";
@@ -525,18 +548,30 @@ int main(int argc, char *argv[])
     progName += VERSION_STRING;
     PrepareImageComments(&imageCommentsList, progName, &options);
     printf("Saving model image in file \"%s\"\n", options.outputModelFileName.c_str());
-    SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
+    status = SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
                       nColumns, nRows, imageCommentsList);
+    if (status != 0) {
+      fprintf(stderr, "\n*** WARNING: Failure saving model-image file \"%s\"!\n\n",
+      				options.outputModelFileName.c_str());
+    }
   }
   if (options.saveResidualImage) {
     printf("Saving residual (input - model) image in file \"%s\"\n", options.outputResidualFileName.c_str());
-    SaveVectorAsImage(theModel->GetResidualImageVector(), options.outputResidualFileName, 
+    status = SaveVectorAsImage(theModel->GetResidualImageVector(), options.outputResidualFileName, 
                       nColumns, nRows, imageCommentsList);
+    if (status != 0) {
+      fprintf(stderr, "\n*** WARNING: Failure saving residual-image file \"%s\"!\n\n",
+      				options.outputResidualFileName.c_str());
+    }
   }
   if (options.saveWeightImage) {
     printf("Saving weight image in file \"%s\"\n", options.outputWeightFileName.c_str());
-    SaveVectorAsImage(theModel->GetWeightImageVector(), options.outputWeightFileName, 
+    status = SaveVectorAsImage(theModel->GetWeightImageVector(), options.outputWeightFileName, 
                       nColumns, nRows, imageCommentsList);
+    if (status != 0) {
+      fprintf(stderr, "\n*** WARNING: Failure saving weight-image file \"%s\"!\n\n",
+      				options.outputWeightFileName.c_str());
+    }
   }
 
 
@@ -606,6 +641,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
+  optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
 //  optParser->AddUsageLine("     --verbose                  Print extra info during the fit");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
@@ -635,6 +671,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 #endif
   optParser->AddFlag("de");
   optParser->AddFlag("quiet");
+  optParser->AddFlag("silent");
   optParser->AddFlag("verbose");
   optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("mask");
@@ -724,6 +761,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;
   }
+  if (optParser->FlagSet("silent")) {
+    theOptions->verbose = -1;
+  }
   if (optParser->FlagSet("quiet")) {
     theOptions->verbose = 0;
   }
@@ -783,7 +823,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("sky")) {
     if (NotANumber(optParser->GetTargetString("sky").c_str(), 0, kAnyReal)) {
-      fprintf(stderr, "*** WARNING: sky should be a real number!\n");
+      fprintf(stderr, "*** ERROR: sky should be a real number!\n");
       delete optParser;
       exit(1);
     }
@@ -793,7 +833,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("gain")) {
     if (NotANumber(optParser->GetTargetString("gain").c_str(), 0, kPosReal)) {
-      fprintf(stderr, "*** WARNING: gain should be a positive real number!\n");
+      fprintf(stderr, "*** ERROR: gain should be a positive real number!\n");
       delete optParser;
       exit(1);
     }
@@ -803,7 +843,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("readnoise")) {
     if (NotANumber(optParser->GetTargetString("readnoise").c_str(), 0, kPosReal)) {
-      fprintf(stderr, "*** WARNING: read noise should be a non-negative real number!\n");
+      fprintf(stderr, "*** ERROR: read noise should be a non-negative real number!\n");
       delete optParser;
       exit(1);
     }
@@ -813,7 +853,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("exptime")) {
     if (NotANumber(optParser->GetTargetString("exptime").c_str(), 0, kPosReal)) {
-      fprintf(stderr, "*** WARNING: exptime should be a positive real number!\n");
+      fprintf(stderr, "*** ERROR: exptime should be a positive real number!\n");
       delete optParser;
       exit(1);
     }
@@ -823,7 +863,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("ncombined")) {
     if (NotANumber(optParser->GetTargetString("ncombined").c_str(), 0, kPosInt)) {
-      fprintf(stderr, "*** WARNING: ncombined should be a positive integer!\n");
+      fprintf(stderr, "*** ERROR: ncombined should be a positive integer!\n");
       delete optParser;
       exit(1);
     }
@@ -833,7 +873,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("ftol")) {
     if (NotANumber(optParser->GetTargetString("ftol").c_str(), 0, kPosReal)) {
-      fprintf(stderr, "*** WARNING: ftol should be a positive real number!\n");
+      fprintf(stderr, "*** ERROR: ftol should be a positive real number!\n");
       delete optParser;
       exit(1);
     }
@@ -843,7 +883,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("bootstrap")) {
     if (NotANumber(optParser->GetTargetString("bootstrap").c_str(), 0, kPosInt)) {
-      printf("*** WARNING: number of bootstrap iterations should be a positive integer!\n");
+      printf("*** ERROR: number of bootstrap iterations should be a positive integer!\n");
       delete optParser;
       exit(1);
     }
@@ -853,7 +893,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {
-      fprintf(stderr, "*** WARNING: max-threads should be a positive integer!\n\n");
+      fprintf(stderr, "*** ERROR: max-threads should be a positive integer!\n\n");
       delete optParser;
       exit(1);
     }

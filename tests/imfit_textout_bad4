@@ -1,6 +1,6 @@
 *** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!
    (X0 specification on input line 20 should be followed by Y0 specification on next line)
 
-*** WARNING: Failure reading configuration file!
+*** ERROR: Failure reading configuration file!
 
 	configuration file = tests/config_makeimage_sersictest512_bad4.dat

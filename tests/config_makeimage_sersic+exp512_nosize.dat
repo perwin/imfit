@@ -1,0 +1,18 @@
+# Config file for makeimage, meant to be used to generate a 512x512 image.
+# Version without output image-size info, for testing --refimage use or catching
+# incomplete config files.
+
+# Sersic object
+X0    256.0
+Y0    256.0
+FUNCTION   Sersic
+PA    30.0
+ell    0.5
+n      2.5
+I_e  100.0
+r_e   50.0
+FUNCTION   Exponential
+PA    30.0
+ell    0.75
+I_0   10.0
+h    150.0

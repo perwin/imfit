@@ -201,7 +201,7 @@ void Convolver::SetupImage( int nColumns, int nRows )
 // General setup prior to actually supplying the image data and doing the
 // convolution: determine padding dimensions; allocate FFTW arrays and plans;
 // normalize, shift, and Fourier transform the PSF image.
-void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
+int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
 {
   int  k;
   unsigned  fftwFlags;
@@ -211,8 +211,8 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   
   // compute padding dimensions
   if ((! psfInfoSet) || (! imageInfoSet)) {
-    printf("*** WARNING: Convolver.DoFullSetup: PSF and/or image parameters not set!\n");
-    exit(-1);
+    fprintf(stderr, "*** WARNING: Convolver.DoFullSetup: PSF and/or image parameters not set!\n");
+    return -1;
   }
   nColumns_padded = nColumns_image + nColumns_psf - 1;
   nRows_padded = nRows_image + nRows_psf - 1;
@@ -302,6 +302,8 @@ void Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   if (debugStatus >= 1)
     printf("Performing FFT of PSF image ...\n");
   fftw_execute(plan_psf);
+  
+  return 0;
 }
 
 

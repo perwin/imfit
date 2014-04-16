@@ -11,6 +11,7 @@ Function: Sersic
 7 total parameters
 Model Object: 4096 data values (pixels)
 * No noise image supplied ... will generate noise image from input image.
+ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
 Setting up parameter information array ...
 7 free parameters (4089 degrees of freedom)
 

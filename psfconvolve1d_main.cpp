@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
   int  nDataVals, nStoredDataVals, nSavedRows;
   int  startDataRow, endDataRow;
   int  nPSFVals;
+  int  status;
   std::string  imageFilename, psfFilename, outputFilename;
   double  *xVals, *yVals;
   double  *xVals_psf, *yVals_psf;
@@ -168,15 +169,20 @@ int main(int argc, char *argv[])
   
 
   // NEW: tell Convolver object to finish setup work
-  psfConvolver.DoFullSetup(options.debugLevel);
-  
+  status = psfConvolver.DoFullSetup(options.debugLevel);
+  if (status != 0) {
+    fprintf(stderr, "psfconvolve1d: ERROR: failure in psfConvolver.DoFullSetup!\n");
+    return -1;
+  }
+
 
   // NEW: tell Convolver object to do the convolution
   psfConvolver.ConvolveProfile(yVals);
 
 
 
-  printf("\nSaving output convolved profile (\"%s\") ...\n", options.outputProfileName.c_str());
+  printf("\nSaving output convolved profile (\"%s\") ...\n",
+  		 options.outputProfileName.c_str());
   SaveProfile(options.outputProfileName, xVals, yVals, nStoredDataVals);
 
 

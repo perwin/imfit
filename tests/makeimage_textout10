@@ -1,4 +1,4 @@
-*** WARNING: number of input parameters (14) does not equal required number of parameters for specified functions (15)!
+*** ERROR: number of input parameters (14) does not equal required number of parameters for specified functions (15)!
 
 Value from config file: nColumns = 512
 Value from config file: nRows = 512

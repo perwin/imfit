@@ -2,6 +2,6 @@
     (To specify fixed parameters, use "fixed" keyword, not identical upper & lower parameter limits)
     (Error on input line 9 of configuration file)
 
-*** WARNING: Failure reading configuration file!
+*** ERROR: Failure reading configuration file!
 
 	configuration file = tests/config_imfit_sersictest512_badlimits3.dat
