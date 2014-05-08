@@ -31,6 +31,8 @@ class ModelObject
     void SetDebugLevel( int debuggingLevel );
     
     void SetMaxThreads( int maxThreadNumber );
+
+    void SetOMPChunkSize( int chunkSize );
     
     // common, not specialized
     // Adds a new FunctionObject pointer to the internal vector
@@ -207,7 +209,7 @@ class ModelObject
 	double  gain, readNoise, exposureTime, originalSky, effectiveGain;
 	double  readNoise_adu_squared;
     int  debugLevel, verboseLevel;
-    int  maxRequestedThreads;
+    int  maxRequestedThreads, ompChunkSize;
     bool  dataValsSet, parameterBoundsSet;
     bool  modelVectorAllocated, weightVectorAllocated, maskVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;

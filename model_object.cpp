@@ -82,7 +82,7 @@ static string  UNDEFINED = "<undefined>";
 
 // current best size for OpenMP processing (works well with Intel Core 2 Duo and
 // Core i7 in MacBook Pro, under Mac OS X 10.6 and 10.7)
-#define OPENMP_CHUNK_SIZE  10
+#define DEFAULT_OPENMP_CHUNK_SIZE  10
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -132,6 +132,7 @@ ModelObject::ModelObject( )
   nCombined = 1;
   
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
+  ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
   
   nPSFRows = nPSFColumns = 0;
 }
@@ -159,6 +160,15 @@ void ModelObject::SetMaxThreads( int maxThreadNumber )
 #ifdef USE_OPENMP
   omp_set_num_threads(maxRequestedThreads);
 #endif
+}
+
+
+/* ---------------- PUBLIC METHOD: SetOMPChunkSize --------------------- */
+
+void ModelObject::SetOMPChunkSize( int chunkSize )
+{
+  assert( (chunkSize >= 1) );
+  ompChunkSize = chunkSize;
 }
 
 
@@ -614,19 +624,28 @@ void ModelObject::CreateModelImage( double params[] )
   
   // OK, populate modelVector with the model image
   // OpenMP Parallel Section
-  int  chunk = OPENMP_CHUNK_SIZE;
+//  int  chunk = OPENMP_CHUNK_SIZE;
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
 // an omp-parallel section are shared unless specified otherwise
 #pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
   {
-  #pragma omp for schedule (static, chunk)
-  for (i = 0; i < nModelRows; i++) {   // step by row number = y
-    y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1 
+  #pragma omp for schedule (static, ompChunkSize)
+//   for (i = 0; i < nModelRows; i++) {   // step by row number = y
+//     y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1 
+//                                                  // (note that nPSFRows = 0 if not doing PSF convolution)
+//     for (j = 0; j < nModelColumns; j++) {   // step by column number = x
+//       x = (double)(j - nPSFColumns + 1);                 // Iraf counting: first column = 1
+//                                                          // (note that nPSFColumns = 0 if not doing PSF convolution)
+  // single-loop code which is ~ same in general case as double-loop, and
+  // faster for case of small image + many cores (André Luiz de Amorim suggestion)
+  for (int k = 0; k < nModelVals; k++) {
+    j = k % nModelColumns;
+    i = k / nModelColumns;
+    y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
                                                  // (note that nPSFRows = 0 if not doing PSF convolution)
-    for (j = 0; j < nModelColumns; j++) {   // step by column number = x
-      x = (double)(j - nPSFColumns + 1);                 // Iraf counting: first column = 1
-                                                         // (note that nPSFColumns = 0 if not doing PSF convolution)
+    x = (double)(j - nPSFColumns + 1);           // Iraf counting: first column = 1
+                                                 // (note that nPSFColumns = 0 if not doing PSF convolution)
       newValSum = 0.0;
       storedError = 0.0;
       for (n = 0; n < nFunctions; n++) {
@@ -638,7 +657,6 @@ void ModelObject::CreateModelImage( double params[] )
       }
       modelVector[i*nModelColumns + j] = newValSum;
     }
-  }
   
   } // end omp parallel section
   
@@ -699,13 +717,13 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   
   // OK, populate modelVector with the model image
   // OpenMP Parallel Section
-  int  chunk = OPENMP_CHUNK_SIZE;
+//  int  chunk = OPENMP_CHUNK_SIZE;
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
 // an omp-parallel section are shared unless specified otherwise
 #pragma omp parallel private(i,j,n,x,y,newVal)
   {
-  #pragma omp for schedule (static, chunk)
+  #pragma omp for schedule (static, ompChunkSize)
   for (i = 0; i < nModelRows; i++) {   // step by row number = y
     y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
     for (j = 0; j < nModelColumns; j++) {   // step by column number = x
@@ -1448,7 +1466,7 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
     offset += paramSizes[n];
   }
 
-  int  chunk = OPENMP_CHUNK_SIZE;
+//  int  chunk = OPENMP_CHUNK_SIZE;
 
   totalModelFlux = 0.0;
   // Integrate over the image, once per function
@@ -1460,7 +1478,7 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
 // OpenMP code currently produces wrong answers!
 #pragma omp parallel private(i,j,x,y) reduction(+:totalComponentFlux)
       {
-      #pragma omp for schedule (static, chunk)
+      #pragma omp for schedule (static, ompChunkSize)
       for (i = 0; i < ySize; i++) {   // step by row number = y
         y = (double)(i + 1);              // Iraf counting: first row = 1
         for (j = 0; j < xSize; j++) {   // step by column number = x
