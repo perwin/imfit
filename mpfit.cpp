@@ -731,8 +731,8 @@ int mpfit(mp_func funct, int m, int npar,
        */
       sgnu = (ulim[j] >= 0) ? (+1) : (-1);
       sgnl = (llim[j] >= 0) ? (+1) : (-1);
-      ulim1 = ulim[j]*(1-sgnu*MP_MACHEP0) - ((ulim[j] == 0)?(MP_MACHEP0):0);
-      llim1 = llim[j]*(1+sgnl*MP_MACHEP0) + ((llim[j] == 0)?(MP_MACHEP0):0);
+      ulim1 = ulim[j]*(1 - sgnu*MP_MACHEP0) - ((ulim[j] == 0)?(MP_MACHEP0):0);
+      llim1 = llim[j]*(1 + sgnl*MP_MACHEP0) + ((llim[j] == 0)?(MP_MACHEP0):0);
 
       if (qulim[j] && (wa2[j] >= ulim1)) {
         wa2[j] = ulim[j];
@@ -940,7 +940,7 @@ int mpfit(mp_func funct, int m, int npar,
   if (pars) for (i = 0; i < npar; i++) {
     if ((pars[i].limited[0] && (pars[i].limits[0] == xall[i])) ||
         (pars[i].limited[1] && (pars[i].limits[1] == xall[i]))) {
-      npegged ++;
+      npegged++;
     }
   }
 

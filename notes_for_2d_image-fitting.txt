@@ -188,11 +188,13 @@ QUESTIONS AND ISSUES:
 		with X0,Y0 in image center
 
 
-	[] Option to do convolution on subsampled grid around object center?
+	[] Option to do convolution on subsampled/oversampled grid around object center?
 		-- e.g., in 10x10 grid around object center, subsample object *and* PSF,
 		do convolution using subsampled image, then resample to input scaling
 		and past into main image.
-		-- does GALFIT do something like this?
+		-- does GALFIT do something like this? [No, at least according to the
+		documentation when it uses an oversampled PSF, it does this for the entire
+		image [or the entire PSF convolution box?]]
 		
 		Issues/things to think about:
 			-- Secondary stage to apply CTE or similar pixel diffusion kernel,
@@ -218,6 +220,9 @@ QUESTIONS AND ISSUES:
 		
 			-- command-line option to specify region to oversample and oversampled PSF
 			to use, along with oversampling factor
+				1. bounding box of oversample region (coordinates + width?)
+				2. oversampled PSF file (FITS file)
+				3. oversampling factor (single integer)
 			-- optional CTE diffusion kernel
 			-- possible extreme scenarios:
 				1. Do oversampled PSF on central region + *no* PSF convolution for rest of image

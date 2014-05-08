@@ -642,7 +642,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
-//  optParser->AddUsageLine("     --verbose                  Print extra info during the fit");
+//  optParser->AddUsageLine("     --loud                  Print extra info during the fit");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
 //  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
@@ -672,7 +672,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("de");
   optParser->AddFlag("quiet");
   optParser->AddFlag("silent");
-  optParser->AddFlag("verbose");
+  optParser->AddFlag("loud");
   optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("mask");
   optParser->AddOption("psf");
@@ -767,7 +767,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("quiet")) {
     theOptions->verbose = 0;
   }
-  if (optParser->FlagSet("verbose")) {
+  if (optParser->FlagSet("loud")) {
     theOptions->verbose = 2;
   }
   if (optParser->FlagSet("use-headers")) {

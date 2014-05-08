@@ -1,13 +1,9 @@
 /* FILE: model_object.cpp ---------------------------------------------- */
 /* 
- * This is intended to be an abstract base class for the various
- * "model" objects (e.g., image data + fitting functions).
+ * This is intended to be the main class for the "model" object (i.e., image data + 
+ * fitting functions); it can also serve as a base class for derived versions thereof 
+ *(e.g., fitting 1D models to profiles).
  * 
- *
- * Places where chi^2 or components of chi^2 are calculated:
- *    [] ModelObject::ChiSquared()
- *    [] ModelObject::ComputeDeviates
- *       -- prepares deviates vector, which L-M code then squares and sums
  *
  *
  * Older history:
@@ -24,6 +20,8 @@
  * will be used by derived class ModelObject1D
  *     [v0.1]: 13--15 Nov 2009: Created; initial development.
  *
+ * May 2014: Now includes checks for accidental re-allocation of memory in certain
+ * cases, as suggested by André Luiz de Amorim.
  */
 
 // Copyright 2010--2014 by Peter Erwin.
@@ -126,6 +124,7 @@ ModelObject::ModelObject( )
   nFunctionParams = 0;
   nParamsTot = 0;
   debugLevel = 0;
+  verboseLevel = 0;
   
   // default image characteristics
   gain = 1.0;
@@ -143,8 +142,8 @@ ModelObject::ModelObject( )
 void ModelObject::SetDebugLevel( int debuggingLevel )
 {
   if (debuggingLevel < 0) {
-    printf("ModelObject::SetDebugLevel -- WARNING: debugging level must be > 0");
-    printf(" (%d was supplied); debugging level left unchanged.\n", debuggingLevel);
+    fprintf(stderr, "ModelObject::SetDebugLevel -- WARNING: debugging level must be > 0");
+    fprintf(stderr, " (%d was supplied); debugging level left unchanged.\n", debuggingLevel);
   }
   else
     debugLevel = debuggingLevel;
@@ -185,13 +184,17 @@ void ModelObject::DefineFunctionSets( vector<int>& functionStartIndices )
   int  nn, i;
   
   nFunctionSets = functionStartIndices.size();
-    // define array of [false, false, false, ...]
+  
+  // define array of [false, false, false, ...]
+  // WARNING: Possible memory leak (if this function is called more than once)!
+  //    If this function *is* called again, nFunctions and/or nFunctionSets could
+  //    be different than the first call, in which we'd need to realloc setStartFlag
   setStartFlag = (bool *)calloc(nFunctions, sizeof(bool));
   setStartFlag_allocated = true;
+
   for (i = 0; i < nFunctionSets; i++) {
     nn = functionStartIndices[i];
-    // function number n is start of new function set; 
-    // change setStartFlag[n] to true
+    // function number nn is start of new function set; change setStartFlag[n] to true
     setStartFlag[nn] = true;
   }
   
@@ -258,6 +261,9 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
     nModelVals = nDataVals;
   }
   // Allocate modelimage vector
+  // WARNING: Possible memory leak (if this function is called more than once)!
+  //    If this function *is* called again, then nModelVals could be different
+  //    from the first call, in wich case we'd need to realloc modelVector
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
   modelVectorAllocated = true;
 }
@@ -356,8 +362,12 @@ void ModelObject::GenerateErrorVector( )
   double  noise_squared, totalFlux;
 
   // Allocate storage for weight image:
-  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-  weightVectorAllocated = true;
+  // WARNING: If we are calling this function for a second or subsequent time,
+  // nDataVals *might* have changed; we are currently assuming it hasn't!
+  if (! weightVectorAllocated) {
+    weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    weightVectorAllocated = true;
+  }
   
 //  readNoise_adu_squared = readNoise*readNoise/(effectiveGain*effectiveGain);
   // Compute noise estimate for each pixel (see above for derivation)
@@ -411,7 +421,8 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
     case MASK_ZERO_IS_GOOD:
       // This is our "standard" input mask: good pixels are zero, bad pixels
       // are positive integers
-      printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
+      if (verboseLevel >= 0)
+        printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
       for (int z = 0; z < nDataVals; z++) {
         if (maskVector[z] > 0.0) {
           maskVector[z] = 0.0;
@@ -423,7 +434,8 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       break;
     case MASK_ZERO_IS_BAD:
       // Alternate form for input masks: good pixels are 1, bad pixels are 0
-      printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
+      if (verboseLevel >= 0)
+        printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
       for (int z = 0; z < nDataVals; z++) {
         if (maskVector[z] < 1.0)
           maskVector[z] = 0.0;
@@ -434,7 +446,7 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       }
       break;
     default:
-      printf("ModelObject::AddMaskVector -- WARNING: unknown inputType detected!\n\n");
+      fprintf(stderr, "ModelObject::AddMaskVector -- WARNING: unknown inputType detected!\n\n");
       exit(-1);
   }
       
@@ -457,12 +469,14 @@ void ModelObject::ApplyMask( )
         newVal = 0.0;
       weightVector[z] = newVal;
     }
-    printf("ModelObject: mask vector applied to weight vector. ");
-    printf("(%d valid pixels remain)\n", nValidDataVals);
+    if (verboseLevel >= 0) {
+      printf("ModelObject: mask vector applied to weight vector. ");
+      printf("(%d valid pixels remain)\n", nValidDataVals);
+    }
   }
   else {
-    printf(" ** ALERT: ModelObject::ApplyMask() called, but we are missing either\n");
-    printf("    error image or mask image, or both!  ApplyMask() ignored ...\n");
+    fprintf(stderr, " ** ALERT: ModelObject::ApplyMask() called, but we are missing either\n");
+    fprintf(stderr, "    error image or mask image, or both!  ApplyMask() ignored ...\n");
   }
 }
 
@@ -514,12 +528,12 @@ void ModelObject::FinalSetupForFitting( )
       nValidDataVals--;
     }
   }
-  if (nNonFinitePixels > 0) {
-  	if (nNonFinitePixels == 1)
+  if ((nNonFinitePixels > 0) && (verboseLevel >= 0)) {
+    if (nNonFinitePixels == 1)
       printf("ModelObject: One pixel with non-finite value found (and masked) in data image\n");
     else
       printf("ModelObject: %d pixels with non-finite values found (and masked) in data image\n", nNonFinitePixels);
-  }
+    }
   
   // Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
   if ((! useCashStatistic) && (dataErrors) && (! externalErrorVectorSupplied))
@@ -533,8 +547,8 @@ void ModelObject::FinalSetupForFitting( )
   if (CheckWeightVector())
     ApplyMask();
   else {
-    printf("ModelObject::FinalSetup -- bad values detected in weight vector!\n");
-    printf("Exiting ...\n\n");
+    fprintf(stderr, "ModelObject::FinalSetup -- bad values detected in weight vector!\n");
+    fprintf(stderr, "Exiting ...\n\n");
     exit(-1);
   }
 #ifdef DEBUG
@@ -569,14 +583,14 @@ void ModelObject::CreateModelImage( double params[] )
   
   // Check parameter values for sanity
   if (! CheckParamVector(nParamsTot, params)) {
-    printf("** ModelObject::CreateModelImage -- non-finite values detected in parameter vector!\n");
+    fprintf(stderr, "** ModelObject::CreateModelImage -- non-finite values detected in parameter vector!\n");
 #ifdef DEBUG
     printf("   Parameter values: %s = %g, ", parameterLabels[0].c_str(), params[0]);
     for (int z = 1; z < nParamsTot; z++)
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
-    printf("Exiting ...\n\n");
+    fprintf(stderr, "Exiting ...\n\n");
     exit(-1);
   }
 
@@ -656,14 +670,14 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   assert( (functionIndex >= 0) );
   // Check parameter values for sanity
   if (! CheckParamVector(nParamsTot, params)) {
-    printf("** ModelObject::SingleFunctionImage -- non-finite values detected in parameter vector!\n");
+    fprintf(stderr, "** ModelObject::SingleFunctionImage -- non-finite values detected in parameter vector!\n");
 #ifdef DEBUG
     printf("   Parameter values: %s = %g, ", parameterLabels[0].c_str(), params[0]);
     for (z = 1; z < nParamsTot; z++)
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
-    printf("Exiting ...\n\n");
+    fprintf(stderr, "Exiting ...\n\n");
     exit(-1);
   }
 
@@ -842,20 +856,30 @@ void ModelObject::UseModelErrors( )
 {
   modelErrors = true;
   dataErrors = false;
+
   // Allocate storage for weight image (do this here because we assume that
   // AddErrorVector() will NOT be called if we're using model-based errors).
   // Set all values = 1 to start with, since we'll update this later with
   // model-based error values using UpdateWeightVector.
-  if (weightVectorAllocated) {
-    printf("ERROR: ModelImage::UseModelErrors -- weight vector already allocated!\n");
-    printf("Exiting ...\n\n");
-    exit(-1);
+  
+  // On the off-hand chance someone might deliberately call this after previously
+  // supplying an error vector or requesting data errors (e.g., re-doing the fit
+  // with only the errors changed), we allow the user to proceed even if the weight
+  // vector already exists (it will be reset to all pixels = 1).
+  
+  // WARNING: If we are calling this function for a second or subsequent time,
+  // nDataVals *might* have changed; we are currently assuming it hasn't!
+  if (! weightVectorAllocated) {
+    weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    weightVectorAllocated = true;
   }
-  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  else {
+    fprintf(stderr, "WARNING: ModelImage::UseModelErrors -- weight vector already allocated!\n");
+  }
+
   for (int z = 0; z < nDataVals; z++) {
     weightVector[z] = 1.0;
   }
-  weightVectorAllocated = true;
   weightValsSet = true;
 }
 
@@ -866,19 +890,24 @@ void ModelObject::UseCashStatistic( )
 {
   useCashStatistic = true;
 
-  // Allocate storage for weight image (do this here because we assume that
-  // AddErrorVector() or GenerateErrorVector() will NOT be called if we're using 
-  // Cash statistic), and set all values = 1
-  if (weightVectorAllocated) {
-    printf("ERROR: ModelImage::UseCashStatistic -- weight vector already allocated!\n");
-    printf("Exiting ...\n\n");
-    exit(-1);
+  // On the off-hand chance someone might deliberately call this after previously
+  // supplying an error vector or requesting data errors (e.g., re-doing the fit
+  // with only the errors changed), we allow the user to proceed even if the weight
+  // vector already exists (it will be reset to all pixels = 1).
+  
+  // WARNING: If we are calling this function for a second or subsequent time,
+  // nDataVals *might* have changed; we are currently assuming it hasn't!
+  if (! weightVectorAllocated) {
+    weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    weightVectorAllocated = true;
   }
-  weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  else {
+    fprintf(stderr, "WARNING: ModelImage::UseModelErrors -- weight vector already allocated!\n");
+  }
+
   for (int z = 0; z < nDataVals; z++) {
     weightVector[z] = 1.0;
   }
-  weightVectorAllocated = true;
   weightValsSet = true;
 }
 
@@ -1048,6 +1077,8 @@ double ModelObject::CashStatistic( double params[] )
 
 void ModelObject::PrintDescription( )
 {
+  // Don't test for verbose level, since we assume user only calls this method
+  // if they *want* printed output
   printf("Model Object: %d data values (pixels)\n", nDataVals);
 }
 
@@ -1179,7 +1210,7 @@ void ModelObject::PrintInputImage( )
 {
 
   if (! dataValsSet) {
-    printf("* ModelObject::PrintInputImage -- No image data supplied!\n\n");
+    fprintf(stderr, "* ModelObject::PrintInputImage -- No image data supplied!\n\n");
     return;
   }
   printf("The whole input image, row by row:\n");
@@ -1194,7 +1225,7 @@ void ModelObject::PrintModelImage( )
 {
 
   if (! modelImageComputed) {
-    printf("* ModelObject::PrintMoelImage -- Model image has not yet been computed!\n\n");
+    fprintf(stderr, "* ModelObject::PrintMoelImage -- Model image has not yet been computed!\n\n");
     return;
   }
   printf("The model image, row by row:\n");
@@ -1208,7 +1239,7 @@ void ModelObject::PrintMask( )
 {
 
   if (! maskExists) {
-    printf("* ModelObject::PrintMask -- Mask vector does not exist!\n\n");
+    fprintf(stderr, "* ModelObject::PrintMask -- Mask vector does not exist!\n\n");
     return;
   }
   printf("The mask image, row by row:\n");
@@ -1222,7 +1253,7 @@ void ModelObject::PrintWeights( )
 {
 
   if (! weightValsSet) {
-    printf("* ModelObject::PrintWeights -- Weight vector has not yet been computed!\n\n");
+    fprintf(stderr, "* ModelObject::PrintWeights -- Weight vector has not yet been computed!\n\n");
     return;
   }
   printf("The weight image, row by row:\n");
@@ -1298,12 +1329,14 @@ double * ModelObject::GetModelImageVector( )
   int  iDataRow, iDataCol, z, zModel;
 
   if (! modelImageComputed) {
-    printf("* ModelObject::GetModelImageVector -- Model image has not yet been computed!\n\n");
+    fprintf(stderr, "* ModelObject::GetModelImageVector -- Model image has not yet been computed!\n\n");
     return NULL;
   }
   
-  outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-  outputModelVectorAllocated = true;
+  if (! outputModelVectorAllocated) {
+    outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    outputModelVectorAllocated = true;
+  }
   
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding
@@ -1330,7 +1363,7 @@ double * ModelObject::GetExpandedModelImageVector( )
 {
 
   if (! modelImageComputed) {
-    printf("* ModelObject::GetExpandedModelImageVector -- Model image has not yet been computed!\n\n");
+    fprintf(stderr, "* ModelObject::GetExpandedModelImageVector -- Model image has not yet been computed!\n\n");
     return NULL;
   }
   return modelVector;
@@ -1344,13 +1377,17 @@ double * ModelObject::GetResidualImageVector( )
   int  iDataRow, iDataCol, z, zModel;
 
   if (! modelImageComputed) {
-    printf("* ModelObject::GetResidualImageVector -- Model image has not yet been computed!\n\n");
+    fprintf(stderr, "* ModelObject::GetResidualImageVector -- Model image has not yet been computed!\n\n");
     return NULL;
   }
   
-  residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-  residualVectorAllocated = true;
-  
+  // WARNING: If we are calling this function for a second or subsequent time,
+  // nDataVals *might* have changed; we are currently assuming it hasn't!
+  if (! residualVectorAllocated) {
+    residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    residualVectorAllocated = true;
+  }
+    
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding
     // pixels in data and weight images
@@ -1377,7 +1414,7 @@ double * ModelObject::GetResidualImageVector( )
 double * ModelObject::GetWeightImageVector( )
 {
   if (! weightValsSet) {
-    printf("* ModelObject::GetWeightImageVector -- Weight image has not yet been computed!\n\n");
+    fprintf(stderr, "* ModelObject::GetWeightImageVector -- Weight image has not yet been computed!\n\n");
     return NULL;
   }
   
@@ -1478,7 +1515,7 @@ bool ModelObject::VetDataVector( )
   }
   
   if (nonFinitePixels) {
-    printf("\n** WARNING: one or more (non-masked) pixel values in dataVector[] are non-finite!\n");
+    fprintf(stderr, "\n** WARNING: one or more (non-masked) pixel values in dataVector[] are non-finite!\n");
     vectorOK = false;
   }
   return vectorOK;
@@ -1513,11 +1550,11 @@ bool ModelObject::CheckWeightVector( )
   }
   
   if (nonFinitePixels) {
-    printf("\n** WARNING: one or more pixel values in weightVector[] are non-finite!\n");
+    fprintf(stderr, "\n** WARNING: one or more pixel values in weightVector[] are non-finite!\n");
     weightVectorOK = false;
   }
   if (negativePixels) {
-    printf("\n** WARNING: one or more pixel values in weightVector[] are < 0\n");
+    fprintf(stderr, "\n** WARNING: one or more pixel values in weightVector[] are < 0\n");
     weightVectorOK = false;
   }
   return weightVectorOK;
