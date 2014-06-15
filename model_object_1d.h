@@ -39,7 +39,7 @@ class ModelObject1d : public ModelObject
     
     void AddErrorVector1D( int nDataValues, double *inputVector, int inputType );
 
-    void AddMaskVector1D( int nDataValues, double *inputVector, int inputType );
+    int AddMaskVector1D( int nDataValues, double *inputVector, int inputType );
     
     void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector );
     
@@ -53,11 +53,23 @@ class ModelObject1d : public ModelObject
 																		double errs[] );
     void PopulateParameterNames( );
     
+    void FinalSetupForFitting( );
+
     int GetModelVector( double *profileVector );
 
     void UseBootstrap( );
     
     void MakeBootstrapSample( );
+
+    void PrintVector( double *theVector, int nVals );
+    
+    void PrintInputImage( );
+
+    void PrintModelImage( );
+
+    void PrintMask( );
+
+    void PrintWeights( );
 
     // Destructor
     ~ModelObject1d();

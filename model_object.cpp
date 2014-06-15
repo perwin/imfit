@@ -414,10 +414,12 @@ void ModelObject::GenerateErrorVector( )
 // to 1, so that we can multiply the weight vector by the (internal) mask values.
 // The mask is applied to the weight vector by calling the ApplyMask() method
 // for a given ModelObject instance.
-void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
+int ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
                                       int nImageRows, double *pixelVector,
                                       int inputType )
 {
+  int  returnStatus = 0;
+  
   assert( (nDataValues == nDataVals) && (nImageColumns == nDataColumns) && 
           (nImageRows == nDataRows) );
 
@@ -441,6 +443,7 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
           nValidDataVals++;
         }
       }
+      maskExists = true;
       break;
     case MASK_ZERO_IS_BAD:
       // Alternate form for input masks: good pixels are 1, bad pixels are 0
@@ -454,13 +457,15 @@ void ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
           nValidDataVals++;
         }
       }
+      maskExists = true;
       break;
     default:
       fprintf(stderr, "ModelObject::AddMaskVector -- WARNING: unknown inputType detected!\n\n");
-      exit(-1);
+      returnStatus = -1;
+      maskExists = false;
   }
       
-  maskExists = true;
+  return returnStatus;
 }
 
 
@@ -474,7 +479,7 @@ void ModelObject::ApplyMask( )
     for (int z = 0; z < nDataVals; z++) {
       newVal = maskVector[z] * weightVector[z];
       // check to make sure that masked non-finite values (e.g. NaN) get zeroed
-      // (if weightVector[z] = NaN, then product will automatically be NaN)
+      // (because if weightVector[z] = NaN, then product will automatically be NaN)
       if ( (! isfinite(newVal)) && (maskVector[z] == 0.0) )
         newVal = 0.0;
       weightVector[z] = newVal;

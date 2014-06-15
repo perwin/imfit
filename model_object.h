@@ -71,13 +71,13 @@ class ModelObject
     virtual void AddErrorVector1D( int nDataValues, double *pixelVector, int inputType ) { ; };
 
     // 1D only
-    virtual void AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { ; };
+    virtual int AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { ; };
     
 	// 2D only
     virtual void GenerateErrorVector( );
 
 	// 2D only
-    virtual void AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
+    virtual int AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
 	// 2D only
@@ -131,23 +131,26 @@ class ModelObject
     // 2D only; NOT USED ANYWHERE!
     void PrintImage( double *pixelVector, int nColumns, int nRows );
 
-		// 2D only
-    void PrintInputImage( );
+    // 1D only
+    virtual void PrintVector( double *theVector, int nVals ) { ; };
 
-		// 2D only
-    void PrintModelImage( );
+	// 1D or 2D
+    virtual void PrintInputImage( );
 
-    // 2D only; NOT USED ANYWHERE!
-    void PrintWeights( );
+	// 1D or 2D
+    virtual void PrintModelImage( );
 
-    // 2D only; NOT USED ANYWHERE!
-    void PrintMask( );
+	// 1D or 2D
+    virtual void PrintWeights( );
+
+	// 1D or 2D
+    virtual void PrintMask( );
 
 
     // common, but Specialized by ModelObject1D
     virtual void PopulateParameterNames( );
 
-    // common, might be specialized...
+    // common, but Specialized by ModelObject1D
     virtual void FinalSetupForFitting( );
 
     // common, not specialized

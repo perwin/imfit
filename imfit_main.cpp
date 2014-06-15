@@ -387,8 +387,12 @@ int main(int argc, char *argv[])
 
   // If user supplied a mask image, add it and apply it to the internal weight image
   if (maskAllocated) {
-    theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
+    status = theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
                              options.maskFormat);
+    if (status < 0) {
+      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddMaskVector!\n\n");
+  	  exit(-1);
+    }
   }
   
   // Handling of image noise/errors -- different for Cash statistic vs chi^2

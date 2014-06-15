@@ -5,6 +5,7 @@ Data file "profile_data/n3348_total_fix.dat": 43 data points
 Adding functions to model object...
 	Function: Core-Sersic-1D
 	7 total parameters
+ModelObject: mask vector applied to weight vector. (43 valid pixels remain)
 ModelObject(1d): 43 data values
 Setting up parameter information array ...
 Fixed parameter detected (i = 0)
@@ -27,12 +28,12 @@ AIC = 14.395933, BIC = 22.629800
 
 X0		0.000000 # +/- 0.000000
 FUNCTION Core-Sersic-1D
-n		3.860566 # +/- 2.145629
-mu_b		15.231779 # +/- 1.212633
-r_e		22.370947 # +/- 10.836320
-r_b		0.344100 # +/- 0.770049
-alpha		3.790065 # +/- 40.115956
-gamma		0.139916 # +/- 0.554911
+n		3.860567 # +/- 2.145624
+mu_b		15.231779 # +/- 1.212632
+r_e		22.370948 # +/- 10.836318
+r_b		0.344099 # +/- 0.770046
+alpha		3.790030 # +/- 40.116852
+gamma		0.139916 # +/- 0.554908
 
 Saving best-fit parameters in file "bestfit_parameters_profilefit.dat"
 All done!

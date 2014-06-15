@@ -43,6 +43,8 @@ ModelObject1d::ModelObject1d( )
   parameterBounds = NULL;
   modelVector = NULL;
   modelVectorAllocated = false;
+  weightVectorAllocated = false;
+  maskVectorAllocated = false;
   modelImageComputed = false;
   maskExists = false;
   dataAreMagnitudes = true;
@@ -57,6 +59,9 @@ ModelObject1d::ModelObject1d( )
   debugLevel = 0;
   nCombined = 1;
   zeroPoint = 0.0;
+  // the following ensure we don't attempt to convert data values (usually magnitudes)
+  // into Poisson errors
+  dataErrors = false;
 }
 
 
@@ -119,6 +124,9 @@ void ModelObject1d::AddDataVectors( int nDataValues, double *xValVector,
 
 
 /* ---------------- PUBLIC METHOD: AddErrorVector1D -------------------- */
+// NOTE: in normal use by profilefit_main.c, this is *always* called
+// (with inputType=WEIGHTS_ARE_SIGMAS), either with a vector of ones, or else 
+// with actual errors.
 
 void ModelObject1d::AddErrorVector1D( int nDataValues, double *inputVector,
                                       int inputType )
@@ -162,9 +170,11 @@ void ModelObject1d::AddErrorVector1D( int nDataValues, double *inputVector,
 // Note that although our default *input* format is "0 = good pixel, > 0 =
 // bad pixel", internally we convert all bad pixels to 0 and all good pixels
 // to 1, so that we can multiply the weight vector by the (internal) mask values.
-void ModelObject1d::AddMaskVector1D( int nDataValues, double *inputVector,
+int ModelObject1d::AddMaskVector1D( int nDataValues, double *inputVector,
                                       int inputType )
 {
+  int  returnStatus = 0;
+  
   assert (nDataValues == nDataVals);
 
   maskVector = inputVector;
@@ -186,6 +196,7 @@ void ModelObject1d::AddMaskVector1D( int nDataValues, double *inputVector,
           nValidDataVals++;
         }
       }
+      maskExists = true;
       break;
     case MASK_ZERO_IS_BAD:
       // Alternate form for input masks: good pixels are 1, bad pixels are 0
@@ -198,13 +209,14 @@ void ModelObject1d::AddMaskVector1D( int nDataValues, double *inputVector,
           nValidDataVals++;
         }
       }
+      maskExists = true;
       break;
     default:
       printf("ModelObject1D::AddMaskVector -- WARNING: unknown inputType detected!\n\n");
-      exit(-1);
+      returnStatus = -1;
   }
       
-  maskExists = true;
+  return returnStatus;
 }
 
 
@@ -242,6 +254,89 @@ void ModelObject1d::AddPSFVector1D( int nPixels_psf, double *xValVector, double 
   psfConvolver->DoFullSetup(debugLevel);
   doConvolution = true;
 }
+
+
+
+/* ---------------- PUBLIC METHOD: FinalSetupForFitting ---------------- */
+// Call this when using ModelObject for fitting. Not necessary 
+// when just using ModelObject for generating model image or vector.
+void ModelObject1d::FinalSetupForFitting( )
+{
+  int  nNonFinitePixels = 0;
+  
+  // Create a default all-pixels-valid mask if no mask already exists
+  if (! maskExists) {
+    maskVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    for (int z = 0; z < nDataVals; z++) {
+      maskVector[z] = 1.0;
+    }
+    maskVectorAllocated = true;
+    maskExists = true;
+  }
+
+  // Identify currently unmasked data pixels which have non-finite values and 
+  // add those pixels to the mask
+  for (int z = 0; z < nDataVals; z++) {
+    if ( (maskVector[z] > 0.0) && (! isfinite(dataVector[z])) ) {
+      maskVector[z] = 0.0;
+      nNonFinitePixels++;
+      nValidDataVals--;
+    }
+  }
+  if ((nNonFinitePixels > 0) && (verboseLevel >= 0)) {
+    if (nNonFinitePixels == 1)
+      printf("ModelObject: One pixel with non-finite value found (and masked) in data image\n");
+    else
+      printf("ModelObject: %d pixels with non-finite values found (and masked) in data image\n", nNonFinitePixels);
+    }
+  
+  // Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
+  if ((! useCashStatistic) && (dataErrors) && (! externalErrorVectorSupplied))
+    GenerateErrorVector();
+  
+#ifdef DEBUG
+  PrintWeights();
+#endif
+
+  // Generate default (all values = 1) weight vector if weight vector doesn't
+  // already exist.
+  // Apply mask to weight vector (i.e., weight -> 0 for masked pixels)
+  if (! weightValsSet) {
+    if (! weightVectorAllocated) {
+      weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+      weightVectorAllocated = true;
+    }
+    for (int z = 0; z < nDataVals; z++) {
+    	weightVector[z] = 1.0;
+    }
+  }
+  if (CheckWeightVector())
+    ApplyMask();
+  else {
+    fprintf(stderr, "ModelObject::FinalSetup -- bad values detected in weight vector!\n");
+    fprintf(stderr, "Exiting ...\n\n");
+    exit(-1);
+  }
+#ifdef DEBUG
+  PrintWeights();
+#endif
+
+  if (dataValsSet) {
+    bool dataOK = VetDataVector();
+    if (! dataOK) {
+      fprintf(stderr, "ERROR: bad (non-masked) data values!\n\n");
+      exit(-1);
+    }
+  }
+  
+#ifdef DEBUG
+  PrintInputImage();
+  PrintMask();
+  PrintWeights();
+#endif
+
+}
+
 
 
 /* ---------------- PUBLIC METHOD: CreateModelImage -------------------- */
@@ -462,6 +557,82 @@ void ModelObject1d::MakeBootstrapSample( )
 }
 
 
+/* ---------------- PUBLIC METHOD: PrintVector ------------------------ */
+// Basic function which prints a vector to stdout.  Mainly meant to be
+// called by PrintInputImage, PrintModelImage, PrintMask, and PrintWeights.
+// This is the equivalent to PrintImage in the base class.
+
+void ModelObject1d::PrintVector( double *theVector, int nVals )
+{
+
+  for (int i = 0; i < nVals; i++) {
+    printf(" %f", theVector[i]);
+  }
+  printf("\n");
+}
+
+
+/* ---------------- PUBLIC METHOD: PrintInputImage -------------------- */
+// This overrides the PrintInputImage method in the base class so we can print
+// a 1d vector straight out.
+void ModelObject1d::PrintInputImage( )
+{
+
+  if (! dataValsSet) {
+    fprintf(stderr, "* ModelObject1d::PrintInputImage -- No image data supplied!\n\n");
+    return;
+  }
+  printf("The whole input data vector:\n");
+  PrintVector(dataVector, nDataVals);
+}
+
+
+
+/* ---------------- PUBLIC METHOD: PrintModelImage -------------------- */
+// This overrides the PrintInputImage method in the base class so we can print
+// a 1d vector straight out.
+void ModelObject1d::PrintModelImage( )
+{
+
+  if (! modelImageComputed) {
+    fprintf(stderr, "* ModelObject1d::PrintMoelImage -- Model image has not yet been computed!\n\n");
+    return;
+  }
+  printf("The model vector:\n");
+  PrintVector(modelVector, nDataVals);
+}
+
+
+/* ---------------- PUBLIC METHOD: PrintMask ------------------------- */
+// This overrides the PrintInputImage method in the base class so we can print
+// a 1d vector straight out.
+void ModelObject1d::PrintMask( )
+{
+
+  if (! maskExists) {
+    fprintf(stderr, "* ModelObject1d::PrintMask -- Mask vector does not exist!\n\n");
+    return;
+  }
+  printf("The mask vector:\n");
+  PrintVector(maskVector, nDataVals);
+}
+
+
+/* ---------------- PUBLIC METHOD: PrintWeights ----------------------- */
+// This overrides the PrintInputImage method in the base class so we can print
+// a 1d vector straight out.
+void ModelObject1d::PrintWeights( )
+{
+
+  if (! weightValsSet) {
+    fprintf(stderr, "* ModelObject1d::PrintWeights -- Weight vector has not yet been computed!\n\n");
+    return;
+  }
+  printf("The weight vector:\n");
+  PrintVector(weightVector, nDataVals);
+}
+
+
 /* ---------------- PUBLIC METHOD: GetModelProfile --------------------- */
 
 int ModelObject1d::GetModelVector( double *profileVector )
@@ -477,14 +648,27 @@ int ModelObject1d::GetModelVector( double *profileVector )
 }
 
 
+
+
 /* ---------------- DESTRUCTOR ----------------------------------------- */
 // Note that we have to turn various bool variables off and set nFunctions = 0,
-// else we have problems when the *base* class (ModelObject) destructor is called!
+// else we have problems when the *base* class (ModelObject) destructor is called
+// (which happens automatically just after *this* destructor is called) -- we
+// can end up trying to free vectors that have already been freed, because the
+// associated bool variables are still = true...
 ModelObject1d::~ModelObject1d()
 {
   if (modelVectorAllocated) {
     free(modelVector);
     modelVectorAllocated = false;
+  }
+  if (weightVectorAllocated) {
+    free(weightVector);
+    weightVectorAllocated = false;
+  }
+  if (maskVectorAllocated) {
+    free(maskVector);
+    maskVectorAllocated = false;
   }
   if (doConvolution) {
     free(psfConvolver);

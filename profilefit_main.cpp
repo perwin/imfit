@@ -344,8 +344,11 @@ int main(int argc, char *argv[])
   theModel->AddDataVectors(nStoredDataVals, xVals, yVals, options.dataAreMagnitudes);
   theModel->AddErrorVector1D(nStoredDataVals, yWeights, WEIGHTS_ARE_SIGMAS);
   if (maskAllocated) {
-    theModel->AddMaskVector1D(nStoredDataVals, maskVals, options.maskFormat);
-    //theModel->ApplyMask();
+    status = theModel->AddMaskVector1D(nStoredDataVals, maskVals, options.maskFormat);
+    if (status < 0) {
+      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddMaskVector1D!\n\n");
+  	  exit(-1);
+    }
   }
   // Add PSF vector, if present, and thereby enable convolution
   if (options.psfPresent)

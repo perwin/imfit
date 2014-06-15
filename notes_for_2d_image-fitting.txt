@@ -408,6 +408,7 @@ in SetupModelImage:
 
 
 Images from Giulia S.:
+[from my email to her:]
 > Could you supply me with examples of an input image and a sigma image,
 > with NaN values -- and a mask image that should mask out the NaN values but
 > apparently doesn't -- that are giving you trouble (one each would be enough), so
