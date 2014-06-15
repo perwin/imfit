@@ -260,9 +260,10 @@ void ModelObject1d::AddPSFVector1D( int nPixels_psf, double *xValVector, double 
 /* ---------------- PUBLIC METHOD: FinalSetupForFitting ---------------- */
 // Call this when using ModelObject for fitting. Not necessary 
 // when just using ModelObject for generating model image or vector.
-void ModelObject1d::FinalSetupForFitting( )
+int ModelObject1d::FinalSetupForFitting( )
 {
   int  nNonFinitePixels = 0;
+  int  returnStatus;
   
   // Create a default all-pixels-valid mask if no mask already exists
   if (! maskExists) {
@@ -314,8 +315,8 @@ void ModelObject1d::FinalSetupForFitting( )
     ApplyMask();
   else {
     fprintf(stderr, "ModelObject::FinalSetup -- bad values detected in weight vector!\n");
-    fprintf(stderr, "Exiting ...\n\n");
-    exit(-1);
+    returnStatus = -1;
+//    exit(-1);
   }
 #ifdef DEBUG
   PrintWeights();
@@ -324,8 +325,9 @@ void ModelObject1d::FinalSetupForFitting( )
   if (dataValsSet) {
     bool dataOK = VetDataVector();
     if (! dataOK) {
-      fprintf(stderr, "ERROR: bad (non-masked) data values!\n\n");
-      exit(-1);
+      fprintf(stderr, "ModelObject1d::FinalSetup -- bad (non-masked) data values!\n\n");
+      returnStatus = -2;
+//      exit(-1);
     }
   }
   
@@ -335,6 +337,7 @@ void ModelObject1d::FinalSetupForFitting( )
   PrintWeights();
 #endif
 
+  return returnStatus;
 }
 
 

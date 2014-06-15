@@ -397,7 +397,6 @@ int main(int argc, char *argv[])
   
   // Handling of image noise/errors -- different for Cash statistic vs chi^2
   if (options.useCashStatistic) {
-    // experimental Cash statistic stuff
     if ((options.solver == MPFIT_SOLVER) && (! options.printFitStatisticOnly)) {
       fprintf(stderr, "*** ERROR -- Cannot use Cash statistic with L-M solver!\n\n");
       return -1;
@@ -426,7 +425,11 @@ int main(int argc, char *argv[])
   // Final fitting-oriented setup for ModelObject instance (generates data-based error
   // vector if needed, created final weight vector from mask and optionally from
   // error vector)
-  theModel->FinalSetupForFitting();
+  status = theModel->FinalSetupForFitting();
+  if (status < 0) {
+    fprintf(stderr, "*** ERROR: Failure in ModelObject::FinalSetupForFitting!\n\n");
+    exit(-1);
+  }
 
 
   

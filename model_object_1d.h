@@ -53,7 +53,7 @@ class ModelObject1d : public ModelObject
 																		double errs[] );
     void PopulateParameterNames( );
     
-    void FinalSetupForFitting( );
+    int FinalSetupForFitting( );
 
     int GetModelVector( double *profileVector );
 

@@ -71,7 +71,7 @@ class ModelObject
     virtual void AddErrorVector1D( int nDataValues, double *pixelVector, int inputType ) { ; };
 
     // 1D only
-    virtual int AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { ; };
+    virtual int AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { return 0; };
     
 	// 2D only
     virtual void GenerateErrorVector( );
@@ -99,7 +99,7 @@ class ModelObject
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
-     // common, not specialized
+     // common, not specialized (currently not specialized by ModelObject1d)
     virtual void UseModelErrors( );
 
      // common, not specialized
@@ -151,7 +151,7 @@ class ModelObject
     virtual void PopulateParameterNames( );
 
     // common, but Specialized by ModelObject1D
-    virtual void FinalSetupForFitting( );
+    virtual int FinalSetupForFitting( );
 
     // common, not specialized
     string& GetParameterName( int i );

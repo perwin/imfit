@@ -520,9 +520,10 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 /* ---------------- PUBLIC METHOD: FinalSetupForFitting ---------------- */
 // Call this when using ModelObject for fitting. Not necessary 
 // when just using ModelObject for generating model image or vector.
-void ModelObject::FinalSetupForFitting( )
+int ModelObject::FinalSetupForFitting( )
 {
   int  nNonFinitePixels = 0;
+  int  returnStatus = 0;
   
   // Create a default all-pixels-valid mask if no mask already exists
   if (! maskExists) {
@@ -563,8 +564,8 @@ void ModelObject::FinalSetupForFitting( )
     ApplyMask();
   else {
     fprintf(stderr, "ModelObject::FinalSetup -- bad values detected in weight vector!\n");
-    fprintf(stderr, "Exiting ...\n\n");
-    exit(-1);
+    returnStatus = -1;
+//    exit(-1);
   }
 #ifdef DEBUG
   PrintWeights();
@@ -573,8 +574,9 @@ void ModelObject::FinalSetupForFitting( )
   if (dataValsSet) {
     bool dataOK = VetDataVector();
     if (! dataOK) {
-      fprintf(stderr, "ERROR: bad (non-masked) data values!\n\n");
-      exit(-1);
+      fprintf(stderr, "ModelObject::FinalSetup -- bad (non-masked) data values!\n\n");
+      returnStatus = -2;
+//      exit(-1);
     }
   }
   
@@ -584,6 +586,7 @@ void ModelObject::FinalSetupForFitting( )
   PrintWeights();
 #endif
 
+  return returnStatus;
 }
 
 
@@ -904,7 +907,7 @@ void ModelObject::UseModelErrors( )
     weightVector[z] = 1.0;
   }
   weightValsSet = true;
-}
+  }
 
 
 /* ---------------- PUBLIC METHOD: UseCashStatistic ------------------- */
@@ -925,7 +928,7 @@ void ModelObject::UseCashStatistic( )
     weightVectorAllocated = true;
   }
   else {
-    fprintf(stderr, "WARNING: ModelImage::UseModelErrors -- weight vector already allocated!\n");
+    fprintf(stderr, "WARNING: ModelImage::UseCashStatistic -- weight vector already allocated!\n");
   }
 
   for (int z = 0; z < nDataVals; z++) {
