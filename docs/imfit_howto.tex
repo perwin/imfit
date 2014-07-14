@@ -261,16 +261,19 @@ line).
 \subsubsection{Tests}
 
 Finally, there are two shell scripts -- \texttt{do\_imfit\_tests} and
-\texttt{do\_makeimage\_tests} -- which can be run to do some very simple sanity
-checks (e.g., do the programs fit some simple images correctly, are common
-config-file errors caught, etc.). They make use of files and data in the
-\texttt{tests/} subdirectory. Possible differences in output at the level of the
-least significant digit may occur; these are not a problem. (For the full set of
-tests to run, you should have Python version 2.6 or 2.7 installed, along with
-the numpy\footnote{\url{http://numpy.scipy.org/}} and
-pyfits\footnote{\url{http://www.stsci.edu/institute/software_hardware/pyfits}}
-Python libraries. If these are not available, then the parts of the tests which
-compare output images with reference versions will simply be skipped.)
+\texttt{do\_makeimage\_tests} -- which can be run to do some very simple
+sanity checks (e.g., do the programs fit some simple images correctly,
+are common config-file errors caught, etc.). They make use of files and
+data in the \texttt{tests/} subdirectory. Possible differences in output
+at the level of the least significant digit may occur (especially for
+the ``DE fit'' test); these should not be considered problems. (For the
+full set of tests to run, you should have Python version 2.6 or 2.7
+installed, along with the numpy\footnote{\url{http://numpy.scipy.org/}}
+and
+pyfits\footnote{\url{http://www.stsci.edu/institute/software_hardware/
+pyfits}} Python libraries. If these are not available, then the parts of
+the tests which compare output images with reference versions will
+simply be skipped.)
 
 
 %\subsubsection{Recommended Option: Compiling with OpenMP Support}
@@ -558,6 +561,15 @@ by more than this, the minimization is considered a success and halted
 
 \item \texttt{--bootstrap} \textit{n-iterations}--- Do \textit{n-iterations} rounds
 of bootstrap resampling after the fit, to estimate parameter errors.
+
+\bigskip
+
+\item \texttt{--quiet} --- Suppress printing of intermediate \chisquare{} or Cash-statistic values
+during the fitting process.
+
+\item \texttt{--loud} --- Print intermediate parameter values during the fitting
+process. Currently applicable to L-M fitting (current best-fit parameter values are
+printed once per iteration) and N-M simplex fitting (best-fit values printed once per 100 interations).
 
 \bigskip
 

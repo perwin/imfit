@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <time.h>
 
 #include "definitions.h"
 #include "model_object.h"
@@ -60,12 +61,11 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
   double  lower, upper, plus, minus, halfwidth;
   int  i, status, nIter;
   int  nParams = theModel->GetNParams();
-//  int  nStoredDataVals = theModel->GetNDataValues();
   int  nValidPixels = theModel->GetNValidPixels();
   int  verboseLevel = -1;
   
   /* seed random number generators with current time */
-  init_genrand( (unsigned long)time(NULL) );
+  init_genrand((unsigned long)time((time_t *)NULL));
 
   paramsVect = (double *) malloc(nParams * sizeof(double));
   // Allocate 2D array to hold bootstrap results for each parameter

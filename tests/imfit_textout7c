@@ -1,0 +1,39 @@
+	Image file = tests/testimage_3x3_onezero.fits
+	configuration file = tests/config_3x3_flatsky.dat
+	mask image = tests/mask_for_onezero.fits
+Reading data image ("tests/testimage_3x3_onezero.fits") ...
+naxis1 [# pixels/row] = 3, naxis2 [# pixels/col] = 3; nPixels_tot = 9
+Reading mask image ("tests/mask_for_onezero.fits") ...
+* No PSF image supplied -- no image convolution will be done!
+Function: FlatSky
+3 total parameters
+Model Object: 9 data values (pixels)
+ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
+* No noise image supplied ... will generate noise image from input image.
+ModelObject: mask vector applied to weight vector. (8 valid pixels remain)
+Setting up parameter information array ...
+3 free parameters (5 degrees of freedom)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Levenberg-Marquardt solver ...
+
+*** mpfit status = 4 -- SUCCESS: Convergence in orthogonality.
+  CHI-SQUARE = 0.000000    (5 DOF)
+  INITIAL CHI^2 = 0.000000
+        NPAR = 3
+       NFREE = 3
+     NPEGGED = 0
+     NITER = 1
+      NFEV = 4
+
+Reduced Chi^2 = 0.000000
+AIC = 12.000000, BIC = 6.238325
+
+X0		1.5000 # +/- 0.0000
+Y0		1.5000 # +/- 0.0000
+FUNCTION FlatSky
+I_sky		      1 # +/- 0.353553
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+Done!
+

@@ -16,11 +16,20 @@
 // if the relative change is < TOLERANCE (default = 1e-8) for three samples in a row, 
 // we declare convergence.
 
+// 19 June 2014: Changed DESolver::Solve to return integer status values instead of bool,
+// and also to detect possibly NaN values returned from EnergyFunction [e.g., a signal
+// that something went wrong and we should quit] and stop the fitting.
+
+// PROBLEM: DESolver::RandomUniform() uses a constant seed, so it will always generate
+// the same sequence of random numbers!
+
 
 #include <memory.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #include "DESolver.h"
+#include "mersenne_twister.h"
 
 #define Element(a,b,c)  a[b*nDim+c]
 #define RowVector(a,b)  (&a[b*nDim])
@@ -80,6 +89,9 @@ void DESolver::Setup( double *min, double *max,
   scale = diffScale;
   probability = crossoverProb;
   tolerance = ftol;
+  
+  // PE: seed the (Mersenne Twister) RNG
+  init_genrand((unsigned long)time((time_t *)NULL));
   
   CopyVector(minBounds, min);
   CopyVector(maxBounds, max);
@@ -190,7 +202,7 @@ void DESolver::CalcTrialSolution( int candidate )
 }
 
 
-bool DESolver::Solve( int maxGenerations, int verbose )
+int DESolver::Solve( int maxGenerations, int verbose )
 {
   int generation;
   int candidate;
@@ -260,16 +272,21 @@ bool DESolver::Solve( int maxGenerations, int verbose )
         if (TestConverged(relativeDeltas, tolerance)) {
           generations = generation;
           bAtSolution = true;
-          return(bAtSolution);
+          return 1;
         }
       }
       lastBestEnergy = bestEnergy;
     }
 
+    if isnan(bestEnergy) {
+//        fprintf(stderr, "\n*** NaN-valued fit statistic detected (DE optimization)!\n");
+      printf("\n\tcandidate %d, bestEnergy = %f\n", candidate, bestEnergy);
+    }
+
   }
   
   generations = generation;
-  return(bAtSolution);
+  return 5;
 }
 
 
@@ -533,79 +550,92 @@ void DESolver::SelectSamples( int candidate, int *r1, int *r2, int *r3, int *r4,
 
 
 /*------Constants for RandomUniform()---------------------------------------*/
-#define SEED 3
-#define IM1 2147483563
-#define IM2 2147483399
-#define AM (1.0/IM1)
-#define IMM1 (IM1-1)
-#define IA1 40014
-#define IA2 40692
-#define IQ1 53668
-#define IQ2 52774
-#define IR1 12211
-#define IR2 3791
-#define NTAB 32
-#define NDIV (1+IMM1/NTAB)
-#define EPS 1.2e-7
-#define RNMX (1.0-EPS)
+// #define SEED 3
+// #define IM1 2147483563
+// #define IM2 2147483399
+// #define AM (1.0/IM1)
+// #define IMM1 (IM1-1)
+// #define IA1 40014
+// #define IA2 40692
+// #define IQ1 53668
+// #define IQ2 52774
+// #define IR1 12211
+// #define IR2 3791
+// #define NTAB 32
+// #define NDIV (1+IMM1/NTAB)
+// #define EPS 1.2e-7
+// #define RNMX (1.0-EPS)
+// 
+// double DESolver::RandomUniform2( double minValue, double maxValue )
+// {
+//   long j;
+//   long k;
+//   static long idum;
+//   static long idum2 = 123456789;
+//   static long iy = 0;
+//   static long iv[NTAB];
+//   double result;
+// 
+//   if (iy == 0)
+//     idum = SEED;
+// 
+//   if (idum <= 0) {
+//     if (-idum < 1)
+//       idum = 1;
+//     else
+//       idum = -idum;
+// 
+//     idum2 = idum;
+// 
+//     for (j = NTAB + 7; j >= 0; j--) {
+//       k = idum / IQ1;
+//       idum = IA1 * (idum - k*IQ1) - k*IR1;
+//       if (idum < 0) idum += IM1;
+//       if (j < NTAB) iv[j] = idum;
+//     }
+// 
+//     iy = iv[0];
+//   }
+// 
+//   k = idum / IQ1;
+//   idum = IA1 * (idum - k*IQ1) - k*IR1;
+// 
+//   if (idum < 0)
+//     idum += IM1;
+// 
+//   k = idum2 / IQ2;
+//   idum2 = IA2 * (idum2 - k*IQ2) - k*IR2;
+// 
+//   if (idum2 < 0)
+//     idum2 += IM2;
+// 
+//   j = iy / NDIV;
+//   iy = iv[j] - idum2;
+//   iv[j] = idum;
+// 
+//   if (iy < 1)
+//     iy += IMM1;
+// 
+//   result = AM * iy;
+// 
+//   if (result > RNMX)
+//     result = RNMX;
+// 
+//   result = minValue + result * (maxValue - minValue);
+//   return(result);
+// }
 
+
+
+// Function added by PE: better random-number-generation function (uses
+// Mersenne Twister and doesn't have a constant seed!)
 double DESolver::RandomUniform( double minValue, double maxValue )
 {
-  long j;
-  long k;
-  static long idum;
-  static long idum2=123456789;
-  static long iy = 0;
-  static long iv[NTAB];
-  double result;
-
-  if (iy == 0)
-    idum = SEED;
-
-  if (idum <= 0) {
-    if (-idum < 1)
-      idum = 1;
-    else
-      idum = -idum;
-
-    idum2 = idum;
-
-    for (j = NTAB + 7; j >= 0; j--) {
-      k = idum / IQ1;
-      idum = IA1 * (idum - k*IQ1) - k*IR1;
-      if (idum < 0) idum += IM1;
-      if (j < NTAB) iv[j] = idum;
-    }
-
-    iy = iv[0];
-  }
-
-  k = idum / IQ1;
-  idum = IA1 * (idum - k*IQ1) - k*IR1;
-
-  if (idum < 0)
-    idum += IM1;
-
-  k = idum2 / IQ2;
-  idum2 = IA2 * (idum2 - k*IQ2) - k*IR2;
-
-  if (idum2 < 0)
-    idum2 += IM2;
-
-  j = iy / NDIV;
-  iy = iv[j] - idum2;
-  iv[j] = idum;
-
-  if (iy < 1)
-    iy += IMM1;
-
-  result = AM * iy;
-
-  if (result > RNMX)
-    result = RNMX;
-
-  result = minValue + result * (maxValue - minValue);
-  return(result);
+  double  uniformRand, result;
+  
+  uniformRand = genrand_real1();   // generates a random number on [0,1]-real-interval
+  result = minValue + uniformRand*(maxValue - minValue);
+  return result;
 }
 
 

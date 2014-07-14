@@ -1,16 +1,16 @@
-  CHI-SQUARE = 4555.947655    (4089 DOF)
+  CHI-SQUARE = 4555.947654    (4089 DOF)
 
 Reduced Chi^2 = 1.114196
-AIC = 4569.975052, BIC = 4614.172018
+AIC = 4569.975051, BIC = 4614.172017
 
 X0		32.9439
 Y0		34.0933
 FUNCTION Sersic
 PA		18.2612
 ell		0.235989
-n		2.40027
-I_e		20.0096
-r_e		60.7608
+n		2.40029
+I_e		20.0092
+r_e		60.7616
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 Done!

@@ -74,6 +74,8 @@ const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;
 // Module variables -- used to control user feedback within myfunc_nlopt
 static int  verboseOutput;
 static int  funcCount = 0;
+nlopt_opt  optimizer;
+
 
 
 // Objective function: calculates the objective value (ignore gradient calculation)
@@ -86,9 +88,10 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
   // following is a necessary kludge bcs theModel->GetFitStatistic() won't accept const double*
   double  *params = (double *)x;
   double  fitStatistic;
+  nlopt_result  junk;
   
   fitStatistic = theModel->GetFitStatistic(params);
-
+  
   // feedback to user
   funcCount++;
   if (verboseOutput > 0) {
@@ -100,6 +103,12 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
     }
   }
   
+  if isnan(fitStatistic) {
+    fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
+    fprintf(stderr, "*** Terminating the fit...\n");
+    junk = nlopt_force_stop(optimizer);
+  }
+
   return(fitStatistic);
 }
 
@@ -152,7 +161,7 @@ void InterpretResult( nlopt_result  resultValue )
 int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
                   ModelObject *theModel, double ftol, int verbose )
 {
-  nlopt_opt  optimizer;
+//  nlopt_opt  optimizer;
   nlopt_result  result;
   int  maxEvaluations;
   double  finalStatisticVal;

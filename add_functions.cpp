@@ -71,6 +71,7 @@
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
 #include "func_logspiral.h"
+#include "func_nan.h"
 #endif
 
 using namespace std;
@@ -213,6 +214,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   LogSpiral::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiral>();
+
+  NaNFunc::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<NaNFunc>();
 
 #endif
 }

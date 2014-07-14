@@ -53,6 +53,16 @@ echo -n "   (now running Cash-statistic fit ...)"
 ./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --save-weights=test_weights_data.fits &> /dev/null
 ./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --model-errors --save-weights=test_weights_model.fits &> /dev/null
 
+# testing that we catch the case of all pixels masked:
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/totalmask_64x64.fits  &> test_dump6
+
+# test to see if we mask NaN value in small image
+./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_nan.fits &> test_dump7a
+# test to see if we correctly catch bad pixel value (=0, which is bad for data-based chi^2 estimation)
+./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits &> test_dump7b
+# and now test to see if we correctly ignore bad pixel value when it's masked
+./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits --mask=tests/mask_for_onezero.fits &> test_dump7c
+
 #    Testing to see that bad config files are caught:
 ./imfit --config tests/config_makeimage_sersictest512_bad1.dat &> test_dump_bad1
 ./imfit --config tests/config_makeimage_sersictest512_bad2.dat &> test_dump_bad2
@@ -166,6 +176,44 @@ if [ $do_fits_tests = "1" ]
 then
   ./compare_fits_files.py test_weights_data.fits test_weights_model.fits
 fi
+
+echo -n "*** Diff comparison with archives: catching the case of masking all pixels... "
+if (diff --brief test_dump6 tests/imfit_textout6)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump6 tests/imfit_textout6
+fi
+
+echo -n "*** Diff comparison with archives: automatic masking of NaN values... "
+if (diff --brief test_dump7a tests/imfit_textout7a)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump7a tests/imfit_textout7a
+fi
+
+echo -n "*** Diff comparison with archives: detection of zero-valued pixel (bad for data-based errors)... "
+if (diff --brief test_dump7b tests/imfit_textout7b)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump7b tests/imfit_textout7b
+fi
+
+echo -n "*** Diff comparison with archives: ignore zero-valued pixel when it's masked... "
+if (diff --brief test_dump7c tests/imfit_textout7c)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump7c tests/imfit_textout7c
+fi
+
+
 
 
 echo -n "*** Diff comparison with archives: bad config file 1... "

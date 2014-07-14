@@ -335,13 +335,6 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
   }
   
   weightValsSet = true;
-//   if (CheckWeightVector())
-//     weightValsSet = true;
-//   else {
-//     printf("ModelObject::AddErrorVector -- Conversion of error vector resulted in bad values!\n");
-//     printf("Exiting ...\n\n");
-//     exit(-1);
-//   }
   
   externalErrorVectorSupplied = true;
 }
@@ -394,15 +387,6 @@ void ModelObject::GenerateErrorVector( )
   }
 
   weightValsSet = true;
-//   if (CheckWeightVector()) {
-//     weightValsSet = true;
-//     printf("ModelObject::GenerateErrorVector -- Internal error/weight vector calculated from data values.\n");
-//   }
-//   else {
-//     printf("ModelObject::GenerateErrorVector -- Calculation of error vector resulted in bad values!\n");
-//     printf("Exiting ...\n\n");
-//     exit(-1);
-//   }
 }
 
 
@@ -563,7 +547,7 @@ int ModelObject::FinalSetupForFitting( )
   if (CheckWeightVector())
     ApplyMask();
   else {
-    fprintf(stderr, "ModelObject::FinalSetup -- bad values detected in weight vector!\n");
+    fprintf(stderr, "** ModelObject::FinalSetup -- bad values detected in weight vector!\n");
     returnStatus = -1;
 //    exit(-1);
   }
@@ -574,7 +558,7 @@ int ModelObject::FinalSetupForFitting( )
   if (dataValsSet) {
     bool dataOK = VetDataVector();
     if (! dataOK) {
-      fprintf(stderr, "ModelObject::FinalSetup -- bad (non-masked) data values!\n\n");
+      fprintf(stderr, "** ModelObject::FinalSetup -- bad (non-masked) data values!\n\n");
       returnStatus = -2;
 //      exit(-1);
     }
@@ -585,6 +569,11 @@ int ModelObject::FinalSetupForFitting( )
   PrintMask();
   PrintWeights();
 #endif
+
+  if (nValidDataVals < 1) {
+    fprintf(stderr, "** ModelObject::FinalSetup -- not enough valid data values available for fitting!\n\n");
+    returnStatus = -3;
+  }
 
   return returnStatus;
 }
@@ -608,8 +597,8 @@ void ModelObject::CreateModelImage( double params[] )
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
-    fprintf(stderr, "Exiting ...\n\n");
-    exit(-1);
+//    fprintf(stderr, "Exiting ...\n\n");
+//    exit(-1);
   }
 
   // Separate out the individual-component parameters and tell the
@@ -724,11 +713,10 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   }
   
   // OK, populate modelVector with the model image
-  // OpenMP Parallel Section
-//  int  chunk = OPENMP_CHUNK_SIZE;
-// Note that we cannot specify modelVector as shared [or private] bcs it is part
-// of a class (not an independent variable); happily, by default all references in
-// an omp-parallel section are shared unless specified otherwise
+  // OpenMP Parallel section; see CreateModelImage() for general notes on this
+  // Note that since we expect this code to be called only occasionally, we have
+  // not converted it to the fast-for-small-images, single-loop version used in
+  // CreateModelImages()
 #pragma omp parallel private(i,j,n,x,y,newVal)
   {
   #pragma omp for schedule (static, ompChunkSize)
@@ -1483,7 +1471,9 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
       totalComponentFlux = functionObjects[n]->TotalFlux();
     } else {
       totalComponentFlux = 0.0;
-// OpenMP code currently produces wrong answers!
+// Note: since this bit of OpenMP code explicitly involves integrating over a very large
+// image, we don't bother using the fast-for-small-images, single-loop version that's 
+// used in CreateModelImage()
 #pragma omp parallel private(i,j,x,y) reduction(+:totalComponentFlux)
       {
       #pragma omp for schedule (static, ompChunkSize)

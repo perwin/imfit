@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2014 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -24,6 +24,15 @@
 // 
 // You should have received a copy of the GNU General Public License along
 // with Imfit.  If not, see <http://www.gnu.org/licenses/>.
+
+
+// * Return values:
+// 1 = Generic success return value (e.g., fit-statistic convergence)
+// 5 = Optimization stopped because maximum number of generations was reached
+// Error codes (negative return values)
+// -1  = Generic failure code [NOT USED YET]
+// -2 = Missing fitting bounds for at least one parameter.
+// -5 = Halted because user objective function returned NaN.
 
 
 
@@ -87,6 +96,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   int  deStrategy;
   int  maxGenerations;
   int  nFreeParameters = nParamsTot;
+  int  status;
   double  F, CR;   // DE parameters (weight factor (aka "scale"), crossover probability)
   bool  paramLimitsOK = true;
   
@@ -120,11 +130,10 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   }
   
   if (! paramLimitsOK) {
-    printf("\n*** Parameter limits must be supplied for all parameters when using DE!\n");
-    printf("Exiting...\n\n");
+    fprintf(stderr, "\n*** Parameter limits must be supplied for all parameters when using DE!\n");
     free(minParamValues);
     free(maxParamValues);
-    return -1;
+    return -2;
   }
 
 
@@ -134,18 +143,17 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   CR = 1.0;
   maxGenerations = MAX_DE_GENERATIONS;
   // Instantiate and set up the DE solver:
-//  solver = new ImfitSolver(nParamsTot, POP_SIZE_PER_PARAMETER*nParamsTot, theModel);
   solver = new ImfitSolver(nParamsTot, POP_SIZE_PER_PARAMETER*nFreeParameters, theModel);
   solver->Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
 
-  solver->Solve(maxGenerations, verbose);
+  status = solver->Solve(maxGenerations, verbose);
 
   solver->StoreSolution(paramVector);
 
   delete solver;
   free(minParamValues);
   free(maxParamValues);
-  return 1;
+  return status;
 }
 
 

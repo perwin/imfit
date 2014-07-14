@@ -1,0 +1,39 @@
+	Image file = tests/testimage_3x3_nan.fits
+	configuration file = tests/config_3x3_flatsky.dat
+Reading data image ("tests/testimage_3x3_nan.fits") ...
+naxis1 [# pixels/row] = 3, naxis2 [# pixels/col] = 3; nPixels_tot = 9
+* No PSF image supplied -- no image convolution will be done!
+Function: FlatSky
+3 total parameters
+Model Object: 9 data values (pixels)
+* No noise image supplied ... will generate noise image from input image.
+ModelObject: One pixel with non-finite value found (and masked) in data image
+ModelObject: mask vector applied to weight vector. (8 valid pixels remain)
+Setting up parameter information array ...
+3 free parameters (5 degrees of freedom)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: chi^2 = 0.000000
+	mpfit iteration 2: chi^2 = 0.000000
+
+*** mpfit status = 4 -- SUCCESS: Convergence in orthogonality.
+  CHI-SQUARE = 0.000000    (5 DOF)
+  INITIAL CHI^2 = 1.333333
+        NPAR = 3
+       NFREE = 3
+     NPEGGED = 0
+     NITER = 3
+      NFEV = 12
+
+Reduced Chi^2 = 0.000000
+AIC = 12.000000, BIC = 6.238325
+
+X0		1.5000 # +/- 0.0000
+Y0		1.5000 # +/- 0.0000
+FUNCTION FlatSky
+I_sky		    1.5 # +/- 0.433013
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+Done!
+

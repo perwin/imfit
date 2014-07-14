@@ -322,7 +322,7 @@ int mpfit(mp_func funct, int m, int npar,
   conf.douserscale = 0;
   conf.maxfev = 0;
   conf.covtol = 1e-14;
-  conf.nofinitecheck = 0;
+  conf.nofinitecheck = 1;
   
   if (config) {
     /* Transfer any user-specified configurations */
@@ -625,7 +625,8 @@ int mpfit(mp_func funct, int m, int npar,
     
     for (j = 0; j < nfree; j++) {
       for (i = 0; i < nfree; i++) {
-        if (isfinite(fjac[off+i]) == 0) nonfinite = 1;
+        if (isfinite(fjac[off+i]) == 0)
+          nonfinite = 1;
       }
       off += ldfjac;
     }
@@ -711,10 +712,10 @@ int mpfit(mp_func funct, int m, int npar,
       if (upegged && (wa1[j] > 0)) wa1[j] = 0;
 
       if (dwa1 && qllim[j] && ((x[j] + wa1[j]) < llim[j])) {
-        alpha = mp_dmin1(alpha, (llim[j]-x[j])/wa1[j]);
+        alpha = mp_dmin1(alpha, (llim[j] - x[j])/wa1[j]);
       }
       if (dwa1 && qulim[j] && ((x[j] + wa1[j]) > ulim[j])) {
-        alpha = mp_dmin1(alpha, (ulim[j]-x[j])/wa1[j]);
+        alpha = mp_dmin1(alpha, (ulim[j] - x[j])/wa1[j]);
       }
     }
     
