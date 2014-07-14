@@ -4,7 +4,7 @@
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
 
-VERSION_STRING = "1.0.1"
+VERSION_STRING = "1.0.2"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -141,6 +141,7 @@ imfit_config_ic3478_64x64b.dat
 imfit_config_n3073.dat
 config_imfit_poisson.dat
 config_imfit_flatsky.dat
+config_3x3_flatsky.dat
 config_makeimage_sersictest512_bad1.dat
 config_makeimage_sersictest512_bad2.dat
 config_makeimage_sersictest512_bad3.dat
@@ -161,6 +162,9 @@ gensersictest_orig.fits
 sersic+exp_orig.fits
 gensersictest612_conv_cutout512.fits
 flatsky_128x128.fits
+testimage_3x3_nan.fits
+testimage_3x3_onezero.fits
+mask_for_onezero.fits
 imfit_textout1
 imfit_textout2
 imfit_textout3
