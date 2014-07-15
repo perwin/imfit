@@ -175,6 +175,10 @@ imfit_textout4b
 imfit_textout4c
 imfit_textout4d
 imfit_textout5_tail
+imfit_textout6
+imfit_textout7a
+imfit_textout7b
+imfit_textout7c
 imfit_textout_bad1
 imfit_textout_bad2
 imfit_textout_bad3

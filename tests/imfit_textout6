@@ -1,0 +1,20 @@
+** ModelObject::FinalSetup -- not enough valid data values available for fitting!
+
+*** ERROR: Failure in ModelObject::FinalSetupForFitting!
+
+	Image file = tests/ic3478rss_64x64.fits
+	configuration file = tests/imfit_config_ic3478_64x64b.dat
+	mask image = tests/totalmask_64x64.fits
+Value from config file: gain = 4.725000 e-/ADU
+Value from config file: read noise = 4.300000 e-
+Value from config file: original sky = 130.100000
+Reading data image ("tests/ic3478rss_64x64.fits") ...
+naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
+Reading mask image ("tests/totalmask_64x64.fits") ...
+* No PSF image supplied -- no image convolution will be done!
+Function: Sersic
+7 total parameters
+Model Object: 4096 data values (pixels)
+ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
+* No noise image supplied ... will generate noise image from input image.
+ModelObject: mask vector applied to weight vector. (0 valid pixels remain)
