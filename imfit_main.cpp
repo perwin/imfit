@@ -96,6 +96,11 @@ typedef struct {
   bool  noImage;
   std::string  psfFileName;     // []
   bool  psfImagePresent;
+  std::string  psfOversampledFileName;     // []
+  bool  psfOversampledImagePresent;
+  int  psfOversamplingScale;
+  bool  oversampleRegionSet;
+  std::string  psfOversampleRegion;     // []
   std::string  noiseFileName;   // []
   bool  noiseImagePresent;
   int  errorType;
@@ -181,6 +186,8 @@ int main(int argc, char *argv[])
   bool  errorPixels_allocated = false;
   double  *allMaskPixels;
   bool  maskAllocated = false;
+  double  *psfOversampledPixels;
+  int  nPixels_psf_oversampled, nColumns_psf_oversampled, nRows_psf_oversampled;
   double  *paramsVect;
   double  X0_offset = 0.0;
   double  Y0_offset = 0.0;
@@ -209,6 +216,9 @@ int main(int argc, char *argv[])
   options.configFileName = DEFAULT_CONFIG_FILE;
   options.noImage = true;
   options.psfImagePresent = false;
+  options.psfOversampledImagePresent = false;
+  options.psfOversamplingScale = 0;
+  options.oversampleRegionSet = false;
   options.noiseImagePresent = false;
   options.errorType = WEIGHTS_ARE_SIGMAS;
   options.maskImagePresent = false;
@@ -342,6 +352,25 @@ int main(int argc, char *argv[])
   }
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
+
+  /* Read in oversampled PSF image, if supplied */
+  if (options.psfOversampledImagePresent) {
+    if (options.psfOversamplingScale < 1) {
+      fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n\n");
+      exit(-1);
+    }
+    printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());
+    psfOversampledPixels = ReadImageAsVector(options.psfOversampledFileName, 
+    							&nColumns_psf_oversampled, &nRows_psf_oversampled);
+    if (psfOversampledPixels == NULL) {
+      fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
+    			options.psfOversampledFileName.c_str());
+      exit(-1);
+    }
+    nPixels_psf_oversampled = nColumns_psf_oversampled * nRows_psf_oversampled;
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
+           nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
+  }
 
   if (! options.subsamplingFlag)
     printf("* Pixel subsampling has been turned OFF.\n");
@@ -588,6 +617,8 @@ int main(int argc, char *argv[])
     free(allErrorPixels);  // allocated in ReadImageAsVector()
   if (options.psfImagePresent)
     free(psfPixels);
+  if (options.psfOversampledImagePresent)
+    free(psfOversampledPixels);
   if (maskAllocated)
     free(allMaskPixels);
   free(paramsVect);
@@ -620,6 +651,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --overpsf <psf.fits>      Oversampled PSF image to use");
+  optParser->AddUsageLine("     --overpsf_scale <n>       Oversampling scale (integer)");
+  optParser->AddUsageLine("     --overpsf_region <x1:x2,y1:y2>       Section of image to convolve with oversampled PSF");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
   optParser->AddUsageLine("     --save-params <output-file>          Save best-fit parameters in config-file format [default = bestfit_parameters_imfit.dat]");
   optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
@@ -683,6 +719,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("mask");
   optParser->AddOption("psf");
+  optParser->AddOption("overpsf");
+  optParser->AddOption("overpsf_scale");
+  optParser->AddOption("overpsf_region");
   optParser->AddOption("save-params");
   optParser->AddOption("save-model");
   optParser->AddOption("save-residual");
@@ -802,6 +841,25 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->psfFileName = optParser->GetTargetString("psf");
     theOptions->psfImagePresent = true;
     printf("\tPSF image = %s\n", theOptions->psfFileName.c_str());
+  }
+  if (optParser->OptionSet("overpsf")) {
+    theOptions->psfOversampledFileName = optParser->GetTargetString("overpsf");
+    theOptions->psfOversampledImagePresent = true;
+    printf("\tOversampled PSF image = %s\n", theOptions->psfOversampledFileName.c_str());
+  }
+  if (optParser->OptionSet("overpsf_scale")) {
+    if (NotANumber(optParser->GetTargetString("overpsf_scale").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** ERROR: overpsf_scale should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->psfOversamplingScale = atoi(optParser->GetTargetString("overpsf_scale").c_str());
+    printf("\tPSF oversampling scale = %d\n", theOptions->psfOversamplingScale);
+  }
+  if (optParser->OptionSet("overpsf_region")) {
+    theOptions->psfOversampleRegion = optParser->GetTargetString("overpsf_region");
+    theOptions->oversampleRegionSet = true;
+    printf("\tPSF oversampling region = %s\n", theOptions->psfOversampleRegion.c_str());
   }
   if (optParser->OptionSet("mask")) {
     theOptions->maskFileName = optParser->GetTargetString("mask");
