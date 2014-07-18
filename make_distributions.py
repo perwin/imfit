@@ -4,7 +4,7 @@
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
 
-VERSION_STRING = "1.0.2"
+VERSION_STRING = "1.0.3"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -170,6 +170,8 @@ imfit_textout2
 imfit_textout3
 imfit_textout3b
 imfit_textout3c_tail
+imfit_textout3d
+imfit_textout3d2
 imfit_textout4
 imfit_textout4b
 imfit_textout4c

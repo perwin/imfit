@@ -188,9 +188,9 @@ QUESTIONS AND ISSUES:
 		with X0,Y0 in image center
 
 
-	[] Option to do convolution on subsampled/oversampled grid around object center?
-		-- e.g., in 10x10 grid around object center, subsample object *and* PSF,
-		do convolution using subsampled image, then resample to input scaling
+	[] Option to do convolution on oversampled grid around object center?
+		-- e.g., in 10x10 grid around object center, oversample object *and* PSF,
+		do convolution using oversampled image, then resample to input scaling
 		and past into main image.
 		-- does GALFIT do something like this? [No, at least according to the
 		documentation when it uses an oversampled PSF, it does this for the entire
@@ -199,7 +199,7 @@ QUESTIONS AND ISSUES:
 		Issues/things to think about:
 			-- Secondary stage to apply CTE or similar pixel diffusion kernel,
 			after resampling to original pixel scale?
-			-- Need to translate pixel coordinates to subsampled grid -- look at
+			-- Need to translate pixel coordinates to oversampled grid -- look at
 			current pixel-subsampling code in function objects...
 			-- Do we need to rescale things like pixel sizes (prob. not -- we just
 			work with same pixel dimensions on a smaller subgrid, as we do for
@@ -211,7 +211,7 @@ QUESTIONS AND ISSUES:
 			
 			-- Need separate subimage model vector (but not error, weight, mask, etc.),
 			appropriately padded
-			-- Need separate subsampled PSF image vector
+			-- Need separate oversampled PSF image vector
 			-- Need separate Convolver component
 			
 			-- Insert code into ModelImage::CreateModelImage *just* before end of
@@ -404,7 +404,7 @@ in SetupModelImage:
 
 
 
-2014: Testing detection and masking of NaN values in images:
+[X]2014: Testing detection and masking of NaN values in images:
 
 
 Images from Giulia S.:

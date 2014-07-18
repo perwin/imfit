@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2014 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -77,24 +77,6 @@
 using namespace std;
 
 
-// CHANGE WHEN ADDING FUNCTION -- add function name to array, increment N_FUNCTIONS
-// FUNCTION_NAMES is only used by PrintAvailableFunctions
-// #ifndef NO_GSL
-// const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
-//             "Sersic_GenEllipse", "Core-Sersic", "Gaussian", "BrokenExponential", 
-//             "BrokenExponentialBar", "BrokenExponential2D", "EdgeOnDisk", "Moffat", "FlatSky",
-//             "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
-//             "GaussianRing", "GaussianRing2Side", "ExponentialDisk3D", "GaussianRing3D"};
-// const int  N_FUNCTIONS = 20;
-// #else
-// const char  FUNCTION_NAMES[][30] = {"Exponential", "Exponential_GenEllipse", "Sersic", 
-//             "Sersic_GenEllipse", "Core-Sersic", "Gaussian", "BrokenExponential", 
-//             "BrokenExponentialBar", "BrokenExponential2D", "Moffat", "FlatSky",
-//             "EdgeOnDiskN4762", "EdgeOnDiskN4762v2", "EdgeOnRing", "EdgeOnRing2side",
-//             "GaussianRing", "GaussianRing2Side"};
-// const int  N_FUNCTIONS = 17;
-// #endif
-
 
 // Code to create FunctionObject object factories
 // Abstract base class for FunctionObject factories
@@ -150,9 +132,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   
   BrokenExponential2D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponential2D>();
-  
-//   FlatExponential::GetClassShortName(classFuncName);
-//   input_factory_map[classFuncName] = new funcobj_factory<FlatExponential>();
   
   EdgeOnRing::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnRing>();
@@ -239,8 +218,8 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
     currentName = functionNameList[i];
     printf("Function: %s\n", currentName.c_str());
     if (factory_map.count(currentName) < 1) {
-      printf("*** AddFunctions: unidentified function name (\"%s\")\n", currentName.c_str());
-      return - 1;
+      fprintf(stderr, "*** AddFunctions: unidentified function name (\"%s\")\n", currentName.c_str());
+      return -1;
     }
     else {
       thisFunctionObj = factory_map[currentName]->create();
@@ -270,17 +249,6 @@ void FreeFactories( map<string, factory*>& factory_map )
 }
 
 
-// void PrintAvailableFunctions( )
-// {
-//   
-//   printf("\nAvailable function/components:\n");
-//   for (int i = 0; i < N_FUNCTIONS - 1; i++) {
-//     printf("%s, ", FUNCTION_NAMES[i]);
-//   }
-//   printf("%s.\n\n", FUNCTION_NAMES[N_FUNCTIONS - 1]);
-//     
-// }
-
 void PrintAvailableFunctions( )
 {
   string  currentName;
@@ -294,7 +262,6 @@ void PrintAvailableFunctions( )
 
   printf("\nAvailable function/components:\n\n");
   for (w = factory_map.begin(); w != factory_map.end(); w++) {
-//    printf("%s, ", w->first.c_str());
     thisFunctionObj = w->second->create();
     currentName = thisFunctionObj->GetShortName();
     printf("%s\n", currentName.c_str());

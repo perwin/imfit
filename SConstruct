@@ -66,9 +66,6 @@
 
 import os, subprocess, platform
 
-# Version definition for imfit + makeimage
-PACKAGE_VERSION = "PACKAGE_VERSION=\"1.0.1\""
-
 # the following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
 STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
@@ -88,7 +85,7 @@ os_type = os.uname()[0]
 cflags_opt = ["-O2", "-g0"]
 cflags_db = ["-Wall", "-g3"]
 
-base_defines = ["ANSI", "USING_SCONS", PACKAGE_VERSION]
+base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
 lib_list = ["fftw3", "cfitsio", "m"]
