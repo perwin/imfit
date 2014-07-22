@@ -21,6 +21,15 @@
 # To build a version *without* FFTW threading:
 #    $ scons --no-threading <target-name>
 #
+#
+# To build a version using non-default compiler:
+#    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
+# e.g.
+#    $ scons cc=gcc-4.8 c++=g++-4.8 <target-name>
+# shorthand for the previous case (GCC 4.8 only)
+#    $ scons --use-gcc <target-name>
+#
+#
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
@@ -154,6 +163,16 @@ def CheckForXcode5( ):
 	return False
 
 
+# get default compilers
+env = DefaultEnvironment()
+cc_default = env["CC"]
+cpp_default = env["CXX"]
+CC_COMPILER = cc_default
+CPP_COMPILER = cpp_default
+c_compiler_changed = False
+cpp_compiler_changed = False
+
+
 # system-specific setup
 xcode5 = False
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
@@ -211,6 +230,13 @@ AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true",
 	default=False, help="compile additional FunctionObject classes for testing")
 AddOption("--extra-checks", dest="doExtraChecks", action="store_true", 
 	default=False, help="turn on additional error-checking and warning flags during compilation")
+# options for non-default compilers
+AddOption("--cc", dest="cc_compiler", type="string", action="store", default=None,
+	help="C compiler to use instead of system default")
+AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
+	help="C++ compiler to use instead of system default")
+AddOption("--use-gcc", dest="useGCC", action="store_true", 
+	default=False, help="use gcc and g++ v4.8 compilers")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -240,6 +266,24 @@ if GetOption("useExtraFuncs") is True:
 doExtraChecks = False
 if GetOption("doExtraChecks") is True:
 	doExtraChecks = True
+
+# user-changeable compilers
+if GetOption("cc_compiler") is not None:
+	CC_COMPILER = GetOption("cc_compiler")
+	print "using %s for C compiler" % CC_COMPILER
+	c_compiler_changed = True
+if GetOption("cpp_compiler") is not None:
+	CPP_COMPILER = GetOption("cpp_compiler")
+	print "using %s for C++ compiler" % CPP_COMPILER
+	cpp_compiler_changed = True
+if GetOption("useGCC") is True:
+	CC_COMPILER = "gcc-4.8"
+	CPP_COMPILER = "g++-4.8"
+	print "using %s for C compiler" % CC_COMPILER
+	print "using %s for C++ compiler" % CPP_COMPILER
+	c_compiler_changed = True
+	cpp_compiler_changed = True
+
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
 if GetOption("makeFatBinaries") is True:
@@ -336,18 +380,21 @@ defines_opt = defines_opt + extra_defines
 if xcode5 is True:
 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
 	# to ensure we can use OpenMP.
-	# Replace the following with alternate compilers if needed (e.g., "gcc-4.8", "g++-4.8")
-	ALT_CC = "llvm-gcc-4.2"
-	ALT_CPP = "llvm-g++-4.2"
-	env_opt = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
-	env_debug = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-else:
-	env_opt = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
-	env_debug = Environment( CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
+	if not c_compiler_changed:
+		CC_COMPILER = "llvm-gcc-4.2"
+	if not cpp_compiler_changed:
+		CPP_COMPILER = "llvm-g++-4.2"
+#	ALT_CC = "gcc-4.8"
+#	ALT_CPP = "g++-4.8"
+# 	env_opt = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+# 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+# 	env_debug = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
+# 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
+
+env_opt = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
+					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
+					LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 
 # Checks for libraries and headers -- if we're not doing scons -c:
