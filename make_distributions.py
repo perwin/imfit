@@ -4,7 +4,14 @@
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
 
-VERSION_STRING = "1.0.2"
+# where to copy binary (or source) tarballs when completed (specialized for
+# Linux virtual machines on MacBook Pro and local web-site directory for Mac
+# versions)
+LINUX_DEST = "/media/sf_vbox_shared/"
+MAC_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/"
+MAC_DEST_BIN = "/Users/erwin/Documents/Working/web site/code/imfit/binaries/"
+
+VERSION_STRING = "1.0.3"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -17,12 +24,16 @@ if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	BINARY_TARFILE = "imfit-%s-macintel.tar.gz" % VERSION_STRING
 	# and we can do "fat" compilation (combine 32-bit and 64-bit binaries)
 	scons_string += " --fat"
+	SOURCE_COPY_DEST_DIR = MAC_DEST
+	BINARY_COPY_DEST_DIR = MAC_DEST_BIN
 else:
 	# assume it's Linux
 	if os_machine_type == "x86_64":
 		BINARY_TARFILE = "imfit-%s-linux-64.tar.gz" % VERSION_STRING
 	else:
 		BINARY_TARFILE = "imfit-%s-linux-32.tar.gz" % VERSION_STRING
+	BINARY_COPY_DEST_DIR = LINUX_DEST
+	SOURCE_COPY_DEST_DIR = LINUX_DEST
 
 
 binary_only_files = """
@@ -170,6 +181,8 @@ imfit_textout2
 imfit_textout3
 imfit_textout3b
 imfit_textout3c_tail
+imfit_textout3d
+imfit_textout3d2
 imfit_textout4
 imfit_textout4b
 imfit_textout4c
@@ -286,6 +299,9 @@ def MakeBinaryDist( ):
 		tar.add(distDir + fname)
 	tar.close()
 
+	print("Copying gzipped tar file %s to %s..." % (BINARY_TARFILE, BINARY_COPY_DEST_DIR))
+	shutil.copy(BINARY_TARFILE, BINARY_COPY_DEST_DIR)
+
 
 def MakeSourceDist( ):
 	distDir = "imfit-%s/" % VERSION_STRING
@@ -302,6 +318,9 @@ def MakeSourceDist( ):
 	for fname in final_file_list:
 		tar.add(distDir + fname)
 	tar.close()
+	
+	print("Copying gzipped tar file %s to %s..." % (SOURCE_TARFILE, SOURCE_COPY_DEST_DIR))
+	shutil.copy(SOURCE_TARFILE, SOURCE_COPY_DEST_DIR)
 
 
 

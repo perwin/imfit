@@ -364,7 +364,7 @@ int mpfit(mp_func funct, int m, int npar,
   /* FIXED parameters? */
   mp_malloc(pfixed, int, npar);
   if (pars) for (i = 0; i < npar; i++) {
-    pfixed[i] = (pars[i].fixed)?1:0;
+    pfixed[i] = (pars[i].fixed) ? 1 : 0;
   }
 
   /* Finite differencing step, absolute and relative, and sidedness of deriv */
@@ -855,13 +855,16 @@ int mpfit(mp_func funct, int m, int npar,
     for (i = 0; i < m; i++ ) {
       fvec[i] = wa4[i];
     }
-    xnorm = mp_enorm(nfree,wa2);
+    xnorm = mp_enorm(nfree, wa2);
     fnorm = fnorm1;
     // Added by PE: printing updates
     if (config->verbose > 0) {
       printf("\tmpfit iteration %d: chi^2 = %f\n", iter, fnorm*fnorm);
-      if (config->verbose >1) {
-        theModel->PrintModelParams(stdout, x, NULL, NULL);
+      if (config->verbose > 1) {
+        // note that we print parameter values using xnew, not x, since x 
+        // contains only the *free* parameters. xnew contains *all* parameters,
+        // and holds the last set of parameter values passed to theModel (via funct)
+        theModel->PrintModelParams(stdout, xnew, NULL, NULL);
       }
     }
     iter += 1;

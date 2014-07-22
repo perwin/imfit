@@ -33,6 +33,11 @@ then
 else
   echo "   (skipping DE test)"
 fi
+# same L-M fit with --loud turned on, to ensure we print intermediate values correctly during fit
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --loud  &> test_dump3d
+# same, but now with Sersic n fixed (to ensure we don't re-introduce bug originally seen when
+# using --loud and one or more fixed parameters)
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --loud  &> test_dump3d2
 
 # test non-square SDSS image + PSF convolution; then test count/sec version with --exptime
 # option; then just do chisquare-only calculations (for chi^2 and Cash statistic)
@@ -124,6 +129,25 @@ then
     diff test_dump3c_tail tests/imfit_textout3c_tail
   fi
 fi
+
+echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud)... "
+if (diff --brief test_dump3d tests/imfit_textout3d)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump3d tests/imfit_textout3d
+fi
+
+echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud, fixed parameter)... "
+if (diff --brief test_dump3d2 tests/imfit_textout3d2)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump3d2 tests/imfit_textout3d2
+fi
+
 
 echo -n "*** Diff comparison with archives: fit to larger (rectangular) SDSS image w/ PSF convolution... "
 if (diff --brief test_dump4 tests/imfit_textout4)
