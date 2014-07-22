@@ -44,6 +44,12 @@ void TrimWhitespace( string& stringToModify );
 void StripBrackets( const string& inputFilename, string& strippedFilename );
 
 
+void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
+                           int *y1, int *y2 );
+
+void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
+                           const string& fileName );
+
 void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart );
 
 

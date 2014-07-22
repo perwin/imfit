@@ -84,6 +84,11 @@ class ModelObject
     void AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels );
 
+ 	// 2D only
+    void AddOversampledPSFVector( int nPixels, int nColumns_psf, int nRows_psf, 
+    					double *psfPixels_osamp, int oversampleScale, int x1, int x2, 
+    					int y1, int y2 );
+
     // 1D only
     virtual void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector ) { ; };
     
@@ -207,7 +212,6 @@ class ModelObject
   protected:  // same as private, except accessible to derived classes
     int  nDataVals, nDataColumns, nDataRows, nValidDataVals, nCombined;
     int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
-//    double  nCombined_sqrt;
 	double  zeroPoint;
 	double  gain, readNoise, exposureTime, originalSky, effectiveGain;
 	double  readNoise_adu_squared;
@@ -240,6 +244,14 @@ class ModelObject
     vector<int> paramSizes;
     vector<string>  parameterLabels;
     
+    // experimental stuff for ovsersampled PSF convolution
+    Convolver  *psfConvolver_osamp;
+    int  oversamplingScale, nPSFColumns_osamp, nPSFRows_osamp;
+    int  nOversampledModelColumns, nOversampledModelRows, nOversampledModelVals;
+    bool  doOversampledConvolution;
+    bool  oversampledModelVectorAllocated;
+    double  *oversampledModelVector;
+
     bool CheckParamVector( int nParams, double paramVector[] );
     bool CheckWeightVector( );
     bool VetDataVector( );

@@ -1,6 +1,7 @@
 
 // $ cxxtestgen.py --error-printer -o test_runner.cpp unittest_utilities.h
 // $ g++ -o test_runner test_runner.cpp utilities.cpp -I/usr/local/include
+// $ ./test_runner
 
 #include <cxxtest/TestSuite.h>
 
@@ -199,6 +200,58 @@ public:
     TS_ASSERT( s1_out == correctResult1 );
     StripBrackets(s2, s2_out);
     TS_ASSERT( s2_out == correctResult2 );
+  }
+
+
+
+  // Tests for GetAllCoordsFromBrackets()
+  void testGetAllCoordsFromBrackets_BasicSections( void )
+  {
+    string  s1("100:200,200:400");
+    int  x1, y1, x2, y2;
+    int  correct_x1 = 100;
+    int  correct_x2 = 200;
+    int  correct_y1 = 200;
+    int  correct_y2 = 400;
+    GetAllCoordsFromBracket(s1, &x1, &x2, &y1, &y2);
+    TS_ASSERT( x1 == correct_x1 );
+    TS_ASSERT( x2 == correct_x2 );
+    TS_ASSERT( y1 == correct_y1 );
+    TS_ASSERT( y2 == correct_y2 );
+  }
+
+
+
+  // Tests for GetStartCoordsFromBrackets()
+  void testGetStartCoordsFromBrackets_BasicSections( void )
+  {
+    string  fn1("imagefile.fits[100:200,200:400]");
+    string  s1("100:200,200:400");
+    int  x1, y1, x2, y2;
+    int  correct_xoff = 100;
+    int  correct_yoff = 200;
+    GetStartCoordsFromBracket(s1, &x1, &y1, fn1);
+    TS_ASSERT( x1 == correct_xoff );
+    TS_ASSERT( y1 == correct_yoff );
+  }
+
+  void testGetStartCoordsFromBrackets__StarredSections( void )
+  {
+    string  fn1("image.fits[*,200:400]");
+    string  fn2("image.fits[100:200,*]");
+    string  s1("*,200:400");
+    string  s2("100:200,*");
+    int  x1, y1, x2, y2;
+    int  correct_xoff1 = 1;
+    int  correct_yoff1 = 200;
+    int  correct_xoff2 = 100;
+    int  correct_yoff2 = 1;
+    GetStartCoordsFromBracket(s1, &x1, &y1, fn1);
+    TS_ASSERT( x1 == correct_xoff1 );
+    TS_ASSERT( y1 == correct_yoff1 );
+    GetStartCoordsFromBracket(s2, &x2, &y2, fn2);
+    TS_ASSERT( x2 == correct_xoff2 );
+    TS_ASSERT( y2 == correct_yoff2 );
   }
 
 

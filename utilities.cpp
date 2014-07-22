@@ -137,11 +137,55 @@ void StripBrackets( const string& inputFilename, string& strippedFilename )
 
 
 
-/* ---------------- FUNCTION: GetCoordsFromBracket() ---------------- */
+/* ---------------- FUNCTION: GetAllCoordsFromBracket() ------------- */
+// Given a string of the form "x1:x2,y1:y2", return x1, x2, y1, and y2
+void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
+                           int *y1, int *y2 )
+{
+  vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
+  const string star = string("*");
+
+  // default values indicating errors:
+  *x1 = 0;
+  *x2 = 0;
+  *y1 = 0;
+  *y2 = 0;
+  
+  SplitString(bracketString, sectionPieces, ",");
+  // handle the x part of the section specification
+  if (sectionPieces[0] == star)
+    *x1 = 1;
+  else {
+    SplitString(sectionPieces[0], subsectionPieces_x, ":");
+    if (subsectionPieces_x.size() != 2) {
+      printf("\nWARNING1: Incorrect image section format!\n");
+      printf("\t\"%s\"\n", bracketString.c_str());
+      return;
+    }
+    *x1 = atoi(subsectionPieces_x[0].c_str());
+    *x2 = atoi(subsectionPieces_x[1].c_str());
+  }
+  // handle the y part of the section specification
+  if (sectionPieces[1] == star)
+    *y1 = 1;
+  else {
+    SplitString(sectionPieces[1], subsectionPieces_y, ":");
+    if (subsectionPieces_y.size() != 2) {
+      printf("\nWARNING2: Incorrect image section format!\n");
+      printf("\t\"%s\"\n", bracketString.c_str());
+      return;
+    }
+    *y1 = atoi(subsectionPieces_y[0].c_str());
+    *y2 = atoi(subsectionPieces_y[1].c_str());
+  }
+}
+
+
+/* ---------------- FUNCTION: GetStartCoordsFromBracket() ----------- */
 // Given a string of the form "x1:x2,y1:y2", return x1 and y1
 // Special case: "*,y1:y2" ==> return 1, y1
 // Special case: "x1:x2,*" ==> return x1, 1
-void GetCoordsFromBracket( const string& bracketString, int *x1, int *y1,
+void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
                            const string& fileName )
 {
   vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
@@ -232,7 +276,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
   // (nPieces = 1)
   if (nPieces == 2) {
     // apparently an image section
-    GetCoordsFromBracket(sectionSubstring, xStart, yStart, inputFilename);
+    GetStartCoordsFromBracket(sectionSubstring, xStart, yStart, inputFilename);
     // we found a valid (or invalid) image section; ignore anything else...
     return;
   }
@@ -262,7 +306,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
       return;
     }
     // apparently an image section
-    GetCoordsFromBracket(sectionSubstring, xStart, yStart, inputFilename);
+    GetStartCoordsFromBracket(sectionSubstring, xStart, yStart, inputFilename);
   }
 
 }

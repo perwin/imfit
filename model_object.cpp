@@ -117,6 +117,8 @@ ModelObject::ModelObject( )
   modelImageComputed = false;
   maskExists = false;
   doConvolution = false;
+  doOversampledConvolution = false;
+  oversampledModelVectorAllocated = false;
   zeroPointSet = false;
   
   nFunctions = 0;
@@ -480,6 +482,7 @@ void ModelObject::ApplyMask( )
 }
 
 
+
 /* ---------------- PUBLIC METHOD: AddPSFVector ------------------------ */
 // This function is called to pass in the PSF image and dimensions; doing so
 // automatically triggers setup of a Convolver object to do convolutions (including
@@ -497,6 +500,66 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
   psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
   psfConvolver->SetMaxThreads(maxRequestedThreads);
   doConvolution = true;
+}
+
+
+
+/* ---------------- PUBLIC METHOD: AddOversampledPSFVector ------------- */
+// This function is called to pass in an oversampled PSF image, its dimensions, and
+// information about the oversampling scale and the region of the image for which
+// convolution of the oversampled model image with the oversampled PSF will be done.
+// Calling this function automatically triggers setup of a Convolver object to handle
+// oversampled convolutions (including prep work such as computing the FFT of the PSF).
+// It *also* allocates space for the oversampled model sub-image vector.
+void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf, 
+						int nRows_psf, double *psfPixels_osamp, int oversampleScale,
+						int x1, int x2, int y1, int y2 )
+{
+  int  result;
+  int  deltaX, deltaY, nCols_osamp, nRows_osamp;
+  
+  assert( (nPixels >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
+  assert( (oversampleScale >= 1) );
+
+  // restrict region to be oversampled (in data or output image) to lie within
+  // image bounds
+  if (x1 < 1)
+    x1 = 1;
+  if (y1 < 1)
+    y1 = 1;
+  if (x2 > nDataColumns)
+    x2 = nDataColumns;
+  if (y2 > nDataRows)
+    y2 = nDataRows;
+  // size of oversampling region
+  oversamplingScale = oversampleScale;
+  deltaX = x2 - x1 + 1;
+  deltaY = y2 - y1 + 1;
+  nCols_osamp = oversamplingScale * deltaX;
+  nRows_osamp = oversamplingScale * deltaY;
+  
+  // oversampled PSF and corresponding Convolver object
+  nPSFColumns_osamp = nColumns_psf;
+  nPSFRows_osamp = nRows_psf;
+  psfConvolver_osamp = new Convolver();
+  psfConvolver_osamp->SetupPSF(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
+  psfConvolver_osamp->SetMaxThreads(maxRequestedThreads);
+  doOversampledConvolution = true;
+
+  // Size of actual oversampled model sub-image (including padding for PSF conv.)
+  nOversampledModelColumns = nCols_osamp + 2*nPSFColumns_osamp;
+  nOversampledModelRows = nRows_osamp + 2*nPSFRows_osamp;
+  nOversampledModelVals = nOversampledModelColumns*nOversampledModelRows;
+  psfConvolver_osamp->SetupImage(nOversampledModelColumns, nOversampledModelRows);
+  result = psfConvolver_osamp->DoFullSetup(debugLevel);
+
+  // Allocate oversampled model sub-image vector
+  // WARNING: Possible memory leak (if this function is called more than once)!
+  //    If this function *is* called again, then nModelVals could be different
+  //    from the first call, in wich case we'd need to realloc modelVector
+  oversampledModelVector = (double *) calloc((size_t)nOversampledModelVals, sizeof(double));
+  oversampledModelVectorAllocated = true;
+
 }
 
 
@@ -597,8 +660,6 @@ void ModelObject::CreateModelImage( double params[] )
       printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
     printf("\n");
 #endif
-//    fprintf(stderr, "Exiting ...\n\n");
-//    exit(-1);
   }
 
   // Separate out the individual-component parameters and tell the
@@ -661,6 +722,21 @@ void ModelObject::CreateModelImage( double params[] )
   // Do PSF convolution, if requested
   if (doConvolution)
     psfConvolver->ConvolveImage(modelVector);
+  
+  // Optional generation of oversampled sub-image and convolution with oversampled PSF
+  if (doOversampledConvolution) {
+    ;
+    // Generate oversampled sub-image
+    
+    // Convolve with oversampled PSF
+    //psfConvolver_osamp->ConvolveImage(oversampledModelVector);
+    
+    // Downsample to original resolution and copy into main model image
+    //   1. Step through pixels of replacement region in main model image
+    //   2. For each such pixel, integrate over corresponding oversamplingScale x oversamplingScale
+    //      pixels in oversampledModelVector
+    
+  }
   
   modelImageComputed = true;
 }
@@ -1595,6 +1671,8 @@ ModelObject::~ModelObject()
     free(residualVector);
   if (outputModelVectorAllocated)
     free(outputModelVector);
+  if (oversampledModelVectorAllocated)
+    free(oversampledModelVector);
   
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)
@@ -1605,6 +1683,8 @@ ModelObject::~ModelObject()
   
   if (doConvolution)
     delete psfConvolver;
+  if (doOversampledConvolution)
+    delete psfConvolver_osamp;
 
   if (bootstrapIndicesAllocated) {
     free(bootstrapIndices);

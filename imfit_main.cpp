@@ -84,9 +84,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.0.2 (OpenMP-enabled)"
+#define VERSION_STRING      "1.1-osamp-dev (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.0.2"
+#define VERSION_STRING      "1.1-osamp-dev"
 #endif
 
 
@@ -191,6 +191,10 @@ int main(int argc, char *argv[])
   double  *paramsVect;
   double  X0_offset = 0.0;
   double  Y0_offset = 0.0;
+  int  x1_oversample = 0;
+  int  x2_oversample = 0;
+  int  y1_oversample = 0;
+  int  y2_oversample = 0;
   std::string  noiseImage;
   std::string  mpfitMessage;
   std::string  baseFileName;
@@ -359,6 +363,10 @@ int main(int argc, char *argv[])
       fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n\n");
       exit(-1);
     }
+    if (! options.oversampleRegionSet) {
+      fprintf(stderr, "\n*** ERROR: the oversampling region was not defined!\n\n");
+      exit(-1);
+    }
     printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());
     psfOversampledPixels = ReadImageAsVector(options.psfOversampledFileName, 
     							&nColumns_psf_oversampled, &nRows_psf_oversampled);
@@ -370,6 +378,9 @@ int main(int argc, char *argv[])
     nPixels_psf_oversampled = nColumns_psf_oversampled * nRows_psf_oversampled;
     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
+    // Determine oversampling region
+    GetAllCoordsFromBracket(options.psfOversampleRegion, &x1_oversample, &x2_oversample, 
+    						&y1_oversample, &y2_oversample);
   }
 
   if (! options.subsamplingFlag)
@@ -413,6 +424,15 @@ int main(int argc, char *argv[])
   theModel->PrintDescription();
   if (options.printImages)
     theModel->PrintInputImage();
+
+  // Add oversampled PSF image vector and corresponding info, if present
+  // (this operates on a sub-region of the main image, so ModelObject does not need
+  // to know about this prior to the image data)
+  if (options.psfOversampledImagePresent) {
+    theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
+    			nRows_psf_oversampled, psfOversampledPixels, options.psfOversamplingScale,
+    			x1_oversample, x2_oversample, y1_oversample, y2_oversample);
+  }
 
   // If user supplied a mask image, add it and apply it to the internal weight image
   if (maskAllocated) {

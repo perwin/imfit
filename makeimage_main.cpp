@@ -60,9 +60,9 @@ static string  kNRows = "NROWS";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.0.2 (OpenMP-enabled)"
+#define VERSION_STRING      "1.1-osamp-dev (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.0.2"
+#define VERSION_STRING      "1.1-osamp-dev"
 #endif
 
 
@@ -75,6 +75,11 @@ typedef struct {
   bool  subsamplingFlag;
   bool  noImageDimensions;
   std::string  psfFileName;   // []
+  std::string  psfOversampledFileName;     // []
+  bool  psfOversampledImagePresent;
+  int  psfOversamplingScale;
+  bool  oversampleRegionSet;
+  std::string  psfOversampleRegion;     // []
   bool  psfImagePresent;
   int  nColumns;
   int  nRows;
@@ -128,6 +133,12 @@ int main( int argc, char *argv[] )
   int  nParamsTot;
   int  status;
   double  *psfPixels;
+  double  *psfOversampledPixels;
+  int  nPixels_psf_oversampled, nColumns_psf_oversampled, nRows_psf_oversampled;
+  int  x1_oversample = 0;
+  int  x2_oversample = 0;
+  int  y1_oversample = 0;
+  int  y2_oversample = 0;
   double  *paramsVect;
   ModelObject  *theModel;
   vector<string>  functionList;
@@ -146,6 +157,9 @@ int main( int argc, char *argv[] )
   options.subsamplingFlag = true;
   options.noImageDimensions = true;
   options.psfImagePresent = false;
+  options.psfOversampledImagePresent = false;
+  options.psfOversamplingScale = 0;
+  options.oversampleRegionSet = false;
   options.nColumns = 0;
   options.nRows = 0;
   options.estimationImageSize = DEFAULT_ESTIMATION_IMAGE_SIZE;
@@ -237,6 +251,32 @@ int main( int argc, char *argv[] )
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
+  /* Read in oversampled PSF image, if supplied */
+  if (options.psfOversampledImagePresent) {
+    if (options.psfOversamplingScale < 1) {
+      fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n\n");
+      exit(-1);
+    }
+    if (! options.oversampleRegionSet) {
+      fprintf(stderr, "\n*** ERROR: the oversampling region was not defined!\n\n");
+      exit(-1);
+    }
+    printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());
+    psfOversampledPixels = ReadImageAsVector(options.psfOversampledFileName, 
+    							&nColumns_psf_oversampled, &nRows_psf_oversampled);
+    if (psfOversampledPixels == NULL) {
+      fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
+    			options.psfOversampledFileName.c_str());
+      exit(-1);
+    }
+    nPixels_psf_oversampled = nColumns_psf_oversampled * nRows_psf_oversampled;
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
+           nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
+    // Determine oversampling region
+    GetAllCoordsFromBracket(options.psfOversampleRegion, &x1_oversample, &x2_oversample, 
+    						&y1_oversample, &y2_oversample);
+  }
+
   if (! options.subsamplingFlag)
     printf("* Pixel subsampling has been turned OFF.\n");
 
@@ -261,6 +301,12 @@ int main( int argc, char *argv[] )
   // Add PSF image vector, if present
   if (options.psfImagePresent)
     theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+
+  // Add oversampled PSF image vector and corresponding info, if present
+  if (options.psfOversampledImagePresent)
+    theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
+    			nRows_psf_oversampled, psfOversampledPixels, options.psfOversamplingScale,
+    			x1_oversample, x2_oversample, y1_oversample, y2_oversample);
 
   /* Define the size of the requested model image */
   theModel->SetupModelImage(nColumns, nRows);
@@ -401,6 +447,8 @@ int main( int argc, char *argv[] )
   // Free up memory
   if (options.psfImagePresent)
     free(psfPixels);
+  if (options.psfOversampledImagePresent)
+    free(psfOversampledPixels);
   free(paramsVect);
   delete theModel;
   
@@ -425,6 +473,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image [default = modelimage.fits]");
   optParser->AddUsageLine("     --refimage <reference-image.fits>   reference image (for image size)");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use (for convolution)");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --overpsf <psf.fits>      Oversampled PSF image to use");
+  optParser->AddUsageLine("     --overpsf_scale <n>       Oversampling scale (integer)");
+  optParser->AddUsageLine("     --overpsf_region <x1:x2,y1:y2>       Section of image to convolve with oversampled PSF");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --ncols <number-of-columns>   x-size of output image");
   optParser->AddUsageLine("     --nrows <number-of-rows>   y-size of output image");
   optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
@@ -457,6 +510,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("nrows");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("refimage");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("overpsf");
+  optParser->AddOption("overpsf_scale");
+  optParser->AddOption("overpsf_region");
   optParser->AddOption("zero-point");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("estimation-size");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("output-functions");      /* an option (takes an argument), supporting only long form */
@@ -527,6 +583,25 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->psfFileName = optParser->GetTargetString("psf");
     theOptions->psfImagePresent = true;
     printf("\tPSF image = %s\n", theOptions->psfFileName.c_str());
+  }
+  if (optParser->OptionSet("overpsf")) {
+    theOptions->psfOversampledFileName = optParser->GetTargetString("overpsf");
+    theOptions->psfOversampledImagePresent = true;
+    printf("\tOversampled PSF image = %s\n", theOptions->psfOversampledFileName.c_str());
+  }
+  if (optParser->OptionSet("overpsf_scale")) {
+    if (NotANumber(optParser->GetTargetString("overpsf_scale").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** ERROR: overpsf_scale should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->psfOversamplingScale = atoi(optParser->GetTargetString("overpsf_scale").c_str());
+    printf("\tPSF oversampling scale = %d\n", theOptions->psfOversamplingScale);
+  }
+  if (optParser->OptionSet("overpsf_region")) {
+    theOptions->psfOversampleRegion = optParser->GetTargetString("overpsf_region");
+    theOptions->oversampleRegionSet = true;
+    printf("\tPSF oversampling region = %s\n", theOptions->psfOversampleRegion.c_str());
   }
   if (optParser->OptionSet("ncols")) {
     if (NotANumber(optParser->GetTargetString("ncols").c_str(), 0, kPosInt)) {
