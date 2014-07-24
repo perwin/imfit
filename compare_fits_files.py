@@ -11,7 +11,11 @@ from __future__ import print_function
 
 import sys, os, optparse
 import numpy as np
-import pyfits
+try:
+	from astropy.fits.io import open as fits_open
+except:
+	from pyfits import open as fits_open
+#import pyfits
 
 
 TOLERANCE = 1e-6
@@ -19,8 +23,8 @@ TOLERANCE = 1e-6
 
 
 def CompareImagesEqual( fname1, fname2 ):
-	imdata1 = pyfits.open(fname1)[0].data
-	imdata2 = pyfits.open(fname2)[0].data
+	imdata1 = fits_open(fname1)[0].data
+	imdata2 = fits_open(fname2)[0].data
 	return np.array_equal(imdata1, imdata2)
 
 
@@ -28,10 +32,10 @@ def CompareSum( fname1, fname2, referenceSum_fname ):
 	"""Sum the first two images and compare the result with the third; if the maximum
 	relative deviation is >= 1e-6, return False, else return True.
 	"""
-	imdata1 = pyfits.open(fname1)[0].data
-	imdata2 = pyfits.open(fname2)[0].data
+	imdata1 = fits_open(fname1)[0].data
+	imdata2 = fits_open(fname2)[0].data
 	imSum = imdata1 + imdata2
-	refSum_imdata = pyfits.open(referenceSum_fname)[0].data
+	refSum_imdata = fits_open(referenceSum_fname)[0].data
 	devianceImdata = np.abs((imSum / refSum_imdata) - 1.0)
 	if np.max(devianceImdata) >= TOLERANCE:
 		return False

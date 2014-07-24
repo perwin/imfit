@@ -209,16 +209,16 @@ QUESTIONS AND ISSUES:
 				to normalize; we can probably do the same (i.e., sum up the subpixels
 				to form a final original pixel, then divide by number of subpixels)
 			
-			-- Need separate subimage model vector (but not error, weight, mask, etc.),
+			[x]-- Need separate subimage model vector (but not error, weight, mask, etc.),
 			appropriately padded
-			-- Need separate oversampled PSF image vector
-			-- Need separate Convolver component
+			[x]-- Need separate oversampled PSF image vector
+			[x]-- Need separate Convolver component
 			
 			-- Insert code into ModelImage::CreateModelImage *just* before end of
 			current code (so we do all the normal image creation & convolution first,
 			and then replace the central NxM pixels with the rebinned subset)
 		
-			-- command-line option to specify region to oversample and oversampled PSF
+			[x]-- command-line option to specify region to oversample and oversampled PSF
 			to use, along with oversampling factor
 				1. bounding box of oversample region (coordinates + width?)
 				2. oversampled PSF file (FITS file)
@@ -228,6 +228,13 @@ QUESTIONS AND ISSUES:
 				1. Do oversampled PSF on central region + *no* PSF convolution for rest of image
 				2. Do entire image with oversampled PSF
 					-- This requires *skipping* the normal image creation!
+						
+			-- Possible later option: allow user to specify multiple oversampling regions,
+			*as long as they are all the same size & shape* (e.g., 10x10 or 25x25)
+				-- this allows us to re-use the same Convolver component (oversampled PSF +
+				specific size for oversampled sub-image) with different oversampled
+				subimage model vectors
+			
 		
 		-- Possible future architecture: plug-ins for post-convolution processing
 			e.g., after convolution, an optional stage where one (or more?) functions
