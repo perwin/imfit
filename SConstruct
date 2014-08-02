@@ -448,8 +448,8 @@ c_sources = [name + ".c" for name in c_objs]
 
 # C++ code
 
-# ModelObject and related classes:
-modelobject_obj_string = """model_object convolver"""
+# ModelObject and related classes/files:
+modelobject_obj_string = """model_object convolver oversampled_region downsample"""
 modelobject_objs = modelobject_obj_string.split()
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 

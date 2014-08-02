@@ -302,14 +302,14 @@ int main( int argc, char *argv[] )
   if (options.psfImagePresent)
     theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
 
+  /* Define the size of the requested model image */
+  theModel->SetupModelImage(nColumns, nRows);
   // Add oversampled PSF image vector and corresponding info, if present
   if (options.psfOversampledImagePresent)
     theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
     			nRows_psf_oversampled, psfOversampledPixels, options.psfOversamplingScale,
     			x1_oversample, x2_oversample, y1_oversample, y2_oversample);
 
-  /* Define the size of the requested model image */
-  theModel->SetupModelImage(nColumns, nRows);
   theModel->PrintDescription();
 
 

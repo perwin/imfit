@@ -61,6 +61,7 @@
 #include "definitions.h"
 #include "function_objects/function_object.h"
 #include "model_object.h"
+#include "oversampled_region.h"
 #include "mp_enorm.h"
 #include "param_struct.h"
 
@@ -117,8 +118,8 @@ ModelObject::ModelObject( )
   modelImageComputed = false;
   maskExists = false;
   doConvolution = false;
-  doOversampledConvolution = false;
-  oversampledModelVectorAllocated = false;
+  oversampledRegionsExist = false;
+  oversampledRegionAllocated = false;
   zeroPointSet = false;
   
   nFunctions = 0;
@@ -488,7 +489,7 @@ void ModelObject::ApplyMask( )
 // automatically triggers setup of a Convolver object to do convolutions (including
 // prep work such as computing the FFT of the PSF).
 // This function must be called *before* SetupModelImage() is called (to ensure
-// that we know the proper model-image dimensions
+// that we know the proper model-image dimensions).
 void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels)
 {
@@ -511,6 +512,9 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 // Calling this function automatically triggers setup of a Convolver object to handle
 // oversampled convolutions (including prep work such as computing the FFT of the PSF).
 // It *also* allocates space for the oversampled model sub-image vector.
+//    This function *must* be called *after* SetupModelImage() [or after AddImageDataVector(),
+// which itself calls SetupModelImage()], otherwise the necessary information about the 
+// size of the main model image (nDataColumns, nDataRows) will not be known.
 void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf, 
 						int nRows_psf, double *psfPixels_osamp, int oversampleScale,
 						int x1, int x2, int y1, int y2 )
@@ -541,25 +545,19 @@ void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
   // oversampled PSF and corresponding Convolver object
   nPSFColumns_osamp = nColumns_psf;
   nPSFRows_osamp = nRows_psf;
-  psfConvolver_osamp = new Convolver();
-  psfConvolver_osamp->SetupPSF(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
-  psfConvolver_osamp->SetMaxThreads(maxRequestedThreads);
-  doOversampledConvolution = true;
+  oversampledRegionsExist = true;
 
   // Size of actual oversampled model sub-image (including padding for PSF conv.)
   nOversampledModelColumns = nCols_osamp + 2*nPSFColumns_osamp;
   nOversampledModelRows = nRows_osamp + 2*nPSFRows_osamp;
   nOversampledModelVals = nOversampledModelColumns*nOversampledModelRows;
-  psfConvolver_osamp->SetupImage(nOversampledModelColumns, nOversampledModelRows);
-  result = psfConvolver_osamp->DoFullSetup(debugLevel);
 
-  // Allocate oversampled model sub-image vector
-  // WARNING: Possible memory leak (if this function is called more than once)!
-  //    If this function *is* called again, then nModelVals could be different
-  //    from the first call, in wich case we'd need to realloc modelVector
-  oversampledModelVector = (double *) calloc((size_t)nOversampledModelVals, sizeof(double));
-  oversampledModelVectorAllocated = true;
-
+  // Allocate OversampledRegion object and give it necessary info
+  oversampledRegion = new OversampledRegion();
+  oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
+  oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nDataColumns, nDataRows, 
+  									nPSFColumns, nPSFRows, oversamplingScale);
+  oversampledRegionAllocated = true;
 }
 
 
@@ -704,17 +702,17 @@ void ModelObject::CreateModelImage( double params[] )
                                                  // (note that nPSFRows = 0 if not doing PSF convolution)
     x = (double)(j - nPSFColumns + 1);           // Iraf counting: first column = 1
                                                  // (note that nPSFColumns = 0 if not doing PSF convolution)
-      newValSum = 0.0;
-      storedError = 0.0;
-      for (n = 0; n < nFunctions; n++) {
-        // Use Kahan summation algorithm
-        adjVal = functionObjects[n]->GetValue(x, y) - storedError;
-        tempSum = newValSum + adjVal;
-        storedError = (tempSum - newValSum) - adjVal;
-        newValSum = tempSum;
-      }
-      modelVector[i*nModelColumns + j] = newValSum;
+    newValSum = 0.0;
+    storedError = 0.0;
+    for (n = 0; n < nFunctions; n++) {
+      // Use Kahan summation algorithm
+      adjVal = functionObjects[n]->GetValue(x, y) - storedError;
+      tempSum = newValSum + adjVal;
+      storedError = (tempSum - newValSum) - adjVal;
+      newValSum = tempSum;
     }
+    modelVector[i*nModelColumns + j] = newValSum;
+  }
   
   } // end omp parallel section
   
@@ -724,8 +722,9 @@ void ModelObject::CreateModelImage( double params[] )
     psfConvolver->ConvolveImage(modelVector);
   
   // Optional generation of oversampled sub-image and convolution with oversampled PSF
-  if (doOversampledConvolution) {
-    ;
+  if (oversampledRegionsExist) {
+    oversampledRegion->ComputeRegionAndDownsample(modelVector, functionObjects, nFunctions);
+    
     // Generate oversampled sub-image
     
     // Convolve with oversampled PSF
@@ -1671,8 +1670,6 @@ ModelObject::~ModelObject()
     free(residualVector);
   if (outputModelVectorAllocated)
     free(outputModelVector);
-  if (oversampledModelVectorAllocated)
-    free(oversampledModelVector);
   
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)
@@ -1683,8 +1680,8 @@ ModelObject::~ModelObject()
   
   if (doConvolution)
     delete psfConvolver;
-  if (doOversampledConvolution)
-    delete psfConvolver_osamp;
+  if (oversampledRegionsExist)
+    delete oversampledRegion;
 
   if (bootstrapIndicesAllocated) {
     free(bootstrapIndices);

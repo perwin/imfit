@@ -208,16 +208,26 @@ public:
   void testGetAllCoordsFromBrackets_BasicSections( void )
   {
     string  s1("100:200,200:400");
+    string  s2("245:265,245:255");
     int  x1, y1, x2, y2;
-    int  correct_x1 = 100;
-    int  correct_x2 = 200;
-    int  correct_y1 = 200;
-    int  correct_y2 = 400;
+    int  correct_x1a = 100;
+    int  correct_x2a = 200;
+    int  correct_y1a = 200;
+    int  correct_y2a = 400;
+    int  correct_x1b = 245;
+    int  correct_x2b = 265;
+    int  correct_y1b = 245;
+    int  correct_y2b = 255;
     GetAllCoordsFromBracket(s1, &x1, &x2, &y1, &y2);
-    TS_ASSERT( x1 == correct_x1 );
-    TS_ASSERT( x2 == correct_x2 );
-    TS_ASSERT( y1 == correct_y1 );
-    TS_ASSERT( y2 == correct_y2 );
+    TS_ASSERT( x1 == correct_x1a );
+    TS_ASSERT( x2 == correct_x2a );
+    TS_ASSERT( y1 == correct_y1a );
+    TS_ASSERT( y2 == correct_y2a );
+    GetAllCoordsFromBracket(s2, &x1, &x2, &y1, &y2);
+    TS_ASSERT( x1 == correct_x1b );
+    TS_ASSERT( x2 == correct_x2b );
+    TS_ASSERT( y1 == correct_y1b );
+    TS_ASSERT( y2 == correct_y2b );
   }
 
 

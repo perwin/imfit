@@ -17,6 +17,7 @@
 #include "definitions.h"
 #include "function_objects/function_object.h"
 #include "convolver.h"
+#include "oversampled_region.h"
 #include "param_struct.h"
 
 using namespace std;
@@ -248,9 +249,9 @@ class ModelObject
     Convolver  *psfConvolver_osamp;
     int  oversamplingScale, nPSFColumns_osamp, nPSFRows_osamp;
     int  nOversampledModelColumns, nOversampledModelRows, nOversampledModelVals;
-    bool  doOversampledConvolution;
-    bool  oversampledModelVectorAllocated;
-    double  *oversampledModelVector;
+    bool  oversampledRegionsExist;
+    bool  oversampledRegionAllocated;
+    OversampledRegion *oversampledRegion;
 
     bool CheckParamVector( int nParams, double paramVector[] );
     bool CheckWeightVector( );

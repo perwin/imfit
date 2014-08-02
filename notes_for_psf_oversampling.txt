@@ -1,0 +1,176 @@
+NOTES FOR PSF OVERSAMPLING:
+
+
+[ ] Add code in OversampledRegion::ComputeRegionAndDownsample to write oversampled
+region to a file
+	-- check that e.g. oversampled Gaussian has correct sigma or FWHM
+
+
+TESTING:
+
+simpler test:
+	1. Generate image with 2 Gaussians
+	2. Generate same image w/ oversampling region on one of the Gaussians
+
+simpler test, v4:
+	1. Generate image with 2 n=4 Sersic components
+	2. Generate same image w/ oversampling region on one of the Sersic components
+	
+archetype: Image with central e.g. Gaussian
+
+1. Generate standard PSF-conv. image
+	model: config_makeimage_smallgauss_for_test.dat
+	standard PSF: config_makeimage_gauss-psf_for_test.dat
+	$ makeimage config_makeimage_gauss-psf_for_test.dat -o psf_gauss_sigma3_31.fits
+	$ makeimage config_makeimage_smallgauss_for_test.dat -o smallgauss_test_conv-no-psf.fits
+	$ makeimage config_makeimage_smallgauss_for_test.dat -o smallgauss_test_conv-with-std-psf.fits  --psf psf_gauss_sigma3_31.fits
+
+2. Generate image with 3x3 times as many pixels and correspondingly scaled Gaussian and
+PSF
+	model: config_makeimage_smallgauss_for_test_oversampled.dat
+	oversampled PSF: config_makeimage_oversampled-gauss-psf_for_test.dat
+	B. Then downsample (e.g., with Python and/or IRAF)
+	
+	$ makeimage config_makeimage_smallgauss_for_test_oversampled.dat -o smallgauss_test_osamp_conv-no-psf.fits
+	$ makeimage config_makeimage_oversampled-gauss-psf_for_test.dat -o psf_gauss_sigma9_105.fits
+
+smallgauss_test_osamp_conv-no-psf.fits: [153,153][float]
+	center = (75,75)
+
+psf_gauss_sigma3_31.fits: [35,35][float]
+psf_gauss_sigma9_105.fits: [105,105][float]
+
+
+3. Generate oversampled-PSF image, then compare with 2B
+	model: config_makeimage_smallgauss_for_test.dat
+	oversampled PSF: config_makeimage_oversampled-gauss-psf_for_test.dat
+
+4. Redo 1--3 with position of Gaussian in UL corner, upper middle, UR corner,
+LL corner, lower middle, LR corner.
+
+
+FURTHER TESTS:
+
+Test images with multiple Gaussians (widely spaced), in UL corner, upper middle,
+UR corner, etc. -- to make sure we handle cases where part of oversampled-region+PSF-padding
+may extend beyond main image boundaries.
+
+
+
+
+Possible class for oversampled regions:
+
+    // experimental stuff for ovsersampled PSF convolution
+    Convolver  *psfConvolver_osamp;
+    int  oversamplingScale, nPSFColumns_osamp, nPSFRows_osamp;
+    int  nOversampledModelColumns, nOversampledModelRows, nOversampledModelVals;
+    bool  doOversampledConvolution;
+    bool  oversampledModelVectorAllocated;
+    double  *oversampledModelVector;
+
+vector of oversampling objects
+	Each object holds its own Convolver object via pointer
+		-- allows for possibility of multiple objects sharing a single Convolver
+		object if they all have same PSF, region size & shape
+		-- possibility of *not* doing convolution (mainly for test purposes)
+	Each object holds its own PSF, region size info, region location within big image
+	
+	Methods:
+		Setup (takes in PSF vector, main image size and region size, region location)
+		Compute oversampled image (& PSF convolution)
+		Downsample and copy oversampled,convolved image into main image
+		
+	
+	ModelObject::CreateModelImage just steps through vector of oversampling objects,
+repeatedly passing each one the main modelimage vector and vector of FunctionObjects
+	-- does this *after* its own setup and global-image computation!
+	
+
+
+
+[Highly speculative future option:
+	Entire image is divided into sub-regions, each with its own PSF
+	Skip computation of main image and just fill it with zeros
+	Do image computation & convolution on sub-regions
+	Downsample and fill in sub-regions in main image]
+
+
+
+
+[stuff copied from notes_for_2d_image_fitting.txt:]
+
+	[] Option to do convolution on oversampled grid around object center?
+		-- e.g., in 10x10 grid around object center, oversample object *and* PSF,
+		do convolution using oversampled image, then resample to input scaling
+		and past into main image.
+		-- does GALFIT do something like this? [No, at least according to the
+		documentation when it uses an oversampled PSF, it does this for the entire
+		image [or the entire PSF convolution box?]]
+		
+		Issues/things to think about:
+			-- Secondary stage to apply CTE or similar pixel diffusion kernel,
+			after resampling to original pixel scale?
+			-- Need to translate pixel coordinates to oversampled grid -- look at
+			current pixel-subsampling code in function objects...
+			-- Do we need to rescale things like pixel sizes (prob. not -- we just
+			work with same pixel dimensions on a smaller subgrid, as we do for
+			pixel subsampling)
+			-- Do we need to rescale intensities (counts/pixel, etc.)?
+				-- current pixel subsampling just divides by number of subpixels
+				to normalize; we can probably do the same (i.e., sum up the subpixels
+				to form a final original pixel, then divide by number of subpixels)
+			
+			[x]-- Need separate subimage model vector (but not error, weight, mask, etc.),
+			appropriately padded
+			[x]-- Need separate oversampled PSF image vector
+			[x]-- Need separate Convolver component
+			
+			-- Insert code into ModelImage::CreateModelImage *just* before end of
+			current code (so we do all the normal image creation & convolution first,
+			and then replace the central NxM pixels with the rebinned subset)
+		
+			[x]-- command-line option to specify region to oversample and oversampled PSF
+			to use, along with oversampling factor
+				1. bounding box of oversample region (coordinates + width?)
+				2. oversampled PSF file (FITS file)
+				3. oversampling factor (single integer)
+			-- optional CTE diffusion kernel
+			-- possible extreme scenarios:
+				1. Do oversampled PSF on central region + *no* PSF convolution for rest of image
+				2. Do entire image with oversampled PSF
+					-- This requires *skipping* the normal image creation!
+						
+			-- Possible later option: allow user to specify multiple oversampling regions,
+			*as long as they are all the same size & shape* (e.g., 10x10 or 25x25)
+				-- this allows us to re-use the same Convolver component (oversampled PSF +
+				specific size for oversampled sub-image) with different oversampled
+				subimage model vectors
+			
+		
+		-- Possible future architecture: plug-ins for post-convolution processing
+			e.g., after convolution, an optional stage where one (or more?) functions
+			is called (or objects which get passed the image as input) which can perform user-specified
+			post-processing (such as applying a CTE kernel)
+				-- need to allow user to specify which plug-in to use
+					-- command-line option? line in main config file?
+				-- need to figure out how to allow user to specify input information
+				for their plug-in: special configuration file? (this would require
+				config-file option-parsing code in the plug-in, which is probably OK)
+				-- if more than one plug-in: main program builds up list of miscellaneous 
+				configuration files, and then queries each of the user-specified plug-ins whether
+			-- Could also replace our current convolution architecture with a more plug-in-style
+			approach, so that the user to could specify standard single-PSF convolution *or*
+			some kind of spatially-varying PSF approach
+		
+		-- Post-convolution processing: CTE, etc.
+			One major form of post-convolution processing would be incorporating the effects
+			of CTE (charge-transfer efficiency) for CCDs or IPC (interpixel capacitance) for
+			IR arrays
+			
+			Really complicated examples would account for geometric distortion correctsions, etc.
+			E.g.: convolution (with spatially varying PSF?) at image plane, then CTE/IPC
+			effects, then geometric-distortion correction (e.g., HST's ACS and WFC3)
+		
+		[] Test spline-subsampling of PSF by comparing result of subsampling
+		TinyTim standard-sampled PSF to TinyTim-generated subampled PSF
+
