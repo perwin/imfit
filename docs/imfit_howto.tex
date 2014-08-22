@@ -268,12 +268,12 @@ data in the \texttt{tests/} subdirectory. Possible differences in output
 at the level of the least significant digit may occur (especially for
 the ``DE fit'' test); these should not be considered problems. (For the
 full set of tests to run, you should have Python version 2.6 or 2.7
-installed, along with the numpy\footnote{\url{http://numpy.scipy.org/}}
-and
+installed, along with the Python libraries numpy\footnote{\url{http://numpy.scipy.org/}}
+and either
 pyfits\footnote{\url{http://www.stsci.edu/institute/software_hardware/
-pyfits}} Python libraries. If these are not available, then the parts of
+pyfits}} or astropy.\footnote{\url{http://www.astropy.org}} If these are not available, then the parts of
 the tests which compare output images with reference versions will
-simply be skipped.)
+be skipped.)
 
 
 %\subsubsection{Recommended Option: Compiling with OpenMP Support}
@@ -336,14 +336,23 @@ with the following commands:
 \texttt{\$ scons --no-openmp makeimage}
 \end{quote}
 
-\textit{Note for compiling on MacOS X:} the
-command-line compilers which come with the current Apple-supplied
-development environment (Xcode 5) are based on Clang instead of
-\textsc{gcc} and so do \textit{not} support OpenMP. In order to compile
-with OpenMP, you will need either a previous version of Xcode (e.g.,
-from a prior installation) or a separate installation of \textsc{gcc}
-4.2 or later (such as those available at
-\url{http://hpc.sourceforge.net/}).
+
+\subsubsection{Peculiarities of Compiling on Mac OS X}
+
+The standard compiler tools for Mac OS~X are those which come with
+Apple's Xcode. Prior to version 5, Xcode included
+\textsc{gcc} 4.2 (or an LLVM-based equivalent called ``llvm-gcc'').
+Unfortunately, the command-line compilers which come with Xcode 5 are
+based on Clang instead of \textsc{gcc} and so do \textit{not} support
+OpenMP. In order to compile \imfit{} with OpenMP, you will need either a previous
+version of Xcode (e.g., from a prior installation) or a separate
+installation of \textsc{gcc} 4.2 or later (such as those available at
+\url{http://hpc.sourceforge.net/}, or via package managers such as Fink,
+MacPorts, or Hombrew).
+
+(Current work on LLVM and Clang includes adding support for OpenMP, so future versions
+of Xcode \textit{might} hopefully restore support for OpenMP, though this is just
+speculation at the moment.)
 
 %If you are using the \texttt{configure + make} approach instead, you can use the
 %following when running \texttt{configure}:
@@ -1670,7 +1679,8 @@ the new function. (Assuming there aren't any bugs in your new code\ldots.)
 
 \chapter{Acknowledging Use of \Imfit}
 
-A paper describing \imfit{} is currently in preparation; until it is available, you can
+A paper describing \imfit{} has been submitted to \textit{The Astrophysical Journal}
+and can be found on the arXiv at \url{http://arxiv.org/abs/1408.1097}; you can also
 reference the current URL (\url{http://www.mpe.mpg.de/~erwin/code/imfit/}) if \imfit{} has
 been useful in your research.
 

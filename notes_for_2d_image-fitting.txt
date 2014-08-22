@@ -209,16 +209,16 @@ QUESTIONS AND ISSUES:
 				to normalize; we can probably do the same (i.e., sum up the subpixels
 				to form a final original pixel, then divide by number of subpixels)
 			
-			-- Need separate subimage model vector (but not error, weight, mask, etc.),
+			[x]-- Need separate subimage model vector (but not error, weight, mask, etc.),
 			appropriately padded
-			-- Need separate oversampled PSF image vector
-			-- Need separate Convolver component
+			[x]-- Need separate oversampled PSF image vector
+			[x]-- Need separate Convolver component
 			
 			-- Insert code into ModelImage::CreateModelImage *just* before end of
 			current code (so we do all the normal image creation & convolution first,
 			and then replace the central NxM pixels with the rebinned subset)
 		
-			-- command-line option to specify region to oversample and oversampled PSF
+			[x]-- command-line option to specify region to oversample and oversampled PSF
 			to use, along with oversampling factor
 				1. bounding box of oversample region (coordinates + width?)
 				2. oversampled PSF file (FITS file)
@@ -228,6 +228,13 @@ QUESTIONS AND ISSUES:
 				1. Do oversampled PSF on central region + *no* PSF convolution for rest of image
 				2. Do entire image with oversampled PSF
 					-- This requires *skipping* the normal image creation!
+						
+			-- Possible later option: allow user to specify multiple oversampling regions,
+			*as long as they are all the same size & shape* (e.g., 10x10 or 25x25)
+				-- this allows us to re-use the same Convolver component (oversampled PSF +
+				specific size for oversampled sub-image) with different oversampled
+				subimage model vectors
+			
 		
 		-- Possible future architecture: plug-ins for post-convolution processing
 			e.g., after convolution, an optional stage where one (or more?) functions
@@ -925,6 +932,30 @@ New function/method: UpdateWeightVector
 
 
 
+[ ]** Possible modified-Cash-statistic (aka CSTAT) 
+[Aug 2014 suggestion by David Streich]
+
+Pre-generate vector of d_i log(d_i) - d_i values (mainly so we can catch possible
+edge case of d_i = 0, for which the total quantity -> 0)
+
+Similarities to Cash statistic:
+	-- weight vector should be 0/1 only
+	-- *don't* generate error vector
+Differences from Cash statistic:
+	-- L-M is OK  [handled in imfit_main.cpp]
+	-- possibly computation in ComputeDeviates
+	-- pre-compute d_i log(d_i) - d_i vector
+
+QUESTION: Do we add a completely new, parallel flag and associated functions, or
+do we add an additional flag which modifies current Cash-stat behavior?
+
+ModelObject::GetFitStatistic
+	-- add switch to handle case of modified Cash stat
+ModelObject::ComputeDeviates
+	-- new code to compute modified Cash stat deviates
+
+
+
 
 *** Fitting multiple images:
 
@@ -964,15 +995,14 @@ Idea would be to translate x0,y0, PA, and sizes into values specific to
 each image, given some kind of user-supplied specification of image offset
 and relative rotations and pixel scales
 	-- possible (but dangerous?) option: inter-image conversion factors
-	could be parameters as well... (usually a much better idea would be
-	to adopt fixed user-supplied values, or at most allow the positional
+	could be parameters as well... (usually a better idea would be to
+	adopt fixed user-supplied values, or at most allow the positional
 	offsets to be free parameters)
 
 Things associated with individual images:
 	image data
 	mask data
 	error data (incl. gain, readnoise)
-	chi^2 vs Cash statistic?
 	derived weight map
 	notional/abstract: orientation (PA rotation), pixel scale, overall intensity scaling
 	[x0,y0 offsets -- however, ModelObject does not need to know about this]
@@ -1046,15 +1076,17 @@ parameters (pixel size, intensity scaling, rotation offsets[?])
 	*know* what the real offset or transformation should be...
 
 	
-Side note on usage: how to handle case of high-resoln central image (e.g., HST)
+[Side note on usage: how to handle case of high-resoln central image (e.g., HST)
 and lower-resolution ground-based image? One approach might be to construct a
 mask for the low-res. image which masks out the nuclear pixels, so we don't have to
-worry about doing PSF convolution
+worry about doing PSF convolution]
 
 
 Possible input-file format:
 image-name		weight	pixel-scale	flux-scale		x_off	y_off	PA
 
+Probably best if first image in list is "reference" image (weight = 1.0, pixel-scale = 1.0,
+x_off = y_off = 0.0, PA = 0)
 weight should be 1.0 for at least one image
 pixel-scale should be 1.0 for at least one image
 x_off,y_off can be nonexistent
