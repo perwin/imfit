@@ -45,10 +45,6 @@
 
 /* ------------------------ Include Files (Header Files )--------------- */
 
-#ifndef USING_SCONS
-#include "config.h"
-#endif
-
 #include <omp.h>
 
 #include <stdio.h>

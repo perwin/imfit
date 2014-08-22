@@ -8,13 +8,14 @@
  *     [v0.01]: 29 July 2014: Created.
  */
 
-// Outline for how one of these objects should be set up:
+// Outline for how one of these objects should be set up (i.e., by external code using them):
 //   1. theOsampRegion = new OversampledRegion();
 //      [optional: theOsampRegion->SetMaxThreads(...)
 //   2. theOsampRegion->AddPSFVector( ... )
 //   3. theOsampRegion->SetupModelImage( ... )
 
-// Outline for how we supply info to ModelObject in makeimage_main.cpp:
+
+// For reference: utline for how we supply info to ModelObject in makeimage_main.cpp:
 //  theModel = new ModelObject();
 //  // Put limits on number of FFTW and OpenMP threads, if user requested it
 //  theModel->SetMaxThreads(options.maxThreads);
@@ -23,7 +24,7 @@
 //  /* Define the size of the requested model image */
 //  theModel->SetupModelImage(nColumns, nRows);
 
-// Outline for how ModelObject sets ups Convolver object
+// For reference: utline for how ModelObject sets ups Convolver object
 //   psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
 //   psfConvolver->SetMaxThreads(maxRequestedThreads);
 // 
@@ -145,8 +146,8 @@ void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int n
 
 /* ---------------- SetupModelImage ------------------------------------ */
 // Pass in the dimensions of the image region, oversample scale, etc.
-//    x1,y1 = x,y location of lower-left corner of image region (IRAF-numbering)
-//    nBaseColumns,nBaseRows = x,y size of region in original ("base") image
+//    x1,y1 = x,y location of lower-left corner of image region /win main image (IRAF-numbering)
+//    nBaseColumns,nBaseRows = x,y size of region in main ("base") image
 //    nColumnsMain, nRowsMain = x,y size of full main model ("base") image
 void OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
 						int nColumnsMain, int nRowsMain, int nColumnsPSF_main,
@@ -155,6 +156,7 @@ void OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int n
   int  result;
   assert( (nBaseColumns >= 1) && (nBaseRows >= 1) && (oversampScale >= 1) );
   assert( (nColumnsMain >= 1) && (nRowsMain >= 1) );
+  assert( (nColumnsPSF_main >= 0) && (nRowsPSF_main >= 0) );
   
   // info about main image (including where LL corner of region is within main image)
   x1_region = x1;

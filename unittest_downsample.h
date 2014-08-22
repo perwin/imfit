@@ -1,5 +1,7 @@
 // Unit tests for downsample.cpp
 //
+// Includes notes (in comments) on how references images were made in Python
+//
 // cxxtestgen --error-printer -o test_runner.cpp unittest_downsample.h
 // g++ -o test_runner test_runner.cpp downsample.cpp image_io.cpp -I/usr/local/include -I$CXXTEST -lcfitsio -lm
 // ./test_runner
@@ -16,46 +18,46 @@ using namespace std;
 
 #define DELTA  1.0e-10
 
-// 20x20 image of zeros
+// * 20x20 image of zeros
 // >>> da = np.zeros((20,20))
 // >>> pyfits.writeto(fimfit+"simpleimage_20x20_zeros.fits",da)
 string  simpleNullImage_filename = string("simpleimage_20x20_zeros.fits");
 
-// 6x6 image of ones
+// * 6x6 image of ones
 // >>> db = np.ones((6,6))
 // >>> pyfits.writeto(fimfit+"simpleimage_6x6_ones.fits",db)
 string  osampOnesImage_filename = string("simpleimage_6x6_ones.fits");
-// 6x6 image of ones, with LL corner pixel = 10
+// * 6x6 image of ones, but with LL corner pixel = 10
 // >>> db[0:1,0:1] = 1.0
 // >>> pyfits.writeto(fimfit+"simpleimage_6x6_ones+ten.fits",db)
 string  osampOnesImage3_filename = string("simpleimage_6x6_ones+ten.fits");
-// 10x10 image with inner 6x6 composed of ones, outer 2 rows & columns on each side = 0
+// * 10x10 image with inner 6x6 composed of ones, outer 2 rows & columns on each side = 0
 // e.g., 6x6 all-ones image with padding for 2x2 PSF (padding set = 0 to help catch
 // possible downsampling errors -- should be ignored by downsampling)
 // >>> dc = np.zeros((10,10))
 // >>> dc[2:8,2:8] = 1.0
 // >>> pyfits.writeto(fimfit+"simpleimage_10x10_inner6x6ones.fits",dc)
 string  osampOnesPlusZeroBorderImage_filename = string("simpleimage_10x10_inner6x6ones.fits");
-// Same, but now with LL corner of central image (interior to padding) = 1.0
+// * Same, but now with LL corner of central image (interior to padding) = 1.0
 // >>> dc[2:3,2:3] = 10.0
 // >>> pyfits.writeto(fimfit+"simpleimage_10x10_inner6x6ones+llten.fits",dc)
 string  osampOnesPlusZeroBorderImage2_filename = string("simpleimage_10x10_inner6x6ones+llten.fits");
-// Same, but now with UR corner of central image (interior to padding) = 1.0
+// * Same, but now with UR corner of central image (interior to padding) = 1.0
 // >>> dc[2:8,2:8] = 1.0
 // >>> dc[7:8,7:8] = 10.0
 // >>> pyfits.writeto(fimfit+"simpleimage_10x10_inner6x6ones+urten.fits",dc)
 string  osampOnesPlusZeroBorderImage3_filename = string("simpleimage_10x10_inner6x6ones+urten.fits");
 
 // Desired output images (no PSF padding)
-// desired output of downsample-and-replace with overSample = 1 -- has [5:11,11:16] = 1.0
+// * desired output of downsample-and-replace with overSample = 1 -- has [5:11,11:16] = 1.0
 string  modifiedNullImage1_filename = string("simpleimage_20x20_zeros+ones6x6.fits");
-// desired output of downsample-and-replace with overSample = 3 -- has [5:6,11:13] = 1.0
+// * desired output of downsample-and-replace with overSample = 3 -- has [5:6,11:13] = 1.0
 string  modifiedNullImage2_filename = string("simpleimage_20x20_zeros+ones2x2.fits");
-// desired output of downsample-and-replace with overSample = 3, using osampOnesImage3_filename -- has [5:6,11:13] = 1.0,
+// * desired output of downsample-and-replace with overSample = 3, using osampOnesImage3_filename -- has [5:6,11:13] = 1.0,
 // except [5,11] = 2.0
 string  modifiedNullImage3_filename = string("simpleimage_20x20_zeros+3x3mix.fits");
 
-// Desired output images (PSF padding) -- 
+// * Desired output images (PSF padding) -- 
 // desired output of downsample-and-replace with overSample = 3, assumes main-image with 2x2 PSF padding -- has [7:8,13:14] = 1.0 (full-image coords)
 string  modifiedNullImage_with_psf1_filename = string("simpleimage_20x20-with-psf_zeros+3x3ones.fits");
 
@@ -77,13 +79,6 @@ public:
   
 
   // and now the actual tests
-//   void testImageRead( void )
-//   {
-//     int correct_nColsMain = 51;
-//     int correct_nRowsMain = 51;
-//     TS_ASSERT_EQUALS( nColsMain, correct_nColsMain );
-//     TS_ASSERT_EQUALS( nRowsMain, correct_nRowsMain );
-//   }
 
   void test1x1Downsample_noPSF( void )
   {
@@ -164,7 +159,7 @@ public:
   }
 
 
-  // case of PSF padding in both main & osampled images
+  // case of PSF padding in both main & oversampled images
   // take base 20x20 null image and assume it's a 16x16 image with 2x2 PSF
   void test3x3Downsample_bothPSF1( void )
   {
