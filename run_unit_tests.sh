@@ -5,8 +5,8 @@
 # Unit tests for utilities
 echo
 echo "Generating and compiling unit tests for utilities..."
-cxxtestgen.py --error-printer -o test_runner_utilities.cpp unittest_utilities.h 
-g++ -o test_runner_utilities test_runner_utilities.cpp utilities.cpp -I/usr/local/include
+cxxtestgen --error-printer -o test_runner_utilities.cpp unittest_utilities.h 
+g++ -o test_runner_utilities test_runner_utilities.cpp utilities.cpp -I/usr/local/include -I$CXXTEST
 echo
 echo "Running unit tests for utilities:"
 ./test_runner_utilities
@@ -14,8 +14,8 @@ echo "Running unit tests for utilities:"
 # Unit tests for command-line parser
 echo
 echo "Generating and compiling unit tests for command-line parser..."
-cxxtestgen.py --error-printer -o test_runner_cmparser.cpp unittest_commandline_parser.h 
-g++ -Wno-write-strings -o test_runner_cmparser test_runner_cmparser.cpp commandline_parser.cpp utilities.cpp -I/usr/local/include
+cxxtestgen --error-printer -o test_runner_cmparser.cpp unittest_commandline_parser.h 
+g++ -Wno-write-strings -o test_runner_cmparser test_runner_cmparser.cpp commandline_parser.cpp utilities.cpp -I/usr/local/include -I$CXXTEST
 echo
 echo "Running unit tests for command-line parser:"
 ./test_runner_cmparser
@@ -23,8 +23,8 @@ echo "Running unit tests for command-line parser:"
 # Unit tests for config-file parser
 echo
 echo "Generating and compiling unit tests for config-file parser..."
-cxxtestgen.py --error-printer -o test_runner_config.cpp unittest_config_parser.h
-g++ -o test_runner_config test_runner_config.cpp config_file_parser.cpp utilities.cpp -I/usr/local/include
+cxxtestgen --error-printer -o test_runner_config.cpp unittest_config_parser.h
+g++ -o test_runner_config test_runner_config.cpp config_file_parser.cpp utilities.cpp -I/usr/local/include -I$CXXTEST
 echo
 echo "Running unit tests for config-file parser:"
 ./test_runner_config
@@ -33,9 +33,9 @@ echo "Running unit tests for config-file parser:"
 cd function_objects
 echo
 echo "Generating and compiling unit tests for function objects..."
-cxxtestgen.py --error-printer -o test_runner_funcs.cpp unittest_funcs.h 
+cxxtestgen --error-printer -o test_runner_funcs.cpp unittest_funcs.h 
 g++ -o test_runner_funcs test_runner_funcs.cpp function_object.cpp func_exp.cpp \
-       func_sersic.cpp func_gaussian.cpp func_edge-on-disk.cpp -I/usr/local/include \
+       func_sersic.cpp func_gaussian.cpp func_edge-on-disk.cpp -I/usr/local/include -I$CXXTEST \
        -lm -lgsl
 echo
 echo "Running unit tests for function objects:"
