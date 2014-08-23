@@ -935,7 +935,7 @@ New function/method: UpdateWeightVector
 [ ]** Possible modified-Cash-statistic (aka CSTAT) 
 [Aug 2014 suggestion by David Streich]
 
-Pre-generate vector of d_i log(d_i) - d_i values (mainly so we can catch possible
+Pre-generate vector of d_i*log(d_i) - d_i values (mainly so we can catch possible
 edge case of d_i = 0, for which the total quantity -> 0)
 
 Similarities to Cash statistic:
@@ -943,16 +943,53 @@ Similarities to Cash statistic:
 	-- *don't* generate error vector
 Differences from Cash statistic:
 	-- L-M is OK  [handled in imfit_main.cpp]
-	-- possibly computation in ComputeDeviates
-	-- pre-compute d_i log(d_i) - d_i vector
+	-- possible computation in ComputeDeviates
+	-- pre-compute d_i*log(d_i) - d_i vector [modCashVector] extraCashTermsVector
 
 QUESTION: Do we add a completely new, parallel flag and associated functions, or
 do we add an additional flag which modifies current Cash-stat behavior?
 
-ModelObject::GetFitStatistic
-	-- add switch to handle case of modified Cash stat
-ModelObject::ComputeDeviates
+[X]bool ModelObject::UsingCashStatistic -- 
+	-- called by PrintResults
+
+[X]<>Need separate flag-setting function from ModelObject::UseCashStatistic (i.e., something
+called from main() to tell ModelObject what we're doing)
+	-- could call UseCashStatistic internally to do weight-vector setup
+
+[X]<>ModelObject: function to compute modified Cash stat
+	-- modify CashStatistic() so it uses vector of d_i*log(d_i) - d_i
+
+[X]<>ModelObject::ComputeDeviates
 	-- new code to compute modified Cash stat deviates
+	-- note that mpfit (and ModelObject::ChiSquared) computes mp_enorm(deviatesVector),
+	which is  sqrt( Sum_i(chi_i^2) ) = sqrt( Sum_i(deviatesVector[i]^2) )
+
+[X]<> Modifications to imfit_main.cpp to allow for and handle modified Cash stat
+
+[X]<> BootstrapErrors
+	-- uses input bool parameter usingCashStatistic to decide which minimizer
+	to use (and what to say in print statements)
+
+bool useCashStatistic
+	-- currently used just two places in ModelObject:
+		1. Tested in FinalSetupForFitting() to see if we need to compute error vector
+		2. Tested in GetFitStatistic() to see if we compute Cash stat or chi^2
+
+NOTE:
+Initial testing suggested that slightly different best-fit results when used on the
+same image for modified Cash statistic vs standard Cash statistic. *However*, this
+was an artifact of the combination of the value of the fit statistic and the
+requested tolerance.  For standard Cash statistic, best-fit value ~ -2611601, while
+best-fit modified Cash statistic value ~ 22778. So a default fractional tolerance
+of 1.0e-8 allows more refining of the modified Cash-statistic value. When ftol is
+set to 1.0e-9 for the standard Cash statistic case, the best-fitting parameter
+values are ~ identical.  Identical values (within the display precision) are also
+achieved for standard-Cash ftol = 1.0e-12 and modified-Cash ftol = 1.0e-10.
+
+Currently [24 Aug 2014] we are using a kludgey solution for computing the
+deviates vector, where we construct the deviates vector by taking the
+square root of the individual likelihood terms:
+	sqrt( 2 w_i (m_i - d_i log m_i 
 
 
 

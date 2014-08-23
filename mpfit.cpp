@@ -539,7 +539,7 @@ int mpfit(mp_func funct, int m, int npar,
 
 #ifdef DEBUG
   printf("\t (pre-mp_qrfac)");
-  for (j = 0; j < nfree; j++ ) {
+  for (j = 0; j < nfree; j++) {
     printf("  wa1[%d] = %g", j, wa1[j]);
   }
   printf("\n");
@@ -549,7 +549,7 @@ int mpfit(mp_func funct, int m, int npar,
   mp_qrfac(m, nfree, fjac, ldfjac, 1, ipvt, nfree, wa1, wa2, wa3);
 #ifdef DEBUG
   printf("\t (post-mp_qrfac)");
-  for (j = 0; j < nfree; j++ ) {
+  for (j = 0; j < nfree; j++) {
     printf("  wa1[%d] = %g", j, wa1[j]);
   }
   printf("\n");
@@ -563,7 +563,7 @@ int mpfit(mp_func funct, int m, int npar,
     if (conf.douserscale == 0) {
       for (j = 0; j < nfree; j++) {
         diag[ifree[j]] = wa2[j];
-        if (wa2[j] == zero ) {
+        if (wa2[j] == zero) {
           diag[ifree[j]] = one;
         }
       }
@@ -573,7 +573,7 @@ int mpfit(mp_func funct, int m, int npar,
      *         on the first iteration, calculate the norm of the scaled x
      *         and initialize the step bound delta.
      */
-    for (j = 0; j < nfree; j++ ) {
+    for (j = 0; j < nfree; j++) {
       wa3[j] = diag[ifree[j]] * x[j];
     }
     
@@ -586,23 +586,23 @@ int mpfit(mp_func funct, int m, int npar,
    *         form (q transpose)*fvec and store the first n components in
    *         qtf.
    */
-  for (i = 0; i < m; i++ ) {
+  for (i = 0; i < m; i++) {
     wa4[i] = fvec[i];
   }
 
   jj = 0;
-  for (j = 0; j < nfree; j++ ) {
+  for (j = 0; j < nfree; j++) {
     temp3 = fjac[jj];
     if (temp3 != zero) {
       sum = zero;
       ij = jj;
-      for (i=j; i<m; i++ ) {
+      for (i=j; i<m; i++) {
         sum += fjac[ij] * wa4[i];
         ij += 1;    /* fjac[i+m*j] */
       }
       temp = -sum / temp3;
       ij = jj;
-      for (i=j; i<m; i++ ) {
+      for (i=j; i<m; i++) {
         wa4[i] += fjac[ij] * temp;
         ij += 1;   /* fjac[i+m*j] */
       }
@@ -644,12 +644,12 @@ int mpfit(mp_func funct, int m, int npar,
   gnorm = zero;
   if (fnorm != zero) {
     jj = 0;
-    for (j = 0; j < nfree; j++ ) {
+    for (j = 0; j < nfree; j++) {
       l = ipvt[j];
       if (wa2[l] != zero) {
         sum = zero;
         ij = jj;
-        for (i = 0; i <= j; i++ ) {
+        for (i = 0; i <= j; i++) {
           sum += fjac[ij]*(qtf[i]/fnorm);
           ij += 1; /* fjac[i+m*j] */
         }
@@ -670,7 +670,7 @@ int mpfit(mp_func funct, int m, int npar,
    *         rescale if necessary.
    */
   if (conf.douserscale == 0) {
-    for (j = 0; j < nfree; j++ ) {
+    for (j = 0; j < nfree; j++) {
       diag[ifree[j]] = mp_dmax1(diag[ifree[j]],wa2[j]);
     }
   }
@@ -686,7 +686,7 @@ int mpfit(mp_func funct, int m, int npar,
   /*
    *            store the direction p and x + p. calculate the norm of p.
    */
-  for (j = 0; j < nfree; j++ ) {
+  for (j = 0; j < nfree; j++) {
 //    printf("\t post-mp_lmpar: wa1[%d] = %g\n", j, wa1[j]);
     wa1[j] = -wa1[j];
   }
@@ -694,7 +694,7 @@ int mpfit(mp_func funct, int m, int npar,
   alpha = 1.0;
   if (qanylim == 0) {
     /* No parameter limits, so just move to new position WA2 */
-    for (j = 0; j < nfree; j++ ) {
+    for (j = 0; j < nfree; j++) {
       wa2[j] = x[j] + wa1[j];
     }
 
@@ -745,7 +745,7 @@ int mpfit(mp_func funct, int m, int npar,
 
   }
 
-  for (j = 0; j < nfree; j++ ) {
+  for (j = 0; j < nfree; j++) {
     wa3[j] = diag[ifree[j]]*wa1[j];
   }
 
@@ -788,12 +788,12 @@ int mpfit(mp_func funct, int m, int npar,
    *            the scaled directional derivative.
    */
   jj = 0;
-  for (j = 0; j < nfree; j++ ) {
+  for (j = 0; j < nfree; j++) {
     wa3[j] = zero;
     l = ipvt[j];
     temp = wa1[l];
     ij = jj;
-    for (i = 0; i <= j; i++ ) {
+    for (i = 0; i <= j; i++) {
       wa3[i] += fjac[ij]*temp;
       ij += 1; /* fjac[i+m*j] */
     }
@@ -848,11 +848,11 @@ int mpfit(mp_func funct, int m, int npar,
     /*
      *            successful iteration. update x, fvec, and their norms.
      */
-    for (j = 0; j < nfree; j++ ) {
+    for (j = 0; j < nfree; j++) {
       x[j] = wa2[j];
       wa2[j] = diag[ifree[j]]*x[j];
     }
-    for (i = 0; i < m; i++ ) {
+    for (i = 0; i < m; i++) {
       fvec[i] = wa4[i];
     }
     xnorm = mp_enorm(nfree, wa2);
@@ -873,14 +873,14 @@ int mpfit(mp_func funct, int m, int npar,
   /*
    *            tests for convergence.
    */
-  if ((fabs(actred) <= conf.ftol) && (prered <= conf.ftol) && 
+  if ( (fabs(actred) <= conf.ftol) && (prered <= conf.ftol) && 
       (p5*ratio <= one) ) {
     info = MP_OK_CHI;
   }
   if (delta <= conf.xtol*xnorm) {
     info = MP_OK_PAR;
   }
-  if ((fabs(actred) <= conf.ftol) && (prered <= conf.ftol) && (p5*ratio <= one)
+  if ( (fabs(actred) <= conf.ftol) && (prered <= conf.ftol) && (p5*ratio <= one)
       && ( info == 2) ) {
     info = MP_OK_BOTH;
   }
@@ -899,7 +899,7 @@ int mpfit(mp_func funct, int m, int npar,
     /* Too many iterations */
     info = MP_MAXITER;
   }
-  if ((fabs(actred) <= MP_MACHEP0) && (prered <= MP_MACHEP0) && (p5*ratio <= one) ) {
+  if ( (fabs(actred) <= MP_MACHEP0) && (prered <= MP_MACHEP0) && (p5*ratio <= one) ) {
     info = MP_FTOL;
   }
   if (delta <= MP_MACHEP0*xnorm) {
@@ -1153,7 +1153,7 @@ int mp_fdjac2(mp_func funct,
   if (has_analytical_deriv) {
     iflag = mp_call(funct, m, npar, x, wa, dvec, priv);
     if (nfev) *nfev = *nfev + 1;
-    if (iflag < 0 ) goto DONE;
+    if (iflag < 0) goto DONE;
   }
 
   if (has_debug_deriv) {
@@ -1196,7 +1196,7 @@ int mp_fdjac2(mp_func funct,
     x[ifree[j]] = temp + h;
     iflag = mp_call(funct, m, npar, x, wa, 0, priv);
     if (nfev) *nfev = *nfev + 1;
-    if (iflag < 0 ) goto DONE;
+    if (iflag < 0) goto DONE;
     x[ifree[j]] = temp;
 
 #ifdef DEBUG
@@ -1242,12 +1242,12 @@ int mp_fdjac2(mp_func funct,
       x[ifree[j]] = temp - h;
       iflag = mp_call(funct, m, npar, x, wa, 0, priv);
       if (nfev) *nfev = *nfev + 1;
-      if (iflag < 0 ) goto DONE;
+      if (iflag < 0) goto DONE;
       x[ifree[j]] = temp;
 
       /* Now compute derivative as (f(x+h) - f(x-h))/(2h) */
       ij -= m;
-      if (! debug ) {
+      if (! debug) {
         for (i = 0; i < m; i++, ij++) {
           fjac[ij] = (fjac[ij] - wa[i])/(2*h); /* fjac[i+m*j] */
         }
@@ -1723,6 +1723,7 @@ void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
    *     matrix d, an m-vector b, and a positive number delta,
    *     the problem is to determine a value for the parameter
    *     par such that if x solves the system
+   *     [PE: cf Eqn. 15.5.9 of NR]
    *
    *            a*x = b ,          sqrt(par)*d*x = 0 ,
    *

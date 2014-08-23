@@ -77,6 +77,9 @@ class ModelObject
     virtual void GenerateErrorVector( );
 
 	// 2D only
+    virtual void GenerateExtraCashTerms( );
+
+	// 2D only
     virtual int AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
@@ -96,6 +99,9 @@ class ModelObject
     // 2D only
     void UpdateWeightVector(  );
 
+     // common, not specialized (currently not specialized or used by ModelObject1d)
+    virtual double ComputeModCashStatDeviate( int i, int i_model );
+
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
@@ -104,6 +110,9 @@ class ModelObject
 
      // common, not specialized
     virtual void UseCashStatistic( );
+
+     // common, not specialized
+    virtual void UseModifiedCashStatistic( );
  
      // common, not specialized
     virtual bool UsingCashStatistic( );
@@ -224,8 +233,9 @@ class ModelObject
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
     bool  modelErrors, dataErrors, externalErrorVectorSupplied;
-    bool  useCashStatistic;
+    bool  useCashStatistic, modifiedCashStatistic;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
+    bool  extraCashTermsVectorAllocated;
     bool  zeroPointSet;
     int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;
     double  *dataVector;
@@ -235,6 +245,7 @@ class ModelObject
     double  *deviatesVector;
     double  *residualVector;
     double  *outputModelVector;
+    double  *extraCashTermsVector;
     double  *parameterBounds;
     int  *bootstrapIndices;
     int  *functionSetStarts;
