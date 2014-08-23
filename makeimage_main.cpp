@@ -83,12 +83,7 @@ typedef struct {
   bool  nRowsSet;
   bool  noConfigFile;
   std::string  configFileName;   // []
-//  char  modelName[MAXLINE];
-//  bool  noModel;
-//  char  paramString[MAXLINE];
-//  bool  newParameters;
   double  magZeroPoint;
-//  char  paramLimitsFileName[MAX_FILENAME_LENGTH];
   bool  printImages;
   bool  saveImage;
   bool  saveExpandedImage;

@@ -108,6 +108,9 @@ class ModelObject
      // common, not specialized
     virtual bool UsingCashStatistic( );
  
+     // common, not specialized
+    virtual int WhichFitStatistic( );
+ 
     // common, not specialized
     virtual double GetFitStatistic( double params[] );
     

@@ -934,6 +934,17 @@ bool ModelObject::UsingCashStatistic( )
 }
 
 
+/* ---------------- PUBLIC METHOD: WhichStatistic ---------------------- */
+
+int ModelObject::WhichFitStatistic( )
+{
+  if (useCashStatistic)
+    return FITSTAT_CASH;
+  else
+    return FITSTAT_CHISQUARE;
+}
+
+
 /* ---------------- PUBLIC METHOD: GetFitStatistic --------------------- */
 /* Function for calculating chi^2 value for a model.
  *
