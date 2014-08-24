@@ -27,6 +27,7 @@ const int  DEBUG_ALL   =            10;
 #define MPFIT_SOLVER        1
 #define DIFF_EVOLN_SOLVER   2
 #define NMSIMPLEX_SOLVER    3
+#define ALT_SOLVER          4
 
 
 /* TYPE OF INPUT ERROR/WEIGHT IMAGE */
