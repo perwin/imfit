@@ -991,6 +991,24 @@ deviates vector, where we construct the deviates vector by taking the
 square root of the individual likelihood terms:
 	sqrt( 2 w_i (m_i - d_i log m_i 
 
+PROBLEM (24 Aug 2014):
+Using current modified imfit with --modcash yields *negative* values for "modified
+Cash statistic" when applied to "HAGGIS example" galaxies (/Beleriand/data/haggis/galaxy_decomposition/)
+E.g., initial (function call 20) & final standard Cash values = -69010931.985299, -69089437.922793
+Same for modified Cash values = -5231079.899640, -5309678.219723
+OK, problem seems to only occur when we do PSF convolution (even when it's just
+--chisquare-only calculation)
+	--> SOMETHING WRONG WITH PSF-HANDLING FOR MOD-CASHSTAT CALCULATION
+	extraCashTermsVector ?
+
+ModelObject::CashStatistic --
+        extraTerms = extraCashTermsVector[b];   // = 0 for standard Cash stat
+TO:     extraTerms = extraCashTermsVector[z];   // = 0 for standard Cash stat
+
+Also -- we hadn't actually completed the code for computing deviates in the case
+of convolution + Cash stat!
+
+[] Create tests for --modcash with and without PSF
 
 
 

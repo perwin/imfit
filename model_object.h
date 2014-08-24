@@ -1,7 +1,6 @@
-/*   Abstract base lass interface definition for model_object.cpp [imfit]
- *   VERSION 0.3
+/*   Abstract base class interface definition for model_object.cpp [imfit]
  *
- * This is the abstract base clase for 1D and 2D "model" objects.
+ * This is the abstract base class for 1D and 2D "model" objects.
  * 
  */
 
@@ -25,7 +24,7 @@ using namespace std;
 class ModelObject
 {
   public:
-    // Constructors:
+    // Constructor:
     ModelObject( );
 
     void SetDebugLevel( int debuggingLevel );
@@ -49,10 +48,6 @@ class ModelObject
     virtual void SetZeroPoint( double zeroPointValue );
 
  
-//     void SetGain( double gainValue );
-// 
-//     void SetSkyBackground( double originalSkyValue );
-
 	// 2D only
     void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
 
@@ -219,7 +214,6 @@ class ModelObject
   protected:  // same as private, except accessible to derived classes
     int  nDataVals, nDataColumns, nDataRows, nValidDataVals, nCombined;
     int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
-//    double  nCombined_sqrt;
 	double  zeroPoint;
 	double  gain, readNoise, exposureTime, originalSky, effectiveGain;
 	double  readNoise_adu_squared;

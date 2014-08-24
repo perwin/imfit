@@ -848,13 +848,6 @@ void ModelObject::UpdateWeightVector(  )
 
 
 
-/* ---------------- PRIVATE METHOD: ComputeChisquareDeviate ------------ */
-// double ModelObject::ComputeChisquareDeviate( int i, int i_model )
-// {
-//   double  deviateVal = weightVector[i] * (dataVector[i] - modelVector[i_model]);
-//   return deviateVal;
-// }
-
 /* ---------------- PRIVATE METHOD: ComputeModCashStatDeviate ---------- */
 double ModelObject::ComputeModCashStatDeviate( int i, int i_model )
 {
@@ -901,82 +894,102 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
   // b = bootstrapIndices[z] = index into dataVector and weightVector
   
   if (doConvolution) {
-  
     // Step through model image so that we correctly match its pixels with corresponding
-    // pixels in data and weight images (excluding the outer borders which are only
-    // for ensuring proper PSF convolution)
-    
-    if (modifiedCashStatistic) {
-      ;
-    }
-    else { // standard chi^2 approach
-      if (doBootstrap) {
-        for (z = 0; z < nValidDataVals; z++) {
-          b = bootstrapIndices[z];
-          iDataRow = b / nDataColumns;
-          iDataCol = b - iDataRow*nDataColumns;
-          bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+    // pixels in data and weight images (excluding the outer borders of the model image,
+    // which are only for ensuring proper PSF convolution)
+    if (doBootstrap) {
+      for (z = 0; z < nValidDataVals; z++) {
+        b = bootstrapIndices[z];
+        iDataRow = b / nDataColumns;
+        iDataCol = b - iDataRow*nDataColumns;
+        bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        if (modifiedCashStatistic)
+          yResults[z] = ComputeModCashStatDeviate(b, bModel);
+        else   // standard chi^2 term
           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
-        }
-      } else {
-        for (z = 0; z < nDataVals; z++) {
-          iDataRow = z / nDataColumns;
-          iDataCol = z - iDataRow*nDataColumns;
-          zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-          //yResults[z] = ComputeChisquareDeviate(z, zModel)
-          yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
-        }
       }
     }
-  }  // end if (convolution case)
+    else {
+      for (z = 0; z < nDataVals; z++) {
+        iDataRow = z / nDataColumns;
+        iDataCol = z - iDataRow*nDataColumns;
+        zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        if (modifiedCashStatistic)
+          yResults[z] = ComputeModCashStatDeviate(z, zModel);
+        else   // standard chi^2 term
+          yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
+      }
+    }
+  }   // end if convolution case
+  
+//     else { // standard chi^2 approach
+//       if (doBootstrap) {
+//         for (z = 0; z < nValidDataVals; z++) {
+//           b = bootstrapIndices[z];
+//           iDataRow = b / nDataColumns;
+//           iDataCol = b - iDataRow*nDataColumns;
+//           bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+//           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
+//         }
+//       } else {
+//         for (z = 0; z < nDataVals; z++) {
+//           iDataRow = z / nDataColumns;
+//           iDataCol = z - iDataRow*nDataColumns;
+//           zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+//           //yResults[z] = ComputeChisquareDeviate(z, zModel)
+//           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
+//         }
+//       }
+//     }
+//   }  // end if (convolution case)
   
   
   else {
-  
     // No convolution, so model image is same size & shape as data and weight images
-    // EXPERIMENTAL MODIFIED-CASH-STATISTIC CODE
-    if (modifiedCashStatistic) {
-      if (doBootstrap) {
-        for (z = 0; z < nValidDataVals; z++) {
-          b = bootstrapIndices[z];
-//           modVal = effectiveGain*(modelVector[b] + originalSky);
-//           dataVal = effectiveGain*(dataVector[b] + originalSky);
-//           if (modVal <= 0)
-//             logModel = LOG_SMALL_VALUE;
-//           else
-//             logModel = log(modVal);
-//           extraTerms = extraCashTermsVector[b];
-//           yResults[z] = weightVector[b] * sqrt(modVal - dataVal*logModel + extraTerms);
-           yResults[z] = ComputeModCashStatDeviate(b, b);
-        }
-      } else {
-        for (z = 0; z < nDataVals; z++) {
-//           modVal = effectiveGain*(modelVector[z] + originalSky);
-//           dataVal = effectiveGain*(dataVector[z] + originalSky);
-//           if (modVal <= 0)
-//             logModel = LOG_SMALL_VALUE;
-//           else
-//             logModel = log(modVal);
-//           extraTerms = extraCashTermsVector[z];
-//           yResults[z] = weightVector[z] * sqrt(modVal - dataVal*logModel + extraTerms);
-          yResults[z] = ComputeModCashStatDeviate(z, z);
-        }
-      }
-    }
-    else { // standard chi^2 approach
-      if (doBootstrap) {
-        for (z = 0; z < nValidDataVals; z++) {
-          b = bootstrapIndices[z];
+    if (doBootstrap) {
+      for (z = 0; z < nValidDataVals; z++) {
+        b = bootstrapIndices[z];
+        if (modifiedCashStatistic)
+          yResults[z] = ComputeModCashStatDeviate(b, b);
+        else   // standard chi^2 term
           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
-        }
-      } else {
-        for (z = 0; z < nDataVals; z++) {
+       }
+    }
+    else {
+      for (z = 0; z < nDataVals; z++) {
+        if (modifiedCashStatistic)
+          yResults[z] = ComputeModCashStatDeviate(z, z);
+        else   // standard chi^2 term
           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
-        }
       }
     }
     
-  }  // end if (non-convolution case)
+  }  // end else (non-convolution case)
+
+
+// 
+//           
+//         }
+//       } else {
+//         for (z = 0; z < nDataVals; z++) {
+//           yResults[z] = ComputeModCashStatDeviate(z, z);
+//         }
+//       }
+//     }
+//     else {   // standard chi^2 approach
+//       if (doBootstrap) {
+//         for (z = 0; z < nValidDataVals; z++) {
+//           b = bootstrapIndices[z];
+//           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
+//         }
+//       } else {
+//         for (z = 0; z < nDataVals; z++) {
+//           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+//         }
+//       }
+//     }
+//     
+//   }  // end if (non-convolution case)
 
 }
 
@@ -1136,8 +1149,7 @@ double ModelObject::ChiSquared( double params[] )
       }
     }
   }
-  else {
-    // Model image is same size & shape as data and weight images
+  else {   // Model image is same size & shape as data and weight images
     if (doBootstrap) {
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
@@ -1168,7 +1180,6 @@ double ModelObject::ChiSquared( double params[] )
 // In the case of using the modified Cash statistic, the extraCashTermsVector
 // will be pre-populated with the appropriate terms (and will be = 0 for the
 // standard Cash statistic).
-//
 //
 double ModelObject::CashStatistic( double params[] )
 {
@@ -1208,13 +1219,12 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        extraTerms = extraCashTermsVector[b];   // = 0 for standard Cash stat
+        extraTerms = extraCashTermsVector[z];   // = 0 for standard Cash stat
         cashStat += weightVector[z] * (modVal - dataVal*logModel + extraTerms);
       }
     }
   }
-  else {
-    // Model image is same size & shape as data and weight images
+  else {   // Model image is same size & shape as data and weight images
     if (doBootstrap) {
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
@@ -1224,8 +1234,8 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        extraTerms = extraCashTermsVector[z];   // = 0 for standard Cash stat
-        cashStat += weightVector[z] * (modVal - dataVal*logModel + extraTerms);
+        extraTerms = extraCashTermsVector[b];   // = 0 for standard Cash stat
+        cashStat += weightVector[b] * (modVal - dataVal*logModel + extraTerms);
       }
     } else {
       for (z = 0; z < nDataVals; z++) {
