@@ -522,7 +522,7 @@ env_opt.Program("makeimage", makeimage_sources)
 
 
 
-# *** Other programs (nonlinfit, psfconvolve, older stuff)
+# *** Other programs (profilefit, psfconvolve, older stuff)
 
 if xcode5 is True:
 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
@@ -551,6 +551,7 @@ functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
 profilefit_base_obj_string = """commandline_parser utilities levmar_fit mpfit 
+		new_levmar_fit
 		diff_evoln_fit DESolver read_profile config_file_parser add_functions_1d print_results 
 		convolver convolver1d bootstrap_errors_1d profilefit_main"""
 if useNLopt:

@@ -37,6 +37,7 @@
 #ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
 #endif
+#include "new_levmar_fit.h"
 
 #include "commandline_parser.h"
 #include "config_file_parser.h"
@@ -427,6 +428,14 @@ int main(int argc, char *argv[])
       printf("\n");
     }
 #endif
+    else if (options.solver == ALT_SOLVER) {
+      printf("Calling Modified L-M solver ..\n");
+      status = NewLevMarFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      			options.verbose);
+      printf("\n");
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+    }
   }
 
 
@@ -509,10 +518,13 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" --usemask                    Use mask from data file (4th column)");
   optParser->AddUsageLine(" --intensities                Data y-values are intensities, not magnitudes");
   optParser->AddUsageLine(" --psf <psf_file>             PSF profile (centered on middle row, y-values = intensities)");
+  optParser->AddUsageLine("");
 #ifndef NO_NLOPT
   optParser->AddUsageLine(" --nm                         Use Nelder-Mead simplex solver instead of L-M");
 #endif
   optParser->AddUsageLine(" --de                         Solve using differential evolution");
+  optParser->AddUsageLine(" --newlm                      Use modified L-M solver");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine(" --ftol                       Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
   optParser->AddUsageLine(" --chisquare-only             Print chi^2 of input model and quit");
   optParser->AddUsageLine(" --no-fitting                 Don't do fitting (just save input model)");
@@ -539,6 +551,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("nm");
 #endif
   optParser->AddFlag("de");
+  optParser->AddFlag("newlm");
   optParser->AddOption("ftol");
   optParser->AddFlag("chisquare-only");
   optParser->AddFlag("no-fitting");
@@ -624,6 +637,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("de")) {
     printf("\t Differential Evolution selected!\n");
     theOptions->solver = DIFF_EVOLN_SOLVER;
+  }
+  if (optParser->FlagSet("newlm")) {
+  	printf("\t* Modified L-M selected!\n");
+  	theOptions->solver = ALT_SOLVER;
   }
   if (optParser->FlagSet("chisquare-only")) {
     printf("\t* No fitting will be done!\n");
