@@ -1604,6 +1604,19 @@ double * ModelObject::GetWeightImageVector( )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetDataVector ----------------------- */
+
+double * ModelObject::GetDataVector( )
+{
+  if (! dataValsSet) {
+    fprintf(stderr, "* ModelObject::GetDataVector -- Image data values have not yet been supplied!\n\n");
+    return NULL;
+  }
+  
+  return dataVector;
+}
+
+
 /* ---------------- PUBLIC METHOD: FindTotalFluxes --------------------- */
 // Estimate total fluxes for individual components (and entire model) by integrating
 // over a very large image, with each component/function centered in the image.

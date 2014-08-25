@@ -188,6 +188,9 @@ class ModelObject
     double * GetWeightImageVector( );
 
 		// 2D only
+    double * GetDataVector( );
+
+		// 2D only
     double FindTotalFluxes(double params[], int xSize, int ySize, 
     											double individualFluxes[] );
 
