@@ -58,11 +58,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <nlopt.h>
-
 #include "model_object.h"
 #include "param_struct.h"   // for mp_par structure
-#include "nmsimplex_fit.h"
+#include "newlevmar/newlevmar.h"
 
 const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
@@ -74,7 +72,6 @@ const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;
 // Module variables -- used to control user feedback within myfunc
 static int  verboseOutput;
 static int  funcCount = 0;
-nlopt_opt  optimizer2;
 
 
 
@@ -86,53 +83,20 @@ nlopt_opt  optimizer2;
 // n = number of data points (pixels)
 // m = number of parameters
 
+// FIXME: Needs to actually calculate things properly
 //void (*func)( double *p, double *hx, int m, int n, void *adata )
 void myfunc_levmar( double *p, double *hx, int m, int n, void *my_func_data )
 {
   ModelObject *theModel = (ModelObject *)my_func_data;
 
-  fitStatistic = theModel->GetFitStatistic(p);
+  double fitStatistic = theModel->GetFitStatistic(p);
 
 }
 
 
-// Objective function: calculates the objective value (ignore gradient calculation)
-// Keep track of how many times this function has been called, and report current
-// chi^2 (or other objective-function value) every 20 calls
-// Note that parameters n and grad are unused, but required by the NLopt interface.
-double myfunc(unsigned n, const double *x, double *grad, void *my_func_data)
-{
-  ModelObject *theModel = (ModelObject *)my_func_data;
-  // following is a necessary kludge bcs theModel->GetFitStatistic() won't accept const double*
-  double  *params = (double *)x;
-  double  fitStatistic;
-  nlopt_result  junk;
-  
-  fitStatistic = theModel->GetFitStatistic(params);
-  
-  // feedback to user
-  funcCount++;
-  if (verboseOutput > 0) {
-    if ((funcCount % FUNCS_PER_REPORTING_STEP) == 0) {
-      printf("\tN-M simplex: function call %d: objective = %f\n", funcCount, fitStatistic);
-      if ( (verboseOutput > 1) && ((funcCount % (REPORT_STEPS_PER_VERBOSE_OUTPUT*FUNCS_PER_REPORTING_STEP)) == 0) ) {
-        theModel->PrintModelParams(stdout, params, NULL, NULL);
-      }
-    }
-  }
-  
-  if isnan(fitStatistic) {
-    fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
-    fprintf(stderr, "*** Terminating the fit...\n");
-    junk = nlopt_force_stop(optimizer2);
-  }
 
-  return(fitStatistic);
-}
-
-
-
-void InterpretResult_newlevmar( nlopt_result  resultValue )
+// FIXME_EVENTUALLY: currently written to process NLopt return codes
+void InterpretResult_newlevmar( int resultValue )
 {
   string  description;
   string  returnVal_str;
@@ -179,71 +143,34 @@ void InterpretResult_newlevmar( nlopt_result  resultValue )
 int NewLevMarFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
                   ModelObject *theModel, double ftol, int verbose )
 {
-//  nlopt_opt  optimizer;
-  nlopt_result  result;
   int  maxEvaluations;
   double  finalStatisticVal;
   double  *minParamValues;
   double  *maxParamValues;
   bool  paramLimitsExist = true;
+  int  result;
   
   minParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
   maxParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
 
   // Check for possible parameter limits
-  if (parameterLimits == NULL)
-    paramLimitsExist = false;
-  else {
-    for (int i = 0; i < nParamsTot; i++) {
-      // default state is to have no limits on a parameter
-      minParamValues[i] = -HUGE_VAL;
-      maxParamValues[i] = HUGE_VAL;
-      // check to see if user specified a fixed value for this parameter
-      if (parameterLimits[i].fixed == 1) {
-        minParamValues[i] = paramVector[i];
-        maxParamValues[i] = paramVector[i];
-      }
-      else if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
-        // user specified parameter limits for this parameter
-        minParamValues[i] = parameterLimits[i].limits[0];
-        maxParamValues[i] = parameterLimits[i].limits[1];
-      }
-    }
-  }
-  
-  // Create an nlopt object, specifying Nelder-Mead Simplex algorithm
-  optimizer2 = nlopt_create(NLOPT_LN_NELDERMEAD, nParamsTot); /* algorithm and dimensionality */
-  
-  // Specify stopping conditions (desired tolerances, max # function calls)
-  // specify relative tolerance (same as ftol in mpfit.cpp)
-  nlopt_set_ftol_rel(optimizer2, ftol);
-  // specify absolute tolerance (same as ftol in mpfit.cpp)
-  nlopt_set_ftol_abs(optimizer2, ftol);
-  // specify relative tolerance for all parameters
-  nlopt_set_xtol_rel(optimizer2, ftol);
-//  nlopt_set_xtol_abs1(optimizer, XTOL);
-  // maximum number of function calls (MAXEVAL_BASE * total number of parameters)
-  maxEvaluations = nParamsTot * MAXEVAL_BASE;
-  nlopt_set_maxeval(optimizer2, maxEvaluations);
-  
-  // Set up the optimizer for minimization
-  nlopt_set_min_objective(optimizer2, myfunc, theModel);  
-  // Specify parameter boundaries, if they exist
-  if (paramLimitsExist) {
-    nlopt_set_lower_bounds(optimizer2, minParamValues);
-    nlopt_set_upper_bounds(optimizer2, maxParamValues);
-  }
   
   // Specify level of verbosity and start the optimization
   verboseOutput = verbose;
-  result = nlopt_optimize(optimizer2, paramVector, &finalStatisticVal);
-  //double stopval = nlopt_get_stopval(optimizer);
+  
+  // setup for dlevmar_mle_dif
+  int maxIters = 200;
+  int nDataVals = theModel->GetNDataValues();
+  int fitType = LM_CHISQ_NEYMAN;
+  double *dataVals = theModel->GetDataVector();
+  result = dlevmar_mle_dif(myfunc_levmar, paramVector, dataVals, nParamsTot, nDataVals,
+  				maxIters, NULL, NULL, NULL, NULL, (void *)theModel, fitType);
+  
   if (verbose >= 0)
     InterpretResult_newlevmar(result);
 
 
   // Dispose of nl_opt object and free arrays:
-  nlopt_destroy(optimizer2);
   free(minParamValues);
   free(maxParamValues);
   return (int)result;

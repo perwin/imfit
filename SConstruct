@@ -442,6 +442,8 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 
 # Pure C code
 c_obj_string = """mp_enorm statistics mersenne_twister"""
+# extra stuff for working with new LM
+c_obj_string += " newlevmar/lm_mle_new newlevmar/misc_new"
 c_objs = c_obj_string.split()
 c_sources = [name + ".c" for name in c_objs]
 
@@ -481,7 +483,8 @@ functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
 # Base files for imfit:
 imfit_base_obj_string = """commandline_parser utilities image_io levmar_fit mpfit 
-		diff_evoln_fit new_levmar_fit DESolver config_file_parser add_functions print_results 
+		diff_evoln_fit DESolver config_file_parser add_functions print_results 
+		new_levmar_fit
 		bootstrap_errors imfit_main"""
 if useNLopt:
 	imfit_base_obj_string += " nmsimplex_fit"
