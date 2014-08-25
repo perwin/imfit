@@ -78,6 +78,24 @@ nlopt_opt  optimizer2;
 
 
 
+// NEW: Object function with interface for levmar code
+// p = parameter vector
+// e = (unsquared) deviate values = x - hx
+// x = data values
+// hx = model values
+// n = number of data points (pixels)
+// m = number of parameters
+
+//void (*func)( double *p, double *hx, int m, int n, void *adata )
+void myfunc_levmar( double *p, double *hx, int m, int n, void *my_func_data )
+{
+  ModelObject *theModel = (ModelObject *)my_func_data;
+
+  fitStatistic = theModel->GetFitStatistic(p);
+
+}
+
+
 // Objective function: calculates the objective value (ignore gradient calculation)
 // Keep track of how many times this function has been called, and report current
 // chi^2 (or other objective-function value) every 20 calls
