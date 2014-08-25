@@ -11,7 +11,7 @@
 
 void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
 					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					bool usingCashStatistic );
+					int whichStatistic );
 
 
 #endif  // _BOOTSTRAP_ERRORS_H_

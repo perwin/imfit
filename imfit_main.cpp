@@ -63,13 +63,9 @@
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
-#define MPFIT_SOLVER        1
-#define DIFF_EVOLN_SOLVER   2
-#define NMSIMPLEX_SOLVER    3
-
 #define DEFAULT_FTOL	1.0e-8
 
-#define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
+#define NO_MAGNITUDES  -10000.0   /* indicates data are *not* in magnitudes */
 
 #define DEFAULT_CONFIG_FILE   "imfit_config.dat"
 #define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_imfit.dat"
@@ -129,12 +125,10 @@ typedef struct {
   bool  originalSkySet;
   bool  useModelForErrors;
   bool  useCashStatistic;
+  bool  useModifiedCashStatistic;
   double  ftol;
   bool  ftolSet;
-  char  modelName[MAXLINE];
-//  bool  noModel;
-//  char  paramString[MAXLINE];
-//  bool  newParameters;
+//  char  modelName[MAXLINE];
   double  magZeroPoint;
   bool  noParamLimits;
   bool  printImages;
@@ -246,10 +240,9 @@ int main(int argc, char *argv[])
   options.originalSkySet = false;
   options.useModelForErrors = false;
   options.useCashStatistic = false;
+  options.useModifiedCashStatistic = false;
   options.ftol = DEFAULT_FTOL;
   options.ftolSet = false;
-//  options.noModel = true;
-//  options.newParameters = false;
   options.magZeroPoint = NO_MAGNITUDES;
   options.noParamLimits = true;
   options.printImages = false;
@@ -444,15 +437,20 @@ int main(int argc, char *argv[])
     }
   }
   
-  // Handling of image noise/errors -- different for Cash statistic vs chi^2
+  // Specify which fit statistic we'll use, and add user-supplied error image if
+  // it exists and we're using chi^2; also catch special case of standard Cash
+  // statistic + L-M minimizer
   if (options.useCashStatistic) {
     if ((options.solver == MPFIT_SOLVER) && (! options.printFitStatisticOnly)) {
-      fprintf(stderr, "*** ERROR -- Cannot use Cash statistic with L-M solver!\n\n");
+      fprintf(stderr, "*** ERROR -- Cannot use standard Cash statistic with L-M solver!\n\n");
       return -1;
     }
     theModel->UseCashStatistic();
-    // do other stuff
-  } else {
+  } 
+  else if (options.useModifiedCashStatistic) {
+    theModel->UseModifiedCashStatistic();
+  }
+  else {
     // normal chi^2 statistics, so we either add error/noise image, or calculate it
     if (options.noiseImagePresent)
       theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
@@ -466,7 +464,6 @@ int main(int argc, char *argv[])
         printf("* No noise image supplied ... will generate noise image from input image.\n");
         // this is the default mode of ModelObject, so we don't need to do anything
         // special here
-//        theModel->GenerateErrorVector();
       }
     }
   }
@@ -544,6 +541,8 @@ int main(int argc, char *argv[])
     printf("\nPerforming fit by minimizing ");
     if (options.useCashStatistic)
       printf("Cash statistic:\n");
+    else if (options.useModifiedCashStatistic)
+      printf("modified Cash statistic:\n");
     else if (options.useModelForErrors)
       printf("chi^2 (model-based errors):\n");
     else
@@ -580,7 +579,7 @@ int main(int argc, char *argv[])
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
     BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
-                    options.bootstrapIterations, nFreeParams, options.useCashStatistic);
+                    options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic());
   }
 
 
@@ -667,7 +666,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -c  --config <config-file>   configuration file");
-  optParser->AddUsageLine("     --chisquare-only         Print chi^2 of input model and quit");
+  optParser->AddUsageLine("     --chisquare-only         Print fit statistic (e.g., chi^2) of input model and quit");
+  optParser->AddUsageLine("     --fitstat-only           Same as --chisquare-only");
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
@@ -694,8 +694,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --model-errors           Use model values (instead of data) to estimate errors for chi^2 computation");
-  optParser->AddUsageLine("     --cashstat               Use Cash statistic instead of chi^2");
-  optParser->AddUsageLine("     --ftol                   Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
+  optParser->AddUsageLine("     --cashstat               Use standard Cash statistic instead of chi^2");
+  optParser->AddUsageLine("     --modcash                Use modified Cash statistic instead of chi^2");
+  optParser->AddUsageLine("     --ftol                   Fractional tolerance in fit statistic for convergence [default = 1.0e-8]");
 #ifndef NO_NLOPT
   optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver instead of L-M");
 #endif
@@ -722,6 +723,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("list-parameters");
   optParser->AddFlag("printimage");
   optParser->AddFlag("chisquare-only");
+  optParser->AddFlag("fitstat-only");
   optParser->AddFlag("use-headers");
   optParser->AddFlag("errors-are-variances");
   optParser->AddFlag("errors-are-weights");
@@ -729,6 +731,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("nosubsampling");
   optParser->AddFlag("model-errors");
   optParser->AddFlag("cashstat");
+  optParser->AddFlag("modcash");
 #ifndef NO_NLOPT
   optParser->AddFlag("nm");
 #endif
@@ -806,13 +809,21 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     printf("\t* No fitting will be done!\n");
     theOptions->printFitStatisticOnly = true;
   }
+  if (optParser->FlagSet("fitstat-only")) {
+    printf("\t* No fitting will be done!\n");
+    theOptions->printFitStatisticOnly = true;
+  }
   if (optParser->FlagSet("model-errors")) {
   	printf("\t* Using model counts instead of data to compute errors for chi^2\n");
   	theOptions->useModelForErrors = true;
   }
   if (optParser->FlagSet("cashstat")) {
-  	printf("\t* Using Cash statistic instead of chi^2 for minimization!\n");
+  	printf("\t* Using standard Cash statistic instead of chi^2 for minimization!\n");
   	theOptions->useCashStatistic = true;
+  }
+  if (optParser->FlagSet("modcash")) {
+  	printf("\t* Using modified Cash statistic instead of chi^2 for minimization!\n");
+  	theOptions->useModifiedCashStatistic = true;
   }
 #ifndef NO_NLOPT
   if (optParser->FlagSet("nm")) {
@@ -964,7 +975,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     }
     theOptions->ftol = atof(optParser->GetTargetString("ftol").c_str());
     theOptions->ftolSet = true;
-    printf("\tfractional tolerance ftol for chi^2 convergence = %g\n", theOptions->ftol);
+    printf("\tfractional tolerance ftol for fit-statistic convergence = %g\n", theOptions->ftol);
   }
   if (optParser->OptionSet("bootstrap")) {
     if (NotANumber(optParser->GetTargetString("bootstrap").c_str(), 0, kPosInt)) {

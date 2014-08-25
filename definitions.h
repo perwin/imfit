@@ -17,6 +17,18 @@ const int  DEBUG_3     =             3;
 const int  DEBUG_ALL   =            10;
 
 
+/* OPTIONS FOR FIT STATISTICS: */
+#define FITSTAT_CHISQUARE       1   // standard chi^2
+#define FITSTAT_CASH            2   // standard (minimal Cash) statistic
+#define FITSTAT_MODCASH         3   // modified Cash statistic
+
+
+/* SOLVER OPTIONS: */
+#define MPFIT_SOLVER        1
+#define DIFF_EVOLN_SOLVER   2
+#define NMSIMPLEX_SOLVER    3
+
+
 /* TYPE OF INPUT ERROR/WEIGHT IMAGE */
 #define  WEIGHTS_ARE_SIGMAS     100  // "weight image" pixel value = sigma
 #define  WEIGHTS_ARE_VARIANCES  110  // "weight image" pixel value = variance (sigma^2)

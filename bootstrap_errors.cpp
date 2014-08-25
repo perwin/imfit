@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2013 by Peter Erwin.
+// Copyright 2013-2014 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -54,7 +54,7 @@
 
 void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
 					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					bool usingCashStatistic )
+					int whichStatistic )
 {
   double  *paramsVect, *paramSigmas;
   double  **paramArray;
@@ -78,7 +78,7 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
 
   theModel->UseBootstrap();
 
-  if (! usingCashStatistic)
+  if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_MODCASH))  ////
     printf("\nStarting bootstrap iterations (L-M solver): ");
   else
 #ifndef NO_NLOPT
@@ -93,7 +93,7 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
     theModel->MakeBootstrapSample();
     for (i = 0; i < nParams; i++)
       paramsVect[i] = bestfitParams[i];
-    if (! usingCashStatistic) {
+    if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_MODCASH)) {   ////
       status = LevMarFit(nParams, nFreeParams, nValidPixels, paramsVect, parameterLimits, 
       					theModel, ftol, paramLimitsExist, verboseLevel);
     } else {

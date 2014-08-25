@@ -73,7 +73,7 @@ static string  UNDEFINED = "<undefined>";
 #define PARAM_FORMAT_WITH_ERRS "%s\t\t%7g # +/- %7g\n"
 #define PARAM_FORMAT "%s\t\t%7g\n"
 
-// very small value for Cash statistic calculations (replaces log(x) if x <= 0)
+// very small value for Cash statistic calculations (replaces log(m) if m <= 0)
 // Based on http://cxc.harvard.edu/sherpa/ahelp/cstat.html
 #define LOG_SMALL_VALUE 1.0e-25
 
@@ -100,6 +100,7 @@ ModelObject::ModelObject( )
   residualVectorAllocated = false;
   outputModelVectorAllocated = false;
   deviatesVectorAllocated = false;
+  extraCashTermsVectorAllocated = false;
   
   doBootstrap = false;
   bootstrapIndicesAllocated = false;
@@ -110,6 +111,7 @@ ModelObject::ModelObject( )
   externalErrorVectorSupplied = false;
   modelErrors = false;
   useCashStatistic = false;
+  modifiedCashStatistic = false;
   
   modelImageComputed = false;
   maskExists = false;
@@ -390,6 +392,41 @@ void ModelObject::GenerateErrorVector( )
 
 
 
+/* ---------------- PUBLIC METHOD: GenerateExtraCashTerms -------------- */
+// Generate a vector of extra terms to be added to the Cash statistic calculation
+// for the case of "modified Cash statistic".
+//
+// This is based on treating the Cash statistic as a *likelihood ratio*, formed by
+// dividing the normal Poisson likelihood by the same term evaluated for the case
+// of model = data exactly. 
+// The result is a likelihood function which includes an extra d_i * log d_i term for 
+// each pixel i. Although we could remove them from the sum (thus getting the original
+// Cash statistic), leaving it in has two advantages:
+//    1. The sum (-2 log LR) has chi^2-distribution-like properties
+//    2. The per-pixel values are always >= 0, and so can be used with the L-M minimizer.
+//
+// For the standard/original Cash statistic, all elements of this vector should be = 0
+// (which is the default when we allocate the vector in UseCashStatistic).
+//
+// (See, e.g., Dolphin 2002, MNRAS 332: 91)
+// (Suggested by David Streich, Aug 2014)
+void ModelObject::GenerateExtraCashTerms( )
+{
+  double dataVal, extraTerm;
+  
+  for (int z = 0; z < nDataVals; z++) {
+    dataVal = effectiveGain*(dataVector[z] + originalSky);
+    // the following is strictly OK only for dataVal == 0 (lim_{x -> 0} x ln(x) = 0); 
+    // the case of dataVal < 0 is undefined
+    if (dataVal <= 0.0)
+      extraTerm = 0.0;
+    else
+      extraTerm = dataVal*log(dataVal) - dataVal;
+    extraCashTermsVector[z] = extraTerm;
+  }
+}
+
+
 /* ---------------- PUBLIC METHOD: AddMaskVector ----------------------- */
 // Code for adding and processing a vector containing the 2D mask image.
 // Note that although our default *input* format is "0 = good pixel, > 0 =
@@ -559,8 +596,16 @@ void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
 
 
 /* ---------------- PUBLIC METHOD: FinalSetupForFitting ---------------- */
-// Call this when using ModelObject for fitting. Not necessary 
-// when just using ModelObject for generating model image or vector.
+// Call this when using ModelObject for fitting. Not necessary when just using
+// ModelObject for generating model image or vector.
+//    Generates blank mask vector if none already exists
+//    Masks non-finite data pixels (if not already masked)
+//    Generates error-based weight vector from data (if using data-based chi^2 
+//       and no such  vector was supplied by user)
+//    If modified Cash statistic is being used, generates extra terms from
+//       data vector
+//    Finally, applies mask vector to weight vector and does final vetting of
+//       unmasked data values.
 int ModelObject::FinalSetupForFitting( )
 {
   int  nNonFinitePixels = 0;
@@ -595,6 +640,10 @@ int ModelObject::FinalSetupForFitting( )
   // Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
   if ((! useCashStatistic) && (dataErrors) && (! externalErrorVectorSupplied))
     GenerateErrorVector();
+  
+  // Generate extra terms vector from data for modified Cash statistic, if using latter
+  if ((useCashStatistic) && (modifiedCashStatistic))
+    GenerateExtraCashTerms();
   
 #ifdef DEBUG
   PrintWeights();
@@ -869,6 +918,23 @@ void ModelObject::UpdateWeightVector(  )
 }
 
 
+
+/* ---------------- PRIVATE METHOD: ComputeModCashStatDeviate ---------- */
+double ModelObject::ComputeModCashStatDeviate( int i, int i_model )
+{
+  double   modVal, dataVal, logModel, extraTerms, deviateVal;
+  
+  modVal = effectiveGain*(modelVector[i_model] + originalSky);
+  dataVal = effectiveGain*(dataVector[i] + originalSky);
+  if (modVal <= 0)
+    logModel = LOG_SMALL_VALUE;
+  else
+    logModel = log(modVal);
+  extraTerms = extraCashTermsVector[i];
+  deviateVal = sqrt(2.0 * weightVector[i] * (modVal - dataVal*logModel + extraTerms));
+  return deviateVal;
+}
+
 /* ---------------- PUBLIC METHOD: ComputeDeviates --------------------- */
 /* This function computes the vector of weighted deviates (differences between
  * model and data pixel values).  Note that a proper chi^2 sum requires *squaring*
@@ -897,40 +963,104 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
   // from linearly stepping through (0, ..., nDataVals).
   // In the bootstrap case, z = index into yResults and bootstrapIndices vector;
   // b = bootstrapIndices[z] = index into dataVector and weightVector
+  
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding
-    // pixels in data and weight images (excluding the outer borders which are only
-    // for ensuring proper PSF convolution)
+    // pixels in data and weight images (excluding the outer borders of the model image,
+    // which are only for ensuring proper PSF convolution)
     if (doBootstrap) {
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
         iDataRow = b / nDataColumns;
         iDataCol = b - iDataRow*nDataColumns;
         bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-        yResults[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
+        if (modifiedCashStatistic)
+          yResults[z] = ComputeModCashStatDeviate(b, bModel);
+        else   // standard chi^2 term
+          yResults[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
       }
-    } else {
+    }
+    else {
       for (z = 0; z < nDataVals; z++) {
         iDataRow = z / nDataColumns;
         iDataCol = z - iDataRow*nDataColumns;
         zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-        yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
+        if (modifiedCashStatistic)
+          yResults[z] = ComputeModCashStatDeviate(z, zModel);
+        else   // standard chi^2 term
+          yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
       }
     }
-  }
+  }   // end if convolution case
+  
+//     else { // standard chi^2 approach
+//       if (doBootstrap) {
+//         for (z = 0; z < nValidDataVals; z++) {
+//           b = bootstrapIndices[z];
+//           iDataRow = b / nDataColumns;
+//           iDataCol = b - iDataRow*nDataColumns;
+//           bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+//           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
+//         }
+//       } else {
+//         for (z = 0; z < nDataVals; z++) {
+//           iDataRow = z / nDataColumns;
+//           iDataCol = z - iDataRow*nDataColumns;
+//           zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+//           //yResults[z] = ComputeChisquareDeviate(z, zModel)
+//           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
+//         }
+//       }
+//     }
+//   }  // end if (convolution case)
+  
+  
   else {
     // No convolution, so model image is same size & shape as data and weight images
     if (doBootstrap) {
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
-        yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
-      }
-    } else {
+        if (modifiedCashStatistic)
+          yResults[z] = ComputeModCashStatDeviate(b, b);
+        else   // standard chi^2 term
+          yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
+       }
+    }
+    else {
       for (z = 0; z < nDataVals; z++) {
-        yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+        if (modifiedCashStatistic)
+          yResults[z] = ComputeModCashStatDeviate(z, z);
+        else   // standard chi^2 term
+          yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
       }
     }
-  }
+    
+  }  // end else (non-convolution case)
+
+
+// 
+//           
+//         }
+//       } else {
+//         for (z = 0; z < nDataVals; z++) {
+//           yResults[z] = ComputeModCashStatDeviate(z, z);
+//         }
+//       }
+//     }
+//     else {   // standard chi^2 approach
+//       if (doBootstrap) {
+//         for (z = 0; z < nValidDataVals; z++) {
+//           b = bootstrapIndices[z];
+//           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
+//         }
+//       } else {
+//         for (z = 0; z < nDataVals; z++) {
+//           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
+//         }
+//       }
+//     }
+//     
+//   }  // end if (non-convolution case)
 
 }
 
@@ -978,7 +1108,8 @@ void ModelObject::UseCashStatistic( )
   // On the off-hand chance someone might deliberately call this after previously
   // supplying an error vector or requesting data errors (e.g., re-doing the fit
   // with only the errors changed), we allow the user to proceed even if the weight
-  // vector already exists (it will be reset to all pixels = 1).
+  // vector already exists; similarly for the extra-terms vector (the former will be 
+  // reset to all pixels = 1, the latter to all pixels = 0).
   
   // WARNING: If we are calling this function for a second or subsequent time,
   // nDataVals *might* have changed; we are currently assuming it hasn't!
@@ -989,6 +1120,13 @@ void ModelObject::UseCashStatistic( )
   else {
     fprintf(stderr, "WARNING: ModelImage::UseCashStatistic -- weight vector already allocated!\n");
   }
+  if (! extraCashTermsVectorAllocated) {
+    extraCashTermsVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    extraCashTermsVectorAllocated = true;
+  }
+  else {
+    fprintf(stderr, "WARNING: ModelImage::UseCashStatistic -- extra-terms vector already allocated!\n");
+  }
 
   for (int z = 0; z < nDataVals; z++) {
     weightVector[z] = 1.0;
@@ -997,11 +1135,36 @@ void ModelObject::UseCashStatistic( )
 }
 
 
+/* ---------------- PUBLIC METHOD: UseModifiedCashStatistic ----------- */
+
+void ModelObject::UseModifiedCashStatistic( )
+{
+  modifiedCashStatistic = true;
+  UseCashStatistic();
+}
+
+
 /* ---------------- PUBLIC METHOD: UsingCashStatistic ------------------ */
+// DEPRECATED! (Use WhichStatistic instead)
 
 bool ModelObject::UsingCashStatistic( )
 {
   return useCashStatistic;
+}
+
+
+/* ---------------- PUBLIC METHOD: WhichStatistic ---------------------- */
+
+int ModelObject::WhichFitStatistic( )
+{
+  if (useCashStatistic) {
+    if (modifiedCashStatistic)
+      return FITSTAT_MODCASH;
+    else
+      return FITSTAT_CASH;
+  }
+  else
+    return FITSTAT_CHISQUARE;
 }
 
 
@@ -1012,7 +1175,7 @@ bool ModelObject::UsingCashStatistic( )
 double ModelObject::GetFitStatistic( double params[] )
 {
   if (useCashStatistic)
-    return CashStatistic(params);
+    return CashStatistic(params);  // works for both standard & modified Cash stat
   else
     return ChiSquared(params);
 }
@@ -1057,8 +1220,7 @@ double ModelObject::ChiSquared( double params[] )
       }
     }
   }
-  else {
-    // Model image is same size & shape as data and weight images
+  else {   // Model image is same size & shape as data and weight images
     if (doBootstrap) {
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
@@ -1082,15 +1244,18 @@ double ModelObject::ChiSquared( double params[] )
 
 
 /* ---------------- PUBLIC METHOD: CashStatistic ----------------------- */
-/* Function for calculating Cash statistic for a model
- *
- * Note that weightVector is used here *only* for its masking purposes
- *
- */
+// Function for calculating Cash statistic for a model
+//
+// Note that weightVector is used here *only* for its masking purposes
+//
+// In the case of using the modified Cash statistic, the extraCashTermsVector
+// will be pre-populated with the appropriate terms (and will be = 0 for the
+// standard Cash statistic).
+//
 double ModelObject::CashStatistic( double params[] )
 {
   int  iDataRow, iDataCol, z, zModel, b, bModel;
-  double  modVal, dataVal, logModel;
+  double  modVal, dataVal, logModel, extraTerms;
   double  cashStat = 0.0;
   
   CreateModelImage(params);
@@ -1110,7 +1275,8 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        cashStat += weightVector[b] * (modVal - dataVal*logModel);
+        extraTerms = extraCashTermsVector[b];   // = 0 for standard Cash stat
+        cashStat += weightVector[b] * (modVal - dataVal*logModel + extraTerms);
       }
     } else {
       for (z = 0; z < nDataVals; z++) {
@@ -1124,12 +1290,12 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        cashStat += weightVector[z] * (modVal - dataVal*logModel);
+        extraTerms = extraCashTermsVector[z];   // = 0 for standard Cash stat
+        cashStat += weightVector[z] * (modVal - dataVal*logModel + extraTerms);
       }
     }
   }
-  else {
-    // Model image is same size & shape as data and weight images
+  else {   // Model image is same size & shape as data and weight images
     if (doBootstrap) {
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
@@ -1139,7 +1305,8 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        cashStat += weightVector[z] * (modVal - dataVal*logModel);
+        extraTerms = extraCashTermsVector[b];   // = 0 for standard Cash stat
+        cashStat += weightVector[b] * (modVal - dataVal*logModel + extraTerms);
       }
     } else {
       for (z = 0; z < nDataVals; z++) {
@@ -1149,7 +1316,8 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        cashStat += weightVector[z] * (modVal - dataVal*logModel);
+        extraTerms = extraCashTermsVector[z];   // = 0 for standard Cash stat
+        cashStat += weightVector[z] * (modVal - dataVal*logModel + extraTerms);
       }
     }
   }
@@ -1507,6 +1675,19 @@ double * ModelObject::GetWeightImageVector( )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetDataVector ----------------------- */
+
+double * ModelObject::GetDataVector( )
+{
+  if (! dataValsSet) {
+    fprintf(stderr, "* ModelObject::GetDataVector -- Image data values have not yet been supplied!\n\n");
+    return NULL;
+  }
+  
+  return dataVector;
+}
+
+
 /* ---------------- PUBLIC METHOD: FindTotalFluxes --------------------- */
 // Estimate total fluxes for individual components (and entire model) by integrating
 // over a very large image, with each component/function centered in the image.
@@ -1666,6 +1847,8 @@ ModelObject::~ModelObject()
     free(residualVector);
   if (outputModelVectorAllocated)
     free(outputModelVector);
+  if (extraCashTermsVectorAllocated)
+    free(extraCashTermsVector);
   
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)

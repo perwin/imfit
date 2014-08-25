@@ -1,6 +1,6 @@
 /* FILE: print_results.cpp ----------------------------------------- */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2014 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -24,6 +24,7 @@
 
 using namespace std;
 
+#include "definitions.h"
 #include "print_results.h"
 #include "mpfit_cpp.h"
 #include "param_struct.h"
@@ -59,9 +60,12 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
   int  i;
   int  nValidPixels = model->GetNValidPixels();
   int  nDegreesFreedom = nValidPixels - nFreeParameters;
+  int  whichStat;
   string  mpfitMessage;
   double  aic, bic;
   
+  whichStat = model->WhichFitStatistic();
+
   if (result == 0) {
     // PrintResult was called with result from Nelder-Mead simplex or 
     // Differential Evolution fit, not mpfit
@@ -69,9 +73,11 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     if (fitStatus < 1)
       return;
     double  fitStatistic = model->GetFitStatistic(params);
-    bool usingCashStatistic = model->UsingCashStatistic();
-    if (usingCashStatistic)
+//    bool usingCashStatistic = model->UsingCashStatistic();
+    if (whichStat == FITSTAT_CASH)
       printf("  CASH STATISTIC = %f\n", fitStatistic);
+    else if (whichStat == FITSTAT_MODCASH)
+      printf("  MODIFIED CASH STATISTIC = %f\n", fitStatistic);
     else {
       printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
@@ -81,9 +87,6 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     printf("AIC = %f, BIC = %f\n\n", aic, bic);
     // output the best-fit parameters
     model->PrintModelParams(stdout, params, parameterInfo, NULL);
-//    for (i = 0; i < model->GetNParams(); i++) {
-//      PrintParam(stdout, model->GetParameterName(i), params[i] + parameterInfo[i].offset, 0.0);
-//    }
     return;
   }
   
@@ -93,8 +96,18 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     // Only print results of fit if valid fit was achieved
   if ((params == 0) || (result == 0))
     return;
-  printf("  CHI-SQUARE = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
-  printf("  INITIAL CHI^2 = %f\n", result->orignorm);
+  if (whichStat == FITSTAT_CASH) {
+    printf("  CASH STATISTIC = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
+    printf("  INITIAL CASH STATISTIC = %f\n", result->orignorm);
+  }
+  else if (whichStat == FITSTAT_MODCASH) {
+    printf("  MODIFIED CASH STATISTIC = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
+    printf("  INITIAL MODIFIED CASH STATISTIC = %f\n", result->orignorm);
+  }
+  else {
+    printf("  CHI-SQUARE = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
+    printf("  INITIAL CHI^2 = %f\n", result->orignorm);
+  }
   printf("        NPAR = %d\n", result->npar);
   printf("       NFREE = %d\n", result->nfree);
   printf("     NPEGGED = %d\n", result->npegged);
@@ -103,7 +116,8 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
   printf("\n");
   aic = AIC_corrected(result->bestnorm, nFreeParameters, nValidPixels, 1);
   bic = BIC(result->bestnorm, nFreeParameters, nValidPixels, 1);
-  printf("Reduced Chi^2 = %f\n", result->bestnorm / nDegreesFreedom);
+  if (whichStat == FITSTAT_CHISQUARE)
+    printf("Reduced Chi^2 = %f\n", result->bestnorm / nDegreesFreedom);
   printf("AIC = %f, BIC = %f\n\n", aic, bic);
   
   if (xact) {
@@ -113,9 +127,6 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     }
   } else {
     model->PrintModelParams(stdout, params, parameterInfo, result->xerror);
-//    for (i = 0; i < result->npar; i++) {
-//      PrintParam(stdout, model->GetParameterName(i), params[i] + parameterInfo[i].offset, result->xerror[i]);
-//    }
   }    
 }
 

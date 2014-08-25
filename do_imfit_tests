@@ -51,7 +51,12 @@ echo ""
 
 # test fitting with Cash statistic
 echo -n "   (now running Cash-statistic fit ...)"
-./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nm &> test_dump5
+./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nm &> test_dump5a
+# test fitting with *modified* Cash statistic
+# echo -n "   (now running modified Cash-statistic fit (N-M solver) ...)"
+# ./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --modcash --nm &> test_dump5b
+# echo -n "   (now running modified Cash-statistic fit (L-M solver) ...)"
+# ./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --modcash &> test_dump5c
 
 # testing error-image generation and saving
 # first using data values for errors, then using model values (should be identical)
@@ -186,14 +191,34 @@ else
 fi
 
 echo -n "*** Diff comparison with archives: fit using Cash statistic... "
-tail -n 18 test_dump5 > test_dump5_tail
-if (diff --brief test_dump5_tail tests/imfit_textout5_tail)
+tail -n 18 test_dump5a > test_dump5a_tail
+if (diff --brief test_dump5a_tail tests/imfit_textout5a_tail)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump5_tail tests/imfit_textout5_tail
+  diff test_dump5a_tail tests/imfit_textout5a_tail
 fi
+
+# echo -n "*** Diff comparison with archives: fit using *modified* Cash statistic (+ N-M solver)... "
+# tail -n 18 test_dump5b > test_dump5b_tail
+# if (diff --brief test_dump5b_tail tests/imfit_textout5b_tail)
+# then
+#   echo " OK"
+# else
+#   echo "Diff output:"
+#   diff test_dump5b_tail tests/imfit_textout5b_tail
+# fi
+# 
+# echo -n "*** Diff comparison with archives: fit using *modified* Cash statistic (+ L-M solver)... "
+# tail -n 18 test_dump5c > test_dump5c_tail
+# if (diff --brief test_dump5c_tail tests/imfit_textout5c_tail)
+# then
+#   echo " OK"
+# else
+#   echo "Diff output:"
+#   diff test_dump5c_tail tests/imfit_textout5c_tail
+# fi
 
 
 if [ $do_fits_tests = "1" ]

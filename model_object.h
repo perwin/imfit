@@ -1,7 +1,6 @@
-/*   Abstract base lass interface definition for model_object.cpp [imfit]
- *   VERSION 0.3
+/*   Abstract base class interface definition for model_object.cpp [imfit]
  *
- * This is the abstract base clase for 1D and 2D "model" objects.
+ * This is the abstract base class for 1D and 2D "model" objects.
  * 
  */
 
@@ -26,7 +25,7 @@ using namespace std;
 class ModelObject
 {
   public:
-    // Constructors:
+    // Constructor:
     ModelObject( );
 
     void SetDebugLevel( int debuggingLevel );
@@ -50,10 +49,6 @@ class ModelObject
     virtual void SetZeroPoint( double zeroPointValue );
 
  
-//     void SetGain( double gainValue );
-// 
-//     void SetSkyBackground( double originalSkyValue );
-
 	// 2D only
     void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
 
@@ -76,6 +71,9 @@ class ModelObject
     
 	// 2D only
     virtual void GenerateErrorVector( );
+
+	// 2D only
+    virtual void GenerateExtraCashTerms( );
 
 	// 2D only
     virtual int AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
@@ -102,6 +100,9 @@ class ModelObject
     // 2D only
     void UpdateWeightVector(  );
 
+     // common, not specialized (currently not specialized or used by ModelObject1d)
+    virtual double ComputeModCashStatDeviate( int i, int i_model );
+
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
@@ -110,9 +111,15 @@ class ModelObject
 
      // common, not specialized
     virtual void UseCashStatistic( );
+
+     // common, not specialized
+    virtual void UseModifiedCashStatistic( );
  
      // common, not specialized
     virtual bool UsingCashStatistic( );
+ 
+     // common, not specialized
+    virtual int WhichFitStatistic( );
  
     // common, not specialized
     virtual double GetFitStatistic( double params[] );
@@ -187,6 +194,9 @@ class ModelObject
     double * GetWeightImageVector( );
 
 		// 2D only
+    double * GetDataVector( );
+
+		// 2D only
     double FindTotalFluxes(double params[], int xSize, int ySize, 
     											double individualFluxes[] );
 
@@ -226,8 +236,9 @@ class ModelObject
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
     bool  modelErrors, dataErrors, externalErrorVectorSupplied;
-    bool  useCashStatistic;
+    bool  useCashStatistic, modifiedCashStatistic;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
+    bool  extraCashTermsVectorAllocated;
     bool  zeroPointSet;
     int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;
     double  *dataVector;
@@ -237,6 +248,7 @@ class ModelObject
     double  *deviatesVector;
     double  *residualVector;
     double  *outputModelVector;
+    double  *extraCashTermsVector;
     double  *parameterBounds;
     int  *bootstrapIndices;
     int  *functionSetStarts;
