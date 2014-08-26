@@ -127,6 +127,9 @@ class ModelObject
     // common, but Specialized by ModelObject1D
     virtual void PrintDescription( );
 
+    // common, but Specialized by ModelObject1D
+    virtual int Dimensionality( ) { return 2;};
+
     // common, not specialized
     void GetFunctionNames( vector<string>& functionNames );
 

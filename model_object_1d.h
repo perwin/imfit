@@ -49,6 +49,8 @@ class ModelObject1d : public ModelObject
 
     void PrintDescription( );
     
+    int Dimensionality( ) { return 1;};
+    
     void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
 																		double errs[] );
     void PopulateParameterNames( );

@@ -1,6 +1,6 @@
 
-// $ cxxtestgen.py --error-printer -o test_runner.cpp unittest_utilities.h
-// $ g++ -o test_runner test_runner.cpp utilities.cpp -I/usr/local/include
+// $ cxxtestgen --error-printer -o test_runner.cpp unittest_utilities.h
+// $ g++ -o test_runner test_runner.cpp utilities.cpp -I/usr/local/include -I$CXXTEST
 
 #include <cxxtest/TestSuite.h>
 

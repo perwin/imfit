@@ -97,13 +97,13 @@ cflags_db = ["-Wall", "-g3"]
 base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-lib_list = ["fftw3", "cfitsio", "m"]
+lib_list = ["fftw3", "cfitsio", "m", "levmar"]
 # libraries needed for profilefit and psfconvolve1d compilation
-lib_list_1d = ["fftw3", "m"]
+lib_list_1d = ["fftw3", "m", "levmar"]
 
 
 include_path = ["/usr/local/include", FUNCTION_SUBDIR]
-lib_path = ["/usr/local/lib"]
+lib_path = ["/usr/local/lib", "/Users/erwin/coding/imfit_altlm/levmar-2.6"]
 link_flags = []
 
 
@@ -308,9 +308,11 @@ if useGSL:   # default is to do this
 			lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 	else:
 		lib_list.append("gsl")
-	
+		lib_list.append("gslcblas")
+		
 	# and stuff for 1D programs:
 	lib_list_1d.append("gsl")
+	lib_list_1d.append("gslcblas")
 	if (os_type == "Linux"):
 		lib_list.append("gslcblas")
 		lib_list_1d.append("gslcblas")
@@ -484,7 +486,7 @@ functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 # Base files for imfit:
 imfit_base_obj_string = """commandline_parser utilities image_io levmar_fit mpfit 
 		diff_evoln_fit DESolver config_file_parser add_functions print_results 
-		new_levmar_fit
+		new_levmar_fit parameter_utils
 		bootstrap_errors imfit_main"""
 if useNLopt:
 	imfit_base_obj_string += " nmsimplex_fit"
@@ -551,7 +553,7 @@ functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
 profilefit_base_obj_string = """commandline_parser utilities levmar_fit mpfit 
-		new_levmar_fit
+		new_levmar_fit parameter_utils
 		diff_evoln_fit DESolver read_profile config_file_parser add_functions_1d print_results 
 		convolver convolver1d bootstrap_errors_1d profilefit_main"""
 if useNLopt:
