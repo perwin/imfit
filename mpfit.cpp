@@ -23,6 +23,59 @@
    $Id: mpfit.c,v 1.17 2009/02/18 23:08:49 craigm Exp $
  */
 
+
+// The following is a slightly edited version of the introductory comments in
+// Craig Markwardt's IDL code mpfit.pro, which helps explain what the "user-supplied
+// function" funct (or fcn in the original FORTRAN version) is supposed to do
+// in the context of fitting a model to data. Some of the details of these comments
+// are IDL-specific, but the general idea applies to this C/C++ code.
+// (Just to be explicitly clear: the "ERR" values referred to below are intended
+// to be sigma, *not* sigma^2; mpfit calculates the chi^2 value assuming this.)
+
+//   The user-supplied function should return an array of weighted
+//   deviations between model and data.  In a typical scientific problem
+//   the residuals should be weighted so that each deviate has a
+//   gaussian sigma of 1.0.  If X represents values of the independent
+//   variable, Y represents a measurement for each value of X, and ERR
+//   represents the error in the measurements, then the deviates could
+//   be calculated as follows:
+// 
+//     DEVIATES = (Y - F(X)) / ERR
+// 
+//   where F is the function representing the model.
+//   If ERR are the 1-sigma uncertainties in Y, then
+// 
+//     TOTAL( DEVIATES^2 ) 
+// 
+//   will be the total chi-squared value.  MPFIT will minimize the
+//   chi-square value.
+// 
+//  USER FUNCTION
+// 
+//   The user must define a function which returns the appropriate
+//   values as specified above.  The function should return the weighted
+//   deviations between the model and the data.  For applications which
+//   use finite-difference derivatives -- the default -- the user
+//   function should be declared in the following way:
+// 
+//     FUNCTION MYFUNCT, p, X=x, Y=y, ERR=err
+//      ; Parameter values are passed in "p"
+//      model = F(x, p)
+//      return, (y-model)/err
+//     END
+// 
+//   The keyword parameters X, Y, and ERR in the example above are
+//   suggestive but not required.  Any parameters can be passed to
+//   MYFUNCT by using the FUNCTARGS keyword to MPFIT.  Use MPFITFUN and
+//   MPFITEXPR if you need ideas on how to do that.  The function *must*
+//   accept a parameter list, P.
+//   
+//   In general there are no restrictions on the number of dimensions in
+//   X, Y or ERR.  However the deviates *must* be returned in a
+//   one-dimensional array, and must have the same type (float or
+//   double) as the input arrays.
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
