@@ -26,9 +26,13 @@ class OversampledRegion
     ~OversampledRegion( );
     
     // Public member functions:
+    void SetDebugImageName( string imageName );
+    
     void AddPSFVector( double *psfPixels_input, int nColumns, int nRows );
     
     void SetMaxThreads( int maximumThreadNumber );
+
+    void SetDebugLevel( int debuggingLevel );
 
     void SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
     					int nColumnsMain, int nRowsMain, int nColumnsPSF_main,
@@ -52,6 +56,7 @@ class OversampledRegion
     int  nModelColumns, nModelRows, nModelVals;
     bool  doConvolution, setupComplete, modelVectorAllocated;
     double  *modelVector;
+    string  debugImageName;
 
 };
 

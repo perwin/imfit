@@ -8,15 +8,16 @@ region to a file
 
 TESTING:
 
-simpler test:
+<>simpler test:
 	1. Generate image with 2 Gaussians
 	2. Generate same image w/ oversampling region on one of the Gaussians
 
-simpler test, v4:
+<>simpler test, v4:
 	1. Generate image with 2 n=4 Sersic components
 	2. Generate same image w/ oversampling region on one of the Sersic components
-	
-archetype: Image with central e.g. Gaussian
+
+
+<> archetype: Image with central e.g. Gaussian
 
 1. Generate standard PSF-conv. image
 	model: config_makeimage_smallgauss_for_test.dat

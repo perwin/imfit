@@ -79,23 +79,23 @@ void DownsampleAndReplace( double *oversampledImage, int nOversampCols, int nOve
   oversampleArea = oversampleScale*oversampleScale;
 
   // iterate over sub-region within main image [i,j = indices for main image]
-  if (debugLevel > 0) printf("Starting main loop (with target j1,i1 = %d,%d)...\n", j1,i1);
+  if (debugLevel > 1) printf("Starting main loop (with target j1,i1 = %d,%d)...\n", j1,i1);
   for (i = i1; i < i1 + nRows_subregion; i++) {
-    if (debugLevel > 0) printf("target row i = %d:\n", i);
+    if (debugLevel > 1) printf("target row i = %d:\n", i);
     for (j = j1; j < j1 + nCols_subregion; j++) {
       j_sub = j - j1;  // native j (column) index for sub-region
       i_sub = i - i1;  // native i (row) index for sub-region
-      if (debugLevel > 0) printf("\ttarget column j = %d: j_sub,i_sub = %d,%d\n", j,j_sub,i_sub);
+      if (debugLevel > 1) printf("\ttarget column j = %d: j_sub,i_sub = %d,%d\n", j,j_sub,i_sub);
       // integrate over the oversampleScale x oversampleScale subpixels within this
       // sub-region pixel
       jj1 = j_sub*oversampleScale + nOversampPSFCols;   // starting j-index (columns) within oversampled subimage
       ii1 = i_sub*oversampleScale + nOversampPSFRows;   // starting i-index (rows) within oversampled subimage
-      if (debugLevel > 0) printf("\tStarting loop on oversampled image (with osampImage jj1,ii1 = %d,%d):\n", jj1,ii1);
+      if (debugLevel > 1) printf("\tStarting loop on oversampled image (with osampImage jj1,ii1 = %d,%d):\n", jj1,ii1);
       binnedFlux = 0.0;
       for (ii = ii1; ii < ii1 + oversampleScale; ii++) {
         for (jj = jj1; jj < jj1 + oversampleScale; jj++) {
           oversampPixFlux = oversampledImage[ii*nOversampCols + jj];
-          if (debugLevel > 0) printf("\t\toversample pixel at jj,ii = %d,%d: %f\n", jj,ii,oversampPixFlux);
+          if (debugLevel > 1) printf("\t\toversample pixel at jj,ii = %d,%d: %f\n", jj,ii,oversampPixFlux);
           binnedFlux += oversampledImage[ii*nOversampCols + jj];
         }
       }
@@ -103,7 +103,7 @@ void DownsampleAndReplace( double *oversampledImage, int nOversampCols, int nOve
       mainImage[i*nMainCols + j] = binnedFlux/oversampleArea;
     }
   }
-  if (debugLevel > 0) printf("Done.\n");
+  if (debugLevel > 1) printf("Done.\n");
 
 }   
 

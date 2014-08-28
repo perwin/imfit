@@ -96,6 +96,8 @@ OversampledRegion::OversampledRegion( )
   debugLevel = 0;
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
   ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
+  
+  debugImageName = "oversampled_region_testoutput";
 }
 
 
@@ -109,6 +111,21 @@ OversampledRegion::~OversampledRegion( )
     delete psfConvolver;
 }
 
+
+
+/* ---------------- SetDebugImageName ---------------------------------- */
+// Primarily for debugging purpooses
+void OversampledRegion::SetDebugImageName( string imageName )
+{
+  debugImageName = imageName;
+}
+
+
+/* ---------------- SetDebugLevel ------------------------------------- */
+void OversampledRegion::SetDebugLevel( int debuggingLevel )
+{
+  debugLevel = debuggingLevel;
+}
 
 
 /* ---------------- SetMaxThreads -------------------------------------- */
@@ -146,7 +163,7 @@ void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int n
 
 /* ---------------- SetupModelImage ------------------------------------ */
 // Pass in the dimensions of the image region, oversample scale, etc.
-//    x1,y1 = x,y location of lower-left corner of image region /win main image (IRAF-numbering)
+//    x1,y1 = x,y location of lower-left corner of image region w/in main image (IRAF-numbering)
 //    nBaseColumns,nBaseRows = x,y size of region in main ("base") image
 //    nColumnsMain, nRowsMain = x,y size of full main model ("base") image
 void OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
@@ -215,8 +232,9 @@ void OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int n
 void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector, 
 					vector<FunctionObject *> functionObjectVect, int nFunctions  )
 {
-  int   i, j, n;
+  int   i, j, n, status;
   double  x, y, newValSum, tempSum, adjVal, storedError;
+  string  outputName;
 
 // Compute oversampled-region image, using OpenMP for speed
 // (possibly slower if sub-region is really small, but in that case this whole
@@ -248,18 +266,27 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   } // end omp parallel section
 
 
-  int  status;
-  vector<string>  imageCommentsList;
-  string  imageName = string("oversampled_region_test.fits");
-  printf("\nSaving output model image (\"%s\") ...\n", imageName.c_str());
-  status = SaveVectorAsImage(modelVector, imageName, 
+  if (debugLevel > 0) {
+    vector<string>  imageCommentsList;
+    outputName = debugImageName + ".fits";
+    printf("\nSaving output model image (\"%s\") ...\n", debugImageName.c_str());
+    status = SaveVectorAsImage(modelVector, outputName, 
                         nModelColumns, nModelRows, imageCommentsList);
+  }
 
 
   // Do PSF convolution, if requested
   if (doConvolution)
     psfConvolver->ConvolveImage(modelVector);
-  
+
+  if (debugLevel > 0) {
+    vector<string>  imageCommentsList;
+    outputName = debugImageName + "_conv.fits";
+    printf("\nSaving PSF-convolved output model image (\"%s\") ...\n", debugImageName.c_str());
+    status = SaveVectorAsImage(modelVector, outputName, 
+                        nModelColumns, nModelRows, imageCommentsList);
+  }
+
   // downsample & copy into main image
   DownsampleAndReplace(modelVector, nModelColumns,nModelRows,nPSFColumns,nPSFRows, 
   						mainImageVector, nMainImageColumns,nMainImageRows,nMainPSFColumns,
