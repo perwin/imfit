@@ -445,7 +445,7 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 # Pure C code
 c_obj_string = """mp_enorm statistics mersenne_twister"""
 # extra stuff for working with new LM
-c_obj_string += " newlevmar/lm_mle_new newlevmar/misc_new"
+#c_obj_string += " newlevmar/lm_mle_new newlevmar/misc_new"
 c_objs = c_obj_string.split()
 c_sources = [name + ".c" for name in c_objs]
 
