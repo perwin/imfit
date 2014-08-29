@@ -36,6 +36,7 @@
 #include "diff_evoln_fit.h"
 #ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
+#include "nlopt_fit.h"
 #endif
 #include "new_levmar_fit.h"
 
@@ -46,11 +47,6 @@
 
 /* ---------------- Definitions & Constants ----------------------------- */
 #define MAX_N_DATA_VALS   1000000   /* max # data values we'll handle (1.0e6) */
-
-#define NO_FITTING          0 
-#define MPFIT_SOLVER        1
-#define DIFF_EVOLN_SOLVER   2
-#define NMSIMPLEX_SOLVER    3
 
 #define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
 #define MONTE_CARLO_ITER   100
@@ -97,6 +93,7 @@ typedef struct {
   std::string  outputParameterFileName;
   bool printChiSquaredOnly;
   int  solver;
+  std::string  nloptSolverName;
   bool  doBootstrap;
   int  bootstrapIterations;
   int  verbose;
@@ -182,6 +179,7 @@ int main(int argc, char *argv[])
   options.ftolSet = false;
   options.printChiSquaredOnly = false;
   options.solver = MPFIT_SOLVER;
+  options.nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
   options.doBootstrap = false;
   options.bootstrapIterations = 0;
   options.subsamplingFlag = false;
@@ -427,6 +425,14 @@ int main(int argc, char *argv[])
       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
     }
+    else if (options.solver == GENERIC_NLOPT_SOLVER) {
+      printf("\nCalling miscellaneous NLOpt solver ..\n");
+      status = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      			options.verbose, options.nloptSolverName);
+      printf("\n");
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+    }
 #endif
     else if (options.solver == ALT_SOLVER) {
       printf("Calling Modified L-M solver ..\n");
@@ -521,6 +527,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
 #ifndef NO_NLOPT
   optParser->AddUsageLine(" --nm                         Use Nelder-Mead simplex solver instead of L-M");
+  optParser->AddUsageLine(" --nlopt <name>               Select misc. NLopt solver");
 #endif
   optParser->AddUsageLine(" --de                         Solve using differential evolution");
   optParser->AddUsageLine(" --newlm                      Use modified L-M solver");
@@ -549,6 +556,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
 #ifndef NO_NLOPT
   optParser->AddFlag("nm");
+  optParser->AddOption("nlopt");
 #endif
   optParser->AddFlag("de");
   optParser->AddFlag("newlm");
@@ -632,6 +640,18 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("nm")) {
   	printf("\t* Nelder-Mead simplex solver selected!\n");
   	theOptions->solver = NMSIMPLEX_SOLVER;
+  }
+  if (optParser->OptionSet("nlopt")) {
+    theOptions->solver = GENERIC_NLOPT_SOLVER;
+    theOptions->nloptSolverName = optParser->GetTargetString("nlopt");
+    if (! ValidNLOptSolverName(theOptions->nloptSolverName)) {
+      fprintf(stderr, "*** ERROR: \"%s\" is not a valid NLOpt solver name!\n", 
+      			theOptions->nloptSolverName.c_str());
+      fprintf(stderr, "    (valid names for --nlopt: COBYLA, BOBYQA, NEWUOA, PRAXIS, NM, SBPLX)\n");
+      delete optParser;
+      exit(1);
+    }
+    printf("\tNLopt solver = %s\n", theOptions->nloptSolverName.c_str());
   }
 #endif
   if (optParser->FlagSet("de")) {

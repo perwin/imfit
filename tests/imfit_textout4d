@@ -1,6 +1,6 @@
 	Image file = tests/n3073rss_small.fits
 	* No fitting will be done!
-	* Using Cash statistic instead of chi^2 for minimization!
+	* Using standard Cash statistic instead of chi^2 for minimization!
 	configuration file = tests/imfit_config_n3073.dat
 	PSF image = tests/psf_moffat_35.fits
 	mask image = tests/n3073rss_small_mask.fits
