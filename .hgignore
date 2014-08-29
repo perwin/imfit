@@ -1,0 +1,14 @@
+# .hgignore file
+syntax: glob
+
+*.o
+*.do
+*.pyc
+test_dump*
+old_distributions/*
+michael_williams/*
+misc/*
+nan_testing/*
+oldstuff/*
+stephanie/*
+tempo/*
