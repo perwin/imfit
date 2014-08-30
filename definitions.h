@@ -19,7 +19,7 @@ const int  DEBUG_ALL   =            10;
 
 /* OPTIONS FOR FIT STATISTICS: */
 #define FITSTAT_CHISQUARE       1   // standard chi^2
-#define FITSTAT_CASH            2   // standard (minimal Cash) statistic
+#define FITSTAT_CASH            2   // standard (minimal) Cash statistic
 #define FITSTAT_MODCASH         3   // modified Cash statistic
 
 

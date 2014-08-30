@@ -1,0 +1,18 @@
+     NPEGGED = 0
+     NITER = 16
+      NFEV = 124
+
+AIC = 18123.661993, BIC = 18188.641647
+
+X0		492.0205 # +/- 0.0626
+Y0		444.3322 # +/- 0.0641
+FUNCTION Sersic
+PA		138.318 # +/- 0.486932
+ell		0.250331 # +/- 0.00373044
+n		1.03803 # +/- 0.00803314
+I_e		7.83612 # +/- 0.0636965
+r_e		34.9043 # +/- 0.173999
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+Done!
+

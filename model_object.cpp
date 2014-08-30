@@ -860,7 +860,9 @@ double ModelObject::ComputeModCashStatDeviate( int i, int i_model )
   else
     logModel = log(modVal);
   extraTerms = extraCashTermsVector[i];
-  deviateVal = sqrt(2.0 * weightVector[i] * (modVal - dataVal*logModel + extraTerms));
+  // Note use of fabs(), to ensure that possible tiny negative values (due to
+  // rounding errors when modVal =~ dataVal) don't turn into NaN
+  deviateVal = sqrt(2.0 * weightVector[i] * fabs(modVal - dataVal*logModel + extraTerms));
   return deviateVal;
 }
 
@@ -922,28 +924,6 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
     }
   }   // end if convolution case
   
-//     else { // standard chi^2 approach
-//       if (doBootstrap) {
-//         for (z = 0; z < nValidDataVals; z++) {
-//           b = bootstrapIndices[z];
-//           iDataRow = b / nDataColumns;
-//           iDataCol = b - iDataRow*nDataColumns;
-//           bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-//           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
-//         }
-//       } else {
-//         for (z = 0; z < nDataVals; z++) {
-//           iDataRow = z / nDataColumns;
-//           iDataCol = z - iDataRow*nDataColumns;
-//           zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-//           //yResults[z] = ComputeChisquareDeviate(z, zModel)
-//           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
-//         }
-//       }
-//     }
-//   }  // end if (convolution case)
-  
-  
   else {
     // No convolution, so model image is same size & shape as data and weight images
     if (doBootstrap) {
@@ -965,31 +945,6 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
     }
     
   }  // end else (non-convolution case)
-
-
-// 
-//           
-//         }
-//       } else {
-//         for (z = 0; z < nDataVals; z++) {
-//           yResults[z] = ComputeModCashStatDeviate(z, z);
-//         }
-//       }
-//     }
-//     else {   // standard chi^2 approach
-//       if (doBootstrap) {
-//         for (z = 0; z < nValidDataVals; z++) {
-//           b = bootstrapIndices[z];
-//           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
-//         }
-//       } else {
-//         for (z = 0; z < nDataVals; z++) {
-//           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
-//         }
-//       }
-//     }
-//     
-//   }  // end if (non-convolution case)
 
 }
 

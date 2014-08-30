@@ -1,0 +1,18 @@
+Nelder-Mead Simplex status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
+
+  MODIFIED CASH STATISTIC = 22778.493863
+AIC = 22790.497598, BIC = 22838.621487
+
+X0		75.0290
+Y0		74.9375
+FUNCTION Exponential
+PA		0.00450996
+ell		0.499931
+I_0		99.7617
+h		19.9518
+FUNCTION FlatSky
+I_sky		     20
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+Done!
+
