@@ -45,10 +45,6 @@
 
 /* ------------------------ Include Files (Header Files )--------------- */
 
-#ifndef USING_SCONS
-#include "config.h"
-#endif
-
 #include <omp.h>
 
 #include <stdio.h>
@@ -63,6 +59,7 @@
 #include "model_object.h"
 #include "mp_enorm.h"
 #include "param_struct.h"
+#include "utilities_pub.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -1279,6 +1276,42 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
     }
     indexOffset += paramSizes[n];
   }
+}
+
+
+/* ---------------- PUBLIC METHOD: GetParamHeader ---------------------- */
+// Prints function and parameter names in order all on one line; e.g., for use as 
+// header in bootstrap-parameters output file.
+string ModelObject::GetParamHeader( )
+{
+  int nParamsThisFunc, k;
+  int  indexOffset = 0;
+  string  funcName, paramName;
+  string  headerLine, newString;
+
+  headerLine = "# ";
+  for (int n = 0; n < nFunctions; n++) {
+    if (setStartFlag[n] == true) {
+      // start of new function set: extract x0,y0 and then skip over them
+      k = indexOffset;
+      newString = "X0\t\tY0\t\t";
+      headerLine += newString;
+      indexOffset += 2;
+    }
+    
+    // Now print the names of the function and its parameters
+    nParamsThisFunc = paramSizes[n];
+    funcName = functionObjects[n]->GetShortName();
+    newString = PrintToString("FUNCTION:%s: ", funcName.c_str());
+    headerLine += newString;
+    for (int i = 0; i < nParamsThisFunc; i++) {
+      paramName = GetParameterName(indexOffset + i);
+      newString = PrintToString("%s\t", paramName.c_str());
+      headerLine += newString;
+    }
+    indexOffset += paramSizes[n];
+  }
+  return headerLine;
 }
 
 

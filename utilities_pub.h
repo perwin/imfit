@@ -24,6 +24,9 @@ using namespace std;
 
 // String-processing functions
 
+// like fprintf, but returns a string instead of writing to a file
+string PrintToString( const char *fmt, ... );
+
 // Splits a string and returns substrings as elements of tokens (tokens is cleared
 // before adding the substrings).
 void SplitString( const string& str, vector<string>& tokens, 

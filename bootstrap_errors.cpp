@@ -149,7 +149,8 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
   if (filenameLength > 0) {
     printf("Writing bootstrap parameter values to file %s...\n", outputFileName.c_str());
     outputFile_ptr = fopen(outputFileName.c_str(), "w");
-    fprintf(outputFile_ptr, "# Column names go here...\n");
+    string  headerLine = theModel->GetParamHeader();
+    fprintf(outputFile_ptr, "%s\n", headerLine.c_str());
   //   for (i = 0; i < nParams; i++)
   //     fprintf(outputFile_ptr, "%s\t", modelFunction->GetParameterName(i));
   //   fprintf(outputFile_ptr, "\n");
