@@ -203,6 +203,7 @@ void SetDefaultOptions( commandOptions *theOptions )
   theOptions->doBootstrap = false;
   theOptions->bootstrapIterations = 0;
   theOptions->saveBootstrap = false;
+  theOptions->outputBootstrapFileName = "";
   theOptions->maxThreads = 0;
   theOptions->maxThreadsSet = false;
   theOptions->verbose = 1;
@@ -556,7 +557,8 @@ int main(int argc, char *argv[])
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
     BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
-                    options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic());
+                    options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic(),
+                    options.outputBootstrapFileName);
   }
 
 
