@@ -97,13 +97,13 @@ cflags_db = ["-Wall", "-g3"]
 base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-lib_list = ["fftw3", "cfitsio", "m", "levmar"]
+lib_list = ["fftw3", "cfitsio", "m"]
 # libraries needed for profilefit and psfconvolve1d compilation
-lib_list_1d = ["fftw3", "m", "levmar"]
+lib_list_1d = ["fftw3", "m"]
 
 
 include_path = ["/usr/local/include", FUNCTION_SUBDIR]
-lib_path = ["/usr/local/lib", "/Users/erwin/coding/imfit_altlm/levmar-2.6"]
+lib_path = ["/usr/local/lib"]
 link_flags = []
 
 
@@ -444,8 +444,6 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 
 # Pure C code
 c_obj_string = """mp_enorm statistics mersenne_twister"""
-# extra stuff for working with new LM
-#c_obj_string += " newlevmar/lm_mle_new newlevmar/misc_new"
 c_objs = c_obj_string.split()
 c_sources = [name + ".c" for name in c_objs]
 
@@ -552,7 +550,6 @@ functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
 profilefit_base_obj_string = """commandline_parser utilities levmar_fit mpfit 
-		new_levmar_fit parameter_utils
 		diff_evoln_fit DESolver read_profile config_file_parser add_functions_1d print_results 
 		convolver convolver1d bootstrap_errors_1d profilefit_main"""
 if useNLopt:
