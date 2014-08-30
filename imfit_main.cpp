@@ -541,14 +541,6 @@ int main(int argc, char *argv[])
       printf("\n");
     }
 #endif
-//     else if (options.solver == ALT_SOLVER) {
-//       printf("Calling Modified L-M solver ..\n");
-//       status = NewLevMarFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       			options.verbose);
-//       printf("\n");
-//       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
-//       printf("\n");
-//     }
   }
 
 
@@ -673,7 +665,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --nlopt <name>           Select misc. NLopt solver");
 #endif
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
-  optParser->AddUsageLine("     --newlm                  Use modified L-M solver");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine("     --save-bootstrap <filename>        Save all bootstrap best-fit parameters to specified file");
@@ -711,7 +702,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("nlopt");
 #endif
   optParser->AddFlag("de");
-  optParser->AddFlag("newlm");
   optParser->AddFlag("quiet");
   optParser->AddFlag("silent");
   optParser->AddFlag("loud");
@@ -820,10 +810,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("de")) {
   	printf("\t* Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
-  }
-  if (optParser->FlagSet("newlm")) {
-  	printf("\t* Modified L-M selected!\n");
-  	theOptions->solver = ALT_SOLVER;
   }
   if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;
