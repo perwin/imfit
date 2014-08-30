@@ -1,0 +1,4 @@
+*** ERROR: "BADNAME" is not a valid NLOpt solver name!
+    (valid names for --nlopt: COBYLA, BOBYQA, NEWUOA, PRAXIS, NM, SBPLX)
+	Image file = tests/testimage_poisson_lowsn20.fits
+	* Using standard Cash statistic instead of chi^2 for minimization!

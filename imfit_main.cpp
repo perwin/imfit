@@ -8,10 +8,10 @@
  *
  *
  * HISTORY
- *    10 Nov--2 Dec 2009: Early stages of developement
+ *    10 Nov--2 Dec 2009: Early stages of development
 */
 
-// Copyright 2009, 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2009--2014 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -55,7 +55,9 @@
 #include "diff_evoln_fit.h"
 #ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
+#include "nlopt_fit.h"
 #endif
+//#include "new_levmar_fit.h"
 
 #include "commandline_parser.h"
 #include "config_file_parser.h"
@@ -134,6 +136,7 @@ typedef struct {
   bool  printImages;
   bool printFitStatisticOnly;
   int  solver;
+  std::string  nloptSolverName;
   bool  doBootstrap;
   int  bootstrapIterations;
   int  maxThreads;
@@ -200,7 +203,6 @@ int main(int argc, char *argv[])
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
   mp_par  *parameterInfo;
-//  mp_par  *mpfitParameterConstraints;
   int  status;
   vector<string>  imageCommentsList;
   commandOptions  options;
@@ -248,6 +250,7 @@ int main(int argc, char *argv[])
   options.printImages = false;
   options.printFitStatisticOnly = false;
   options.solver = MPFIT_SOLVER;
+  options.nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
   options.doBootstrap = false;
   options.bootstrapIterations = 0;
   options.maxThreads = 0;
@@ -540,7 +543,7 @@ int main(int argc, char *argv[])
     // DO THE FIT!
     printf("\nPerforming fit by minimizing ");
     if (options.useCashStatistic)
-      printf("Cash statistic:\n");
+      printf("standard Cash statistic:\n");
     else if (options.useModifiedCashStatistic)
       printf("modified Cash statistic:\n");
     else if (options.useModelForErrors)
@@ -570,7 +573,23 @@ int main(int argc, char *argv[])
       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
       printf("\n");
     }
+    else if (options.solver == GENERIC_NLOPT_SOLVER) {
+      printf("\nCalling miscellaneous NLOpt solver ..\n");
+      status = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      			options.verbose, options.nloptSolverName);
+      printf("\n");
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      printf("\n");
+    }
 #endif
+//     else if (options.solver == ALT_SOLVER) {
+//       printf("Calling Modified L-M solver ..\n");
+//       status = NewLevMarFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+//       			options.verbose);
+//       printf("\n");
+//       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+//       printf("\n");
+//     }
   }
 
 
@@ -681,7 +700,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
   optParser->AddUsageLine("     --save-residual <outputname.fits>       Save residual (input - model) image");
   optParser->AddUsageLine("     --save-weights <outputname.fits>       Save weight image");
-//  optParser->AddUsageLine("     --use-headers            Use image header values for gain, readnoise [NOT IMPLEMENTED YET]");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   optParser->AddUsageLine("     --gain <value>           Image gain (e-/ADU)");
@@ -699,8 +717,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in fit statistic for convergence [default = 1.0e-8]");
 #ifndef NO_NLOPT
   optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver instead of L-M");
+  optParser->AddUsageLine("     --nlopt <name>           Select misc. NLopt solver");
 #endif
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
+  optParser->AddUsageLine("     --newlm                  Use modified L-M solver");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine("");
@@ -734,8 +754,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("modcash");
 #ifndef NO_NLOPT
   optParser->AddFlag("nm");
+  optParser->AddOption("nlopt");
 #endif
   optParser->AddFlag("de");
+  optParser->AddFlag("newlm");
   optParser->AddFlag("quiet");
   optParser->AddFlag("silent");
   optParser->AddFlag("loud");
@@ -830,10 +852,26 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   	printf("\t* Nelder-Mead simplex solver selected!\n");
   	theOptions->solver = NMSIMPLEX_SOLVER;
   }
+  if (optParser->OptionSet("nlopt")) {
+    theOptions->solver = GENERIC_NLOPT_SOLVER;
+    theOptions->nloptSolverName = optParser->GetTargetString("nlopt");
+    if (! ValidNLOptSolverName(theOptions->nloptSolverName)) {
+      fprintf(stderr, "*** ERROR: \"%s\" is not a valid NLOpt solver name!\n", 
+      			theOptions->nloptSolverName.c_str());
+      fprintf(stderr, "    (valid names for --nlopt: COBYLA, BOBYQA, NEWUOA, PRAXIS, NM, SBPLX)\n");
+      delete optParser;
+      exit(1);
+    }
+    printf("\tNLopt solver = %s\n", theOptions->nloptSolverName.c_str());
+  }
 #endif
   if (optParser->FlagSet("de")) {
   	printf("\t* Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
+  }
+  if (optParser->FlagSet("newlm")) {
+  	printf("\t* Modified L-M selected!\n");
+  	theOptions->solver = ALT_SOLVER;
   }
   if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;

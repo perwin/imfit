@@ -24,10 +24,12 @@ const int  DEBUG_ALL   =            10;
 
 
 /* SOLVER OPTIONS: */
-#define MPFIT_SOLVER        1
-#define DIFF_EVOLN_SOLVER   2
-#define NMSIMPLEX_SOLVER    3
-
+#define NO_FITTING             0
+#define MPFIT_SOLVER           1
+#define DIFF_EVOLN_SOLVER      2
+#define NMSIMPLEX_SOLVER       3
+#define ALT_SOLVER             4
+#define GENERIC_NLOPT_SOLVER   5
 
 /* TYPE OF INPUT ERROR/WEIGHT IMAGE */
 #define  WEIGHTS_ARE_SIGMAS     100  // "weight image" pixel value = sigma

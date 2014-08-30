@@ -97,13 +97,13 @@ cflags_db = ["-Wall", "-g3"]
 base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-lib_list = ["fftw3", "cfitsio", "m"]
+lib_list = ["fftw3", "cfitsio", "m", "levmar"]
 # libraries needed for profilefit and psfconvolve1d compilation
-lib_list_1d = ["fftw3", "m"]
+lib_list_1d = ["fftw3", "m", "levmar"]
 
 
 include_path = ["/usr/local/include", FUNCTION_SUBDIR]
-lib_path = ["/usr/local/lib"]
+lib_path = ["/usr/local/lib", "/Users/erwin/coding/imfit_altlm/levmar-2.6"]
 link_flags = []
 
 
@@ -308,9 +308,11 @@ if useGSL:   # default is to do this
 			lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 	else:
 		lib_list.append("gsl")
-	
+		lib_list.append("gslcblas")
+		
 	# and stuff for 1D programs:
 	lib_list_1d.append("gsl")
+	lib_list_1d.append("gslcblas")
 	if (os_type == "Linux"):
 		lib_list.append("gslcblas")
 		lib_list_1d.append("gslcblas")
@@ -442,6 +444,8 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 
 # Pure C code
 c_obj_string = """mp_enorm statistics mersenne_twister"""
+# extra stuff for working with new LM
+#c_obj_string += " newlevmar/lm_mle_new newlevmar/misc_new"
 c_objs = c_obj_string.split()
 c_sources = [name + ".c" for name in c_objs]
 
@@ -484,7 +488,7 @@ imfit_base_obj_string = """commandline_parser utilities image_io levmar_fit mpfi
 		diff_evoln_fit DESolver config_file_parser add_functions print_results 
 		bootstrap_errors imfit_main"""
 if useNLopt:
-	imfit_base_obj_string += " nmsimplex_fit"
+	imfit_base_obj_string += " nmsimplex_fit nlopt_fit"
 imfit_base_objs = imfit_base_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
@@ -519,7 +523,7 @@ env_opt.Program("makeimage", makeimage_sources)
 
 
 
-# *** Other programs (nonlinfit, psfconvolve, older stuff)
+# *** Other programs (profilefit, psfconvolve, older stuff)
 
 if xcode5 is True:
 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
@@ -548,10 +552,11 @@ functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
 profilefit_base_obj_string = """commandline_parser utilities levmar_fit mpfit 
+		new_levmar_fit parameter_utils
 		diff_evoln_fit DESolver read_profile config_file_parser add_functions_1d print_results 
 		convolver convolver1d bootstrap_errors_1d profilefit_main"""
 if useNLopt:
-	profilefit_base_obj_string += " nmsimplex_fit"
+	profilefit_base_obj_string += " nmsimplex_fit nlopt_fit"
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 

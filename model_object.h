@@ -22,11 +22,16 @@
 using namespace std;
 
 
+// assume that all methods are "common" to both 2D (base) and 1D (derived) versions,
+// unless otherwise stated
+
 class ModelObject
 {
   public:
-    // Constructor:
     ModelObject( );
+
+    virtual ~ModelObject();
+
 
     void SetDebugLevel( int debuggingLevel );
     
@@ -34,14 +39,15 @@ class ModelObject
 
     void SetOMPChunkSize( int chunkSize );
     
-    // common, not specialized
+    
     // Adds a new FunctionObject pointer to the internal vector
     void AddFunction( FunctionObject *newFunctionObj_ptr );
     
-    // common, but Specialized by ModelObject1D
+    // common, but specialized by ModelObject1D
     virtual void DefineFunctionSets( vector<int>& functionStartIndices );
     
-    // 1D only, but needs to be part of base interface
+    
+    // 1D only
     virtual void AddDataVectors( int nDataValues, double *xValVector, 
     						double *yValVector, bool magnitudeData ) { nDataVals = nDataValues; };
 
@@ -94,49 +100,46 @@ class ModelObject
 	// 2D only [1D maybe needs something similar, but with diff. interface]
     virtual void ApplyMask( );
 
-    // common, but Specialized by ModelObject1D
+
+    // common, but specialized by ModelObject1D
     virtual void CreateModelImage( double params[] );
     
     // 2D only
     void UpdateWeightVector(  );
 
-     // common, not specialized (currently not specialized or used by ModelObject1d)
+     // common (currently not specialized or used by ModelObject1d)
     virtual double ComputeModCashStatDeviate( int i, int i_model );
 
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
 
-     // common, not specialized (currently not specialized by ModelObject1d)
+
     virtual void UseModelErrors( );
 
-     // common, not specialized
     virtual void UseCashStatistic( );
 
-     // common, not specialized
     virtual void UseModifiedCashStatistic( );
  
-     // common, not specialized
     virtual bool UsingCashStatistic( );
  
-     // common, not specialized
     virtual int WhichFitStatistic( );
  
-    // common, not specialized
     virtual double GetFitStatistic( double params[] );
     
-    // common, not specialized
     virtual double ChiSquared( double params[] );
     
-    // common, not specialized
     virtual double CashStatistic( double params[] );
     
-    // common, but Specialized by ModelObject1D
+    
+    // common, but specialized by ModelObject1D
     virtual void PrintDescription( );
 
-    // common, not specialized
+    // common, but specialized by ModelObject1D
+    virtual int Dimensionality( ) { return 2;};
+
     void GetFunctionNames( vector<string>& functionNames );
 
-    // common, but Specialized by ModelObject1D
+    // common, but specialized by ModelObject1D
     virtual void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
 																		double errs[] );
 
@@ -147,56 +150,49 @@ class ModelObject
     // 1D only
     virtual void PrintVector( double *theVector, int nVals ) { ; };
 
-	// 1D or 2D
     virtual void PrintInputImage( );
 
-	// 1D or 2D
     virtual void PrintModelImage( );
 
-	// 1D or 2D
     virtual void PrintWeights( );
 
-	// 1D or 2D
     virtual void PrintMask( );
 
 
-    // common, but Specialized by ModelObject1D
+    // common, but specialized by ModelObject1D
     virtual void PopulateParameterNames( );
 
-    // common, but Specialized by ModelObject1D
+    // common, but specialized by ModelObject1D
     virtual int FinalSetupForFitting( );
 
-    // common, not specialized
     string& GetParameterName( int i );
 
-    // common, not specialized
     int GetNFunctions( );
 
-    // common, not specialized
     int GetNParams( );
 
-    // common, not specialized -- returns total number of data values (e.g., pixels in image)
+    // Returns total number of data values
     int GetNDataValues( );
 
-    // common, not specialized -- returns total number of *non-masked* data values
+    // Returns total number of *non-masked* data values
     int GetNValidPixels( );
 
-		// 2D only
+	// 2D only
     double * GetModelImageVector( );
 
-		// 2D only
+	// 2D only
     double * GetExpandedModelImageVector( );
 
-		// 2D only
+	// 2D only
     double * GetResidualImageVector( );
 
-		// 2D only
+	// 2D only
     double * GetWeightImageVector( );
 
-		// 2D only
+	// 2D only
     double * GetDataVector( );
 
-		// 2D only
+	// 2D only
     double FindTotalFluxes(double params[], int xSize, int ySize, 
     											double individualFluxes[] );
 
@@ -207,14 +203,19 @@ class ModelObject
     // 1D only
     virtual int GetModelVector( double *profileVector ) { return -1; };
 
-    // 1D or 2D
+
     virtual void UseBootstrap( );
     
-    // 1D or 2D
     virtual void MakeBootstrapSample( );
+
+
+  protected:
+    bool CheckParamVector( int nParams, double paramVector[] );
     
-    // Destructor
-    virtual ~ModelObject();
+    bool CheckWeightVector( );
+    
+    bool VetDataVector( );
+
 
 
   private:
@@ -265,9 +266,6 @@ class ModelObject
     bool  oversampledRegionAllocated;
     OversampledRegion *oversampledRegion;
 
-    bool CheckParamVector( int nParams, double paramVector[] );
-    bool CheckWeightVector( );
-    bool VetDataVector( );
   
 };
 
