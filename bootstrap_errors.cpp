@@ -5,6 +5,8 @@
  *
  *     [v0.1]: 11 Jan 2013: Created; initial development.
  *
+ * Note that some of this code was taken from bootstrap2.cpp, part of
+ * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
 // Copyright 2013-2014 by Peter Erwin.
@@ -57,17 +59,15 @@ using namespace std;
 
 void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
 					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					int whichStatistic, string outputFileName )
+					int whichStatistic, double **outputParamArray )
 {
   double  *paramsVect, *paramSigmas;
-  double  **paramArray;
+ double  **paramArray;
   double  lower, upper, plus, minus, halfwidth;
   int  i, status, nIter;
   int  nParams = theModel->GetNParams();
   int  nValidPixels = theModel->GetNValidPixels();
   int  verboseLevel = -1;   // ensure minimizer stays silent
-  FILE  *outputFile_ptr;
-  size_t  filenameLength = outputFileName.length();
   
   /* seed random number generators with current time */
   init_genrand((unsigned long)time((time_t *)NULL));
@@ -115,6 +115,15 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
   }
 
 
+  // Save all parameters, if requested (do this *before* the sort-in-place
+  // induced by the call to ConfidenceInterval() below)
+  if (outputParamArray != NULL) {
+    for (nIter = 0; nIter < nIterations; nIter++) {
+      for (i = 0; i < nParams; i++)
+         outputParamArray[i][nIter] = paramArray[i][nIter];
+    }
+  }
+  
   /* Determine dispersions for parameter values */
   for (i = 0; i < nParams; i++) {
     paramSigmas[i] = StandardDeviation(paramArray[i], nIterations);
@@ -144,23 +153,6 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
     }
   }
 
-  // Save all parameters, if requested [currently has lightly modifed code from
-  // nonlinfit's bootstrap2.cpp]
-  if (filenameLength > 0) {
-    printf("Writing bootstrap parameter values to file %s...\n", outputFileName.c_str());
-    outputFile_ptr = fopen(outputFileName.c_str(), "w");
-    string  headerLine = theModel->GetParamHeader();
-    fprintf(outputFile_ptr, "%s\n", headerLine.c_str());
-  //   for (i = 0; i < nParams; i++)
-  //     fprintf(outputFile_ptr, "%s\t", modelFunction->GetParameterName(i));
-  //   fprintf(outputFile_ptr, "\n");
-    for (nIter = 0; nIter < nIterations; nIter++) {
-      for (i = 0; i < nParams; i++)
-        fprintf(outputFile_ptr, "%g\t\t", paramArray[i][nIter]);
-      fprintf(outputFile_ptr, "\n");
-    }
-  fclose(outputFile_ptr);
-  }
 
   free(paramsVect);
   free(paramSigmas);

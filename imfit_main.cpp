@@ -221,6 +221,7 @@ int main(int argc, char *argv[])
   int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
   int  nDegFreedom;
   int  nParamsTot, nFreeParams;
+  bool  saveBootstrapResults = false;
   double  *allPixels;
   double  *psfPixels;
   double  *allErrorPixels;
@@ -247,6 +248,9 @@ int main(int argc, char *argv[])
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
+  string  progNameVersion = "imfit ";
+
+  progNameVersion += VERSION_STRING;
   
   
   /* Define default options, then process the command line */
@@ -545,12 +549,44 @@ int main(int argc, char *argv[])
 
 
   // Optional bootstrap resampling
+
   if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
+    double **bootstrapParamsArray = NULL;
+    if (options.outputBootstrapFileName.length() > 0) {
+      saveBootstrapResults = true;
+      // Allocate 2D array to hold bootstrap results for each parameter
+      bootstrapParamsArray = (double **)calloc( (size_t)nParamsTot, sizeof(double *) );
+      for (int i = 0; i < nParamsTot; i++)
+        bootstrapParamsArray[i] = (double *)calloc( (size_t)options.bootstrapIterations, sizeof(double) );
+    }
+    
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
     BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
                     options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic(),
-                    options.outputBootstrapFileName);
+                    bootstrapParamsArray);
+    
+    // Save all generated parameter values to file, if user requested it
+    if (saveBootstrapResults) {
+      printf("Writing bootstrap parameter values to file %s...\n", options.outputBootstrapFileName.c_str());
+      FILE *outputFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");
+      // write general info + best-fitting params as a commented-out header
+      SaveParameters2(outputFile_ptr, paramsVect, theModel, parameterInfo, progNameVersion, 
+      				argc, argv, "#");
+      // get & write column-titles header
+      string  headerLine = theModel->GetParamHeader();
+      fprintf(outputFile_ptr, "#\n# Bootstrap resampling output\n%s\n", headerLine.c_str());
+      for (int nIter = 0; nIter < options.bootstrapIterations; nIter++) {
+        for (int i = 0; i < nParamsTot; i++)
+          fprintf(outputFile_ptr, "%f\t\t", bootstrapParamsArray[i][nIter]);
+        fprintf(outputFile_ptr, "\n");
+      }
+      fclose(outputFile_ptr);
+      for (int i = 0; i < nParamsTot; i++)
+        free(bootstrapParamsArray[i]);
+      free(bootstrapParamsArray);
+    }
+
   }
 
 
@@ -564,15 +600,11 @@ int main(int argc, char *argv[])
   // anyway, and the user might just have given us a bad path for one of the output images
   if (options.saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
-    string  progNameVersion = "imfit ";
-    progNameVersion += VERSION_STRING;
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
     								progNameVersion, argc, argv);
   }
   if (options.saveModel) {
-    string  progName = "imfit ";
-    progName += VERSION_STRING;
-    PrepareImageComments(&imageCommentsList, progName, &options);
+    PrepareImageComments(&imageCommentsList, progNameVersion, &options);
     printf("Saving model image in file \"%s\"\n", options.outputModelFileName.c_str());
     status = SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
                       nColumns, nRows, imageCommentsList);
