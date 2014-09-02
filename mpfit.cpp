@@ -13,6 +13,7 @@
  */
 
 /* Minor modifications by Peter Erwin:
+ *    [for later additions, see Mercurial commit log]
  *     5 Apr 2010: Added InterpretMpfitResult() function (extracted from imfit_main.cpp).
  *    20 Feb 2010: some initial cosmetic cleanup
  *    14 Nov 2009: changed "private" to "privateData" ("private" is C++ keyword,
@@ -2431,11 +2432,11 @@ void InterpretMpfitResult( int mpfitResult, std::string& interpretationString )
       // Success (probably)
       interpretationString = "SUCCESS: ";
       if (mpfitResult == MP_OK_CHI)
-        interpretationString += "Convergence in chi-square value.";
+        interpretationString += "Convergence in fit-statistic value.";
       if (mpfitResult == MP_OK_PAR)
         interpretationString += "Convergence in parameter value.";
       if (mpfitResult == MP_OK_BOTH)
-        interpretationString += "Convergence in chi-square and parameter value.";
+        interpretationString += "Convergence in fit-statistic and parameter value.";
       if (mpfitResult == MP_OK_DIR)
         interpretationString += "Convergence in orthogonality.";
     } else {

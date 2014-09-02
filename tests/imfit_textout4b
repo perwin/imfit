@@ -37,7 +37,7 @@ Calling Levenberg-Marquardt solver ...
 	mpfit iteration 11: fit statistic = 36828.578059
 	mpfit iteration 12: fit statistic = 36828.578011
 
-*** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
   CHI-SQUARE = 36828.578011    (28743 DOF)
   INITIAL CHI^2 = 3184994682.091267
         NPAR = 11

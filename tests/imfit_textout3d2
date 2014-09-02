@@ -125,7 +125,7 @@ n		    2.4
 I_e		20.0156
 r_e		60.7483
 
-*** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
   CHI-SQUARE = 4555.947901    (4090 DOF)
   INITIAL CHI^2 = 439705.788935
         NPAR = 7
