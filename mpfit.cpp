@@ -912,7 +912,7 @@ int mpfit(mp_func funct, int m, int npar,
     fnorm = fnorm1;
     // Added by PE: printing updates
     if (config->verbose > 0) {
-      printf("\tmpfit iteration %d: chi^2 = %f\n", iter, fnorm*fnorm);
+      printf("\tmpfit iteration %d: fit statistic = %f\n", iter, fnorm*fnorm);
       if (config->verbose > 1) {
         // note that we print parameter values using xnew, not x, since x 
         // contains only the *free* parameters. xnew contains *all* parameters,
