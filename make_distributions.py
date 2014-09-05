@@ -66,11 +66,11 @@ mpfit_cpp
 diff_evoln_fit
 DESolver
 nmsimplex_fit
+nlopt_fit
 add_functions
 commandline_parser
 config_file_parser
 convolver
-diff_evoln_fit
 image_io
 model_object
 print_results
@@ -95,6 +95,7 @@ mpfit
 diff_evoln_fit
 DESolver
 nmsimplex_fit
+nlopt_fit
 config_file_parser 
 add_functions 
 print_results 
@@ -149,7 +150,9 @@ test_files = """
 config_imfit_expdisk32.dat
 imfit_config_ic3478_64x64.dat
 imfit_config_ic3478_64x64b.dat
+imfit_config_ic3478_64x64c.dat
 imfit_config_n3073.dat
+config_imfit_pgc35772.dat
 config_imfit_poisson.dat
 config_imfit_flatsky.dat
 config_3x3_flatsky.dat
@@ -168,6 +171,9 @@ ic3478rss_64x64.fits
 n3073rss_small.fits
 n3073rss_small_cps.fits
 n3073rss_small_mask.fits
+pgc35772_continuum.fits
+pgc35772_mask.fits
+totalmask_64x64.fits
 biggertest_orig.fits
 gensersictest_orig.fits
 sersic+exp_orig.fits
@@ -187,7 +193,10 @@ imfit_textout4
 imfit_textout4b
 imfit_textout4c
 imfit_textout4d
-imfit_textout5_tail
+imfit_textout5a_tail
+imfit_textout5b_tail
+imfit_textout5c_tail
+imfit_textout5d_tail
 imfit_textout6
 imfit_textout7a
 imfit_textout7b
@@ -199,6 +208,7 @@ imfit_textout_bad4
 imfit_textout_bad5
 imfit_textout_bad6
 imfit_textout_bad7
+imfit_textout_badnloptname
 config_biggertest_4c.dat
 config_makeimage_gensersic512.dat
 config_makeimage_sersic+exp512.dat
