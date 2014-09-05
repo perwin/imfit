@@ -1,11 +1,12 @@
 /* FILE: bootstrap_errors.cpp ------------------------------------------ */
-/* VERSION 0.2
- *
+/* 
  * Code for estimating errors on fitted parameters (for a 1D profile fit via
  * profilefit) via bootstrap resampling.
  *
  *     [v0.1]: 11 Jan 2013: Created; initial development.
  *
+ * Note that some of this code was taken from bootstrap2.cpp, part of
+ * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
 // Copyright 2013-2014 by Peter Erwin.
@@ -28,6 +29,7 @@
 
 /* ------------------------ Include Files (Header Files )--------------- */
 
+#include <string>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -47,6 +49,9 @@
 #include "statistics.h"
 #include "print_results.h"
 
+using namespace std;
+
+
 
 /* ------------------- Function Prototypes ----------------------------- */
 
@@ -54,15 +59,15 @@
 
 void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
 					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					int whichStatistic )
+					int whichStatistic, double **outputParamArray )
 {
   double  *paramsVect, *paramSigmas;
-  double  **paramArray;
+ double  **paramArray;
   double  lower, upper, plus, minus, halfwidth;
   int  i, status, nIter;
   int  nParams = theModel->GetNParams();
   int  nValidPixels = theModel->GetNValidPixels();
-  int  verboseLevel = -1;
+  int  verboseLevel = -1;   // ensure minimizer stays silent
   
   /* seed random number generators with current time */
   init_genrand((unsigned long)time((time_t *)NULL));
@@ -75,10 +80,9 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
   // vector to hold estimated sigmas for each parameter
   paramSigmas = (double *)calloc( (size_t)nParams, sizeof(double) );
 
-
   theModel->UseBootstrap();
 
-  if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_MODCASH))  ////
+  if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_MODCASH))
     printf("\nStarting bootstrap iterations (L-M solver): ");
   else
 #ifndef NO_NLOPT
@@ -87,13 +91,14 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
     printf("\nStarting bootstrap iterations (DE solver): ");
 #endif
 
+  // Bootstrap iterations:
   for (nIter = 0; nIter < nIterations; nIter++) {
     printf("%d...  ", nIter + 1);
     fflush(stdout);
     theModel->MakeBootstrapSample();
     for (i = 0; i < nParams; i++)
       paramsVect[i] = bestfitParams[i];
-    if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_MODCASH)) {   ////
+    if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_MODCASH)) {
       status = LevMarFit(nParams, nFreeParams, nValidPixels, paramsVect, parameterLimits, 
       					theModel, ftol, paramLimitsExist, verboseLevel);
     } else {
@@ -105,12 +110,20 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
       						verboseLevel);
 #endif
     }
-    for (i = 0; i < nParams; i++) {
+    for (i = 0; i < nParams; i++)
       paramArray[i][nIter] = paramsVect[i];
-    }
   }
 
 
+  // Save all parameters, if requested (do this *before* the sort-in-place
+  // induced by the call to ConfidenceInterval() below)
+  if (outputParamArray != NULL) {
+    for (nIter = 0; nIter < nIterations; nIter++) {
+      for (i = 0; i < nParams; i++)
+         outputParamArray[i][nIter] = paramArray[i][nIter];
+    }
+  }
+  
   /* Determine dispersions for parameter values */
   for (i = 0; i < nParams; i++) {
     paramSigmas[i] = StandardDeviation(paramArray[i], nIterations);

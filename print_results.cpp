@@ -158,4 +158,24 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
 }
 
 
+// Same as previous, but requires a previously opened file pointer; also allows
+// optional prefix string for each line (default declaration in header file = "")
+void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
+                    string& programName, int argc, char *argv[], const char *prefix )
+{
+  char  *timeStamp;
+  timeStamp = TimeStamp();
+  fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
+  fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
+          timeStamp);
+  for (int i = 0; i < argc; i++)
+    fprintf(file_ptr, " %s", argv[i]);
+  fprintf(file_ptr, "\n");
+  fprintf(file_ptr, "%s\n", prefix);
+
+  model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
+
+}
+
+
 /* END OF FILE: print_results.cpp ---------------------------------- */

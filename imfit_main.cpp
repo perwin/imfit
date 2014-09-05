@@ -134,6 +134,8 @@ typedef struct {
   std::string  nloptSolverName;
   bool  doBootstrap;
   int  bootstrapIterations;
+  bool  saveBootstrap;
+  std::string  outputBootstrapFileName;
   int  maxThreads;
   bool  maxThreadsSet;
   int  verbose;
@@ -147,6 +149,7 @@ typedef struct {
 /* Local Functions: */
 void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset);
+void SetDefaultOptions( commandOptions *theOptions );
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								commandOptions *mainOptions );
@@ -160,6 +163,52 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
 
 
 
+void SetDefaultOptions( commandOptions *theOptions )
+{
+  theOptions->configFileName = DEFAULT_CONFIG_FILE;
+  theOptions->noImage = true;
+  theOptions->psfImagePresent = false;
+  theOptions->noiseImagePresent = false;
+  theOptions->errorType = WEIGHTS_ARE_SIGMAS;
+  theOptions->maskImagePresent = false;
+  theOptions->maskFormat = MASK_ZERO_IS_GOOD;
+  theOptions->subsamplingFlag = true;
+  theOptions->saveModel = false;
+  theOptions->saveResidualImage = false;
+  theOptions->saveWeightImage = false;
+  theOptions->saveBestFitParams = true;
+  theOptions->outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
+  theOptions->useImageHeader= false;
+  theOptions->gain = 1.0;
+  theOptions->gainSet = false;
+  theOptions->readNoise = 0.0;
+  theOptions->readNoiseSet = false;
+  theOptions->expTime = 1.0;
+  theOptions->expTimeSet = false;
+  theOptions->nCombined = 1;
+  theOptions->nCombinedSet = false;
+  theOptions->originalSky = 0.0;
+  theOptions->originalSkySet = false;
+  theOptions->useModelForErrors = false;
+  theOptions->useCashStatistic = false;
+  theOptions->useModifiedCashStatistic = false;
+  theOptions->ftol = DEFAULT_FTOL;
+  theOptions->ftolSet = false;
+  theOptions->magZeroPoint = NO_MAGNITUDES;
+  theOptions->noParamLimits = true;
+  theOptions->printImages = false;
+  theOptions->printFitStatisticOnly = false;
+  theOptions->solver = MPFIT_SOLVER;
+  theOptions->nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
+  theOptions->doBootstrap = false;
+  theOptions->bootstrapIterations = 0;
+  theOptions->saveBootstrap = false;
+  theOptions->outputBootstrapFileName = "";
+  theOptions->maxThreads = 0;
+  theOptions->maxThreadsSet = false;
+  theOptions->verbose = 1;
+
+}
 
 
 
@@ -172,6 +221,7 @@ int main(int argc, char *argv[])
   int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
   int  nDegFreedom;
   int  nParamsTot, nFreeParams;
+  bool  saveBootstrapResults = false;
   double  *allPixels;
   double  *psfPixels;
   double  *allErrorPixels;
@@ -198,51 +248,13 @@ int main(int argc, char *argv[])
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
-  
-  
-  /* Process the command line */
-  /* First, set up the options structure: */
-  options.configFileName = DEFAULT_CONFIG_FILE;
-  options.noImage = true;
-  options.psfImagePresent = false;
-  options.noiseImagePresent = false;
-  options.errorType = WEIGHTS_ARE_SIGMAS;
-  options.maskImagePresent = false;
-  options.maskFormat = MASK_ZERO_IS_GOOD;
-  options.subsamplingFlag = true;
-  options.saveModel = false;
-  options.saveResidualImage = false;
-  options.saveWeightImage = false;
-  options.saveBestFitParams = true;
-  options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
-  options.useImageHeader= false;
-  options.gain = 1.0;
-  options.gainSet = false;
-  options.readNoise = 0.0;
-  options.readNoiseSet = false;
-  options.expTime = 1.0;
-  options.expTimeSet = false;
-  options.nCombined = 1;
-  options.nCombinedSet = false;
-  options.originalSky = 0.0;
-  options.originalSkySet = false;
-  options.useModelForErrors = false;
-  options.useCashStatistic = false;
-  options.useModifiedCashStatistic = false;
-  options.ftol = DEFAULT_FTOL;
-  options.ftolSet = false;
-  options.magZeroPoint = NO_MAGNITUDES;
-  options.noParamLimits = true;
-  options.printImages = false;
-  options.printFitStatisticOnly = false;
-  options.solver = MPFIT_SOLVER;
-  options.nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
-  options.doBootstrap = false;
-  options.bootstrapIterations = 0;
-  options.maxThreads = 0;
-  options.maxThreadsSet = false;
-  options.verbose = 1;
+  string  progNameVersion = "imfit ";
 
+  progNameVersion += VERSION_STRING;
+  
+  
+  /* Define default options, then process the command line */
+  SetDefaultOptions(&options);
   ProcessInput(argc, argv, &options);
 
 
@@ -537,11 +549,44 @@ int main(int argc, char *argv[])
 
 
   // Optional bootstrap resampling
+
   if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
+    double **bootstrapParamsArray = NULL;
+    if (options.outputBootstrapFileName.length() > 0) {
+      saveBootstrapResults = true;
+      // Allocate 2D array to hold bootstrap results for each parameter
+      bootstrapParamsArray = (double **)calloc( (size_t)nParamsTot, sizeof(double *) );
+      for (int i = 0; i < nParamsTot; i++)
+        bootstrapParamsArray[i] = (double *)calloc( (size_t)options.bootstrapIterations, sizeof(double) );
+    }
+    
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
     BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
-                    options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic());
+                    options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic(),
+                    bootstrapParamsArray);
+    
+    // Save all generated parameter values to file, if user requested it
+    if (saveBootstrapResults) {
+      printf("Writing bootstrap parameter values to file %s...\n", options.outputBootstrapFileName.c_str());
+      FILE *outputFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");
+      // write general info + best-fitting params as a commented-out header
+      SaveParameters2(outputFile_ptr, paramsVect, theModel, parameterInfo, progNameVersion, 
+      				argc, argv, "#");
+      // get & write column-titles header
+      string  headerLine = theModel->GetParamHeader();
+      fprintf(outputFile_ptr, "#\n# Bootstrap resampling output\n%s\n", headerLine.c_str());
+      for (int nIter = 0; nIter < options.bootstrapIterations; nIter++) {
+        for (int i = 0; i < nParamsTot; i++)
+          fprintf(outputFile_ptr, "%f\t\t", bootstrapParamsArray[i][nIter]);
+        fprintf(outputFile_ptr, "\n");
+      }
+      fclose(outputFile_ptr);
+      for (int i = 0; i < nParamsTot; i++)
+        free(bootstrapParamsArray[i]);
+      free(bootstrapParamsArray);
+    }
+
   }
 
 
@@ -555,15 +600,11 @@ int main(int argc, char *argv[])
   // anyway, and the user might just have given us a bad path for one of the output images
   if (options.saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
-    string  progNameVersion = "imfit ";
-    progNameVersion += VERSION_STRING;
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
     								progNameVersion, argc, argv);
   }
   if (options.saveModel) {
-    string  progName = "imfit ";
-    progName += VERSION_STRING;
-    PrepareImageComments(&imageCommentsList, progName, &options);
+    PrepareImageComments(&imageCommentsList, progNameVersion, &options);
     printf("Saving model image in file \"%s\"\n", options.outputModelFileName.c_str());
     status = SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
                       nColumns, nRows, imageCommentsList);
@@ -658,6 +699,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
+  optParser->AddUsageLine("     --save-bootstrap <filename>        Save all bootstrap best-fit parameters to specified file");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
@@ -709,6 +751,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("ncombined");
   optParser->AddOption("ftol");
   optParser->AddOption("bootstrap");
+  optParser->AddOption("save-bootstrap");
   optParser->AddOption("config", "c");        /* an option (takes an argument), supporting both short & long forms */
   optParser->AddOption("max-threads");
 
@@ -932,6 +975,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->doBootstrap = true;
     theOptions->bootstrapIterations = atol(optParser->GetTargetString("bootstrap").c_str());
     printf("\tnumber of bootstrap iterations = %d\n", theOptions->bootstrapIterations);
+  }
+  if (optParser->OptionSet("save-bootstrap")) {
+    theOptions->outputBootstrapFileName = optParser->GetTargetString("save-bootstrap");
+    theOptions->saveBootstrap = true;
+    printf("\tbootstrap best-fit parameters to be saved in %s\n", theOptions->outputBootstrapFileName.c_str());
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {

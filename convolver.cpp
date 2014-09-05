@@ -108,10 +108,6 @@
 
 /* ------------------------ Include Files (Header Files )--------------- */
 
-#ifndef USING_SCONS
-#include "config.h"
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

@@ -13,6 +13,23 @@ class NewTestSuite : public CxxTest::TestSuite
 {
 public:
 
+  // Tests for PrintToString()
+  void testPrintToString_Basic( void )
+  {
+    string  ref1 = "10 words";
+    string  ref2 = "10 words 20";
+    string  ref3 = "Alfred is 1.2 years old";
+    
+    string  test1 = PrintToString("%d words", 10);
+    string  test2 = PrintToString("%d words %d", 10, 20);
+    string  test3 = PrintToString("%s is %.1f years old", "Alfred", 1.21);
+
+    TS_ASSERT( test1 == ref1 );
+    TS_ASSERT( test2 == ref2 );
+    TS_ASSERT( test3 == ref3 );
+  }
+  
+  
   // Tests for SplitString()
   void testSplitString_Basic( void )
   {
