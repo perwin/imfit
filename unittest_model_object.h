@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 using namespace std;
+#include "definitions.h"
 #include "function_objects/function_object.h"
 #include "model_object.h"
 #include "add_functions.h"
@@ -19,6 +20,10 @@ using namespace std;
 
 
 #define CONFIG_FILE "tests/config_imfit_poisson.dat"
+
+
+// Reference things
+const string  headerLine_correct = "# X0		Y0		FUNCTION:Exponential: PA	ell	I_0	h	FUNCTION:FlatSky: I_sky	";
 
 
 class NewTestSuite : public CxxTest::TestSuite 
@@ -42,22 +47,45 @@ public:
     theModel = new ModelObject();
     paramLimitsExist = false;
     
+    // Set up internal FunctionObjects vector (Exp + FlatSky) inside theModel
     status = ReadConfigFile(filename, true, functionList, parameterList, 
   								paramLimits, functionSetIndices, paramLimitsExist, userConfigOptions);
     status = AddFunctions(theModel, functionList, functionSetIndices, true);
 
   }
 
-  // Tests for StripLeadingDashes function
   
   void testGetParamHeader( void )
   {
     std::string  headerLine;
     headerLine = theModel->GetParamHeader();
-    printf("%s\n", headerLine.c_str());
+    TS_ASSERT_EQUALS(headerLine, headerLine_correct);
 
   }
   
+  void testSetAndGetStatisticType( void )
+  {
+    int  whichStat;
+    bool cashStatUsed = false;
+    
+    // default should be chi^2
+    whichStat = theModel->WhichFitStatistic();
+    TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE);
+    
+    theModel->UseCashStatistic();
+    whichStat = theModel->WhichFitStatistic();
+    TS_ASSERT_EQUALS(whichStat, FITSTAT_CASH);
+    cashStatUsed = theModel->UsingCashStatistic();
+    TS_ASSERT_EQUALS(cashStatUsed, true);
+
+    // the following will generate a couple of warnings from within UseCashStatistic,
+    // which is OK
+    theModel->UseModifiedCashStatistic();
+    whichStat = theModel->WhichFitStatistic();
+    TS_ASSERT_EQUALS(whichStat, FITSTAT_MODCASH);
+    cashStatUsed = theModel->UsingCashStatistic();
+    TS_ASSERT_EQUALS(cashStatUsed, true);
+  }
   
 
 };

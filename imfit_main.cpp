@@ -82,9 +82,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.1b (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.1"
+#define VERSION_STRING      "1.1b"
 #endif
 
 
@@ -241,6 +241,7 @@ int main(int argc, char *argv[])
   vector<int>  functionSetIndices;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
+  bool  allFilesPresent;
   mp_par  *parameterInfo;
   int  status;
   vector<string>  imageCommentsList;
@@ -258,20 +259,47 @@ int main(int argc, char *argv[])
   ProcessInput(argc, argv, &options);
 
 
-  /* Read configuration file */
+  /* Check for presence of user-requested files; if any are missing, quit.
+   * Look for all of them here, so we can list *all* the missing files before
+   * we quit */
+  allFilesPresent = true;
   if (! FileExists(options.configFileName.c_str())) {
-    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n\n", 
+    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n", 
            options.configFileName.c_str());
-    return -1;
+    allFilesPresent = false;
   }
+  if (! ImageFileExists(options.imageFileName.c_str())) {
+    fprintf(stderr, "\n*** ERROR: Unable to find image file \"%s\"!\n", 
+           options.imageFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (options.maskImagePresent) && (! ImageFileExists(options.maskFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find mask file \"%s\"!\n", 
+           options.maskFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (options.noiseImagePresent) && (! ImageFileExists(options.noiseFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find noise-image file \"%s\"!\n", 
+           options.noiseFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (options.psfImagePresent) && (! ImageFileExists(options.psfFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find PSF image file \"%s\"!\n", 
+           options.psfFileName.c_str());
+    allFilesPresent = false;
+  }
+  if (! allFilesPresent) {
+    fprintf(stderr, "\n");
+    exit(-1);
+  }
+
+  /* Read configuration file, parse & process user-supplied (non-function-related) values */
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
   								paramLimits, functionSetIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
   }
-
-  // Parse and process user-supplied (non-function) values from config file, if any
   HandleConfigFileOptions(&userConfigOptions, &options);
 
   
@@ -281,8 +309,6 @@ int main(int argc, char *argv[])
   }
 
   /* Get image data and sizes */
-  // (for this and other image-access, we rely on the cfitsio library to catch errors 
-  // like nonexistent files)
   printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
   allPixels = ReadImageAsVector(options.imageFileName, &nColumns, &nRows);
   if (allPixels == NULL) {
@@ -427,9 +453,8 @@ int main(int argc, char *argv[])
         theModel->UseModelErrors();
       }
       else {
+        // default mode
         printf("* No noise image supplied ... will generate noise image from input image.\n");
-        // this is the default mode of ModelObject, so we don't need to do anything
-        // special here
       }
     }
   }
@@ -457,7 +482,6 @@ int main(int argc, char *argv[])
   for (int i = 0; i < nParamsTot; i++) {
     parameterInfo[i].fixed = paramLimits[i].fixed;
     if (parameterInfo[i].fixed == 1) {
-    	//printf("Fixed parameter detected (i = %d)\n", i);
       nFreeParams--;
     }
     parameterInfo[i].limited[0] = paramLimits[i].limited[0];
@@ -499,7 +523,6 @@ int main(int argc, char *argv[])
     status = 1;
     PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
-    // turn off saveing of parameter file
     options.saveBestFitParams = false;
   }
   else {
@@ -589,10 +612,6 @@ int main(int argc, char *argv[])
 
   }
 
-
-  // TESTING (remove later)
-  if (options.printImages)
-    theModel->PrintModelImage();
 
   // Handle assorted output requests
   // Note that from this point on, we handle failures reported by SaveVectorAsImage as
@@ -706,7 +725,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --loud                   Print extra info during the fit");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
-//  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
   optParser->AddUsageLine("   imfit -c model_config_a.dat ngc100.fits");

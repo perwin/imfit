@@ -1053,15 +1053,25 @@ and relative rotations and pixel scales
 	could be parameters as well... (usually a better idea would be to
 	adopt fixed user-supplied values, or at most allow the positional
 	offsets to be free parameters)
+	-- note that x,y "offset" doesn't make as much sense for case of different-camera
+	images (e.g., ground-based + HST); make more sense to have completely independent
+	x0,y0. And in fact we might very well want to specify x0,y0 and allowed ranges
+	for each image separately
 
 Things associated with individual images:
 	image data
+	original_sky, gain, read-noise [, n_combined, t_exp]
 	mask data
 	error data (incl. gain, readnoise)
 	derived weight map
 	notional/abstract: orientation (PA rotation), pixel scale, overall intensity scaling
 	[x0,y0 offsets -- however, ModelObject does not need to know about this]
-	optional: Convolver object (PSF image)
+	optional: Convolver object (PSF image); OversampledRegion (+ its Convolver object, PSF image)
+
+Model/Function parameters associated with individual images:
+	x0,y0
+	[rotation -- *relative* to main/reference image; could be free]
+	[overall intensity scaling -- *relative* to main/reference image; could be free]
 	
 Modification of ModelObject class
 	-- holds data, masks, noise-maps for multiple images
@@ -1085,6 +1095,8 @@ Modification of ModelObject class
 	code.
 	
 	Ideally, individual ModelObject can still be used by itself in single-image case.
+	(But this might be complicated by the question of what object holds the FunctionObject
+	vector, etc.)
 
 
 * Modify FunctionObjects to include an optional pixel-scale parameter
@@ -1104,6 +1116,10 @@ Also modify FunctionObjects to include an optional intensity-scaling parameter
 Maybe have a single method of FunctionObject which allows the user to pass in scaling
 parameters (pixel size, intensity scaling, rotation offsets[?])
 
+	Question for later: how do we generate proper best-fit parameter output for
+each image (i.e., correctly accounting for pixel scale, rotation, intensity scaling
+when we output -- some of the latter *could* be free parameters of the fit, after all)
+
 	Outline of steps:
 	1. Minimization algorithm calls ModelObject::FitStatistic and passes in current
 	set of parameter values
@@ -1116,7 +1132,7 @@ parameters (pixel size, intensity scaling, rotation offsets[?])
 			For each function
 				Call FunctionObject::Setup with pixel scale, intensity scale, rest of parameters
 			Step through pixels of model image and call FunctionObjects
-			Do PSF convolution and post-processing (e.g., charge-diffusion)
+			Do PSF convolution, oversampled convolution, and post-processing (e.g., charge-diffusion)
 	3. Compute chi^2 vector and/or total fit statistic
 	
 	Complete list of possible (i.e., possibly non-fixed) per-image parameters: 

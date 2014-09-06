@@ -94,7 +94,7 @@ void CondenseParamLimits( double inputMinParamLims[], double inputMaxParamLims[]
 // in length) and an input "condensed" vector condensedNewParams (nParamsFree in
 // length), this functions populates outputParams with the values from originalParams
 // for those parameters which are fixed, and the values from condensedNewParams
-// for the free parameters.  If there are not fixed parameters, then outputParams
+// for the free parameters.  If there are no fixed parameters, then outputParams
 // will be identical to condensedNewParams.
 // The nParamsTot-length bool array fixedPars[] specifies whether each parameter is 
 // fixed (= true) or free (= false)
