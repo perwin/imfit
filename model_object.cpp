@@ -1286,29 +1286,32 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[],
 // header in bootstrap-parameters output file.
 string ModelObject::GetParamHeader( )
 {
-  int nParamsThisFunc, k;
+  int nParamsThisFunc, k, nBlock;
   int  indexOffset = 0;
   string  funcName, paramName;
   string  headerLine, newString;
 
   headerLine = "# ";
+  nBlock = 0;
   for (int n = 0; n < nFunctions; n++) {
     if (setStartFlag[n] == true) {
       // start of new function set: extract x0,y0 and then skip over them
+      nBlock += 1;
       k = indexOffset;
-      newString = "X0\t\tY0\t\t";
+//      newString = "X0\t\tY0\t\t";
+      newString = PrintToString("X0_%d\t\tY0_%d\t\t", nBlock, nBlock);
       headerLine += newString;
       indexOffset += 2;
     }
     
     // Now print the names of the function and its parameters
     nParamsThisFunc = paramSizes[n];
-    funcName = functionObjects[n]->GetShortName();
-    newString = PrintToString("FUNCTION:%s: ", funcName.c_str());
-    headerLine += newString;
+//    funcName = functionObjects[n]->GetShortName();
+//    newString = PrintToString("FUNCTION:%s: ", funcName.c_str());
+//    headerLine += newString;
     for (int i = 0; i < nParamsThisFunc; i++) {
       paramName = GetParameterName(indexOffset + i);
-      newString = PrintToString("%s\t", paramName.c_str());
+      newString = PrintToString("%s_%d\t", paramName.c_str(), n + 1);
       headerLine += newString;
     }
     indexOffset += paramSizes[n];

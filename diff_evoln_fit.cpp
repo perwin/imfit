@@ -64,7 +64,12 @@ public:
   {
     theModel = inputModel;
     count = 0;
-  }
+  };
+
+  ~ImfitSolver()
+  {
+    ;
+  };
 
   double EnergyFunction( double trial[], bool &bAtSolution );
 

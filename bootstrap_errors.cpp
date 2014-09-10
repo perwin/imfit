@@ -132,7 +132,7 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool param
   /* Print parameter values + standard deviations: */
   /* (note that calling ConfidenceInterval() sorts the vectors in place!) */
   printf("\nStatistics for parameter values from bootstrap resampling");
-  printf(" (%d rounds):\n", nIterations);
+  printf(" (%d iterations):\n", nIterations);
   printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
   for (i = 0; i < nParams; i++) {
     if ((paramLimitsExist) && (parameterLimits[i].fixed == 0)) {

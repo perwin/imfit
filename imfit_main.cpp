@@ -598,7 +598,8 @@ int main(int argc, char *argv[])
       				argc, argv, "#");
       // get & write column-titles header
       string  headerLine = theModel->GetParamHeader();
-      fprintf(outputFile_ptr, "#\n# Bootstrap resampling output\n%s\n", headerLine.c_str());
+      fprintf(outputFile_ptr, "#\n# Bootstrap resampling output (%d iterations):\n%s\n", 
+      			options.bootstrapIterations, headerLine.c_str());
       for (int nIter = 0; nIter < options.bootstrapIterations; nIter++) {
         for (int i = 0; i < nParamsTot; i++)
           fprintf(outputFile_ptr, "%f\t\t", bootstrapParamsArray[i][nIter]);
@@ -685,22 +686,22 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine(" -c  --config <config-file>   configuration file");
-  optParser->AddUsageLine("     --chisquare-only         Print fit statistic (e.g., chi^2) of input model and quit");
+  optParser->AddUsageLine(" -c  --config <config-file>   configuration file [required!]");
+  optParser->AddUsageLine("     --chisquare-only         Print fit statistic (e.g., chi^2) of input model and quit (no fitting done)");
   optParser->AddUsageLine("     --fitstat-only           Same as --chisquare-only");
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
-  optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
+  optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers of functions");
   optParser->AddUsageLine("     --save-params <output-file>          Save best-fit parameters in config-file format [default = bestfit_parameters_imfit.dat]");
   optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
-  optParser->AddUsageLine("     --save-residual <outputname.fits>       Save residual (input - model) image");
-  optParser->AddUsageLine("     --save-weights <outputname.fits>       Save weight image");
+  optParser->AddUsageLine("     --save-residual <outputname.fits>    Save residual (input - model) image");
+  optParser->AddUsageLine("     --save-weights <outputname.fits>     Save weight image");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
-  optParser->AddUsageLine("     --gain <value>           Image gain (e-/ADU)");
+  optParser->AddUsageLine("     --gain <value>           Image A/D gain (e-/ADU)");
   optParser->AddUsageLine("     --readnoise <value>      Image read noise (e-)");
-  optParser->AddUsageLine("     --exptime <value>        Exposure time in sec (only if image is in ADU/sec)");
+  optParser->AddUsageLine("     --exptime <value>        Exposure time in sec (only if image counts are ADU/sec)");
   optParser->AddUsageLine("     --ncombined <value>      Number of images averaged to make final image (if counts are average or median)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --errors-are-variances   Indicates that values in noise image = variances (instead of sigmas)");
@@ -712,10 +713,10 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --modcash                Use modified Cash statistic instead of chi^2");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in fit statistic for convergence [default = 1.0e-8]");
 #ifndef NO_NLOPT
-  optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver instead of L-M");
-  optParser->AddUsageLine("     --nlopt <name>           Select misc. NLopt solver");
+  optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver (instead of L-M)");
+  optParser->AddUsageLine("     --nlopt <name>           Select miscellaneous NLopt solver");
 #endif
-  optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
+  optParser->AddUsageLine("     --de                     Use differential evolution solver");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine("     --save-bootstrap <filename>        Save all bootstrap best-fit parameters to specified file");
@@ -729,6 +730,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("EXAMPLES:");
   optParser->AddUsageLine("   imfit -c model_config_a.dat ngc100.fits");
   optParser->AddUsageLine("   imfit -c model_config_b.dat ngc100.fits[405:700,844:1060] --mask ngc100_mask.fits[405:700,844:1060] --gain 4.5 --readnoise 0.7");
+  optParser->AddUsageLine("");
 
 
   /* by default all options are checked on the command line and from option/resource file */
