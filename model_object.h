@@ -38,7 +38,7 @@ class ModelObject
     void AddFunction( FunctionObject *newFunctionObj_ptr );
     
     // common, but Specialized by ModelObject1D
-    virtual void DefineFunctionSets( vector<int>& functionStartIndices );
+    virtual void DefineFunctionBlocks( vector<int>& functionStartIndices );
     
     // 1D only, but needs to be part of base interface
     virtual void AddDataVectors( int nDataValues, double *xValVector, 
@@ -231,7 +231,7 @@ class ModelObject
     bool  dataValsSet, parameterBoundsSet;
     bool  modelVectorAllocated, weightVectorAllocated, maskVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;
-    bool  setStartFlag_allocated;
+    bool  fblockStartFlags_allocated;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
@@ -240,7 +240,7 @@ class ModelObject
     bool  deviatesVectorAllocated;   // for chi-squared calculations
     bool  extraCashTermsVectorAllocated;
     bool  zeroPointSet;
-    int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;
+    int  nFunctions, nFunctionBlocks, nFunctionParams, nParamsTot;
     double  *dataVector;
     double  *weightVector;
     double  *maskVector;
@@ -251,8 +251,7 @@ class ModelObject
     double  *extraCashTermsVector;
     double  *parameterBounds;
     int  *bootstrapIndices;
-    int  *functionSetStarts;
-    bool  *setStartFlag;
+    bool  *fblockStartFlags;
     vector<FunctionObject *> functionObjects;
     vector<int> paramSizes;
     vector<string>  parameterLabels;

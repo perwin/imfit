@@ -30,7 +30,7 @@ class ModelObject1d : public ModelObject
     ModelObject1d( );
     
    // redefined method/member functions:
-    void DefineFunctionSets( vector<int>& functionStartIndices );
+    void DefineFunctionBlocks( vector<int>& functionStartIndices );
     
     void AddDataVectors( int nDataValues, double *xValVector, double *yValVector,
     											bool magnitudeData );
@@ -52,7 +52,7 @@ class ModelObject1d : public ModelObject
     int Dimensionality( ) { return 1;};
     
     void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
-																		double errs[] );
+							double errs[], const char *prefix="" );
     void PopulateParameterNames( );
     
     int FinalSetupForFitting( );

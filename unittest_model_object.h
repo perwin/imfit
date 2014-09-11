@@ -23,7 +23,7 @@ using namespace std;
 
 
 // Reference things
-const string  headerLine_correct = "# X0		Y0		FUNCTION:Exponential: PA	ell	I_0	h	FUNCTION:FlatSky: I_sky	";
+const string  headerLine_correct = "# X0_1		Y0_1		PA_1	ell_1	I_0_1	h_1	I_sky_2	";
 
 
 class NewTestSuite : public CxxTest::TestSuite 
@@ -33,7 +33,7 @@ public:
   vector<string>  functionList;
   vector<double>  parameterList;
   vector<mp_par>  paramLimits;
-  vector<int>  functionSetIndices;
+  vector<int>  FunctionBlockIndices;
   bool  paramLimitsExist;
   mp_par  *parameterInfo;
   int  status;
@@ -49,8 +49,8 @@ public:
     
     // Set up internal FunctionObjects vector (Exp + FlatSky) inside theModel
     status = ReadConfigFile(filename, true, functionList, parameterList, 
-  								paramLimits, functionSetIndices, paramLimitsExist, userConfigOptions);
-    status = AddFunctions(theModel, functionList, functionSetIndices, true);
+  								paramLimits, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
+    status = AddFunctions(theModel, functionList, FunctionBlockIndices, true);
 
   }
 

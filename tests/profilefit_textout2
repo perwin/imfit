@@ -13,7 +13,7 @@ Fixed parameter detected (i = 0)
 
 Calling Levenberg-Marquardt solver ...
 
-*** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
   CHI-SQUARE = 0.062599    (37 DOF)
   INITIAL CHI^2 = 6.749927
         NPAR = 7

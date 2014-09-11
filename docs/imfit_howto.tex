@@ -1089,7 +1089,13 @@ slow things down considerably.
 
 \section{Fit Statistic Options: \chisquare{} or Cash Statistics}
 
-TBD.
+\Imfit's default behavior is to minimize the total \chisquare{} for the model. XXX
+
+An arguably more accurate approach -- especially in the regime of low counts per pixel,
+as is often the case for, e.g., X-ray images -- is to minimize a maximum likelihood 
+statistic based directly on Poisson statistics. XXX
+
+
 
 
 \section{Minimization Options: Levenberg-Marquardt, Differential Evolution, Nelder-Mead Simplex}
@@ -1116,9 +1122,10 @@ significantly faster than Differential Evolution (below). Like the
 Levenberg-Marquardt method, it does require an initial guess for the
 parameter values, but is considered less likely to become trapped in
 local minima in the fit-statistic landscape. Unlike the L-M algorithm,
-it can be used for minimizing $C$ (as well as \chisquare{} and $C_{\mathrm{mod}}$). If
-you compile \imfit{} from source and want to use this algorithm, you
-need to have the NLopt library installed on your system.
+it can be used for minimizing $C$ (as well as \chisquare{} and
+$C_{\mathrm{mod}}$). If you compile \imfit{} from source and want to use
+this algorithm, you need to have the NLopt library installed on your
+system.
 
 The second alternate algorithm is available via the \texttt{--de} flag.
 This minimizes the fit-statistic using Differential Evolution (DE)
@@ -1134,14 +1141,15 @@ has the advantage of being the least likely (at least in principle) of
 being trapped in local minima in the fit-statistic landscape; it also
 does \textit{not} require an initial guess for the parameter values.
 
-The Differential Evolution algorithm does, however, \textit{require} lower and upper
-limits for \textit{all} parameters in the configuration file (see
-Section~\ref{sec:param-limits}); this is because DE generates parameter-value
-``genomes'' by random uniform sampling from within the ranges specified by the
-parameter limits. The format of the configuration file still requires that
-initial-guess values be present for all parameters as well, but these are
-actually ignored by the DE algorithm. (This is to ensure that the same
-configuration file can be used with all minimization routines.)
+The Differential Evolution algorithm does, however, \textit{require}
+lower and upper limits for \textit{all} parameters in the configuration
+file (see Section~\ref{sec:param-limits}); this is because DE generates
+parameter-value ``genomes'' by random uniform sampling from within the
+ranges specified by the parameter limits. The format of the
+configuration file still requires that initial-guess values be present
+for all parameters as well, but these are actually ignored by the DE
+algorithm. (This is to ensure that the same configuration file can be
+used with all minimization routines.)
 
 
 \medskip
@@ -1188,6 +1196,8 @@ parameters).
 TBD: info about extra stopping conditions for the L-M and N-M simplex algorithms
 
 
+
+
 \chapter{Outputs}
 
 \section{Main Outputs}
@@ -1224,10 +1234,10 @@ measures of the fit are also printed: the Akaike Information Criterion
 The latter two are included on a provisional basis; they are, in
 principle, useful for comparing different models fit to the same data.
 
-By default, no model or residual (image $-$ model) images are saved, but the
-command-line options \texttt{--save-model} and \texttt{save-residual} can be used
-to specify output names for those images, and corresponding \textsc{fits} files will be saved
-to disk.
+By default, no model or residual (image $-$ model) images are saved, but
+the command-line options \texttt{--save-model} and
+\texttt{save-residual} can be used to specify output names for those
+images, and corresponding \textsc{fits} files will be saved to disk.
 
 TBD.
 

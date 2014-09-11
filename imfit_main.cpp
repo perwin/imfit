@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
   vector<string>  functionList;
   vector<double>  parameterList;
   vector<mp_par>  paramLimits;
-  vector<int>  functionSetIndices;
+  vector<int>  FunctionBlockIndices;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
   bool  allFilesPresent;
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 
   /* Read configuration file, parse & process user-supplied (non-function-related) values */
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
-  								paramLimits, functionSetIndices, paramLimitsExist, userConfigOptions);
+  								paramLimits, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
     theModel->SetMaxThreads(options.maxThreads);
 
   /* Add functions to the model object */
-  status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
+  status = AddFunctions(theModel, functionList, FunctionBlockIndices, options.subsamplingFlag);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);

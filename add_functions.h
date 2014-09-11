@@ -13,7 +13,7 @@ using namespace std;
 
 
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &functionSetIndices, bool subamplingFlag );
+                  vector<int> &FunctionBlockIndices, bool subamplingFlag );
 
 // Use the following to print out names of available functions/components
 void PrintAvailableFunctions( );

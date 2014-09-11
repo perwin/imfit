@@ -127,7 +127,7 @@ int main( int argc, char *argv[] )
   ModelObject  *theModel;
   vector<string>  functionList;
   vector<double>  parameterList;
-  vector<int>  functionSetIndices;
+  vector<int>  FunctionBlockIndices;
   vector<string>  imageCommentsList;
   commandOptions  options;
   configOptions  userConfigOptions;
@@ -168,7 +168,7 @@ int main( int argc, char *argv[] )
     return -1;
   }
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList,
-  							functionSetIndices, userConfigOptions);
+  							FunctionBlockIndices, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file \"%s\"!\n\n", 
     			options.configFileName.c_str());
@@ -246,7 +246,7 @@ int main( int argc, char *argv[] )
   
   /* Add functions to the model object; also tells model object where function
      sets start */
-  status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
+  status = AddFunctions(theModel, functionList, FunctionBlockIndices, options.subsamplingFlag);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);

@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
   double  *paramsVect;
   double  *paramErrs;
   vector<mp_par>  paramLimits;
-  vector<int>  functionSetIndices;
+  vector<int>  FunctionBlockIndices;
   bool  maskAllocated = false;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
     return -1;
   }
   status = ReadConfigFile(options.configFileName, false, functionList, parameterList, paramLimits, 
-                  functionSetIndices, paramLimitsExist, userConfigOptions);
+                  FunctionBlockIndices, paramLimitsExist, userConfigOptions);
   if (status < 0) {
     printf("\n*** WARNING: Problem in processing config file!\n\n");
     return -1;
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
   
   /* Add functions to the model object */
   printf("Adding functions to model object...\n");
-  status = AddFunctions1d(theModel, functionList, functionSetIndices);
+  status = AddFunctions1d(theModel, functionList, FunctionBlockIndices);
   if (status < 0) {
     printf("*** WARNING: Failure in AddFunctions!\n\n");
     exit(-1);
