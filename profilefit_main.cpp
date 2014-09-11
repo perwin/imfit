@@ -38,7 +38,7 @@
 #include "nmsimplex_fit.h"
 #include "nlopt_fit.h"
 #endif
-#include "new_levmar_fit.h"
+//#include "new_levmar_fit.h"
 
 #include "commandline_parser.h"
 #include "config_file_parser.h"
@@ -434,14 +434,14 @@ int main(int argc, char *argv[])
       printf("\n");
     }
 #endif
-    else if (options.solver == ALT_SOLVER) {
-      printf("Calling Modified L-M solver ..\n");
-      status = NewLevMarFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      			options.verbose);
-      printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
-      printf("\n");
-    }
+//     else if (options.solver == ALT_SOLVER) {
+//       printf("Calling Modified L-M solver ..\n");
+//       status = NewLevMarFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+//       			options.verbose);
+//       printf("\n");
+//       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+//       printf("\n");
+//     }
   }
 
 

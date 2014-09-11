@@ -1,0 +1,15 @@
+# Basic parameters for WFI images (note that this assumes 3 exposures,
+# *averaged* together)
+NCOMBINED		3
+GAIN			2.0
+READNOISE		4.5
+ORIGINAL_SKY	18.2
+
+X0		492		488,496
+Y0		444		440,448
+FUNCTION Sersic
+PA		136		110,170
+ell		0.25	0.1,0.5
+n		1.0		0.3,4.0
+I_e		10		0.1,100
+r_e		10		1,50

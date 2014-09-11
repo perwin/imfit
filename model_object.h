@@ -139,9 +139,12 @@ class ModelObject
 
     void GetFunctionNames( vector<string>& functionNames );
 
-    // common, but specialized by ModelObject1D
-    virtual void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
-																		double errs[] );
+    string GetParamHeader( );
+
+    // common, but Specialized by ModelObject1D
+    virtual void PrintModelParams( FILE *output_ptr, double params[], 
+    								mp_par *parameterInfo, double errs[], 
+    								const char *prefix="" );
 
 
     // 2D only; NOT USED ANYWHERE!

@@ -467,18 +467,18 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image [default = modelimage.fits]");
   optParser->AddUsageLine("     --refimage <reference-image.fits>   reference image (for image size)");
-  optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use (for convolution)");
+  optParser->AddUsageLine("     --psf <psf.fits>                    PSF image to use (for convolution)");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --overpsf <psf.fits>      Oversampled PSF image to use");
-  optParser->AddUsageLine("     --overpsf_scale <n>       Oversampling scale (integer)");
-  optParser->AddUsageLine("     --overpsf_region <x1:x2,y1:y2>       Section of image to convolve with oversampled PSF");
+  optParser->AddUsageLine("     --overpsf <psf.fits>                Oversampled PSF image to use");
+  optParser->AddUsageLine("     --overpsf_scale <n>                 Oversampling scale (integer)");
+  optParser->AddUsageLine("     --overpsf_region <x1:x2,y1:y2>      Section of image to convolve with oversampled PSF");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --ncols <number-of-columns>   x-size of output image");
-  optParser->AddUsageLine("     --nrows <number-of-rows>   y-size of output image");
-  optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
+  optParser->AddUsageLine("     --ncols <number-of-columns>         x-size of output image");
+  optParser->AddUsageLine("     --nrows <number-of-rows>            y-size of output image");
+  optParser->AddUsageLine("     --nosubsampling                     Do *not* do pixel subsampling near centers");
 //  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --output-functions <root-name>  Output individual function-images");
+  optParser->AddUsageLine("     --output-functions <root-name>      Output individual-function images");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --print-fluxes           Estimate total component fluxes (& magnitudes, if zero point is given)");
   optParser->AddUsageLine(EST_SIZE_HELP_STRING);
@@ -487,6 +487,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing, or for use with --print-fluxes))");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("EXAMPLES:");
+  optParser->AddUsageLine("   makeimage model_config_a.dat");
+  optParser->AddUsageLine("   makeimage model_config_b.dat --ncols 800 --nrows 800 --psf best_psf.fits -o testimage_convolved.fits");
+  optParser->AddUsageLine("   makeimage bestfit_parameters.dat --print-fluxes --zero-point 26.24 --nosave");
   optParser->AddUsageLine("");
 
 

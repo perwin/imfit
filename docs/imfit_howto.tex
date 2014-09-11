@@ -511,7 +511,7 @@ of these three options are usable with Cash statistic minimization.)
 \item \texttt{--sky} \textit{sky-level} --- specifies an original constant sky background
 level (in counts/pixel) that was subtracted from the image; used for internal
 computation of the noise map (for \chisquare{} minimization) or for correcting the 
-Cash statistic computation. (If the pixel units are counts/sec, then the sky level
+Cash statistic computation. (If the units of the pixel values are counts/sec, then the sky level
 should also be in those units, and you should use the ``\texttt{--exptime}'' option
 to specify the original exposure time.)
 \item \texttt{--gain} \textit{value} --- specifies the A/D gain (in electrons/ADU)
@@ -553,12 +553,19 @@ the minimization technique (\textsc{Warning}: much slower!)
 (instead of the data values) to estimate the individual-pixel dispersions
 $\sigma_{i}$ for \chisquare{} minimization
 
-\item \texttt{--cashstat} --- use Cash statistic instead of \chisquare{}
+\item \texttt{--cashstat} --- use standard Cash statistic $C$ instead of \chisquare{}
 as the fit statistic for minimization. This is especially useful in the
 case of Poisson statistics and low or zero read noise, but it also provides less
 biased fits than the \chisquare{} approach even when count levels are
 high. Cannot be used with the (default) Levenberg-Marquardt minimization
 technique.
+
+\item \texttt{--modcash} --- like \texttt{--cashstat}, but uses the
+``modified'' Cash statistic $C_{\mathrm{mod}}$ for minimization (this is
+the same as the ``CSTAT'' statistic in the X-ray packages XSPEC and
+Sherpa). The main difference is that the modified Cash statistic is
+always $\ge 0$, which means it \textit{can} be used with the (default)
+Levenberg-Marquardt minimization technique.
 
 \item \texttt{--ftol} \textit{FTOL-value} --- specify tolerance for
 fractional improvements in the fit statistic (\chisquare{} or Cash
@@ -571,6 +578,10 @@ by more than this, the minimization is considered a success and halted
 \item \texttt{--bootstrap} \textit{n-iterations}--- Do \textit{n-iterations} rounds
 of bootstrap resampling after the fit, to estimate parameter errors.
 
+\item \texttt{--save-bootstrap} \textit{filename}--- file to save
+individual best-fit parameter values from the bootstrap resampling (one
+line per iteration).
+
 \bigskip
 
 \item \texttt{--quiet} --- Suppress printing of intermediate \chisquare{} or Cash-statistic values
@@ -582,10 +593,12 @@ printed once per iteration) and N-M simplex fitting (best-fit values printed onc
 
 \bigskip
 
-\item \texttt{--chisquare-only} --- Evaluate the \chisquare{} value for
-the initial input model as a fit to the input image, \textit{without}
-doing any minimization to find a better solution. (If \texttt{--cashstat} is
-also specified, then the Cash statistic is evaluated instead.)
+\item \texttt{--chisquare-only} or \texttt{--fitstat-only} (these are
+synonyms) --- Evaluate the \chisquare{} value for the initial input
+model as a fit to the input image, \textit{without} doing any
+minimization to find a better solution. (If \texttt{--cashstat} or
+\texttt{--modcash} is also specified, then the appropriate Cash
+statistic is evaluated instead.)
 
 \bigskip
 
@@ -964,7 +977,7 @@ ic3478rss.fits[2][45:150,200:310]
 Obviously, if you are also using a mask image (and/or a noise image), you should
 specify the same subsection in those images!
 
-You can also use fit (or generate) images which have been compressed with gzip or
+You can also fit (or generate) images which have been compressed with gzip or
 Unix compress -- e.g., \texttt{ic3478rss\_256.fits.gz}.
 Images, masks, etc., can even be read via \texttt{http://} or \texttt{ftp://} URLs which point directly to
 accessible \textsc{fits} files; you
@@ -1008,7 +1021,7 @@ time, if the image units are counts/pixel). As an alternative, the \textit{model
 intensity values $I_{m, i}$ can be used instead of $I_{d, i}$, by specifying
 the \texttt{--model-errors} command-line flag. This is marginally slower (since
 the weights must be recalculated every time the model image is updated), but
-can lead to smaller biases in fitted parameters \citep[see][]{humphrey09,erwin13}.
+can lead to smaller biases in fitted parameters \citep[see][]{humphrey09,erwin14}.
 
 The weights are then used
 in the \chisquare{} calculation, summing over all $N$ pixels:
@@ -1039,11 +1052,17 @@ true if an image is the result of a simulation.
 If the user has specified the Cash statistic $C$ instead of \chisquare, the
 minimization uses
 \begin{equation}
-C \; = \; \sum_{i = 0}^{N} w_{i} \, (I^{\prime}_{m, i} \, - \, I^{\prime}_{d, i} \ln I^{\prime}_{m, i}),
+C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I^{\prime}_{m, i} \, - \, I^{\prime}_{d, i} \ln I^{\prime}_{m, i}),
 \end{equation}
 where $I^{\prime}_{m, i}$ and $I^{\prime}_{d, i}$ are the model and data
-intensities in counts/pixel, multiplied by the effective gain $g_{\mathrm{eff}}$ as defined above. In this case, all weights are automatically $=
-1$, except for masked pixels, which are still set $= 0$.
+intensities in counts/pixel, multiplied by the effective gain $g_{\mathrm{eff}}$ as defined above. 
+In this case, all weights are automatically $=1$, except for masked pixels, which are still set $= 0$.
+If the \textit{modified} Cash statistic $C_{\mathrm{mod}}$ is specified, then the
+following is minimized:
+\begin{equation}
+C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
+\left( I^{\prime}_{m, i} - I^{\prime}_{d, i} \ln I^{\prime}_{m, i} + I^{\prime}_{d, i} \ln I^{\prime}_{d, i} - I^{\prime}_{d, i} \right).
+\end{equation}
 
 
 \section{PSF Convolution}
@@ -1066,19 +1085,27 @@ slow things down considerably.
 
 
 
-\chapter{Minimization Options: Levenberg-Marquardt, Differential Evolution, Nelder-Mead Simplex}
+\chapter{What Gets Minimized During a Fit, and How to Minimize It}
 
-The default method for \chisquare{} minimization  used by \imfit{} is the
-Levenberg-Marquardt algorithm, based on the classic \textsc{minpack-1}
-implementation with enhancements by Craig Markwardt.\footnote{Original C
-version available at
-\url{http://www.physics.wisc.edu/~craigm/idl/cmpfit.html}} This is very
-fast and robust, and is the most extensively tested algorithm in \imfit,
-but requires an initial guess for the parameter values and can sometimes
-become trapped in local minima in the \chisquare{} landscape. In
-addition, it is \textit{not} appropriate if one is using the Cash
-statistic, since the latter can potentially have both per-pixel and total values
-$< 0$, which the Levenberg-Marquardt algorithm cannot handle.
+\section{Fit Statistic Options: \chisquare{} or Cash Statistics}
+
+TBD.
+
+
+\section{Minimization Options: Levenberg-Marquardt, Differential Evolution, Nelder-Mead Simplex}
+
+The default method for \chisquare{} (or $C_{\mathrm{mod}}$) minimization
+used by \imfit{} is the Levenberg-Marquardt algorithm, based on the
+classic \textsc{minpack-1} implementation \citep{more78} with
+enhancements by Craig Markwardt.\footnote{Original C version available
+at \url{http://www.physics.wisc.edu/~craigm/idl/cmpfit.html}} This is
+very fast and robust, and is the most extensively tested algorithm in
+\imfit, but requires an initial guess for the parameter values and can
+sometimes become trapped in local minima in the \chisquare{} landscape.
+In addition, it is \textit{not} appropriate if one is using the standard
+Cash statistic $C$, since the latter can potentially have both per-pixel
+and total values $< 0$, which least-squares algorithms like Levenberg-Marquardt cannot
+handle.
 
 An alternative algorithm, available via the \texttt{--nm} flag,  is a
 version of the Nelder-Mead simplex, as implemented by the NLopt
@@ -1089,14 +1116,13 @@ significantly faster than Differential Evolution (below). Like the
 Levenberg-Marquardt method, it does require an initial guess for the
 parameter values, but is considered less likely to become trapped in
 local minima in the fit-statistic landscape. Unlike the L-M algorithm,
-it can be used for both \chisquare{} and Cash-statistic minimization. If
+it can be used for minimizing $C$ (as well as \chisquare{} and $C_{\mathrm{mod}}$). If
 you compile \imfit{} from source and want to use this algorithm, you
 need to have the NLopt library installed on your system.
 
 The second alternate algorithm is available via the \texttt{--de} flag.
-This performs the fit-statistic (\chisquare{} or Cash statistic)
-minimization using Differential Evolution (DE) \citep{de}, a
-genetic-algorithms
+This minimizes the fit-statistic using Differential Evolution (DE)
+\citep{de}, a genetic-algorithms
 approach.\footnote{\url{http://www.icsi.berkeley.edu/~storn/code.html}}
 It has the drawback of being $\sim$ an order of magnitude slower than
 the Nelder-Mead simplex method, and \textit{much} slower ($\sim$ two
@@ -1143,7 +1169,7 @@ on their own.
 \section{Controlling the Tolerance for Minimization}
 
 All three minimization algorithms have stop conditions based on
-fractional changes in the fit-statistic (\chisquare{} or Cash statistic)
+fractional changes in the fit-statistic (\chisquare{}, $C$, or $C_{\mathrm{mod}}$)
 value: if further iterations do not improve the current value by more
 than FTOL $\times$ the fit statistic, then the algorithm declares success and
 terminates. (In the case of DE, the test condition is actually no
@@ -1185,17 +1211,17 @@ date and time it was generated; these are commented out so that the file can be
 subsequently used as an \imfit{} or \makeimage{} configuration file without
 modification.
 
-The final value of the fit statistic (\chisquare{} or Cash statistic) is
-also printed; if the fit statistic was \chisquare, then  the reduced
-$\chi^{2}$ (which accounts for the total number of unmasked pixels and
-non-fixed parameter values)\footnote{The reduced $\chi^{2}$ value should
-be interpreted with caution; it is valid in absolute terms only if the
-noise has been correctly estimated \textit{and} if all differences
-between the model and the data are solely due to noise, which is rarely
-true for galaxies and other astronomical objects.} is also printed.
-Finally, two alternate measures of the fit are also printed: the Akaike
-Information Criterion (\textsc{aic}) and the Bayesian Information Criterion
-(\textsc{bic}). The latter two are included on a provisional basis; they are, in
+The final value of the fit statistic is also printed; if the fit
+statistic was \chisquare, then  the reduced $\chi^{2}$ (which accounts
+for the total number of unmasked pixels and non-fixed parameter
+values)\footnote{The reduced $\chi^{2}$ value should be interpreted with
+caution; it is valid in absolute terms only if the noise has been
+correctly estimated \textit{and} if all differences between the model
+and the data are solely due to noise, which is rarely true for galaxies
+and other astronomical objects.} is also printed. Finally, two alternate
+measures of the fit are also printed: the Akaike Information Criterion
+(\textsc{aic}) and the Bayesian Information Criterion (\textsc{bic}).
+The latter two are included on a provisional basis; they are, in
 principle, useful for comparing different models fit to the same data.
 
 By default, no model or residual (image $-$ model) images are saved, but the
@@ -1224,18 +1250,17 @@ uncertainty.
 The other fitting algorithms used by \imfit{} do not compute gradients
 in the fit landscape, and so they do not produce automatic uncertainty
 estimates. Although one could certainly take the solution of a
-\chisquare{} fit done with the N-M simplex or DE algorithms and use it as input to a
-L-M run of \imfit, thus generating L-M--based uncertainties, this is not
-possible when using the Cash statistic.
+\chisquare{} fit done with the N-M simplex or DE algorithms and use it
+as input to a L-M run of \imfit, thus generating L-M--based
+uncertainties, this is not possible when using the standard Cash
+statistic $C$.
 
-As an alternative to the L-M uncertainty estimates --
-and as a method for estimating uncertainties in the case of
-Cash-statistic minimization -- \imfit{} offers the option of bootstrap
-resampling. This is done with the ``\texttt{--bootstrap}'' command-line
-option, which takes the \textit{number} of iterations as its
-corresponding value; e.g. 
-\begin{verbatim} imfit someimage.fits -c config.dat [. . .] --bootstrap 200 
-\end{verbatim}
+As an alternative to the L-M uncertainty estimates -- and as a method
+for estimating uncertainties in the case of standard Cash-statistic
+minimization -- \imfit{} offers the option of bootstrap resampling. This
+is done with the ``\texttt{--bootstrap}'' command-line option, which
+takes the \textit{number} of iterations as its corresponding value; e.g.
+\begin{verbatim} imfit someimage.fits -c config.dat [. . .] --bootstrap 200 \end{verbatim}
 
 Each iteration of bootstrap resampling generates a new data image by
 sampling pixel values (with replacement) from the original data image,
@@ -1257,17 +1282,15 @@ process, it is probably not a good idea to use bootstrap resampling when
 one is engaged in exploratory fitting, but to instead postpone it until
 one is reasonably certain one has the final fit. To keep things as fast
 as possible, \imfit{} automatically chooses L-M minimization for the
-bootstrap process -- unless the Cash statistic is being used, in which
+bootstrap process -- unless the standard Cash statistic is being used, in which
 case the N-M simplex method is used.\footnote{If \imfit{} was compiled
 without the NLopt library, then the N-M simplex method is not available
 and \imfit{} uses DE instead -- which will make the bootstrap estimation
 \textit{very} slow.}
 
-(Future versions of \imfit{} may include the option of dumping all bootstrapped
-parameter values to a text file, to allow more detailed inspection of the
-distributions.)
-
-TBD.
+Using the \texttt{--save-bootstrap} command, one can provide a filename
+for saving the best-fitting parameters from all the individual resampled
+fits; these are written as one line per fit.
 
 
 
@@ -2272,8 +2295,8 @@ Decomposition Code for Detailed Structural Analysis of Galaxies'',
 Pohlen, B., \& Beckman, J. E. 2008, ``The Outer Disks of Early-Type Galaxies. I. 
 Surface-Brightness Profiles of Barred Galaxies'', \textit{Astron.J.} \textbf{135}: 20.
 
-\bibitem[Erwin(2013)]{erwin13} Erwin, P. 2013, ``Imfit: A Fast, Flexible
-New Program for Astronomical Image Fitting'', in prep.
+\bibitem[Erwin(2014)]{erwin14} Erwin, P. 2014, ``Imfit: A Fast, Flexible
+New Program for Astronomical Image Fitting'', \textit{Astrophys.J.}, submitted.
 
 \bibitem[Gadotti(2008)]{gadotti08} Gadotti, D. A. 2008, ``Image
 decomposition of barred galaxies and AGN hosts'', \textit{Monthly
@@ -2298,6 +2321,11 @@ Shaw, H.E. Payne, and J.J.E. Hayes, eds., \textit{ASP Conference Series}
 Courteau, S., \& Holtzman, J. A. 2003, ``Structure of Disk-dominated Galaxies.
 I. Bulge/Disk Parameters, Simulations, and Secular Evolution'',
 \textit{Astrophys.J.} \textbf{582}: 689.
+
+\bibitem[Mor{\'e}(1978)]{more78} Mor{\'e}, J.~J. 1978, ``The
+Levenberg-Marquardt algorithm: Implementation and theory'', in
+\textit{Numerical Analysis}, G.A. Watson, ed., \textit{Lecture Notes in
+Mathematics} \textbf{630}: 105.
 
 \bibitem[Peng et al.(2002)]{peng02} Peng, C. Y., Ho, L. C., Impey, C. D., \&
 Rix, H. W. 2002, ``Detailed Structural Decomposition of Galaxy Images'',

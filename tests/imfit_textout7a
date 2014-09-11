@@ -14,8 +14,8 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: chi^2 = 0.000000
-	mpfit iteration 2: chi^2 = 0.000000
+	mpfit iteration 1: fit statistic = 0.000000
+	mpfit iteration 2: fit statistic = 0.000000
 
 *** mpfit status = 4 -- SUCCESS: Convergence in orthogonality.
   CHI-SQUARE = 0.000000    (5 DOF)

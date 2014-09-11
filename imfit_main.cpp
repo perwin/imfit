@@ -139,6 +139,8 @@ typedef struct {
   std::string  nloptSolverName;
   bool  doBootstrap;
   int  bootstrapIterations;
+  bool  saveBootstrap;
+  std::string  outputBootstrapFileName;
   int  maxThreads;
   bool  maxThreadsSet;
   int  verbose;
@@ -152,6 +154,7 @@ typedef struct {
 /* Local Functions: */
 void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset);
+void SetDefaultOptions( commandOptions *theOptions );
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								commandOptions *mainOptions );
@@ -165,6 +168,52 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
 
 
 
+void SetDefaultOptions( commandOptions *theOptions )
+{
+  theOptions->configFileName = DEFAULT_CONFIG_FILE;
+  theOptions->noImage = true;
+  theOptions->psfImagePresent = false;
+  theOptions->noiseImagePresent = false;
+  theOptions->errorType = WEIGHTS_ARE_SIGMAS;
+  theOptions->maskImagePresent = false;
+  theOptions->maskFormat = MASK_ZERO_IS_GOOD;
+  theOptions->subsamplingFlag = true;
+  theOptions->saveModel = false;
+  theOptions->saveResidualImage = false;
+  theOptions->saveWeightImage = false;
+  theOptions->saveBestFitParams = true;
+  theOptions->outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
+  theOptions->useImageHeader= false;
+  theOptions->gain = 1.0;
+  theOptions->gainSet = false;
+  theOptions->readNoise = 0.0;
+  theOptions->readNoiseSet = false;
+  theOptions->expTime = 1.0;
+  theOptions->expTimeSet = false;
+  theOptions->nCombined = 1;
+  theOptions->nCombinedSet = false;
+  theOptions->originalSky = 0.0;
+  theOptions->originalSkySet = false;
+  theOptions->useModelForErrors = false;
+  theOptions->useCashStatistic = false;
+  theOptions->useModifiedCashStatistic = false;
+  theOptions->ftol = DEFAULT_FTOL;
+  theOptions->ftolSet = false;
+  theOptions->magZeroPoint = NO_MAGNITUDES;
+  theOptions->noParamLimits = true;
+  theOptions->printImages = false;
+  theOptions->printFitStatisticOnly = false;
+  theOptions->solver = MPFIT_SOLVER;
+  theOptions->nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
+  theOptions->doBootstrap = false;
+  theOptions->bootstrapIterations = 0;
+  theOptions->saveBootstrap = false;
+  theOptions->outputBootstrapFileName = "";
+  theOptions->maxThreads = 0;
+  theOptions->maxThreadsSet = false;
+  theOptions->verbose = 1;
+
+}
 
 
 
@@ -177,6 +226,7 @@ int main(int argc, char *argv[])
   int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
   int  nDegFreedom;
   int  nParamsTot, nFreeParams;
+  bool  saveBootstrapResults = false;
   double  *allPixels;
   double  *psfPixels;
   double  *allErrorPixels;
@@ -202,6 +252,7 @@ int main(int argc, char *argv[])
   vector<int>  functionSetIndices;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
+  bool  allFilesPresent;
   mp_par  *parameterInfo;
   int  status;
   vector<string>  imageCommentsList;
@@ -209,8 +260,12 @@ int main(int argc, char *argv[])
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
+  string  progNameVersion = "imfit ";
+
+  progNameVersion += VERSION_STRING;
   
   
+<<<<<<< local
   /* Process the command line */
   /* First, set up the options structure: */
   options.configFileName = DEFAULT_CONFIG_FILE;
@@ -257,23 +312,52 @@ int main(int argc, char *argv[])
   options.maxThreadsSet = false;
   options.verbose = 1;
 
+  /* Define default options, then process the command line */
+  SetDefaultOptions(&options);
   ProcessInput(argc, argv, &options);
 
 
-  /* Read configuration file */
+  /* Check for presence of user-requested files; if any are missing, quit.
+   * Look for all of them here, so we can list *all* the missing files before
+   * we quit */
+  allFilesPresent = true;
   if (! FileExists(options.configFileName.c_str())) {
-    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n\n", 
+    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n", 
            options.configFileName.c_str());
-    return -1;
+    allFilesPresent = false;
   }
+  if (! ImageFileExists(options.imageFileName.c_str())) {
+    fprintf(stderr, "\n*** ERROR: Unable to find image file \"%s\"!\n", 
+           options.imageFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (options.maskImagePresent) && (! ImageFileExists(options.maskFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find mask file \"%s\"!\n", 
+           options.maskFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (options.noiseImagePresent) && (! ImageFileExists(options.noiseFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find noise-image file \"%s\"!\n", 
+           options.noiseFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (options.psfImagePresent) && (! ImageFileExists(options.psfFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find PSF image file \"%s\"!\n", 
+           options.psfFileName.c_str());
+    allFilesPresent = false;
+  }
+  if (! allFilesPresent) {
+    fprintf(stderr, "\n");
+    exit(-1);
+  }
+
+  /* Read configuration file, parse & process user-supplied (non-function-related) values */
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
   								paramLimits, functionSetIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
   }
-
-  // Parse and process user-supplied (non-function) values from config file, if any
   HandleConfigFileOptions(&userConfigOptions, &options);
 
   
@@ -283,8 +367,6 @@ int main(int argc, char *argv[])
   }
 
   /* Get image data and sizes */
-  // (for this and other image-access, we rely on the cfitsio library to catch errors 
-  // like nonexistent files)
   printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
   allPixels = ReadImageAsVector(options.imageFileName, &nColumns, &nRows);
   if (allPixels == NULL) {
@@ -464,9 +546,8 @@ int main(int argc, char *argv[])
         theModel->UseModelErrors();
       }
       else {
+        // default mode
         printf("* No noise image supplied ... will generate noise image from input image.\n");
-        // this is the default mode of ModelObject, so we don't need to do anything
-        // special here
       }
     }
   }
@@ -494,7 +575,6 @@ int main(int argc, char *argv[])
   for (int i = 0; i < nParamsTot; i++) {
     parameterInfo[i].fixed = paramLimits[i].fixed;
     if (parameterInfo[i].fixed == 1) {
-    	//printf("Fixed parameter detected (i = %d)\n", i);
       nFreeParams--;
     }
     parameterInfo[i].limited[0] = paramLimits[i].limited[0];
@@ -536,7 +616,6 @@ int main(int argc, char *argv[])
     status = 1;
     PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
-    // turn off saveing of parameter file
     options.saveBestFitParams = false;
   }
   else {
@@ -582,29 +661,51 @@ int main(int argc, char *argv[])
       printf("\n");
     }
 #endif
-//     else if (options.solver == ALT_SOLVER) {
-//       printf("Calling Modified L-M solver ..\n");
-//       status = NewLevMarFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       			options.verbose);
-//       printf("\n");
-//       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
-//       printf("\n");
-//     }
   }
 
 
   // Optional bootstrap resampling
+
   if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
+    double **bootstrapParamsArray = NULL;
+    if (options.outputBootstrapFileName.length() > 0) {
+      saveBootstrapResults = true;
+      // Allocate 2D array to hold bootstrap results for each parameter
+      bootstrapParamsArray = (double **)calloc( (size_t)nParamsTot, sizeof(double *) );
+      for (int i = 0; i < nParamsTot; i++)
+        bootstrapParamsArray[i] = (double *)calloc( (size_t)options.bootstrapIterations, sizeof(double) );
+    }
+    
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
     BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
-                    options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic());
+                    options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic(),
+                    bootstrapParamsArray);
+    
+    // Save all generated parameter values to file, if user requested it
+    if (saveBootstrapResults) {
+      printf("Writing bootstrap parameter values to file %s...\n", options.outputBootstrapFileName.c_str());
+      FILE *outputFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");
+      // write general info + best-fitting params as a commented-out header
+      SaveParameters2(outputFile_ptr, paramsVect, theModel, parameterInfo, progNameVersion, 
+      				argc, argv, "#");
+      // get & write column-titles header
+      string  headerLine = theModel->GetParamHeader();
+      fprintf(outputFile_ptr, "#\n# Bootstrap resampling output (%d iterations):\n%s\n", 
+      			options.bootstrapIterations, headerLine.c_str());
+      for (int nIter = 0; nIter < options.bootstrapIterations; nIter++) {
+        for (int i = 0; i < nParamsTot; i++)
+          fprintf(outputFile_ptr, "%f\t\t", bootstrapParamsArray[i][nIter]);
+        fprintf(outputFile_ptr, "\n");
+      }
+      fclose(outputFile_ptr);
+      for (int i = 0; i < nParamsTot; i++)
+        free(bootstrapParamsArray[i]);
+      free(bootstrapParamsArray);
+    }
+
   }
 
-
-  // TESTING (remove later)
-  if (options.printImages)
-    theModel->PrintModelImage();
 
   // Handle assorted output requests
   // Note that from this point on, we handle failures reported by SaveVectorAsImage as
@@ -612,15 +713,11 @@ int main(int argc, char *argv[])
   // anyway, and the user might just have given us a bad path for one of the output images
   if (options.saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
-    string  progNameVersion = "imfit ";
-    progNameVersion += VERSION_STRING;
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
     								progNameVersion, argc, argv);
   }
   if (options.saveModel) {
-    string  progName = "imfit ";
-    progName += VERSION_STRING;
-    PrepareImageComments(&imageCommentsList, progName, &options);
+    PrepareImageComments(&imageCommentsList, progNameVersion, &options);
     printf("Saving model image in file \"%s\"\n", options.outputModelFileName.c_str());
     status = SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
                       nColumns, nRows, imageCommentsList);
@@ -684,8 +781,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine(" -c  --config <config-file>   configuration file");
-  optParser->AddUsageLine("     --chisquare-only         Print fit statistic (e.g., chi^2) of input model and quit");
+  optParser->AddUsageLine(" -c  --config <config-file>   configuration file [required!]");
+  optParser->AddUsageLine("     --chisquare-only         Print fit statistic (e.g., chi^2) of input model and quit (no fitting done)");
   optParser->AddUsageLine("     --fitstat-only           Same as --chisquare-only");
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
@@ -695,16 +792,16 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --overpsf_scale <n>       Oversampling scale (integer)");
   optParser->AddUsageLine("     --overpsf_region <x1:x2,y1:y2>       Section of image to convolve with oversampled PSF");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers");
+  optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers of functions");
   optParser->AddUsageLine("     --save-params <output-file>          Save best-fit parameters in config-file format [default = bestfit_parameters_imfit.dat]");
   optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
-  optParser->AddUsageLine("     --save-residual <outputname.fits>       Save residual (input - model) image");
-  optParser->AddUsageLine("     --save-weights <outputname.fits>       Save weight image");
+  optParser->AddUsageLine("     --save-residual <outputname.fits>    Save residual (input - model) image");
+  optParser->AddUsageLine("     --save-weights <outputname.fits>     Save weight image");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
-  optParser->AddUsageLine("     --gain <value>           Image gain (e-/ADU)");
+  optParser->AddUsageLine("     --gain <value>           Image A/D gain (e-/ADU)");
   optParser->AddUsageLine("     --readnoise <value>      Image read noise (e-)");
-  optParser->AddUsageLine("     --exptime <value>        Exposure time in sec (only if image is in ADU/sec)");
+  optParser->AddUsageLine("     --exptime <value>        Exposure time in sec (only if image counts are ADU/sec)");
   optParser->AddUsageLine("     --ncombined <value>      Number of images averaged to make final image (if counts are average or median)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --errors-are-variances   Indicates that values in noise image = variances (instead of sigmas)");
@@ -716,24 +813,24 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --modcash                Use modified Cash statistic instead of chi^2");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in fit statistic for convergence [default = 1.0e-8]");
 #ifndef NO_NLOPT
-  optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver instead of L-M");
-  optParser->AddUsageLine("     --nlopt <name>           Select misc. NLopt solver");
+  optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver (instead of L-M)");
+  optParser->AddUsageLine("     --nlopt <name>           Select miscellaneous NLopt solver");
 #endif
-  optParser->AddUsageLine("     --de                     Use differential evolution solver instead of L-M");
-  optParser->AddUsageLine("     --newlm                  Use modified L-M solver");
+  optParser->AddUsageLine("     --de                     Use differential evolution solver");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
+  optParser->AddUsageLine("     --save-bootstrap <filename>        Save all bootstrap best-fit parameters to specified file");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
   optParser->AddUsageLine("     --loud                   Print extra info during the fit");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
-//  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
   optParser->AddUsageLine("   imfit -c model_config_a.dat ngc100.fits");
   optParser->AddUsageLine("   imfit -c model_config_b.dat ngc100.fits[405:700,844:1060] --mask ngc100_mask.fits[405:700,844:1060] --gain 4.5 --readnoise 0.7");
+  optParser->AddUsageLine("");
 
 
   /* by default all options are checked on the command line and from option/resource file */
@@ -757,7 +854,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("nlopt");
 #endif
   optParser->AddFlag("de");
-  optParser->AddFlag("newlm");
   optParser->AddFlag("quiet");
   optParser->AddFlag("silent");
   optParser->AddFlag("loud");
@@ -778,6 +874,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("ncombined");
   optParser->AddOption("ftol");
   optParser->AddOption("bootstrap");
+  optParser->AddOption("save-bootstrap");
   optParser->AddOption("config", "c");        /* an option (takes an argument), supporting both short & long forms */
   optParser->AddOption("max-threads");
 
@@ -868,10 +965,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("de")) {
   	printf("\t* Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
-  }
-  if (optParser->FlagSet("newlm")) {
-  	printf("\t* Modified L-M selected!\n");
-  	theOptions->solver = ALT_SOLVER;
   }
   if (optParser->FlagSet("nosubsampling")) {
     theOptions->subsamplingFlag = false;
@@ -1024,6 +1117,11 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->doBootstrap = true;
     theOptions->bootstrapIterations = atol(optParser->GetTargetString("bootstrap").c_str());
     printf("\tnumber of bootstrap iterations = %d\n", theOptions->bootstrapIterations);
+  }
+  if (optParser->OptionSet("save-bootstrap")) {
+    theOptions->outputBootstrapFileName = optParser->GetTargetString("save-bootstrap");
+    theOptions->saveBootstrap = true;
+    printf("\tbootstrap best-fit parameters to be saved in %s\n", theOptions->outputBootstrapFileName.c_str());
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {

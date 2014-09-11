@@ -22,24 +22,24 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: chi^2 = 49095.069849
-	mpfit iteration 2: chi^2 = 37345.298244
-	mpfit iteration 3: chi^2 = 37110.187454
-	mpfit iteration 4: chi^2 = 37053.537318
-	mpfit iteration 5: chi^2 = 36993.750760
-	mpfit iteration 6: chi^2 = 36947.464152
-	mpfit iteration 7: chi^2 = 36910.890037
-	mpfit iteration 8: chi^2 = 36882.958351
-	mpfit iteration 9: chi^2 = 36862.501535
-	mpfit iteration 10: chi^2 = 36848.786603
-	mpfit iteration 11: chi^2 = 36841.049089
-	mpfit iteration 12: chi^2 = 36831.937340
-	mpfit iteration 13: chi^2 = 36828.584572
-	mpfit iteration 14: chi^2 = 36828.578485
-	mpfit iteration 15: chi^2 = 36828.577740
-	mpfit iteration 16: chi^2 = 36828.577653
+	mpfit iteration 1: fit statistic = 49095.069849
+	mpfit iteration 2: fit statistic = 37345.298244
+	mpfit iteration 3: fit statistic = 37110.187454
+	mpfit iteration 4: fit statistic = 37053.537318
+	mpfit iteration 5: fit statistic = 36993.750760
+	mpfit iteration 6: fit statistic = 36947.464152
+	mpfit iteration 7: fit statistic = 36910.890037
+	mpfit iteration 8: fit statistic = 36882.958351
+	mpfit iteration 9: fit statistic = 36862.501535
+	mpfit iteration 10: fit statistic = 36848.786603
+	mpfit iteration 11: fit statistic = 36841.049089
+	mpfit iteration 12: fit statistic = 36831.937340
+	mpfit iteration 13: fit statistic = 36828.584572
+	mpfit iteration 14: fit statistic = 36828.578485
+	mpfit iteration 15: fit statistic = 36828.577740
+	mpfit iteration 16: fit statistic = 36828.577653
 
-*** mpfit status = 1 -- SUCCESS: Convergence in chi-square value.
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
   CHI-SQUARE = 36828.577653    (28743 DOF)
   INITIAL CHI^2 = 235606.146670
         NPAR = 11

@@ -3,4 +3,5 @@
 
 *** ERROR: Failure reading configuration file!
 
+	Image file = tests/ic3478rss_64x64.fits
 	configuration file = tests/config_imfit_sersictest512_badlimits2.dat

@@ -60,18 +60,19 @@
 #include "oversampled_region.h"
 #include "mp_enorm.h"
 #include "param_struct.h"
+#include "utilities_pub.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
 static string  UNDEFINED = "<undefined>";
 
 // output formatting for printing parameters
-#define X0_FORMAT_WITH_ERRS "X0\t\t%.4f # +/- %.4f\n"
-#define Y0_FORMAT_WITH_ERRS "Y0\t\t%.4f # +/- %.4f\n"
-#define X0_FORMAT "X0\t\t%.4f\n"
-#define Y0_FORMAT "Y0\t\t%.4f\n"
-#define PARAM_FORMAT_WITH_ERRS "%s\t\t%7g # +/- %7g\n"
-#define PARAM_FORMAT "%s\t\t%7g\n"
+#define X0_FORMAT_WITH_ERRS "%sX0\t\t%.4f # +/- %.4f\n"
+#define Y0_FORMAT_WITH_ERRS "%sY0\t\t%.4f # +/- %.4f\n"
+#define X0_FORMAT "%sX0\t\t%.4f\n"
+#define Y0_FORMAT "%sY0\t\t%.4f\n"
+#define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%7g # +/- %7g\n"
+#define PARAM_FORMAT "%s%s\t\t%7g\n"
 
 // very small value for Cash statistic calculations (replaces log(m) if m <= 0)
 // Based on http://cxc.harvard.edu/sherpa/ahelp/cstat.html
@@ -931,7 +932,9 @@ double ModelObject::ComputeModCashStatDeviate( int i, int i_model )
   else
     logModel = log(modVal);
   extraTerms = extraCashTermsVector[i];
-  deviateVal = sqrt(2.0 * weightVector[i] * (modVal - dataVal*logModel + extraTerms));
+  // Note use of fabs(), to ensure that possible tiny negative values (due to
+  // rounding errors when modVal =~ dataVal) don't turn into NaN
+  deviateVal = sqrt(2.0 * weightVector[i] * fabs(modVal - dataVal*logModel + extraTerms));
   return deviateVal;
 }
 
@@ -993,28 +996,6 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
     }
   }   // end if convolution case
   
-//     else { // standard chi^2 approach
-//       if (doBootstrap) {
-//         for (z = 0; z < nValidDataVals; z++) {
-//           b = bootstrapIndices[z];
-//           iDataRow = b / nDataColumns;
-//           iDataCol = b - iDataRow*nDataColumns;
-//           bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-//           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
-//         }
-//       } else {
-//         for (z = 0; z < nDataVals; z++) {
-//           iDataRow = z / nDataColumns;
-//           iDataCol = z - iDataRow*nDataColumns;
-//           zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-//           //yResults[z] = ComputeChisquareDeviate(z, zModel)
-//           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
-//         }
-//       }
-//     }
-//   }  // end if (convolution case)
-  
-  
   else {
     // No convolution, so model image is same size & shape as data and weight images
     if (doBootstrap) {
@@ -1036,31 +1017,6 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
     }
     
   }  // end else (non-convolution case)
-
-
-// 
-//           
-//         }
-//       } else {
-//         for (z = 0; z < nDataVals; z++) {
-//           yResults[z] = ComputeModCashStatDeviate(z, z);
-//         }
-//       }
-//     }
-//     else {   // standard chi^2 approach
-//       if (doBootstrap) {
-//         for (z = 0; z < nValidDataVals; z++) {
-//           b = bootstrapIndices[z];
-//           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
-//         }
-//       } else {
-//         for (z = 0; z < nDataVals; z++) {
-//           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
-//         }
-//       }
-//     }
-//     
-//   }  // end if (non-convolution case)
 
 }
 
@@ -1353,8 +1309,9 @@ void ModelObject::GetFunctionNames( vector<string>& functionNames )
 // If parameterInfo != NULL, then x0,y0 are corrected for any offsets.
 // If errs != NULL, then +/- errors are printed as well
 
-void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
-																		double errs[] )
+void ModelObject::PrintModelParams( FILE *output_ptr, double params[], 
+									mp_par *parameterInfo, double errs[], 
+									const char *prefix )
 {
   double  x0, y0, paramVal;
   int nParamsThisFunc, k;
@@ -1372,11 +1329,11 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
         y0 += parameterInfo[k + 1].offset;
       }
       if (errs != NULL) {
-        fprintf(output_ptr, X0_FORMAT_WITH_ERRS, x0, errs[k]);
-        fprintf(output_ptr, Y0_FORMAT_WITH_ERRS, y0, errs[k + 1]);
+        fprintf(output_ptr, X0_FORMAT_WITH_ERRS, prefix, x0, errs[k]);
+        fprintf(output_ptr, Y0_FORMAT_WITH_ERRS, prefix, y0, errs[k + 1]);
       } else {
-        fprintf(output_ptr, X0_FORMAT, x0);
-        fprintf(output_ptr, Y0_FORMAT, y0);
+        fprintf(output_ptr, X0_FORMAT, prefix, x0);
+        fprintf(output_ptr, Y0_FORMAT, prefix, y0);
       }
       indexOffset += 2;
     }
@@ -1384,17 +1341,57 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[], mp_par *p
     // Now print the function and its parameters
     nParamsThisFunc = paramSizes[n];
     funcName = functionObjects[n]->GetShortName();
-    fprintf(output_ptr, "FUNCTION %s\n", funcName.c_str());
+    fprintf(output_ptr, "%sFUNCTION %s\n", prefix, funcName.c_str());
     for (int i = 0; i < nParamsThisFunc; i++) {
       paramName = GetParameterName(indexOffset + i);
       paramVal = params[indexOffset + i];
       if (errs != NULL)
-        fprintf(output_ptr, PARAM_FORMAT_WITH_ERRS, paramName.c_str(), paramVal, errs[indexOffset + i]);
+        fprintf(output_ptr, PARAM_FORMAT_WITH_ERRS, prefix, paramName.c_str(), paramVal, 
+        		errs[indexOffset + i]);
       else
-        fprintf(output_ptr, PARAM_FORMAT, paramName.c_str(), paramVal);
+        fprintf(output_ptr, PARAM_FORMAT, prefix, paramName.c_str(), paramVal);
     }
     indexOffset += paramSizes[n];
   }
+}
+
+
+/* ---------------- PUBLIC METHOD: GetParamHeader ---------------------- */
+// Prints function and parameter names in order all on one line; e.g., for use as 
+// header in bootstrap-parameters output file.
+string ModelObject::GetParamHeader( )
+{
+  int nParamsThisFunc, k, nBlock;
+  int  indexOffset = 0;
+  string  funcName, paramName;
+  string  headerLine, newString;
+
+  headerLine = "# ";
+  nBlock = 0;
+  for (int n = 0; n < nFunctions; n++) {
+    if (setStartFlag[n] == true) {
+      // start of new function set: extract x0,y0 and then skip over them
+      nBlock += 1;
+      k = indexOffset;
+//      newString = "X0\t\tY0\t\t";
+      newString = PrintToString("X0_%d\t\tY0_%d\t\t", nBlock, nBlock);
+      headerLine += newString;
+      indexOffset += 2;
+    }
+    
+    // Now print the names of the function and its parameters
+    nParamsThisFunc = paramSizes[n];
+//    funcName = functionObjects[n]->GetShortName();
+//    newString = PrintToString("FUNCTION:%s: ", funcName.c_str());
+//    headerLine += newString;
+    for (int i = 0; i < nParamsThisFunc; i++) {
+      paramName = GetParameterName(indexOffset + i);
+      newString = PrintToString("%s_%d\t", paramName.c_str(), n + 1);
+      headerLine += newString;
+    }
+    indexOffset += paramSizes[n];
+  }
+  return headerLine;
 }
 
 
