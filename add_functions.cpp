@@ -200,7 +200,7 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &functionSetIndices, bool subsamplingFlag )
+                  vector<int> &FunctionBlockIndices, bool subsamplingFlag )
 {
   int  nFunctions = functionNameList.size();
   string  currentName;
@@ -225,7 +225,7 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
   }
   // OK, we're done adding functions; now tell the model object to do some final setup
   // Tell model object about arrangement of functions into common-center sets
-  theModel->DefineFunctionSets(functionSetIndices);
+  theModel->DefineFunctionBlocks(FunctionBlockIndices);
   
   // Tell model object to create vector of parameter labels
   theModel->PopulateParameterNames();

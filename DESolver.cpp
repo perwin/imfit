@@ -278,7 +278,7 @@ int DESolver::Solve( int maxGenerations, int verbose )
       lastBestEnergy = bestEnergy;
     }
 
-    if isnan(bestEnergy) {
+    if (isnan(bestEnergy)) {
 //        fprintf(stderr, "\n*** NaN-valued fit statistic detected (DE optimization)!\n");
       printf("\n\tcandidate %d, bestEnergy = %f\n", candidate, bestEnergy);
     }

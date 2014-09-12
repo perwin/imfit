@@ -46,7 +46,7 @@ using namespace std;
 void AddParameter( string& currentLine, vector<double>& parameterList );
 int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
 														vector<mp_par>& parameterLimits, int origLineNumber );
-void AddFunctionName( string& currentLine, vector<string>& functionList );
+void AddFunctionName( string& currentLine, vector<string>& functionNameList );
 void ReportConfigError( int errorCode, int origLineNumber );
 
 
@@ -140,15 +140,15 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
 
 /* ---------------- FUNCTION: AddFunctionName -------------------------- */
 // Parses a line, extracting the second element as a string and storing it in 
-// the functionList vector.
-void AddFunctionName( string& currentLine, vector<string>& functionList ) {
+// the functionNameList vector.
+void AddFunctionName( string& currentLine, vector<string>& functionNameList ) {
   vector<string>  stringPieces;
   
   ChopComment(currentLine);
   stringPieces.clear();
   SplitString(currentLine, stringPieces);
   // store the actual function name (remember that first token is "FUNCTION")
-  functionList.push_back(stringPieces[1]);
+  functionNameList.push_back(stringPieces[1]);
 }
 
 
@@ -241,17 +241,17 @@ void ReportConfigError( int errorCode, int origLineNumber )
 // Limited version, for use by e.g. makeimage -- ignores parameter limits!
 //    configFileName = C++ string with name of configuration file
 //    mode2D = true for 2D functions (imfit, makeimage), false for 1D (imfit1d)
-//    functionList = output, will contain vector of C++ strings containing functions
+//    functionNameList = output, will contain vector of C++ strings containing functions
 //                   names from config file
 //    parameterList = output, will contain vector of parameter values
-//    setStartFunctionNumber = output, will contain vector of integers specifying
-//                   which functions mark start of new function set
-int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionList,
-                     vector<double>& parameterList, vector<int>& setStartFunctionNumber,
+//    fblockStartIndices = output, will contain vector of integers specifying
+//                   which functions mark start of new function block
+int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
+                     vector<double>& parameterList, vector<int>& fblockStartIndices,
                      configOptions& configFileOptions )
 {
   ifstream  inputFileStream;
-  string  inputLine, currentLine;
+  string  inputLine;
   vector<string>  inputLines;
   vector<string>  stringPieces;
   vector<int>  origLineNumbers;
@@ -307,7 +307,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   functionNumber = 0;
   while (i < nInputLines) {
     if (inputLines[i].find("X0", 0) != string::npos) {
-      setStartFunctionNumber.push_back(functionNumber);
+      fblockStartIndices.push_back(functionNumber);
       AddParameter(inputLines[i], parameterList);
       i++;
       if (mode2D) {
@@ -324,7 +324,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
       continue;
     }
     if (inputLines[i].find("FUNCTION", 0) != string::npos) {
-      AddFunctionName(inputLines[i], functionList);
+      AddFunctionName(inputLines[i], functionNameList);
       functionNumber++;
       i++;
       continue;
@@ -343,20 +343,20 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
 // Full version, for use by e.g. imfit -- reads parameter limits as well
 //    configFileName = C++ string with name of configuration file
 //    mode2D = true for 2D functions (imfit, makeimage), false for 1D (imfit1d)
-//    functionList = output, will contain vector of C++ strings containing functions
+//    functionNameList = output, will contain vector of C++ strings containing functions
 //                   names from config file
 //    parameterList = output, will contain vector of parameter values
 //    parameterLimits = output, will contain vector of mp_par structures (specifying
 //                   possible limits on parameter values)
-//    setStartFunctionNumber = output, will contain vector of integers specifying
-//                   which functions mark start of new function set
-int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionList,
+//    fblockStartIndices = output, will contain vector of integers specifying
+//                   which functions mark start of new function block
+int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
-                    vector<int>& setStartFunctionNumber, bool& parameterLimitsFound,
+                    vector<int>& fblockStartIndices, bool& parameterLimitsFound,
                     configOptions& configFileOptions )
 {
   ifstream  inputFileStream;
-  string  inputLine, currentLine;
+  string  inputLine;
   vector<string>  inputLines;
   vector<string>  stringPieces;
   vector<int>  origLineNumbers;
@@ -415,7 +415,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
   while (i < nInputLines) {
     if (inputLines[i].find("X0", 0) != string::npos) {
       //printf("X0 detected (i = %d)\n", i);
-      setStartFunctionNumber.push_back(functionNumber);
+      fblockStartIndices.push_back(functionNumber);
       pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits,
       										origLineNumbers[i]);
       paramNumber++;
@@ -449,7 +449,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
     }
     if (inputLines[i].find("FUNCTION", 0) != string::npos) {
       //printf("Function detected (i = %d)\n", i);
-      AddFunctionName(inputLines[i], functionList);
+      AddFunctionName(inputLines[i], functionNameList);
       functionNumber++;
       i++;
       continue;

@@ -270,4 +270,4 @@ static void PrintError( int status )
 
 
 
-/* END OF FILE: readimage.cpp ------------------------------------------ */
+/* END OF FILE: image_io.cpp ------------------------------------------- */

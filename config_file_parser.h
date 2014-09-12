@@ -30,14 +30,14 @@ int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, boo
 
 // First version is for use by e.g. makeimage: reads in parameters, but ignores
 // parameter limits
-int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionList,
-                    vector<double>& parameterList, vector<int>& setStartFunctionNumber,
+int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
+                    vector<double>& parameterList, vector<int>& fblockStartIndices,
                      configOptions& configFileOptions );
 
 // This version is for use by e.g. imfit: reads in parameters *and* parameter limits
-int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionList,
+int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
-                    vector<int>& setStartFunctionNumber, bool& parameterLimitsFound,
+                    vector<int>& fblockStartIndices, bool& parameterLimitsFound,
                      configOptions& configFileOptions );
 
 

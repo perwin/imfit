@@ -149,7 +149,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   maxGenerations = MAX_DE_GENERATIONS;
   // Instantiate and set up the DE solver:
   solver = new ImfitSolver(nParamsTot, POP_SIZE_PER_PARAMETER*nFreeParameters, theModel);
-  solver->Setup(minParamValues, maxParamValues, stRandToBest1Exp, F, CR, ftol);
+  solver->Setup(minParamValues, maxParamValues, deStrategy, F, CR, ftol);
 
   status = solver->Solve(maxGenerations, verbose);
 

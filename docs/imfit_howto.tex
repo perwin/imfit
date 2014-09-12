@@ -1002,6 +1002,8 @@ with the command-line flag \texttt{--mask-zero-is-bad}.
 
 \section{Noise, Variance, or Weight Maps}\label{sec:noise-maps}
 
+(See Section~\ref{sec:fit-statistics} for background on the different fit statistics.)
+
 By default, \imfit{} uses \chisquare{} as the statistic for
 minimization. As part of this, \imfit{} normally calculates an internal
 weight map, using the input pixel intensities, the A/D gain, any
@@ -1011,20 +1013,20 @@ map is $w_{i} = 1/\sigma^{2}_{i}$, with the dispersion (in ADU) defined as
 \begin{equation}
 \sigma^{2}_{i} \; = \; (I_{d, i} + I_{\mathrm{sky}})/g_{\mathrm{eff}} \, + \, N_{\mathrm{c}} \, \sigma_{\mathrm{rdn}}^{2}/g_{\mathrm{eff}}^{2} \, ,
 \end{equation}
-where $I_{d, i}$ is the data intensity in counts/pixel, $I_{\mathrm{sky}}$ is
-the original subtracted sky background (if any), $\sigma_{\mathrm{rdn}}$ is
-the read noise (in electrons), $N_{\mathrm{c}}$ is the number of separate images combined
-(averaged or median) to
-form the data image, and $g_{\mathrm{eff}}$ is the ``effective gain'' (the
-product of the $A/D$ gain,  $N_{\mathrm{c}}$, and optionally the exposure
-time, if the image units are counts/pixel). As an alternative, the \textit{model}
-intensity values $I_{m, i}$ can be used instead of $I_{d, i}$, by specifying
-the \texttt{--model-errors} command-line flag. This is marginally slower (since
-the weights must be recalculated every time the model image is updated), but
-can lead to smaller biases in fitted parameters \citep[see][]{humphrey09,erwin14}.
+where $I_{d, i}$ is the data intensity in counts/pixel,
+$I_{\mathrm{sky}}$ is the original subtracted sky background (if any),
+$\sigma_{\mathrm{rdn}}$ is the read noise (in electrons),
+$N_{\mathrm{c}}$ is the number of separate images combined (averaged or
+median) to form the data image, and $g_{\mathrm{eff}}$ is the
+``effective gain'' (the product of the $A/D$ gain,  $N_{\mathrm{c}}$,
+and optionally the exposure time, if the pixel units are counts/sec).
+As an alternative, the \textit{model} intensity values $I_{m, i}$ can be
+used instead of $I_{d, i}$, by specifying the \texttt{--model-errors}
+command-line flag. This is marginally slower (since the weights must be
+recalculated every time the model image is updated), but can lead to
+smaller biases in fitted parameters \citep[see][]{humphrey09,erwin14}.
 
-The weights are then used
-in the \chisquare{} calculation, summing over all $N$ pixels:
+The weights are then used in the \chisquare{} calculation:
 \begin{equation}
 \chisquare \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{m, i} - I_{d, i})^2 ,
 \end{equation}
@@ -1042,6 +1044,26 @@ that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via t
 image is supplied, the weights of masked pixels will still be set to 0,
 regardless of their individual values in the weight image.)
 
+In the case of minimizing the Cash statistic $C$ (or the modified Cash statistic 
+$C_{\mathrm{mod}}$), the only relevant external maps are masks. For the standard 
+Cash statistic $C$, the actual minimized quantity is:
+\begin{equation}
+C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I^{\prime}_{m, i} \, - \, I^{\prime}_{d, i} \ln I^{\prime}_{m, i}),
+\end{equation}
+where $I^{\prime}_{m, i}$ and $I^{\prime}_{d, i}$ are the model and data
+intensities in counts/pixel, multiplied by the effective gain $g_{\mathrm{eff}}$ as defined 
+above.  In this case, all weights are automatically $=1$, except for masked pixels, which 
+are still set $= 0$. (Note that any attempt to specify the read noise is ignored, since 
+Gaussian noise terms cannot be
+accommodated in the Cash-statistic computation; see, e.g., \citealt{erwin14}.)
+
+The ``modified'' \textit{modified} Cash statistic $C_{\mathrm{mod}}$ includes extra terms 
+based on the data values:
+\begin{equation}
+C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
+\left( I^{\prime}_{m, i} - I^{\prime}_{d, i} \ln I^{\prime}_{m, i} + I^{\prime}_{d, i} \ln I^{\prime}_{d, i} - I^{\prime}_{d, i} \right).
+\end{equation}
+
 Note that \imfit{} does \textit{not} try to obtain information (such as
 the A/D gain or read noise) from the \textsc{fits} header of an image. This is primarily
 because there is little consistency in header names across the wide range of
@@ -1049,20 +1071,7 @@ astronomical images, so it is difficult pick one name, or even a small set, and
 assume that it will be present in a given image's header; this is even more
 true if an image is the result of a simulation.
 
-If the user has specified the Cash statistic $C$ instead of \chisquare, the
-minimization uses
-\begin{equation}
-C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I^{\prime}_{m, i} \, - \, I^{\prime}_{d, i} \ln I^{\prime}_{m, i}),
-\end{equation}
-where $I^{\prime}_{m, i}$ and $I^{\prime}_{d, i}$ are the model and data
-intensities in counts/pixel, multiplied by the effective gain $g_{\mathrm{eff}}$ as defined above. 
-In this case, all weights are automatically $=1$, except for masked pixels, which are still set $= 0$.
-If the \textit{modified} Cash statistic $C_{\mathrm{mod}}$ is specified, then the
-following is minimized:
-\begin{equation}
-C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
-\left( I^{\prime}_{m, i} - I^{\prime}_{d, i} \ln I^{\prime}_{m, i} + I^{\prime}_{d, i} \ln I^{\prime}_{d, i} - I^{\prime}_{d, i} \right).
-\end{equation}
+
 
 
 \section{PSF Convolution}
@@ -1087,12 +1096,64 @@ slow things down considerably.
 
 \chapter{What Gets Minimized During a Fit, and How to Minimize It}
 
-\section{Fit Statistic Options: \chisquare{} or Cash Statistics}
+\section{Fit Statistic Options: \chisquare{} or Cash Statistics}\label{sec:fit-statistics}
 
-TBD.
+\Imfit's default behavior is to minimize the total \chisquare{} for the model. This
+is defined by computing the sum over individual pixels $i$:
+\begin{equation}
+\chisquare \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{m, i} - I_{d, i})^2 ,
+\end{equation}
+where $N$ is the total number of pixels, $I_{m, i}$ and $I_{d, i}$ are the model and data intensities
+for the individual pixels, and $w_{i}$ are per-pixel weights. These weights can be
+supplied directly by the user in a weight map, but normally they are derived from the
+dispersions $\sigma_{i}$ of the per-pixel Gaussian errors:
+\begin{equation}
+w_{i} \; = \; 1/\sigma_{i}^{2} .
+\end{equation}
+
+There are three possible sources for the $\sigma_{i}$ values. The
+default approach is to estimate them from the data values, assuming that
+the counts per pixel follow the Gaussian approximation of Poisson
+statistics, so that $\sigma_{i} = \sqrt{I_{d,i}}$. An alternate method
+is to use the \textit{model} values (via the \texttt{--model-errors}
+flag) instead: $\sigma_{i} = \sqrt{I_{m,i}}$. Finally, the user can
+supply a ``noise'' image (via the \texttt{--noise} option) which
+specifies the individual $\sigma_{i}$ (or $\sigma_{i}^{2}$) values
+directly.
+
+An arguably more accurate approach -- especially in the regime of low counts per pixel,
+as is often the case for, e.g., X-ray images -- is to minimize a maximum likelihood 
+statistic based directly on Poisson statistics (rather than Gaussian approximation thereof). 
+This involves computing the (standard) Cash statistic $C$:
+\begin{equation}
+C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I_{m, i} \, - \, I_{d, i} \ln I_{m, i}) .
+\end{equation}
+In this case, all weights are automatically $=1$, except for masked pixels, which are still set $= 0$.
+Specifying the Cash statistic is done with the \texttt{--cashstat} command-line flag.
+A drawback of the standard Cash statistic is that it \textit{cannot} be minimized with the
+Levenberg-Marquardt algorithm, since the latter assumes that all terms in the summation are
+$\ge 0$, which is usually not true for the Cash statistic.  Fortunately, there is also the 
+\textit{modified} Cash statistic $C_{\mathrm{mod}}$, which differs by including extra terms 
+based on the data values:
+\begin{equation}
+C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
+\left( I_{m, i} - I_{d, i} \ln I_{m, i} + I_{d, i} \ln I_{d, i} - I_{d, i} \right).
+\end{equation}
+Since the extra terms do not depend on the model values, they remain unchanged during
+the minimization and do not affect it. However, they have
+the key advantage of ensuring that all individual-pixel values are always $\ge 0$, which
+makes it possible to use the Levenberg-Marquardt algorithm to minimize $C_{\mathrm{mod}}$.
+Use of $C_{\mathrm{mod}}$ is done via the \texttt{--modcash} flag.
+
+(See Section~\ref{sec:noise-maps} above for more details on how the data
+and model intensities, $\sigma_{i}$ values, and weights are actually
+calculated, including contributions from previously-subtracted
+backgrounds, A/D gain, Gaussian read noise, and combination with masks.)
 
 
-\section{Minimization Options: Levenberg-Marquardt, Differential Evolution, Nelder-Mead Simplex}
+
+
+\section{Minimization Options: Levenberg-Marquardt, Nelder-Mead Simplex, Differential Evolution}
 
 The default method for \chisquare{} (or $C_{\mathrm{mod}}$) minimization
 used by \imfit{} is the Levenberg-Marquardt algorithm, based on the
@@ -1116,9 +1177,10 @@ significantly faster than Differential Evolution (below). Like the
 Levenberg-Marquardt method, it does require an initial guess for the
 parameter values, but is considered less likely to become trapped in
 local minima in the fit-statistic landscape. Unlike the L-M algorithm,
-it can be used for minimizing $C$ (as well as \chisquare{} and $C_{\mathrm{mod}}$). If
-you compile \imfit{} from source and want to use this algorithm, you
-need to have the NLopt library installed on your system.
+it can be used for minimizing $C$ (as well as \chisquare{} and
+$C_{\mathrm{mod}}$). If you compile \imfit{} from source and want to use
+this algorithm, you need to have the NLopt library installed on your
+system.
 
 The second alternate algorithm is available via the \texttt{--de} flag.
 This minimizes the fit-statistic using Differential Evolution (DE)
@@ -1134,14 +1196,15 @@ has the advantage of being the least likely (at least in principle) of
 being trapped in local minima in the fit-statistic landscape; it also
 does \textit{not} require an initial guess for the parameter values.
 
-The Differential Evolution algorithm does, however, \textit{require} lower and upper
-limits for \textit{all} parameters in the configuration file (see
-Section~\ref{sec:param-limits}); this is because DE generates parameter-value
-``genomes'' by random uniform sampling from within the ranges specified by the
-parameter limits. The format of the configuration file still requires that
-initial-guess values be present for all parameters as well, but these are
-actually ignored by the DE algorithm. (This is to ensure that the same
-configuration file can be used with all minimization routines.)
+The Differential Evolution algorithm does, however, \textit{require}
+lower and upper limits for \textit{all} parameters in the configuration
+file (see Section~\ref{sec:param-limits}); this is because DE generates
+parameter-value ``genomes'' by random uniform sampling from within the
+ranges specified by the parameter limits. The format of the
+configuration file still requires that initial-guess values be present
+for all parameters as well, but these are actually ignored by the DE
+algorithm. (This is to ensure that the same configuration file can be
+used with all minimization routines.)
 
 
 \medskip
@@ -1188,6 +1251,8 @@ parameters).
 TBD: info about extra stopping conditions for the L-M and N-M simplex algorithms
 
 
+
+
 \chapter{Outputs}
 
 \section{Main Outputs}
@@ -1224,10 +1289,10 @@ measures of the fit are also printed: the Akaike Information Criterion
 The latter two are included on a provisional basis; they are, in
 principle, useful for comparing different models fit to the same data.
 
-By default, no model or residual (image $-$ model) images are saved, but the
-command-line options \texttt{--save-model} and \texttt{save-residual} can be used
-to specify output names for those images, and corresponding \textsc{fits} files will be saved
-to disk.
+By default, no model or residual (image $-$ model) images are saved, but
+the command-line options \texttt{--save-model} and
+\texttt{save-residual} can be used to specify output names for those
+images, and corresponding \textsc{fits} files will be saved to disk.
 
 TBD.
 
@@ -1250,10 +1315,10 @@ uncertainty.
 The other fitting algorithms used by \imfit{} do not compute gradients
 in the fit landscape, and so they do not produce automatic uncertainty
 estimates. Although one could certainly take the solution of a
-\chisquare{} fit done with the N-M simplex or DE algorithms and use it
-as input to a L-M run of \imfit, thus generating L-M--based
-uncertainties, this is not possible when using the standard Cash
-statistic $C$.
+\chisquare{} or $C_{\mathrm{mod}}$ fit done with the N-M simplex or DE
+algorithms and use it as input to a L-M run of \imfit, thus generating
+L-M--based uncertainties, this is not possible when using the standard
+Cash statistic $C$.
 
 As an alternative to the L-M uncertainty estimates -- and as a method
 for estimating uncertainties in the case of standard Cash-statistic
@@ -2232,11 +2297,11 @@ Major inspirations for \Imfit{} include both \textsc{galfit} \citep{peng02,peng1
 
 Thanks also to Michael Opitsch and Michael Williams for being (partly
 unwitting) beta testers and for their feedback, to Martin Kuemmel for
-suggesting an improvement (and finding a related bug), to Roberto Saglia
+suggesting an early improvement (and finding a related bug), to Roberto Saglia
 for urging me to implement the Core-S{\'e}rsic function, and to
 Maximilian Fabricius for suggesting improvements to the documentation.
 Additional bug reports and suggestions from Andr{\'e} Luiz de Amorim,
-Giulia Savorgnan, Guillermo Barro, and Sergio Pascual are gratefully
+Giulia Savorgnan, David Streich, Guillermo Barro, and Sergio Pascual are gratefully
 appreciated.
 
 
