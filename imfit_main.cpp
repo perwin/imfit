@@ -265,7 +265,6 @@ int main(int argc, char *argv[])
   progNameVersion += VERSION_STRING;
   
   
-<<<<<<< local
   /* Process the command line */
   /* First, set up the options structure: */
   options.configFileName = DEFAULT_CONFIG_FILE;
