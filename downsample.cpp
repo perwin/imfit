@@ -39,13 +39,14 @@
 // into the main image.
 // We assume the following about the images:
 //    Oversampled image (oversampledImage): nOversampCols x nOversampRows in total
-// size, with padding for (oversampled) PSF-convolution specified by nOversampPSFCols 
-// and nOversampPSFRows;
-//    Main image (mainImage): nMainCols x nMainRows in total size,
-// with padding for (oversampled) PSF-convolution specified by nMainPSFCols 
-// and nMainPSFRows;
+// size, with assumed padding for (oversampled) PSF-convolution specified by 
+// nOversampPSFCols and nOversampPSFRows.
+//    Main image (mainImage): nMainCols x nMainRows in total size, with assumed padding 
+// for (standard) PSF-convolution specified by nMainPSFCols and nMainPSFRows.
 //    Target sub-region within mainImage is specified by 1-based coordinates 
-// (x,y) = startX,startY
+// (x,y) = startX,startY, where (x,y) = (1,1) is the lower-left pixel of the *data*
+// image; this same pixel is at (i,j) = (1 + nMainPSFCols, 1 + nMainPSFRows) within
+// the full (PSF-padded) mainImage.
 //    Oversampling scale (oversampleScale) specifies the 1D oversampling, so that
 // each main-size pixel in the sub-region corresponds to oversampleScale x oversampleScale
 // subpixels (i.e., pixels in oversampledImage)

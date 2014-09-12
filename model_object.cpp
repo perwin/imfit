@@ -136,7 +136,9 @@ ModelObject::ModelObject( )
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
   ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
   
-  nPSFRows = nPSFColumns = 0;
+  nDataColumns = nDataRows = 0;
+  nModelColumns = nModelRows = 0;
+  nPSFColumns = nPSFRows = 0;
 }
 
 
@@ -548,7 +550,7 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 // It *also* allocates space for the oversampled model sub-image vector.
 //    This function *must* be called *after* SetupModelImage() [or after AddImageDataVector(),
 // which itself calls SetupModelImage()], otherwise the necessary information about the 
-// size of the main model image (nDataColumns, nDataRows) will not be known.
+// size of the main model image (nModelColumns, nModelRows) will not be known.
 void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf, 
 						int nRows_psf, double *psfPixels_osamp, int oversampleScale,
 						int x1, int x2, int y1, int y2 )
@@ -558,9 +560,10 @@ void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
   
   assert( (nPixels >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
   assert( (oversampleScale >= 1) );
+  // assertion to check that nModelColumns and nModelRows *have* been set to good values
+  assert( (nModelColumns > 0) && (nModelRows > 0));
 
-  // restrict region to be oversampled (in data or output image) to lie within
-  // image bounds
+  // restrict region to be oversampled (in data or output image) to lie within image bounds
   if (x1 < 1)
     x1 = 1;
   if (y1 < 1)
@@ -589,7 +592,7 @@ void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
   // Allocate OversampledRegion object and give it necessary info
   oversampledRegion = new OversampledRegion();
   oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
-  oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nDataColumns, nDataRows, 
+  oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
   									nPSFColumns, nPSFRows, oversamplingScale);
   oversampledRegionAllocated = true;
 }
@@ -768,20 +771,8 @@ void ModelObject::CreateModelImage( double params[] )
     psfConvolver->ConvolveImage(modelVector);
   
   // Optional generation of oversampled sub-image and convolution with oversampled PSF
-  if (oversampledRegionsExist) {
+  if (oversampledRegionsExist)
     oversampledRegion->ComputeRegionAndDownsample(modelVector, functionObjects, nFunctions);
-    
-    // Generate oversampled sub-image
-    
-    // Convolve with oversampled PSF
-    //psfConvolver_osamp->ConvolveImage(oversampledModelVector);
-    
-    // Downsample to original resolution and copy into main model image
-    //   1. Step through pixels of replacement region in main model image
-    //   2. For each such pixel, integrate over corresponding oversamplingScale x oversamplingScale
-    //      pixels in oversampledModelVector
-    
-  }
   
   modelImageComputed = true;
 }

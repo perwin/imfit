@@ -253,7 +253,7 @@ int main( int argc, char *argv[] )
       exit(-1);
     }
     if (! options.oversampleRegionSet) {
-      fprintf(stderr, "\n*** ERROR: the oversampling region was not defined!\n\n");
+      fprintf(stderr, "\n*** ERROR: the oversampling region within the main image was not defined!\n\n");
       exit(-1);
     }
     printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());
