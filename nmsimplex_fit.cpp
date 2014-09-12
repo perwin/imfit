@@ -103,7 +103,7 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
     }
   }
   
-  if isnan(fitStatistic) {
+  if (isnan(fitStatistic)) {
     fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
     fprintf(stderr, "*** Terminating the fit...\n");
     junk = nlopt_force_stop(optimizer);
@@ -117,7 +117,6 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
 void InterpretResult( nlopt_result  resultValue )
 {
   string  description;
-  string  returnVal_str;
   ostringstream converter;   // stream used for the conversion
   
   description = "Nelder-Mead Simplex status = ";

@@ -177,7 +177,7 @@ QUESTIONS AND ISSUES:
 		more possible exceptions]
 
 
-	[] Generation of PSFs
+	[ ] Generation of PSFs
 		-- mode where user specifies an extra config file which describes a PSF
 		image (e.g., Gaussian, or Moffat fn., or anything that makeimage can handle)
 		-- create a temporary ModelObject instance to generate the PSF image,
@@ -188,7 +188,7 @@ QUESTIONS AND ISSUES:
 		with X0,Y0 in image center
 
 
-	[] Option to do convolution on oversampled grid around object center?
+	[ ] Option to do convolution on oversampled grid around object center?
 		-- e.g., in 10x10 grid around object center, oversample object *and* PSF,
 		do convolution using oversampled image, then resample to input scaling
 		and past into main image.
@@ -324,6 +324,29 @@ in SetupModelImage:
 		like separate x-coordinate and y-value vectors, possible missing data;
 		convolution (e.g., we need to handle special cases like excluded data,
 		data profile that starts at r=0, etc.)
+
+
+	[] Gain maps?
+	-- How would we handle the case of a mosaic image, where some pixels have
+	more exposure depth than others? Usually a "weight map" is produced, though
+	the units of this are obscure. (Also, weight map tells you nothing about
+	flux-based errors: the center of a bright star in a low-weight region should
+	still have larger sigma than a background-sky high-weight region.)
+	For chi^2, one could conceivably make do with a sigma or variance map
+	
+	For Cash statistic, this doesn't work -- how can we recover proper Cash-statistic
+	"weighting" in this case?
+	
+	Think of each pixel as a completely separate observation: effective gain from
+	instrumental gain, cumulative exposure time, etc.
+	Assume a mosaic image has been scaled to a common level. "Effective gain" then
+	varies from pixel to pixel (or at least between regions of different
+	exposure
+
+	low-weight pixel (w=1):  10 (original counts = 10)
+		multiply data and model values for this pixel by 1 for Cash-stat
+	high-weight pixel (w=3): 10 (original counts = 30)
+		multiply data and model values for this pixel by 3 for Cash-stat
 	
 	
 	

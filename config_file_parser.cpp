@@ -251,7 +251,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
                      configOptions& configFileOptions )
 {
   ifstream  inputFileStream;
-  string  inputLine, currentLine;
+  string  inputLine;
   vector<string>  inputLines;
   vector<string>  stringPieces;
   vector<int>  origLineNumbers;
@@ -356,7 +356,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
                     configOptions& configFileOptions )
 {
   ifstream  inputFileStream;
-  string  inputLine, currentLine;
+  string  inputLine;
   vector<string>  inputLines;
   vector<string>  stringPieces;
   vector<int>  origLineNumbers;

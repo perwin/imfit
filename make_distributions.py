@@ -51,6 +51,7 @@ misc_required_files = """
 COPYING.txt
 DISCLAIMER
 README.txt
+CHANGELOG.md
 """
 
 source_header_files = """
