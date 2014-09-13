@@ -41,7 +41,6 @@
 #include "func_gen-exp.h"
 #include "func_gen-sersic.h"
 #include "func_core-sersic.h"
-//#include "func_flat-exp.h"
 #include "func_broken-exp.h"
 #include "func_broken-exp2d.h"
 #include "func_edge-on-ring.h"
@@ -60,7 +59,6 @@
 
 // extra functions
 #ifdef USE_EXTRA_FUNCS
-//#include "func_expdisk3dv2.h"
 #include "func_broken-exp-bar.h"
 #include "func_brokenexpbar3d.h"
 #include "func_boxytest3d.h"
@@ -200,19 +198,19 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &FunctionBlockIndices, bool subsamplingFlag )
+                  vector<int> &FunctionBlockIndices, bool subsamplingFlag, int verboseLevel )
 {
   int  nFunctions = functionNameList.size();
   string  currentName;
   FunctionObject  *thisFunctionObj;
   map<string, factory*>  factory_map;
-//  vector<string> factory_map_names;
 
   PopulateFactoryMap(factory_map);
 
   for (int i = 0; i < nFunctions; i++) {
     currentName = functionNameList[i];
-    printf("Function: %s\n", currentName.c_str());
+    if (verboseLevel >= 0)
+      printf("Function: %s\n", currentName.c_str());
     if (factory_map.count(currentName) < 1) {
       fprintf(stderr, "*** AddFunctions: unidentified function name (\"%s\")\n", currentName.c_str());
       return -1;
@@ -288,7 +286,6 @@ void ListFunctionParameters( )
 
   printf("\nAvailable function/components:\n");
   for (w = factory_map.begin(); w != factory_map.end(); w++) {
-//    printf("%s, ", w->first.c_str());
     thisFunctionObj = w->second->create();
     currentName = thisFunctionObj->GetShortName();
     printf("\nFUNCTION %s\n", currentName.c_str());

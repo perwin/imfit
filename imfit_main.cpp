@@ -469,7 +469,8 @@ int main(int argc, char *argv[])
     theModel->SetMaxThreads(options.maxThreads);
 
   /* Add functions to the model object */
-  status = AddFunctions(theModel, functionList, FunctionBlockIndices, options.subsamplingFlag);
+  status = AddFunctions(theModel, functionList, FunctionBlockIndices, 
+  						options.subsamplingFlag, options.verbose);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
