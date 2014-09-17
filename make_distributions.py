@@ -215,6 +215,7 @@ config_makeimage_gensersic512.dat
 config_makeimage_sersic+exp512.dat
 config_makeimage_sersic+exp512_nosize.dat
 psf_moffat_35.fits
+makeimage_textout0
 makeimage_textout1
 makeimage_textout2
 makeimage_textout3

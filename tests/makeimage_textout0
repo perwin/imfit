@@ -1,0 +1,23 @@
+
+Available function/components:
+
+BrokenExponential
+BrokenExponential2D
+BrokenExponentialDisk3D
+Core-Sersic
+EdgeOnDisk
+EdgeOnRing
+EdgeOnRing2Side
+Exponential
+ExponentialDisk3D
+Exponential_GenEllipse
+FlatSky
+Gaussian
+GaussianRing
+GaussianRing2Side
+GaussianRing3D
+Moffat
+Sersic
+Sersic_GenEllipse
+
+
