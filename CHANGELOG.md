@@ -1,8 +1,9 @@
 # Change Log for Imfit
-All notable changes to this project will be documented in this file.
-(Based on Olivier Lacan's http://keepachangelog.com/)
 
-## 1.1 -- 2014-mm-dd
+(Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
+
+
+## 1.1 -- 2014-09-dd
 ### Added:
 - New version of Cash statistic for minimization ("modified Cash statistic", via
 --modcash flag) which is always >= 0, and can thus be used with Levenberg-Marquardt
@@ -13,12 +14,14 @@ Streich for pointing out this possibility.
 each bootstrap iteration) can now be saved to a text file for later analysis,
 via the --save-bootstrap option. (Thanks to David Streich for suggesting this.)
 
-- Extra minimization algorithms from the NLopt library, specified via the
---nlopt command-line option (basically, this includes all the "local derivative-free
-optimization" algorithms from NLopt; see this web page for more details:
-http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms). The Nelder-Mead
-simplex algorithm is of course still available via its usual flag (--nm), and
-is probably the best of all the NLopt algorithms for general image-fitting.
+- Extra minimization algorithms from the NLopt library, specified via
+the --nlopt command-line option (basically, this includes all the "local
+derivative-free optimization" algorithms from NLopt; see
+[http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms](http://ab-
+initio.mit.edu/wiki/index.php/NLopt_Algorithms) for more details). The
+Nelder-Mead simplex algorithm is of course still available via its usual
+flag (--nm), and is probably the best of all the NLopt algorithms for
+general image-fitting.
 
 - Command-line flag --fitstat-only, which is a synonym for --chisquare-only.
 
@@ -70,7 +73,7 @@ means that subsequent fits using DE on the same input will no longer
 produce exactly the same output parameters
 
 - Fitting small images (e.g., <~ 200 x 200 pixels) on systems with many
-cores (e.g., > 8 cores) is now significantly faster; thanks to André
+(e.g., > 8) cores is now significantly faster; thanks to André
 Luiz de Amorim for investigating this & figuring out how to make it
 happen.
 
@@ -109,4 +112,4 @@ code for NLopt (thanks to Giulia Savorgnan for spotting this problem).
 
 
 ## 1.0 -- 2013-11-06
-Initial public release of version 1.0
+Initial public release.

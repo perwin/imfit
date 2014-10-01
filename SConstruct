@@ -25,7 +25,7 @@
 # To build a version using non-default compiler:
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
-#    $ scons cc=gcc-4.8 c++=g++-4.8 <target-name>
+#    $ scons --cc=gcc-4.8 --cpp=g++-4.8 <target-name>
 # shorthand for the previous case (GCC 4.8 only)
 #    $ scons --use-gcc <target-name>
 #
@@ -569,9 +569,9 @@ psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 
 
 # test_commandline: put all the object and source-code lists together
-test_commandline_objs = ["test_commandline_parser", "anyoption", 
-			"commandline_parser", "utilities"]
-test_commandline_sources = [name + ".cpp" for name in test_commandline_objs]
+# test_commandline_objs = ["test_commandline_parser", "anyoption", 
+# 			"commandline_parser", "utilities"]
+# test_commandline_sources = [name + ".cpp" for name in test_commandline_objs]
 
 
 # source+obj lists for older or less-used programs:
@@ -616,8 +616,8 @@ env_opt.Program("timing", timing_sources)
 
 
 # test harnesses, etc.:
-test_commandline_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(test_commandline_objs, test_commandline_sources) ]
-env_debug.Program("test_commandline", test_commandline_objlist)
+# test_commandline_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(test_commandline_objs, test_commandline_sources) ]
+# env_debug.Program("test_commandline", test_commandline_objlist)
 
 # older programs
 # env_opt.Program("readimage", readimage_sources)

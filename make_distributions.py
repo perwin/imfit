@@ -11,6 +11,9 @@ LINUX_DEST = "/media/sf_vbox_shared/"
 MAC_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/"
 MAC_DEST_BIN = "/Users/erwin/Documents/Working/web site/code/imfit/binaries/"
 
+MAC_CHANGELOG_MD = "CHANGELOG.md"
+MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/CHANGELOG.html"
+
 VERSION_STRING = "1.1"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
@@ -333,6 +336,8 @@ def MakeSourceDist( ):
 	
 	print("Copying gzipped tar file %s to %s..." % (SOURCE_TARFILE, SOURCE_COPY_DEST_DIR))
 	shutil.copy(SOURCE_TARFILE, SOURCE_COPY_DEST_DIR)
+	print("Generating HTML version of CHANGELOG.md and copying to %s..." % (MAC_CHANGELOG_DEST))
+	markdown.markdownFromFile(input=MAC_CHANGELOG_MD, output=MAC_CHANGELOG_DEST)
 
 
 
