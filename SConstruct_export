@@ -25,7 +25,7 @@
 # To build a version using non-default compiler:
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
-#    $ scons cc=gcc-4.8 c++=g++-4.8 <target-name>
+#    $ scons --cc=gcc-4.8 --cpp=g++-4.8 <target-name>
 # shorthand for the previous case (GCC 4.8 only)
 #    $ scons --use-gcc <target-name>
 #

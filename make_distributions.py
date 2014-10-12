@@ -3,6 +3,7 @@
 # script for generating distribution tarballs
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
+import markdown
 
 # where to copy binary (or source) tarballs when completed (specialized for
 # Linux virtual machines on MacBook Pro and local web-site directory for Mac
