@@ -82,9 +82,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.1rc1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.1rc1"
+#define VERSION_STRING      "1.1"
 #endif
 
 
@@ -122,7 +122,7 @@ typedef struct {
   bool  originalSkySet;
   bool  useModelForErrors;
   bool  useCashStatistic;
-  bool  useModifiedCashStatistic;
+  bool  usePoissonMLR;
   double  ftol;
   bool  ftolSet;
 //  char  modelName[MAXLINE];
@@ -191,7 +191,7 @@ void SetDefaultOptions( commandOptions *theOptions )
   theOptions->originalSkySet = false;
   theOptions->useModelForErrors = false;
   theOptions->useCashStatistic = false;
-  theOptions->useModifiedCashStatistic = false;
+  theOptions->usePoissonMLR = false;
   theOptions->ftol = DEFAULT_FTOL;
   theOptions->ftolSet = false;
   theOptions->magZeroPoint = NO_MAGNITUDES;
@@ -241,13 +241,14 @@ int main(int argc, char *argv[])
   bool  parameterInfo_allocated = false;
   bool  allFilesPresent;
   mp_par  *parameterInfo;
-  int  status;
+  int  status, nSucessfulIterations;
   vector<string>  imageCommentsList;
   commandOptions  options;
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
   string  progNameVersion = "imfit ";
+  FILE  *bootstrapSaveFile_ptr = NULL;
 
   progNameVersion += VERSION_STRING;
   
@@ -438,8 +439,8 @@ int main(int argc, char *argv[])
     }
     theModel->UseCashStatistic();
   } 
-  else if (options.useModifiedCashStatistic) {
-    theModel->UseModifiedCashStatistic();
+  else if (options.usePoissonMLR) {
+    theModel->UsePoissonMLR();
   }
   else {
     // normal chi^2 statistics, so we either add error/noise image, or calculate it
@@ -528,9 +529,9 @@ int main(int argc, char *argv[])
     // DO THE FIT!
     printf("\nPerforming fit by minimizing ");
     if (options.useCashStatistic)
-      printf("standard Cash statistic:\n");
-    else if (options.useModifiedCashStatistic)
-      printf("modified Cash statistic:\n");
+      printf("Cash statistic:\n");
+    else if (options.usePoissonMLR)
+      printf("Poisson MLR statistic:\n");
     else if (options.useModelForErrors)
       printf("chi^2 (model-based errors):\n");
     else
@@ -573,42 +574,50 @@ int main(int argc, char *argv[])
   // Optional bootstrap resampling
 
   if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
-    double **bootstrapParamsArray = NULL;
+//    double **bootstrapParamsArray = NULL;
     if (options.outputBootstrapFileName.length() > 0) {
-      saveBootstrapResults = true;
+      bootstrapSaveFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");
+      // write general info + best-fitting params as a commented-out header
+      SaveParameters2(bootstrapSaveFile_ptr, paramsVect, theModel, parameterInfo, progNameVersion, 
+      				argc, argv, "#");
+//      saveBootstrapResults = true;
       // Allocate 2D array to hold bootstrap results for each parameter
-      bootstrapParamsArray = (double **)calloc( (size_t)nParamsTot, sizeof(double *) );
-      for (int i = 0; i < nParamsTot; i++)
-        bootstrapParamsArray[i] = (double *)calloc( (size_t)options.bootstrapIterations, sizeof(double) );
+//       bootstrapParamsArray = (double **)calloc( (size_t)nParamsTot, sizeof(double *) );
+//       for (int i = 0; i < nParamsTot; i++)
+//         bootstrapParamsArray[i] = (double *)calloc( (size_t)options.bootstrapIterations, sizeof(double) );
     }
     
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
-    BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel, options.ftol,
-                    options.bootstrapIterations, nFreeParams, theModel->WhichFitStatistic(),
-                    bootstrapParamsArray);
-    
+    nSucessfulIterations = BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, 
+    									theModel, options.ftol, options.bootstrapIterations, 
+    									nFreeParams, theModel->WhichFitStatistic(), 
+    									bootstrapSaveFile_ptr);
+//  int BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
+// 					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
+// 					int whichStatistic, FILE *outputFile_ptr );
+   
     // Save all generated parameter values to file, if user requested it
-    if (saveBootstrapResults) {
-      printf("Writing bootstrap parameter values to file %s...\n", options.outputBootstrapFileName.c_str());
-      FILE *outputFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");
-      // write general info + best-fitting params as a commented-out header
-      SaveParameters2(outputFile_ptr, paramsVect, theModel, parameterInfo, progNameVersion, 
-      				argc, argv, "#");
-      // get & write column-titles header
-      string  headerLine = theModel->GetParamHeader();
-      fprintf(outputFile_ptr, "#\n# Bootstrap resampling output (%d iterations):\n%s\n", 
-      			options.bootstrapIterations, headerLine.c_str());
-      for (int nIter = 0; nIter < options.bootstrapIterations; nIter++) {
-        for (int i = 0; i < nParamsTot; i++)
-          fprintf(outputFile_ptr, "%f\t\t", bootstrapParamsArray[i][nIter]);
-        fprintf(outputFile_ptr, "\n");
-      }
-      fclose(outputFile_ptr);
-      for (int i = 0; i < nParamsTot; i++)
-        free(bootstrapParamsArray[i]);
-      free(bootstrapParamsArray);
-    }
+//     if (saveBootstrapResults) {
+//       printf("Writing bootstrap parameter values to file %s...\n", options.outputBootstrapFileName.c_str());
+//       FILE *outputFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");
+//       // write general info + best-fitting params as a commented-out header
+//       SaveParameters2(outputFile_ptr, paramsVect, theModel, parameterInfo, progNameVersion, 
+//       				argc, argv, "#");
+//       // get & write column-titles header
+//       string  headerLine = theModel->GetParamHeader();
+//       fprintf(outputFile_ptr, "#\n# Bootstrap resampling output (%d iterations):\n%s\n", 
+//       			options.bootstrapIterations, headerLine.c_str());
+//       for (int nIter = 0; nIter < options.bootstrapIterations; nIter++) {
+//         for (int i = 0; i < nParamsTot; i++)
+//           fprintf(outputFile_ptr, "%f\t\t", bootstrapParamsArray[i][nIter]);
+//         fprintf(outputFile_ptr, "\n");
+//       }
+//       fclose(outputFile_ptr);
+//       for (int i = 0; i < nParamsTot; i++)
+//         free(bootstrapParamsArray[i]);
+//       free(bootstrapParamsArray);
+//     }
 
   }
 
@@ -708,8 +717,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --mask-zero-is-bad       Indicates that zero values in mask = *bad* pixels");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --model-errors           Use model values (instead of data) to estimate errors for chi^2 computation");
-  optParser->AddUsageLine("     --cashstat               Use standard Cash statistic instead of chi^2");
-  optParser->AddUsageLine("     --modcash                Use modified Cash statistic instead of chi^2");
+  optParser->AddUsageLine("     --cashstat               Use Cash statistic instead of chi^2");
+  optParser->AddUsageLine("     --poisson-mlr            Use Poisson maximum-likelihood-ratio statistic instead of chi^2");
+  optParser->AddUsageLine("     --mlr                    Same as --poisson-mlr");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in fit statistic for convergence [default = 1.0e-8]");
 #ifndef NO_NLOPT
   optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver (instead of L-M)");
@@ -747,7 +757,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("nosubsampling");
   optParser->AddFlag("model-errors");
   optParser->AddFlag("cashstat");
-  optParser->AddFlag("modcash");
+  optParser->AddFlag("poisson-mlr");
+  optParser->AddFlag("mlr");
 #ifndef NO_NLOPT
   optParser->AddFlag("nm");
   optParser->AddOption("nlopt");
@@ -836,9 +847,9 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   	printf("\t* Using standard Cash statistic instead of chi^2 for minimization!\n");
   	theOptions->useCashStatistic = true;
   }
-  if (optParser->FlagSet("modcash")) {
-  	printf("\t* Using modified Cash statistic instead of chi^2 for minimization!\n");
-  	theOptions->useModifiedCashStatistic = true;
+  if ( (optParser->FlagSet("poisson-mlr")) || (optParser->FlagSet("mlr")) ) {
+  	printf("\t* Using Poisson maximum-likelihood-ratio statistic instead of chi^2 for minimization!\n");
+  	theOptions->usePoissonMLR = true;
   }
 #ifndef NO_NLOPT
   if (optParser->FlagSet("nm")) {

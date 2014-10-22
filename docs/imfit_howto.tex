@@ -91,15 +91,15 @@
 
 \chapter{What Is It?}
 
-\Imfit{} is a program for fitting astronomical images --- 
-specifically, for fitting images of galaxies, though it could certainly
-be used for fitting other sources. The user specifies a set of one or
-more 2D surface-brightness functions (e.g., elliptical exponential, elliptical S\'ersic,
-circular Gaussian) which will be added together in order to generate a
-model image; this model image will then be matched to the input image by
-adjusting the 2D function parameters via nonlinear minimization of the total
-\chisquare{} (or of the total Cash statistic in the alternate case of Poisson
-statistics).
+\Imfit{} is a program for fitting astronomical images --- specifically,
+for fitting images of galaxies, though it could certainly be used for
+fitting other sources. The user specifies a set of one or more 2D
+surface-brightness functions (e.g., elliptical exponential, elliptical
+S\'ersic, circular Gaussian) which will be added together in order to
+generate a model image; this model image will then be matched to the
+input image by adjusting the 2D function parameters via nonlinear
+minimization of the total \chisquare{} (or of the total Cash or
+Poisson-MLR statistics in the alternate case of Poisson statistics).
 
 The 2D functions can be grouped into arbitrary sets sharing a common $(x,y)$
 position on the image plane; this allows galaxies with off-center components
@@ -520,22 +520,22 @@ noise map are assumed to be Gaussian sigma values).
 map are variances (sigma$^2$) instead of sigmas.
 \item \texttt{--errors-are-weights} --- indicates that pixel values in the noise
 map should be interpreted as weights, not as sigmas or variances. (None
-of these three options are usable with Cash statistic minimization.)
+of these three options are usable with Cash statistic or Poisson-MLR statistic minimization.)
 
 \bigskip
 
 \item \texttt{--sky} \textit{sky-level} --- specifies an original constant sky background
 level (in counts/pixel) that was subtracted from the image; used for internal
 computation of the noise map (for \chisquare{} minimization) or for correcting the 
-Cash statistic computation. (If the units of the pixel values are counts/sec, then the sky level
-should also be in those units, and you should use the ``\texttt{--exptime}'' option
-to specify the original exposure time.)
+Cash statistic or Poisson-MLR statistic computation. (If the units of the pixel values are 
+counts/sec, then the sky level should also be in those units, and you should use the 
+``\texttt{--exptime}'' option to specify the original exposure time.)
 \item \texttt{--gain} \textit{value} --- specifies the A/D gain (in electrons/ADU)
 of the input image; used for internal computation of the noise map (for \chisquare{}
-minimization) or for correcting the Cash statistic computation.
+minimization) or for correcting the Cash statistic and Poisson-MLR statistic computation.
 \item \texttt{--readnoise} \textit{value} --- specifies the read noise (in electrons)
 of the input image; used for internal computation of the noise map for \chisquare{}
-minimization (this is ignored in the case of Cash statistic minimization).
+minimization (this is ignored in the case of Cash statistic or Poisson-MLR statistic minimization).
 \item \texttt{--exptime} \textit{value} --- specifies the exposure time of the image;
 this should \textbf{only} be used \textit{if} the image has been divided by the exposure time
 (i.e., if the pixel units are counts/sec).
@@ -543,8 +543,8 @@ this should \textbf{only} be used \textit{if} the image has been divided by the 
 image are the result of averaging (or computing the median of) two or
 more original images, then this option should be used to specify the
 number of original images; used for internal computation of the noise map (for \chisquare{}
-minimization) or for correcting the Cash statistic computation.  If multiple images were
-\textit{added} together with no rescaling, then do not use this option.
+minimization) or for correcting the Cash statistic and Poisson-MLR statistic computation.  
+If multiple images were \textit{added} together with no rescaling, then do not use this option.
 
 \bigskip
 
@@ -569,25 +569,24 @@ the minimization technique (\textsc{Warning}: much slower!)
 (instead of the data values) to estimate the individual-pixel dispersions
 $\sigma_{i}$ for \chisquare{} minimization
 
-\item \texttt{--cashstat} --- use standard Cash statistic $C$ instead of \chisquare{}
+\item \texttt{--cashstat} --- use Cash statistic $C$ instead of \chisquare{}
 as the fit statistic for minimization. This is especially useful in the
 case of Poisson statistics and low or zero read noise, but it also provides less
 biased fits than the \chisquare{} approach even when count levels are
 high. Cannot be used with the (default) Levenberg-Marquardt minimization
 technique.
 
-\item \texttt{--modcash} --- like \texttt{--cashstat}, but uses the
-``modified'' Cash statistic $C_{\mathrm{mod}}$ for minimization (this is
+\item \texttt{--poisson-mlr} or \texttt{-mlr} --- like \texttt{--cashstat}, but uses the
+Poisson Maximum-Likelihood-Ratio statistic for minimization (this is
 the same as the ``CSTAT'' statistic in the X-ray packages XSPEC and
-Sherpa). The main difference is that the modified Cash statistic is
+Sherpa); fits should be essentially identical. The main difference is that this statistic is
 always $\ge 0$, which means it \textit{can} be used with the (default)
 Levenberg-Marquardt minimization technique.
 
 \item \texttt{--ftol} \textit{FTOL-value} --- specify tolerance for
-fractional improvements in the fit statistic (\chisquare{} or Cash
-statistic) value; if further iterations do not reduce the fit statistic
-by more than this, the minimization is considered a success and halted 
-(default value = $10^{-8}$)
+fractional improvements in the fit statistic value; if further iterations do 
+not reduce the fit statistic by more than this, the minimization is considered a 
+success and halted (default value = $10^{-8}$)
 
 \bigskip
 
@@ -600,7 +599,7 @@ line per iteration).
 
 \bigskip
 
-\item \texttt{--quiet} --- Suppress printing of intermediate \chisquare{} or Cash-statistic values
+\item \texttt{--quiet} --- Suppress printing of intermediate fit-statistic values
 during the fitting process.
 
 \item \texttt{--loud} --- Print intermediate parameter values during the fitting
@@ -613,7 +612,7 @@ printed once per iteration) and N-M simplex fitting (best-fit values printed onc
 synonyms) --- Evaluate the \chisquare{} value for the initial input
 model as a fit to the input image, \textit{without} doing any
 minimization to find a better solution. (If \texttt{--cashstat} or
-\texttt{--modcash} is also specified, then the appropriate Cash
+\texttt{--poisson-mlr} is also specified, then the appropriate 
 statistic is evaluated instead.)
 
 \bigskip
@@ -825,6 +824,8 @@ pair following the initial-value specification. E.g.:
 Note that specifying \textit{equal} lower and upper limits for a parameter (or a lower limit
 which is higher than the upper limit) is not allowed; to specify that a parameter
 value should remain constant, used the ``fixed'' keyword as described above.
+\textbf{Warning:} there should be \textit{zero} spaces before or after the comma. E.g., use ``441.0,443.5'',
+not ``441.0,~443.5'' or ``441.0~,~443.5''.
 
 
 \section{Optional Image-Description Parameters}
@@ -1062,9 +1063,9 @@ that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via t
 image is supplied, the weights of masked pixels will still be set to 0,
 regardless of their individual values in the weight image.)
 
-In the case of minimizing the Cash statistic $C$ (or the modified Cash statistic 
-$C_{\mathrm{mod}}$), the only relevant external maps are masks. For the standard 
-Cash statistic $C$, the actual minimized quantity is:
+In the case of minimizing the Cash statistic $C$ or the related Poisson-MLR statistic, the 
+only relevant external maps are masks. For the Cash statistic $C$, the actual minimized 
+quantity is:
 \begin{equation}
 C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I^{\prime}_{m, i} \, - \, I^{\prime}_{d, i} \ln I^{\prime}_{m, i}),
 \end{equation}
@@ -1072,11 +1073,10 @@ where $I^{\prime}_{m, i}$ and $I^{\prime}_{d, i}$ are the model and data
 intensities in counts/pixel, multiplied by the effective gain $g_{\mathrm{eff}}$ as defined 
 above.  In this case, all weights are automatically $=1$, except for masked pixels, which 
 are still set $= 0$. (Note that any attempt to specify the read noise is ignored, since 
-Gaussian noise terms cannot be
-accommodated in the Cash-statistic computation; see, e.g., \citealt{erwin14}.)
+Gaussian noise terms cannot be accommodated in the Cash-statistic or Poisson-MLR statistic
+computation; see, e.g., \citealt{erwin14}.)
 
-The \textit{modified} Cash statistic $C_{\mathrm{mod}}$ includes extra terms 
-based on the data values:
+The Poisson-MLR statistic includes extra terms based on the data values:
 \begin{equation}
 C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I^{\prime}_{m, i} - I^{\prime}_{d, i} \ln I^{\prime}_{m, i} + I^{\prime}_{d, i} \ln I^{\prime}_{d, i} - I^{\prime}_{d, i} \right).
@@ -1114,7 +1114,7 @@ slow things down considerably.
 
 \chapter{What Gets Minimized During a Fit, and How to Minimize It}
 
-\section{Fit Statistics: \chisquare{} or Cash Statistics}\label{sec:fit-statistics}
+\section{Fit Statistics: \chisquare{} or Poisson Statistics}\label{sec:fit-statistics}
 
 \Imfit's default behavior is to minimize the total \chisquare{} for the model. This
 is defined by computing the sum over individual pixels $i$:
@@ -1142,17 +1142,16 @@ directly.
 An arguably more accurate approach -- especially in the regime of low counts per pixel,
 as is often the case for, e.g., X-ray images -- is to minimize a maximum likelihood 
 statistic based directly on Poisson statistics (rather than Gaussian approximation thereof). 
-One way of doing this involves computing the (standard) Cash statistic $C$:
+One way of doing this involves computing the Cash statistic $C$:
 \begin{equation}
 C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I_{m, i} \, - \, I_{d, i} \ln I_{m, i}) .
 \end{equation}
 In this case, all weights are automatically $=1$, except for masked pixels, which are still set $= 0$.
 Specifying the Cash statistic is done with the \texttt{--cashstat} command-line flag.
-A drawback of the standard Cash statistic is that it \textit{cannot} be minimized with the
+A drawback of the Cash statistic is that it \textit{cannot} be minimized with the
 Levenberg-Marquardt algorithm, since the latter assumes that all terms in the summation are
 $\ge 0$, which is usually not true for the Cash statistic.  Fortunately, there is also the 
-\textit{modified} Cash statistic $C_{\mathrm{mod}}$, which includes extra terms 
-based on the data values:
+Poisson-MLR statistic $C_{\mathrm{mod}}$, which includes extra terms based on the data values:
 \begin{equation}
 C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I_{m, i} - I_{d, i} \ln I_{m, i} + I_{d, i} \ln I_{d, i} - I_{d, i} \right).
@@ -1161,7 +1160,8 @@ Since the extra terms do not depend on the model values, they remain unchanged d
 the minimization and do not affect it. However, they have
 the key advantage of ensuring that all individual-pixel values are always $\ge 0$, which
 makes it possible to use the Levenberg-Marquardt algorithm to minimize $C_{\mathrm{mod}}$.
-Use of $C_{\mathrm{mod}}$ is done via the \texttt{--modcash} flag.
+Use of $C_{\mathrm{mod}}$ is done via the \texttt{--poisson-mlr} flag (or its shortened
+version \texttt{--mlr}).
 
 (See Section~\ref{sec:noise-maps} above for more details on how the data
 and model intensities, $\sigma_{i}$ values, and weights are actually
@@ -1181,9 +1181,9 @@ at \url{http://www.physics.wisc.edu/~craigm/idl/cmpfit.html}} This is
 very fast and robust, and is the most extensively tested algorithm in
 \imfit, but requires an initial guess for the parameter values and can
 sometimes become trapped in local minima in the \chisquare{} landscape.
-In addition, it is \textit{not} appropriate if one is using the standard
-Cash statistic $C$, since the latter can have both per-pixel
-and total values $< 0$, which least-squares algorithms like Levenberg-Marquardt cannot
+In addition, it is \textit{not} appropriate if one is using the Cash
+statistic $C$, since the latter can have both per-pixel and total values
+$< 0$, which least-squares algorithms like Levenberg-Marquardt cannot
 handle.
 
 An alternative algorithm, available via the \texttt{--nm} flag,  is a
@@ -1335,15 +1335,14 @@ in the fit landscape, and so they do not produce automatic uncertainty
 estimates. Although one could certainly take the solution of a
 \chisquare{} or $C_{\mathrm{mod}}$ fit done with the N-M simplex or DE
 algorithms and use it as input to a L-M run of \imfit, thus generating
-L-M--based uncertainties, this is not possible when using the standard
-Cash statistic $C$.
+L-M--based uncertainties, this is not possible when using the Cash statistic $C$.
 
 As an alternative to the L-M uncertainty estimates -- and as a method
-for estimating uncertainties in the case of standard Cash-statistic
-minimization -- \imfit{} offers the option of bootstrap resampling. This
-is done with the ``\texttt{--bootstrap}'' command-line option, which
-takes the \textit{number} of iterations as its corresponding value; e.g.
-\begin{verbatim} imfit someimage.fits -c config.dat [. . .] --bootstrap 200 \end{verbatim}
+for estimating uncertainties in the case of Cash-statistic minimization
+-- \imfit{} offers the option of bootstrap resampling. This is done with
+the ``\texttt{--bootstrap}'' command-line option, which takes the
+\textit{number} of iterations as its corresponding value; e.g.
+\begin{verbatim} imfit someimage.fits -c config.dat [. . .] --bootstrap=200 \end{verbatim}
 
 Each iteration of bootstrap resampling generates a new data image by
 sampling pixel values (with replacement) from the original data image,
@@ -1355,21 +1354,22 @@ distribution for estimating confidence intervals; \imfit{} finds and
 outputs the 68.3\% confidence intervals and the standard deviation for
 each parameter. While this approach may produce more plausible
 uncertainties for the best-fit parameters -- and can be used with both
-\chisquare{} and Cash-statistic minimization and as an adjunct to any of
-the three minimization algorithms -- it \textit{is} slow, as one is
-essentially repeating (a somewhat faster version of) the fitting process
-$n$ times. Ideally, one should do at least 200 iterations -- 1000 or
-more is preferable -- to get reasonably consistent confidence intervals.
-Since this can take \textit{much} longer than the original fitting
-process, it is probably not a good idea to use bootstrap resampling when
-one is engaged in exploratory fitting, but to instead postpone it until
-one is reasonably certain one has the final fit. To keep things as fast
-as possible, \imfit{} automatically chooses L-M minimization for the
-bootstrap process -- unless the standard Cash statistic is being used, in which
-case the N-M simplex method is used.\footnote{If \imfit{} was compiled
-without the NLopt library, then the N-M simplex method is not available
-and \imfit{} uses DE instead -- which will make the bootstrap estimation
-\textit{very} slow.}
+\chisquare{} and Cash-statistic or Poisson-MLR statistic minimization
+and as an adjunct to any of the three minimization algorithms -- it
+\textit{is} slow, as one is essentially repeating (a somewhat faster
+version of) the fitting process $n$ times. Ideally, one should do at
+least 200 iterations -- 1000 or more is preferable -- to get reasonably
+consistent confidence intervals. Since this can take \textit{much}
+longer than the original fitting process, it is probably not a good idea
+to use bootstrap resampling when one is engaged in exploratory fitting,
+but to instead postpone it until one is reasonably certain one has the
+final fit. To keep things as fast as possible, \imfit{} automatically
+chooses L-M minimization for the bootstrap process -- unless the
+Cash statistic is being used, in which case the N-M simplex
+method is used.\footnote{If \imfit{} was compiled without the NLopt
+library, then the N-M simplex method is not available and \imfit{} uses
+DE instead -- which will make the bootstrap estimation \textit{very}
+slow.}
 
 Using the \texttt{--save-bootstrap} command, one can provide a filename
 for saving the best-fitting parameters from all the individual resampled

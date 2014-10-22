@@ -50,13 +50,13 @@ echo -n "   (now running fit with PSF convolution ...)"
 echo ""
 
 # test fitting with Cash statistic
-echo -n "   (now running Cash-statistic fits ...)"
+echo -n "   (now running Cash-statistic and Poisson MLR fits ...)"
 ./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nm &> test_dump5a
-# test fitting with modified Cash statistic (using image that failed before fabs() bug-fix)
-./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --modcash --nm &> test_dump5b
-./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --modcash &> test_dump5c
+# test fitting with Poisson MLR statistic (using image that failed before fabs() bug-fix)
+./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --mlr --nm &> test_dump5b
+./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --mlr &> test_dump5c
 # test fitting with image that failed prior to the fabs() bug-fix
-./imfit tests/pgc35772_continuum.fits[340:630,300:580] --config tests/config_imfit_pgc35772.dat --mask=tests/pgc35772_mask.fits[340:630,300:580] --modcash  &> test_dump5d
+./imfit tests/pgc35772_continuum.fits[340:630,300:580] --config tests/config_imfit_pgc35772.dat --mask=tests/pgc35772_mask.fits[340:630,300:580] --mlr  &> test_dump5d
 echo ""
 
 
@@ -205,7 +205,7 @@ else
   diff test_dump5a_tail tests/imfit_textout5a_tail
 fi
 
-echo -n "*** Diff comparison with archives: fit using modified Cash statistic (+ N-M solver)... "
+echo -n "*** Diff comparison with archives: fit using Poisson MLR statistic (+ N-M solver)... "
 tail -n 18 test_dump5b > test_dump5b_tail
 if (diff --brief test_dump5b_tail tests/imfit_textout5b_tail)
 then
@@ -215,7 +215,7 @@ else
   diff test_dump5b_tail tests/imfit_textout5b_tail
 fi
 
-echo -n "*** Diff comparison with archives: fit using modified Cash statistic (+ L-M solver)... "
+echo -n "*** Diff comparison with archives: fit using Poisson MLR statistic (+ L-M solver)... "
 tail -n 18 test_dump5c > test_dump5c_tail
 if (diff --brief test_dump5c_tail tests/imfit_textout5c_tail)
 then
@@ -225,7 +225,7 @@ else
   diff test_dump5c_tail tests/imfit_textout5c_tail
 fi
 
-echo -n "*** Diff comparison with archives: modified-Cash-stat fit to problematic image (+ L-M solver)... "
+echo -n "*** Diff comparison with archives: Poisson-MLR-stat fit to problematic image (+ L-M solver)... "
 tail -n 18 test_dump5d > test_dump5d_tail
 if (diff --brief test_dump5d_tail tests/imfit_textout5d_tail)
 then

@@ -95,7 +95,7 @@ class ModelObject
     void UpdateWeightVector(  );
 
      // common, not specialized (currently not specialized or used by ModelObject1d)
-    virtual double ComputeModCashStatDeviate( int i, int i_model );
+    virtual double ComputePoissonMLRDeviate( int i, int i_model );
 
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
@@ -107,7 +107,7 @@ class ModelObject
     virtual void UseCashStatistic( );
 
      // common, not specialized
-    virtual void UseModifiedCashStatistic( );
+    virtual void UsePoissonMLR( );
  
      // common, not specialized
     virtual bool UsingCashStatistic( );
@@ -236,7 +236,7 @@ class ModelObject
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;
     bool  modelErrors, dataErrors, externalErrorVectorSupplied;
-    bool  useCashStatistic, modifiedCashStatistic;
+    bool  useCashStatistic, poissonMLR;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
     bool  extraCashTermsVectorAllocated;
     bool  zeroPointSet;

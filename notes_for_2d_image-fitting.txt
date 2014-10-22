@@ -1065,9 +1065,14 @@ Conceptually, there are *three* general modes:
 	same for all images, modulo pixel-scales, rotation offsets, and zero-point
 	differences
 		-- Images on different scales, etc. (HST vs ground-based)
+	
 	2. Same, but fitting multiple exposures using same camera+filters -- gets 
-	around issues such as noise correlation introduced by coaddition (possible 
+	around issues such as noise correlation and other artifacts introduced by 
+	shifting, resampling, and coaddition (possible 
 	approaches being debated by LSST, EUCLID; apparently some lensing studies do this)
+		-- Actually GIM2D can do something like this, see, e.g.
+		http://www.astro.uvic.ca/~simard/GIM2D/hdf-nicmos.html
+	
 	2.b. Same, but fitting exposures in same camera+filters with *different*
 	exposure times (e.g., short exposure to avoid saturating nucleus + long
 	exposure to get good S/N for rest of galaxy)

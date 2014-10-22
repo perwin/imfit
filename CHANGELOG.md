@@ -3,12 +3,13 @@
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
 
-## 1.1 -- 2014-09-dd
+## 1.1 -- 2014-10-22
 ### Added:
-- New version of Cash statistic for minimization ("modified Cash statistic", via
---modcash flag) which is always >= 0, and can thus be used with Levenberg-Marquardt
-minimization, unlike the original ("standard") Cash statistic. Thanks to David
-Streich for pointing out this possibility.
+- New version of Poisson-based fit statistic for minimization ("Poisson 
+maximum-likelihood-ratio statistic", via --poisson-mlr/--mlr flag) which is always >= 0, 
+and can thus be used with Levenberg-Marquardt minimization, unlike the Cash statistic;
+actual fit results should be effectively identical to Cash-statistic fits. 
+Thanks to David Streich for pointing out this possibility.
 
 - Full bootstrap-resampling output (i.e., the individual best-fit parameters from
 each bootstrap iteration) can now be saved to a text file for later analysis,
