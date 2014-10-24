@@ -55,8 +55,9 @@
 %    --> 1.07 * 1.2 * 10pt = 12.8 pt
 \linespread{1.07}
 
-\newcommand{\imfit}{\texttt{imfit}}
-\newcommand{\Imfit}{\texttt{Imfit}}
+\newcommand{\imfit}{\textbf{Imfit}}
+\newcommand{\Imfit}{\textbf{Imfit}}
+\newcommand{\imfitprog}{\texttt{imfit}}
 \newcommand{\makeimage}{\texttt{makeimage}}
 \newcommand{\Makeimage}{\texttt{Makeimage}}
 
@@ -90,15 +91,15 @@
 
 \chapter{What Is It?}
 
-\Imfit{} is a program for fitting astronomical images --- 
-specifically, for fitting images of galaxies, though it could certainly
-be used for fitting other sources. The user specifies a set of one or
-more 2D surface-brightness functions (e.g., elliptical exponential, elliptical S\'ersic,
-circular Gaussian) which will be added together in order to generate a
-model image; this model image will then be matched to the input image by
-adjusting the 2D function parameters via nonlinear minimization of the total
-\chisquare{} (or of the total Cash statistic in the alternate case of Poisson
-statistics).
+\Imfit{} is a program for fitting astronomical images --- specifically,
+for fitting images of galaxies, though it could certainly be used for
+fitting other sources. The user specifies a set of one or more 2D
+surface-brightness functions (e.g., elliptical exponential, elliptical
+S\'ersic, circular Gaussian) which will be added together in order to
+generate a model image; this model image will then be matched to the
+input image by adjusting the 2D function parameters via nonlinear
+minimization of the total \chisquare{} (or of the total Cash or
+Poisson-MLR statistics in the alternate case of Poisson statistics).
 
 The 2D functions can be grouped into arbitrary sets sharing a common $(x,y)$
 position on the image plane; this allows galaxies with off-center components
@@ -122,12 +123,20 @@ references to the new function, and re-compiling the program.
 %to guide the interested user in adding new functions; in most cases, a
 %basic working knowledge of C should suffice.
 
-An additional auxiliary program called \makeimage{}, built from the same
-codebase, exists for generating artificial galaxy images (using the same
-input/output parameter-file format as \imfit{}).
-
 \Imfit{} is an open-source project; the source code is freely available
 under the \textsc{gnu} Public License (\textsc{gpl}).
+
+
+\textbf{A note on names:} The \imfit{} package consists of two programs:
+the main program, called \imfitprog{}, and an auxiliary program called
+\makeimage{}, built from the same codebase, which can be used to
+generate artificial galaxy images (using the same input/output
+parameter-file format that \imfitprog{} uses). In this document, I use
+\imfit{} (in boldface) to refer to the whole package and \imfitprog to
+specific use of the actual fitting program, although I'm not entirely
+consistent about this; in most cases this
+distinction should be meaningless. (I.e., in most cases you're using
+the \imfitprog{} binary to fit images.)
 
 
 \bigskip
@@ -195,17 +204,20 @@ components, if for some reason you don't have access to the \textsc{gsl}.
 
 \item Install SCons (if needed; see below).
 
-\item Build \imfit{} and \makeimage.
+\item Build \imfitprog{} and \makeimage.
 
 \item (Optional) Run test scripts \texttt{do\_imfit\_tests} and \texttt{do\_makeimage\_tests}.
 
 \end{enumerate}
 
+
+
 \section{Building \Imfit{} from Source: Details}\label{sec:build}
 
-Assuming that \textsc{cfitsio} and \textsc{fftw} (and optionally NLopt and \textsc{gsl}) have already been installed
-on your system, unpack the source-code tarball (imfit-x.x-source.tar.gz) in some convenient
-location.
+Assuming that \textsc{cfitsio} and \textsc{fftw} (and optionally NLopt
+and \textsc{gsl}) have already been installed on your system (steps 1--4
+from the outline in the previous section), unpack the source-code
+tarball (imfit-x.x-source.tar.gz) in some convenient location.
 
 \subsubsection{Building with SCons}
 
@@ -219,7 +231,7 @@ program \makeimage{} with the following commands:
 \texttt{\$ scons imfit} \\
 \texttt{\$ scons makeimage}
 \end{quote}
-This will produce two binary executable files: \imfit{} and \makeimage{}. Copy
+This will produce two binary executable files: \imfitprog{} and \makeimage{}. Copy
 these to some convenient place on your path.
 
 If you do not have \textsc{gsl} installed, you will get compilation errors; use the following
@@ -236,7 +248,8 @@ this can be dealt with by using:
 \verb+$ scons --no-nlopt makeimage+
 \end{quote}
 
-Various other compilation options may be useful; these are explained in the next
+Various other compilation options may be useful, particularly for telling SCons where
+to look for library files; these are explained in the next
 subsections (note that all the SCons options can be combined on the command
 line).
 
@@ -293,7 +306,8 @@ be skipped.)
 
 \subsubsection{Telling the Compiler Where to Find Header Files and Libraries}
 
-By default, the SConstruct file (the equivalent of a Makefile for SCons)
+By default, the SConstruct file (the equivalent of a Makefile for SCons) included
+in the source distribution for \imfit{}
 tells SCons to look for header files in \texttt{/usr/local/include} and
 library files in \texttt{/usr/local/lib}. If you have the \textsc{fftw},
 \textsc{cfitsio}, and/or (optionally) NLopt and \textsc{gsl} headers and
@@ -323,7 +337,7 @@ Multiple paths can be specified if they are separated by colons, e.g.
 
 \subsubsection{Options: Compiling Without OpenMP Support}
 
-By default, \imfit{} and \makeimage{} are compiled to take advantage of
+By default, \imfitprog{} and \makeimage{} are compiled to take advantage of
 OpenMP compiler support, which speeds up image computation by splitting
 it up across multiple CPUs (and multiple cores within multi-core CPUs).
 Currently, the code uses OpenMP 2.5 options, which means that if you are
@@ -363,7 +377,7 @@ speculation at the moment.)
 
 \subsubsection{Options: Compiling Without FFT Multithreading}
 
-By default, \imfit{} and \makeimage{} are compiled to take advantage of multi-core CPUs (and other
+By default, \imfitprog{} and \makeimage{} are compiled to take advantage of multi-core CPUs (and other
 shared-memory multiple-processor systems) when performing PSF convolutions by using the 
 multithreaded version of the
 \textsc{fftw} library. If you do not have (or cannot build) the multithreaded \textsc{fftw} library,
@@ -387,7 +401,8 @@ you can remove multithreaded FFT computation by compiling with the following com
 In the \texttt{examples/} directory are some sample galaxy images, masks, PSF images, and
 configuration files. To give \imfit{} a quick spin (and check that it's working on your system), change to the
 \texttt{examples/} directory and execute the following on the command line (assuming that
-\imfit{} is now in your path):
+the \imfitprog{} binary is now in your path; if it isn't you can access it via
+\texttt{../imfit}):
 \begin{quote}
 \texttt{\$ imfit ic3478rss\_256.fits \texttt{-c} config\_sersic\_ic3478\_256.dat \texttt{--}sky=130.14}
 \end{quote}
@@ -396,10 +411,10 @@ This converges to a fit in a few seconds or less (e.g., about 0.5 seconds on a
 2011 MacBook Pro with a 2.3 GHz Core i7 processor). In addition to being printed to
 the screen, the final fit is saved in a file called \texttt{bestfit\_parameters\_imfit.dat}.
 
-The preceding command told \imfit{} to fit using every pixel in the image and to estimate
+The preceding command told \imfitprog{} to fit using every pixel in the image and to estimate
 the noise assuming an original (previously subtracted) sky level of 130.14, an A/D gain
 of 1.0, and zero read noise (the latter two are default values). A better approach would be 
-to include a mask (telling \imfit{}
+to include a mask (telling \imfitprog{}
 to ignore, e.g., pixels occupied by bright stars) and to specify more accurate values
 of the gain and read noise:
 \begin{quote}
@@ -411,8 +426,9 @@ on the output file:
 \begin{quote}
 \$ makeimage ~ bestfit\_parameters\_imfit.dat ~ \texttt{--}refimage ~ ic3478rss\_256.fits
 \end{quote}
-This will generate and save the model image in a file called \texttt{modelimage.fits}. (\Imfit{} itself 
-can save the best-fitting model image at the end of the fitting process if
+This will generate and save the model image in a file called \texttt{modelimage.fits}. (The \imfitprog{}
+program 
+can itself save the best-fitting model image at the end of the fitting process if
 the \texttt{--save-model} option is used.)
 
 %Note that you can specify a subset of an image, thus:
@@ -445,21 +461,21 @@ file \\
 
 Basic use of \imfit{} from the command line looks like this:
 \begin{quote}
-  \texttt{\$ \imfit{} }  -c \textit{config-file} ~ \textit{input-image} ~ [options]
+  \texttt{\$ \imfitprog{} }  -c \textit{config-file} ~ \textit{input-image} ~ [options]
 \end{quote}
 where \textit{config-file} is the name of the configuration file
 which describes the model (the combination of 2D functions, initial values
 for parameters, and possible limits on parameter values) and \textit{input-image}
 is the \textsc{fits} image we want to fit with the model.
 
-The ``options'' are a set of command-line flags and options (use ``\imfit{} \texttt{-h}''
-or ``\imfit{} \texttt{--help}'' to see the complete list). Options must be followed by
+The ``options'' are a set of command-line flags and options (use ``\imfitprog{} \texttt{-h}''
+or ``\imfitprog{} \texttt{--help}'' to see the complete list). Options must be followed by
 an appropriate value (e.g., a filename, an integer, a floating-point number); this can
 be separated from the option by a space, or they can be connected with an equals sign.
 In other words, both of the following are valid:
 \begin{quote}
-\imfit{} ~ \texttt{--}gain 2.5 \\
-\imfit{} ~ \texttt{--}gain=2.5
+\imfitprog{} ~ \texttt{--}gain 2.5 \\
+\imfitprog{} ~ \texttt{--}gain=2.5
 \end{quote}
 Note that \imfit{} does not follow the full \textsc{gnu} standard for
 command-line options and flags (as implemented by, e.g., the \textsc{gnu}
@@ -476,8 +492,8 @@ cannot merge a one-character option and its target
 Some notable and useful command-line flags and options include:
 \begin{itemize}
 \item \texttt{-c, --config} \textit{config-file} --- the only \textit{required}
-command-line option, which tells \imfit{} the name of the configuration file.
-(Actually, if you don't supply this option, \imfit{} will look for a file
+command-line option, which tells \imfitprog{} the name of the configuration file.
+(Actually, if you don't supply this option, \imfitprog{} will look for a file
 called ``imfit\_config.dat'', but it's best to explicitly specify your own
 configuration files.)
 
@@ -504,22 +520,22 @@ noise map are assumed to be Gaussian sigma values).
 map are variances (sigma$^2$) instead of sigmas.
 \item \texttt{--errors-are-weights} --- indicates that pixel values in the noise
 map should be interpreted as weights, not as sigmas or variances. (None
-of these three options are usable with Cash statistic minimization.)
+of these three options are usable with Cash statistic or Poisson-MLR statistic minimization.)
 
 \bigskip
 
 \item \texttt{--sky} \textit{sky-level} --- specifies an original constant sky background
 level (in counts/pixel) that was subtracted from the image; used for internal
 computation of the noise map (for \chisquare{} minimization) or for correcting the 
-Cash statistic computation. (If the units of the pixel values are counts/sec, then the sky level
-should also be in those units, and you should use the ``\texttt{--exptime}'' option
-to specify the original exposure time.)
+Cash statistic or Poisson-MLR statistic computation. (If the units of the pixel values are 
+counts/sec, then the sky level should also be in those units, and you should use the 
+``\texttt{--exptime}'' option to specify the original exposure time.)
 \item \texttt{--gain} \textit{value} --- specifies the A/D gain (in electrons/ADU)
 of the input image; used for internal computation of the noise map (for \chisquare{}
-minimization) or for correcting the Cash statistic computation.
+minimization) or for correcting the Cash statistic and Poisson-MLR statistic computation.
 \item \texttt{--readnoise} \textit{value} --- specifies the read noise (in electrons)
 of the input image; used for internal computation of the noise map for \chisquare{}
-minimization (this is ignored in the case of Cash statistic minimization).
+minimization (this is ignored in the case of Cash statistic or Poisson-MLR statistic minimization).
 \item \texttt{--exptime} \textit{value} --- specifies the exposure time of the image;
 this should \textbf{only} be used \textit{if} the image has been divided by the exposure time
 (i.e., if the pixel units are counts/sec).
@@ -527,8 +543,8 @@ this should \textbf{only} be used \textit{if} the image has been divided by the 
 image are the result of averaging (or computing the median of) two or
 more original images, then this option should be used to specify the
 number of original images; used for internal computation of the noise map (for \chisquare{}
-minimization) or for correcting the Cash statistic computation.  If multiple images were
-\textit{added} together with no rescaling, then do not use this option.
+minimization) or for correcting the Cash statistic and Poisson-MLR statistic computation.  
+If multiple images were \textit{added} together with no rescaling, then do not use this option.
 
 \bigskip
 
@@ -553,25 +569,24 @@ the minimization technique (\textsc{Warning}: much slower!)
 (instead of the data values) to estimate the individual-pixel dispersions
 $\sigma_{i}$ for \chisquare{} minimization
 
-\item \texttt{--cashstat} --- use standard Cash statistic $C$ instead of \chisquare{}
+\item \texttt{--cashstat} --- use Cash statistic $C$ instead of \chisquare{}
 as the fit statistic for minimization. This is especially useful in the
 case of Poisson statistics and low or zero read noise, but it also provides less
 biased fits than the \chisquare{} approach even when count levels are
 high. Cannot be used with the (default) Levenberg-Marquardt minimization
 technique.
 
-\item \texttt{--modcash} --- like \texttt{--cashstat}, but uses the
-``modified'' Cash statistic $C_{\mathrm{mod}}$ for minimization (this is
+\item \texttt{--poisson-mlr} or \texttt{-mlr} --- like \texttt{--cashstat}, but uses the
+Poisson Maximum-Likelihood-Ratio statistic for minimization (this is
 the same as the ``CSTAT'' statistic in the X-ray packages XSPEC and
-Sherpa). The main difference is that the modified Cash statistic is
+Sherpa); fits should be essentially identical. The main difference is that this statistic is
 always $\ge 0$, which means it \textit{can} be used with the (default)
 Levenberg-Marquardt minimization technique.
 
 \item \texttt{--ftol} \textit{FTOL-value} --- specify tolerance for
-fractional improvements in the fit statistic (\chisquare{} or Cash
-statistic) value; if further iterations do not reduce the fit statistic
-by more than this, the minimization is considered a success and halted 
-(default value = $10^{-8}$)
+fractional improvements in the fit statistic value; if further iterations do 
+not reduce the fit statistic by more than this, the minimization is considered a 
+success and halted (default value = $10^{-8}$)
 
 \bigskip
 
@@ -584,7 +599,7 @@ line per iteration).
 
 \bigskip
 
-\item \texttt{--quiet} --- Suppress printing of intermediate \chisquare{} or Cash-statistic values
+\item \texttt{--quiet} --- Suppress printing of intermediate fit-statistic values
 during the fitting process.
 
 \item \texttt{--loud} --- Print intermediate parameter values during the fitting
@@ -597,7 +612,7 @@ printed once per iteration) and N-M simplex fitting (best-fit values printed onc
 synonyms) --- Evaluate the \chisquare{} value for the initial input
 model as a fit to the input image, \textit{without} doing any
 minimization to find a better solution. (If \texttt{--cashstat} or
-\texttt{--modcash} is also specified, then the appropriate Cash
+\texttt{--poisson-mlr} is also specified, then the appropriate 
 statistic is evaluated instead.)
 
 \bigskip
@@ -611,7 +626,8 @@ effect if \imfit{} was compiled without OpenMP or \textsc{fftw} multithreading s
 \item \texttt{--list-functions} --- list all the functions \imfit{} can use.
 
 \item \texttt{--list-parameters} --- list all the individual parameters (in correct order)
-for each of the functions that \imfit{} can use.
+for each of the functions that \imfit{} can use. You can copy and paste pieces of the output
+of this command to help construct a configuration file.
 \end{itemize}
 
 
@@ -619,7 +635,7 @@ for each of the functions that \imfit{} can use.
 
 \chapter{The Configuration File}\label{sec:configfile}
 
-\texttt{Imfit} always requires a configuration file, which specifies the model
+\Imfit{} always requires a configuration file, which specifies the model
 which will be fit to the input image, initial values for model parameters, any
 limits on parameter values (optional for fitting with the Levenberg-Marquardt
 solver, but required for fitting with the Differential Evolution solver), and
@@ -667,10 +683,11 @@ Here is a very bare-bones example of a configuration file:
 \end{quote}
 
 This describes a model consisting of a single elliptical exponential
-function, with initial values for the $x$ and $y$ position on the image,
-the position angle (PA), the ellipticity (ell), the central intensity
-(I\_0) in counts/pixel, and the exponential scale length in pixels (h).
-None of the parameters have limits on their possible values.
+function, with initial values for the $x$ and $y$ position on the image
+of the object's center, the position angle (PA), the ellipticity (ell),
+the central intensity (I\_0) in counts/pixel, and the exponential scale
+length in pixels (h). None of the parameters have limits on their
+possible values.
 
 Here is the same file, with some additional annotations and with limits on
 some of the parameters (comments are colored red for clarity):
@@ -694,7 +711,7 @@ angle is limited to 0--180, the ellipticity must stay $\geq 0$ and $\leq 1$, and
 the central intensity I\_0 is held fixed at its initial value.
 
 Finally, here is a more elaborate example, specifying a model that has two
-function blocks, with the first block having two individual functions (so this
+function blocks, with the first block having two individual functions (this
 could be a model for, e.g., simultaneously fitting two galaxies in the same
 image, one as S\'ersic + exponential, the other with just an exponential):
 
@@ -754,10 +771,10 @@ and understandable.
 
 \textbf{Important Note:} \textit{Do not change the order of the parameters
 for a particular function!}  Because the strings giving the parameter names
-can be anything at all, \imfit{} actually ignores them and simply assumes
+can be anything at all, \imfitprog{} actually ignores them and simply assumes
 that all parameters are in the correct order for each function.
 
-Note that any output which \imfit{} generates will use the default parameter
+Note that any output which \imfitprog{} generates will use the default parameter
 names defined in the individual function code (use ``\texttt{--list-parameters}''
 to see what these are for each function).
 
@@ -807,6 +824,8 @@ pair following the initial-value specification. E.g.:
 Note that specifying \textit{equal} lower and upper limits for a parameter (or a lower limit
 which is higher than the upper limit) is not allowed; to specify that a parameter
 value should remain constant, used the ``fixed'' keyword as described above.
+\textbf{Warning:} there should be \textit{zero} spaces before or after the comma. E.g., use ``441.0,443.5'',
+not ``441.0,~443.5'' or ``441.0~,~443.5''.
 
 
 \section{Optional Image-Description Parameters}
@@ -814,7 +833,7 @@ value should remain constant, used the ``fixed'' keyword as described above.
 The configuration file can, optionally, contain one or more specifications of 
 parameters describing the whole image, which take the place of certain command-line
 options for computing the internal noise map.  The specifications should be placed
-at the beginning of the configuration file, \textit{before} the first function
+\textit{at the beginning} of the configuration file, \textit{before} the first function
 block is described. The format is the same as for other parameters in the configuration
 file: the name of the parameter, followed by one or more spaces and/or tabs, followed
 by a numerical value. E.g.,
@@ -903,15 +922,15 @@ vertical profiles.
 \end{itemize}
 
 A list of the currently available functions can always be obtained
-by running \imfit{} with the ``\texttt{--list-functions}'' option:
+by running \imfitprog{} with the ``\texttt{--list-functions}'' option:
 \begin{quote}
-  \texttt{\$ \imfit{} --list-functions}
+  \texttt{\$ \imfitprog{} --list-functions}
 \end{quote}
 The complete list of function parameters for each function (suitable for copying
 and pasting into a configuration file) can always be
-obtained by running \imfit{} with the ``\texttt{--list-parameters}'' option:
+obtained by running \imfitprog{} with the ``\texttt{--list-parameters}'' option:
 \begin{quote}
-  \texttt{\$ \imfit{} --list-parameters}
+  \texttt{\$ \imfitprog{} --list-parameters}
 \end{quote}
 
 
@@ -989,7 +1008,7 @@ cannot \textit{save} files to URLs, however.
 
 \section{Masks}
 
-A mask image can be supplied to \imfit{} by using the command-line
+A mask image can be supplied to \imfitprog{} by using the command-line
 option \texttt{--mask}. The mask image should be an \textit{integer}-valued
 \textsc{fits} file with the same dimensions as the image being fitted (\textsc{iraf} \texttt{.pl}
 mask files are not recognized, but these can be converted to \textsc{fits} format within
@@ -1004,8 +1023,8 @@ with the command-line flag \texttt{--mask-zero-is-bad}.
 
 (See Section~\ref{sec:fit-statistics} for background on the different fit statistics.)
 
-By default, \imfit{} uses \chisquare{} as the statistic for
-minimization. As part of this, \imfit{} normally calculates an internal
+By default, \imfitprog{} uses \chisquare{} as the statistic for
+minimization. As part of this, \imfitprog{} normally calculates an internal
 weight map, using the input pixel intensities, the A/D gain, any
 previously subtracted background level, and the read noise to estimate
 Gaussian errors $\sigma_{i}$ for each pixel $i$. The error-based weight
@@ -1034,19 +1053,19 @@ where $I_{m, i}$ and $I_{d, i}$ are the model and data intensities
 in counts/pixel, respectively. (Masking is handled by setting $w_{i} = 0$
 for masked pixels.)
 
-If you have a pre-existing error map as a \textsc{fits} image, you can tell \imfit{} to
+If you have a pre-existing error map as a \textsc{fits} image, you can tell \imfitprog{} to
 use that instead, via the \texttt{--noise} command-line option. By default, the
 pixel values in this image are assumed to be errors $\sigma_{i}$ in units of
 ADU/pixel. If the values are \textit{variances} ($\sigma_{i}^2$), you can specify
-this with the \texttt{--errors-are-variances} flag. You can also tell \imfit{}
+this with the \texttt{--errors-are-variances} flag. You can also tell \imfitprog{}
 that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via the
 \texttt{--errors-are-weights} flag, if that happens to be the case. (If a mask
 image is supplied, the weights of masked pixels will still be set to 0,
 regardless of their individual values in the weight image.)
 
-In the case of minimizing the Cash statistic $C$ (or the modified Cash statistic 
-$C_{\mathrm{mod}}$), the only relevant external maps are masks. For the standard 
-Cash statistic $C$, the actual minimized quantity is:
+In the case of minimizing the Cash statistic $C$ or the related Poisson-MLR statistic, the 
+only relevant external maps are masks. For the Cash statistic $C$, the actual minimized 
+quantity is:
 \begin{equation}
 C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I^{\prime}_{m, i} \, - \, I^{\prime}_{d, i} \ln I^{\prime}_{m, i}),
 \end{equation}
@@ -1054,17 +1073,16 @@ where $I^{\prime}_{m, i}$ and $I^{\prime}_{d, i}$ are the model and data
 intensities in counts/pixel, multiplied by the effective gain $g_{\mathrm{eff}}$ as defined 
 above.  In this case, all weights are automatically $=1$, except for masked pixels, which 
 are still set $= 0$. (Note that any attempt to specify the read noise is ignored, since 
-Gaussian noise terms cannot be
-accommodated in the Cash-statistic computation; see, e.g., \citealt{erwin14}.)
+Gaussian noise terms cannot be accommodated in the Cash-statistic or Poisson-MLR statistic
+computation; see, e.g., \citealt{erwin14}.)
 
-The ``modified'' \textit{modified} Cash statistic $C_{\mathrm{mod}}$ includes extra terms 
-based on the data values:
+The Poisson-MLR statistic includes extra terms based on the data values:
 \begin{equation}
 C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I^{\prime}_{m, i} - I^{\prime}_{d, i} \ln I^{\prime}_{m, i} + I^{\prime}_{d, i} \ln I^{\prime}_{d, i} - I^{\prime}_{d, i} \right).
 \end{equation}
 
-Note that \imfit{} does \textit{not} try to obtain information (such as
+Note that \imfitprog{} does \textit{not} try to obtain information (such as
 the A/D gain or read noise) from the \textsc{fits} header of an image. This is primarily
 because there is little consistency in header names across the wide range of
 astronomical images, so it is difficult pick one name, or even a small set, and
@@ -1085,7 +1103,7 @@ image to compute the output convolved model image.
 PSF images should be square, ideally with width = an odd number of pixels, and
 the PSF should be centered in the central pixel. (An off-center PSF can certainly
 be used, but the resulting convolved model images will be shifted.) The PSF does
-\textit{not} need to be normalized, as \imfit{} will automatically normalize the
+\textit{not} need to be normalized, as \imfitprog{} will automatically normalize the
 PSF image internally.
 
 Although \imfit{} uses a multi-threaded version version of the \textsc{fftw} library, which
@@ -1096,7 +1114,7 @@ slow things down considerably.
 
 \chapter{What Gets Minimized During a Fit, and How to Minimize It}
 
-\section{Fit Statistic Options: \chisquare{} or Cash Statistics}\label{sec:fit-statistics}
+\section{Fit Statistics: \chisquare{} or Poisson Statistics}\label{sec:fit-statistics}
 
 \Imfit's default behavior is to minimize the total \chisquare{} for the model. This
 is defined by computing the sum over individual pixels $i$:
@@ -1124,17 +1142,16 @@ directly.
 An arguably more accurate approach -- especially in the regime of low counts per pixel,
 as is often the case for, e.g., X-ray images -- is to minimize a maximum likelihood 
 statistic based directly on Poisson statistics (rather than Gaussian approximation thereof). 
-This involves computing the (standard) Cash statistic $C$:
+One way of doing this involves computing the Cash statistic $C$:
 \begin{equation}
 C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I_{m, i} \, - \, I_{d, i} \ln I_{m, i}) .
 \end{equation}
 In this case, all weights are automatically $=1$, except for masked pixels, which are still set $= 0$.
 Specifying the Cash statistic is done with the \texttt{--cashstat} command-line flag.
-A drawback of the standard Cash statistic is that it \textit{cannot} be minimized with the
+A drawback of the Cash statistic is that it \textit{cannot} be minimized with the
 Levenberg-Marquardt algorithm, since the latter assumes that all terms in the summation are
 $\ge 0$, which is usually not true for the Cash statistic.  Fortunately, there is also the 
-\textit{modified} Cash statistic $C_{\mathrm{mod}}$, which differs by including extra terms 
-based on the data values:
+Poisson-MLR statistic $C_{\mathrm{mod}}$, which includes extra terms based on the data values:
 \begin{equation}
 C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I_{m, i} - I_{d, i} \ln I_{m, i} + I_{d, i} \ln I_{d, i} - I_{d, i} \right).
@@ -1143,7 +1160,8 @@ Since the extra terms do not depend on the model values, they remain unchanged d
 the minimization and do not affect it. However, they have
 the key advantage of ensuring that all individual-pixel values are always $\ge 0$, which
 makes it possible to use the Levenberg-Marquardt algorithm to minimize $C_{\mathrm{mod}}$.
-Use of $C_{\mathrm{mod}}$ is done via the \texttt{--modcash} flag.
+Use of $C_{\mathrm{mod}}$ is done via the \texttt{--poisson-mlr} flag (or its shortened
+version \texttt{--mlr}).
 
 (See Section~\ref{sec:noise-maps} above for more details on how the data
 and model intensities, $\sigma_{i}$ values, and weights are actually
@@ -1163,18 +1181,18 @@ at \url{http://www.physics.wisc.edu/~craigm/idl/cmpfit.html}} This is
 very fast and robust, and is the most extensively tested algorithm in
 \imfit, but requires an initial guess for the parameter values and can
 sometimes become trapped in local minima in the \chisquare{} landscape.
-In addition, it is \textit{not} appropriate if one is using the standard
-Cash statistic $C$, since the latter can potentially have both per-pixel
-and total values $< 0$, which least-squares algorithms like Levenberg-Marquardt cannot
+In addition, it is \textit{not} appropriate if one is using the Cash
+statistic $C$, since the latter can have both per-pixel and total values
+$< 0$, which least-squares algorithms like Levenberg-Marquardt cannot
 handle.
 
 An alternative algorithm, available via the \texttt{--nm} flag,  is a
 version of the Nelder-Mead simplex, as implemented by the NLopt
 library.\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}}
 This is significantly slower than Levenberg-Marquardt minimization
-($\sim 10$ times slower for fits with one or two components), but
+($\sim 5$--10 times slower for fits with one or two components), but
 significantly faster than Differential Evolution (below). Like the
-Levenberg-Marquardt method, it does require an initial guess for the
+Levenberg-Marquardt method, it requires an initial guess for the
 parameter values, but is considered less likely to become trapped in
 local minima in the fit-statistic landscape. Unlike the L-M algorithm,
 it can be used for minimizing $C$ (as well as \chisquare{} and
@@ -1194,7 +1212,7 @@ fitting a single S\'ersic function to the $256 \times 256$ image in the
 Differential Evolution as it does when using L-M minimization. It does
 has the advantage of being the least likely (at least in principle) of
 being trapped in local minima in the fit-statistic landscape; it also
-does \textit{not} require an initial guess for the parameter values.
+does \textit{not} require or use initial guesses for the parameter values.
 
 The Differential Evolution algorithm does, however, \textit{require}
 lower and upper limits for \textit{all} parameters in the configuration
@@ -1242,9 +1260,9 @@ fact, it's probably overkill). If you want to experiment with different
 values of FTOL, you can do this via the command-line option
 \texttt{--ftol}.
 
-There are also built-in stopping conditions based on maximum number of
-iterations for the L-M algorithm (1000), maximum number of generations for DE
-(600), or maximum number of function evaluations (i.e., computations of model
+There are also built-in stopping conditions based on a maximum number of
+iterations for the L-M algorithm (1000), a maximum number of generations for DE
+(600), or a maximum number of function evaluations (i.e., computations of model
 images) for the Nelder-Mead simplex algorithm (10000 times the number of free
 parameters).
 
@@ -1317,15 +1335,14 @@ in the fit landscape, and so they do not produce automatic uncertainty
 estimates. Although one could certainly take the solution of a
 \chisquare{} or $C_{\mathrm{mod}}$ fit done with the N-M simplex or DE
 algorithms and use it as input to a L-M run of \imfit, thus generating
-L-M--based uncertainties, this is not possible when using the standard
-Cash statistic $C$.
+L-M--based uncertainties, this is not possible when using the Cash statistic $C$.
 
 As an alternative to the L-M uncertainty estimates -- and as a method
-for estimating uncertainties in the case of standard Cash-statistic
-minimization -- \imfit{} offers the option of bootstrap resampling. This
-is done with the ``\texttt{--bootstrap}'' command-line option, which
-takes the \textit{number} of iterations as its corresponding value; e.g.
-\begin{verbatim} imfit someimage.fits -c config.dat [. . .] --bootstrap 200 \end{verbatim}
+for estimating uncertainties in the case of Cash-statistic minimization
+-- \imfit{} offers the option of bootstrap resampling. This is done with
+the ``\texttt{--bootstrap}'' command-line option, which takes the
+\textit{number} of iterations as its corresponding value; e.g.
+\begin{verbatim} imfit someimage.fits -c config.dat [. . .] --bootstrap=200 \end{verbatim}
 
 Each iteration of bootstrap resampling generates a new data image by
 sampling pixel values (with replacement) from the original data image,
@@ -1337,21 +1354,22 @@ distribution for estimating confidence intervals; \imfit{} finds and
 outputs the 68.3\% confidence intervals and the standard deviation for
 each parameter. While this approach may produce more plausible
 uncertainties for the best-fit parameters -- and can be used with both
-\chisquare{} and Cash-statistic minimization and as an adjunct to any of
-the three minimization algorithms -- it \textit{is} slow, as one is
-essentially repeating (a somewhat faster version of) the fitting process
-$n$ times. Ideally, one should do at least 200 iterations -- 1000 or
-more is preferable -- to get reasonably consistent confidence intervals.
-Since this can take \textit{much} longer than the original fitting
-process, it is probably not a good idea to use bootstrap resampling when
-one is engaged in exploratory fitting, but to instead postpone it until
-one is reasonably certain one has the final fit. To keep things as fast
-as possible, \imfit{} automatically chooses L-M minimization for the
-bootstrap process -- unless the standard Cash statistic is being used, in which
-case the N-M simplex method is used.\footnote{If \imfit{} was compiled
-without the NLopt library, then the N-M simplex method is not available
-and \imfit{} uses DE instead -- which will make the bootstrap estimation
-\textit{very} slow.}
+\chisquare{} and Cash-statistic or Poisson-MLR statistic minimization
+and as an adjunct to any of the three minimization algorithms -- it
+\textit{is} slow, as one is essentially repeating (a somewhat faster
+version of) the fitting process $n$ times. Ideally, one should do at
+least 200 iterations -- 1000 or more is preferable -- to get reasonably
+consistent confidence intervals. Since this can take \textit{much}
+longer than the original fitting process, it is probably not a good idea
+to use bootstrap resampling when one is engaged in exploratory fitting,
+but to instead postpone it until one is reasonably certain one has the
+final fit. To keep things as fast as possible, \imfit{} automatically
+chooses L-M minimization for the bootstrap process -- unless the
+Cash statistic is being used, in which case the N-M simplex
+method is used.\footnote{If \imfit{} was compiled without the NLopt
+library, then the N-M simplex method is not available and \imfit{} uses
+DE instead -- which will make the bootstrap estimation \textit{very}
+slow.}
 
 Using the \texttt{--save-bootstrap} command, one can provide a filename
 for saving the best-fitting parameters from all the individual resampled

@@ -112,7 +112,7 @@ ModelObject::ModelObject( )
   externalErrorVectorSupplied = false;
   modelErrors = false;
   useCashStatistic = false;
-  modifiedCashStatistic = false;
+  poissonMLR = false;
   
   modelImageComputed = false;
   maskExists = false;
@@ -646,7 +646,7 @@ int ModelObject::FinalSetupForFitting( )
     GenerateErrorVector();
   
   // Generate extra terms vector from data for modified Cash statistic, if using latter
-  if ((useCashStatistic) && (modifiedCashStatistic))
+  if ((useCashStatistic) && (poissonMLR))
     GenerateExtraCashTerms();
   
 #ifdef DEBUG
@@ -911,8 +911,8 @@ void ModelObject::UpdateWeightVector(  )
 
 
 
-/* ---------------- PRIVATE METHOD: ComputeModCashStatDeviate ---------- */
-double ModelObject::ComputeModCashStatDeviate( int i, int i_model )
+/* ---------------- PRIVATE METHOD: ComputePoissonMLRDeviate ----------- */
+double ModelObject::ComputePoissonMLRDeviate( int i, int i_model )
 {
   double   modVal, dataVal, logModel, extraTerms, deviateVal;
   
@@ -968,8 +968,8 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
         iDataRow = b / nDataColumns;
         iDataCol = b - iDataRow*nDataColumns;
         bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-        if (modifiedCashStatistic)
-          yResults[z] = ComputeModCashStatDeviate(b, bModel);
+        if (poissonMLR)
+          yResults[z] = ComputePoissonMLRDeviate(b, bModel);
         else   // standard chi^2 term
           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
       }
@@ -979,8 +979,8 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
         iDataRow = z / nDataColumns;
         iDataCol = z - iDataRow*nDataColumns;
         zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
-        if (modifiedCashStatistic)
-          yResults[z] = ComputeModCashStatDeviate(z, zModel);
+        if (poissonMLR)
+          yResults[z] = ComputePoissonMLRDeviate(z, zModel);
         else   // standard chi^2 term
           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
       }
@@ -992,16 +992,16 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
     if (doBootstrap) {
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
-        if (modifiedCashStatistic)
-          yResults[z] = ComputeModCashStatDeviate(b, b);
+        if (poissonMLR)
+          yResults[z] = ComputePoissonMLRDeviate(b, b);
         else   // standard chi^2 term
           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
        }
     }
     else {
       for (z = 0; z < nDataVals; z++) {
-        if (modifiedCashStatistic)
-          yResults[z] = ComputeModCashStatDeviate(z, z);
+        if (poissonMLR)
+          yResults[z] = ComputePoissonMLRDeviate(z, z);
         else   // standard chi^2 term
           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
       }
@@ -1082,11 +1082,11 @@ void ModelObject::UseCashStatistic( )
 }
 
 
-/* ---------------- PUBLIC METHOD: UseModifiedCashStatistic ----------- */
+/* ---------------- PUBLIC METHOD: UsePoissonMLR ----------------------- */
 
-void ModelObject::UseModifiedCashStatistic( )
+void ModelObject::UsePoissonMLR( )
 {
-  modifiedCashStatistic = true;
+  poissonMLR = true;
   UseCashStatistic();
 }
 
@@ -1105,8 +1105,8 @@ bool ModelObject::UsingCashStatistic( )
 int ModelObject::WhichFitStatistic( )
 {
   if (useCashStatistic) {
-    if (modifiedCashStatistic)
-      return FITSTAT_MODCASH;
+    if (poissonMLR)
+      return FITSTAT_POISSON_MLR;
     else
       return FITSTAT_CASH;
   }

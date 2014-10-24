@@ -958,7 +958,24 @@ New function/method: UpdateWeightVector
 [ ]** Possible modified-Cash-statistic (aka CSTAT) 
 [Aug 2014 suggestion by David Streich]
 
-Pre-generate vector of d_i*log(d_i) - d_i values (mainly so we can catch possible
+POSSIBLE NAMES:
+	Poisson Likelihood Ratio statistic
+	chi^2_{\lambda}
+	chi^2_{\lambda, p} -- to distinguish from other chi^2-like LR
+	chi^2_{PLR}
+
+POSSIBLE COMMAND-LINE FLAGS
+	--plr (synomym for following?)
+	--poisson-lr
+	--poisson-mlr
+	--chi2mlr [ambiguous]
+	--chi2lr
+	--chi2plr
+	--chi2-poisson-mlr
+	--poisson-loglr
+
+
+[X]Pre-generate vector of d_i*log(d_i) - d_i values (mainly so we can catch possible
 edge case of d_i = 0, for which the total quantity -> 0)
 
 Similarities to Cash statistic:
@@ -993,7 +1010,7 @@ called from main() to tell ModelObject what we're doing)
 	-- uses input bool parameter usingCashStatistic to decide which minimizer
 	to use (and what to say in print statements)
 
-bool useCashStatistic
+[X]bool useCashStatistic
 	-- currently used just two places in ModelObject:
 		1. Tested in FinalSetupForFitting() to see if we need to compute error vector
 		2. Tested in GetFitStatistic() to see if we compute Cash stat or chi^2
@@ -1012,9 +1029,9 @@ achieved for standard-Cash ftol = 1.0e-12 and modified-Cash ftol = 1.0e-10.
 Currently [24 Aug 2014] we are using a kludgey solution for computing the
 deviates vector, where we construct the deviates vector by taking the
 square root of the individual likelihood terms:
-	sqrt( 2 w_i (m_i - d_i log m_i 
+	sqrt( 2 w_i (m_i - d_i log m_i )
 
-PROBLEM (24 Aug 2014):
+[X]PROBLEM (24 Aug 2014):
 Using current modified imfit with --modcash yields *negative* values for "modified
 Cash statistic" when applied to "HAGGIS example" galaxies (/Beleriand/data/haggis/galaxy_decomposition/)
 E.g., initial (function call 20) & final standard Cash values = -69010931.985299, -69089437.922793
@@ -1030,8 +1047,11 @@ TO:     extraTerms = extraCashTermsVector[z];   // = 0 for standard Cash stat
 
 Also -- we hadn't actually completed the code for computing deviates in the case
 of convolution + Cash stat!
+FIXED: When m_i very close to d_i, mod-cash value is very, very small, and occasionally
+(machine-precision/rounding errors?) slightly negative. FIX: take absolute
+value before computing square root.
 
-[] Create tests for --modcash with and without PSF
+[X] Create tests for --modcash with and without PSF
 
 
 
@@ -1045,9 +1065,14 @@ Conceptually, there are *three* general modes:
 	same for all images, modulo pixel-scales, rotation offsets, and zero-point
 	differences
 		-- Images on different scales, etc. (HST vs ground-based)
+	
 	2. Same, but fitting multiple exposures using same camera+filters -- gets 
-	around issues such as noise correlation introduced by coaddition (possible 
+	around issues such as noise correlation and other artifacts introduced by 
+	shifting, resampling, and coaddition (possible 
 	approaches being debated by LSST, EUCLID; apparently some lensing studies do this)
+		-- Actually GIM2D can do something like this, see, e.g.
+		http://www.astro.uvic.ca/~simard/GIM2D/hdf-nicmos.html
+	
 	2.b. Same, but fitting exposures in same camera+filters with *different*
 	exposure times (e.g., short exposure to avoid saturating nucleus + long
 	exposure to get good S/N for rest of galaxy)

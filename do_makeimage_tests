@@ -12,6 +12,8 @@ fi
 
 echo ""
 echo "Running tests for makeimage..."
+# do we correctly print list of available functions?
+./makeimage --list-functions > test_dump0
 # simple tests using small images
 ./makeimage tests/config_biggertest_4c.dat -o biggertest.fits --ncols 64 --nrows 64 > test_dump1
 ./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest.fits > test_dump2
@@ -41,6 +43,15 @@ echo "Running tests for makeimage..."
 ./makeimage tests/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> test_dump14
 
 echo ""
+
+echo -n "*** Diff comparison with archives: printing function list... "
+if (diff --brief test_dump0 tests/makeimage_textout0)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump0 tests/makeimage_textout0
+fi
 
 echo -n "*** Diff comparison with archives: biggertest... "
 if (diff --brief test_dump1 tests/makeimage_textout1)

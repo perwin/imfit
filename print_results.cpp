@@ -76,8 +76,8 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
 //    bool usingCashStatistic = model->UsingCashStatistic();
     if (whichStat == FITSTAT_CASH)
       printf("  CASH STATISTIC = %f\n", fitStatistic);
-    else if (whichStat == FITSTAT_MODCASH)
-      printf("  MODIFIED CASH STATISTIC = %f\n", fitStatistic);
+    else if (whichStat == FITSTAT_POISSON_MLR)
+      printf("  POISSON-MLR STATISTIC = %f\n", fitStatistic);
     else {
       printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
@@ -100,9 +100,9 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     printf("  CASH STATISTIC = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
     printf("  INITIAL CASH STATISTIC = %f\n", result->orignorm);
   }
-  else if (whichStat == FITSTAT_MODCASH) {
-    printf("  MODIFIED CASH STATISTIC = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
-    printf("  INITIAL MODIFIED CASH STATISTIC = %f\n", result->orignorm);
+  else if (whichStat == FITSTAT_POISSON_MLR) {
+    printf("  POISSON-MLR STATISTIC = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
+    printf("  INITIAL POISSON-MLR STATISTIC = %f\n", result->orignorm);
   }
   else {
     printf("  CHI-SQUARE = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);

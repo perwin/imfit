@@ -32,6 +32,7 @@
 #include <stdio.h>
 
 #include "model_object.h"
+#include "add_functions.h"
 
 // CHANGE WHEN ADDING FUNCTION -- add corresponding header file
 #include "function_objects/function_object.h"
@@ -245,33 +246,20 @@ void FreeFactories( map<string, factory*>& factory_map )
 
 void PrintAvailableFunctions( )
 {
-  string  currentName;
-  FunctionObject  *thisFunctionObj;
-  map<string, factory*>  factory_map;
+  vector<string>  functionNames;
 
-  PopulateFactoryMap(factory_map);
-
-  // get list of keys (function names) and step through it
-  map<string, factory*>::iterator  w;
-
+  GetFunctionNames(functionNames);
   printf("\nAvailable function/components:\n\n");
-  for (w = factory_map.begin(); w != factory_map.end(); w++) {
-    thisFunctionObj = w->second->create();
-    currentName = thisFunctionObj->GetShortName();
-    printf("%s\n", currentName.c_str());
-    delete thisFunctionObj;
-  }
+  for (int i = 0; i < functionNames.size(); i++)
+    printf("%s\n", functionNames[i].c_str());
   printf("\n\n");    
-
-  // Avoid minor memory leak by freeing the individual funcobj_factory objects
-  FreeFactories(factory_map);
 }
 
 
-void ListFunctionParameters( )
 // Prints a list of function names, along with the ordered list of
 // parameter names for each function (suitable for copying and pasting
 // into a config file for makeimage or imfit).
+void ListFunctionParameters( )
 {
   
   string  currentName;
@@ -300,6 +288,64 @@ void ListFunctionParameters( )
   // Avoid minor memory leak by freeing the individual funcobj_factory objects
   FreeFactories(factory_map);
 }
+
+
+
+// Gets the ordered list of parameter names for the specified function and returns them
+// in the input vector parameterNameList
+//
+// Returns -1 if functionName is not the name of a valid Function Object class
+// (Based on code from André Luiz de Amorim.)
+int GetFunctionParameterNames(string &functionName, vector<string> &parameterNameList)
+{
+  FunctionObject  *thisFunctionObj;
+  map<string, factory*>  factory_map;
+  vector<string> factory_map_names;
+
+  PopulateFactoryMap(factory_map);
+
+  if (factory_map.count(functionName) < 1) {
+    return - 1;
+  }
+  else {
+    thisFunctionObj = factory_map[functionName]->create();
+    thisFunctionObj->GetParameterNames(parameterNameList);
+    delete thisFunctionObj;
+  }
+
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
+
+  return 0;
+}
+
+
+// Gets the list of names of known functions and returns them
+// in the input vector functionNameList
+//
+// (Based on code from André Luiz de Amorim.)
+void GetFunctionNames( vector<string> &functionNameList )
+{
+  string  currentName;
+  FunctionObject  *thisFunctionObj;
+  map<string, factory*>  factory_map;
+
+  PopulateFactoryMap(factory_map);
+
+  // get list of keys (function names) and step through it
+  map<string, factory*>::iterator  w;
+
+  for (w = factory_map.begin(); w != factory_map.end(); w++) {
+    thisFunctionObj = w->second->create();
+    currentName = thisFunctionObj->GetShortName();
+    functionNameList.push_back(currentName);
+    delete thisFunctionObj;
+  }
+
+  // Avoid minor memory leak by freeing the individual funcobj_factory objects
+  FreeFactories(factory_map);
+}
+
 
 
 /* END OF FILE: add_functions.cpp ---------------------------------------- */

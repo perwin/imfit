@@ -11,9 +11,17 @@
 #include "model_object.h"
 
 
-void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
+int BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
+					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
+					int whichStatistic, FILE *outputFile_ptr );
+
+int BootstrapErrorsArrayOnly( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
 					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
 					int whichStatistic, double **outputParamArray );
+
+// void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
+// 					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
+// 					int whichStatistic, double **outputParamArray );
 
 
 #endif  // _BOOTSTRAP_ERRORS_H_

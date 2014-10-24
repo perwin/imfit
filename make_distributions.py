@@ -3,6 +3,7 @@
 # script for generating distribution tarballs
 
 import sys, os, shutil, optparse, tarfile, subprocess, copy
+import markdown
 
 # where to copy binary (or source) tarballs when completed (specialized for
 # Linux virtual machines on MacBook Pro and local web-site directory for Mac
@@ -10,6 +11,9 @@ import sys, os, shutil, optparse, tarfile, subprocess, copy
 LINUX_DEST = "/media/sf_vbox_shared/"
 MAC_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/"
 MAC_DEST_BIN = "/Users/erwin/Documents/Working/web site/code/imfit/binaries/"
+
+MAC_CHANGELOG_MD = "CHANGELOG.md"
+MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/CHANGELOG.html"
 
 VERSION_STRING = "1.1"
 
@@ -215,6 +219,7 @@ config_makeimage_gensersic512.dat
 config_makeimage_sersic+exp512.dat
 config_makeimage_sersic+exp512_nosize.dat
 psf_moffat_35.fits
+makeimage_textout0
 makeimage_textout1
 makeimage_textout2
 makeimage_textout3
@@ -332,6 +337,8 @@ def MakeSourceDist( ):
 	
 	print("Copying gzipped tar file %s to %s..." % (SOURCE_TARFILE, SOURCE_COPY_DEST_DIR))
 	shutil.copy(SOURCE_TARFILE, SOURCE_COPY_DEST_DIR)
+	print("Generating HTML version of CHANGELOG.md and copying to %s..." % (MAC_CHANGELOG_DEST))
+	markdown.markdownFromFile(input=MAC_CHANGELOG_MD, output=MAC_CHANGELOG_DEST)
 
 
 
