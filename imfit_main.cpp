@@ -593,6 +593,9 @@ int main(int argc, char *argv[])
     									theModel, options.ftol, options.bootstrapIterations, 
     									nFreeParams, theModel->WhichFitStatistic(), 
     									bootstrapSaveFile_ptr);
+    if ((nSucessfulIterations > 0) && (options.outputBootstrapFileName.length() > 0))
+      printf("Bootstrap-resampling output saved to file %s.\n", options.outputBootstrapFileName.c_str());
+    fclose(bootstrapSaveFile_ptr);
 //  int BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
 // 					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
 // 					int whichStatistic, FILE *outputFile_ptr );

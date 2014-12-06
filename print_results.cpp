@@ -53,7 +53,7 @@ void PrintParam( FILE *outFile, string& paramName, double paramValue, double par
 // This is a function to print the results of a fit.  It's based on code from
 // Craig Markwardt's testmpfit.c, but will also accomodate results from a fit
 // done with other minimization algorithms, such as Nelder-Mead simplex or
-// differential evolution (call with result=0 to indicate non-LM optimizer).
+// Differential Evolution (call with result=0 to indicate non-LM optimizer).
 void PrintResults( double *params, double *xact, mp_result *result, ModelObject *model,
 									int nFreeParameters, mp_par *parameterInfo, int fitStatus )
 {
@@ -62,22 +62,22 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
   int  nDegreesFreedom = nValidPixels - nFreeParameters;
   int  whichStat;
   string  mpfitMessage;
-  double  aic, bic;
+  double  fitStatistic, aic, bic;
   
   whichStat = model->WhichFitStatistic();
 
+  // Case of non-LM minimization (e.g., Nelder-Mead simplex, DE)
   if (result == 0) {
-    // PrintResult was called with result from Nelder-Mead simplex or 
-    // Differential Evolution fit, not mpfit
     // Only print results of fit if fitStatus >= 1
     if (fitStatus < 1)
       return;
-    double  fitStatistic = model->GetFitStatistic(params);
-//    bool usingCashStatistic = model->UsingCashStatistic();
+    fitStatistic = model->GetFitStatistic(params);
     if (whichStat == FITSTAT_CASH)
       printf("  CASH STATISTIC = %f\n", fitStatistic);
-    else if (whichStat == FITSTAT_POISSON_MLR)
+    else if (whichStat == FITSTAT_POISSON_MLR) {
       printf("  POISSON-MLR STATISTIC = %f\n", fitStatistic);
+      printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
+    }
     else {
       printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
@@ -90,7 +90,7 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
     return;
   }
   
-  // OK, if we got this far, then we're dealing with mpfit output
+  // Case of mpfit output (L-M minimization)
   InterpretMpfitResult(fitStatus, mpfitMessage);
   printf("*** mpfit status = %d -- %s\n", fitStatus, mpfitMessage.c_str());
     // Only print results of fit if valid fit was achieved
@@ -116,7 +116,7 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
   printf("\n");
   aic = AIC_corrected(result->bestnorm, nFreeParameters, nValidPixels, 1);
   bic = BIC(result->bestnorm, nFreeParameters, nValidPixels, 1);
-  if (whichStat == FITSTAT_CHISQUARE)
+  if ((whichStat == FITSTAT_CHISQUARE) || (whichStat == FITSTAT_POISSON_MLR))
     printf("Reduced Chi^2 = %f\n", result->bestnorm / nDegreesFreedom);
   printf("AIC = %f, BIC = %f\n\n", aic, bic);
   

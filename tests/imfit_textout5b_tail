@@ -1,6 +1,6 @@
-Nelder-Mead Simplex status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
-
   POISSON-MLR STATISTIC = 22778.493863
+
+Reduced Chi^2 = 1.012648
 AIC = 22790.497598, BIC = 22838.621487
 
 X0		75.0290

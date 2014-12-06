@@ -26,8 +26,10 @@ scons_string = "scons --static"
 SOURCE_TARFILE = "imfit-%s-source.tar.gz" % VERSION_STRING
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	BINARY_TARFILE = "imfit-%s-macintel.tar.gz" % VERSION_STRING
+	BINARY_TARFILE_OLDMAC = "imfit-%s-macintel_10.6-10.7.tar.gz" % VERSION_STRING
 	# and we can do "fat" compilation (combine 32-bit and 64-bit binaries)
-	scons_string += " --fat"
+	#scons_string += " --fat"
+	scons_string_oldmac = scons_string + " --fat --old-mac"
 	SOURCE_COPY_DEST_DIR = MAC_DEST
 	BINARY_COPY_DEST_DIR = MAC_DEST_BIN
 else:
@@ -297,20 +299,34 @@ def MakeDistributionDir( ):
 	shutil.copy("SConstruct_export", distDir + "SConstruct")
 
 
-def MakeBinaries( ):
+def MakeBinaries( mode=None ):
 	# Generate appropriate binaries
-	print("Calling scons to generate imfit binary...")
-	subprocess.check_output(scons_string + " imfit", shell=True)
-	print("Calling scons to generate makeimage binary...")
-	subprocess.check_output(scons_string + " makeimage", shell=True)
+	if (mode is None):
+		# Mac OS 10.8 or newer, or Linux
+		print("Calling scons to generate imfit binary...")
+		subprocess.check_output(scons_string + " imfit", shell=True)
+		print("Calling scons to generate makeimage binary...")
+		subprocess.check_output(scons_string + " makeimage", shell=True)
+	else:
+		# Mac OS 10.6 or 10.7
+		print("Calling scons to generate imfit binary for Mac OS 10.6/10.7...")
+		subprocess.check_output(scons_string_oldmac + " imfit", shell=True)
+		print("Calling scons to generate makeimage binary for Mac OS 10.6/10.7...")
+		subprocess.check_output(scons_string_oldmac + " makeimage", shell=True)
 	
 
-def MakeBinaryDist( ):
+def MakeBinaryDist( mode=None ):
 	distDir = "imfit-%s/" % VERSION_STRING
 	final_file_list = binary_only_file_list + misc_required_files_list + documentation_file_list + example_file_list
 	
-	print("Generating tar file %s..." % BINARY_TARFILE)
-	tar = tarfile.open(BINARY_TARFILE, 'w|gz') 
+	if (mode is None):
+		# Mac OS 10.8 or newer, or Linux
+		binaryTarfile = BINARY_TARFILE
+	else:
+		# Mac OS 10.6 or 10.7
+		binaryTarfile = BINARY_TARFILE_OLDMAC
+	print("Generating tar file %s..." % binaryTarfile)
+	tar = tarfile.open(binaryTarfile, 'w|gz') 
 	for fname in final_file_list:
 		tar.add(distDir + fname)
 	tar.close()
@@ -356,10 +372,20 @@ def main(argv):
 	
 	print("\nMaking distribution directory and copying files into it...")
 	if options.binaryDist is True:
-		print("Generating binary-only distribution (%s)..." % BINARY_TARFILE)
-		MakeBinaries()
-		MakeDistributionDir()
-		MakeBinaryDist()
+		if (os_type == "Darwin"):
+			print("Generating binary-only Mac distribution (%s)..." % BINARY_TARFILE)
+			MakeBinaries()
+			MakeDistributionDir()
+			MakeBinaryDist()
+			print("Generating binary-only Mac distribution for 10.6/10.7 (%s)..." % BINARY_TARFILE_OLDMAC)
+			MakeBinaries(mode="oldmac")
+			MakeDistributionDir()
+			MakeBinaryDist(mode="oldmac")
+		else:
+			print("Generating binary-only Linux distribution (%s)..." % BINARY_TARFILE)
+			MakeBinaries()
+			MakeDistributionDir()
+			MakeBinaryDist()
 	if options.sourceDist is True:
 		print("Generating source distribution (%s)..." % SOURCE_TARFILE)
 		MakeDistributionDir()

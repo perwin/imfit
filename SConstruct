@@ -84,6 +84,7 @@ STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/lib/libgslcblas.a")
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
 STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/local_libs/nlopt_nothreadlocal/libnlopt.a")
 STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 
@@ -211,6 +212,7 @@ useOpenMP = True
 useExtraFuncs = False
 useStaticLibs = False
 buildFatBinary = False
+buildForOldMacOS = False
 
 
 # Define some user options
@@ -243,6 +245,8 @@ AddOption("--static", dest="useStaticLibs", action="store_true",
 	default=False, help="force static library linking")
 AddOption("--fat", dest="makeFatBinaries", action="store_true", 
 	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
+AddOption("--old-mac", dest="buildForOldMac", action="store_true", 
+	default=False, help="compile for Mac OS 10.6 and 10.7")
 
 
 if GetOption("headerPath") is not None:
@@ -288,6 +292,8 @@ if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
 if GetOption("makeFatBinaries") is True:
 	buildFatBinary = True
+if GetOption("buildForOldMac") is True:
+	buildForOldMacOS = True
 
 
 if useFFTWThreading:   # default is to do this
@@ -322,8 +328,15 @@ else:
 if useNLopt:   # default is to do this
 	if useStaticLibs:
 		if (os_type == "Darwin"):
-			lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
-			lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
+			if buildForOldMacOS is True:
+				# Special case compiling for Mac OS 10.6 and 10.7 -- use local path
+				# to NLopt library build without thread-local storage
+				lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
+				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
+			else:
+				# Mac OS 10.8 and later -- use standard /usr/local/lib path
+				lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
+				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
 		else:
 			# assuming we're on a Linux system
 			lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
@@ -360,13 +373,10 @@ if buildFatBinary and (os_type == "Darwin"):
 	cflags_db += ["-arch", "i686", "-arch", "x86_64"]
 	link_flags += ["-arch", "i686", "-arch", "x86_64"]
 
-# 	if key == 'mode':
-# 		if value == "export":   # "scons mode=export"  [for compiling "export" versions]
-# 			# build a fat Intel (32-bit/64-bit) binary (works on Mac OS X)
-# 			cflags_opt.append("-arch i386 -arch x86_64")
-# 			cflags_db.append("-arch i386 -arch x86_64")
-# 			link_flags.append("-arch i386 -arch x86_64")
-# 			useStaticLibs = True
+if buildForOldMacOS and (os_type == "Darwin"):
+	cflags_opt += ["-mmacosx-version-min=10.6"]
+	cflags_db += ["-mmacosx-version-min=10.6"]
+	link_flags += ["-mmacosx-version-min=10.6"]
 
 
 defines_db = defines_db + extra_defines

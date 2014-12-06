@@ -67,6 +67,10 @@
 \newcommand{\chisquaredata}{\ensuremath{\chi_{d}^{2}}}
 \newcommand{\chisquaremodel}{\ensuremath{\chi_{m}^{2}}}
 
+\newcommand{\pmlr}{PMLR}
+
+\newcommand{\versionnum}{1.1}
+
 \newcommand{\red}{\textcolor{red}}
 
 
@@ -75,7 +79,8 @@
 
 % Definition of title page:
 \title{
-  Notes for Using ``Imfit''
+  Notes for Using ``Imfit'' \\
+  (Version \versionnum{})
 }
 \author{
   Peter Erwin\\
@@ -1078,7 +1083,7 @@ computation; see, e.g., \citealt{erwin14}.)
 
 The Poisson-MLR statistic includes extra terms based on the data values:
 \begin{equation}
-C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
+\mathrm{\pmlr} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I^{\prime}_{m, i} - I^{\prime}_{d, i} \ln I^{\prime}_{m, i} + I^{\prime}_{d, i} \ln I^{\prime}_{d, i} - I^{\prime}_{d, i} \right).
 \end{equation}
 
@@ -1100,11 +1105,16 @@ input \textsc{fits} file which contains the point spread function. The actual co
 uses Fast Fourier Transforms of the internally-generated model image and the PSF
 image to compute the output convolved model image.
 
-PSF images should be square, ideally with width = an odd number of pixels, and
-the PSF should be centered in the central pixel. (An off-center PSF can certainly
-be used, but the resulting convolved model images will be shifted.) The PSF does
-\textit{not} need to be normalized, as \imfitprog{} will automatically normalize the
-PSF image internally.
+PSF images should be square, ideally with width $N$ = an odd number of
+pixels, and the PSF should be centered in the central pixel: $x = y = N \,
+\mathbf{div} \, 2 \, + \, 1$, where $\mathbf{div}$ is integer division (remember
+that \imfit{} uses the \textsc{iraf}/DS9 convention for pixel numbering: the center
+of the first pixel in the image is at $(x,y) = (1.0,1.0)$, etc.).
+E.g., for a $25 \times 25$-pixel PSF, the center should be at $(x,y) =
+(13.0,13.0)$. An off-center PSF can certainly be used, but the resulting
+convolved model images will be shifted! The PSF does \textit{not} need
+to be normalized, as \imfitprog{} will automatically normalize the PSF
+image internally.
 
 Although \imfit{} uses a multi-threaded version version of the \textsc{fftw} library, which
 is itself quite fast, adding PSF convolution to the image-fitting process \textit{does}
@@ -1151,16 +1161,16 @@ Specifying the Cash statistic is done with the \texttt{--cashstat} command-line 
 A drawback of the Cash statistic is that it \textit{cannot} be minimized with the
 Levenberg-Marquardt algorithm, since the latter assumes that all terms in the summation are
 $\ge 0$, which is usually not true for the Cash statistic.  Fortunately, there is also the 
-Poisson-MLR statistic $C_{\mathrm{mod}}$, which includes extra terms based on the data values:
+Poisson-MLR statistic \pmlr, which includes extra terms based on the data values:
 \begin{equation}
-C_{\mathrm{mod}} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
+\mathrm{\pmlr} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I_{m, i} - I_{d, i} \ln I_{m, i} + I_{d, i} \ln I_{d, i} - I_{d, i} \right).
 \end{equation}
 Since the extra terms do not depend on the model values, they remain unchanged during
 the minimization and do not affect it. However, they have
 the key advantage of ensuring that all individual-pixel values are always $\ge 0$, which
-makes it possible to use the Levenberg-Marquardt algorithm to minimize $C_{\mathrm{mod}}$.
-Use of $C_{\mathrm{mod}}$ is done via the \texttt{--poisson-mlr} flag (or its shortened
+makes it possible to use the Levenberg-Marquardt algorithm to minimize \pmlr.
+Use of \pmlr{} is done via the \texttt{--poisson-mlr} flag (or its shortened
 version \texttt{--mlr}).
 
 (See Section~\ref{sec:noise-maps} above for more details on how the data
@@ -1173,7 +1183,7 @@ backgrounds, A/D gain, Gaussian read noise, and combination with masks.)
 
 \section{Minimization Options: Levenberg-Marquardt, Nelder-Mead Simplex, Differential Evolution}
 
-The default method for \chisquare{} (or $C_{\mathrm{mod}}$) minimization
+The default method for \chisquare{} (or \pmlr) minimization
 used by \imfit{} is the Levenberg-Marquardt algorithm, based on the
 classic \textsc{minpack-1} implementation \citep{more78} with
 enhancements by Craig Markwardt.\footnote{Original C version available
@@ -1196,7 +1206,7 @@ Levenberg-Marquardt method, it requires an initial guess for the
 parameter values, but is considered less likely to become trapped in
 local minima in the fit-statistic landscape. Unlike the L-M algorithm,
 it can be used for minimizing $C$ (as well as \chisquare{} and
-$C_{\mathrm{mod}}$). If you compile \imfit{} from source and want to use
+\pmlr). If you compile \imfit{} from source and want to use
 this algorithm, you need to have the NLopt library installed on your
 system.
 
@@ -1250,7 +1260,7 @@ on their own.
 \section{Controlling the Tolerance for Minimization}
 
 All three minimization algorithms have stop conditions based on
-fractional changes in the fit-statistic (\chisquare{}, $C$, or $C_{\mathrm{mod}}$)
+fractional changes in the fit-statistic (\chisquare{}, $C$, or \pmlr)
 value: if further iterations do not improve the current value by more
 than FTOL $\times$ the fit statistic, then the algorithm declares success and
 terminates. (In the case of DE, the test condition is actually no
@@ -1333,7 +1343,7 @@ uncertainty.
 The other fitting algorithms used by \imfit{} do not compute gradients
 in the fit landscape, and so they do not produce automatic uncertainty
 estimates. Although one could certainly take the solution of a
-\chisquare{} or $C_{\mathrm{mod}}$ fit done with the N-M simplex or DE
+\chisquare{} or \pmlr{} fit done with the N-M simplex or DE
 algorithms and use it as input to a L-M run of \imfit, thus generating
 L-M--based uncertainties, this is not possible when using the Cash statistic $C$.
 
