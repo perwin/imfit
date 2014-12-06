@@ -96,6 +96,7 @@ typedef struct {
   bool  printFluxes;
   int  maxThreads;
   bool  maxThreadsSet;
+  int  debugLevel;
 } commandOptions;
 
 
@@ -169,6 +170,7 @@ int main( int argc, char *argv[] )
   options.printFluxes = false;
   options.maxThreads = 0;
   options.maxThreadsSet = false;
+  options.debugLevel = 0;
 
   ProcessInput(argc, argv, &options);
   
@@ -306,6 +308,7 @@ int main( int argc, char *argv[] )
     			x1_oversample, x2_oversample, y1_oversample, y2_oversample);
 
   theModel->PrintDescription();
+  theModel->SetDebugLevel(options.debugLevel);
 
 
   // Set up parameter vector(s), now that we know how many total parameters
@@ -488,6 +491,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
   optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --debug <n>              Set the debugging level (integer)");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
   optParser->AddUsageLine("   makeimage model_config_a.dat");
   optParser->AddUsageLine("   makeimage model_config_b.dat --ncols 800 --nrows 800 --psf best_psf.fits -o testimage_convolved.fits");
@@ -517,6 +522,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("estimation-size");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("output-functions");      /* an option (takes an argument), supporting only long form */
   optParser->AddOption("max-threads");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("debug");
 
   /* parse the command line:  */
   int status = optParser->ParseCommandLine( argc, argv );
@@ -650,6 +656,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     }
     theOptions->maxThreads = atol(optParser->GetTargetString("max-threads").c_str());
     theOptions->maxThreadsSet = true;
+  }
+  if (optParser->OptionSet("debug")) {
+    if (NotANumber(optParser->GetTargetString("debug").c_str(), 0, kAnyInt)) {
+      fprintf(stderr, "*** ERROR: debug should be an integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->debugLevel = atol(optParser->GetTargetString("debug").c_str());
   }
 
   if ((theOptions->nColumns) && (theOptions->nRows))

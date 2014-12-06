@@ -269,7 +269,7 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   if (debugLevel > 0) {
     vector<string>  imageCommentsList;
     outputName = debugImageName + ".fits";
-    printf("\nSaving output model image (\"%s\") ...\n", debugImageName.c_str());
+    printf("\nOversampledRegion::ComputeRegionAndDownsample -- Saving output model image (\"%s\") ...\n", outputName.c_str());
     status = SaveVectorAsImage(modelVector, outputName, 
                         nModelColumns, nModelRows, imageCommentsList);
   }
@@ -282,7 +282,7 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   if (debugLevel > 0) {
     vector<string>  imageCommentsList;
     outputName = debugImageName + "_conv.fits";
-    printf("\nSaving PSF-convolved output model image (\"%s\") ...\n", debugImageName.c_str());
+    printf("\nOversampledRegion::ComputeRegionAndDownsample -- Saving PSF-convolved output model image (\"%s\") ...\n", outputName.c_str());
     status = SaveVectorAsImage(modelVector, outputName, 
                         nModelColumns, nModelRows, imageCommentsList);
   }

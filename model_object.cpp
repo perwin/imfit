@@ -152,6 +152,9 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
   }
   else
     debugLevel = debuggingLevel;
+
+  if (oversampledRegionAllocated)
+    oversampledRegion->SetDebugLevel(debugLevel);
 }
 
 
