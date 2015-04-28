@@ -65,6 +65,13 @@
 /* ---------------- Definitions ---------------------------------------- */
 static string  UNDEFINED = "<undefined>";
 
+// we define these here so we don't have to worry about casting the return
+// values of sizeof(), or needing to include the FFTW header. (For some reason,
+// using sizeof(double) in a simple math expression *occasionally* produces
+// ridiculously large values.)
+const int  FFTW_SIZE = 16;
+const int  DOUBLE_SIZE = 8;
+
 // output formatting for printing parameters
 #define X0_FORMAT_WITH_ERRS "%sX0\t\t%.4f # +/- %.4f\n"
 #define Y0_FORMAT_WITH_ERRS "%sY0\t\t%.4f # +/- %.4f\n"
@@ -1488,6 +1495,61 @@ int ModelObject::GetNDataValues( )
 int ModelObject::GetNValidPixels( )
 {
   return nValidDataVals;
+}
+
+
+/* ---------------- PUBLIC METHOD: EstimateMemoryUse ------------------- */
+// If PSF convolution is *not* being done, set nPSFCols = 0
+// Boolean inputs:
+//    levMarFit should = true if Levenberg-Marquardt minimization will be done
+//       (means that deviateVector will be allocated)
+//    cashTerms should = true if Cash statistic *or* Poisson MLR being minimized
+//       (means that extraCashTermsVector will be allocated)
+//    outputResidual should = true if residual image will be saved
+//    outputModel should = true if best-fit model image will be saved
+long ModelObject::EstimateMemoryUse( int nDataCols, int nDataRows, int nPSFCols, int nPSFRows,
+									 int nFreeParams, bool levMarFit, bool cashTerms, bool outputResidual,
+									 bool outputModel )
+{
+  long  nBytesNeeded = 0.0;
+  long  nPaddedPixels = 0;
+  long  nDataPixels = (long)(nDataCols * nDataRows);
+  long  dataSize = (long)(nDataPixels * DOUBLE_SIZE);
+  int  nModelRows, nModelCols;
+  long  nModelPixels = 0;
+  double  temp;
+  
+  nBytesNeeded += dataSize;   // allocated outside
+  
+  if (nPSFCols > 0) {
+    // we're doing PSF convolution
+    nBytesNeeded += (long)(nPSFCols * nPSFRows);   // allocated outside
+    nModelCols = nDataCols + 2*nPSFCols;
+    nModelRows = nDataRows + 2*nPSFRows;
+    nModelPixels = (long)(nModelCols * nModelRows);
+    // Convolver stuff
+    nPaddedPixels = (long)((nModelCols + nPSFCols) * (nModelRows + nPSFRows));
+    nBytesNeeded += (long)(6 * nPaddedPixels * FFTW_SIZE);    // 6 fftw_complex arrays allocated in Convolver
+  }
+  else
+    nModelPixels = nDataPixels;
+  long  modelSize = (long)(nModelPixels * DOUBLE_SIZE); 
+  // the following are always allocated
+  nBytesNeeded += 3*modelSize;   // modelVector, weightVector, maskVector
+  // possible allocations, depending on type of fit and/or outputs requested
+  int  nDataSizeAllocs = 0;
+  if (levMarFit) {
+    nDataSizeAllocs += 3;   // ModelObject's deviatesVector + 2 allocations [fvec, wa4] w/in mpfit.cpp
+    nDataSizeAllocs += nFreeParams;   // jacobian array fjac allocated w/in mpfit.cpp
+  }
+  if (cashTerms)
+    nDataSizeAllocs += 1;
+  if (outputResidual)
+    nDataSizeAllocs += 1;
+  if (outputModel)
+    nDataSizeAllocs += 1;
+  nBytesNeeded += nDataSizeAllocs * dataSize;
+  return nBytesNeeded;
 }
 
 

@@ -69,6 +69,9 @@
 
 #define NO_MAGNITUDES  -10000.0   /* indicates data are *not* in magnitudes */
 
+#define GIGABYTE   1073741824.0   /* 1 gigabyte */
+#define MEMORY_WARNING_LIMT   1073741824.0   /* 1 gigabyte */
+
 #define DEFAULT_CONFIG_FILE   "imfit_config.dat"
 #define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_imfit.dat"
 
@@ -217,7 +220,9 @@ void SetDefaultOptions( commandOptions *theOptions )
 int main(int argc, char *argv[])
 {
   int  nPixels_tot, nColumns, nRows;
-  int  nPixels_psf, nRows_psf, nColumns_psf;
+  int  nPixels_psf = 0;
+  int  nRows_psf = 0;
+  int  nColumns_psf = 0;
   int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
   int  nDegFreedom;
   int  nParamsTot, nFreeParams;
@@ -382,6 +387,7 @@ int main(int argc, char *argv[])
 
   /* Create the model object */
   theModel = new ModelObject();
+  
   // Put limits on number of FFTW and OpenMP threads, if requested by user
   if (options.maxThreadsSet)
     theModel->SetMaxThreads(options.maxThreads);
@@ -405,6 +411,32 @@ int main(int argc, char *argv[])
   	exit(-1);
   }
   
+  // Get estimate of memory use (do this *after* we know number of free parameters); 
+  // warn if it will be large
+  long  estimatedMemory;
+  double  nGBytes;
+  bool  usingLevMar, usingCashTerms;
+  if (options.solver == MPFIT_SOLVER)
+    usingLevMar = true;
+  else
+    usingLevMar = false;
+  if ((options.useCashStatistic) || (options.usePoissonMLR))
+    usingCashTerms = true;
+  else
+    usingCashTerms = false;
+  estimatedMemory = theModel->EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+  												usingLevMar, usingCashTerms, options.saveResidualImage, 
+  												options.saveModel);
+  nGBytes = (1.0*estimatedMemory) / GIGABYTE;
+  if (nGBytes >= 1.0)
+    printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);
+  else
+    printf("Estimated memory use: %ld bytes (%.1f MB)\n", estimatedMemory, nGBytes*1024.0);
+  if (estimatedMemory > MEMORY_WARNING_LIMT) {
+    fprintf(stderr, "WARNING: Estimated memory needed by internal images =");
+    fprintf(stderr, " %ld bytes (%g gigabytes)\n", estimatedMemory, nGBytes);
+  }
+
   
   // Add PSF image vector, if present (needs to be added prior to image data, so that
   // ModelObject can figure out proper internal model-image size
@@ -467,6 +499,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "*** ERROR: Failure in ModelObject::FinalSetupForFitting!\n\n");
     exit(-1);
   }
+    
 
 
   

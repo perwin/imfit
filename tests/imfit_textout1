@@ -8,6 +8,7 @@ Reading noise image ("tests/uniform_image32.fits") ...
 * Pixel subsampling has been turned OFF.
 Function: Exponential
 6 total parameters
+Estimated memory use: 106496 bytes (0.1 MB)
 Model Object: 1024 data values (pixels)
 ModelObject: mask vector applied to weight vector. (1024 valid pixels remain)
 Setting up parameter information array ...

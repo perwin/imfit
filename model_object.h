@@ -181,6 +181,11 @@ class ModelObject
     // common, not specialized -- returns total number of *non-masked* data values
     int GetNValidPixels( );
 
+    // common, not specialized
+    long EstimateMemoryUse( int nDataCols, int nDataRows, int nPSFCols, int nPSFRows,
+							int nFreeParams, bool levMarFit, bool cashTerms, bool outputResidual,
+							bool outputModel );
+    
 		// 2D only
     double * GetModelImageVector( );
 

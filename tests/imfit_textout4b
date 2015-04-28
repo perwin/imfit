@@ -15,6 +15,7 @@ naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
 Function: Sersic
 Function: Exponential
 11 total parameters
+Estimated memory use: 12493225 bytes (11.9 MB)
 Model Object: 30000 data values (pixels)
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
 * No noise image supplied ... will generate noise image from input image.

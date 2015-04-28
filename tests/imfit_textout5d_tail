@@ -1,7 +1,7 @@
      NITER = 16
       NFEV = 124
 
-Reduced Chi^2 = 0.227929
+Reduced Chi^2 equivalent = 0.227929
 AIC = 18123.661993, BIC = 18188.641647
 
 X0		492.0205 # +/- 0.0626
