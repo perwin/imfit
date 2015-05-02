@@ -25,8 +25,8 @@
 # To build a version using non-default compiler:
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
-#    $ scons --cc=gcc-4.8 --cpp=g++-4.8 <target-name>
-# shorthand for the previous case (GCC 4.8 only)
+#    $ scons --cc=gcc-4.9 --cpp=g++-4.9 <target-name>
+# shorthand for the previous case (GCC 4.9 only)
 #    $ scons --use-gcc <target-name>
 #
 #
@@ -48,7 +48,7 @@
 # etc.
 
 
-# Copyright 2010--2014 by Peter Erwin.
+# Copyright 2010--2015 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -238,7 +238,7 @@ AddOption("--cc", dest="cc_compiler", type="string", action="store", default=Non
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v4.8 compilers")
+	default=False, help="use gcc and g++ v4.9 compilers")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -281,8 +281,8 @@ if GetOption("cpp_compiler") is not None:
 	print "using %s for C++ compiler" % CPP_COMPILER
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
-	CC_COMPILER = "gcc-4.8"
-	CPP_COMPILER = "g++-4.8"
+	CC_COMPILER = "gcc-4.9"
+	CPP_COMPILER = "g++-4.9"
 	print "using %s for C compiler" % CC_COMPILER
 	print "using %s for C++ compiler" % CPP_COMPILER
 	c_compiler_changed = True
