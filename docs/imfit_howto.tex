@@ -147,8 +147,8 @@ the \imfitprog{} binary to fit images.)
 \bigskip
 
 \textbf{System Requirements:} \Imfit{} has been built and tested on
-Intel-based MacOS X 10.6--10.9 (Snow Leopard, Lion, Mountain Lion, and
-Mavericks)
+Intel-based MacOS X 10.6--10.10 (Snow Leopard, Lion, Mountain Lion, 
+Mavericks, and Yosemite)
 and Linux (Ubuntu) systems. It uses standard C++ and should work on most
 Unix-style systems with a modern C++ compiler and the Standard Template
 Library (e.g., \textsc{gcc} v4 or higher\footnote{\textsc{gcc} v4.2 or
@@ -278,8 +278,8 @@ line).
 
 \subsubsection{Tests}
 
-Finally, there are two shell scripts -- \texttt{do\_imfit\_tests} and
-\texttt{do\_makeimage\_tests} -- which can be run to do some very simple
+Finally, there are two shell scripts --- \texttt{do\_imfit\_tests} and
+\texttt{do\_makeimage\_tests} --- which can be run to do some very simple
 sanity checks (e.g., do the programs fit some simple images correctly,
 are common config-file errors caught, etc.). They make use of files and
 data in the \texttt{tests/} subdirectory. Possible differences in output
@@ -347,7 +347,7 @@ OpenMP compiler support, which speeds up image computation by splitting
 it up across multiple CPUs (and multiple cores within multi-core CPUs).
 Currently, the code uses OpenMP 2.5 options, which means that if you are
 using the \textsc{gcc} compiler, you need version 4.2 or higher. If your compiler
-does not support OpenMP -- or you want, for whatever reason, a version
+does not support OpenMP --- or you want, for whatever reason, a version
 that does not include OpenMP support, you can disable it by compiling
 with the following commands:
 \begin{quote}
@@ -361,7 +361,7 @@ with the following commands:
 The standard compiler tools for Mac OS~X are those which come with
 Apple's Xcode. Prior to version 5, Xcode included
 \textsc{gcc} 4.2 (or an LLVM-based equivalent called ``llvm-gcc'').
-Unfortunately, the command-line compilers which come with Xcode 5 are
+Unfortunately, the command-line compilers which come with Xcode 5 and 6 are
 based on Clang instead of \textsc{gcc} and so do \textit{not} support
 OpenMP. In order to compile \imfit{} with OpenMP, you will need either a previous
 version of Xcode (e.g., from a prior installation) or a separate
@@ -565,8 +565,18 @@ image $-$ best-fitting model image) will be saved using the specified filename.
 
 \item \texttt{--nm} --- use Nelder-Mead simplex instead of Levenberg-Marquardt as
 the minimization technique (\textsc{Warning}: slower)
+
 \item \texttt{--de} --- use Differential Evolution instead of Levenberg-Marquardt as
 the minimization technique (\textsc{Warning}: much slower!)
+
+\item \texttt{--nlopt} \textit{algorithm-name} --- use one of the
+``local derivative-free'' minimization algorithms from the NLopt
+library;\footnote{See
+\url{http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms}.}
+recognized options are COBYLA, BOBYQA, NEWUOA, PRAXIS, and SBPLX. These
+are generally slower and/or less robust than the Nelder-Mead simplex
+algorithm (which is also part of the NLopt library, and can be specified
+with \texttt{--nlopt NM}, though it's simpler just to use \texttt{--nm}).
 
 \bigskip
 
@@ -786,7 +796,7 @@ to see what these are for each function).
 \bigskip
 
 \textbf{Values for Positional Parameter (X0, Y0)}: The positional parameters
-for each function block are pixel values -- X0 for the column number and
+for each function block are pixel values --- X0 for the column number and
 Y0 for the row number. \Imfit{} uses the \textsc{iraf} pixel-numbering
 convention: the center of first pixel in the image (the lower left pixel
 in a standard display) is at $(1.0,1.0)$, with the lower-left corner of that
@@ -1324,33 +1334,40 @@ estimates are separated from the parameter values by ``\#''; this means
 that you can copy and paste the parameter list into a text file and use
 that file as an input configuration file for \imfit{} or \makeimage. 
 
-The best-fitting parameters will also be written to an output text file (the default
-name for this is \texttt{bestfit\_parameters\_imfit.dat}; use \texttt{--save-params} to
-specify a different name), \textit{without} the error estimates. The output file
-will also include a copy of the original command used to start \imfit{} and the
-date and time it was generated; these are commented out so that the file can be
-subsequently used as an \imfit{} or \makeimage{} configuration file without
-modification.
+The best-fitting parameters will also be written to an output text file
+(the default name for this is \texttt{bestfit\_parameters\_imfit.dat};
+use \texttt{--save-params} to specify a different name),
+\textit{without} the error estimates. The output file will also include
+a copy of the original command used to start \imfit{} and the date and
+time it was generated; these are commented out so that the file can be
+subsequently used as an \imfit{} or \makeimage{} configuration file
+without modification.
 
 The final value of the fit statistic is also printed; if the fit
-statistic was \chisquare, then  the reduced $\chi^{2}$ (which accounts
-for the total number of unmasked pixels and non-fixed parameter
-values)\footnote{The reduced $\chi^{2}$ value should be interpreted with
-caution; it is valid in absolute terms only if the noise has been
-correctly estimated \textit{and} if all differences between the model
-and the data are solely due to noise, which is rarely true for galaxies
-and other astronomical objects.} is also printed. Finally, two alternate
-measures of the fit are also printed: the Akaike Information Criterion
-(\textsc{aic}) and the Bayesian Information Criterion (\textsc{bic}).
-The latter two are included on a provisional basis; they are, in
-principle, useful for comparing different models fit to the same data.
+statistic was \chisquare{} or PMLR, then the ``reduced'' $\chi^{2}$ or
+PMLR (which accounts for the total number of unmasked pixels and
+non-fixed parameter values)\footnote{The reduced values should
+be interpreted with caution; it is valid in absolute terms only if the
+noise has been correctly estimated \textit{and} if all differences
+between the model and the data are solely due to noise, which is rarely
+true for galaxies and other astronomical objects.} is also printed.
+Finally, two alternate measures of the fit are also printed: the Akaike
+Information Criterion (\textsc{aic}) and the Bayesian Information
+Criterion (\textsc{bic}). The latter two are included on a provisional
+basis; they are, in principle, useful for comparing different models fit
+to the same data.
+
+A short summary of the results of the fitting process --- minimization
+algorithm and its final status, fit-statistic value, etc. --- is also
+included in the output text file; these lines (like the ones listing
+the original command line and the timestamp) are commented out.
 
 By default, no model or residual (image $-$ model) images are saved, but
 the command-line options \texttt{--save-model} and
 \texttt{save-residual} can be used to specify output names for those
 images, and corresponding \textsc{fits} files will be saved to disk.
 
-TBD.
+%TBD.
 
 \section{Uncertainties on Parameter Values: L-M Estimates vs.\ Bootstrap Resampling}
 \label{sec:bootstrap}
