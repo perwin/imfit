@@ -191,7 +191,7 @@ void ChopComment( string& inputString, char delimiter )
 // This function removes leading and trailing whitespace from a string; if
 // the string is *all* whitespace, then it converts the input string to an
 // empty string.  ("Whitespace" = spaces or tabs)
-void TrimWhitespace(string& stringToModify)
+void TrimWhitespace( string& stringToModify )
 {
   if (stringToModify.empty())
     return;

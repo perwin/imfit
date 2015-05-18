@@ -25,5 +25,7 @@
 int NMSimplexFit(int nParamsTot, double *initialParams, mp_par *parameterLimits, 
 									ModelObject *theModel, double ftol, int verbose );
 
+void GetInterpretation_NM( int resultValue, string& outputString );
+
 
 #endif  // _NM_SIMPLEX_FIT_H_

@@ -1,6 +1,6 @@
 /* FILE: nlopt_fit.cpp --------------------------------------------------- */
 
-// Copyright 2014 by Peter Erwin.
+// Copyright 2014--2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -140,6 +140,8 @@ double myfunc_nlopt_gen(unsigned n, const double *x, double *grad, void *my_func
 
 
 
+// We keep InterpretResult around (and use it below) because we haven't yet figured out
+// a way of getting the algorithm name outside the module
 void InterpretResult( nlopt_result  resultValue, nlopt_algorithm algorithmName )
 {
   string  description;
@@ -183,6 +185,50 @@ void InterpretResult( nlopt_result  resultValue, nlopt_algorithm algorithmName )
 
   printf("%s\n", description.c_str());
   printf("   %d function evaluations\n", funcCallCount);
+}
+
+
+// Public function meant to be called from outside
+void GetInterpretation_NLOpt( int resultValue, string& outputString )
+{
+  string  description;
+  string  returnVal_str;
+  ostringstream converter;   // stream used for the conversion
+
+  description = "Miscellaneous NLOpt solver status = ";
+  converter << resultValue;      // insert the textual representation of resultValue in the characters in the stream
+  description += converter.str();
+  
+  if (resultValue < 0) {
+    description += " -- ERROR:";
+    if (resultValue == -1)
+      description += " generic (unspecified) failure";
+    else if (resultValue == -2)
+      description += " invalid arguments!";
+    else if (resultValue == -3)
+      description += " ran out of memory";
+    else if (resultValue == -4)
+      description += " roundoff errors limited progress";
+    else if (resultValue == -5)
+      description += " forced termination called from objective function";
+  }
+  else if ((resultValue > 0) && (resultValue < 5)) {
+    description += " -- SUCCESS:";
+    if (resultValue == 1)
+      description += " generic (unspecified) success";
+    else if (resultValue == 2)
+      description += " minimum allowed fit statistic (stopval) reached";
+    else if (resultValue == 3)
+      description += " ftol_rel or ftol_abs reached";
+    else if (resultValue == 4)
+      description += " xtol or xtol_abs reached";
+  }
+  else if (resultValue == 5)
+    description += " -- FAILED: reached maximum number of function evaluations";
+  else if (resultValue == 6)
+    description += " -- FAILED: reached maximum time";
+
+  outputString = description;
 }
 
 

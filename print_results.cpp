@@ -30,6 +30,9 @@ using namespace std;
 #include "param_struct.h"
 #include "statistics.h"
 #include "utilities_pub.h"
+#include "mpfit_cpp.h"
+#include "nmsimplex_fit.h"
+#include "nlopt_fit.h"
 
 #define  FILE_OPEN_ERR_STRING "\n   Couldn't open file \"%s\"\n\n"
 
@@ -37,6 +40,7 @@ using namespace std;
 
 /* Local Functions: */
 void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr );
+void GetSolverSummary( int status, int solverID, string& outputString );
 
 
 
@@ -134,18 +138,51 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
 
 
 
+void GetSolverSummary( int status, int solverID, string& outputString )
+{
+  string  tempString;
+  
+  outputString = "  ";
+  switch (solverID) {
+    case MPFIT_SOLVER:
+      outputString += PrintToString("Levenberg-Marquardt status = %d -- ", status);
+      InterpretMpfitResult(status, tempString);
+      outputString += tempString;
+      break;
+    case NMSIMPLEX_SOLVER:
+      GetInterpretation_NM(status, tempString);
+      outputString += tempString;
+      break;
+    case GENERIC_NLOPT_SOLVER:
+      GetInterpretation_NLOpt(status, tempString);
+      outputString += tempString;
+      break;
+    case DIFF_EVOLN_SOLVER:
+      outputString += PrintToString("Differential Evolution status = %d -- ", status);
+      if (status == 1)
+        outputString += "SUCCESS: Convergence in fit-statistic value";
+      else  // assuming (status == 5)
+        outputString += "Maximum generation number reached without convergence";
+      break;
+  }
+}
+
+
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
                     string& outputFilename, string& programName, int argc, char *argv[],
-                    int nFreeParameters )
+                    int nFreeParameters, int whichSolver, int fitStatus  )
 {
   FILE  *file_ptr;
-  string  statName;
+  string  statName, algorithmSummary;
   
   if ((file_ptr = fopen(outputFilename.c_str(), "w")) == NULL) {
     fprintf(stderr, FILE_OPEN_ERR_STRING, outputFilename.c_str());
     exit(-1);
   }
 
+  // Get minimization (solver output) info
+  GetSolverSummary(fitStatus, whichSolver, algorithmSummary);
+  
   // Get fit-results info
   int  nValidPixels = model->GetNValidPixels();
   int  nDegreesFreedom = nValidPixels - nFreeParameters;
@@ -171,7 +208,8 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   for (int i = 0; i < argc; i++)
     fprintf(file_ptr, " %s", argv[i]);
   fprintf(file_ptr, "\n# Results of fit:\n");
-  fprintf(file_ptr, "#   Minimization statistic = %s\n", statName.c_str());
+  fprintf(file_ptr, "# %s\n", algorithmSummary.c_str());
+  fprintf(file_ptr, "#   Fit statistic = %s\n", statName.c_str());
   fprintf(file_ptr, "#   Best-fit value = %f", fitStatistic);
   if (whichStat == FITSTAT_CASH) {
     fprintf(file_ptr, "\n");
