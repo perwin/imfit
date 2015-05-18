@@ -8,7 +8,7 @@
  * NAXIS2 = naxes[1] = nRows = sizeY.
 */
 
-// Copyright 2010--2014 by Peter Erwin.
+// Copyright 2010--2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

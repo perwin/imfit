@@ -98,7 +98,8 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
 
   if (verbose >= 0) {
     printf("\n");
-    PrintResults(paramVector, 0, &mpfitResult, theModel, nFreeParams, parameterLimits, status);
+    PrintResults(paramVector, 0, &mpfitResult, theModel, nFreeParams, parameterLimits, 
+    			status);
     printf("\n");
   }
 

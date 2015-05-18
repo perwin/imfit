@@ -1,4 +1,5 @@
-/*   Public interfaces for function(s) which deal with fitting via Nelder-Mead Simplex
+/*   Public interfaces for function(s) which deal with fitting via the various
+ * algorithms in the NLopt library.
  */
 
 #ifndef _NM_NLOPT_FIT_H_
@@ -28,6 +29,8 @@ bool ValidNLOptSolverName( string solverName );
 
 int NLOptFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
 					ModelObject *theModel, double ftol, int verbose, string solverName );
+
+void GetInterpretation_NLOpt( int resultValue, string& outputString );
 
 
 #endif  // _NM_NLOPT_FIT_H_
