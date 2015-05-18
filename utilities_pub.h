@@ -27,6 +27,11 @@ using namespace std;
 // like fprintf, but returns a string instead of writing to a file
 string PrintToString( const char *fmt, ... );
 
+
+void PrepareImageComments( vector<string> *comments, const string &programName, 
+                           const string &configFileName, bool psfUsed, 
+                           const string &psfFileName );
+
 // Splits a string and returns substrings as elements of tokens (tokens is cleared
 // before adding the substrings).
 void SplitString( const string& str, vector<string>& tokens, 

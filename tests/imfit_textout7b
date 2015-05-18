@@ -10,5 +10,6 @@ naxis1 [# pixels/row] = 3, naxis2 [# pixels/col] = 3; nPixels_tot = 9
 * No PSF image supplied -- no image convolution will be done!
 Function: FlatSky
 3 total parameters
+Estimated memory use: 720 bytes (0.0 MB)
 Model Object: 9 data values (pixels)
 * No noise image supplied ... will generate noise image from input image.

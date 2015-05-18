@@ -76,7 +76,7 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
       printf("  CASH STATISTIC = %f\n", fitStatistic);
     else if (whichStat == FITSTAT_POISSON_MLR) {
       printf("  POISSON-MLR STATISTIC = %f\n", fitStatistic);
-      printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
+      printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
     }
     else {
       printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
@@ -116,8 +116,10 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
   printf("\n");
   aic = AIC_corrected(result->bestnorm, nFreeParameters, nValidPixels, 1);
   bic = BIC(result->bestnorm, nFreeParameters, nValidPixels, 1);
-  if ((whichStat == FITSTAT_CHISQUARE) || (whichStat == FITSTAT_POISSON_MLR))
+  if (whichStat == FITSTAT_CHISQUARE)
     printf("Reduced Chi^2 = %f\n", result->bestnorm / nDegreesFreedom);
+  if (whichStat == FITSTAT_POISSON_MLR)
+    printf("Reduced Chi^2 equivalent = %f\n", result->bestnorm / nDegreesFreedom);
   printf("AIC = %f, BIC = %f\n\n", aic, bic);
   
   if (xact) {

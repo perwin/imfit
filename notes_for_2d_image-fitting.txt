@@ -1055,189 +1055,25 @@ value before computing square root.
 
 
 
-*** Fitting multiple images:
+* Notes for a King Model:
 
-I.e., fit two (or more) images of the same object simultaneously.
+Larsen 1999 (main reference paper for ISHAPE) notes that ISHAPE has King profile
+(alpha = 2, acc. to GALFIT 3.0 convention) has concentration (c = r_t/r_c) values
+of 5, 15, 30, and 100
 
-Conceptually, there are *three* general modes:
-	[*]1. Fit two or more images in same filter (e.g., high-res image of center
-	and low-res image of entire object); all parameter values should be the
-	same for all images, modulo pixel-scales, rotation offsets, and zero-point
-	differences
-		-- Images on different scales, etc. (HST vs ground-based)
-	
-	2. Same, but fitting multiple exposures using same camera+filters -- gets 
-	around issues such as noise correlation and other artifacts introduced by 
-	shifting, resampling, and coaddition (possible 
-	approaches being debated by LSST, EUCLID; apparently some lensing studies do this)
-		-- Actually GIM2D can do something like this, see, e.g.
-		http://www.astro.uvic.ca/~simard/GIM2D/hdf-nicmos.html
-	
-	2.b. Same, but fitting exposures in same camera+filters with *different*
-	exposure times (e.g., short exposure to avoid saturating nucleus + long
-	exposure to get good S/N for rest of galaxy)
-	
-	3. Fit two or more images in *different* filters (e.g., ugriz SDSS images);
-	in this case, some parameters *should* differ (intensity, scale lengths),
-	but others might not [ACTUALLY, I'M NOT SURE WHY THIS NEEDS TO BE A
-	MULTI-FITTING MODE AT ALL, INSTEAD OF JUST INDIVIDUALLY FITTING THE
-	DIFFERENT IMAGES]
+GALFIT 3 (according to the README file) has "empirical (modified)" King profile,
+which is attributed to Elson (1999 = 10th Canary Islands Winter School of Astrophysics: Globular clusters, p. 209 - 248,
+with no links to actual text/paper in ADS!
+which allows for arbitrary concentration (actually arbitrary values of r_t and r_c)
+along with variable power-law index alpha [which is 2 in the standard definition]
 
-Total chi^2 = Sum_{i=1}^{N_im}( k_i * chi_i^2 ), where N_im = number of
-images and k_i = some kind of relative weight (user-supplied guess) for
-each image.
-	Possibly: k_1 = 1.0, k_i > 1 or < 1 to indicate relative weights for
-	other images
-	Multiple-exposure-in-same-camera case is easier: k_i = 1.0 for all images
-	
-	Per-image weights could be applied to individual weight vectors (probably
-	the best solution for L-M fitting, since we need to generate individual-pixel
-	chi^2 values)
+Probably best to have the following parameters (in addition to ell, PA):
+I0
+r_c
+c
+alpha
 
-Idea would be to translate x0,y0, PA, and sizes into values specific to
-each image, given some kind of user-supplied specification of image offset
-and relative rotations and pixel scales
-	-- possible (but dangerous?) option: inter-image conversion factors
-	could be parameters as well... (usually a better idea would be to
-	adopt fixed user-supplied values, or at most allow the positional
-	offsets to be free parameters)
-	-- note that x,y "offset" doesn't make as much sense for case of different-camera
-	images (e.g., ground-based + HST); make more sense to have completely independent
-	x0,y0. And in fact we might very well want to specify x0,y0 and allowed ranges
-	for each image separately
-
-Things associated with individual images:
-	image data
-	original_sky, gain, read-noise [, n_combined, t_exp]
-	mask data
-	error data (incl. gain, readnoise)
-	derived weight map
-	notional/abstract: orientation (PA rotation), pixel scale, overall intensity scaling
-	[x0,y0 offsets -- however, ModelObject does not need to know about this]
-	optional: Convolver object (PSF image); OversampledRegion (+ its Convolver object, PSF image)
-
-Model/Function parameters associated with individual images:
-	x0,y0
-	[rotation -- *relative* to main/reference image; could be free]
-	[overall intensity scaling -- *relative* to main/reference image; could be free]
-	
-Modification of ModelObject class
-	-- holds data, masks, noise-maps for multiple images
-	-- holds multiple Convolver objects, one for each image
-	e.g., vector of (or array of pointers to) data images; same for mask images, weight images;
-	vector of Convolver objects; float array of relative image weights
-	-- handles translation of main parameter set (seen & manipulated by
-	solvers) into per-image parameter sets
-	
-	OR: split ModelObject into MultiImageModelObject (which handles
-	overall setup, chi^2 calculation, etc.) and subordinate ModelObject class,
-	which holds individual sets of image, mask, errors, PSF + Convolver object, etc.
-		1. Minimization code calls MultiImageModelObject with new parameter vector;
-		2. MultiImageModelObject tweaks parameter vector to produce per-image x0,y0,PA,etc.
-	data, OR calls individual ModelObjects to do this; passes parameter vectors to
-	individual ModelObjects and tells them to compute deviates vector or chi^2 (or Cash stat);
-		3. Individual ModelObjects compute model image & apply PSF convolution (and post-PSF
-	convolution) as needed; compute deviates vector or chi^2
-		4. MultiImageModelObject collects individual chi^2/deviates, combines them
-	according to user-determined weighting scheme, passes result back to minimization
-	code.
-	
-	Ideally, individual ModelObject can still be used by itself in single-image case.
-	(But this might be complicated by the question of what object holds the FunctionObject
-	vector, etc.)
-
-
-* Modify FunctionObjects to include an optional pixel-scale parameter
-(special method to pass in pixel scale; default value is 1.0).  Individual
-function objects can then scale input parameters accordingly (since nominally
-they're the only bits of code which know which particular parameters are size-related).
-	-- Underlying logic: FunctionObjects should always work in pixel sizes,
-	since x0,y0 are always pixel values. So while the (e.g.) scale-length *parameter*
-	may have a value of arcsec (or even, who knows, kpc!), when its Setup()
-	function is called, it converts the parameter into pixels, using the pixel-scale
-	parameter
-	-- This should, ideally, *not* be a free parameter of the fit
-Also modify FunctionObjects to include an optional intensity-scaling parameter
-(default value is 1.0)
-	-- This could, in principle (though probably a bad idea in practice), be a free
-	parameter of the fit...
-Maybe have a single method of FunctionObject which allows the user to pass in scaling
-parameters (pixel size, intensity scaling, rotation offsets[?])
-
-	Question for later: how do we generate proper best-fit parameter output for
-each image (i.e., correctly accounting for pixel scale, rotation, intensity scaling
-when we output -- some of the latter *could* be free parameters of the fit, after all)
-
-	Outline of steps:
-	1. Minimization algorithm calls ModelObject::FitStatistic and passes in current
-	set of parameter values
-	2. Generate model images
-		For each image:
-			Generate transformed X0,Y0,PA for that image [could even start with RA,Dec]
-				For first image: F(X0,Y0,PA) = (X0,Y0,PA) [unchanged, unless we start with RA,Dec]
-				For 2nd+ images: F(X0,Y0,PA) = (f(X0), f(Y0), f(PA)
-				                             =? (X0 + dx_2, Y0 + dy_2, PA = dPA_2)
-			For each function
-				Call FunctionObject::Setup with pixel scale, intensity scale, rest of parameters
-			Step through pixels of model image and call FunctionObjects
-			Do PSF convolution, oversampled convolution, and post-processing (e.g., charge-diffusion)
-	3. Compute chi^2 vector and/or total fit statistic
-	
-	Complete list of possible (i.e., possibly non-fixed) per-image parameters: 
-		x-offset
-		y-offset
-		PA (rotation offset)
-		pixel scale
-		intensity scale
-	
-	Note that allowing x-offset and y-offset to vary effectively incorporates
-	scale differences between images, though it's not the best approach if you
-	*know* what the real offset or transformation should be...
-
-	
-[Side note on usage: how to handle case of high-resoln central image (e.g., HST)
-and lower-resolution ground-based image? One approach might be to construct a
-mask for the low-res. image which masks out the nuclear pixels, so we don't have to
-worry about doing PSF convolution]
-
-
-Possible input-file format:
-image-name		weight	pixel-scale	flux-scale		x_off	y_off	PA
-
-Probably best if first image in list is "reference" image (weight = 1.0, pixel-scale = 1.0,
-x_off = y_off = 0.0, PA = 0)
-weight should be 1.0 for at least one image
-pixel-scale should be 1.0 for at least one image
-x_off,y_off can be nonexistent
-	BUT: how to handle idea that changing (x0,y0) in one image should also change
-	(x0,y0) in other image, even if we don't have a predetermined offset?
-		-- offset makes sense for Multiple-exposure-in-same-camera case
-PA can be 0 for "reference" image?
-	
-Do we want to do transformations for image position and PA?
-Idea is that changes in x0 [generated by minimization algorithm] should generate
-corresponding changes in x0,y0 for other images (based on pixel-scale differences
-and delta-PA)
-	Shift in X0 of deltaX0 ==> 
-
-Conceptually, we could have a function block which corresponds to a
-position on the sky and a particular orientation (PA) [along with,
-potentially, an inclination for 3D objects, but that doesn't depend on
-image details at all]. For internal image generation, this gets
-translated to specific (x0,y0,PA) values
-(pixel-coord,pixel-coord,image-PA) for each image
-	In principle, x0, y0, and PA could be unconstrained between images (though it
-	would be a good idea to have some idea, just to set the initial values)
-
-X0 -- 
-Y0 --
-PA --
-FUNCTION Sersic
-PA -- alternate specification if not using common function-block value; adjusted by delta-PA?
-ellipticity
-n
-I_e -- adjusted by flux_scale
-r_e -- adjusted by pixel_scale
+(Makes it easier to specify a fixed concentration value)
 
 
 

@@ -97,6 +97,8 @@ then
 fi
 
 echo -n "*** Diff comparison with archives: gensersictest + PSF convolution... "
+# note that here we are comparing a 512x512 output image with the 512x512 cutout of
+# a larger original image (to test that PSF convolution properly handles edges)
 if (diff --brief test_dump4 tests/makeimage_textout4)
 then
   echo " OK"
