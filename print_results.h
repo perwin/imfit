@@ -15,11 +15,12 @@
 // Code for printing the results of a fit (either mpfit or differential evolution).
 // For a differential-evolution fit, xact and result should be 0; mpStatus will
 // be ignored.
-void PrintResults( double *params, double *xact, mp_result *result,
-					ModelObject *model, int nFreeParameters, mp_par *parameterInfo, int fitStatus );
+void PrintResults( double *params, double *xact, mp_result *result, ModelObject *model, 
+			int nFreeParameters, mp_par *parameterInfo, int fitStatus );
 
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
-          string& outputFilename, string& programName, int argc, char *argv[] );
+          string& outputFilename, string& programName, int argc, char *argv[],
+          int nFreeParameters );
 
 void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
                     string& programName, int argc, char *argv[], const char *prefix="" );

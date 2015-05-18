@@ -135,7 +135,8 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
 
 
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
-                    string& outputFilename, string& programName, int argc, char *argv[] )
+                    string& outputFilename, string& programName, int argc, char *argv[],
+                    int nFreeParameters )
 {
   FILE  *file_ptr;
   
@@ -144,6 +145,14 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
     exit(-1);
   }
 
+  // Get fit-results info
+//   int  nValidPixels = model->GetNValidPixels();
+//   int  nDegreesFreedom = nValidPixels - nFreeParameters;
+//   int  whichStat = model->WhichFitStatistic();
+//   double  fitStatistic = model->GetFitStatistic(params);
+//   double  aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
+//   double  bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
+  
   char  *timeStamp;
   timeStamp = TimeStamp();
   fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
