@@ -1,6 +1,6 @@
 /* FILE: print_results.cpp ----------------------------------------- */
 
-// Copyright 2010--2014 by Peter Erwin.
+// Copyright 2010--2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -139,6 +139,7 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
                     int nFreeParameters )
 {
   FILE  *file_ptr;
+  string  statName;
   
   if ((file_ptr = fopen(outputFilename.c_str(), "w")) == NULL) {
     fprintf(stderr, FILE_OPEN_ERR_STRING, outputFilename.c_str());
@@ -146,12 +147,21 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   }
 
   // Get fit-results info
-//   int  nValidPixels = model->GetNValidPixels();
-//   int  nDegreesFreedom = nValidPixels - nFreeParameters;
-//   int  whichStat = model->WhichFitStatistic();
-//   double  fitStatistic = model->GetFitStatistic(params);
-//   double  aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
-//   double  bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
+  int  nValidPixels = model->GetNValidPixels();
+  int  nDegreesFreedom = nValidPixels - nFreeParameters;
+  double  fitStatistic = model->GetFitStatistic(params);
+  double  aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
+  double  bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
+  int  whichStat = model->WhichFitStatistic();
+  if (whichStat == FITSTAT_CASH) {
+    statName = "CASH STATISTIC";
+  }
+  else if (whichStat == FITSTAT_POISSON_MLR) {
+    statName = "POISSON-MLR STATISTIC";
+  }
+  else {
+    statName = "CHI-SQUARE";
+  }
   
   char  *timeStamp;
   timeStamp = TimeStamp();
@@ -160,6 +170,16 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
           timeStamp);
   for (int i = 0; i < argc; i++)
     fprintf(file_ptr, " %s", argv[i]);
+  fprintf(file_ptr, "\n# Results of fit:\n");
+  fprintf(file_ptr, "#   Minimization statistic = %s\n", statName.c_str());
+  fprintf(file_ptr, "#   Best-fit value = %f", fitStatistic);
+  if (whichStat == FITSTAT_CASH) {
+    fprintf(file_ptr, "\n");
+  }
+  else {
+    fprintf(file_ptr, "; reduced value = %f\n", fitStatistic / nDegreesFreedom);
+  }
+  fprintf(file_ptr, "#   AIC = %f, BIC = %f\n", aic, bic);
   fprintf(file_ptr, "\n\n");
 
   model->PrintModelParams(file_ptr, params, parameterInfo, NULL);

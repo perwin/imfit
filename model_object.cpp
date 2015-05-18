@@ -24,7 +24,7 @@
  * cases, as suggested by André Luiz de Amorim.
  */
 
-// Copyright 2010--2014 by Peter Erwin.
+// Copyright 2010--2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
