@@ -1,4 +1,4 @@
-# !bin/sh
+#!/bin/bash
 #
 # How to skip the DE test: run script as
 # $ ./do_imfit_tests --node

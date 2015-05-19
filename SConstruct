@@ -532,6 +532,11 @@ env_opt.Program("makeimage", makeimage_sources)
 # Unit tests:
 env_opt.Command("unit", None, "./run_unit_tests.sh")
 
+# All tests:
+env_opt.Command("alltests", None, "./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests")
+
+
+
 
 
 # *** Other programs (profilefit, psfconvolve, older stuff)
