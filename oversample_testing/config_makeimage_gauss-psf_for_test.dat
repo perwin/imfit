@@ -1,0 +1,10 @@
+NROWS	35
+NCOLS	35
+
+X0		18
+Y0		18
+FUNCTION Gaussian
+PA		0
+ell		0
+I_0		1
+sigma	3

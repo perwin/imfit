@@ -1,0 +1,11 @@
+# makeimage config file
+NROWS   105
+NCOLS   105
+
+X0              53
+Y0              53
+FUNCTION Gaussian
+PA              0
+ell             0
+I_0             1
+sigma   1.92

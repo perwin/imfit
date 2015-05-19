@@ -1,0 +1,9 @@
+# config file for imfit: test fitting an oversampled-convolved Gaussian image w/ and w/o
+# imfit oversampling
+X0              104		100,110
+Y0              104		100,110
+FUNCTION Gaussian
+PA              0		fixed
+ell             0		fixed
+I_0             0.5		0.1,10
+sigma   5		2,20

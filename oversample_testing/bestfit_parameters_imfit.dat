@@ -1,0 +1,17 @@
+# Best-fit model results for imfit 1.1-osamp-dev (OpenMP-enabled)
+# Generated on Tue May 19 18:20:45 2015 by the following command:
+#    ../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test4.fits --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 95:110,100:115
+# Results of fit:
+#   Nelder-Mead Simplex status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
+#   Fit statistic = POISSON-MLR STATISTIC
+#   Best-fit value = 0.061365; reduced value = 0.000002
+#   AIC = 8.062365, BIC = 42.447904
+
+
+X0		105.2383
+Y0		105.4577
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		100.126
+sigma		1.19907

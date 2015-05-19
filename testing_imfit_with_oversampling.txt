@@ -1,0 +1,315 @@
+# Commands to test oversampled-PSF convolution with imfit (and output from running them)
+
+All should be executed in oversample_testing/ subdirectory
+
+# [X]0. Make some initial PSF images, etc.
+# Non-oversampled Gaussian PSF:
+../makeimage config_makeimage_gauss-psf_for_test.dat -o psf_standard.fits
+# 3x3-oversampled PSF:
+../makeimage config_makeimage_gauss-psf_for_test_oversamp.dat -o psf_oversamp.fits
+# test image: convolved with non-oversampled PSF *and* with inner 10x10 pixels around 
+# function center convolved with 3x3-oversampled PSF:
+../makeimage config_makeimage_target_200.dat -o oversamp_test1.fits --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110
+
+# [X]1. Test: fit oversampled Gaussian image using *standard* PSF (no oversampling)
+../imfit -c config_imfit_gauss-oversample-test.dat --gain=100 --mlr --nm oversamp_test1.fits --psf psf_standard.fits
+
+  POISSON-MLR STATISTIC = 0.000105
+Reduced Chi^2 = 0.000000
+AIC = 8.001106, BIC = 42.386644
+
+X0		105.0000
+Y0		105.0000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		0.999964
+sigma		10.0001
+
+# Test: fit same image using oversampling
+../imfit -c config_imfit_gauss-oversample-test.dat --gain=100 --mlr --nm oversamp_test1.fits --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110
+
+  POISSON-MLR STATISTIC = 0.000000
+Reduced Chi^2 = 0.000000
+AIC = 8.001000, BIC = 42.386539
+
+X0		105.0000
+Y0		105.0000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		      1
+sigma		     10
+
+Marginally better fit and better agreement with original model when using PSF oversampling!
+
+
+# [x]2. Test: fit oversampled *narrow* Gaussian (sigma = 1.2 pix, centered in x,y = 105,105)
+
+# A. Generate model image using oversampling
+$ ../makeimage config_makeimage_target_200_narrow.dat -o oversamp_test2.fits --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110
+
+# A. fit oversampled Gaussian image using *standard* PSF (no oversampling)
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test2.fits --psf psf_standard.fits
+
+  POISSON-MLR STATISTIC = 0.000968
+Reduced Chi^2 = 0.000000
+AIC = 8.001968, BIC = 42.387507
+
+X0		105.0000
+Y0		105.0000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.8532
+sigma		 1.2007
+
+# B. fit same image using oversampling
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test2.fits --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110
+
+  POISSON-MLR STATISTIC = 0.000057
+Reduced Chi^2 = 0.000000
+AIC = 8.001058, BIC = 42.386596
+
+X0		105.0000
+Y0		105.0000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.9857
+sigma		1.20009
+
+Again, marginally better fit and better agreement with original model!
+
+
+
+# [x]3. Same, but now using 10x10 oversampled PSF
+# A. Make 10x10 oversampled PSF (sigma = 30 oversampled pix = 3 standard pix)
+../makeimage config_makeimage_gauss-psf_for_test_scale10.dat -o psf_oversamp10.fits
+
+# B. Generate model image with using 10x10 oversampling
+../makeimage config_makeimage_target_200_narrow.dat -o oversamp_test3.fits --psf psf_standard.fits --overpsf psf_oversamp10.fits --overpsf_scale 10 --overpsf_region 100:110,100:110
+
+# C. Fit with standard (non-oversampled) PSF
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test3.fits --psf psf_standard.fits
+  POISSON-MLR STATISTIC = 0.003459
+Reduced Chi^2 = 0.000000
+AIC = 8.004460, BIC = 42.389998
+
+X0		105.0000
+Y0		105.0000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.7358
+sigma		 1.2013
+[time ~ 2s]
+
+# D. Fit with 3x3 oversampling
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test3.fits --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110
+  POISSON-MLR STATISTIC = 0.001706
+Reduced Chi^2 = 0.000000
+AIC = 8.002706, BIC = 42.388245
+
+X0		105.0000
+Y0		105.0000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.8686
+sigma		1.20069
+[time ~ 8s]
+
+# E. Fit with 10x10 oversampling
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test3.fits --psf psf_standard.fits --overpsf psf_oversamp10.fits --overpsf_scale 10 --overpsf_region 100:110,100:110
+  POISSON-MLR STATISTIC = 0.000060
+Reduced Chi^2 = 0.000000
+AIC = 8.001061, BIC = 42.386599
+
+X0		105.0000
+Y0		105.0000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.9849
+sigma		 1.2001
+[time ~ 58s]
+
+
+
+# [x]4. Same, but now model with center not in center of pixel: (105.2377, 105.4582)
+# A. Generate non-pixel-centered model image using 10x10 oversampling
+../makeimage config_makeimage_target_200_narrow_off-center.dat -o oversamp_test4.fits --psf psf_standard.fits --overpsf psf_oversamp10.fits --overpsf_scale 10 --overpsf_region 100:110,100:110
+
+# B. Fit with standard (non-oversampled) PSF
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test4.fits --psf psf_standard.fits
+  POISSON-MLR STATISTIC = 0.003884
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.004884, BIC = 42.390423
+
+X0		105.2377   [agrees perfectly with input]
+Y0		105.4582   [agrees perfectly with input]
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.7433
+sigma		1.20124
+
+# C. Fit with 3x3 oversampling
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test4.fits --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110
+  POISSON-MLR STATISTIC = 0.001855
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.002855, BIC = 42.388394
+
+X0		105.2377
+Y0		105.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.8787
+sigma		1.20062
+
+# D. Fit with 10x10 oversampling
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test4.fits --psf psf_standard.fits --overpsf psf_oversamp10.fits --overpsf_scale 10 --overpsf_region 100:110,100:110
+  POISSON-MLR STATISTIC = 0.000000
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.001000, BIC = 42.386539
+
+X0		105.2377
+Y0		105.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		    100
+sigma		    1.2
+
+
+
+# [x]5. Same, but using narrow PSF (sigma = 0.64 pix)
+# A. Make standard-sampled PSF with sigma = 0.64 (fwhm ~ 1.5)
+../makeimage config_makeimage_narrow-gauss-psf_for_test.dat -o psf_standard_sigma0.64.fits
+
+#       Make oversampled 3x3 PSF with sigma = 0.64 (sigma = 1.92 oversampled pix = 0.64 standard pix)
+../makeimage config_makeimage_narrow-gauss-psf_for_test_scale3.dat -o psf_sigma_0.64_oversamp3.fits
+
+#       Make oversampled 10x10 PSF with sigma = 0.64 (sigma = 6.4 oversampled pix = 0.64 standard pix)
+../makeimage config_makeimage_narrow-gauss-psf_for_test_scale10.dat -o psf_sigma_0.64_oversamp10.fits
+
+# B. Generate non-pixel-centered model image with using 10x10 oversampling
+../makeimage config_makeimage_target_200_narrow_off-center.dat -o oversamp_test5.fits --psf psf_standard_sigma0.64.fits --overpsf psf_sigma_0.64_oversamp10.fits --overpsf_scale 10 --overpsf_region 100:110,100:110
+
+# C. Fit with standard (non-oversampled) PSF
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test5.fits --psf psf_standard_sigma0.64.fits
+  POISSON-MLR STATISTIC = 0.085738
+
+Reduced Chi^2 equivalent = 0.000002
+AIC = 8.086738, BIC = 42.472277
+
+X0		105.2377
+Y0		105.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.9942
+sigma		1.20004
+[time ~ 1.6s]
+
+# D. Fit with 3x3 oversampled PSF
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test5.fits --psf psf_standard_sigma0.64.fits --overpsf psf_sigma_0.64_oversamp3.fits --overpsf_scale 3 --overpsf_region 100:110,100:110
+  POISSON-MLR STATISTIC = 0.000179
+
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.001179, BIC = 42.386718
+
+X0		105.2377
+Y0		105.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.9931
+sigma		1.20004
+[time ~ 6.0s]
+
+# E. Fit with 10x10 oversampled PSF
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test5.fits --psf psf_standard_sigma0.64.fits --overpsf psf_sigma_0.64_oversamp10.fits --overpsf_scale 10 --overpsf_region 100:110,100:110
+  POISSON-MLR STATISTIC = 0.000000
+
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.001000, BIC = 42.386539
+
+X0		105.2377
+Y0		105.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		    100
+sigma		    1.2
+[time ~ 50s]
+
+
+
+# [ ]6. Same as 4, but now testing whether we correctly account for offsets when
+# image region is specified
+# [x]A. Generate 150x150 cutout of original 200x200 oversamp_test4.fits
+cl> imcopy oversamp_test4.fits[51:200,41:190] oversamp_test4_150x150cutout.fits
+
+# [x]B.1. Fit cutout image with standard (non-oversampled) PSF
+../imfit -c config_imfit_gauss-oversample-test2_150x150cutout.dat --gain=100 --mlr --nm oversamp_test4_150x150cutout.fits --psf psf_standard.fits
+  POISSON-MLR STATISTIC = 0.003884
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.005662, BIC = 40.088966
+
+X0		55.2377
+Y0		65.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.7433
+sigma		1.20124
+
+# [x]B.2. Fit cutout image with 3x3 oversampling
+../imfit -c config_imfit_gauss-oversample-test2_150x150cutout.dat --gain=100 --mlr --nm oversamp_test4_150x150cutout.fits --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 50:60,60:70
+  POISSON-MLR STATISTIC = 0.001855
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.003633, BIC = 40.086937
+
+X0		55.2377
+Y0		65.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.8789
+sigma		1.20062
+
+# [ ]C. Fit full image with 3x3 oversampling, specifying image section matching cutout image
+../imfit -c config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm oversamp_test4.fits[51:200,41:190] --psf psf_standard.fits --overpsf psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110
+>> INITIAL, INCORRECT RESULT (prior to fixing code):
+  POISSON-MLR STATISTIC = 0.003884
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.005662, BIC = 40.088966
+
+X0		105.2377
+Y0		105.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.7433
+sigma		1.20124
+(i.e., effectively same as no-PSF-oversampling version, because the oversampled region is
+too far away from Gaussian center to matter for the fit)
+
+>> REVISED RESULT (after fixing code):
+  POISSON-MLR STATISTIC = 0.001855
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.003633, BIC = 40.086937
+
+X0		105.2377
+Y0		105.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.8787
+sigma		1.20062
+(Same as when fitting cutout image; also same as fitting full image in 3C -- presumably
+because the outermost pixels excluded by the cutout have too little signal to really 
+affect the fit)

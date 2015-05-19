@@ -457,9 +457,26 @@ int main(int argc, char *argv[])
     nPixels_psf_oversampled = nColumns_psf_oversampled * nRows_psf_oversampled;
     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
-    // Determine oversampling region
+    // Determine oversampling region; correct for X0,Y0 pixel offset values if user 
+    // specified an image section (if not, X0_offset and Y0_offset will be = 0)
     GetAllCoordsFromBracket(options.psfOversampleRegion, &x1_oversample, &x2_oversample, 
     						&y1_oversample, &y2_oversample);
+    x1_oversample -= (int)X0_offset;
+    x2_oversample -= (int)X0_offset;
+    y1_oversample -= (int)Y0_offset;
+    y2_oversample -= (int)Y0_offset;
+    string  msg, msg0;
+    if ((X0_offset != 0.0) || (Y0_offset != 0.0)) {
+      msg0 = "\tRegion to be oversampled within full image:";
+      msg = "\tRegion to be oversampled within fitted subset image:";
+      printf("%s [%d:%d,%d:%d]\n", msg0.c_str(),
+      		x1_oversample + (int)X0_offset,x2_oversample + (int)X0_offset,
+      		y1_oversample + (int)Y0_offset,y2_oversample + (int)Y0_offset);
+    }
+    else
+      msg = "\tRegion to be oversampled within image:";
+    printf("%s [%d:%d,%d:%d]\n", msg.c_str(), x1_oversample,x2_oversample,
+    		y1_oversample,y2_oversample);
   }
 
   if (! options.subsamplingFlag)
