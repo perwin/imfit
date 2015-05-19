@@ -237,8 +237,8 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
   else {
     SplitString(sectionPieces[0], subsectionPieces_x, ":");
     if (subsectionPieces_x.size() != 2) {
-      printf("\nWARNING1: Incorrect image section format!\n");
-      printf("\t\"%s\"\n", bracketString.c_str());
+      fprintf(stderr, "\nWARNING1: Incorrect image section format!\n");
+      fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
       return;
     }
     *x1 = atoi(subsectionPieces_x[0].c_str());
@@ -250,8 +250,8 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
   else {
     SplitString(sectionPieces[1], subsectionPieces_y, ":");
     if (subsectionPieces_y.size() != 2) {
-      printf("\nWARNING2: Incorrect image section format!\n");
-      printf("\t\"%s\"\n", bracketString.c_str());
+      fprintf(stderr, "\nWARNING2: Incorrect image section format!\n");
+      fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
       return;
     }
     *y1 = atoi(subsectionPieces_y[0].c_str());
@@ -281,9 +281,9 @@ void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
   else {
     SplitString(sectionPieces[0], subsectionPieces_x, ":");
     if (subsectionPieces_x.size() != 2) {
-      printf("\nWARNING1: Incorrect image section format in \"%s\"!\n",
+      fprintf(stderr, "\nWARNING1: Incorrect image section format in \"%s\"!\n",
     					fileName.c_str());
-      printf("\t\"%s\"\n", bracketString.c_str());
+      fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
       return;
     }
     *x1 = atoi(subsectionPieces_x[0].c_str());
@@ -294,9 +294,9 @@ void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
   else {
     SplitString(sectionPieces[1], subsectionPieces_y, ":");
     if (subsectionPieces_y.size() != 2) {
-      printf("\nWARNING2: Incorrect image section format in \"%s\"!\n",
+      fprintf(stderr, "\nWARNING2: Incorrect image section format in \"%s\"!\n",
     					fileName.c_str());
-      printf("\t\"%s\"\n", bracketString.c_str());
+      fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
       return;
     }
     *y1 = atoi(subsectionPieces_y[0].c_str());
@@ -330,7 +330,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
   // OK, if we get here, then there's apparently an image section
   loc2 = inputFilename.find(']', loc1);
   if (loc2 == string::npos) {
-    printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+    fprintf(stderr, "\nWARNING: Incorrect image section format in \"%s\"!\n",
     				inputFilename.c_str());
     return;
   }
@@ -340,7 +340,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
     // OK, there's more than one set of []
     loc4 = inputFilename.find(']', loc3);
     if (loc4 == string::npos) {
-      printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+      fprintf(stderr, "\nWARNING: Incorrect image section format in \"%s\"!\n",
       				inputFilename.c_str());
       return;
     }
@@ -361,7 +361,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
   }
   // if we don't have an image section, we need to have an image extension number
   if ((nPieces != 1) || (sectionSubstring.size() < 1)) {
-    printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+    fprintf(stderr, "\nWARNING: Incorrect image section format in \"%s\"!\n",
   					inputFilename.c_str());
     return;
   }
@@ -380,7 +380,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
     SplitString(sectionSubstring, sectionPieces, ",");
     nPieces = sectionPieces.size();
     if (nPieces != 2) {
-      printf("\nWARNING: Incorrect image section format in \"%s\"!\n",
+      fprintf(stderr, "\nWARNING: Incorrect image section format in \"%s\"!\n",
     					inputFilename.c_str());
       return;
     }
@@ -451,7 +451,7 @@ char * TimeStamp( void )
 void CommandLineError( char errorString[] )
 {
 
-  printf("Error in command line:\n   %s\nExiting...\n",
+  fprintf(stderr, "Error in command line:\n   %s\nExiting...\n",
 	 errorString);
   exit(1);
 }

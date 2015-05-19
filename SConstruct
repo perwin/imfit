@@ -528,6 +528,9 @@ makeimage_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zi
 env_debug.Program("makeimage_db", makeimage_dbg_objlist)
 env_opt.Program("makeimage", makeimage_sources)
 
+# Run tests
+# Unit tests:
+env_opt.Command("unit", None, "./run_unit_tests.sh")
 
 
 

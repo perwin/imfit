@@ -1,4 +1,4 @@
-// $ cxxtestgen --error-printer -o test_runner.cpp unittest_utilities.h
+// $ cxxtestgen --error-printer -o test_runner.cpp unittest_utilities.t.h
 // $ g++ -o test_runner test_runner.cpp utilities.cpp -I/usr/local/include -I$CXXTEST
 // $ ./test_runner
 

@@ -141,7 +141,6 @@ int main(int argc, char *argv[])
   int  weightMode;
   FILE  *outputFile_ptr;
   ModelObject  *theModel;
-//  FunctionObject  *thisFunctionObj;  
   double  *paramsVect;
   double  *paramErrs;
   vector<mp_par>  paramLimits;
@@ -149,9 +148,7 @@ int main(int argc, char *argv[])
   bool  maskAllocated = false;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
-//  mp_config  mpConfig;
-//  mp_result  mpfitResult;
-  int  status;
+  int  status, fitStatus;
   vector<string>  functionList;
   vector<double>  parameterList;
   mp_par  *parameterInfo;
@@ -246,9 +243,8 @@ int main(int argc, char *argv[])
   }
   if (options.noErrors)
     yWeights = NULL;
-  else {
+  else
     yWeights = (double *)calloc( (size_t)nStoredDataVals, sizeof(double) );
-  }
   if (options.noMask)
     maskVals = NULL;
   else {
@@ -326,7 +322,7 @@ int main(int argc, char *argv[])
   if (status < 0) {
     printf("*** WARNING: Failure in AddFunctions!\n\n");
     exit(-1);
- }
+  }
   theModel->SetZeroPoint(options.zeroPoint);
   
   // Set up parameter vector(s), now that we know how many total parameters
@@ -395,8 +391,8 @@ int main(int argc, char *argv[])
   // else call one of the solvers!
   if (options.printChiSquaredOnly) {
     printf("\n");
-    status = 1;
-    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+    fitStatus = 1;
+    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
     printf("\n");
     // turn off saveing of parameter file
     options.saveBestFitParams = false;
@@ -405,43 +401,35 @@ int main(int argc, char *argv[])
     // DO THE FIT!
     if (options.solver == MPFIT_SOLVER) {
       printf("\nCalling Levenberg-Marquardt solver ...\n");
-      status = LevMarFit(nParamsTot, nFreeParams, nStoredDataVals, paramsVect, parameterInfo, 
-      					theModel, options.ftol, paramLimitsExist, options.verbose);
+      fitStatus = LevMarFit(nParamsTot, nFreeParams, nStoredDataVals, paramsVect, parameterInfo, 
+      						theModel, options.ftol, paramLimitsExist, options.verbose);
     }
     else if (options.solver == DIFF_EVOLN_SOLVER) {
       printf("\nCalling Differential Evolution solver ..\n");
-      status = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      			options.verbose);
+      fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      				options.verbose);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
 #ifndef NO_NLOPT
     else if (options.solver == NMSIMPLEX_SOLVER) {
       printf("\nCalling Nelder-Mead Simplex solver ..\n");
-      status = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      			options.verbose);
+      fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      							options.verbose);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
     else if (options.solver == GENERIC_NLOPT_SOLVER) {
       printf("\nCalling miscellaneous NLOpt solver ..\n");
-      status = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      			options.verbose, options.nloptSolverName);
+      fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+      						options.verbose, options.nloptSolverName);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
 #endif
-//     else if (options.solver == ALT_SOLVER) {
-//       printf("Calling Modified L-M solver ..\n");
-//       status = NewLevMarFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       			options.verbose);
-//       printf("\n");
-//       PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
-//       printf("\n");
-//     }
   }
 
 
@@ -462,7 +450,7 @@ int main(int argc, char *argv[])
     string  progNameVer = "profilefit ";
     progNameVer += VERSION_STRING;
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-                    progNameVer, argc, argv);
+                    progNameVer, argc, argv, nFreeParams, options.solver, fitStatus);
   }
 
   if (options.saveBestProfile) {
@@ -489,7 +477,7 @@ int main(int argc, char *argv[])
   free(xVals);
   free(yVals);
   free(yWeights);
-  if (maskAllocated);
+  if (maskAllocated)
     free(maskVals);
   if (options.psfPresent) {
     free(xVals_psf);

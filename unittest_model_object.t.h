@@ -90,6 +90,7 @@ public:
     free(smallDataImage);
     delete modelObj1;
     delete modelObj2;
+    delete modelObj3;
   }
   
   
@@ -118,9 +119,9 @@ public:
 
     // the following will generate a couple of warnings from within UseCashStatistic,
     // which is OK
-    modelObj1->UseModifiedCashStatistic();
+    modelObj1->UsePoissonMLR();
     whichStat = modelObj1->WhichFitStatistic();
-    TS_ASSERT_EQUALS(whichStat, FITSTAT_MODCASH);
+    TS_ASSERT_EQUALS(whichStat, FITSTAT_POISSON_MLR);
     cashStatUsed = modelObj1->UsingCashStatistic();
     TS_ASSERT_EQUALS(cashStatUsed, true);
   }

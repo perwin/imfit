@@ -16,11 +16,11 @@
 #include <vector>
 using namespace std;
 
-#include "function_object.h"
+#include "function_objects/function_object.h"
 // FUNCTION-SPECIFIC:
-#include "func_exp.h"
-#include "func_gaussian.h"
-#include "func_sersic.h"
+#include "function_objects/func_exp.h"
+#include "function_objects/func_gaussian.h"
+#include "function_objects/func_sersic.h"
 
 #define DELTA  1.0e-10
 
