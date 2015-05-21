@@ -161,7 +161,7 @@ void GetInterpretation_NM( int resultValue, string& outputString )
   string  description;
   ostringstream converter;   // stream used for the conversion
   
-  description = "Nelder-Mead Simplex status = ";
+  description = "Nelder-Mead Simplex: status = ";
   converter << resultValue;      // insert the textual representation of resultValue in the characters in the stream
   description += converter.str();
   

@@ -3,6 +3,38 @@
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
 
+## 1.2 -- 2015-05-xx
+### Added: 
+- Imfit can now optionally convolve part of the model image with an
+oversampled PSF. E.g., you can specify that a 10x10-pixel region
+centered on the galaxy nucleus should be computed using a
+five-times-smaller pixel size and convolved with a corresponding
+(five-times-oversampled) PSF image. The resulting oversampled and
+convolved sub-image is then downsampled back to the main image pixel
+scale before the model is compared with the data image (This is in
+addition to the standard PSF convolution that imfit already allows,
+where the PSF image and the computed model image have the same pixel
+scale as the data image.)
+
+- The saved best-fit parameter file produced by imfit now include a
+brief summary of the fitting process and its outcome (fitting statistic
+and minimization algorithm used, final best-fit value of statistic, AIC,
+BIC), written in the header of the file as comments. (Thanks to Colleen Gilhuly
+for suggesting this.)
+
+- Imfit now attempts to estimate (and print) the total amount of memory
+needed before it starts the fitting process. This estimate is crude (and
+purely advisory), but may be useful in cases when fitting very large
+images (and/or using very large PSF images) might run up against your
+computer's memory limits.  Note that this currently does *not* account
+for any use of an oversampled PSF. (Thanks to Lee Kelvin for helping demonstrate
+the utility of this.)
+
+### Changed:
+- Updates to documentation.
+
+
+
 ## 1.1 -- 2014-10-22
 ### Added:
 - New version of Poisson-based fit statistic for minimization ("Poisson 

@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2011, 2012, 2013, 2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -42,9 +42,9 @@ using namespace std;
 /* UTILITY FUNCTIONS */
 
 /* ---------------- FUNCTION: StripLeadingDashes() ---------------------- */
-// This function removes leading and trailing whitespace from a string; if
-// the string is *all* whitespace, then it converts the input string to an
-// empty string.  ("Whitespace" = spaces or tabs)
+/// This function removes leading and trailing whitespace from a string; if
+/// the string is *all* whitespace, then it converts the input string to an
+/// empty string.  ("Whitespace" = spaces or tabs)
 void StripLeadingDashes( string& stringToModify )
 {
   if (stringToModify.empty())
@@ -175,9 +175,9 @@ void CLineParser::PrintUsage( )
 }
 
 
-// Call this method to specify that the parser should treat unrecognized
-// options/flags as errors (aborting the parsing process and returning -1)
-// instead of just issuing a warning.
+/// Call this method to specify that the parser should treat unrecognized
+/// options/flags as errors (aborting the parsing process and returning -1)
+/// instead of just issuing a warning.
 void CLineParser::UnrecognizedAreErrors( )
 {
   ignoreUnrecognized = false;
@@ -189,6 +189,7 @@ void CLineParser::UnrecognizedAreErrors( )
 // keep track of them for purposes of freeing up the allocated memory when this
 // CLineParser object is destroyed.
 
+//! Add a possible flag (single-character only) to the set of command-line flags/options
 void CLineParser::AddFlag( string shortFlagString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -198,6 +199,7 @@ void CLineParser::AddFlag( string shortFlagString )
 }
 
 
+//! Add a possible flag (with both short and long versions) to the set of command-line flags/options
 void CLineParser::AddFlag( string shortFlagString, string longFlagString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -208,6 +210,7 @@ void CLineParser::AddFlag( string shortFlagString, string longFlagString )
 }
 
 
+//! Add a possible options (single-character only) to the set of command-line flags/options
 void CLineParser::AddOption( string shortOptString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -216,6 +219,7 @@ void CLineParser::AddOption( string shortOptString )
 }
 
 
+//! Add a possible option (with both short and long versions) to the set of command-line options
 void CLineParser::AddOption( string shortOptString, string longOptString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -225,12 +229,14 @@ void CLineParser::AddOption( string shortOptString, string longOptString )
 }
 
 
+//! Add a string of help-text to the internal help-text list
 void CLineParser::AddUsageLine( string usageLine )
 {
   usageStrings.push_back(usageLine);
 }
 
 
+//! Main method which parses command line
 int CLineParser::ParseCommandLine( int argc, char *argv[] )
 {
   string  currentString;
@@ -309,7 +315,7 @@ int CLineParser::ParseCommandLine( int argc, char *argv[] )
 }
 
 
-// Checks if associated flag was set
+//! Returns whether or not command line was empty
 bool CLineParser::CommandLineEmpty( )
 {
   return commandLineEmpty;
@@ -318,7 +324,7 @@ bool CLineParser::CommandLineEmpty( )
 
 
 
-// Checks if associated flag was set
+//! Checks if associated flag was set
 bool CLineParser::FlagSet( string flagName )
 {
   if (optMap.count(flagName) > 0)
@@ -330,7 +336,7 @@ bool CLineParser::FlagSet( string flagName )
 }
 
 
-// Checks if target was supplied for the associated option
+//! Checks if target was supplied for the associated option
 bool CLineParser::OptionSet( string optName )
 {
   if (optMap.count(optName) > 0)
@@ -342,7 +348,7 @@ bool CLineParser::OptionSet( string optName )
 }
 
 
-// Returns the stored target string for the associated option
+//! Returns the stored target string for the associated option
 string& CLineParser::GetTargetString( string optName )
 {
   if (optMap.count(optName) > 0)
@@ -354,12 +360,14 @@ string& CLineParser::GetTargetString( string optName )
 }
 
 
+//! Returns the number of arguments (excluding flags, options) found in parsed command line
 int CLineParser::nArguments( )
 {
   return (int)argStrings.size();
 }
 
 
+//! Returns argument number n as a string
 string& CLineParser::GetArgument( int n )
 {
   return argStrings[n];

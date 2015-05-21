@@ -91,6 +91,7 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 #endif
 
 
+//! struct for holding various options (set by command-line flags & options)
 typedef struct {
   std::string  configFileName;
   std::string  imageFileName;   // [] = assign default value in main?

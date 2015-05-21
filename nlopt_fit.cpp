@@ -66,6 +66,7 @@ using namespace std;
 #include "model_object.h"
 #include "param_struct.h"   // for mp_par structure
 #include "nlopt_fit.h"
+#include "utilities_pub.h"
 
 const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
@@ -78,6 +79,7 @@ const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;
 static int  verboseOutput;
 static int  funcCallCount = 0;
 nlopt_opt  theOptimizer;
+string  currentSolverName;
 
 
 void PopulateAlgorithmMap( map<string, nlopt_algorithm>& input_map )
@@ -142,7 +144,7 @@ double myfunc_nlopt_gen(unsigned n, const double *x, double *grad, void *my_func
 
 // We keep InterpretResult around (and use it below) because we haven't yet figured out
 // a way of getting the algorithm name outside the module
-void InterpretResult( nlopt_result  resultValue, nlopt_algorithm algorithmName )
+void InterpretResult( nlopt_result resultValue, nlopt_algorithm algorithmName )
 {
   string  description;
   string  returnVal_str;
@@ -150,7 +152,7 @@ void InterpretResult( nlopt_result  resultValue, nlopt_algorithm algorithmName )
 
   description = "NLOpt solver (";
   description += nlopt_algorithm_name(algorithmName);
-  description += ") status = ";
+  description += "): status = ";
   converter << resultValue;      // insert the textual representation of resultValue in the characters in the stream
   description += converter.str();
   
@@ -195,10 +197,9 @@ void GetInterpretation_NLOpt( int resultValue, string& outputString )
   string  returnVal_str;
   ostringstream converter;   // stream used for the conversion
 
-  description = "Miscellaneous NLOpt solver status = ";
-  converter << resultValue;      // insert the textual representation of resultValue in the characters in the stream
-  description += converter.str();
-  
+  description = PrintToString("NLOpt solver (%s): status = %d", currentSolverName.c_str(),
+  							(int)resultValue);
+
   if (resultValue < 0) {
     description += " -- ERROR:";
     if (resultValue == -1)
@@ -278,8 +279,10 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     fprintf(stderr, "** ERROR -- unrecognized named (\"%s\") for optimizer name!\n", solverName.c_str());
     return -1;
   }
-  else
+  else {
     algorithmName = mapPair_iter->second;
+    currentSolverName = solverName;
+  }
 
 //   switch (whichSolver) {
 //     case NLOPT_SOLVER_COBYLA: // COBYLA

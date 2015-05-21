@@ -159,8 +159,8 @@ Convolver::~Convolver( )
 
 
 /* ---------------- SetMaxThreads -------------------------------------- */
-// User specifies maximum number of FFTW threads to use (ignored if not compiled
-// with multithreaded FFTW library)
+/// User specifies maximum number of FFTW threads to use (ignored if not compiled
+/// with multithreaded FFTW library)
 void Convolver::SetMaxThreads( int maximumThreadNumber )
 {
   maxRequestedThreads = maximumThreadNumber;
@@ -168,8 +168,8 @@ void Convolver::SetMaxThreads( int maximumThreadNumber )
 
 
 /* ---------------- SetupPSF ------------------------------------------- */
-// Pass in a pointer to the pixel vector for the input PSF image, as well as
-// the image dimensions
+/// Pass in a pointer to the pixel vector for the input PSF image, as well as
+/// the image dimensions
 void Convolver::SetupPSF( double *psfPixels_input, int nColumns, int nRows )
 {
 
@@ -182,7 +182,7 @@ void Convolver::SetupPSF( double *psfPixels_input, int nColumns, int nRows )
 
 
 /* ---------------- SetupImage ----------------------------------------- */
-// Pass in the dimensions of the image we'll be convolving with the PSF
+//! Pass in the dimensions of the image we'll be convolving with the PSF
 void Convolver::SetupImage( int nColumns, int nRows )
 {
 
@@ -194,9 +194,9 @@ void Convolver::SetupImage( int nColumns, int nRows )
 
 
 /* ---------------- DoFullSetup ---------------------------------------- */
-// General setup prior to actually supplying the image data and doing the
-// convolution: determine padding dimensions; allocate FFTW arrays and plans;
-// normalize, shift, and Fourier transform the PSF image.
+/// General setup prior to actually supplying the image data and doing the
+/// convolution: determine padding dimensions; allocate FFTW arrays and plans;
+/// normalize, shift, and Fourier transform the PSF image.
 int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
 {
   int  k;
@@ -304,10 +304,10 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
 
 
 /* ---------------- ConvolveImage -------------------------------------- */
-// Given an input image (pointer to its pixel vector), convolve it with the PSF
-// by: 1) Copying image to fft_complex array; 2) Taking FFT of image; 3)
-// Multiplying transform of image by transform of PSF; 4) Taking inverse FFT
-// of product; 5) Copying (and rescaling) result back into input image.
+/// Given an input image (pointer to its pixel vector), convolve it with the PSF
+/// by: 1) Copying image to fft_complex array; 2) Taking FFT of image; 3)
+/// Multiplying transform of image by transform of PSF; 4) Taking inverse FFT
+/// of product; 5) Copying (and rescaling) result back into input image.
 void Convolver::ConvolveImage( double *pixelVector )
 {
   int  ii, jj;
@@ -380,9 +380,9 @@ void Convolver::ConvolveImage( double *pixelVector )
 }
 
 
-// ShiftAndWrapPSF: Takes the input PSF (assumed to be centered in the central pixel
-// of the image) and copy it into the real part of the (padded) fftw_complex image, with the
-// PSF wrapped into the corners, suitable for convolutions.
+/// Takes the input PSF (assumed to be centered in the central pixel
+/// of the image) and copy it into the real part of the (padded) fftw_complex image, with the
+/// PSF wrapped into the corners, suitable for convolutions.
 void Convolver::ShiftAndWrapPSF( )
 {
   int  centerX_psf, centerY_psf;

@@ -1,4 +1,6 @@
-/*   Public interfaces for command-line parser.
+/*! \file
+    \brief Public interfaces for command-line parser.
+
  */
 
 #ifndef _COMMANDLINE_PARSER_H_
@@ -11,12 +13,12 @@
 using namespace std;
 
 
-// Utility functions
+//! Utility function: removes leading dashes from a string
 void StripLeadingDashes( string& stringToModify );
 
 
 
-// Option class
+//! Class holding info about an individual command-line option/flag
 class OptionObject
 {
   public:
@@ -45,7 +47,7 @@ class OptionObject
 
 
 
-// Parser class
+//! Class for parsing command line
 class CLineParser
 {
   public:
@@ -55,7 +57,7 @@ class CLineParser
     
     // Public member functions:
     void PrintUsage( );
-    void UnrecognizedAreErrors( );   // interpret unrecognized flags/options as errors
+    void UnrecognizedAreErrors( );   //!< interpret unrecognized flags/options as errors
     void AddFlag( string shortFlagString );
     void AddFlag( string shortFlagString, string longFlagString );
     void AddOption( string shortOptString );
@@ -73,14 +75,14 @@ class CLineParser
   // Private member functions:
 
   // Data members:
-  map<string, OptionObject *>  optMap;   // 	data: map<string, *optObject> of option-objects
-  vector<OptionObject *> optObjPointers;   // keep track of all discrete OptionObject pointers
-  vector<string>  usageStrings;   // 	data: map<string, *optObject> of option-objects
-  vector<string>  argStrings;     // 	data: vector<string> of argument strings
+  map<string, OptionObject *>  optMap;   //!< 	data: map<string, *optObject> of option-objects
+  vector<OptionObject *> optObjPointers;   //!< keep track of all discrete OptionObject pointers
+  vector<string>  usageStrings;   //!< 	data: map<string, *optObject> of option-objects
+  vector<string>  argStrings;     //!< 	data: vector<string> of argument strings
   int  verboseLevel;
-  bool  commandLineEmpty;        // true if user supplied *no* options/flags *or* arguments
-  bool  ignoreUnrecognized;      // if we encounter an unrecognized option/flag, do we
-                                 // ignore it (= just print a warning & continue processing)?
+  bool  commandLineEmpty;        //!< true if user supplied *no* options/flags *or* arguments
+  bool  ignoreUnrecognized;      //!< if we encounter an unrecognized option/flag, do we
+                                 //!< ignore it (= just print a warning & continue processing)?
   string  errorString1;
 };
 

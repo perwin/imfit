@@ -1,4 +1,11 @@
-/* Generally useful definitions (sizes of different kind of buffers, etc.) */
+/*! \file
+    \brief Generally useful definitions (debugging levels, fit statistics, solvers, etc.) 
+
+    Definitions of constants referring to debugging levels, which fit statisitic
+    is being used, which minimizer/solver is being used, format of error/weight
+    image, definition of good/bad pixels in mask, and max buffer sizes for
+    lines of text and for filenames.
+ */
 
 #ifndef _DEFINITIONS_H_
 #define _DEFINITIONS_H_
@@ -18,9 +25,9 @@ const int  DEBUG_ALL   =            10;
 
 
 /* OPTIONS FOR FIT STATISTICS: */
-#define FITSTAT_CHISQUARE       1   // standard chi^2
-#define FITSTAT_CASH            2   // standard (minimal) Cash statistic
-#define FITSTAT_POISSON_MLR     3   // modified Cash statistic
+#define FITSTAT_CHISQUARE       1   //! standard chi^2
+#define FITSTAT_CASH            2   //! standard (minimal) Cash statistic
+#define FITSTAT_POISSON_MLR     3   //! Poisson Maximum Likelihood Ratio statistic
 
 
 /* SOLVER OPTIONS: */
@@ -32,12 +39,12 @@ const int  DEBUG_ALL   =            10;
 #define GENERIC_NLOPT_SOLVER   5
 
 /* TYPE OF INPUT ERROR/WEIGHT IMAGE */
-#define  WEIGHTS_ARE_SIGMAS     100  // "weight image" pixel value = sigma
-#define  WEIGHTS_ARE_VARIANCES  110  // "weight image" pixel value = variance (sigma^2)
-#define  WEIGHTS_ARE_WEIGHTS    120  // "weight image" pixel value = weight
+#define  WEIGHTS_ARE_SIGMAS     100  //! "weight image" pixel value = sigma
+#define  WEIGHTS_ARE_VARIANCES  110  //! "weight image" pixel value = variance (sigma^2)
+#define  WEIGHTS_ARE_WEIGHTS    120  //! "weight image" pixel value = weight
 
-#define  MASK_ZERO_IS_GOOD        10  // "standard" input mask format (good pixels = 0)
-#define  MASK_ZERO_IS_BAD         20  // alternate input mask format (good pixels = 1)
+#define  MASK_ZERO_IS_GOOD        10  //! "standard" input mask format (good pixels = 0)
+#define  MASK_ZERO_IS_BAD         20  //! alternate input mask format (good pixels = 1)
 
 
 #endif /* _DEFINITIONS_H_ */

@@ -142,10 +142,10 @@ void GetSolverSummary( int status, int solverID, string& outputString )
 {
   string  tempString;
   
-  outputString = "  ";
+  outputString = "Algorithm: ";
   switch (solverID) {
     case MPFIT_SOLVER:
-      outputString += PrintToString("Levenberg-Marquardt status = %d -- ", status);
+      outputString += PrintToString("Levenberg-Marquardt: status = %d -- ", status);
       InterpretMpfitResult(status, tempString);
       outputString += tempString;
       break;
@@ -158,7 +158,7 @@ void GetSolverSummary( int status, int solverID, string& outputString )
       outputString += tempString;
       break;
     case DIFF_EVOLN_SOLVER:
-      outputString += PrintToString("Differential Evolution status = %d -- ", status);
+      outputString += PrintToString("Differential Evolution: status = %d -- ", status);
       if (status == 1)
         outputString += "SUCCESS: Convergence in fit-statistic value";
       else  // assuming (status == 5)
@@ -191,13 +191,13 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   double  bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
   int  whichStat = model->WhichFitStatistic();
   if (whichStat == FITSTAT_CASH) {
-    statName = "CASH STATISTIC";
+    statName = "Cash statistic";
   }
   else if (whichStat == FITSTAT_POISSON_MLR) {
-    statName = "POISSON-MLR STATISTIC";
+    statName = "Poisson-MLR statistic";
   }
   else {
-    statName = "CHI-SQUARE";
+    statName = "chi-squared";
   }
   
   char  *timeStamp;
@@ -208,17 +208,18 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   for (int i = 0; i < argc; i++)
     fprintf(file_ptr, " %s", argv[i]);
   fprintf(file_ptr, "\n# Results of fit:\n");
-  fprintf(file_ptr, "# %s\n", algorithmSummary.c_str());
-  fprintf(file_ptr, "#   Fit statistic = %s\n", statName.c_str());
-  fprintf(file_ptr, "#   Best-fit value = %f", fitStatistic);
+  fprintf(file_ptr, "#   %s\n", algorithmSummary.c_str());
+  fprintf(file_ptr, "#   Fit statistic: %s\n", statName.c_str());
+  fprintf(file_ptr, "#   Best-fit value: %f\n", fitStatistic);
   if (whichStat == FITSTAT_CASH) {
-    fprintf(file_ptr, "\n");
+    fprintf(file_ptr, "#   Reduced value: none\n");
   }
   else {
-    fprintf(file_ptr, "; reduced value = %f\n", fitStatistic / nDegreesFreedom);
+    fprintf(file_ptr, "#   Reduced value: %f\n", fitStatistic / nDegreesFreedom);
   }
-  fprintf(file_ptr, "#   AIC = %f, BIC = %f\n", aic, bic);
-  fprintf(file_ptr, "\n\n");
+  fprintf(file_ptr, "#   AIC: %f\n", aic);
+  fprintf(file_ptr, "#   BIC: %f\n", bic);
+  fprintf(file_ptr, "\n");
 
   model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
 

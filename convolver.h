@@ -1,7 +1,8 @@
-/*   Public interfaces for function(s) which deal with convolving images with
- * PSF.
+/*! \file
+   \brief  Class description for convolving images with PSF.
+  
  */
- 
+
 //  Convolver object should contain (or contain pointers to):
 // 	input PSF image (pointer to)
 // 	input image (pointer to)
@@ -33,11 +34,15 @@
 using namespace std;
 
 
+//! Utility function for debugging use: print a real-valued image to stdout
 void PrintRealImage( double *image, int nColumns, int nRows );
+//! Utility function for debugging use: print a complex-valued image to stdout
 void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nColumns, int nRows );
+//! Utility function for debugging use: print absolute value of complex-valued image to stdout
 void PrintComplexImage_Absolute( fftw_complex *image_cmplx, int nColumns, int nRows );
 
 
+//! Class for handling PSF convolution (stores PSF, performs convolutions with input model images)
 class Convolver
 {
   public:
@@ -46,14 +51,18 @@ class Convolver
     ~Convolver( );
     
     // Public member functions:
+    //! Supply PSF image to Convolver object
     void SetupPSF( double *psfPixels_input, int nColumns, int nRows );
     
+    //! Set maximum number of FFTW threads
     void SetMaxThreads( int maximumThreadNumber );
     
     void SetupImage( int nColumns, int nRows );
     
+    //! Do final setup work (allocate things, generate FT of PSF image, etc.)
     int DoFullSetup( int debugLevel=0, bool doFFTWMeasure=false );
 
+    //! Replace input model image (pixelVector) with convolution using stored PSF
     void ConvolveImage( double *pixelVector );
 
 

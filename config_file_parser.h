@@ -1,4 +1,7 @@
-// Experimental code for reading imfit parameter file
+/*! \file
+    \brief Public interfaces for code which parses imfit/makeimage config files
+
+ */
 // Currently focused on getting the function names & associated parameters
 
 #ifndef _CONFIG_FILE_PARSER_H_
@@ -23,18 +26,19 @@ typedef struct {
 } configOptions;
 
 
-// Utility function (only used inside ReadConfigFile, but exposed here so
-// we can do unit tests on it
+//! \brief Utility function which does basic sanity-checking on config file
+//
+//! (This is only used inside ReadConfigFile, but is exposed in the header file so
+//! we can do unit tests on it)
 int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, bool mode2D,
 									int *badLineNumber );
 
-// First version is for use by e.g. makeimage: reads in parameters, but ignores
-// parameter limits
+//! Function for use by makeimage
 int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<int>& fblockStartIndices,
                      configOptions& configFileOptions );
 
-// This version is for use by e.g. imfit: reads in parameters *and* parameter limits
+//! Function for use by e.g. imfit: reads in parameters *and* parameter limits
 int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
                     vector<int>& fblockStartIndices, bool& parameterLimitsFound,

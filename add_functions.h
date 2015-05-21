@@ -1,5 +1,7 @@
-/*   Public interfaces for function(s) which takes a list of user-specified
- * function objects and adds them to the ModelObject.
+/*! \file
+    \brief Public interfaces for function(s) which takes a list of user-specified 
+    function objects and adds them to the ModelObject.
+
  */
 
 #ifndef _ADD_FUNCTION_H_
@@ -11,21 +13,25 @@
 
 using namespace std;
 
-
+//! Main function which adds a list of FunctionObject instances to an instance of ModelObject
 int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
                   vector<int> &FunctionBlockIndices, bool subamplingFlag,
                   int verboseFlag=0 );
 
-// Use the following to print out names of available functions/components
+//! Prints out names of available image functions (FunctionObject classes) to stdout
 void PrintAvailableFunctions( );
 
-// Use the following to print out a full list consisting of each function
-// name ("FUNCTION <short-name>") followed by the ordered list of parameter
-// names (suitable for copying and pasting into a config file for makeimage or imfit).
+//! Prints out list of available functions and their parameters
+/*! Use this to print out a full list consisting of each function
+ * name ("FUNCTION <short-name>") followed by the ordered list of parameter
+ * names (suitable for copying and pasting into a config file for makeimage or imfit).
+ */
 void ListFunctionParameters( );
 
+//! Populates a vector with names of the specified function's parameters
 int GetFunctionParameterNames( string &functionName, vector<string> &parameterNameList );
 
+//! Populates a vector with names of available functions (FunctionObject classes)
 void GetFunctionNames( vector<string> &functionNameList );
 
 

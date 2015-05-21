@@ -261,9 +261,9 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
 
 
 /* ---------------- FUNCTION: GetStartCoordsFromBracket() ----------- */
-// Given a string of the form "x1:x2,y1:y2", return x1 and y1
-// Special case: "*,y1:y2" ==> return 1, y1
-// Special case: "x1:x2,*" ==> return x1, 1
+/// Given a string of the form "x1:x2,y1:y2", return x1 and y1
+/// Special case: "*,y1:y2" ==> return 1, y1
+/// Special case: "x1:x2,*" ==> return x1, 1
 void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
                            const string& fileName )
 {
@@ -393,11 +393,11 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
 
 
 /* ---------------- FUNCTION: ImageFileExists() -------------------- */
-// Function which tests for the existence of an image file, with the following
-// special cases:
-//    1. If filename begins with "ftp:" or "http:", we assume it exists
-//    2. Trailing image specifications (e.g. "name.fits[100:200, 100:200]")
-// are ignored, since they are not part of the on-disk filename
+/// Function which tests for the existence of an image file, with the following
+/// special cases:
+///    1. If filename begins with "ftp:" or "http:", we assume it exists
+///    2. Trailing image specifications (e.g. "name.fits[100:200, 100:200]")
+/// are ignored, since they are not part of the on-disk filename
 
 bool ImageFileExists(const char * filename)
 {

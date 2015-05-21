@@ -18,7 +18,7 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Nelder-Mead Simplex solver ..
-Nelder-Mead Simplex status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
+Nelder-Mead Simplex: status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
 
   CHI-SQUARE = 4555.947706    (4089 DOF)
 

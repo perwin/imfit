@@ -509,6 +509,17 @@ with the model image.
 
 \bigskip
 
+\item \texttt{--overpsf} \textit{psf-image} --- specifies an oversampled
+\textsc{fits} image to be convolved with (a subregion of) the model image.
+
+\item \texttt{--overpsf\_scale} \textit{scale} --- specifies the oversampling
+factor of the oversampled PSF image (an integer $> 1$).
+
+\item \texttt{--overpsf\_region} \textit{[x1:x2,y1:y2]} --- specifies the subregion
+of the image where oversampled PSF convolution will be done.
+
+\bigskip
+
 \item \texttt{--mask} \textit{mask-image} --- specifies a \textsc{fits} image which marks
 bad pixels to be ignored in the fitting process. By default, zero values in
 the mask indicate \textit{good} pixels, and positive values indicate bad pixels.
@@ -1131,6 +1142,24 @@ image internally.
 Although \imfit{} uses a multi-threaded version version of the \textsc{fftw} library, which
 is itself quite fast, adding PSF convolution to the image-fitting process \textit{does}
 slow things down considerably.
+
+
+\subsection{Convolution with Oversampled PSF}
+
+TBD.
+
+Simplified versino of actual imaging process: effectively infinite
+resolution, convolved with telescope optics (+ atmosphere for
+ground-based observations), then sampled by pixels of imager.
+
+The simplest way to deal with this is to convolve the entire image with
+a PSF image of the same resolution (i.e., the same pixel scale), and
+this is what happens when the \texttt{--psf} option is used. However,
+this is a simplification and a compromise, and it can sometimes lead to
+inaccuracies, especially when dealing with undersampled PSFs and narrow,
+centrally concentrated image components such as active nuclei.
+
+
 
 
 
