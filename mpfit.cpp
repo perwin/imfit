@@ -140,11 +140,11 @@ int CheckFinite(int ntot, double *matrix);
 *                      upon return, contains adjusted parameter values
 *     mp_par *pars   - array of npar structures specifying constraints;
 *                      or 0 (null pointer) for unconstrained fitting
-*                      [ see README and mpfit.h for definition & use of mp_par]
+*                      [ see README and mpfit_cpp.h for definition & use of mp_par]
 *     mp_config *config - pointer to structure which specifies the
 *                      configuration of mpfit(); or 0 (null pointer)
 *                      if the default configuration is to be used.
-*                      See README and mpfit.h for definition and use
+*                      See README and mpfit.h [or mpfit_cpp.h] for definition and use
 *                      of config.
 *     void *theModel  - any private user data which is to be passed directly
 *                      to funct without modification by mpfit().
@@ -332,9 +332,8 @@ int CheckFinite(int ntot, double *matrix);
 * ********** */
 
 
-int mpfit(mp_func funct, int m, int npar,
-          double *xall, mp_par *pars, mp_config *config, ModelObject *theModel, 
-          mp_result *result)
+int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config *config, 
+			ModelObject *theModel, mp_result *result)
 {
   mp_config conf;
   int i, j, info, iflag, nfree, npegged, iter;
@@ -453,14 +452,14 @@ int mpfit(mp_func funct, int m, int npar,
   
   if (pars) {
     for (i = 0; i < npar; i++) {
-      if ( (pars[i].limited[0] && (xall[i] < pars[i].limits[0])) ||
-           (pars[i].limited[1] && (xall[i] > pars[i].limits[1])) ) {
-        info = MP_ERR_INITBOUNDS;
-        goto CLEANUP;
-      }
       if ( (pars[i].fixed == 0) && pars[i].limited[0] && pars[i].limited[1] &&
            (pars[i].limits[0] >= pars[i].limits[1])) {
         info = MP_ERR_BOUNDS;
+        goto CLEANUP;
+      }
+      if ( (pars[i].limited[0] && (xall[i] < pars[i].limits[0])) ||
+           (pars[i].limited[1] && (xall[i] > pars[i].limits[1])) ) {
+        info = MP_ERR_INITBOUNDS;
         goto CLEANUP;
       }
     }
@@ -2419,11 +2418,11 @@ void InterpretMpfitResult( int mpfitResult, std::string& interpretationString )
     if (mpfitResult == MP_ERR_MEMORY)
       interpretationString += "Memory allocation error!";
     if (mpfitResult == MP_ERR_INITBOUNDS)
-      interpretationString += "Initial values inconsistent w constraints!";
+      interpretationString += "Initial values inconsistent with constraints!";
     if (mpfitResult == MP_ERR_BOUNDS)
       interpretationString += "Initial constraints inconsistent!";
     if (mpfitResult == MP_ERR_PARAM)
-      interpretationString += "General input parameter error.";
+      interpretationString += "General input parameter error!";
     if (mpfitResult == MP_ERR_DOF)
       interpretationString += "Not enough degrees of freedom!";
   } else {

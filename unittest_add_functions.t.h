@@ -4,6 +4,10 @@
 // all of the necessary func_*.cpp files, along with model_object.cpp, have already 
 // been compiled).
 
+// Note that we don't try to test PrintAvailableFunctions() or ListFunctionParameters(),
+// because these print to standard output (and can in principle be tested in the
+// regression tests).
+
 #include <cxxtest/TestSuite.h>
 
 #include <string>
