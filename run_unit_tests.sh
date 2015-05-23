@@ -51,6 +51,13 @@ $CPP -o test_runner_downsample test_runner_downsample.cpp downsample.cpp image_i
 echo "Running unit tests for downsample:"
 ./test_runner_downsample 2>> temperror.log
 
+echo
+echo "Generating and compiling unit tests for mpfit..."
+$CXXTESTGEN --error-printer -o test_runner_mpfit.cpp unittest_mpfit.t.h 
+$CPP -o test_runner_mpfit test_runner_mpfit.cpp mpfit.cpp -I/usr/local/include -I$CXXTEST
+echo "Running unit tests for utilities:"
+./test_runner_mpfit 2>> temperror.log
+
 
 # Unit tests for function objects (easiest if we cd to the function_objects directory
 # and do everything there)

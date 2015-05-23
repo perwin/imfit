@@ -46,11 +46,6 @@
 // Halted because of a forced termination: the user called nlopt_force_stop(opt) on the optimization’s nlopt_opt object opt from the user’s objective function or constraints.
 
 
-// Note : the following are the default tolerance values we are currently using
-// in mpfitfun.cpp:
-//  conf.ftol = 1e-10;   [relative changes in chi^2]
-//  conf.xtol = 1e-10;   [relative changes in parameter values]
-
 #include <string>
 #include <sstream>
 #include <vector>
@@ -114,48 +109,6 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
 
 
 
-// void InterpretResult( nlopt_result  resultValue )
-// {
-//   string  description;
-//   ostringstream converter;   // stream used for the conversion
-//   
-//   description = "Nelder-Mead Simplex status = ";
-//   converter << resultValue;      // insert the textual representation of resultValue in the characters in the stream
-//   description += converter.str();
-//   
-//   if (resultValue < 0) {
-//     description += " -- ERROR:";
-//     if (resultValue == -1)
-//       description += " generic (unspecified) failure";
-//     else if (resultValue == -2)
-//       description += " invalid arguments!";
-//     else if (resultValue == -3)
-//       description += " ran out of memory";
-//     else if (resultValue == -4)
-//       description += " roundoff errors limited progress";
-//     else if (resultValue == -5)
-//       description += " forced termination called from objective function";
-//   }
-//   else if ((resultValue > 0) && (resultValue < 5)) {
-//     description += " -- SUCCESS:";
-//     if (resultValue == 1)
-//       description += " generic (unspecified) success";
-//     else if (resultValue == 2)
-//       description += " minimum allowed fit statistic (stopval) reached";
-//     else if (resultValue == 3)
-//       description += " ftol_rel or ftol_abs reached";
-//     else if (resultValue == 4)
-//       description += " xtol or xtol_abs reached";
-//   }
-//   else if (resultValue == 5)
-//     description += " -- FAILED: reached maximum number of function evaluations";
-//   else if (resultValue == 6)
-//     description += " -- FAILED: reached maximum time";
-// 
-//   printf("%s\n", description.c_str());
-// }
-
-
 void GetInterpretation_NM( int resultValue, string& outputString )
 {
   string  description;
@@ -202,7 +155,6 @@ void GetInterpretation_NM( int resultValue, string& outputString )
 int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
                   ModelObject *theModel, double ftol, int verbose )
 {
-//  nlopt_opt  optimizer;
   nlopt_result  result;
   int  maxEvaluations;
   double  finalStatisticVal;
@@ -265,7 +217,6 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     string interpretedResult;
     GetInterpretation_NM((int)result, interpretedResult);
     printf("%s\n", interpretedResult.c_str());
-//    InterpretResult(result);
   }
 
 

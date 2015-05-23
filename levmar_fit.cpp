@@ -1,6 +1,6 @@
 /* FILE: levmar_fit.cpp -------------------------------------------------- */
 
-// Copyright 2012, 2013 by Peter Erwin.
+// Copyright 2012, 2013, 2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -88,10 +88,6 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
   mpConfig.maxiter = MAX_ITERATIONS;
   mpConfig.ftol = ftol;
   mpConfig.verbose = verbose;
-//   if (verbose)
-//     mpConfig.verbose = 1;
-//   else
-//     mpConfig.verbose = 0;
 
   status = mpfit(myfunc_mpfit, nDataVals, nParamsTot, paramVector, mpfitParameterConstraints,
 					&mpConfig, theModel, &mpfitResult);

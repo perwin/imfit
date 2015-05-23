@@ -100,7 +100,7 @@ base_defines = ["ANSI", "USING_SCONS"]
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
 lib_list = ["fftw3", "cfitsio", "m"]
 # libraries needed for profilefit and psfconvolve1d compilation
-lib_list_1d = ["fftw3", "m"]
+lib_list_1d = ["fftw3","cfitsio",  "m"]
 
 
 include_path = ["/usr/local/include", FUNCTION_SUBDIR]
@@ -554,7 +554,11 @@ else:
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 # ModelObject1d and related classes:
-modelobject1d_obj_string = """model_object model_object_1d"""
+# (Note that model_object includes references to oversampled_region and downsample,
+# so we need to include those in the compilation and link, even though they aren't
+# actually used in model_object1d. Similarly, code in image_io is referenced from
+# downsample.)
+modelobject1d_obj_string = """model_object model_object_1d oversampled_region downsample image_io"""
 modelobject1d_objs = modelobject1d_obj_string.split()
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
