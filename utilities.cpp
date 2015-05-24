@@ -121,11 +121,11 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
 
 
 /* ---------------- FUNCTION: SplitString() ------------------------ */
-// This function tokenizes a string, splitting it into substrings using
-// delimiters as the separator (delimiters can be more than one character, in
-// which case all of them can serve as delimiters).  The substrings are
-// added to the user-supplied vector<string> tokens.
-// The default value for delimiter is "\t ", meaning tabs and spaces.
+/// This function tokenizes a string, splitting it into substrings using
+/// delimiters as the separator (delimiters can be more than one character, in
+/// which case all of them can serve as delimiters).  The substrings are
+/// added to the user-supplied vector<string> tokens.
+/// The default value for delimiter is "\n\t ", meaning newlines, tabs, and spaces.
 void SplitString( const string& str, vector<string>& tokens, const string& delimiters )
 {
 
@@ -154,8 +154,8 @@ void SplitString( const string& str, vector<string>& tokens, const string& delim
 
 
 /* ---------------- FUNCTION: SplitStringAdd() --------------------- */
-// Same as SplitString, but the pieces of the input string are *added* to the
-// tokens vector, instead of the tokens vector being cleared first
+/// Same as SplitString, but the pieces of the input string are *added* to the
+/// tokens vector, instead of the tokens vector being cleared first
 void SplitStringAdd( const string& str, vector<string>& tokens, const string& delimiters )
 {
   // Skip delimiters at beginning.
@@ -190,14 +190,14 @@ void ChopComment( string& inputString, char delimiter )
 /* ---------------- FUNCTION: TrimWhitespace() --------------------- */
 // This function removes leading and trailing whitespace from a string; if
 // the string is *all* whitespace, then it converts the input string to an
-// empty string.  ("Whitespace" = spaces or tabs)
+// empty string.  ("Whitespace" = newlines, spaces, or tabs)
 void TrimWhitespace( string& stringToModify )
 {
   if (stringToModify.empty())
     return;
 
-  string::size_type  startIndex = stringToModify.find_first_not_of(" \t");
-  string::size_type  endIndex = stringToModify.find_last_not_of(" \t");
+  string::size_type  startIndex = stringToModify.find_first_not_of(" \t\n");
+  string::size_type  endIndex = stringToModify.find_last_not_of(" \t\n");
   if (startIndex == endIndex)
     stringToModify.clear();
   else
@@ -261,9 +261,9 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
 
 
 /* ---------------- FUNCTION: GetStartCoordsFromBracket() ----------- */
-/// Given a string of the form "x1:x2,y1:y2", return x1 and y1
-/// Special case: "*,y1:y2" ==> return 1, y1
-/// Special case: "x1:x2,*" ==> return x1, 1
+/// Given a string of the form "x1:x2,y1:y2", return x1 and y1. Special cases:
+///    1. "*,y1:y2" ==> returns 1, y1;
+///    2. "x1:x2,*" ==> returns x1, 1
 void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
                            const string& fileName )
 {
@@ -395,7 +395,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
 /* ---------------- FUNCTION: ImageFileExists() -------------------- */
 /// Function which tests for the existence of an image file, with the following
 /// special cases:
-///    1. If filename begins with "ftp:" or "http:", we assume it exists
+///    1. If filename begins with "ftp:" or "http:", we assume it exists;
 ///    2. Trailing image specifications (e.g. "name.fits[100:200, 100:200]")
 /// are ignored, since they are not part of the on-disk filename
 
@@ -512,6 +512,17 @@ bool NotANumber( const char theString[], int index, int restriction )
   }  /* end switch (restriction) */
 }
 
+
+// returns 1 if input string can successfully be converted to double, 0 if not
+int IsNumeric( const char *aString )
+{
+    char *p;
+
+    if (aString == NULL || *aString == '\0' || isspace(*aString))
+      return 0;
+    strtod(aString, &p);
+    return (*p == '\0');
+}
 
 
 

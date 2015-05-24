@@ -37,14 +37,14 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
 ///
 /// The vector tokens is cleared before adding the substrings.
 void SplitString( const string& str, vector<string>& tokens, 
-									const string& delimiters = "\t " );
+									const string& delimiters = "\n\t " );
 
-// Same as SplitString, but the pieces of the input string are *added* to the
-// tokens vector, instead of the tokens vector being cleared first
+/// \brief Same as SplitString, but the pieces of the input string are *added* to the
+///        tokens vector, instead of the tokens vector being cleared first
 void SplitStringAdd( const string& str, vector<string>& tokens, 
 									const string& delimiters = "\t " );
 
-/// Removes remainder of string after first occurance of delimiter.
+/// Modifies inputString to remove all characters from the first appearance of the delimiter onwards
 void ChopComment( string& inputString, char delimiter = '#' );
 
 /// Removes leading and trailing whitespace ("\t ") from a string
@@ -76,7 +76,7 @@ bool ImageFileExists(const char * filename);
 bool FileExists(const char * filename);
 
 
-/// Returns string with current date-and-time (Day Mon dd hh:mm:ss yyy)
+/// Returns string with current date-and-time (Dow Mon dd hh:mm:ss yyy)
 char * TimeStamp( void );
 
 
@@ -86,6 +86,11 @@ void CommandLineError( char errorString[] );
 
 /// Returns true if string is *not* a number of correct subtype (restriction)
 bool NotANumber( const char theString[], int index, int restriction );
+
+
+/// \brief Returns 1 if entire string is a valid number (positive or negative, including floating-point);
+///        returns 0 if not.
+int IsNumeric( const char *aString );
 
 
 

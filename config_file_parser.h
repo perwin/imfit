@@ -18,6 +18,7 @@ using namespace std;
 #define CONFIG_FILE_ERROR_NOFUNCSECTION  -1
 #define CONFIG_FILE_ERROR_NOFUNCTIONS  -2
 #define CONFIG_FILE_ERROR_INCOMPLETEXY  -3
+#define CONFIG_FILE_ERROR_BADPARAMLINE  -4
 
 typedef struct {
   vector<string> optionNames;
@@ -32,6 +33,12 @@ typedef struct {
 //! we can do unit tests on it)
 int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, bool mode2D,
 									int *badLineNumber );
+
+//! \brief Utility function: returns true if line has 2+ elements and 2nd is numeric
+//
+//! (This is only used inside VetConfigFile, but is exposed in the header file so
+//! we can do unit tests on it)
+bool ValidParameterLine( string& currentLine );
 
 //! Function for use by makeimage
 int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,

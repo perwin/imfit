@@ -83,6 +83,8 @@ echo ""
 ./imfit --config tests/config_imfit_sersictest512_badlimits1.dat tests/ic3478rss_64x64.fits &> test_dump_bad5
 ./imfit --config tests/config_imfit_sersictest512_badlimits2.dat tests/ic3478rss_64x64.fits &> test_dump_bad6
 ./imfit --config tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> test_dump_bad7
+./imfit --config tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> test_dump_bad7
+./imfit --config tests/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> test_dump_bad8
 
 #    Other input testing -- bad NLOpt specifiers, etc.
 ./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nlopt=BADNAME &> test_dump_badnloptname
@@ -337,6 +339,15 @@ then
 else
   echo "Diff output:"
   diff test_dump_bad7 tests/imfit_textout_bad7
+fi
+
+echo -n "*** Diff comparison with archives: bad parameter specification... "
+if (diff --brief test_dump_bad8 tests/imfit_textout_bad8)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump_bad8 tests/imfit_textout_bad7
 fi
 
 echo -n "*** Diff comparison with archives: bad --nlopt name... "

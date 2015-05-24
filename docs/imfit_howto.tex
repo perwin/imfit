@@ -279,19 +279,19 @@ line).
 \subsubsection{Tests}
 
 Finally, there are two shell scripts --- \texttt{do\_imfit\_tests} and
-\texttt{do\_makeimage\_tests} --- which can be run to do some very simple
-sanity checks (e.g., do the programs fit some simple images correctly,
-are common config-file errors caught, etc.). They make use of files and
-data in the \texttt{tests/} subdirectory. Possible differences in output
-at the level of the least significant digit may occur (especially for
-the ``DE fit'' test); these should not be considered problems. (For the
-full set of tests to run, you should have Python version 2.6 or 2.7
-installed, along with the Python libraries numpy\footnote{\url{http://numpy.scipy.org/}}
-and either
+\texttt{do\_makeimage\_tests} --- which can be run to do some very
+simple sanity checks (e.g., do the programs fit some simple images
+correctly, are common config-file errors caught, etc.). They make use of
+files and data in the \texttt{tests/} subdirectory. Possible differences
+in output at the level of the least significant digit may occur; these
+should not be considered problems. (For the full set of tests to run,
+you should have Python version 2.6 or 2.7 installed, along with the
+Python libraries numpy\footnote{\url{http://numpy.scipy.org/}} and
+either
 pyfits\footnote{\url{http://www.stsci.edu/institute/software_hardware/
-pyfits}} or astropy.\footnote{\url{http://www.astropy.org}} If these are not available, then the parts of
-the tests which compare output images with reference versions will
-be skipped.)
+pyfits}} or astropy.\footnote{\url{http://www.astropy.org}} If these are
+not available, then the parts of the tests which compare output images
+with reference versions will be skipped.)
 
 
 %\subsubsection{Recommended Option: Compiling with OpenMP Support}

@@ -15,7 +15,7 @@ MAC_DEST_BIN = "/Users/erwin/Documents/Working/web site/code/imfit/binaries/"
 MAC_CHANGELOG_MD = "CHANGELOG.md"
 MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/CHANGELOG.html"
 
-VERSION_STRING = "1.1"
+VERSION_STRING = "1.2"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -81,6 +81,8 @@ convolver
 image_io
 model_object
 print_results
+oversampled_region
+downsample
 """
 
 source_files_c = """
@@ -103,9 +105,11 @@ diff_evoln_fit
 DESolver
 nmsimplex_fit
 nlopt_fit
-config_file_parser 
-add_functions 
-print_results 
+config_file_parser
+add_functions
+print_results
+oversampled_region
+downsample
 imfit_main
 makeimage_main
 """
@@ -150,6 +154,7 @@ testing_scripts = """
 do_imfit_tests
 do_makeimage_tests
 compare_fits_files.py
+compare_imfit_printouts.py
 py_startup_test.py
 """
 
@@ -171,6 +176,7 @@ config_makeimage_sersictest512_bad5.dat
 config_imfit_sersictest512_badlimits1.dat
 config_imfit_sersictest512_badlimits2.dat
 config_imfit_sersictest512_badlimits3.dat
+config_imfit_badinput1.dat
 uniform_image32.fits
 testimage_expdisk32.fits
 testimage_poisson_lowsn20.fits
@@ -215,6 +221,7 @@ imfit_textout_bad4
 imfit_textout_bad5
 imfit_textout_bad6
 imfit_textout_bad7
+imfit_textout_bad8
 imfit_textout_badnloptname
 config_biggertest_4c.dat
 config_makeimage_gensersic512.dat
@@ -236,6 +243,7 @@ makeimage_textout11
 makeimage_textout12
 makeimage_textout13
 makeimage_textout14
+makeimage_textout15
 """
 testFileDict = {"dir": "tests", "file_list": test_files.split()}
 

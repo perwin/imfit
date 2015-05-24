@@ -1,6 +1,6 @@
-// $ cxxtestgen --error-printer -o test_runner.cpp unittest_utilities.t.h
-// $ g++ -o test_runner test_runner.cpp utilities.cpp -I/usr/local/include -I$CXXTEST
-// $ ./test_runner
+// $CXXTESTGEN --error-printer -o test_runner_utilities.cpp unittest_utilities.t.h
+// $CPP -o test_runner_utilities test_runner_utilities.cpp utilities.cpp -I/usr/local/include -I$CXXTEST
+// ./test_runner_utilities
 
 #include <cxxtest/TestSuite.h>
 
@@ -476,4 +476,34 @@ public:
     bool  t11 = NotANumber( "-5.7", 0, kPosReal );
     TS_ASSERT( t11 == true);
   }
+
+
+  void testIsNumeric_goodStrings( void )
+  {
+    int  t1 = IsNumeric("5.7");
+    TS_ASSERT_DIFFERS(t1, 0);
+    int  t2 = IsNumeric("-5.7");
+    TS_ASSERT_DIFFERS(t2, 0);
+    int  t3 = IsNumeric("5");
+    TS_ASSERT_DIFFERS(t3, 0);
+    int  t4 = IsNumeric("0");
+    TS_ASSERT_DIFFERS(t4, 0);
+    int  t5 = IsNumeric("70000.");
+    TS_ASSERT_DIFFERS(t5, 0);
+    int  t6 = IsNumeric("-10");
+    TS_ASSERT_DIFFERS(t6, 0);
+  }
+
+  void testIsNumeric_badStrings( void )
+  {
+    int  t1 = IsNumeric("5.o");
+    TS_ASSERT_EQUALS(t1, 0);
+    int  t2 = IsNumeric("bad");
+    TS_ASSERT_EQUALS(t2, 0);
+    int  t3 = IsNumeric("25..7");
+    TS_ASSERT_EQUALS(t3, 0);
+    int  t4 = IsNumeric("5-4");
+    TS_ASSERT_EQUALS(t4, 0);
+  }
+
 };

@@ -56,6 +56,28 @@ static string  fixedIndicatorString = "fixed";
 
 
 
+/* ---------------- FUNCTION: ValidParameterLine ----------------------- */
+// Checks to see that a line has at least two tokens, and that the second one
+// is a number
+bool ValidParameterLine( string& currentLine ) {
+  vector<string>  stringPieces;
+  bool  result;
+
+  ChopComment(currentLine);
+  SplitString(currentLine, stringPieces);
+  if (stringPieces.size() >= 2) {
+    if (IsNumeric(stringPieces[1].c_str()))
+      result = true;
+    else
+      result = false;
+  }
+  else
+    result = false;
+
+  return result;
+}
+
+
 /* ---------------- FUNCTION: AddParameter ----------------------------- */
 // Parses a line, extracting the second element as a floating-point value and
 // storing it in the parameterList vector.
@@ -168,6 +190,7 @@ int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, boo
   int  functionSectionStart = -1;
   bool  functionSectionFound = false;
   bool  allOK = false;
+  bool  functionsExist = false;
   bool  yValueOK = true;   // defaults to true for 1D case
   
   nInputLines = inputLines.size();
@@ -189,24 +212,44 @@ int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, boo
     i++;
   }
   
+  // Check to make sure we have at least one FUNCTION line
   if ((functionSectionFound) && (yValueOK)) {
     i = functionSectionStart;
     for (i = functionSectionStart; i < nInputLines; i++) {
       if (inputLines[i].find("FUNCTION", 0) != string::npos) {
-        allOK = true;
+        functionsExist = true;
         break;
       }
     }
   }
 
+  // Check to make sure that non-FUNCTION lines (i.e., parameter lines)
+  // have at least parameter name and a value
+  if (functionsExist) {
+    allOK = true;
+    i = functionSectionStart;
+    for (i = functionSectionStart; i < nInputLines; i++) {
+      if (inputLines[i].find("FUNCTION", 0) == string::npos) {
+        // test for valid line
+        if (! ValidParameterLine(inputLines[i])) {
+          allOK = false;
+          *badLineNumber = origLineNumbers[i];
+          break;
+        }
+      }
+    }
+  }
+  
   if (allOK)
     return functionSectionStart;
   else {
     if (functionSectionFound) {
       if (yValueOK == false)
         return CONFIG_FILE_ERROR_INCOMPLETEXY;
-      else
+      else if (functionsExist == false)
         return CONFIG_FILE_ERROR_NOFUNCTIONS;
+      else
+        return CONFIG_FILE_ERROR_BADPARAMLINE;
     }
     else
       return CONFIG_FILE_ERROR_NOFUNCSECTION;
@@ -228,6 +271,10 @@ void ReportConfigError( int errorCode, int origLineNumber )
     case CONFIG_FILE_ERROR_INCOMPLETEXY:
       fprintf(stderr, "\n*** ReadConfigFile: Initial Y0 value (start of function section) missing in configuration file!\n");
       fprintf(stderr, "    (X0 specification on input line %d should be followed by Y0 specification on next line)\n", origLineNumber);
+      break;
+    case CONFIG_FILE_ERROR_BADPARAMLINE:
+      fprintf(stderr, "\n*** ReadConfigFile: Bad parameter specification at line %d in configuration file!\n", origLineNumber);
+      fprintf(stderr, "    (Parameter line should be: name followed by initial value (and optionally lower,upper limits)\n");
       break;
     default:
       fprintf(stderr, "\n*** ReadConfigFile: Unknown error code!\n");

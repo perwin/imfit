@@ -41,6 +41,7 @@ echo "Running tests for makeimage..."
 # testing that bad PSF files (non-FITS or nonexistent) are caught (redirect stderr to test_dump* files):
 ./makeimage tests/config_makeimage_sersic+exp512.dat --psf=tests/config_makeimage_gensersic512.dat  &> test_dump13
 ./makeimage tests/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> test_dump14
+./makeimage tests/config_imfit_badparamline.dat  &> test_dump15
 
 echo ""
 
@@ -206,6 +207,15 @@ then
 else
   echo "Diff output:"
   diff test_dump14 tests/makeimage_textout14
+fi
+
+echo -n "*** Diff comparison with archives: bad parameter specification... "
+if (diff --brief test_dump15 tests/makeimage_textout15)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff test_dump15 tests/makeimage_textout15
 fi
 
 
