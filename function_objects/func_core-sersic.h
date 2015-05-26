@@ -28,6 +28,7 @@
 //#define CLASS_SHORT_NAME  "CoreSersic"
 
 
+/// \brief Class for image function with elliptical isophotes and Core-Sersic profile
 class CoreSersic : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

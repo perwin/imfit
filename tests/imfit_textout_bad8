@@ -1,6 +1,6 @@
 
 *** ReadConfigFile: Bad parameter specification at line 12 in configuration file!
-    (Parameter line should be: name followed by initial value (and optionally lower,upper limits)
+    (Parameter line should be: name, then initial numerical value (+ optionally "fixed" OR lower,upper numerical limits)
 
 *** ERROR: Failure reading configuration file!
 

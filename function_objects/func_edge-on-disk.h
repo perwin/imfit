@@ -30,6 +30,8 @@
 //#define CLASS_SHORT_NAME  "EdgeOnDisk"
 
 
+/// \brief Class for image function using analytic edge-on exponential disk and
+///        vertical generalized-secant function
 class EdgeOnDisk : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

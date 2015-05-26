@@ -27,6 +27,7 @@
 //#define CLASS_SHORT_NAME  "BrokenExponential"
 
 
+/// Class for image function with elliptical isophotes and broken-exponential profile
 class BrokenExponential : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

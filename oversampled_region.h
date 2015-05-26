@@ -18,6 +18,8 @@ using namespace std;
 
 
 
+/// \brief Class for computing oversampled model image region and downsampling to match main
+///        image, with optional PSF convolution using oversampled PSF
 class OversampledRegion
 {
   public:

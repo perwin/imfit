@@ -85,9 +85,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.2-osamp-dev (OpenMP-enabled)"
+#define VERSION_STRING      "1.2 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.2-osamp-dev"
+#define VERSION_STRING      "1.2"
 #endif
 
 
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
   int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
   int  nDegFreedom;
   int  nParamsTot, nFreeParams;
-  bool  saveBootstrapResults = false;
+//  bool  saveBootstrapResults = false;
   double  *allPixels;
   double  *psfPixels;
   double  *allErrorPixels;

@@ -20,6 +20,8 @@ using namespace std;
 //#define CLASS_SHORT_NAME  "BrokenExponentialDisk3D"
 
 
+/// \brief Class for image function using LOS integration through 3D model with broken-exponential
+///        radial and vertical exponential luminosity-density profiles
 class BrokenExponentialDisk3D : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

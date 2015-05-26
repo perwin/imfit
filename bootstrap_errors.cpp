@@ -9,7 +9,7 @@
  * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
-// Copyright 2013-2014 by Peter Erwin.
+// Copyright 2013-2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -171,7 +171,6 @@ int BootstrapErrorsBase( double *bestfitParams, mp_par *parameterLimits, bool pa
 					int whichStatistic, double **outputParamArray, FILE *outputFile_ptr )
 {
   double  *paramsVect;
-  double  lower, upper, plus, minus, halfwidth;
   int  i, status, nIter, nSuccessfulIters;
   int  nParams = theModel->GetNParams();
   int  nValidPixels = theModel->GetNValidPixels();

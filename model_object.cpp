@@ -565,7 +565,6 @@ void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
 						int nRows_psf, double *psfPixels_osamp, int oversampleScale,
 						int x1, int x2, int y1, int y2 )
 {
-  int  result;
   int  deltaX, deltaY, nCols_osamp, nRows_osamp;
   
   assert( (nPixels >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
@@ -1586,7 +1585,6 @@ long ModelObject::EstimateMemoryUse( int nDataCols, int nDataRows, int nPSFCols,
   long  dataSize = (long)(nDataPixels * DOUBLE_SIZE);
   int  nModelRows, nModelCols;
   long  nModelPixels = 0;
-  double  temp;
   
   nBytesNeeded += dataSize;   // allocated outside
   

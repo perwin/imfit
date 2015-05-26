@@ -20,6 +20,8 @@ using namespace std;
 //#define CLASS_SHORT_NAME  "ExponentialDisk3D"
 
 
+/// \brief Class for image function using LOS integration through 3D model with exponential
+///        radial and vertical generalized-secant luminosity-density profiles
 class ExponentialDisk3D : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

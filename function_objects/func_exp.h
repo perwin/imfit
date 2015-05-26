@@ -26,6 +26,7 @@ using namespace std;
 //#define CLASS_SHORT_NAME  "Exponential"
 
 
+/// Class for image function with elliptical isophotes and exponential profile
 class Exponential : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

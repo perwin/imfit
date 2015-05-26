@@ -176,7 +176,7 @@ config_makeimage_sersictest512_bad5.dat
 config_imfit_sersictest512_badlimits1.dat
 config_imfit_sersictest512_badlimits2.dat
 config_imfit_sersictest512_badlimits3.dat
-config_imfit_badinput1.dat
+config_imfit_badparamline.dat
 uniform_image32.fits
 testimage_expdisk32.fits
 testimage_poisson_lowsn20.fits

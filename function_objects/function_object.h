@@ -21,6 +21,7 @@
 using namespace std;
 
 
+/// Virtual base class for function objects (i.e., 2D image functions)
 class FunctionObject
 {
   public:

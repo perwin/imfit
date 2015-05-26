@@ -2,20 +2,19 @@
  *   VERSION 0.1
  *
  *   A class derived from FunctionObject (function_object.h),
- * which produces the luminosity as a function of radius for an elliptical
- * component with a broken-exponential profile.
+ *   which produces a 2D function with a broken-exponential major-axis
+ * profile and a Gaussian minor-axis profile.
  *
  * PARAMETERS:
  * x0 = xc;   -- center of component (pixels, x)
  * y0 = yc;   -- center of component (pixels, y)
  * PA = params[0 + offsetIndex];   -- PA of component, rel. to +y axis
- * ell = params[1 + offsetIndex];  -- ellipticity
- * I_0 = params[2 + offsetIndex ]; -- central intensity of inner exponential (ADU/pix)
- * h1 = params[3 + offsetIndex ];   -- inner exp. scale length (pixels)
- * h2 = params[4 + offsetIndex ];   -- outer exp. scale length (pixels)
- * r_break = params[5 + offsetIndex ];   -- break radius (pixels)
- * alpha = params[6 + offsetIndex ];     -- smoothness/sharpness of break
- *
+ * I_0 = params[1 + offsetIndex ]; -- central intensity of inner exponential (ADU/pix)
+ * h1 = params[2 + offsetIndex ];   -- inner exp. scale length (pixels) along major axis
+ * h2 = params[3 + offsetIndex ];   -- outer exp. scale length (pixels) along major axis
+ * r_break = params[4 + offsetIndex ];   -- break radius (pixels)
+ * alpha = params[5 + offsetIndex ];     -- smoothness/sharpness of break along major axis
+ * sigma = params[6 + offsetIndex ];     -- width of minor-axis Gaussian (pixels)
  *
  */
 
@@ -27,6 +26,8 @@
 //#define CLASS_SHORT_NAME  "BrokenExponentialBar"
 
 
+/// \brief Class for image function with broken-exponential major-axis profile
+///        and Gaussian minor-axis profile
 class BrokenExponentialBar : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

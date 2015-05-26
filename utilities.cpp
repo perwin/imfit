@@ -311,8 +311,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
   string::size_type  loc1, loc2, loc3, loc4;
   int  nPieces;
   string  sectionSubstring;
-  vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
-  const string star = string("*");
+  vector<string>  sectionPieces;
   bool  twoSections = false;
   
   // default values indicating errors:

@@ -57,24 +57,38 @@ static string  fixedIndicatorString = "fixed";
 
 
 /* ---------------- FUNCTION: ValidParameterLine ----------------------- */
-// Checks to see that a line has at least two tokens, and that the second one
-// is a number
+// Checks to see that a line has at least two tokens, that the second one
+// is a number, and that if there is a third token, it consists of two
+// comma-separated numbers.
 bool ValidParameterLine( string& currentLine ) {
-  vector<string>  stringPieces;
-  bool  result;
+  vector<string>  stringPieces, stringPieces2;
+  string  token2, token3;
+  bool  result = true;
+  int  nPieces;
 
   ChopComment(currentLine);
   SplitString(currentLine, stringPieces);
-  if (stringPieces.size() >= 2) {
-    if (IsNumeric(stringPieces[1].c_str()))
-      result = true;
-    else
-      result = false;
+  nPieces = stringPieces.size();
+  
+  if (nPieces >= 2) {   // must have at least paramName + initial-value
+    token2 = stringPieces[1];
+    if (! IsNumeric(token2.c_str()))
+      return false;
+    else {   // if third piece exists, it must be valid lower-limit,upper-limit pair OR "fixed"
+      if ( (nPieces > 2) && (! (stringPieces[2] == fixedIndicatorString)) ) {
+        token3 = stringPieces[2];
+        SplitString(token3, stringPieces2, ",");
+        if (stringPieces2.size() != 2)
+          return false;
+        if ((! IsNumeric(stringPieces2[0].c_str())) || (! IsNumeric(stringPieces2[1].c_str())))
+          return false;
+      }
+    }
   }
-  else
-    result = false;
+  else  // only one token on line -- not enough!
+    return false;
 
-  return result;
+  return true;
 }
 
 
@@ -274,7 +288,7 @@ void ReportConfigError( int errorCode, int origLineNumber )
       break;
     case CONFIG_FILE_ERROR_BADPARAMLINE:
       fprintf(stderr, "\n*** ReadConfigFile: Bad parameter specification at line %d in configuration file!\n", origLineNumber);
-      fprintf(stderr, "    (Parameter line should be: name followed by initial value (and optionally lower,upper limits)\n");
+      fprintf(stderr, "    (Parameter line should be: name, then initial numerical value (+ optionally \"fixed\" OR lower,upper numerical limits)\n");
       break;
     default:
       fprintf(stderr, "\n*** ReadConfigFile: Unknown error code!\n");

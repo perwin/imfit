@@ -1,15 +1,9 @@
-/*   Class interface definition for func_edge-on-disk.cpp
+/*   Class interface definition for func_broken-exp2d.cpp
  *   VERSION 0.1
  *
  *   Highly experimental class (derived from FunctionObject; function_object.h)
- * which produces a generalized edge-on exponential disk, using Bessel-function
- * solution (van der Kruit & Searle 1981) for radial profile and generalized
- * sech function (van der Kruit 1988) for vertical profile.  My version of this
- * looks like the following (Sigma = surface brightness in counts/pixel):
- *
- *      Sigma(r,z) = I_0 * (r/h) * K_1(r/h) * sech^alpha(r/(alpha*z0))
- *
- *    with Sigma(0,0) = 2 * h * I_0
+ * which produces an approximate 2D edge-on broken-exponential (with radial
+ * broken-exponential profile and vertical exponential profile).
  *
  * PARAMETERS:
  * x0 = xc;   -- center of component (pixels, x)
@@ -31,6 +25,8 @@
 //#define CLASS_SHORT_NAME  "BrokenExponential2D"
 
 
+/// \brief Class for image function for (approximate) edge-on disk with radial
+///        broken-exponential and vertical exponential profiles.
 class BrokenExponential2D : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

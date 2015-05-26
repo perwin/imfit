@@ -47,7 +47,7 @@ class OptionObject
 
 
 
-//! Class for parsing command line
+/// Class for parsing command line
 class CLineParser
 {
   public:
