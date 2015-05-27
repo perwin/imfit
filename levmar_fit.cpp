@@ -66,13 +66,13 @@ int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
 				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
-				bool paramLimitsExist, int verbose )
+				bool paramLimitsExist, int verbose, double *paramSigmas )
 {
   double  *paramErrs;
   mp_par  *mpfitParameterConstraints;
   mp_result  mpfitResult;
   mp_config  mpConfig;
-  int  status;
+  int  i, status;
 
   if (! paramLimitsExist) {
     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
@@ -94,11 +94,17 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
 
   if (verbose >= 0) {
     printf("\n");
-    PrintResults(paramVector, 0, &mpfitResult, theModel, nFreeParams, parameterLimits, 
+    PrintResults(paramVector, &mpfitResult, theModel, nFreeParams, parameterLimits, 
     			status);
     printf("\n");
   }
-
+  // copy L-M parameter error estimates
+  if (paramSigmas != 0) {
+    for (i = 0; i < nParamsTot; i++)
+      paramSigmas[i] = paramErrs[i];
+  }
+  
+  free(paramErrs);
   return status;
 }
 

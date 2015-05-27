@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
   if (options.printChiSquaredOnly) {
     printf("\n");
     fitStatus = 1;
-    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+    PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
     printf("\n");
     // turn off saveing of parameter file
     options.saveBestFitParams = false;
@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
       fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
       				options.verbose);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
 #ifndef NO_NLOPT
@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
       fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
       							options.verbose);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
     else if (options.solver == GENERIC_NLOPT_SOLVER) {
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
       fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
       						options.verbose, options.nloptSolverName);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
 #endif

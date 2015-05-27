@@ -3,11 +3,11 @@
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
 
-## 1.2 -- 2015-05-xx
+## 1.2 -- 2015-05-27
 ### Added: 
 - Imfit can now optionally convolve part of the model image with an
 oversampled PSF. E.g., you can specify that a 10x10-pixel region
-centered on the galaxy nucleus should be computed using a
+centered on the galaxy nucleus should be modeled using a
 five-times-smaller pixel size and convolved with a corresponding
 (five-times-oversampled) PSF image. The resulting oversampled and
 convolved sub-image is then downsampled back to the main image pixel
@@ -32,6 +32,11 @@ the utility of this.)
 
 ### Changed:
 - Updates to documentation.
+
+
+### Fixed:
+- Better error detection for mangled parameter lines in config files (which could
+cause mysterious segmentation faults otherwise).
 
 
 

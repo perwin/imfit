@@ -29,7 +29,10 @@ if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	BINARY_TARFILE_OLDMAC = "imfit-%s-macintel_10.6-10.7.tar.gz" % VERSION_STRING
 	# and we can do "fat" compilation (combine 32-bit and 64-bit binaries)
 	#scons_string += " --fat"
+	# 10.6/10.7 compilation ("--old-mac") should use llvm-g++-4.2
 	scons_string_oldmac = scons_string + " --fat --old-mac"
+	# ensure that we use GCC-4.9 for 10.8--10.10 compilation (avoids
+	scons_string += " --use-gcc"
 	SOURCE_COPY_DEST_DIR = MAC_DEST
 	BINARY_COPY_DEST_DIR = MAC_DEST_BIN
 else:

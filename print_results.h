@@ -12,10 +12,8 @@
 #include "param_struct.h"
 
 
-// Code for printing the results of a fit (either mpfit or differential evolution).
-// For a differential-evolution fit, xact and result should be 0; mpStatus will
-// be ignored.
-void PrintResults( double *params, double *xact, mp_result *result, ModelObject *model, 
+/// Code for printing the results of a fit to stdout.
+void PrintResults( double *params, mp_result *result, ModelObject *model, 
 			int nFreeParameters, mp_par *parameterInfo, int fitStatus );
 
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 

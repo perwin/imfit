@@ -58,7 +58,7 @@ void PrintParam( FILE *outFile, string& paramName, double paramValue, double par
 // Craig Markwardt's testmpfit.c, but will also accomodate results from a fit
 // done with other minimization algorithms, such as Nelder-Mead simplex or
 // Differential Evolution (call with result=0 to indicate non-LM optimizer).
-void PrintResults( double *params, double *xact, mp_result *result, ModelObject *model,
+void PrintResults( double *params, mp_result *mpResult, ModelObject *model,
 									int nFreeParameters, mp_par *parameterInfo, int fitStatus )
 {
   int  i;
@@ -71,7 +71,7 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
   whichStat = model->WhichFitStatistic();
 
   // Case of non-LM minimization (e.g., Nelder-Mead simplex, DE)
-  if (result == 0) {
+  if (mpResult == 0) {
     // Only print results of fit if fitStatus >= 1
     if (fitStatus < 1)
       return;
@@ -98,42 +98,42 @@ void PrintResults( double *params, double *xact, mp_result *result, ModelObject 
   InterpretMpfitResult(fitStatus, mpfitMessage);
   printf("*** mpfit status = %d -- %s\n", fitStatus, mpfitMessage.c_str());
     // Only print results of fit if valid fit was achieved
-  if ((params == 0) || (result == 0))
+  if ((params == 0) || (mpResult == 0))
     return;
   if (whichStat == FITSTAT_CASH) {
-    printf("  CASH STATISTIC = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
-    printf("  INITIAL CASH STATISTIC = %f\n", result->orignorm);
+    printf("  CASH STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+    printf("  INITIAL CASH STATISTIC = %f\n", mpResult->orignorm);
   }
   else if (whichStat == FITSTAT_POISSON_MLR) {
-    printf("  POISSON-MLR STATISTIC = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
-    printf("  INITIAL POISSON-MLR STATISTIC = %f\n", result->orignorm);
+    printf("  POISSON-MLR STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+    printf("  INITIAL POISSON-MLR STATISTIC = %f\n", mpResult->orignorm);
   }
   else {
-    printf("  CHI-SQUARE = %f    (%d DOF)\n", result->bestnorm, nDegreesFreedom);
-    printf("  INITIAL CHI^2 = %f\n", result->orignorm);
+    printf("  CHI-SQUARE = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+    printf("  INITIAL CHI^2 = %f\n", mpResult->orignorm);
   }
-  printf("        NPAR = %d\n", result->npar);
-  printf("       NFREE = %d\n", result->nfree);
-  printf("     NPEGGED = %d\n", result->npegged);
-  printf("     NITER = %d\n", result->niter);
-  printf("      NFEV = %d\n", result->nfev);
+  printf("        NPAR = %d\n", mpResult->npar);
+  printf("       NFREE = %d\n", mpResult->nfree);
+  printf("     NPEGGED = %d\n", mpResult->npegged);
+  printf("     NITER = %d\n", mpResult->niter);
+  printf("      NFEV = %d\n", mpResult->nfev);
   printf("\n");
-  aic = AIC_corrected(result->bestnorm, nFreeParameters, nValidPixels, 1);
-  bic = BIC(result->bestnorm, nFreeParameters, nValidPixels, 1);
+  aic = AIC_corrected(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
+  bic = BIC(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
   if (whichStat == FITSTAT_CHISQUARE)
-    printf("Reduced Chi^2 = %f\n", result->bestnorm / nDegreesFreedom);
+    printf("Reduced Chi^2 = %f\n", mpResult->bestnorm / nDegreesFreedom);
   if (whichStat == FITSTAT_POISSON_MLR)
-    printf("Reduced Chi^2 equivalent = %f\n", result->bestnorm / nDegreesFreedom);
+    printf("Reduced Chi^2 equivalent = %f\n", mpResult->bestnorm / nDegreesFreedom);
   printf("AIC = %f, BIC = %f\n\n", aic, bic);
   
-  if (xact) {
-    for (i = 0; i < result->npar; i++) {
-      printf("  P[%d] = %f +/- %f     (ACTUAL %f)\n", 
-	     i, params[i], result->xerror[i], xact[i]);
-    }
-  } else {
-    model->PrintModelParams(stdout, params, parameterInfo, result->xerror);
-  }    
+//   if (xact) {
+//     for (i = 0; i < mpResult->npar; i++) {
+//       printf("  P[%d] = %f +/- %f     (ACTUAL %f)\n", 
+// 	     i, params[i], mpResult->xerror[i], xact[i]);
+//     }
+//   } else {
+    model->PrintModelParams(stdout, params, parameterInfo, mpResult->xerror);
+//   }    
 }
 
 

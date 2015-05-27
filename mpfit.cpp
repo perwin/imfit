@@ -81,6 +81,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <string>
 #include "mpfit_cpp.h"
 #include "model_object.h"
 
@@ -1028,7 +1029,6 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
   }      
 
   if (result) {
-    strcpy(result->version, MPFIT_VERSION);
     result->bestnorm = mp_dmax1(fnorm,fnorm1);
     result->bestnorm *= result->bestnorm;
     result->orignorm = orignorm;

@@ -134,7 +134,6 @@ typedef struct {
   bool  usePoissonMLR;
   double  ftol;
   bool  ftolSet;
-//  char  modelName[MAXLINE];
   double  magZeroPoint;
   bool  noParamLimits;
   bool  printImages;
@@ -230,7 +229,6 @@ int main(int argc, char *argv[])
   int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
   int  nDegFreedom;
   int  nParamsTot, nFreeParams;
-//  bool  saveBootstrapResults = false;
   double  *allPixels;
   double  *psfPixels;
   double  *allErrorPixels;
@@ -268,52 +266,6 @@ int main(int argc, char *argv[])
   progNameVersion += VERSION_STRING;
   
   
-  /* Process the command line */
-  /* First, set up the options structure: */
-//   options.configFileName = DEFAULT_CONFIG_FILE;
-//   options.noImage = true;
-//   options.psfImagePresent = false;
-//   options.psfOversampledImagePresent = false;
-//   options.psfOversamplingScale = 0;
-//   options.oversampleRegionSet = false;
-//   options.noiseImagePresent = false;
-//   options.errorType = WEIGHTS_ARE_SIGMAS;
-//   options.maskImagePresent = false;
-//   options.maskFormat = MASK_ZERO_IS_GOOD;
-//   options.subsamplingFlag = true;
-//   options.saveModel = false;
-//   options.saveResidualImage = false;
-//   options.saveWeightImage = false;
-//   options.saveBestFitParams = true;
-//   options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
-//   options.useImageHeader= false;
-//   options.gain = 1.0;
-//   options.gainSet = false;
-//   options.readNoise = 0.0;
-//   options.readNoiseSet = false;
-//   options.expTime = 1.0;
-//   options.expTimeSet = false;
-//   options.nCombined = 1;
-//   options.nCombinedSet = false;
-//   options.originalSky = 0.0;
-//   options.originalSkySet = false;
-//   options.useModelForErrors = false;
-//   options.useCashStatistic = false;
-//   options.useModifiedCashStatistic = false;
-//   options.ftol = DEFAULT_FTOL;
-//   options.ftolSet = false;
-//   options.magZeroPoint = NO_MAGNITUDES;
-//   options.noParamLimits = true;
-//   options.printImages = false;
-//   options.printFitStatisticOnly = false;
-//   options.solver = MPFIT_SOLVER;
-//   options.nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
-//   options.doBootstrap = false;
-//   options.bootstrapIterations = 0;
-//   options.maxThreads = 0;
-//   options.maxThreadsSet = false;
-//   options.verbose = 1;
-
   /* Define default options, then process the command line */
   SetDefaultOptions(&options);
   ProcessInput(argc, argv, &options);
@@ -662,7 +614,7 @@ int main(int argc, char *argv[])
   if (options.printFitStatisticOnly) {
     printf("\n");
     status = 1;
-    PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, status);
+    PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
     options.saveBestFitParams = false;
   }
@@ -688,7 +640,7 @@ int main(int argc, char *argv[])
       fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
       							options.verbose);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
 #ifndef NO_NLOPT
@@ -697,7 +649,7 @@ int main(int argc, char *argv[])
       fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
       							options.verbose);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
     else if (options.solver == GENERIC_NLOPT_SOLVER) {
@@ -705,7 +657,7 @@ int main(int argc, char *argv[])
       fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
       						options.verbose, options.nloptSolverName);
       printf("\n");
-      PrintResults(paramsVect, 0, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
       printf("\n");
     }
 #endif

@@ -25,7 +25,7 @@
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
 				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
-				bool paramLimitsExist, int verbose );
+				bool paramLimitsExist, int verbose, double *paramSigmas=0 );
 
 
 #endif  // _LEVMAR_FIT_H_
