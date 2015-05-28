@@ -344,8 +344,8 @@ def MakeBinaryDist( mode=None ):
 		tar.add(distDir + fname)
 	tar.close()
 
-	print("Copying gzipped tar file %s to %s..." % (BINARY_TARFILE, BINARY_COPY_DEST_DIR))
-	shutil.copy(BINARY_TARFILE, BINARY_COPY_DEST_DIR)
+	print("Copying gzipped tar file %s to %s..." % (binaryTarfile, BINARY_COPY_DEST_DIR))
+	shutil.copy(binaryTarfile, BINARY_COPY_DEST_DIR)
 
 
 def MakeSourceDist( ):
