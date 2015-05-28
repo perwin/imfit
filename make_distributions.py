@@ -86,6 +86,8 @@ model_object
 print_results
 oversampled_region
 downsample
+option_struct_imfit
+option_struct_makeimage
 """
 
 source_files_c = """

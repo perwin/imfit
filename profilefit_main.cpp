@@ -26,8 +26,6 @@
 #include "function_object.h"
 #include "func1d_exp.h"
 #include "param_struct.h"   // for mp_par structure
-//#include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
-//#include "diff_evoln_fit.h"
 #include "bootstrap_errors_1d.h"
 
 
@@ -38,7 +36,6 @@
 #include "nmsimplex_fit.h"
 #include "nlopt_fit.h"
 #endif
-//#include "new_levmar_fit.h"
 
 #include "commandline_parser.h"
 #include "config_file_parser.h"
@@ -48,11 +45,8 @@
 /* ---------------- Definitions & Constants ----------------------------- */
 #define MAX_N_DATA_VALS   1000000   /* max # data values we'll handle (1.0e6) */
 
-#define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
 #define MONTE_CARLO_ITER   100
 #define BOOTSTRAP_ITER     1000
-
-#define DEFAULT_FTOL	1.0e-8
 
 #define CMDLINE_ERROR1 "Usage: -p must be followed by a string containing initial parameter values for the model"
 #define CMDLINE_ERROR2 "Usage: -l must be followed by a filename for a file containing parameter limits"
@@ -66,7 +60,7 @@
 #define DEFAULT_MODEL_OUTPUT_FILE   "model_profile_save.dat"
 #define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_profilefit.dat"
 
-#define VERSION_STRING      "v0.9"
+#define VERSION_STRING      "v1.2"
 
 
 

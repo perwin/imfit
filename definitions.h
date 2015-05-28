@@ -15,6 +15,20 @@
 #define MAX_FILENAME_LENGTH  512
 
 
+#define NO_MAGNITUDES  -10000.0   /* indicates data are *not* in magnitudes */
+
+#define GIGABYTE   1073741824.0   /* 1 gigabyte */
+#define MEMORY_WARNING_LIMT   1073741824.0   /* 1 gigabyte */
+
+// imfit-related
+#define DEFAULT_IMFIT_CONFIG_FILE   "imfit_config.dat"
+#define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_imfit.dat"
+
+
+// makeimage-related
+#define DEFAULT_MAKEIMAGE_OUTPUT_FILENAME   "modelimage.fits"
+#define DEFAULT_ESTIMATION_IMAGE_SIZE  5000
+
 
 /* DEBUGGING LEVELS: */
 const int  DEBUG_NONE  =             0;
@@ -28,6 +42,9 @@ const int  DEBUG_ALL   =            10;
 #define FITSTAT_CHISQUARE       1   //! standard chi^2
 #define FITSTAT_CASH            2   //! standard (minimal) Cash statistic
 #define FITSTAT_POISSON_MLR     3   //! Poisson Maximum Likelihood Ratio statistic
+
+#define DEFAULT_FTOL	1.0e-8
+
 
 
 /* SOLVER OPTIONS: */

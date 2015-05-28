@@ -49,6 +49,7 @@
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
 #include "bootstrap_errors.h"
+#include "option_struct_imfit.h"
 
 // Solvers (optimization algorithms)
 #include "levmar_fit.h"
@@ -57,7 +58,6 @@
 #include "nmsimplex_fit.h"
 #include "nlopt_fit.h"
 #endif
-//#include "new_levmar_fit.h"
 
 #include "commandline_parser.h"
 #include "config_file_parser.h"
@@ -65,16 +65,6 @@
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
-#define DEFAULT_FTOL	1.0e-8
-
-#define NO_MAGNITUDES  -10000.0   /* indicates data are *not* in magnitudes */
-
-#define GIGABYTE   1073741824.0   /* 1 gigabyte */
-#define MEMORY_WARNING_LIMT   1073741824.0   /* 1 gigabyte */
-
-#define DEFAULT_CONFIG_FILE   "imfit_config.dat"
-#define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_imfit.dat"
-
 
 // Option names for use in config files
 static string  kGainString = "GAIN";
@@ -91,65 +81,6 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 #endif
 
 
-//! struct for holding various options (set by command-line flags & options)
-typedef struct {
-  std::string  configFileName;
-  std::string  imageFileName;   // [] = assign default value in main?
-  bool  noImage;
-  std::string  psfFileName;     // []
-  bool  psfImagePresent;
-  std::string  psfOversampledFileName;     // []
-  bool  psfOversampledImagePresent;
-  int  psfOversamplingScale;
-  bool  oversampleRegionSet;
-  std::string  psfOversampleRegion;     // []
-  std::string  noiseFileName;   // []
-  bool  noiseImagePresent;
-  int  errorType;
-  std::string  maskFileName;   //  []
-  bool  maskImagePresent;
-  int  maskFormat;
-  bool  subsamplingFlag;
-  bool  saveModel;
-  std::string  outputModelFileName;   // []
-  bool  saveResidualImage;
-  std::string  outputResidualFileName;   // []
-  bool  saveWeightImage;
-  std::string  outputWeightFileName;    // []
-  bool  saveBestFitParams;
-  std::string  outputParameterFileName;
-  bool  useImageHeader;
-  double  gain;
-  bool  gainSet;
-  double  readNoise;
-  bool  readNoiseSet;
-  double  expTime;
-  bool  expTimeSet;
-  int  nCombined;
-  bool  nCombinedSet;
-  double  originalSky;
-  bool  originalSkySet;
-  bool  useModelForErrors;
-  bool  useCashStatistic;
-  bool  usePoissonMLR;
-  double  ftol;
-  bool  ftolSet;
-  double  magZeroPoint;
-  bool  noParamLimits;
-  bool  printImages;
-  bool printFitStatisticOnly;
-  int  solver;
-  std::string  nloptSolverName;
-  bool  doBootstrap;
-  int  bootstrapIterations;
-  bool  saveBootstrap;
-  std::string  outputBootstrapFileName;
-  int  maxThreads;
-  bool  maxThreadsSet;
-  int  verbose;
-} commandOptions;
-
-
 
 /* ------------------- Function Prototypes ----------------------------- */
 /* External functions: */
@@ -157,10 +88,10 @@ typedef struct {
 /* Local Functions: */
 void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset);
-void SetDefaultOptions( commandOptions *theOptions );
-void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
+//void SetDefaultOptions( commandOptions *theOptions );
+void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
-								commandOptions *mainOptions );
+								imfitCommandOptions *mainOptions );
 
 
 /* ------------------------ Global Variables --------------------------- */
@@ -168,53 +99,6 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
 /* ------------------------ Module Variables --------------------------- */
 
 
-
-void SetDefaultOptions( commandOptions *theOptions )
-{
-  theOptions->configFileName = DEFAULT_CONFIG_FILE;
-  theOptions->noImage = true;
-  theOptions->psfImagePresent = false;
-  theOptions->noiseImagePresent = false;
-  theOptions->errorType = WEIGHTS_ARE_SIGMAS;
-  theOptions->maskImagePresent = false;
-  theOptions->maskFormat = MASK_ZERO_IS_GOOD;
-  theOptions->subsamplingFlag = true;
-  theOptions->saveModel = false;
-  theOptions->saveResidualImage = false;
-  theOptions->saveWeightImage = false;
-  theOptions->saveBestFitParams = true;
-  theOptions->outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
-  theOptions->useImageHeader= false;
-  theOptions->gain = 1.0;
-  theOptions->gainSet = false;
-  theOptions->readNoise = 0.0;
-  theOptions->readNoiseSet = false;
-  theOptions->expTime = 1.0;
-  theOptions->expTimeSet = false;
-  theOptions->nCombined = 1;
-  theOptions->nCombinedSet = false;
-  theOptions->originalSky = 0.0;
-  theOptions->originalSkySet = false;
-  theOptions->useModelForErrors = false;
-  theOptions->useCashStatistic = false;
-  theOptions->usePoissonMLR = false;
-  theOptions->ftol = DEFAULT_FTOL;
-  theOptions->ftolSet = false;
-  theOptions->magZeroPoint = NO_MAGNITUDES;
-  theOptions->noParamLimits = true;
-  theOptions->printImages = false;
-  theOptions->printFitStatisticOnly = false;
-  theOptions->solver = MPFIT_SOLVER;
-  theOptions->nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
-  theOptions->doBootstrap = false;
-  theOptions->bootstrapIterations = 0;
-  theOptions->saveBootstrap = false;
-  theOptions->outputBootstrapFileName = "";
-  theOptions->maxThreads = 0;
-  theOptions->maxThreadsSet = false;
-  theOptions->verbose = 1;
-
-}
 
 
 
@@ -256,7 +140,7 @@ int main(int argc, char *argv[])
   mp_par  *parameterInfo;
   int  status, fitStatus, nSucessfulIterations;
   vector<string>  imageCommentsList;
-  commandOptions  options;
+  imfitCommandOptions  options;
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
@@ -267,7 +151,7 @@ int main(int argc, char *argv[])
   
   
   /* Define default options, then process the command line */
-  SetDefaultOptions(&options);
+  SetDefaultImfitOptions(&options);
   ProcessInput(argc, argv, &options);
 
 
@@ -731,11 +615,11 @@ int main(int argc, char *argv[])
   if (errorPixels_allocated)
     free(allErrorPixels);  // allocated in ReadImageAsVector()
   if (options.psfImagePresent)
-    free(psfPixels);
+    free(psfPixels);  // allocated in ReadImageAsVector()
   if (options.psfOversampledImagePresent)
-    free(psfOversampledPixels);
+    free(psfOversampledPixels);  // allocated in ReadImageAsVector()
   if (maskAllocated)
-    free(allMaskPixels);
+    free(allMaskPixels);  // allocated in ReadImageAsVector()
   free(paramsVect);
   if (parameterInfo_allocated)
     free(parameterInfo);
@@ -748,7 +632,7 @@ int main(int argc, char *argv[])
 
 
 
-void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
+void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
 {
 
   CLineParser *optParser = new CLineParser();
@@ -822,7 +706,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("printimage");
   optParser->AddFlag("chisquare-only");
   optParser->AddFlag("fitstat-only");
-  optParser->AddFlag("use-headers");
   optParser->AddFlag("errors-are-variances");
   optParser->AddFlag("errors-are-weights");
   optParser->AddFlag("mask-zero-is-bad");
@@ -959,9 +842,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   }
   if (optParser->FlagSet("loud")) {
     theOptions->verbose = 2;
-  }
-  if (optParser->FlagSet("use-headers")) {
-    theOptions->useImageHeader = true;
   }
   if (optParser->FlagSet("errors-are-variances")) {
     theOptions->errorType = WEIGHTS_ARE_VARIANCES;
@@ -1124,7 +1004,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 // Note that we only use options from the config file if they have *not*
 // already been set by the command line (i.e., command-line options override
 // config-file values).
-void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *mainOptions )
+void HandleConfigFileOptions( configOptions *configFileOptions, imfitCommandOptions *mainOptions )
 {
 	double  newDblVal;
 	int  newIntVal;

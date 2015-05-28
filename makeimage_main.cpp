@@ -42,14 +42,10 @@
 #include "commandline_parser.h"
 #include "config_file_parser.h"
 #include "utilities_pub.h"
+#include "option_struct_makeimage.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
-#define NO_MAGNITUDES  -10000.0   /* indicated data are *not* in magnitudes */
-
-#define DEFAULT_OUTPUT_FILENAME   "modelimage.fits"
-
-#define DEFAULT_ESTIMATION_IMAGE_SIZE  5000
 #define EST_SIZE_HELP_STRING "     --estimation-size <int>  Size of square image to use for estimating fluxes [default = 5000]"
 
 
@@ -66,48 +62,14 @@ static string  kNRows = "NROWS";
 #endif
 
 
-typedef struct {
-  std::string  outputImageName;
-  std::string  functionRootName;   // root name for individual-image functions  []
-  bool  noImageName;
-  std::string  referenceImageName;   // []
-  bool  noRefImage;
-  bool  subsamplingFlag;
-  bool  noImageDimensions;
-  std::string  psfFileName;   // []
-  std::string  psfOversampledFileName;     // []
-  bool  psfOversampledImagePresent;
-  int  psfOversamplingScale;
-  bool  oversampleRegionSet;
-  std::string  psfOversampleRegion;     // []
-  bool  psfImagePresent;
-  int  nColumns;
-  int  nRows;
-  int  estimationImageSize;
-  bool  nColumnsSet;
-  bool  nRowsSet;
-  bool  noConfigFile;
-  std::string  configFileName;   // []
-  double  magZeroPoint;
-  bool  printImages;
-  bool  saveImage;
-  bool  saveExpandedImage;
-  bool  saveAllFunctions;  // save individual-function images
-  bool  printFluxes;
-  int  maxThreads;
-  bool  maxThreadsSet;
-  int  debugLevel;
-} commandOptions;
-
-
 
 /* ------------------- Function Prototypes ----------------------------- */
 /* External functions: */
 
 /* Local Functions: */
-void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
+void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
-								commandOptions *mainOptions );
+								makeimageCommandOptions *mainOptions );
 
 
 /* ------------------------ Global Variables --------------------------- */
@@ -139,37 +101,13 @@ int main( int argc, char *argv[] )
   vector<double>  parameterList;
   vector<int>  functionBlockIndices;
   vector<string>  imageCommentsList;
-  commandOptions  options;
+  makeimageCommandOptions  options;
   configOptions  userConfigOptions;
   bool  printFluxesOnly = false;
   
   
   /* Process command line and parse config file: */
-  options.outputImageName = DEFAULT_OUTPUT_FILENAME;
-  options.noImageName = true;
-  options.noRefImage = true;
-  options.subsamplingFlag = true;
-  options.noImageDimensions = true;
-  options.psfImagePresent = false;
-  options.psfOversampledImagePresent = false;
-  options.psfOversamplingScale = 0;
-  options.oversampleRegionSet = false;
-  options.nColumns = 0;
-  options.nRows = 0;
-  options.estimationImageSize = DEFAULT_ESTIMATION_IMAGE_SIZE;
-  options.nColumnsSet = false;
-  options.nRowsSet = false;
-  options.noConfigFile = true;
-  options.magZeroPoint = NO_MAGNITUDES;
-  options.printImages = false;
-  options.saveImage = true;
-  options.saveExpandedImage = false;
-  options.saveAllFunctions = false;
-  options.printFluxes = false;
-  options.maxThreads = 0;
-  options.maxThreadsSet = false;
-  options.debugLevel = 0;
-
+  SetDefaultMakeimageOptions(&options);
   ProcessInput(argc, argv, &options);
   
   if ((options.printFluxes) && (! options.saveImage) && (! options.printImages))
@@ -227,7 +165,6 @@ int main( int argc, char *argv[] )
     nColumns = options.nColumns;
     nRows = options.nRows;
   }
-//  nPixels_tot = nColumns * nRows;
   
 
   /* Read in PSF image, if supplied */
@@ -341,7 +278,6 @@ int main( int argc, char *argv[] )
       progName += VERSION_STRING;
       PrepareImageComments(&imageCommentsList, progName, options.configFileName,
     					options.psfImagePresent, options.psfFileName);
-//      PrepareImageComments(&imageCommentsList, progName, &options);
       printf("\nSaving output model image (\"%s\") ...\n", options.outputImageName.c_str());
       status = SaveVectorAsImage(theModel->GetModelImageVector(), options.outputImageName, 
                         nColumns, nRows, imageCommentsList);
@@ -444,9 +380,9 @@ int main( int argc, char *argv[] )
 
   // Free up memory
   if (options.psfImagePresent)
-    free(psfPixels);
+    free(psfPixels);       // allocated in ReadImageAsVector()
   if (options.psfOversampledImagePresent)
-    free(psfOversampledPixels);
+    free(psfOversampledPixels);       // allocated in ReadImageAsVector()
   free(paramsVect);
   delete theModel;
   
@@ -455,7 +391,7 @@ int main( int argc, char *argv[] )
 
 
 
-void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
+void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
 {
 
   CLineParser *optParser = new CLineParser();
@@ -676,7 +612,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
 
 // Note that we only use options from the config file if they have *not* already been set
 // by the command line (i.e., command-line options override config-file values).
-void HandleConfigFileOptions( configOptions *configFileOptions, commandOptions *mainOptions )
+void HandleConfigFileOptions( configOptions *configFileOptions, makeimageCommandOptions *mainOptions )
 {
 	int  newIntVal;
 	
