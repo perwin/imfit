@@ -11,19 +11,22 @@
 
 // Minor modifications by Peter Erwin, 5 April 2010; 19 June 2014
 
-#if !defined(_DESOLVER_H)
+#ifndef _DESOLVER_H
 #define _DESOLVER_H
 
-#define stBest1Exp			0
-#define stRand1Exp			1
-#define stRandToBest1Exp	2
-#define stBest2Exp			3
-#define stRand2Exp			4
-#define stBest1Bin			5
-#define stRand1Bin			6
-#define stRandToBest1Bin	7
-#define stBest2Bin			8
-#define stRand2Bin			9
+// #if !defined(_DESOLVER_H)
+// #define _DESOLVER_H
+
+const int stBest1Exp       =    0;
+const int stRand1Exp       =    1;
+const int stRandToBest1Exp =    2;
+const int stBest2Exp       =    3;
+const int stRand2Exp       =    4;
+const int stBest1Bin       =    5;
+const int stRand1Bin       =    6;
+const int stRandToBest1Bin =    7;
+const int stBest2Bin       =    8;
+const int stRand2Bin       =    9;
 
 class DESolver;
 

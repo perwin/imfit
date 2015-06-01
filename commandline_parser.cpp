@@ -1,14 +1,12 @@
 /* FILE: commandline_parser.cpp ---------------------------------------- */
-/* VERSION 0.5
- *
- *
+/*
  * Based loosely on Kishan Thomas' AnyOption class (2006 version).
  *
  * 7--8 Feb 2011: Created.
  *
  */
 
-// Copyright 2011, 2012, 2013, 2015 by Peter Erwin.
+// Copyright 2011--2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

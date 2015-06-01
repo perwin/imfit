@@ -718,11 +718,11 @@ void ModelObject::CreateModelImage( double params[] )
 #endif
   }
 
-  // Separate out the individual-component parameters and tell the
-  // associated function objects to do setup work.
-  // The first component's parameters start at params[0]; the second's
-  // start at params[paramSizes[0]], the third at 
-  // params[paramSizes[0] + paramSizes[1]], and so forth...
+
+  // 0. Separate out the individual-component parameters and tell the associated
+  // function objects to do setup work.
+  // The first component's parameters start at params[0]; the second's start at
+  // params[paramSizes[0]], the third at params[paramSizes[0] + paramSizes[1]], and so forth...
   for (n = 0; n < nFunctions; n++) {
     if (fblockStartFlags[n] == true) {
       // start of new function block: extract x0,y0 and then skip over them
@@ -736,9 +736,9 @@ void ModelObject::CreateModelImage( double params[] )
   
   double  tempSum, adjVal, storedError;
   
-  // OK, populate modelVector with the model image
-  // OpenMP Parallel Section
-//  int  chunk = OPENMP_CHUNK_SIZE;
+  
+  // 1. OK, populate modelVector with the model image -- standard pixel scaling
+
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
 // an omp-parallel section are shared unless specified otherwise
@@ -775,13 +775,16 @@ void ModelObject::CreateModelImage( double params[] )
   } // end omp parallel section
   
   
-  // Do PSF convolution, if requested
+  // 2. Do PSF convolution (using standard pixel scale), if requested
   if (doConvolution)
     psfConvolver->ConvolveImage(modelVector);
   
-  // Optional generation of oversampled sub-image and convolution with oversampled PSF
+  
+  // 3. Optional generation of oversampled sub-image and convolution with oversampled PSF
   if (oversampledRegionsExist)
     oversampledRegion->ComputeRegionAndDownsample(modelVector, functionObjects, nFunctions);
+  
+  // [4. Possible location for charge-diffusion and other post-pixelization processing]
   
   modelImageComputed = true;
 }
@@ -1304,11 +1307,14 @@ void ModelObject::GetFunctionNames( vector<string>& functionNames )
 
 
 /* ---------------- PUBLIC METHOD: PrintModelParams --------=---------- */
-// Basic function which prints to a file (or, e.g. stdout) a summary of the
-// best-fitting model, in form suitable for future use as an input config file.
-// If parameterInfo != NULL, then x0,y0 are corrected for any offsets.
-// If errs != NULL, then +/- errors are printed as well
-
+/// Basic function which prints to a file (or, e.g. stdout) a summary of the
+/// best-fitting model, in form suitable for future use as an input config file.
+/// If parameterInfo != NULL, then x0,y0 are corrected for any positional offsets.
+///
+/// If errs != NULL, then +/- errors are printed as well
+///
+/// If prefix != NULL, then the specified character (e.g., '#') is prepended to
+/// each output line.
 void ModelObject::PrintModelParams( FILE *output_ptr, double params[], 
 									mp_par *parameterInfo, double errs[], 
 									const char *prefix )
@@ -1357,8 +1363,8 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[],
 
 
 /* ---------------- PUBLIC METHOD: GetParamHeader ---------------------- */
-// Prints function and parameter names in order all on one line; e.g., for use as 
-// header in bootstrap-parameters output file.
+/// Prints all function and parameter names in order all on one line; e.g., for use as 
+/// header in bootstrap-parameters output file.
 string ModelObject::GetParamHeader( )
 {
   int nParamsThisFunc, nBlock;
@@ -1390,10 +1396,9 @@ string ModelObject::GetParamHeader( )
 
 
 /* ---------------- PUBLIC METHOD: UseBootstrap ------------------------ */
-// Tells ModelObject1d object that from now on we'll operate in bootstrap
-// resampling mode, so that bootstrapIndices vector is used to access the
-// data and model values (and weight values, if any).
-
+/// Tells ModelObject1d object that from now on we'll operate in bootstrap
+/// resampling mode, so that bootstrapIndices vector is used to access the
+/// data and model values (and weight values, if any).
 void ModelObject::UseBootstrap( )
 {
   doBootstrap = true;
@@ -1402,9 +1407,8 @@ void ModelObject::UseBootstrap( )
 
 
 /* ---------------- PUBLIC METHOD: MakeBootstrapSample ----------------- */
-// Generate a new bootstrap resampling of the data (actually, we generate a
-// bootstrap resampling of the data *indices*)
-
+/// Generate a new bootstrap resampling of the data (more precisely, this generate a
+/// bootstrap resampling of the data *indices*)
 void ModelObject::MakeBootstrapSample( )
 {
   int  n;
@@ -1432,9 +1436,8 @@ void ModelObject::MakeBootstrapSample( )
 
 
 /* ---------------- PUBLIC METHOD: PrintImage ------------------------- */
-// Basic function which prints an image to stdout.  Mainly meant to be
-// called by PrintInputImage, PrintModelImage, and PrintWeights.
-
+/// Basic function which prints an image to stdout.  Mainly meant to be
+/// called by PrintInputImage, PrintModelImage, and PrintWeights.
 void ModelObject::PrintImage( double *pixelVector, int nColumns, int nRows )
 {
 
@@ -1567,14 +1570,17 @@ int ModelObject::GetNValidPixels( )
 
 
 /* ---------------- PUBLIC METHOD: EstimateMemoryUse ------------------- */
-// If PSF convolution is *not* being done, set nPSFCols = 0
-// Boolean inputs:
-//    levMarFit should = true if Levenberg-Marquardt minimization will be done
-//       (means that deviateVector will be allocated)
-//    cashTerms should = true if Cash statistic *or* Poisson MLR being minimized
-//       (means that extraCashTermsVector will be allocated)
-//    outputResidual should = true if residual image will be saved
-//    outputModel should = true if best-fit model image will be saved
+/// Returns an estimate (in bytes) of the total memory needed for fitting the current
+/// model.
+////
+/// If PSF convolution is *not* being done, set nPSFCols = 0
+/// Boolean inputs:
+///    levMarFit should = true if Levenberg-Marquardt minimization will be done
+///       (means that deviateVector will be allocated)
+///    cashTerms should = true if Cash statistic *or* Poisson MLR being minimized
+///       (means that extraCashTermsVector will be allocated)
+///    outputResidual should = true if residual image will be saved
+///    outputModel should = true if best-fit model image will be saved
 long ModelObject::EstimateMemoryUse( int nDataCols, int nDataRows, int nPSFCols, int nPSFRows,
 									 int nFreeParams, bool levMarFit, bool cashTerms, bool outputResidual,
 									 bool outputModel )
@@ -1654,9 +1660,9 @@ double * ModelObject::GetModelImageVector( )
 
 /* ---------------- PUBLIC METHOD: GetExpandedModelImageVector --------- */
 
-// This differs from GetModelImageVector() in that it always returns the full
-// model image, even in the case of PSF convolution (where the full model
-// image will be larger than the data image!)
+/// This differs from GetModelImageVector() in that it always returns the full
+/// model image, even in the case of PSF convolution (where the full model
+/// image will be larger than the data image!)
 double * ModelObject::GetExpandedModelImageVector( )
 {
 
@@ -1734,8 +1740,10 @@ double * ModelObject::GetDataVector( )
 
 
 /* ---------------- PUBLIC METHOD: FindTotalFluxes --------------------- */
-// Estimate total fluxes for individual components (and entire model) by integrating
-// over a very large image, with each component/function centered in the image.
+/// Estimate total fluxes for individual components (and entire model) by integrating
+/// over a very large image, with each component/function centered in the image.
+/// Total flux is returned by the function; fluxes for individual components are
+/// returned in individualFluxes.
 double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
                        double individualFluxes[] )
 {
@@ -1792,8 +1800,7 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
 
 
 /* ---------------- PROTECTED METHOD: CheckParamVector ----------------- */
-// The purpose of this method is to check the parameter vector to ensure
-// that all values are finite.
+/// Returns true if all values in the parameter vector are finite.
 bool ModelObject::CheckParamVector( int nParams, double paramVector[] )
 {
   bool  vectorOK = true;
@@ -1808,11 +1815,13 @@ bool ModelObject::CheckParamVector( int nParams, double paramVector[] )
 
 
 /* ---------------- PROTECTED METHOD: VetDataVector -------------------- */
-// The purpose of this method is to check the data vector (profile or image)
-// to ensure that all non-masked pixels are finite.
-// Any non-finite pixels which *are* masked will be set = 0.
-// If any valid (non-masked) pixels with non-finite values are found, then 
-// the method returns false.
+/// Returns true if all non-masked pixels in the image data vector are finite;
+/// returns false if one or more are not, and prints an error message to stderr.
+/// ALSO sets any masked pixels which are non-finite to 0.
+///
+/// More simply: the purpose of this method is to check the data vector (profile or image)
+/// to ensure that all non-masked pixels are finite.
+/// Any non-finite pixels which *are* masked will be set = 0.
 bool ModelObject::VetDataVector( )
 {
   bool  nonFinitePixels = false;
@@ -1836,8 +1845,7 @@ bool ModelObject::VetDataVector( )
 
 
 /* ---------------- PROTECTED METHOD: CheckWeightVector ---------------- */
-// The purpose of this method is to check the weight vector (image) to ensure
-// that all pixels are finite *and* nonnegative.
+/// Returns true if all pixels in the weight vector are finite *and* nonnegative.
 bool ModelObject::CheckWeightVector( )
 {
   bool  nonFinitePixels = false;

@@ -1,4 +1,4 @@
-/*! \file
+/** @file
     \brief Public interfaces for code which parses imfit/makeimage config files
 
  */
@@ -15,10 +15,10 @@
 using namespace std;
 
 // Error codes returned by VetConfigFile
-#define CONFIG_FILE_ERROR_NOFUNCSECTION  -1
-#define CONFIG_FILE_ERROR_NOFUNCTIONS  -2
-#define CONFIG_FILE_ERROR_INCOMPLETEXY  -3
-#define CONFIG_FILE_ERROR_BADPARAMLINE  -4
+const int CONFIG_FILE_ERROR_NOFUNCSECTION = -1;
+const int CONFIG_FILE_ERROR_NOFUNCTIONS   = -2;
+const int CONFIG_FILE_ERROR_INCOMPLETEXY  = -3;
+const int CONFIG_FILE_ERROR_BADPARAMLINE  = -4;
 
 typedef struct {
   vector<string> optionNames;

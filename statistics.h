@@ -1,4 +1,7 @@
-/* Header file for statistics-related functions */
+/** @file
+/* \brief C code for computing statistics: mean, std.dev., confidence intervals, AIC, BIC.
+ *
+*/
 
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_

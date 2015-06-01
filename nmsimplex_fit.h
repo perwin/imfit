@@ -1,4 +1,7 @@
-/*   Public interfaces for function(s) which deal with fitting via Nelder-Mead Simplex
+/** @file
+ * \brief Public functions for setting up and running Nelder-Mead Simplex minimizer
+ *
+ *   Public interfaces for function(s) which deal with fitting via Nelder-Mead Simplex
  */
 
 #ifndef _NM_SIMPLEX_FIT_H_

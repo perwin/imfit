@@ -1,4 +1,4 @@
-/*! \file
+/** @file
     \brief Public interfaces for command-line parser.
 
  */

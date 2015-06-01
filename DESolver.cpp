@@ -35,7 +35,7 @@
 #define RowVector(a,b)  (&a[b*nDim])
 #define CopyVector(a,b) memcpy((a),(b),nDim*sizeof(double))
 
-#define DEFAULT_TOLERANCE  1.0e-8
+const double DEFAULT_TOLERANCE = 1.0e-8;
 
 
 bool TestConverged( double *relativeDeltas, double ftol );

@@ -1,5 +1,7 @@
-/*    Utility functions for interpreting and printing results from fits
- * (useful for 1-D and 2-D fits)
+/** @file
+ * \brief Code for printing the results of a fit to stdout or to file.
+ *
+ *    Utility functions for interpreting and printing results from fits
  *
  */
 
@@ -16,6 +18,7 @@
 void PrintResults( double *params, mp_result *result, ModelObject *model, 
 			int nFreeParameters, mp_par *parameterInfo, int fitStatus );
 
+/// Code for saving the results of a fit to a file.
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
           string& outputFilename, string& programName, int argc, char *argv[],
           int nFreeParameters, int whichSolver, int fitStatus );

@@ -12,7 +12,13 @@
 #include "definitions.h"
 
 
-//! struct for holding various makeimage options (set by command-line flags & options)
+// Note: it would be nice to be able to initialize the various members of the
+// makeimageCommandOptions struct in the actual definition, as C++11 allows;
+// then we could get rid of the SetDefaultMakeimageOptions() function.
+// However, GCC 4.2 (as in llvm-gcc-4.2) doesn't allow this, and even g++-4.9
+// requires an explicit -std=c++11 flag.
+
+/// struct for holding various makeimage options (set by command-line flags & options)
 typedef struct {
   bool  noConfigFile;
   std::string  configFileName;   // []

@@ -1,5 +1,5 @@
 /* FILE: image_io.cpp -------------------------------------------------- */
-/* VERSION 0.3
+/*
  *
  *   Function for dealing with FITS files, using cfitsio routines:
  *   1. Read in a FITS image and store it in a 1-D array
@@ -23,7 +23,7 @@
  * include SaveVectorAsImage().
  */
 
-// Copyright 2010, 2011, 2012, 2014 by Peter Erwin.
+// Copyright 2010--2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -69,11 +69,10 @@ static void PrintError( int status );
 
 
 /* ---------------- FUNCTION: GetImageSize ----------------------------- */
-/*    Given a filename, it opens the file, reads the size of the image and
- * stores that size in *nRows and *nColumns.
- *
- *    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
- */
+///    Given the filename of a FITS image, this function opens the file, reads the 
+/// size of the image and returns the dimensions in nRows and nColumns.
+///
+///   Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
 int GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose )
 {
   fitsfile  *imfile_ptr;
@@ -120,19 +119,14 @@ int GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose 
 
 
 /* ---------------- FUNCTION: ReadImageAsVector ------------------------ */
-/*    Given a filename, it opens the file, reads the size of the image and
- * stores that size in *nRows and *nColumns, then allocates memory for a 1-D
- * array to hold the image and reads the image from the file into the
- * array.  Finally, it returns the image array -- or, more precisely, it
- * returns a pointer to the array; it also stores the image dimensions
- * in the pointer-parameters nRows and nColumns.
- *    Note that this function does *not* use Numerical Recipes functions; instead
- * it allocates a standard 1-D C vector [this means that the first index will
- * be 0, not 1].
- *
- *    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
- *
- */
+///    Given a filename, it opens the file, reads the size of the image and
+/// stores that size in nRows and nColumns, then allocates memory for a 1-D
+/// array to hold the image and reads the image from the file into the
+/// array.  Finally, it returns the image array -- or, more precisely, it
+/// returns a pointer to the array; it also stores the image dimensions
+/// in the pointer-parameters nRows and nColumns.
+///
+///    Returns NULL (and prints error message) if a CFITSIO-related error occurred.
 double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 														bool verbose )
 {
@@ -199,9 +193,11 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 
 
 /* ---------------- FUNCTION: SaveVectorAsImage ------------------------ */
-/*
- *    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
- */
+///    Saves specified 1D array (representing an image with size nColumns x nRows)
+/// in specified filename as a FITS image, with strings stored in comments
+/// vector written as comments to the FITS header.
+///
+///    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
 int SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
                          int nRows, std::vector<std::string> comments )
 {
@@ -264,7 +260,6 @@ static void PrintError( int status )
   if ( status ) {
     fits_report_error(stderr, status);
     fprintf(stderr, "\n");
-//    exit(status);
   }
 }
 

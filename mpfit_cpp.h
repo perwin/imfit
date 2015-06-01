@@ -1,4 +1,6 @@
-/* 
+/** @file
+ * \brief Code implementing Levenberg-Marquardt minimization, based on Craig Markwardt's mpfit
+ *
  * MINPACK-1 Least Squares Fitting Library
  *
  * Original public domain version by B. Garbow, K. Hillstrom, J. More'

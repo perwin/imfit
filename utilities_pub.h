@@ -14,11 +14,11 @@
 using namespace std;
 
 /* constants for use parameter "restriction" when calling NotANumber(): */
-#define kAnyInt          0
-#define kNonzeroInt      1
-#define kPosInt          2
-#define kAnyReal         3
-#define kPosReal         4
+const int kAnyInt     =    0;
+const int kNonzeroInt =    1;
+const int kPosInt     =    2;
+const int kAnyReal    =    3;
+const int kPosReal    =    4;
 
 
 // String-processing functions

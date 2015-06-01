@@ -1,4 +1,4 @@
-/*   Public interfaces for function(s) which deal with computing oversampled regions
+/*   Public interfaces for class which deals with computing oversampled regions
  * of an image and (optionally) convolving them with an oversampled PSF.
  */
  

@@ -2,6 +2,18 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.3 -- 2015-xx-xx
+
+### Changed:
+- Mac [and Linux??] binaries are now compiled using a version of the FFTW library
+which includes SSE2 vectorization (which is available in all Intel and AMD x86-type
+CPUs manufactured since about 2003). In practice, this appears to speed up convolutions
+by ~ 20--30%.
+
+- Updates to documentation.
+
+
+
 
 ## 1.2 -- 2015-05-27
 ### Added: 

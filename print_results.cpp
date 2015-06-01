@@ -1,3 +1,4 @@
+/*! \file */ 
 /* FILE: print_results.cpp ----------------------------------------- */
 
 // Copyright 2010--2015 by Peter Erwin.
@@ -39,19 +40,19 @@ using namespace std;
 
 
 /* Local Functions: */
-void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr );
+//void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr );
 void GetSolverSummary( int status, int solverID, string& outputString );
 
 
 
 // The following is used by PrintResults()
-void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr )
-{
-  if (paramErr == 0.0)
-    fprintf(outFile, "  %10s = %f\n", paramName.c_str(), paramValue);
-  else
-    fprintf(outFile, "  %10s = %f +/- %f\n", paramName.c_str(), paramValue, paramErr);
-}
+// void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr )
+// {
+//   if (paramErr == 0.0)
+//     fprintf(outFile, "  %10s = %f\n", paramName.c_str(), paramValue);
+//   else
+//     fprintf(outFile, "  %10s = %f +/- %f\n", paramName.c_str(), paramValue, paramErr);
+// }
 
 
 // This is a function to print the results of a fit.  It's based on code from
@@ -126,14 +127,7 @@ void PrintResults( double *params, mp_result *mpResult, ModelObject *model,
     printf("Reduced Chi^2 equivalent = %f\n", mpResult->bestnorm / nDegreesFreedom);
   printf("AIC = %f, BIC = %f\n\n", aic, bic);
   
-//   if (xact) {
-//     for (i = 0; i < mpResult->npar; i++) {
-//       printf("  P[%d] = %f +/- %f     (ACTUAL %f)\n", 
-// 	     i, params[i], mpResult->xerror[i], xact[i]);
-//     }
-//   } else {
-    model->PrintModelParams(stdout, params, parameterInfo, mpResult->xerror);
-//   }    
+  model->PrintModelParams(stdout, params, parameterInfo, mpResult->xerror);
 }
 
 
@@ -168,6 +162,7 @@ void GetSolverSummary( int status, int solverID, string& outputString )
 }
 
 
+/// Saves best-fit parameters (and summary of fit statistics) to a file.
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
                     string& outputFilename, string& programName, int argc, char *argv[],
                     int nFreeParameters, int whichSolver, int fitStatus  )

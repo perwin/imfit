@@ -1,4 +1,4 @@
-/*! \file
+/** @file
     \brief Struct containing options info for imfit, along with function for
            setting up default values within the struct.
  *

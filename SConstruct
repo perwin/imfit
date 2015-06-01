@@ -470,7 +470,7 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
 		func_sersic func_gen-sersic func_core-sersic func_broken-exp
 		func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
 		func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
-		func_edge-on-ring func_edge-on-ring2side"""
+		func_edge-on-ring func_edge-on-ring2side func_king"""
 if useGSL:
 	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"

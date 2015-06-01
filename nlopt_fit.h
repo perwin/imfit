@@ -1,4 +1,7 @@
-/*   Public interfaces for function(s) which deal with fitting via the various
+/** @file
+ * \brief Public functions for setting up and running various minimizers from NLOpt lirary
+ *
+ *   Public interfaces for function(s) which deal with fitting via the various
  * algorithms in the NLopt library.
  */
 

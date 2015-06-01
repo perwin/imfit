@@ -49,6 +49,7 @@
 #include "func_gaussian-ring.h"
 #include "func_gaussian-ring2side.h"
 #include "func_moffat.h"
+#include "func_king.h"
 #include "func_flatsky.h"
 // modules requiring GSL:
 #ifndef NO_GSL
@@ -145,6 +146,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   Moffat::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<Moffat>();
+
+  ModifiedKing::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<ModifiedKing>();
 
   FlatSky::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatSky>();

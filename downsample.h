@@ -1,4 +1,4 @@
-/*! \file
+/** @file
     \brief Utility function taking an oversampled sub-region, downsampling it to
            parent image's pixel scale, and copying it into parent image.
  *

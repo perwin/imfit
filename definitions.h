@@ -1,5 +1,5 @@
-/*! \file
-    \brief Generally useful definitions (debugging levels, fit statistics, solvers, etc.) 
+/** @file
+    \brief Generally useful definitions & constants (debugging levels, fit statistics, solvers, etc.) 
 
     Definitions of constants referring to debugging levels, which fit statisitic
     is being used, which minimizer/solver is being used, format of error/weight
@@ -11,14 +11,14 @@
 #define _DEFINITIONS_H_
 
 
-#define  MAXLINE   1024
-#define MAX_FILENAME_LENGTH  512
+const int  MAXLINE = 1024;
+const int MAX_FILENAME_LENGTH = 512;
 
 
-#define NO_MAGNITUDES  -10000.0   /* indicates data are *not* in magnitudes */
+const double NO_MAGNITUDES = -10000.0;   /* indicates data are *not* in magnitudes */
 
-#define GIGABYTE   1073741824.0   /* 1 gigabyte */
-#define MEMORY_WARNING_LIMT   1073741824.0   /* 1 gigabyte */
+const double GIGABYTE = 1073741824.0;   /* 1 gigabyte */
+const double MEMORY_WARNING_LIMT = 1073741824.0;   /* 1 gigabyte */
 
 // imfit-related
 #define DEFAULT_IMFIT_CONFIG_FILE   "imfit_config.dat"
@@ -27,7 +27,7 @@
 
 // makeimage-related
 #define DEFAULT_MAKEIMAGE_OUTPUT_FILENAME   "modelimage.fits"
-#define DEFAULT_ESTIMATION_IMAGE_SIZE  5000
+const int DEFAULT_ESTIMATION_IMAGE_SIZE = 5000;
 
 
 /* DEBUGGING LEVELS: */
@@ -39,29 +39,29 @@ const int  DEBUG_ALL   =            10;
 
 
 /* OPTIONS FOR FIT STATISTICS: */
-#define FITSTAT_CHISQUARE       1   //! standard chi^2
-#define FITSTAT_CASH            2   //! standard (minimal) Cash statistic
-#define FITSTAT_POISSON_MLR     3   //! Poisson Maximum Likelihood Ratio statistic
+const int FITSTAT_CHISQUARE   =      1;   /// standard chi^2
+const int FITSTAT_CASH        =      2;   /// standard (minimal) Cash statistic
+const int FITSTAT_POISSON_MLR =      3;   /// Poisson Maximum Likelihood Ratio statistic
 
-#define DEFAULT_FTOL	1.0e-8
+const double DEFAULT_FTOL = 1.0e-8;
 
 
 
 /* SOLVER OPTIONS: */
-#define NO_FITTING             0
-#define MPFIT_SOLVER           1
-#define DIFF_EVOLN_SOLVER      2
-#define NMSIMPLEX_SOLVER       3
-#define ALT_SOLVER             4
-#define GENERIC_NLOPT_SOLVER   5
+const int NO_FITTING           =     0;
+const int MPFIT_SOLVER         =     1;
+const int DIFF_EVOLN_SOLVER    =     2;
+const int NMSIMPLEX_SOLVER     =     3;
+const int ALT_SOLVER           =     4;
+const int GENERIC_NLOPT_SOLVER =     5;
 
 /* TYPE OF INPUT ERROR/WEIGHT IMAGE */
-#define  WEIGHTS_ARE_SIGMAS     100  //! "weight image" pixel value = sigma
-#define  WEIGHTS_ARE_VARIANCES  110  //! "weight image" pixel value = variance (sigma^2)
-#define  WEIGHTS_ARE_WEIGHTS    120  //! "weight image" pixel value = weight
+const int  WEIGHTS_ARE_SIGMAS    =  100;  /// "weight image" pixel value = sigma
+const int  WEIGHTS_ARE_VARIANCES =  110;  /// "weight image" pixel value = variance (sigma^2)
+const int  WEIGHTS_ARE_WEIGHTS   =  120;  /// "weight image" pixel value = weight
 
-#define  MASK_ZERO_IS_GOOD        10  //! "standard" input mask format (good pixels = 0)
-#define  MASK_ZERO_IS_BAD         20  //! alternate input mask format (good pixels = 1)
+const int  MASK_ZERO_IS_GOOD =       10;  /// "standard" input mask format (good pixels = 0)
+const int  MASK_ZERO_IS_BAD  =       20;  /// alternate input mask format (good pixels = 1)
 
 
 #endif /* _DEFINITIONS_H_ */
