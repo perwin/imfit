@@ -80,12 +80,17 @@ class Convolver
   double  *imagePixels;
   double  *psfPixels;
   double  *convolvedData_real, *convolvedData_padded;
-  fftw_complex  *image_in_cmplx, *image_fft_cmplx;
-  fftw_complex  *psf_in_cmplx, *psf_fft_cmplx;
-  fftw_complex  *multiplied_cmplx, *convolvedImage_cmplx;
+  fftw_complex  *image_fft_cmplx;
+  fftw_complex  *psf_fft_cmplx;
+  fftw_complex  *multiplied_cmplx;
   fftw_plan  plan_inputImage, plan_psf, plan_inverse;
   bool  psfInfoSet, imageInfoSet, fftVectorsAllocated, fftPlansCreated;
   int  debugStatus;
+  
+  // new stuff for FFTW experimentation
+  int  nPixels_padded_complex;
+  double  *image_in_padded, *psf_in_padded, *convolvedImage_out;
+
 };
 
 

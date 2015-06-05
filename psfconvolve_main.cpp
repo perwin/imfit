@@ -12,6 +12,7 @@
 #include "convolver.h"
 #include "image_io.h"
 #include "commandline_parser.h"
+#include "utilities_pub.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -146,6 +147,8 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("     --copyheader             Copy input image header to output (convolved) image [NOT YET IMPLEMENTED!]");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --printimages            Print out images (for debugging)");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --debug <n>              Set the debugging level (integer)");
 //  optParser->AddUsageLine("     --savepadded             Save zero-padded output image also");
   optParser->AddUsageLine("");
 
@@ -153,6 +156,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddFlag("help", "h");
   optParser->AddFlag("copyheader");
   optParser->AddFlag("printimages");
+  optParser->AddOption("debug");
 //  optParser->AddFlag("savepadded");
 
   /* parse the command line:  */
@@ -183,6 +187,14 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("printimages")) {
     theOptions->printImages = true;
     theOptions->debugLevel = 2;
+  }
+  if (optParser->OptionSet("debug")) {
+    if (NotANumber(optParser->GetTargetString("debug").c_str(), 0, kAnyInt)) {
+      fprintf(stderr, "*** ERROR: debug should be an integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->debugLevel = atol(optParser->GetTargetString("debug").c_str());
   }
 //   if (optParser->FlagSet("savepadded")) {
 //     theOptions->outputPaddedImage = true;

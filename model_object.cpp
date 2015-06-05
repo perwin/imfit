@@ -273,7 +273,7 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
     // NOTE: for now we're ignoring the status of psfConvolver->DoFullSetup because
     // we assume that it can't fail (we give psfConvolver the PSF info before
     // setting doConvolution to true, and we give it the image info in the line above)
-    result = psfConvolver->DoFullSetup(debugLevel, true);
+    result = psfConvolver->DoFullSetup(debugLevel);
     nModelVals = nModelColumns*nModelRows;
   }
   else {
