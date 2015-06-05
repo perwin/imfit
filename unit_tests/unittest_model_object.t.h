@@ -41,6 +41,8 @@ public:
   ModelObject *modelObj1;
   ModelObject *modelObj2;
   ModelObject *modelObj3;
+  ModelObject *modelObj4a;
+  ModelObject *modelObj4b;
   vector<string>  functionList1, functionList3;
   vector<double>  parameterList1, parameterList3;
   vector<mp_par>  paramLimits1, paramLimits3;
@@ -82,6 +84,13 @@ public:
   								paramLimits3, FunctionBlockIndices3, paramLimitsExist3, userConfigOptions3);
     modelObj3 = new ModelObject();
     status = AddFunctions(modelObj3, functionList3, FunctionBlockIndices3, true);
+
+    // Initialize modelObj4a and add model function & params (FlatSky)
+    modelObj4a = new ModelObject();
+    status = AddFunctions(modelObj4a, functionList3, FunctionBlockIndices3, true);
+    // Initialize modelObj4b and add model function & params (FlatSky)
+    modelObj4b = new ModelObject();
+    status = AddFunctions(modelObj4b, functionList3, FunctionBlockIndices3, true);
     
   }
 
@@ -91,6 +100,8 @@ public:
     delete modelObj1;
     delete modelObj2;
     delete modelObj3;
+    delete modelObj4a;
+    delete modelObj4b;
   }
   
   
@@ -155,4 +166,29 @@ public:
       TS_ASSERT_EQUALS(outputModelVect[i], trueVals[i]);
   }
  
+  // make sure ModelObject complains if we add a PSF *after* we've done the setup
+  void testCatchOutOfOrderPSF( void )
+  {
+    int  nColumns = 10;
+    int  nRows = 10;
+    int  nColumns_psf = 3;
+    int  nRows_psf = 3;
+    int  nPixels_psf = 9;
+    double  smallPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    int  status;
+    
+    // This is the correct order
+    // add PSF pixels first
+    status = modelObj4a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
+    // final setup for modelObj4a
+    modelObj4a->SetupModelImage(nColumns, nRows);
+    TS_ASSERT_EQUALS(status, 0);
+
+	// This is the WRONG order
+    // final setup for modelObj4b *first*
+    modelObj4b->SetupModelImage(nColumns, nRows);
+    // then add PSF pixels = wrong order!
+    status = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
+    TS_ASSERT_EQUALS(status, -1);
+  }
 };

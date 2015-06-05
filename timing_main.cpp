@@ -53,13 +53,9 @@ typedef struct {
   int  nRows;
   bool  noConfigFile;
   std::string  configFileName;
-  char  modelName[MAXLINE];
   bool  noModel;
-  char  paramString[MAXLINE];
-  bool  newParameters;
-  double  magZeroPoint;
-  char  paramLimitsFileName[MAX_FILENAME_LENGTH];
   bool  noParamLimits;
+  double  magZeroPoint;
   bool  printImages;
   int  nIterations;
   int  debugLevel;
@@ -94,7 +90,7 @@ int main(int argc, char *argv[])
   ModelObject  *theModel;
   vector<string>  functionList;
   vector<double>  parameterList;
-  vector<int>  functionSetIndices;
+  vector<int>  functionBlockIndices;
   commandOptions  options;
   configOptions  userConfigOptions;
   // timing-related stuff
@@ -106,13 +102,17 @@ int main(int argc, char *argv[])
   options.outputImageName = DEFAULT_OUTPUT_FILENAME;
   options.noImageName = true;
   options.noRefImage = true;
-  options.psfImagePresent = false;
   options.subsamplingFlag = true;
   options.noImageDimensions = true;
+  options.referenceImageName = "";
+  options.psfImagePresent = false;
+  options.psfFileName = "";
+  options.nColumns = 0;
+  options.nRows = 0;
+  options.noConfigFile = true;
+  options.configFileName = "";
   options.noModel = true;
   options.noParamLimits = true;
-  options.paramLimitsFileName[0] = '-';
-  options.newParameters = false;
   options.magZeroPoint = NO_MAGNITUDES;
   options.printImages = false;
   options.nIterations = 1;
@@ -127,9 +127,10 @@ int main(int argc, char *argv[])
     return -1;
   }
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList,
-  							functionSetIndices, userConfigOptions);
+  							functionBlockIndices, userConfigOptions);
   if (status != 0) {
-    fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
+    fprintf(stderr, "\n*** ERROR: Failure reading configuration file \"%s\"!\n\n", 
+    			options.configFileName.c_str());
     return -1;
   }
 
@@ -183,13 +184,28 @@ int main(int argc, char *argv[])
   
   /* Add functions to the model object; also tells model object where function
      sets start */
-  status = AddFunctions(theModel, functionList, functionSetIndices, options.subsamplingFlag);
+  status = AddFunctions(theModel, functionList, functionBlockIndices, options.subsamplingFlag);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
   }
 
   
+  // Add PSF image vector, if present (needs to be added prior to image data, so that
+  // ModelObject can figure out proper internal model-image size
+  if (options.psfImagePresent) {
+    status = theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+    if (status < 0) {
+      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
+  	  exit(-1);
+    }
+  }
+
+  /* Define the size of the requested model image */
+  theModel->SetupModelImage(nColumns, nRows);
+  theModel->PrintDescription();
+
+
   // Set up parameter vector(s), now that we know how many total parameters
   // there will be
   nParamsTot = theModel->GetNParams();
@@ -200,16 +216,7 @@ int main(int argc, char *argv[])
   	fprintf(stderr, " required number of parameters for specified functions (%d)!\n\n",
   	       nParamsTot);
   	exit(-1);
- }
-    
-  /* Define the size of the requested model image */
-  theModel->SetupModelImage(nColumns, nRows);
-  theModel->PrintDescription();
-
-  // Add PSF image vector, if present
-  if (options.psfImagePresent)
-    theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
-
+  }
 
   /* Copy parameters into C array and generate the model image */
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));

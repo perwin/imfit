@@ -121,6 +121,8 @@ ModelObject::ModelObject( )
   useCashStatistic = false;
   poissonMLR = false;
   
+  modelImageSetupDone = false;
+  
   modelImageComputed = false;
   maskExists = false;
   doConvolution = false;
@@ -287,6 +289,7 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   //    from the first call, in wich case we'd need to realloc modelVector
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
   modelVectorAllocated = true;
+  modelImageSetupDone = true;
 }
 
 
@@ -532,10 +535,13 @@ void ModelObject::ApplyMask( )
 // automatically triggers setup of a Convolver object to do convolutions (including
 // prep work such as computing the FFT of the PSF).
 // This function must be called *before* SetupModelImage() is called (to ensure
-// that we know the proper model-image dimensions).
-void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
+// that we know the proper model-image dimensions), so we return an error if 
+// SetupModelImage() hasn't been called yet.
+int ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels)
 {
+  int  returnStatus = 0;
+  
   assert( (nPixels_psf >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
   
   nPSFColumns = nColumns_psf;
@@ -544,6 +550,13 @@ void ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
   psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
   psfConvolver->SetMaxThreads(maxRequestedThreads);
   doConvolution = true;
+  
+  if (modelImageSetupDone) {
+    fprintf(stderr, "** ERROR: PSF was added to ModelObject after SetupModelImage() was already called!\n");
+    returnStatus = -1;
+  }
+  
+  return returnStatus;
 }
 
 
@@ -1576,27 +1589,27 @@ int ModelObject::GetNValidPixels( )
 ///       (means that extraCashTermsVector will be allocated)
 ///    outputResidual should = true if residual image will be saved
 ///    outputModel should = true if best-fit model image will be saved
-long ModelObject::EstimateMemoryUse( int nDataCols, int nDataRows, int nPSFCols, int nPSFRows,
+long ModelObject::EstimateMemoryUse( int nData_cols, int nData_rows, int nPSF_cols, int nPSF_rows,
 									 int nFreeParams, bool levMarFit, bool cashTerms, bool outputResidual,
 									 bool outputModel )
 {
   long  nBytesNeeded = 0.0;
   long  nPaddedPixels = 0;
-  long  nDataPixels = (long)(nDataCols * nDataRows);
+  long  nDataPixels = (long)(nData_cols * nData_rows);
   long  dataSize = (long)(nDataPixels * DOUBLE_SIZE);
-  int  nModelRows, nModelCols;
+  int  nModel_rows, nModel_cols;
   long  nModelPixels = 0;
   
   nBytesNeeded += dataSize;   // allocated outside
   
-  if (nPSFCols > 0) {
+  if (nPSF_cols > 0) {
     // we're doing PSF convolution
-    nBytesNeeded += (long)(nPSFCols * nPSFRows);   // allocated outside
-    nModelCols = nDataCols + 2*nPSFCols;
-    nModelRows = nDataRows + 2*nPSFRows;
-    nModelPixels = (long)(nModelCols * nModelRows);
+    nBytesNeeded += (long)(nPSF_cols * nPSF_rows);   // allocated outside
+    nModel_cols = nData_cols + 2*nPSF_cols;
+    nModel_rows = nData_rows + 2*nPSF_rows;
+    nModelPixels = (long)(nModel_cols * nModel_rows);
     // Convolver stuff
-    nPaddedPixels = (long)((nModelCols + nPSFCols) * (nModelRows + nPSFRows));
+    nPaddedPixels = (long)((nModel_cols + nPSF_cols) * (nModel_rows + nPSF_rows));
     nBytesNeeded += (long)(6 * nPaddedPixels * FFTW_SIZE);    // 6 fftw_complex arrays allocated in Convolver
   }
   else

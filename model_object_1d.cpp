@@ -224,9 +224,10 @@ int ModelObject1d::AddMaskVector1D( int nDataValues, double *inputVector,
 // This function needs to be redefined because the base function in ModelObject
 // assumes a 2-D PSF.
 // NOTE: PSF vector y-values are assumed to be intensities, *not* magnitudes!
-void ModelObject1d::AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector )
+int ModelObject1d::AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector )
 {
   nPSFVals = nPixels_psf;
+  int  returnStatus = 0;
   
   // Do full setup for convolution
   // 1. Figure out extra size for model profile (PSF dimensions added to each end)
@@ -253,6 +254,8 @@ void ModelObject1d::AddPSFVector1D( int nPixels_psf, double *xValVector, double 
   psfConvolver->SetupProfile(nModelVals);
   psfConvolver->DoFullSetup(debugLevel);
   doConvolution = true;
+  
+  return returnStatus;
 }
 
 
