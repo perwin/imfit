@@ -58,6 +58,7 @@
 #include "model_object.h"
 #include "param_struct.h"   // for mp_par structure
 #include "nmsimplex_fit.h"
+#include "solver_results.h"
 
 const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
@@ -153,7 +154,7 @@ void GetInterpretation_NM( int resultValue, string& outputString )
 
 
 int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, double ftol, int verbose )
+                  ModelObject *theModel, double ftol, int verbose, SolverResults *solverResults )
 {
   nlopt_result  result;
   int  maxEvaluations;

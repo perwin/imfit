@@ -6,6 +6,7 @@
 
 #include "param_struct.h"   // for mp_par structure
 #include "model_object.h"
+#include "solver_results.h"
 
 
 // Note on possible return values for LevMarFit: these are the same as the return values
@@ -25,7 +26,7 @@
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
 				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
-				bool paramLimitsExist, int verbose, double *paramSigmas=0 );
+				bool paramLimitsExist, int verbose, SolverResults *solverResults=0 );
 
 
 #endif  // _LEVMAR_FIT_H_

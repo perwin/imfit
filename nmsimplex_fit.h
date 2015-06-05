@@ -9,6 +9,7 @@
 
 #include "param_struct.h"   // for mp_par structure
 #include "model_object.h"
+#include "solver_results.h"
 
 
 // Note on possible return values for NMSimplexFit: these are the same as the return
@@ -26,7 +27,8 @@
 //      NLOPT_MAXTIME_REACHED = 6
 
 int NMSimplexFit(int nParamsTot, double *initialParams, mp_par *parameterLimits, 
-									ModelObject *theModel, double ftol, int verbose );
+									ModelObject *theModel, double ftol, int verbose,
+									SolverResults *solverResults=0 );
 
 void GetInterpretation_NM( int resultValue, string& outputString );
 

@@ -1,5 +1,6 @@
 
 ** WARNING: one or more pixel values in weightVector[] are non-finite!
+     (Negative pixel values in data image -- missing sky background?)
 ** ModelObject::FinalSetup -- bad values detected in weight vector!
 *** ERROR: Failure in ModelObject::FinalSetupForFitting!
 

@@ -39,6 +39,7 @@ public:
     referenceFunctionNameList.push_back("GaussianRing");
     referenceFunctionNameList.push_back("GaussianRing2Side");
     referenceFunctionNameList.push_back("GaussianRing3D");
+    referenceFunctionNameList.push_back("ModifiedKing");
     referenceFunctionNameList.push_back("Moffat");
     referenceFunctionNameList.push_back("Sersic");
     referenceFunctionNameList.push_back("Sersic_GenEllipse");

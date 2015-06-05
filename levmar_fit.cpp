@@ -33,6 +33,7 @@
 #include "param_struct.h"   // for mp_par structure
 #include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
 #include "print_results.h"
+#include "solver_results.h"
 
 const int  MAX_ITERATIONS = 1000;
 const double  FTOL = 1.0e-8;
@@ -66,7 +67,7 @@ int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
 				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
-				bool paramLimitsExist, int verbose, double *paramSigmas )
+				bool paramLimitsExist, int verbose, SolverResults *solverResults )
 {
   double  *paramErrs;
   mp_par  *mpfitParameterConstraints;
@@ -97,11 +98,6 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
     PrintResults(paramVector, &mpfitResult, theModel, nFreeParams, parameterLimits, 
     			status);
     printf("\n");
-  }
-  // copy L-M parameter error estimates
-  if (paramSigmas != 0) {
-    for (i = 0; i < nParamsTot; i++)
-      paramSigmas[i] = paramErrs[i];
   }
   
   free(paramErrs);

@@ -59,25 +59,25 @@ echo "Running unit tests for utilities:"
 ./test_runner_mpfit 2>> temperror.log
 
 
-# Unit tests for function objects (easiest if we cd to the function_objects directory
-# and do everything there)
+# Unit tests for function objects
 echo
 echo "Generating and compiling unit tests for function objects..."
-cd function_objects
 $CXXTESTGEN --error-printer -o test_runner_funcs.cpp unit_tests/unittest_funcs.t.h 
-$CPP -o test_runner_funcs test_runner_funcs.cpp function_object.cpp \
-func_exp.cpp func_sersic.cpp \
-func_gaussian.cpp func_edge-on-disk.cpp \
--I. -I/usr/local/include -I$CXXTEST -lm -lgsl
+$CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
+function_objects/func_exp.cpp function_objects/func_gaussian.cpp function_objects/func_sersic.cpp \
+-I/usr/local/include -I$CXXTEST -I. -lm -lgsl
+# $CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
+# function_objects/func_exp.o function_objects/func_sersic.o \
+# function_objects/func_gaussian.o function_objects/func_edge-on-disk.o \
+# -I. -I/usr/local/include -I$CXXTEST -lm -lgsl
 echo "Running unit tests for function objects:"
 ./test_runner_funcs 2>> ../temperror.log
-cd ..
 
 # Unit tests for add_functions
 echo
 echo "Generating and compiling unit tests for add_functions..."
 $CXXTESTGEN --error-printer -o test_runner_add_functions.cpp unit_tests/unittest_add_functions.t.h
-g++-4.9 -fopenmp -o test_runner_add_functions test_runner_add_functions.cpp add_functions.cpp \
+$CPP -fopenmp -o test_runner_add_functions test_runner_add_functions.cpp add_functions.cpp \
 model_object.o utilities.cpp convolver.o \
 config_file_parser.o mersenne_twister.o mp_enorm.o \
 oversampled_region.o downsample.o image_io.o \
@@ -91,7 +91,7 @@ function_objects/func_gaussian-ring2side.o function_objects/func_edge-on-disk_n4
 function_objects/func_edge-on-disk_n4762v2.o function_objects/func_edge-on-ring.o \
 function_objects/func_edge-on-ring2side.o function_objects/func_edge-on-disk.o \
 function_objects/integrator.o function_objects/func_expdisk3d.o function_objects/func_brokenexpdisk3d.o \
-function_objects/func_gaussianring3d.o \
+function_objects/func_gaussianring3d.o function_objects/func_king.o \
 -I. -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lm
 echo "Running unit tests for add_functions:"
 ./test_runner_add_functions 2>> temperror.log
@@ -113,7 +113,7 @@ function_objects/func_gaussian-ring2side.o function_objects/func_edge-on-disk_n4
 function_objects/func_edge-on-disk_n4762v2.o function_objects/func_edge-on-ring.o \
 function_objects/func_edge-on-ring2side.o function_objects/func_edge-on-disk.o \
 function_objects/integrator.o function_objects/func_expdisk3d.o function_objects/func_brokenexpdisk3d.o \
-function_objects/func_gaussianring3d.o \
+function_objects/func_gaussianring3d.o function_objects/func_king.o \
 -I. -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lm
 echo "Running unit tests for model_object:"
 ./test_runner_modelobj 2>> temperror.log

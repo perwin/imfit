@@ -46,7 +46,7 @@
 // Halted because of a forced termination: the user called nlopt_force_stop(opt) on the optimization’s nlopt_opt object opt from the user’s objective function or constraints.
 
 
-// Note : the following are the default tolerance values we are currently using
+// Note: the following are the default tolerance values we are currently using
 // in mpfitfun.cpp:
 //  conf.ftol = 1e-10;   [relative changes in chi^2]
 //  conf.xtol = 1e-10;   [relative changes in parameter values]
@@ -67,6 +67,7 @@ using namespace std;
 #include "param_struct.h"   // for mp_par structure
 #include "nlopt_fit.h"
 #include "utilities_pub.h"
+#include "solver_results.h"
 
 const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
@@ -235,7 +236,8 @@ void GetInterpretation_NLOpt( int resultValue, string& outputString )
 
 
 int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, double ftol, int verbose, string solverName )
+                  ModelObject *theModel, double ftol, int verbose, string solverName,
+                  SolverResults *solverResults )
 {
   nlopt_result  result;
   int  maxEvaluations;

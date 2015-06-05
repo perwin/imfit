@@ -46,6 +46,7 @@
 #include "model_object.h"
 #include "param_struct.h"   // for mp_par structure
 #include "diff_evoln_fit.h"
+#include "solver_results.h"
 
 // "Population" size should be POP_SIZE_PER_PARAMETER * nParametersTot
 #define POP_SIZE_PER_PARAMETER  10
@@ -93,7 +94,7 @@ double ImfitSolver::EnergyFunction( double *trial, bool &bAtSolution )
 
 // main function called by exterior routines to set up and run the minimization
 int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, double ftol, int verbose )
+                  ModelObject *theModel, double ftol, int verbose, SolverResults *solverResults )
 {
   ImfitSolver  *solver;
   double  *minParamValues;

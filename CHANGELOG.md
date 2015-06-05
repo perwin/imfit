@@ -5,10 +5,10 @@
 ## 1.3 -- 2015-xx-xx
 
 ### Changed:
-- Mac [and Linux??] binaries are now compiled using a version of the FFTW library
+- Mac [and Linux??] precompiled binaries now use a version of the FFTW library
 which includes SSE2 vectorization (which is available in all Intel and AMD x86-type
 CPUs manufactured since about 2003). In practice, this appears to speed up convolutions
-by ~ 20--30%.
+by ~ 20-30%.
 
 - Updates to documentation.
 
@@ -123,7 +123,7 @@ means that subsequent fits using DE on the same input will no longer
 produce exactly the same output parameters
 
 - Fitting small images (e.g., <~ 200 x 200 pixels) on systems with many
-(e.g., > 8) cores is now significantly faster; thanks to André
+(e.g., > 8) cores is now significantly faster; thanks to Andr&eacute;
 Luiz de Amorim for investigating this & figuring out how to make it
 happen.
 

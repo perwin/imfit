@@ -25,14 +25,14 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 1377099.829071
-	mpfit iteration 2: fit statistic = 1050144.572367
-	mpfit iteration 3: fit statistic = 120515.160455
-	mpfit iteration 4: fit statistic = 71407.494491
-	mpfit iteration 5: fit statistic = 43868.835836
-	mpfit iteration 6: fit statistic = 36912.006263
-	mpfit iteration 7: fit statistic = 36828.859324
-	mpfit iteration 8: fit statistic = 36828.611700
+	mpfit iteration 1: fit statistic = 1377102.129936
+	mpfit iteration 2: fit statistic = 1050143.169612
+	mpfit iteration 3: fit statistic = 120529.155427
+	mpfit iteration 4: fit statistic = 71409.415817
+	mpfit iteration 5: fit statistic = 43866.194339
+	mpfit iteration 6: fit statistic = 36911.993610
+	mpfit iteration 7: fit statistic = 36828.859310
+	mpfit iteration 8: fit statistic = 36828.611698
 	mpfit iteration 9: fit statistic = 36828.581710
 	mpfit iteration 10: fit statistic = 36828.578450
 	mpfit iteration 11: fit statistic = 36828.578059
@@ -59,9 +59,9 @@ n		3.28046 # +/- 0.0340831
 I_e		1.45249 # +/- 0.0499468
 r_e		 26.797 # +/- 0.648142
 FUNCTION Exponential
-PA		51.7246 # +/- 0.806568
+PA		51.7247 # +/- 0.806568
 ell		0.352234 # +/- 0.0140126
-I_0		0.737829 # +/- 0.0333997
+I_0		0.73783 # +/- 0.0333997
 h		53.6064 # +/- 1.16482
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"

@@ -7,6 +7,7 @@
 
 #include "param_struct.h"   // for mp_par structure
 #include "model_object.h"
+#include "solver_results.h"
 
 
 // Note on possible return values for DiffEvolnFit: these are meant to be similar to
@@ -17,7 +18,8 @@
 //    value = 5   --> max iterations reached
 
 int DiffEvolnFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
-									ModelObject *theModel, double ftol, int verbose );
+									ModelObject *theModel, double ftol, int verbose,
+									SolverResults *solverResults=0 );
 
 
 #endif  // _DIFF_EVOLN_FIT_H_

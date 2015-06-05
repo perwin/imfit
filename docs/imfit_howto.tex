@@ -368,11 +368,12 @@ Apple's Xcode. Prior to version 5, Xcode included
 \textsc{gcc} 4.2 (or an LLVM-based equivalent called ``llvm-gcc'').
 Unfortunately, the command-line compilers which come with Xcode 5 and 6 are
 based on Clang instead of \textsc{gcc} and so do \textit{not} support
-OpenMP. In order to compile \imfit{} with OpenMP, you will need either a previous
-version of Xcode (e.g., from a prior installation) or a separate
-installation of \textsc{gcc} 4.2 or later (such as those available at
-\url{http://hpc.sourceforge.net/}, or via package managers such as Fink,
-MacPorts, or Hombrew).
+OpenMP. 
+
+In order to compile \imfit{} with OpenMP, you will need either a
+previous version of Xcode (e.g., from a prior installation) or a
+separate installation of \textsc{gcc} 4.2 or later (such as those
+available via package managers such as Fink, MacPorts, or Homebrew).
 
 (Current work on LLVM and Clang includes adding support for OpenMP, so future versions
 of Xcode \textit{might} hopefully restore support for OpenMP, though this is just

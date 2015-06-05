@@ -166,7 +166,6 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
 
 
 /* ---------------- PUBLIC METHOD: SetMaxThreads ----------------------- */
-
 void ModelObject::SetMaxThreads( int maxThreadNumber )
 {
   assert( (maxThreadNumber >= 1) );
@@ -178,7 +177,6 @@ void ModelObject::SetMaxThreads( int maxThreadNumber )
 
 
 /* ---------------- PUBLIC METHOD: SetOMPChunkSize --------------------- */
-
 void ModelObject::SetOMPChunkSize( int chunkSize )
 {
   assert( (chunkSize >= 1) );
@@ -187,7 +185,6 @@ void ModelObject::SetOMPChunkSize( int chunkSize )
 
 
 /* ---------------- PUBLIC METHOD: AddFunction ------------------------- */
-
 void ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
 {
   int  nNewParams;
@@ -668,7 +665,6 @@ int ModelObject::FinalSetupForFitting( )
   else {
     fprintf(stderr, "** ModelObject::FinalSetup -- bad values detected in weight vector!\n");
     returnStatus = -1;
-//    exit(-1);
   }
 #ifdef DEBUG
   PrintWeights();
@@ -679,7 +675,6 @@ int ModelObject::FinalSetupForFitting( )
     if (! dataOK) {
       fprintf(stderr, "** ModelObject::FinalSetup -- bad (non-masked) data values!\n\n");
       returnStatus = -2;
-//      exit(-1);
     }
   }
   
@@ -1837,7 +1832,7 @@ bool ModelObject::VetDataVector( )
   }
   
   if (nonFinitePixels) {
-    fprintf(stderr, "\n** WARNING: one or more (non-masked) pixel values in dataVector[] are non-finite!\n");
+    fprintf(stderr, "\n** WARNING: one or more (non-masked) pixel values in data image are non-finite!\n");
     vectorOK = false;
   }
   return vectorOK;
@@ -1872,10 +1867,17 @@ bool ModelObject::CheckWeightVector( )
   
   if (nonFinitePixels) {
     fprintf(stderr, "\n** WARNING: one or more pixel values in weightVector[] are non-finite!\n");
+    if (externalErrorVectorSupplied)
+      fprintf(stderr, "     (Bad values in external noise or weight image)\n");
+    else
+      fprintf(stderr, "     (Negative pixel values in data image -- missing sky background?)\n");
     weightVectorOK = false;
   }
   if (negativePixels) {
     fprintf(stderr, "\n** WARNING: one or more pixel values in weightVector[] are < 0\n");
+    fprintf(stderr, "     (Negative pixel values in noise or weight image?)\n");
+    if (originalSky <= 0)
+    	fprintf(stderr, "     (original-sky-background = %f -- missing or wrong value?\n", originalSky);
     weightVectorOK = false;
   }
   return weightVectorOK;

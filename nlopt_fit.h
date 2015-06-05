@@ -11,6 +11,7 @@
 #include <string>
 #include "param_struct.h"   // for mp_par structure
 #include "model_object.h"
+#include "solver_results.h"
 
 using namespace std;
 
@@ -31,7 +32,8 @@ using namespace std;
 bool ValidNLOptSolverName( string solverName );
 
 int NLOptFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
-					ModelObject *theModel, double ftol, int verbose, string solverName );
+					ModelObject *theModel, double ftol, int verbose, string solverName,
+					SolverResults *solverResults=0 );
 
 void GetInterpretation_NLOpt( int resultValue, string& outputString );
 

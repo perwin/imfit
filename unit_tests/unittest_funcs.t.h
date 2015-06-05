@@ -34,7 +34,8 @@ public:
   {
     // FUNCTION-SPECIFIC:
     bool  subsampleFlag = false;
-    thisFunc = new Exponential(subsampleFlag);
+    thisFunc = new Exponential();
+    thisFunc->SetSubsampling(subsampleFlag);
 //    subsampleFlag = true;
 //    thisFunc_subsampled = new Exponential(subsampleFlag);
   }
@@ -102,7 +103,8 @@ public:
   {
     // FUNCTION-SPECIFIC:
     bool  subsampleFlag = false;
-    thisFunc = new Sersic(subsampleFlag);
+    thisFunc = new Sersic();
+    thisFunc->SetSubsampling(subsampleFlag);
 //    subsampleFlag = true;
 //    thisFunc_subsampled = new Sersic(subsampleFlag);
   }
@@ -172,7 +174,8 @@ public:
   {
     // FUNCTION-SPECIFIC:
     bool  subsampleFlag = false;
-    thisFunc = new Gaussian(subsampleFlag);
+    thisFunc = new Gaussian();
+    thisFunc->SetSubsampling(subsampleFlag);
   }
   
   void tearDown()
