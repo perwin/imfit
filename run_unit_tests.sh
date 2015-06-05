@@ -114,7 +114,7 @@ function_objects/func_edge-on-disk_n4762v2.o function_objects/func_edge-on-ring.
 function_objects/func_edge-on-ring2side.o function_objects/func_edge-on-disk.o \
 function_objects/integrator.o function_objects/func_expdisk3d.o function_objects/func_brokenexpdisk3d.o \
 function_objects/func_gaussianring3d.o function_objects/func_king.o \
--I. -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lm
+-I. -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lm -std=c++11
 echo "Running unit tests for model_object:"
 ./test_runner_modelobj 2>> temperror.log
 

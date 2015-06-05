@@ -86,7 +86,7 @@ class ModelObject
                          double *pixelVector, int inputType );
 
 	// 2D only
-    void AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
+    int AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels );
 
  	// 2D only
@@ -95,7 +95,7 @@ class ModelObject
     					int y1, int y2 );
 
     // 1D only
-    virtual void AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector ) { ; };
+    virtual int AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector ) { return 0; };
     
 	// 2D only [1D maybe needs something similar, but with diff. interface]
     virtual void ApplyMask( );
@@ -241,6 +241,7 @@ class ModelObject
     bool  modelVectorAllocated, weightVectorAllocated, maskVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;
     bool  fblockStartFlags_allocated;
+    bool  modelImageSetupDone;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
     bool  doConvolution;

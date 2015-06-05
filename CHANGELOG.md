@@ -3,12 +3,14 @@
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
 ## 1.3 -- 2015-xx-xx
+### Added: 
+- New image function: modified (or "empirical") King profile, as in xxx
 
 ### Changed:
 - Mac [and Linux??] precompiled binaries now use a version of the FFTW library
 which includes SSE2 vectorization (which is available in all Intel and AMD x86-type
-CPUs manufactured since about 2003). In practice, this appears to speed up convolutions
-by ~ 20-30%.
+CPUs manufactured since about 2003). In practice, this appears to speed up fits
+with PSF convolution by ~ 20-30%.
 
 - Updates to documentation.
 

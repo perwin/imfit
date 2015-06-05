@@ -58,7 +58,7 @@
 
 #define DEFAULT_CONFIG_FILE   "sample_imfit1d_config.dat"
 #define DEFAULT_MODEL_OUTPUT_FILE   "model_profile_save.dat"
-#define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_profilefit.dat"
+#define DEFAULT_1D_OUTPUT_PARAMETER_FILE   "bestfit_parameters_profilefit.dat"
 
 #define VERSION_STRING      "v1.2"
 
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
   options.subsamplingFlag = false;
   options.saveBestProfile = false;
   options.saveBestFitParams = true;
-  options.outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
+  options.outputParameterFileName = DEFAULT_1D_OUTPUT_PARAMETER_FILE;
   options.verbose = 1;
 
   ProcessInput(argc, argv, &options);
@@ -340,8 +340,14 @@ int main(int argc, char *argv[])
     }
   }
   // Add PSF vector, if present, and thereby enable convolution
-  if (options.psfPresent)
-    theModel->AddPSFVector1D(nPixels_psf, xVals_psf, yVals_psf);
+  if (options.psfPresent) {
+    status = theModel->AddPSFVector1D(nPixels_psf, xVals_psf, yVals_psf);
+    if (status < 0) {
+      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector1D!\n\n");
+  	  exit(-1);
+    }
+  }
+  
   theModel->FinalSetupForFitting();   // calls ApplyMask(), VetDataVector()
   theModel->PrintDescription();
 

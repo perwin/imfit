@@ -375,8 +375,13 @@ int main(int argc, char *argv[])
   
   // Add PSF image vector, if present (needs to be added prior to image data, so that
   // ModelObject can figure out proper internal model-image size
-  if (options.psfImagePresent)
-    theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+  if (options.psfImagePresent) {
+    status = theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+    if (status < 0) {
+      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
+  	  exit(-1);
+    }
+  }
 
   // Add image data and useful information about image (gain, read noise, t_exp, etc.)
   theModel->AddImageDataVector(allPixels, nColumns, nRows);

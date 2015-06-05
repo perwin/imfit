@@ -1,5 +1,5 @@
 /** @file
-/* \brief C code for computing statistics: mean, std.dev., confidence intervals, AIC, BIC.
+ * \brief C code for computing statistics: mean, std.dev., confidence intervals, AIC, BIC.
  *
 */
 
