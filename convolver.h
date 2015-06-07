@@ -3,26 +3,6 @@
   
  */
 
-//  Convolver object should contain (or contain pointers to):
-// 	input PSF image (pointer to)
-// 	input image (pointer to)
-// 	sizes of PSF image
-// 	sizes of input image
-// 	
-// 	fftw_complex arrays:
-// 		psf_in
-// 		psf_fft
-// 		image_in
-// 		image_fft
-// 		multiplied
-// 		multiplied_fft
-// 	
-// 	FFTW plans:
-// 		plan_psf
-// 		plan_inputImage
-// 		plan_inverse
-
-
 #ifndef _CONVOLVER_H_
 #define _CONVOLVER_H_
 
@@ -34,15 +14,15 @@
 using namespace std;
 
 
-//! Utility function for debugging use: print a real-valued image to stdout
+/// Utility function for debugging use: print a real-valued image to stdout
 void PrintRealImage( double *image, int nColumns, int nRows );
-//! Utility function for debugging use: print a complex-valued image to stdout
+/// Utility function for debugging use: print a complex-valued image to stdout
 void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nColumns, int nRows );
-//! Utility function for debugging use: print absolute value of complex-valued image to stdout
+/// Utility function for debugging use: print absolute value of complex-valued image to stdout
 void PrintComplexImage_Absolute( fftw_complex *image_cmplx, int nColumns, int nRows );
 
 
-//! Class for handling PSF convolution (stores PSF, performs convolutions with input model images)
+/// Class for handling PSF convolution (stores PSF, performs convolutions with input model images)
 class Convolver
 {
   public:
@@ -51,18 +31,18 @@ class Convolver
     ~Convolver( );
     
     // Public member functions:
-    //! Supply PSF image to Convolver object
+    /// Supply PSF image to Convolver object
     void SetupPSF( double *psfPixels_input, int nColumns, int nRows );
     
-    //! Set maximum number of FFTW threads
+    /// Set maximum number of FFTW threads
     void SetMaxThreads( int maximumThreadNumber );
     
     void SetupImage( int nColumns, int nRows );
     
-    //! Do final setup work (allocate things, generate FT of PSF image, etc.)
+    /// Do final setup work (allocate things, generate FT of PSF image, etc.)
     int DoFullSetup( int debugLevel=0, bool doFFTWMeasure=false );
 
-    //! Replace input model image (pixelVector) with convolution using stored PSF
+    /// Replace input model image (pixelVector) with convolution using stored PSF
     void ConvolveImage( double *pixelVector );
 
 
@@ -77,9 +57,7 @@ class Convolver
   int  nRows_padded, nColumns_padded;
   int  maxRequestedThreads;
   double  rescaleFactor;
-//  double  *imagePixels;
   double  *psfPixels;
-//  double  *convolvedData_real, *convolvedData_padded;
   double  *image_in_padded, *psf_in_padded, *convolvedImage_out;
   int  nPixels_padded_complex;
   fftw_complex  *image_fft_cmplx;
@@ -88,9 +66,6 @@ class Convolver
   fftw_plan  plan_inputImage, plan_psf, plan_inverse;
   bool  psfInfoSet, imageInfoSet, fftVectorsAllocated, fftPlansCreated;
   int  debugStatus;
-  
-  // new stuff for FFTW experimentation
-
 };
 
 
