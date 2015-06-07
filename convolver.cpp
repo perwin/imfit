@@ -215,16 +215,18 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   rescaleFactor = 1.0 / nPixels_padded;
   if (debugStatus >= 1)
     printf("Images will be padded to %d x %d pixels in size\n", nColumns_padded, nRows_padded);
-  // compute size of complex arrays
+  // compute size of complex arrays, which are smaller due to use of r2c/c2r FFTW functions
   int  nCols_trimmed = (int)(floor(nColumns_padded/2)) + 1;
   nPixels_padded_complex = nRows_padded * nCols_trimmed;
   if (debugStatus >= 1)
     printf("Complex images will have dimensions %d x %d pixels in size\n", nCols_trimmed, nRows_padded);
 
+
 #ifdef FFTW_THREADING
   int  threadStatus;
   threadStatus = fftw_init_threads();
 #endif  // FFTW_THREADING
+
 
   // allocate memory for double and fftw_complex arrays
   image_in_padded = (double*) fftw_malloc(sizeof(double) * nPixels_padded);
@@ -234,6 +236,7 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   multiplied_cmplx = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nPixels_padded_complex);
   convolvedImage_out = (double*) fftw_malloc(sizeof(double) * nPixels_padded);
   fftVectorsAllocated = true;
+
 
   // set up FFTW plans
   if (doFFTWMeasure)
@@ -266,7 +269,7 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   
 
   // Generate the Fourier transform of the PSF:
-  // First, normalize the PSF
+  // 1. Normalize the PSF
   if (debugStatus >= 1) {
     printf("Normalizing the PSF ...\n");
     if (debugStatus >= 2) {
@@ -284,20 +287,19 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     PrintRealImage(psfPixels, nColumns_psf, nRows_psf);
   }
 
-  // Second, prepare padded psf array for FFT, and then copy input PSF into
+  // 2. Prepare padded psf array for FFT, and then copy input PSF into
   // it with appropriate shift/wrap:
-  for (k = 0; k < nPixels_padded; k++) {
+  for (k = 0; k < nPixels_padded; k++)
     psf_in_padded[k] = 0.0;
-  }
   if (debugStatus >= 1)
     printf("Shifting and wrapping the PSF ...\n");
   ShiftAndWrapPSF();
-//   if (debugStatus >= 2) {
-//     printf("The whole padded, normalized PSF image, row by row:\n");
-//     PrintComplexImage_RealPart(psf_in_cmplx, nColumns_padded, nRows_padded);
-//   }
+  if (debugStatus >= 2) {
+    printf("The whole padded, normalized PSF image, row by row:\n");
+    PrintRealImage(psf_in_padded, nColumns_padded, nRows_padded);
+  }
   
-  // Finally, do forward FFT on PSF image
+  // 3. Do forward FFT on PSF image
   if (debugStatus >= 1)
     printf("Performing FFT of PSF image ...\n");
   fftw_execute(plan_psf);
@@ -308,39 +310,37 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
 
 /* ---------------- ConvolveImage -------------------------------------- */
 /// Given an input image (pointer to its pixel vector), convolve it with the PSF
-/// by: 1) Copying image to fft_complex array; 2) Taking FFT of image; 3)
-/// Multiplying transform of image by transform of PSF; 4) Taking inverse FFT
-/// of product; 5) Copying (and rescaling) result back into input image.
+/// by: 1) Copying image to image_in_padded array (with zero-padding); 
+/// 2) Taking FFT of image; 3) Multiplying transform of image by transform of PSF; 
+/// 4) Taking inverse FFT of product; 5) Copying (and rescaling) result back into input image.
 void Convolver::ConvolveImage( double *pixelVector )
 {
   int  ii, jj;
-  double  a, b, c, d, realPart;
+  double  a, b, c, d, rawValue;
   
   // Populate padded input image array for FFT
-  //   First, zero the complex array (especially need to do this if this isn't the
-  // first time we've called this function!):
-  for (ii = 0; ii < nPixels_padded; ii++) {
+  //   First, zero the array to ensure zero-padding *is* zero
+  for (ii = 0; ii < nPixels_padded; ii++)
     image_in_padded[ii] = 0.0;
-  }
   //   Second, copy input image array into padded array (accounting for padding):
   for (ii = 0; ii < nRows_image; ii++) {   // step by row number = y
     for (jj = 0; jj < nColumns_image; jj++) {  // step by column number = x
       image_in_padded[ii*nColumns_padded + jj] = pixelVector[ii*nColumns_image + jj];
     }
   }
-//   if (debugStatus >= 3) {
-//     printf("The whole (padded) input mage [image_in_cmplx], row by row:\n");
-//     PrintComplexImage_RealPart(image_in_cmplx, nColumns_padded, nRows_padded);
-//   }
+  if (debugStatus >= 3) {
+    printf("The whole (padded) input mage [image_in_padded], row by row:\n");
+    PrintRealImage(image_in_padded, nColumns_padded, nRows_padded);
+  }
 
   // Do FFT of input image:
   if (debugStatus >= 2)
     printf("Performing FFT of input image ...\n");
   fftw_execute(plan_inputImage);
-//   if (debugStatus >= 3) {
-//     printf("The (modulus of the) transform of the input image [image_fft_cmplx], row by row:\n");
-//     PrintComplexImage_Absolute(image_fft_cmplx, nColumns_padded, nRows_padded);
-//   }
+  if (debugStatus >= 3) {
+    printf("The (modulus of the) transform of the input image [image_fft_cmplx], row by row:\n");
+    PrintComplexImage_Absolute(image_fft_cmplx, nColumns_padded, nRows_padded);
+  }
   
   // Multiply transformed arrays:
   for (jj = 0; jj < nPixels_padded_complex; jj++) {
@@ -351,35 +351,35 @@ void Convolver::ConvolveImage( double *pixelVector )
     multiplied_cmplx[jj][0] = a*c - b*d;
     multiplied_cmplx[jj][1] = b*c + a*d;
   }
-//   if (debugStatus >= 3) {
-//     printf("The (modulus of the) product [multiplied_cmplx], row by row:\n");
-//     PrintComplexImage_Absolute(multiplied_cmplx, nColumns_padded, nRows_padded);
-//   }
+  if (debugStatus >= 3) {
+    printf("The (modulus of the) product [multiplied_cmplx], row by row:\n");
+    PrintComplexImage_Absolute(multiplied_cmplx, nColumns_padded, nRows_padded);
+  }
 
   // Do the inverse FFT on the product array:
   if (debugStatus >= 2)
     printf("Performing inverse FFT of multiplied image ...\n");
   fftw_execute(plan_inverse);
 
-//   if (debugStatus >= 3) {
-//     printf("The whole (padded) convolved image [convolvedImage_cmplx, rescaled], row by row:\n");
-//     for (int i = 0; i < nRows_padded; i++) {   // step by row number = y
-//       for (int j = 0; j < nColumns_padded; j++)   // step by column number = x
-//         printf(" %9f", fabs(convolvedImage_cmplx[i*nColumns_padded + j][0] / nPixels_padded));
-//       printf("\n");
-//     }
-//     printf("\n");
-//   }
+  if (debugStatus >= 3) {
+    printf("The whole (padded) convolved image [convolvedImage_out, rescaled], row by row:\n");
+    for (int i = 0; i < nRows_padded; i++) {   // step by row number = y
+      for (int j = 0; j < nColumns_padded; j++)   // step by column number = x
+        printf(" %9f", fabs(convolvedImage_out[i*nColumns_padded + j] / nPixels_padded));
+      printf("\n");
+    }
+    printf("\n");
+  }
 
-  // Extract & rescale the convolved image and copy into
-  // input pixel vector:
+  // Extract & rescale the convolved image and copy into input pixel vector:
   for (ii = 0; ii < nRows_image; ii++) {   // step by row number = y
     for (jj = 0; jj < nColumns_image; jj++) {  // step by column number = x
-      realPart = convolvedImage_out[ii*nColumns_padded + jj];
-      pixelVector[ii*nColumns_image + jj] = rescaleFactor * realPart;
+      rawValue = convolvedImage_out[ii*nColumns_padded + jj];
+      pixelVector[ii*nColumns_image + jj] = rescaleFactor * rawValue;
     }
   }
 }
+
 
 
 /// Takes the input PSF (assumed to be centered in the central pixel

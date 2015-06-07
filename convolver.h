@@ -77,9 +77,11 @@ class Convolver
   int  nRows_padded, nColumns_padded;
   int  maxRequestedThreads;
   double  rescaleFactor;
-  double  *imagePixels;
+//  double  *imagePixels;
   double  *psfPixels;
-  double  *convolvedData_real, *convolvedData_padded;
+//  double  *convolvedData_real, *convolvedData_padded;
+  double  *image_in_padded, *psf_in_padded, *convolvedImage_out;
+  int  nPixels_padded_complex;
   fftw_complex  *image_fft_cmplx;
   fftw_complex  *psf_fft_cmplx;
   fftw_complex  *multiplied_cmplx;
@@ -88,8 +90,6 @@ class Convolver
   int  debugStatus;
   
   // new stuff for FFTW experimentation
-  int  nPixels_padded_complex;
-  double  *image_in_padded, *psf_in_padded, *convolvedImage_out;
 
 };
 
