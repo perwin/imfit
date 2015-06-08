@@ -31,9 +31,11 @@ SolverResults::SolverResults( )
   whichSolver = MPFIT_SOLVER;
   whichFitStatistic = FITSTAT_CHISQUARE;
   bestFitValue = 0.0;
+  paramSigmasPresent = false;
   paramSigmasAllocated = false;
   paramSigmas = NULL;
   mpResultsPresent = false;
+  solverName = "";
   
   nFuncEvals = 0;
   
@@ -100,12 +102,8 @@ void SolverResults::AddMPResults( mp_result& mpResult_input )
   mpResult.nfunc = mpResult_input.nfunc;
   // if parameter uncertainties are present, copy those into the paramSigmas array;
   // don't both keeping an extra copy within the mp_result struct
-  if (mpResult_input.xerror != NULL) {
-    paramSigmas = (double *)calloc(nParameters, sizeof(double));
-    paramSigmasAllocated = true;
-    for (int i = 0; i < nParameters; i++)
-      paramSigmas[i] = mpResult_input.xerror[i];
-  }
+  if (mpResult_input.xerror != NULL)
+    StoreErrors(mpResult_input.xerror, nParameters);
   // ignore mpResult_input.resid and mpResult_input.covar
   
   mpResultsPresent = true;
@@ -115,11 +113,33 @@ void SolverResults::AddMPResults( mp_result& mpResult_input )
 void SolverResults::SetSolverType( int solverType )
 {
   whichSolver = solverType;
+  switch (whichSolver) {
+    case MPFIT_SOLVER:
+      solverName = "Levenberg-Marquardt";
+      break;
+    case DIFF_EVOLN_SOLVER:
+      solverName = "Differential Evolution";
+      break;
+    case NMSIMPLEX_SOLVER:
+      solverName = "Nelder-Mead Simplex";
+      break;
+  }
 }
 
 int SolverResults::GetSolverType( )
 {
   return whichSolver;
+}
+
+
+void SolverResults::SetSolverName( string& name )
+{
+  solverName = name;
+}
+
+string& SolverResults::GetSolverName( )
+{
+  return solverName;
 }
 
 
@@ -134,7 +154,7 @@ int SolverResults::GetFitStatisticType( )
 }
 
 
-void SolverResults::SetBestfitStatisticValue( double fitStatValue )
+void SolverResults::StoreBestfitStatisticValue( double fitStatValue )
 {
   bestFitValue = fitStatValue;
 }
@@ -146,7 +166,7 @@ double SolverResults::GetBestfitStatisticValue( )
 
 
 
-void SolverResults::SetNFunctionEvals( int nFunctionEvals )
+void SolverResults::StoreNFunctionEvals( int nFunctionEvals )
 {
   nFuncEvals = nFunctionEvals;
 }
@@ -157,11 +177,23 @@ int SolverResults::GetNFunctionEvals( )
 }
 
 
-void SolverResults::SetErrors( double *errors, int nParams )
+bool SolverResults::ErrorsPresent( )
+{
+  return paramSigmasPresent;
+}
+
+void SolverResults::StoreErrors( double *errors, int nParams )
 {
   nParameters = nParams;
   paramSigmas = (double *)calloc(nParameters, sizeof(double));
   paramSigmasAllocated = true;
   for (int i = 0; i < nParameters; i++)
     paramSigmas[i] = errors[i];
+  paramSigmasPresent = true;
+}
+
+void SolverResults::GetErrors( double *errors )
+{
+  for (int i = 0; i < nParameters; i++)
+    errors[i] = paramSigmas[i];
 }

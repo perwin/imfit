@@ -104,7 +104,8 @@ lib_list_1d = ["fftw3","cfitsio",  "m"]
 
 
 include_path = ["/usr/local/include", FUNCTION_SUBDIR]
-lib_path = ["/usr/local/lib"]
+#lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
+lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
 
 

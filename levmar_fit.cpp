@@ -100,6 +100,12 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
     printf("\n");
   }
   
+  // Store information about the optimization, if SolverResults object was supplied
+  if (solverResults != NULL) {
+    solverResults->SetSolverType(MPFIT_SOLVER);
+    solverResults->AddMPResults(mpfitResult);
+  }
+
   free(paramErrs);
   return status;
 }

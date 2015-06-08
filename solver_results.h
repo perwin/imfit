@@ -1,6 +1,8 @@
 #ifndef _SOLVER_RESULTS_H_
 #define _SOLVER_RESULTS_H_
 
+#include <string>
+
 #include "mpfit_cpp.h"
 
 using namespace std;
@@ -19,26 +21,34 @@ class SolverResults
     void SetSolverType( int solverType );
     int GetSolverType( );
 
+    void SetSolverName( string& name );
+    string& GetSolverName( );
+
     void SetFitStatisticType( int fitStatType );
     int GetFitStatisticType( );
     
-    void SetBestfitStatisticValue( double fitStatValue );
+    void StoreBestfitStatisticValue( double fitStatValue );
     double GetBestfitStatisticValue( );
 
-    void SetNFunctionEvals( int nFunctionEvals );
+    void StoreNFunctionEvals( int nFunctionEvals );
     int GetNFunctionEvals( );
     
-    void SetErrors( double *errors, int nParams );
+    bool ErrorsPresent( );
+    void StoreErrors( double *errors, int nParams );
+    void GetErrors( double *errors );
 
 
   private:
     int  whichSolver;
     int  whichFitStatistic;
+    int  nParameters;
+    int  nFuncEvals;
+    string  solverName;
     double  bestFitValue;
-    bool paramSigmasAllocated;
-    int nParameters, nFuncEvals;
-    double *paramSigmas;
-    bool mpResultsPresent;
+    bool  paramSigmasPresent;
+    bool  paramSigmasAllocated;
+    double  *paramSigmas;
+    bool  mpResultsPresent;
     mp_result mpResult;
   
 };
