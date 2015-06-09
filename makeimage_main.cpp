@@ -110,8 +110,10 @@ int main( int argc, char *argv[] )
   SetDefaultMakeimageOptions(&options);
   ProcessInput(argc, argv, &options);
   
+  
   if ((options.printFluxes) && (! options.saveImage) && (! options.printImages))
     printFluxesOnly = true;
+
 
   /* Read configuration file */
   if (! FileExists(options.configFileName.c_str())) {
@@ -130,10 +132,13 @@ int main( int argc, char *argv[] )
   // Parse and process user-supplied (non-function) values from config file, if any
   HandleConfigFileOptions(&userConfigOptions, &options);
 
+
   if (! options.saveImage) {
     printf("\nUser requested that no images be saved!\n\n");
   }
   
+  
+  // Determine size of model image
   if ((options.nColumns > 0) && (options.nRows > 0))
     options.noImageDimensions = false;
   if ( (options.noRefImage) && (options.noImageDimensions)) {
@@ -148,7 +153,7 @@ int main( int argc, char *argv[] )
       options.nRows = 2;
     }
   }
-  /* Get image size from reference image, if necessary */
+  // Get image size from reference image, if necessary
   if ((! printFluxesOnly) && (options.noImageDimensions)) {
     status = GetImageSize(options.referenceImageName, &nColumns, &nRows);
     if (status != 0) {
@@ -167,7 +172,7 @@ int main( int argc, char *argv[] )
   }
   
 
-  /* Read in PSF image, if supplied */
+  // Read in PSF image, if supplied
   if (options.psfImagePresent) {
     printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
     psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
@@ -183,7 +188,7 @@ int main( int argc, char *argv[] )
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
-  /* Read in oversampled PSF image, if supplied */
+  // Read in oversampled PSF image, if supplied
   if (options.psfOversampledImagePresent) {
     if (options.psfOversamplingScale < 1) {
       fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n\n");
@@ -208,6 +213,7 @@ int main( int argc, char *argv[] )
     GetAllCoordsFromBracket(options.psfOversampleRegion, &x1_oversample, &x2_oversample, 
     						&y1_oversample, &y2_oversample);
   }
+
 
   if (! options.subsamplingFlag)
     printf("* Pixel subsampling has been turned OFF.\n");
@@ -268,7 +274,6 @@ int main( int argc, char *argv[] )
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));
   for (int i = 0; i < nParamsTot; i++)
     paramsVect[i] = parameterList[i];
-
 
   if (! printFluxesOnly) {
     // OK, we're generating a normal model image
