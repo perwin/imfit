@@ -69,7 +69,7 @@ const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;
 
 // Module variables -- used to control user feedback within myfunc_nlopt
 static int  verboseOutput;
-static int  funcCount = 0;
+static int  funcCallCount = 0;
 nlopt_opt  optimizer;
 
 
@@ -89,11 +89,11 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
   fitStatistic = theModel->GetFitStatistic(params);
   
   // feedback to user
-  funcCount++;
+  funcCallCount++;
   if (verboseOutput > 0) {
-    if ((funcCount % FUNCS_PER_REPORTING_STEP) == 0) {
-      printf("\tN-M simplex: function call %d: objective = %f\n", funcCount, fitStatistic);
-      if ( (verboseOutput > 1) && ((funcCount % (REPORT_STEPS_PER_VERBOSE_OUTPUT*FUNCS_PER_REPORTING_STEP)) == 0) ) {
+    if ((funcCallCount % FUNCS_PER_REPORTING_STEP) == 0) {
+      printf("\tN-M simplex: function call %d: objective = %f\n", funcCallCount, fitStatistic);
+      if ( (verboseOutput > 1) && ((funcCallCount % (REPORT_STEPS_PER_VERBOSE_OUTPUT*FUNCS_PER_REPORTING_STEP)) == 0) ) {
         theModel->PrintModelParams(stdout, params, NULL, NULL);
       }
     }
@@ -220,6 +220,12 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     printf("%s\n", interpretedResult.c_str());
   }
 
+  // Store information about the optimization, if SolverResults object was supplied
+  if (solverResults != NULL) {
+    solverResults->SetSolverType(NMSIMPLEX_SOLVER);
+    solverResults->StoreNFunctionEvals(funcCallCount);
+    solverResults->StoreBestfitStatisticValue(finalStatisticVal);
+  }
 
   // Dispose of nl_opt object and free arrays:
   nlopt_destroy(optimizer);

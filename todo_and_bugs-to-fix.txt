@@ -1,5 +1,5 @@
 
-** NEAR-TERM FUTURE TOD0:
+** NEAR-TERM FUTURE TODO:
 
 [..] New class encapsulating return metadata from minimizers (like mp_results, but
 for all minimizers)
@@ -15,6 +15,17 @@ for all minimizers)
 		[x] Compare plot with Fig.10 of Peng+2010 in Illustrator
 	-- check that we get I= 0 for r > r_t; possibly introduce shortcut in code
 	to just return 0 in that case.
+		[ ] Generate images (with no subsampling) and compare profiles with
+		output of Python code
+		[ ] Set up unit tests
+
+
+[] Update memory estimation to account for smaller FFT-related arrays
+
+
+[] Option to output default/simple configuration file (and then quite)
+	-- for imfit, this could include e.g. GAIN = 1 as well as single function
+	-- for makeimage, this could include NROWS and NCOLS as well as single function
 
 
 [] Modify handling of oversampled PSF to catch case where user wants entire
@@ -36,6 +47,13 @@ image oversampled
 [] Test generation (and saving?) of FFTW plans
 	-- might require making a cloned repo
 
+
+[] Annotations to describe function parameters
+	-- optional text strings in a FunctionObject class which provide a short, one-line
+	description/reminder of what the parameter is (and maybe its units?)
+	-- printed on same line as parameter name, with "#" in between
+	-- possibly alternate command-line flag to specify this instead of the
+	current, "bare-bones" version
 
 
 

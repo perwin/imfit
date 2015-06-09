@@ -189,6 +189,7 @@ int main(int argc, char *argv[])
     exit(-1);
   }
 
+
   /* Read configuration file, parse & process user-supplied (non-function-related) values */
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
   								paramLimits, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
@@ -435,7 +436,7 @@ int main(int argc, char *argv[])
       }
       else {
         // default mode
-        printf("* No noise image supplied ... will generate noise image from input image.\n");
+        printf("* No noise image supplied ... will generate noise image from input data image.\n");
       }
     }
   }
@@ -596,7 +597,7 @@ int main(int argc, char *argv[])
     }
   }
   if (options.saveResidualImage) {
-    printf("Saving residual (input - model) image in file \"%s\"\n", options.outputResidualFileName.c_str());
+    printf("Saving residual (data - best-fit model) image in file \"%s\"\n", options.outputResidualFileName.c_str());
     status = SaveVectorAsImage(theModel->GetResidualImageVector(), options.outputResidualFileName, 
                       nColumns, nRows, imageCommentsList);
     if (status != 0) {
@@ -644,16 +645,15 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
 
   /* SET THE USAGE/HELP   */
   optParser->AddUsageLine("Usage: ");
-  optParser->AddUsageLine("   imfit [options] imagefile.fits");
+  optParser->AddUsageLine("   imfit [options] <imagefile.fits>");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
   optParser->AddUsageLine(" -v  --version                Prints version number");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine(" -c  --config <config-file>   configuration file [required!]");
-  optParser->AddUsageLine("     --chisquare-only         Print fit statistic (e.g., chi^2) of input model and quit (no fitting done)");
-  optParser->AddUsageLine("     --fitstat-only           Same as --chisquare-only");
-  optParser->AddUsageLine("     --noise <noisemap.fits>  Noise image to use");
+  optParser->AddUsageLine(" -c  --config <config-file>   configuration file [REQUIRED!]");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --noise <noisemap.fits>  Noise/error/weight image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
   optParser->AddUsageLine("");
@@ -661,10 +661,9 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddUsageLine("     --overpsf_scale <n>       Oversampling scale (integer)");
   optParser->AddUsageLine("     --overpsf_region <x1:x2,y1:y2>       Section of image to convolve with oversampled PSF");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --nosubsampling          Do *not* do pixel subsampling near centers of functions");
-  optParser->AddUsageLine("     --save-params <output-file>          Save best-fit parameters in config-file format [default = bestfit_parameters_imfit.dat]");
+  optParser->AddUsageLine("     --save-params <output-file>          Specify filename for best-fit parameters output [default = bestfit_parameters_imfit.dat]");
   optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
-  optParser->AddUsageLine("     --save-residual <outputname.fits>    Save residual (input - model) image");
+  optParser->AddUsageLine("     --save-residual <outputname.fits>    Save residual (data - best-fit model) image");
   optParser->AddUsageLine("     --save-weights <outputname.fits>     Save weight image");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
@@ -682,8 +681,9 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddUsageLine("     --poisson-mlr            Use Poisson maximum-likelihood-ratio statistic instead of chi^2");
   optParser->AddUsageLine("     --mlr                    Same as --poisson-mlr");
   optParser->AddUsageLine("     --ftol                   Fractional tolerance in fit statistic for convergence [default = 1.0e-8]");
+  optParser->AddUsageLine("");
 #ifndef NO_NLOPT
-  optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver (instead of L-M)");
+  optParser->AddUsageLine("     --nm                     Use Nelder-Mead simplex solver (instead of Levenberg-Marquardt)");
   optParser->AddUsageLine("     --nlopt <name>           Select miscellaneous NLopt solver");
 #endif
   optParser->AddUsageLine("     --de                     Use differential evolution solver");
@@ -691,15 +691,20 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine("     --save-bootstrap <filename>        Save all bootstrap best-fit parameters to specified file");
   optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --chisquare-only         Print fit statistic (e.g., chi^2) of input model and quit (no fitting done)");
+  optParser->AddUsageLine("     --fitstat-only           Same as --chisquare-only");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
   optParser->AddUsageLine("     --loud                   Print extra info during the fit");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
   optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --nosubsampling          Turn off pixel subsampling near centers of functions");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
-  optParser->AddUsageLine("   imfit -c model_config_a.dat ngc100.fits");
-  optParser->AddUsageLine("   imfit -c model_config_b.dat ngc100.fits[405:700,844:1060] --mask ngc100_mask.fits[405:700,844:1060] --gain 4.5 --readnoise 0.7");
+  optParser->AddUsageLine("   imfit -c model_config_n100a.dat ngc100.fits");
+  optParser->AddUsageLine("   imfit -c model_config_n100b.dat ngc100.fits[405:700,844:1060] --mask ngc100_mask.fits[405:700,844:1060] --gain 4.5 --readnoise 0.7");
   optParser->AddUsageLine("");
 
 
@@ -903,7 +908,7 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   if (optParser->OptionSet("save-residual")) {
     theOptions->outputResidualFileName = optParser->GetTargetString("save-residual");
     theOptions->saveResidualImage = true;
-    printf("\toutput residual (input - model) image = %s\n", theOptions->outputResidualFileName.c_str());
+    printf("\toutput residual (data - best-fit model) image = %s\n", theOptions->outputResidualFileName.c_str());
   }
   if (optParser->OptionSet("save-weights")) {
     theOptions->outputWeightFileName = optParser->GetTargetString("save-weights");

@@ -156,6 +156,14 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
 
   solver->StoreSolution(paramVector);
 
+  if (solverResults != NULL) {
+    int  populationSize = solver->Population();
+    int  nGenerationsDone = solver->Generations();
+    solverResults->SetSolverType(DIFF_EVOLN_SOLVER);
+    solverResults->StoreNFunctionEvals(nGenerationsDone * populationSize);
+    solverResults->StoreBestfitStatisticValue(solver->Energy());
+  }
+  
   delete solver;
   free(minParamValues);
   free(maxParamValues);

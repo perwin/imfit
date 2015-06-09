@@ -286,26 +286,6 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     currentSolverName = solverName;
   }
 
-//   switch (whichSolver) {
-//     case NLOPT_SOLVER_COBYLA: // COBYLA
-//       algorithmName = NLOPT_LN_COBYLA;
-//       break;
-//     case NLOPT_SOLVER_BOBYQA: // BOBYQA
-//       algorithmName = NLOPT_LN_BOBYQA;
-//       break;
-//     case NLOPT_SOLVER_NEWUOA: // NEWUOA + bound constraints
-//       algorithmName = NLOPT_LN_NEWUOA_BOUND;
-//       break;
-//     case NLOPT_SOLVER_PRAXIS: // Principal Axis
-//       algorithmName = NLOPT_LN_PRAXIS;
-//       break;
-//     case NLOPT_SOLVER_NM: // N-M Simplex
-//       algorithmName = NLOPT_LN_NELDERMEAD;
-//       break;
-//     case NLOPT_SOLVER_NLOPT_LN_SBPLX: // COBYLA
-//       algorithmName = NLOPT_LN_SBPLX;
-//       break;
-//   }
 
   // Create an nlopt object, specifying user-specified algorithm
   theOptimizer = nlopt_create(algorithmName, nParamsTot); /* algorithm and dimensionality */
@@ -337,6 +317,12 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   if (verbose >= 0)
     InterpretResult(result, algorithmName);
 
+  // Store information about the optimization, if SolverResults object was supplied
+  if (solverResults != NULL) {
+    solverResults->SetSolverType(GENERIC_NLOPT_SOLVER);
+    solverResults->StoreNFunctionEvals(funcCallCount);
+    solverResults->StoreBestfitStatisticValue(finalStatisticVal);
+  }
 
   // Dispose of nl_opt object and free arrays:
   nlopt_destroy(theOptimizer);

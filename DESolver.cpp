@@ -59,12 +59,10 @@ DESolver::DESolver( int dim, int popSize ) :
   maxBounds = new double[nDim];
   // tolerance for convergence testing
   tolerance = DEFAULT_TOLERANCE;
-  
-  return;
 }
 
 
-DESolver::~DESolver(void)
+DESolver::~DESolver( )
 {
   if (trialSolution) delete trialSolution;
   if (bestSolution) delete bestSolution;
@@ -76,7 +74,6 @@ DESolver::~DESolver(void)
   if (maxBounds) delete maxBounds;
 
   trialSolution = bestSolution = popEnergy = population = 0;
-  return;
 }
 
 
@@ -105,52 +102,6 @@ void DESolver::Setup( double *min, double *max,
 
   for (i = 0; i < nDim; i++)
     bestSolution[i] = 0.0;
-
-  // modified (commented out) by PE
-//  switch (strategy)
-//  {
-//    case stBest1Exp:
-//      calcTrialSolution = Best1Exp;
-//      break;
-// 
-//    case stRand1Exp:
-//      calcTrialSolution = Rand1Exp;
-//      break;
-// 
-//    case stRandToBest1Exp:
-//      calcTrialSolution = RandToBest1Exp;
-//      break;
-// 
-//    case stBest2Exp:
-//      calcTrialSolution = Best2Exp;
-//      break;
-// 
-//    case stRand2Exp:
-//      calcTrialSolution = Rand2Exp;
-//      break;
-// 
-//    case stBest1Bin:
-//      calcTrialSolution = Best1Bin;
-//      break;
-// 
-//    case stRand1Bin:
-//      calcTrialSolution = Rand1Bin;
-//      break;
-// 
-//    case stRandToBest1Bin:
-//      calcTrialSolution = RandToBest1Bin;
-//      break;
-// 
-//    case stBest2Bin:
-//      calcTrialSolution = Best2Bin;
-//      break;
-// 
-//    case stRand2Bin:
-//      calcTrialSolution = Rand2Bin;
-//      break;
-//  }
-
-  return;
 }
 
 
@@ -506,8 +457,6 @@ void DESolver::Rand2Bin( int candidate )
                       - Element(population,r5,n));
     n = (n + 1) % nDim;
   }
-
-  return;
 }
 
 
@@ -544,91 +493,11 @@ void DESolver::SelectSamples( int candidate, int *r1, int *r2, int *r3, int *r4,
     } while ((*r5 == candidate) || (*r5 == *r4) || (*r5 == *r3)
                           || (*r5 == *r2) || (*r5 == *r1));
   }
-
-  return;
 }
 
 
-/*------Constants for RandomUniform()---------------------------------------*/
-// #define SEED 3
-// #define IM1 2147483563
-// #define IM2 2147483399
-// #define AM (1.0/IM1)
-// #define IMM1 (IM1-1)
-// #define IA1 40014
-// #define IA2 40692
-// #define IQ1 53668
-// #define IQ2 52774
-// #define IR1 12211
-// #define IR2 3791
-// #define NTAB 32
-// #define NDIV (1+IMM1/NTAB)
-// #define EPS 1.2e-7
-// #define RNMX (1.0-EPS)
-// 
-// double DESolver::RandomUniform2( double minValue, double maxValue )
-// {
-//   long j;
-//   long k;
-//   static long idum;
-//   static long idum2 = 123456789;
-//   static long iy = 0;
-//   static long iv[NTAB];
-//   double result;
-// 
-//   if (iy == 0)
-//     idum = SEED;
-// 
-//   if (idum <= 0) {
-//     if (-idum < 1)
-//       idum = 1;
-//     else
-//       idum = -idum;
-// 
-//     idum2 = idum;
-// 
-//     for (j = NTAB + 7; j >= 0; j--) {
-//       k = idum / IQ1;
-//       idum = IA1 * (idum - k*IQ1) - k*IR1;
-//       if (idum < 0) idum += IM1;
-//       if (j < NTAB) iv[j] = idum;
-//     }
-// 
-//     iy = iv[0];
-//   }
-// 
-//   k = idum / IQ1;
-//   idum = IA1 * (idum - k*IQ1) - k*IR1;
-// 
-//   if (idum < 0)
-//     idum += IM1;
-// 
-//   k = idum2 / IQ2;
-//   idum2 = IA2 * (idum2 - k*IQ2) - k*IR2;
-// 
-//   if (idum2 < 0)
-//     idum2 += IM2;
-// 
-//   j = iy / NDIV;
-//   iy = iv[j] - idum2;
-//   iv[j] = idum;
-// 
-//   if (iy < 1)
-//     iy += IMM1;
-// 
-//   result = AM * iy;
-// 
-//   if (result > RNMX)
-//     result = RNMX;
-// 
-//   result = minValue + result * (maxValue - minValue);
-//   return(result);
-// }
-
-
-
-// Function added by PE: better random-number-generation function (uses
-// Mersenne Twister and doesn't have a constant seed!)
+/// Function added by PE: better random-number-generation function (uses
+/// Mersenne Twister and doesn't have a constant seed!)
 double DESolver::RandomUniform( double minValue, double maxValue )
 {
   double  uniformRand, result;
@@ -639,9 +508,9 @@ double DESolver::RandomUniform( double minValue, double maxValue )
 }
 
 
-// Function added by PE: test for convergence
-// If the last three stored objective-function values (values are stored every 10
-// generations) are all < TOLERANCE, then we decide that we have converged.
+/// Function added by PE: test for convergence
+/// If the last three stored objective-function values (values are stored every 10
+/// generations) are all < TOLERANCE, then we decide that we have converged.
 bool TestConverged( double *relativeDeltas, double ftol )
 {
   if ((relativeDeltas[0] < ftol) && (relativeDeltas[1] < ftol) 
