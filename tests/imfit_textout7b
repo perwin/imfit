@@ -13,4 +13,4 @@ Function: FlatSky
 3 total parameters
 Estimated memory use: 720 bytes (0.0 MB)
 Model Object: 9 data values (pixels)
-* No noise image supplied ... will generate noise image from input image.
+* No noise image supplied ... will generate noise image from input data image.

@@ -20,7 +20,13 @@ for all minimizers)
 		[ ] Set up unit tests
 
 
-[] Update memory estimation to account for smaller FFT-related arrays
+[x] Update memory estimation to account for smaller FFT-related arrays
+
+
+[] Update memory estimation to account for possible oversampled PSF use
+
+
+[] Add "const" specifies to input parameters of functions, as appropriate
 
 
 [] Option to output default/simple configuration file (and then quite)
