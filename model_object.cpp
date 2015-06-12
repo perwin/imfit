@@ -1595,6 +1595,10 @@ long ModelObject::EstimateMemoryUse( int nData_cols, int nData_rows, int nPSF_co
 {
   long  nBytesNeeded = 0.0;
   long  nPaddedPixels = 0;
+  long  nPaddedPixels_cmplx = 0;
+  int  nCols_padded = 0;
+  int  nRows_padded = 0;
+  int  nCols_padded_trimmed = 0;
   long  nDataPixels = (long)(nData_cols * nData_rows);
   long  dataSize = (long)(nDataPixels * DOUBLE_SIZE);
   int  nModel_rows, nModel_cols;
@@ -1609,8 +1613,13 @@ long ModelObject::EstimateMemoryUse( int nData_cols, int nData_rows, int nPSF_co
     nModel_rows = nData_rows + 2*nPSF_rows;
     nModelPixels = (long)(nModel_cols * nModel_rows);
     // Convolver stuff
-    nPaddedPixels = (long)((nModel_cols + nPSF_cols) * (nModel_rows + nPSF_rows));
-    nBytesNeeded += (long)(6 * nPaddedPixels * FFTW_SIZE);    // 6 fftw_complex arrays allocated in Convolver
+    nCols_padded = nModel_cols + nPSF_cols - 1;
+    nRows_padded = nModel_rows + nPSF_rows - 1;
+    nCols_padded_trimmed = (int)(floor(nCols_padded/2)) + 1;
+    nPaddedPixels = (long)(nCols_padded * nRows_padded);
+    nPaddedPixels_cmplx = (long)(nCols_padded_trimmed * nRows_padded);
+    nBytesNeeded += (long)(3 * nPaddedPixels * DOUBLE_SIZE);
+    nBytesNeeded += (long)(3 * nPaddedPixels_cmplx * FFTW_SIZE);    // 3 fftw_complex arrays allocated in Convolver
   }
   else
     nModelPixels = nDataPixels;
