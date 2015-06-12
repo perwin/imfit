@@ -1,6 +1,6 @@
-Nelder-Mead Simplex: status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
-
   CASH STATISTIC = -2611601.272876
+  NFEV = 329
+
 AIC = -2611589.269141, BIC = -2611541.145252
 
 X0		75.0318

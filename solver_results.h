@@ -17,6 +17,7 @@ class SolverResults
     ~SolverResults( );
 
     void AddMPResults( mp_result& mpResult );
+    mp_result* GetMPResults( );
 
     void SetSolverType( int solverType );
     int GetSolverType( );
@@ -27,6 +28,9 @@ class SolverResults
     void SetFitStatisticType( int fitStatType );
     int GetFitStatisticType( );
     
+    void StoreInitialStatisticValue( double fitStatValue );
+    double GetInitialStatisticValue( );
+
     void StoreBestfitStatisticValue( double fitStatValue );
     double GetBestfitStatisticValue( );
 
@@ -43,13 +47,14 @@ class SolverResults
     int  whichFitStatistic;
     int  nParameters;
     int  nFuncEvals;
-    string  solverName;
+    double  initialFitStatistic;
     double  bestFitValue;
     bool  paramSigmasPresent;
     bool  paramSigmasAllocated;
     double  *paramSigmas;
     bool  mpResultsPresent;
     mp_result mpResult;
+    string  solverName;
   
 };
 

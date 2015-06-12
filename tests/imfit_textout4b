@@ -18,21 +18,21 @@ Function: Exponential
 Estimated memory use: 12493225 bytes (11.9 MB)
 Model Object: 30000 data values (pixels)
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
-* No noise image supplied ... will generate noise image from input image.
+* No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
 Setting up parameter information array ...
 11 free parameters (28743 degrees of freedom)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 1377102.129936
-	mpfit iteration 2: fit statistic = 1050143.169612
-	mpfit iteration 3: fit statistic = 120529.155427
-	mpfit iteration 4: fit statistic = 71409.415817
-	mpfit iteration 5: fit statistic = 43866.194339
-	mpfit iteration 6: fit statistic = 36911.993610
-	mpfit iteration 7: fit statistic = 36828.859310
-	mpfit iteration 8: fit statistic = 36828.611698
+	mpfit iteration 1: fit statistic = 1377101.183151
+	mpfit iteration 2: fit statistic = 1050143.771217
+	mpfit iteration 3: fit statistic = 120523.344366
+	mpfit iteration 4: fit statistic = 71408.747601
+	mpfit iteration 5: fit statistic = 43867.364321
+	mpfit iteration 6: fit statistic = 36911.997009
+	mpfit iteration 7: fit statistic = 36828.859315
+	mpfit iteration 8: fit statistic = 36828.611697
 	mpfit iteration 9: fit statistic = 36828.581710
 	mpfit iteration 10: fit statistic = 36828.578450
 	mpfit iteration 11: fit statistic = 36828.578059
@@ -59,9 +59,9 @@ n		3.28046 # +/- 0.0340831
 I_e		1.45249 # +/- 0.0499468
 r_e		 26.797 # +/- 0.648142
 FUNCTION Exponential
-PA		51.7247 # +/- 0.806568
+PA		51.7247 # +/- 0.806569
 ell		0.352234 # +/- 0.0140126
-I_0		0.73783 # +/- 0.0333997
+I_0		0.737829 # +/- 0.0333997
 h		53.6064 # +/- 1.16482
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"

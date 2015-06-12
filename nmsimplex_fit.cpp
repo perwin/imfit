@@ -158,7 +158,7 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
 {
   nlopt_result  result;
   int  maxEvaluations;
-  double  finalStatisticVal;
+  double  initialStatisticVal, finalStatisticVal;
   double  *minParamValues;
   double  *maxParamValues;
   bool  paramLimitsExist = true;
@@ -210,6 +210,9 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     nlopt_set_upper_bounds(optimizer, maxParamValues);
   }
   
+  // record initial fit-statistic value
+  initialStatisticVal = theModel->GetFitStatistic(paramVector);
+  
   // Specify level of verbosity and start the optimization
   verboseOutput = verbose;
   result = nlopt_optimize(optimizer, paramVector, &finalStatisticVal);
@@ -225,6 +228,7 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     solverResults->SetSolverType(NMSIMPLEX_SOLVER);
     solverResults->StoreNFunctionEvals(funcCallCount);
     solverResults->StoreBestfitStatisticValue(finalStatisticVal);
+    solverResults->StoreInitialStatisticValue(initialStatisticVal);
   }
 
   // Dispose of nl_opt object and free arrays:

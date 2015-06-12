@@ -223,7 +223,7 @@ int SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
   
   // Insert keyword writing here ...
   if (comments.size() > 0) {
-    for (int i = 0; i < comments.size(); i++)
+    for (int i = 0; i < (int)comments.size(); i++)
       fits_write_comment(imfile_ptr, comments[i].c_str(), &status);
   }
   fits_write_date(imfile_ptr, &status);

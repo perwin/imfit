@@ -25,19 +25,6 @@ Setting up parameter information array ...
   CASH STATISTIC = -305659765.743167
 AIC = -305659743.733982, BIC = -305659652.811314
 
-X0		101.0000
-Y0		97.0000
-FUNCTION Sersic
-PA		    110
-ell		    0.2
-n		    1.5
-I_e		    150
-r_e		     15
-FUNCTION Exponential
-PA		     55
-ell		    0.2
-I_0		     70
-h		     45
 
 Done!
 

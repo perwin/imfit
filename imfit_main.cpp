@@ -48,10 +48,12 @@
 #include "model_object.h"
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
+#include "solver_results.h"
 #include "bootstrap_errors.h"
 #include "option_struct_imfit.h"
 
 // Solvers (optimization algorithms)
+#include "dispatch_solver.h"
 #include "levmar_fit.h"
 #include "diff_evoln_fit.h"
 #ifndef NO_NLOPT
@@ -139,6 +141,7 @@ int main(int argc, char *argv[])
   bool  allFilesPresent;
   mp_par  *parameterInfo;
   int  status, fitStatus, nSucessfulIterations;
+  SolverResults  resultsFromSolver;
   vector<string>  imageCommentsList;
   imfitCommandOptions  options;
   configOptions  userConfigOptions;
@@ -504,7 +507,8 @@ int main(int argc, char *argv[])
   if (options.printFitStatisticOnly) {
     printf("\n");
     status = 1;
-    PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, status);
+    PrintFitStatistic(paramsVect, theModel, nFreeParams);
+//    PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
     options.saveBestFitParams = false;
   }
@@ -520,42 +524,48 @@ int main(int argc, char *argv[])
     else
       printf("chi^2 (data-based errors):\n");
     
-    if (options.solver == MPFIT_SOLVER) {
-      printf("Calling Levenberg-Marquardt solver ...\n");
-      fitStatus = LevMarFit(nParamsTot, nFreeParams, nPixels_tot, paramsVect, parameterInfo, 
-      						theModel, options.ftol, paramLimitsExist, options.verbose);
-    }
-    else if (options.solver == DIFF_EVOLN_SOLVER) {
-      printf("Calling Differential Evolution solver ..\n");
-      fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      							options.verbose);
-      printf("\n");
-      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-      printf("\n");
-    }
-#ifndef NO_NLOPT
-    else if (options.solver == NMSIMPLEX_SOLVER) {
-      printf("Calling Nelder-Mead Simplex solver ..\n");
-      fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      							options.verbose);
-      printf("\n");
-      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-      printf("\n");
-    }
-    else if (options.solver == GENERIC_NLOPT_SOLVER) {
-      printf("\nCalling miscellaneous NLOpt solver ..\n");
-      fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      						options.verbose, options.nloptSolverName);
-      printf("\n");
-      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-      printf("\n");
-    }
-#endif
+    fitStatus = DispatchToSolver(options.solver, nParamsTot, nFreeParams, nPixels_tot, 
+    							paramsVect, parameterInfo, theModel, options.ftol, paramLimitsExist, 
+    							options.verbose, &resultsFromSolver, options.nloptSolverName);
+    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
+
+
+//     if (options.solver == MPFIT_SOLVER) {
+//       printf("Calling Levenberg-Marquardt solver ...\n");
+//       fitStatus = LevMarFit(nParamsTot, nFreeParams, nPixels_tot, paramsVect, parameterInfo, 
+//       						theModel, options.ftol, paramLimitsExist, options.verbose,
+//       						&resultsFromSolver);
+//     }
+//     else if (options.solver == DIFF_EVOLN_SOLVER) {
+//       printf("Calling Differential Evolution solver ..\n");
+//       fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+//       							options.verbose, &resultsFromSolver);
+//       printf("\n");
+//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+//       printf("\n");
+//     }
+// #ifndef NO_NLOPT
+//     else if (options.solver == NMSIMPLEX_SOLVER) {
+//       printf("Calling Nelder-Mead Simplex solver ..\n");
+//       fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+//       							options.verbose, &resultsFromSolver);
+//       printf("\n");
+//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+//       printf("\n");
+//     }
+//     else if (options.solver == GENERIC_NLOPT_SOLVER) {
+//       printf("\nCalling miscellaneous NLOpt solver ..\n");
+//       fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+//       						options.verbose, options.nloptSolverName, &resultsFromSolver);
+//       printf("\n");
+//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+//       printf("\n");
+//     }
+// #endif
   }
 
 
   // Optional bootstrap resampling
-
   if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
     if (options.outputBootstrapFileName.length() > 0) {
       bootstrapSaveFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");

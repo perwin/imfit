@@ -7,7 +7,7 @@ Function: FlatSky
 3 total parameters
 Estimated memory use: 720 bytes (0.0 MB)
 Model Object: 9 data values (pixels)
-* No noise image supplied ... will generate noise image from input image.
+* No noise image supplied ... will generate noise image from input data image.
 ModelObject: One pixel with non-finite value found (and masked) in data image
 ModelObject: mask vector applied to weight vector. (8 valid pixels remain)
 Setting up parameter information array ...

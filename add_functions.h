@@ -14,9 +14,9 @@
 using namespace std;
 
 //! Main function which adds a list of FunctionObject instances to an instance of ModelObject
-int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &FunctionBlockIndices, bool subamplingFlag,
-                  int verboseFlag=0 );
+int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
+                  vector<int> &functionBlockIndices, const bool subamplingFlag,
+                  const int verboseFlag=0 );
 
 //! Prints out names of available image functions (FunctionObject classes) to stdout
 void PrintAvailableFunctions( );

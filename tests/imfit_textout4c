@@ -17,7 +17,7 @@ Function: Exponential
 Estimated memory use: 12493225 bytes (11.9 MB)
 Model Object: 30000 data values (pixels)
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
-* No noise image supplied ... will generate noise image from input image.
+* No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
 Setting up parameter information array ...
 11 free parameters (28743 degrees of freedom)
@@ -27,19 +27,6 @@ Setting up parameter information array ...
 Reduced Chi^2 = 8.196992
 AIC = 235628.155855, BIC = 235719.078524
 
-X0		101.0000
-Y0		97.0000
-FUNCTION Sersic
-PA		    110
-ell		    0.2
-n		    1.5
-I_e		    150
-r_e		     15
-FUNCTION Exponential
-PA		     55
-ell		    0.2
-I_0		     70
-h		     45
 
 Done!
 
