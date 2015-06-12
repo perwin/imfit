@@ -12,6 +12,11 @@ which includes SSE2 vectorization (which is available in all Intel and AMD x86-t
 CPUs manufactured since about 2003). In practice, this appears to speed up fits
 with PSF convolution by ~ 20-30%.
 
+- PSF convolution code rewritten to use smaller arrays and slightly faster
+algorithms (taking advantage of the specific real-to-complex, complex-to-real
+transformations in FFTW). The result is a reduction in memory use by ~ 20%, and
+a factor of ~20% speedup in doing PSF convolutions.
+
 - Updates to documentation.
 
 

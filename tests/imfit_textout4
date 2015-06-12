@@ -13,7 +13,7 @@ naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
 Function: Sersic
 Function: Exponential
 11 total parameters
-Estimated memory use: 12493225 bytes (11.9 MB)
+Estimated memory use: 8747785 bytes (8.3 MB)
 Model Object: 30000 data values (pixels)
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
 * No noise image supplied ... will generate noise image from input data image.
@@ -23,20 +23,20 @@ Setting up parameter information array ...
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 49095.069524
-	mpfit iteration 2: fit statistic = 37345.298242
-	mpfit iteration 3: fit statistic = 37110.187501
-	mpfit iteration 4: fit statistic = 37053.537405
-	mpfit iteration 5: fit statistic = 36993.750770
-	mpfit iteration 6: fit statistic = 36947.464149
-	mpfit iteration 7: fit statistic = 36910.890018
-	mpfit iteration 8: fit statistic = 36882.958325
-	mpfit iteration 9: fit statistic = 36862.501521
-	mpfit iteration 10: fit statistic = 36848.786595
-	mpfit iteration 11: fit statistic = 36841.049096
-	mpfit iteration 12: fit statistic = 36831.937117
-	mpfit iteration 13: fit statistic = 36828.584569
-	mpfit iteration 14: fit statistic = 36828.578485
+	mpfit iteration 1: fit statistic = 49095.069736
+	mpfit iteration 2: fit statistic = 37345.298384
+	mpfit iteration 3: fit statistic = 37110.187443
+	mpfit iteration 4: fit statistic = 37053.537282
+	mpfit iteration 5: fit statistic = 36993.750791
+	mpfit iteration 6: fit statistic = 36947.464245
+	mpfit iteration 7: fit statistic = 36910.890125
+	mpfit iteration 8: fit statistic = 36882.958440
+	mpfit iteration 9: fit statistic = 36862.501608
+	mpfit iteration 10: fit statistic = 36848.786646
+	mpfit iteration 11: fit statistic = 36841.049076
+	mpfit iteration 12: fit statistic = 36831.937529
+	mpfit iteration 13: fit statistic = 36828.584568
+	mpfit iteration 14: fit statistic = 36828.578486
 	mpfit iteration 15: fit statistic = 36828.577740
 	mpfit iteration 16: fit statistic = 36828.577653
 
@@ -50,7 +50,7 @@ Calling Levenberg-Marquardt solver ...
       NFEV = 196
 
 Reduced Chi^2 = 1.281306
-AIC = 36850.586838, BIC = 36941.509507
+AIC = 36850.586838, BIC = 36941.509506
 
 X0		100.7073 # +/- 0.0058
 Y0		97.0877 # +/- 0.0052
@@ -58,12 +58,12 @@ FUNCTION Sersic
 PA		111.919 # +/- 0.264349
 ell		0.184262 # +/- 0.00159888
 n		 3.2805 # +/- 0.0340844
-I_e		78.2972 # +/- 2.69301
-r_e		26.7976 # +/- 0.648101
+I_e		78.2973 # +/- 2.69301
+r_e		26.7975 # +/- 0.648101
 FUNCTION Exponential
 PA		 51.724 # +/- 0.806494
 ell		0.35226 # +/- 0.014009
-I_0		39.7753 # +/- 1.80085
+I_0		39.7754 # +/- 1.80085
 h		53.6058 # +/- 1.16411
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
