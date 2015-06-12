@@ -202,8 +202,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 
 
-int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
-                  vector<int> &FunctionBlockIndices, bool subsamplingFlag, int verboseLevel )
+int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
+                  vector<int> &functionBlockIndices, const bool subsamplingFlag, 
+                  const int verboseLevel )
 {
   int  nFunctions = functionNameList.size();
   string  currentName;
@@ -228,7 +229,7 @@ int AddFunctions( ModelObject *theModel, vector<string> &functionNameList,
   }
   // OK, we're done adding functions; now tell the model object to do some final setup
   // Tell model object about arrangement of functions into common-center sets
-  theModel->DefineFunctionBlocks(FunctionBlockIndices);
+  theModel->DefineFunctionBlocks(functionBlockIndices);
   
   // Tell model object to create vector of parameter labels
   theModel->PopulateParameterNames();
@@ -254,7 +255,7 @@ void PrintAvailableFunctions( )
 
   GetFunctionNames(functionNames);
   printf("\nAvailable function/components:\n\n");
-  for (int i = 0; i < functionNames.size(); i++)
+  for (int i = 0; i < (int)functionNames.size(); i++)
     printf("%s\n", functionNames[i].c_str());
   printf("\n\n");    
 }

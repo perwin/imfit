@@ -16,25 +16,25 @@ Function: Exponential
 Estimated memory use: 12493225 bytes (11.9 MB)
 Model Object: 30000 data values (pixels)
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
-* No noise image supplied ... will generate noise image from input image.
+* No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
 Setting up parameter information array ...
 11 free parameters (28743 degrees of freedom)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 49095.070100
-	mpfit iteration 2: fit statistic = 37345.298234
-	mpfit iteration 3: fit statistic = 37110.187459
-	mpfit iteration 4: fit statistic = 37053.537345
-	mpfit iteration 5: fit statistic = 36993.750764
-	mpfit iteration 6: fit statistic = 36947.464170
-	mpfit iteration 7: fit statistic = 36910.890045
-	mpfit iteration 8: fit statistic = 36882.958358
-	mpfit iteration 9: fit statistic = 36862.501548
-	mpfit iteration 10: fit statistic = 36848.786615
-	mpfit iteration 11: fit statistic = 36841.049087
-	mpfit iteration 12: fit statistic = 36831.937170
+	mpfit iteration 1: fit statistic = 49095.069524
+	mpfit iteration 2: fit statistic = 37345.298242
+	mpfit iteration 3: fit statistic = 37110.187501
+	mpfit iteration 4: fit statistic = 37053.537405
+	mpfit iteration 5: fit statistic = 36993.750770
+	mpfit iteration 6: fit statistic = 36947.464149
+	mpfit iteration 7: fit statistic = 36910.890018
+	mpfit iteration 8: fit statistic = 36882.958325
+	mpfit iteration 9: fit statistic = 36862.501521
+	mpfit iteration 10: fit statistic = 36848.786595
+	mpfit iteration 11: fit statistic = 36841.049096
+	mpfit iteration 12: fit statistic = 36831.937117
 	mpfit iteration 13: fit statistic = 36828.584569
 	mpfit iteration 14: fit statistic = 36828.578485
 	mpfit iteration 15: fit statistic = 36828.577740

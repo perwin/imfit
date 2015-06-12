@@ -18,6 +18,7 @@
 
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "definitions.h"
 #include "mpfit_cpp.h"
@@ -30,6 +31,9 @@ SolverResults::SolverResults( )
 {
   whichSolver = MPFIT_SOLVER;
   whichFitStatistic = FITSTAT_CHISQUARE;
+  nParameters = 0;
+  nFuncEvals = 0;
+  initialFitStatistic = 0.0;
   bestFitValue = 0.0;
   paramSigmasPresent = false;
   paramSigmasAllocated = false;
@@ -37,7 +41,6 @@ SolverResults::SolverResults( )
   mpResultsPresent = false;
   solverName = "";
   
-  nFuncEvals = 0;
   
   mpResult.bestnorm = 0.0;
   mpResult.orignorm = 0.0;
@@ -89,24 +92,31 @@ SolverResults::~SolverResults( )
 void SolverResults::AddMPResults( mp_result& mpResult_input )
 {
   mpResult.bestnorm = mpResult_input.bestnorm;
-  bestFitValue = mpResult_input.bestnorm;
   mpResult.orignorm = mpResult_input.orignorm;
   mpResult.niter = mpResult_input.niter;
   mpResult.nfev = mpResult_input.nfev;
-  nFuncEvals = mpResult_input.nfev;
   mpResult.status = mpResult_input.status;
   mpResult.npar = mpResult_input.npar;
-  nParameters = mpResult_input.npar;
   mpResult.nfree = mpResult_input.nfree;
   mpResult.npegged = mpResult_input.npegged;
   mpResult.nfunc = mpResult_input.nfunc;
+  // ignore mpResult_input.resid and mpResult_input.covar
+  
+  nParameters = mpResult_input.npar;
   // if parameter uncertainties are present, copy those into the paramSigmas array;
   // don't both keeping an extra copy within the mp_result struct
   if (mpResult_input.xerror != NULL)
     StoreErrors(mpResult_input.xerror, nParameters);
-  // ignore mpResult_input.resid and mpResult_input.covar
+  initialFitStatistic = mpResult_input.orignorm;
+  bestFitValue = mpResult_input.bestnorm;
+  nFuncEvals = mpResult_input.nfev;
   
   mpResultsPresent = true;
+}
+
+mp_result* SolverResults::GetMPResults(  )
+{
+  return &mpResult;
 }
 
 
@@ -151,6 +161,17 @@ void SolverResults::SetFitStatisticType( int fitStatType )
 int SolverResults::GetFitStatisticType( )
 {
   return whichFitStatistic;
+}
+
+
+void SolverResults::StoreInitialStatisticValue( double fitStatValue )
+{
+  initialFitStatistic = fitStatValue;
+}
+
+double SolverResults::GetInitialStatisticValue( )
+{
+  return initialFitStatistic;
 }
 
 

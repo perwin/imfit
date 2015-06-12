@@ -507,7 +507,8 @@ int main(int argc, char *argv[])
   if (options.printFitStatisticOnly) {
     printf("\n");
     status = 1;
-    PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, status);
+    PrintFitStatistic(paramsVect, theModel, nFreeParams);
+//    PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
     options.saveBestFitParams = false;
   }
@@ -523,9 +524,11 @@ int main(int argc, char *argv[])
     else
       printf("chi^2 (data-based errors):\n");
     
-    fitStatus = DispatchSolver(options.solver, nParamsTot, nFreeParams, nPixels_tot, paramsVect,
-					parameterInfo, theModel, options.ftol, paramLimitsExist, options.verbose,
-					&resultsFromSolver, options.nloptSolverName);
+    fitStatus = DispatchToSolver(options.solver, nParamsTot, nFreeParams, nPixels_tot, 
+    							paramsVect, parameterInfo, theModel, options.ftol, paramLimitsExist, 
+    							options.verbose, &resultsFromSolver, options.nloptSolverName);
+    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
+
 
 //     if (options.solver == MPFIT_SOLVER) {
 //       printf("Calling Levenberg-Marquardt solver ...\n");

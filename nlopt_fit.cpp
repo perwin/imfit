@@ -241,7 +241,7 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
 {
   nlopt_result  result;
   int  maxEvaluations;
-  double  finalStatisticVal;
+  double  initialStatisticVal, finalStatisticVal;
   double  *minParamValues;
   double  *maxParamValues;
   bool  paramLimitsExist = true;
@@ -310,6 +310,9 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     nlopt_set_upper_bounds(theOptimizer, maxParamValues);
   }
   
+  // record initial fit-statistic value
+  initialStatisticVal = theModel->GetFitStatistic(paramVector);
+
   // Specify level of verbosity and start the optimization
   verboseOutput = verbose;
   result = nlopt_optimize(theOptimizer, paramVector, &finalStatisticVal);
@@ -322,6 +325,7 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     solverResults->SetSolverType(GENERIC_NLOPT_SOLVER);
     solverResults->StoreNFunctionEvals(funcCallCount);
     solverResults->StoreBestfitStatisticValue(finalStatisticVal);
+    solverResults->StoreInitialStatisticValue(initialStatisticVal);
   }
 
   // Dispose of nl_opt object and free arrays:

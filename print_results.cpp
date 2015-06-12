@@ -34,6 +34,7 @@ using namespace std;
 #include "mpfit_cpp.h"
 #include "nmsimplex_fit.h"
 #include "nlopt_fit.h"
+#include "solver_results.h"
 
 #define  FILE_OPEN_ERR_STRING "\n   Couldn't open file \"%s\"\n\n"
 
@@ -59,75 +60,185 @@ void GetSolverSummary( int status, int solverID, string& outputString );
 // Craig Markwardt's testmpfit.c, but will also accomodate results from a fit
 // done with other minimization algorithms, such as Nelder-Mead simplex or
 // Differential Evolution (call with result=0 to indicate non-LM optimizer).
-void PrintResults( double *params, mp_result *mpResult, ModelObject *model,
-									int nFreeParameters, mp_par *parameterInfo, int fitStatus )
+void PrintResults( double *params, ModelObject *model, int nFreeParameters, 
+					mp_par *parameterInfo, int fitStatus, SolverResults& solverResults,
+					bool recomputeStatistic )
 {
   int  i;
   int  nValidPixels = model->GetNValidPixels();
   int  nDegreesFreedom = nValidPixels - nFreeParameters;
-  int  whichStat;
+  int  whichStat, whichSolver;
   string  mpfitMessage;
+  string  fitStatName, reducedStatName;
   double  fitStatistic, aic, bic;
+  bool  printReduced;
+  mp_result  *mpResult;
   
   whichStat = model->WhichFitStatistic();
+  whichSolver = solverResults.GetSolverType();
 
-  // Case of non-LM minimization (e.g., Nelder-Mead simplex, DE)
-  if (mpResult == 0) {
+  if (recomputeStatistic)
+    fitStatistic = model->GetFitStatistic(params);
+  else
+    fitStatistic = solverResults.GetBestfitStatisticValue();
+
+  // Case of mpfit output (L-M minimization)
+  if (whichSolver == MPFIT_SOLVER) {
+    mpResult = solverResults.GetMPResults();
+    InterpretMpfitResult(fitStatus, mpfitMessage);
+    printf("\n*** mpfit status = %d -- %s\n", fitStatus, mpfitMessage.c_str());
+    // Only print results of fit if valid fit was achieved
+    if ((params == 0) || (mpResult == 0))
+      return;
+    if (whichStat == FITSTAT_CASH) {
+      printf("  CASH STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  INITIAL CASH STATISTIC = %f\n", mpResult->orignorm);
+    }
+    else if (whichStat == FITSTAT_POISSON_MLR) {
+      printf("  POISSON-MLR STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  INITIAL POISSON-MLR STATISTIC = %f\n", mpResult->orignorm);
+    }
+    else {
+      printf("  CHI-SQUARE = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  INITIAL CHI^2 = %f\n", mpResult->orignorm);
+    }
+    printf("        NPAR = %d\n", mpResult->npar);
+    printf("       NFREE = %d\n", mpResult->nfree);
+    printf("     NPEGGED = %d\n", mpResult->npegged);
+    printf("     NITER = %d\n", mpResult->niter);
+    printf("      NFEV = %d\n", mpResult->nfev);
+    printf("\n");
+    aic = AIC_corrected(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
+    bic = BIC(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
+    if (whichStat == FITSTAT_CHISQUARE)
+      printf("Reduced Chi^2 = %f\n", mpResult->bestnorm / nDegreesFreedom);
+    if (whichStat == FITSTAT_POISSON_MLR)
+      printf("Reduced Chi^2 equivalent = %f\n", mpResult->bestnorm / nDegreesFreedom);
+    printf("AIC = %f, BIC = %f\n\n", aic, bic);
+    
+    double *paramErrs = (double *)calloc(model->GetNParams(), sizeof(double));
+    solverResults.GetErrors(paramErrs);
+//    model->PrintModelParams(stdout, params, parameterInfo, mpResult->xerror);
+    model->PrintModelParams(stdout, params, parameterInfo, paramErrs);
+    printf("\n");
+    free(paramErrs);
+  }
+  else {
     // Only print results of fit if fitStatus >= 1
     if (fitStatus < 1)
       return;
-    fitStatistic = model->GetFitStatistic(params);
-    if (whichStat == FITSTAT_CASH)
-      printf("  CASH STATISTIC = %f\n", fitStatistic);
+    fitStatName = "CHI-SQUARE";
+    reducedStatName = "Reduced Chi^2";
+    printReduced = true;
+    if (whichStat == FITSTAT_CASH) {
+      fitStatName = "CASH STATISTIC";
+      printReduced = false;
+    }
     else if (whichStat == FITSTAT_POISSON_MLR) {
-      printf("  POISSON-MLR STATISTIC = %f\n", fitStatistic);
-      printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
+      fitStatName = "POISSON-MLR STATISTIC";
+      reducedStatName = "Reduced Chi^2 equivalent";
+//      printf("\n  POISSON-MLR STATISTIC = %f\n", fitStatistic);
+//      printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
     }
-    else {
-      printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
-      printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
-    }
+//     else {
+//       printf("\n  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
+//       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
+//     }
+    printf("\n  %s = %f\n", fitStatName.c_str(), fitStatistic);
+    printf("  NFEV = %d\n\n", solverResults.GetNFunctionEvals());
+    if (printReduced)
+      printf("%s = %f\n", reducedStatName.c_str(), fitStatistic / nDegreesFreedom);
     aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
     bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
     printf("AIC = %f, BIC = %f\n\n", aic, bic);
     // output the best-fit parameters
     model->PrintModelParams(stdout, params, parameterInfo, NULL);
-    return;
+    printf("\n");
   }
+  
+  
+  // Case of non-LM minimization (e.g., Nelder-Mead simplex, DE)
+//   if (mpResult == 0) {
+    // Only print results of fit if fitStatus >= 1
+//     if (fitStatus < 1)
+//       return;
+//     fitStatistic = model->GetFitStatistic(params);
+//     if (whichStat == FITSTAT_CASH)
+//       printf("  CASH STATISTIC = %f\n", fitStatistic);
+//     else if (whichStat == FITSTAT_POISSON_MLR) {
+//       printf("  POISSON-MLR STATISTIC = %f\n", fitStatistic);
+//       printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
+//     }
+//     else {
+//       printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
+//       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
+//     }
+//     aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
+//     bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
+//     printf("AIC = %f, BIC = %f\n\n", aic, bic);
+//     // output the best-fit parameters
+//     model->PrintModelParams(stdout, params, parameterInfo, NULL);
+//     return;
+//   }
   
   // Case of mpfit output (L-M minimization)
-  InterpretMpfitResult(fitStatus, mpfitMessage);
-  printf("*** mpfit status = %d -- %s\n", fitStatus, mpfitMessage.c_str());
-    // Only print results of fit if valid fit was achieved
-  if ((params == 0) || (mpResult == 0))
-    return;
-  if (whichStat == FITSTAT_CASH) {
-    printf("  CASH STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
-    printf("  INITIAL CASH STATISTIC = %f\n", mpResult->orignorm);
-  }
+//   InterpretMpfitResult(fitStatus, mpfitMessage);
+//   printf("*** mpfit status = %d -- %s\n", fitStatus, mpfitMessage.c_str());
+//     // Only print results of fit if valid fit was achieved
+//   if ((params == 0) || (mpResult == 0))
+//     return;
+//   if (whichStat == FITSTAT_CASH) {
+//     printf("  CASH STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+//     printf("  INITIAL CASH STATISTIC = %f\n", mpResult->orignorm);
+//   }
+//   else if (whichStat == FITSTAT_POISSON_MLR) {
+//     printf("  POISSON-MLR STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+//     printf("  INITIAL POISSON-MLR STATISTIC = %f\n", mpResult->orignorm);
+//   }
+//   else {
+//     printf("  CHI-SQUARE = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+//     printf("  INITIAL CHI^2 = %f\n", mpResult->orignorm);
+//   }
+//   printf("        NPAR = %d\n", mpResult->npar);
+//   printf("       NFREE = %d\n", mpResult->nfree);
+//   printf("     NPEGGED = %d\n", mpResult->npegged);
+//   printf("     NITER = %d\n", mpResult->niter);
+//   printf("      NFEV = %d\n", mpResult->nfev);
+//   printf("\n");
+//   aic = AIC_corrected(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
+//   bic = BIC(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
+//   if (whichStat == FITSTAT_CHISQUARE)
+//     printf("Reduced Chi^2 = %f\n", mpResult->bestnorm / nDegreesFreedom);
+//   if (whichStat == FITSTAT_POISSON_MLR)
+//     printf("Reduced Chi^2 equivalent = %f\n", mpResult->bestnorm / nDegreesFreedom);
+//   printf("AIC = %f, BIC = %f\n\n", aic, bic);
+//   
+//   model->PrintModelParams(stdout, params, parameterInfo, mpResult->xerror);
+}
+
+
+
+void PrintFitStatistic( double *params, ModelObject *model, int nFreeParameters )
+{
+  int  nValidPixels = model->GetNValidPixels();
+  int  nDegreesFreedom = nValidPixels - nFreeParameters;
+  int  whichStat = model->WhichFitStatistic();
+  double  fitStatistic = model->GetFitStatistic(params);
+  double  aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
+  double  bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
+
+  if (whichStat == FITSTAT_CASH)
+    printf("  CASH STATISTIC = %f\n", fitStatistic);
   else if (whichStat == FITSTAT_POISSON_MLR) {
-    printf("  POISSON-MLR STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
-    printf("  INITIAL POISSON-MLR STATISTIC = %f\n", mpResult->orignorm);
+    printf("  POISSON-MLR STATISTIC = %f\n", fitStatistic);
+    printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
   }
   else {
-    printf("  CHI-SQUARE = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
-    printf("  INITIAL CHI^2 = %f\n", mpResult->orignorm);
+    printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
+    printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
   }
-  printf("        NPAR = %d\n", mpResult->npar);
-  printf("       NFREE = %d\n", mpResult->nfree);
-  printf("     NPEGGED = %d\n", mpResult->npegged);
-  printf("     NITER = %d\n", mpResult->niter);
-  printf("      NFEV = %d\n", mpResult->nfev);
-  printf("\n");
-  aic = AIC_corrected(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
-  bic = BIC(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
-  if (whichStat == FITSTAT_CHISQUARE)
-    printf("Reduced Chi^2 = %f\n", mpResult->bestnorm / nDegreesFreedom);
-  if (whichStat == FITSTAT_POISSON_MLR)
-    printf("Reduced Chi^2 equivalent = %f\n", mpResult->bestnorm / nDegreesFreedom);
   printf("AIC = %f, BIC = %f\n\n", aic, bic);
-  
-  model->PrintModelParams(stdout, params, parameterInfo, mpResult->xerror);
+
 }
 
 

@@ -11,7 +11,7 @@ Function: Sersic
 7 total parameters
 Estimated memory use: 131072 bytes (0.1 MB)
 Model Object: 4096 data values (pixels)
-* No noise image supplied ... will generate noise image from input image.
+* No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
 Setting up parameter information array ...
 7 free parameters (4089 degrees of freedom)
@@ -20,7 +20,8 @@ Performing fit by minimizing chi^2 (data-based errors):
 Calling Nelder-Mead Simplex solver ..
 Nelder-Mead Simplex: status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
 
-  CHI-SQUARE = 4555.947706    (4089 DOF)
+  CHI-SQUARE = 4555.947706
+  NFEV = 715
 
 Reduced Chi^2 = 1.114196
 AIC = 4569.975103, BIC = 4614.172069

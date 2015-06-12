@@ -12,11 +12,15 @@
 #include "mpfit_cpp.h"
 #include "model_object.h"
 #include "param_struct.h"
+#include "solver_results.h"
 
 
 /// Code for printing the results of a fit to stdout.
-void PrintResults( double *params, mp_result *result, ModelObject *model, 
-			int nFreeParameters, mp_par *parameterInfo, int fitStatus );
+void PrintResults( double *params, ModelObject *model, int nFreeParameters, 
+					mp_par *parameterInfo, int fitStatus, SolverResults& solverResults,
+					bool recomputeStatistic=false );
+
+void PrintFitStatistic( double *params, ModelObject *model, int nFreeParameters );
 
 /// Code for saving the results of a fit to a file.
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 

@@ -63,7 +63,6 @@ static string  fixedIndicatorString = "fixed";
 bool ValidParameterLine( string& currentLine ) {
   vector<string>  stringPieces, stringPieces2;
   string  token2, token3;
-  bool  result = true;
   int  nPieces;
 
   ChopComment(currentLine);
