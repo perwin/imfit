@@ -64,6 +64,7 @@
 #include "commandline_parser.h"
 #include "config_file_parser.h"
 #include "print_results.h"
+#include "estimate_memory.h"
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
@@ -363,7 +364,7 @@ int main(int argc, char *argv[])
     usingCashTerms = true;
   else
     usingCashTerms = false;
-  estimatedMemory = theModel->EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+  estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
   												usingLevMar, usingCashTerms, options.saveResidualImage, 
   												options.saveModel);
   nGBytes = (1.0*estimatedMemory) / GIGABYTE;
