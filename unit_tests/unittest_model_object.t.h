@@ -179,16 +179,16 @@ public:
     
     // This is the correct order
     // add PSF pixels first
-    status = modelObj4a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
+    status4a = modelObj4a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
     // final setup for modelObj4a
     modelObj4a->SetupModelImage(nColumns, nRows);
-    TS_ASSERT_EQUALS(status, 0);
+    TS_ASSERT_EQUALS(status4a, 0);
 
 	// This is the WRONG order
     // final setup for modelObj4b *first*
     modelObj4b->SetupModelImage(nColumns, nRows);
     // then add PSF pixels = wrong order!
-    status = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
-    TS_ASSERT_EQUALS(status, -1);
+    status4b = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
+    TS_ASSERT_EQUALS(status4b, -1);
   }
 };

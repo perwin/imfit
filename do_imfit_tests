@@ -5,10 +5,10 @@
 
 FAILED_TEXT=" ** Test failed. **"
 
-do_fits_tests=$(./py_startup_test.py)
+do_fits_tests=$(./python/py_startup_test.py)
 if [ $do_fits_tests = "0" ]
 then
-  echo -n "Unable to load numpy and/or pyfits Python modules"
+  echo -n "Unable to load numpy and/or pyfits (and/or astropy.io.fits) Python modules"
   echo -n "Tests will skip comparison of FITS files"
 fi
 
@@ -135,7 +135,7 @@ if [ "$1" != "--node" ]
 then
   tail -n 17 test_dump3c > test_dump3c_tail
   echo -n "*** Comparison with archives (tolerances ~ 5e-5 or smaller): tiny SDSS cutout image (DE fit)... "
-  ./compare_imfit_printouts.py test_dump3c_tail tests/imfit_textout3c_tail
+  ./python/compare_imfit_printouts.py test_dump3c_tail tests/imfit_textout3c_tail
 fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud)... "
@@ -236,7 +236,7 @@ fi
 
 if [ $do_fits_tests = "1" ]
 then
-  ./compare_fits_files.py test_weights_data.fits test_weights_model.fits
+  ./python/compare_fits_files.py test_weights_data.fits test_weights_model.fits
 fi
 
 echo -n "*** Diff comparison with archives: catching the case of masking all pixels... "

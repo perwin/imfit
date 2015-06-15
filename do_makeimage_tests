@@ -2,7 +2,7 @@
 
 FAILED_TEXT=" ** Test failed. **"
 
-do_fits_tests=$(./py_startup_test.py)
+do_fits_tests=$(./python/py_startup_test.py)
 if [ $do_fits_tests = "0" ]
 then
   echo -n "Unable to load numpy and/or pyfits Python modules"
@@ -64,7 +64,7 @@ else
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./compare_fits_files.py biggertest.fits tests/biggertest_orig.fits
+  ./python/compare_fits_files.py biggertest.fits tests/biggertest_orig.fits
 fi
 
 echo -n "*** Diff comparison with archives: gensersictest... "
@@ -77,7 +77,7 @@ else
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./compare_fits_files.py gensersictest.fits tests/gensersictest_orig.fits
+  ./python/compare_fits_files.py gensersictest.fits tests/gensersictest_orig.fits
 fi
 
 echo -n "*** Diff comparison with archives: sersic + exponential... "
@@ -90,11 +90,11 @@ else
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./compare_fits_files.py sersic+exp.fits tests/sersic+exp_orig.fits
+  ./python/compare_fits_files.py sersic+exp.fits tests/sersic+exp_orig.fits
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./compare_fits_files.py sersic+exp_b.fits tests/sersic+exp_orig.fits
+  ./python/compare_fits_files.py sersic+exp_b.fits tests/sersic+exp_orig.fits
 fi
 
 echo -n "*** Diff comparison with archives: gensersictest + PSF convolution... "
@@ -109,14 +109,14 @@ else
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./compare_fits_files.py gensersictest_conv.fits tests/gensersictest612_conv_cutout512.fits
+  ./python/compare_fits_files.py gensersictest_conv.fits tests/gensersictest612_conv_cutout512.fits
 fi
 
 if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that single-function images add up to combined-function image... "
   echo ""
 then
-  ./compare_fits_files.py --compare-sum singleImage_conv1_Sersic.fits singleImage_conv2_Exponential.fits sersic+exp_conv.fits
+  ./python/compare_fits_files.py --compare-sum singleImage_conv1_Sersic.fits singleImage_conv2_Exponential.fits sersic+exp_conv.fits
 fi
 
 echo -n "*** Diff comparison with archives: print-fluxes mode... "

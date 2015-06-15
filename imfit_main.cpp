@@ -527,41 +527,8 @@ int main(int argc, char *argv[])
     fitStatus = DispatchToSolver(options.solver, nParamsTot, nFreeParams, nPixels_tot, 
     							paramsVect, parameterInfo, theModel, options.ftol, paramLimitsExist, 
     							options.verbose, &resultsFromSolver, options.nloptSolverName);
+    							
     PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
-
-
-//     if (options.solver == MPFIT_SOLVER) {
-//       printf("Calling Levenberg-Marquardt solver ...\n");
-//       fitStatus = LevMarFit(nParamsTot, nFreeParams, nPixels_tot, paramsVect, parameterInfo, 
-//       						theModel, options.ftol, paramLimitsExist, options.verbose,
-//       						&resultsFromSolver);
-//     }
-//     else if (options.solver == DIFF_EVOLN_SOLVER) {
-//       printf("Calling Differential Evolution solver ..\n");
-//       fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       							options.verbose, &resultsFromSolver);
-//       printf("\n");
-//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-//       printf("\n");
-//     }
-// #ifndef NO_NLOPT
-//     else if (options.solver == NMSIMPLEX_SOLVER) {
-//       printf("Calling Nelder-Mead Simplex solver ..\n");
-//       fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       							options.verbose, &resultsFromSolver);
-//       printf("\n");
-//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-//       printf("\n");
-//     }
-//     else if (options.solver == GENERIC_NLOPT_SOLVER) {
-//       printf("\nCalling miscellaneous NLOpt solver ..\n");
-//       fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       						options.verbose, options.nloptSolverName, &resultsFromSolver);
-//       printf("\n");
-//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-//       printf("\n");
-//     }
-// #endif
   }
 
 
@@ -593,7 +560,8 @@ int main(int argc, char *argv[])
   if (options.saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-    								progNameVersion, argc, argv, nFreeParams, options.solver, fitStatus);
+    								progNameVersion, argc, argv, nFreeParams, options.solver, 
+    								fitStatus, resultsFromSolver);
   }
   if (options.saveModel) {
     PrepareImageComments(&imageCommentsList, progNameVersion, options.outputParameterFileName,

@@ -1,7 +1,7 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-[..] New class encapsulating return metadata from minimizers (like mp_results, but
+[x] New class encapsulating return metadata from minimizers (like mp_results, but
 for all minimizers)
 
 
@@ -60,6 +60,12 @@ image oversampled
 	-- printed on same line as parameter name, with "#" in between
 	-- possibly alternate command-line flag to specify this instead of the
 	current, "bare-bones" version
+
+
+[] Compiling parts of program(s) into a library, which is then linked when
+compiling imfit and makeimage (and other things, like timing). Idea is to set
+things up so it's easier for other people to use "libimfit" without the
+specific input/output functionality/limitations of imfit/makeimage.
 
 
 

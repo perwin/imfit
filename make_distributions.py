@@ -158,10 +158,15 @@ exampleFileDict = {"dir": "examples", "file_list": example_files.split()}
 testing_scripts = """
 do_imfit_tests
 do_makeimage_tests
+"""
+
+python_files = """
+py_startup_test.py
 compare_fits_files.py
 compare_imfit_printouts.py
-py_startup_test.py
 """
+pythonFileDict = {"dir": "python", "file_list": python_files.split()}
+
 
 test_files = """
 config_imfit_expdisk32.dat
@@ -268,6 +273,7 @@ toplevel_source_list = c_file_list + cplusplus_file_list + header_file_list
 documentation_file_list = [ documentationFileDict["dir"] + "/" + fname for fname in documentationFileDict["file_list"] ]
 
 example_file_list = [ exampleFileDict["dir"] + "/" + fname for fname in exampleFileDict["file_list"] ]
+python_file_list = [ pythonFileDict["dir"] + "/" + fname for fname in pythonFileDict["file_list"] ]
 test_file_list = [ testFileDict["dir"] + "/" + fname for fname in testFileDict["file_list"] ]
 
 funcobj_file_list_cpp = [ funcObjFileDict["dir"] + "/" + fname + ".cpp" for fname in funcObjFileDict["file_list"] ]
@@ -277,8 +283,8 @@ funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 
 
 allFileLists = [binary_only_file_list, misc_required_files_list, toplevel_source_list, documentation_file_list,
-				example_file_list, testing_scripts_list, test_file_list, funcobj_file_list]
-subdirs_list = ["docs", "examples", "tests", "function_objects"]
+				example_file_list, python_file_list, testing_scripts_list, test_file_list, funcobj_file_list]
+subdirs_list = ["docs", "examples", "python", "tests", "function_objects"]
 
 
 
@@ -355,6 +361,7 @@ def MakeSourceDist( ):
 	final_file_list += c_file_list
 	final_file_list += cplusplus_file_list
 	final_file_list += funcobj_file_list
+	final_file_list += python_file_list
 	final_file_list += testing_scripts_list
 	final_file_list += test_file_list
 	final_file_list.append("SConstruct")

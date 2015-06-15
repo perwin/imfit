@@ -217,7 +217,9 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
 }
 
 
-
+/// Simple function for computing and printing the fit statistic given the input
+/// parameter vector. Meant for use in imfit_main.cpp with the "--fitstat-only"
+/// (aka "chisquare-only") option
 void PrintFitStatistic( double *params, ModelObject *model, int nFreeParameters )
 {
   int  nValidPixels = model->GetNValidPixels();
@@ -276,10 +278,11 @@ void GetSolverSummary( int status, int solverID, string& outputString )
 /// Saves best-fit parameters (and summary of fit statistics) to a file.
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
                     string& outputFilename, string& programName, int argc, char *argv[],
-                    int nFreeParameters, int whichSolver, int fitStatus  )
+                    int nFreeParameters, int whichSolver, int fitStatus, SolverResults& solverResults )
 {
   FILE  *file_ptr;
   string  statName, algorithmSummary;
+  double  *parameterErrs = NULL;
   
   if ((file_ptr = fopen(outputFilename.c_str(), "w")) == NULL) {
     fprintf(stderr, FILE_OPEN_ERR_STRING, outputFilename.c_str());
@@ -327,7 +330,14 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   fprintf(file_ptr, "#   BIC: %f\n", bic);
   fprintf(file_ptr, "\n");
 
-  model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
+  if (solverResults.ErrorsPresent()) {
+    parameterErrs = (double *)calloc(model->GetNParams(), sizeof(double));
+    solverResults.GetErrors(parameterErrs);
+    model->PrintModelParams(file_ptr, params, parameterInfo, parameterErrs);
+    free(parameterErrs);
+  }
+  else
+    model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
 
   fclose(file_ptr);
 
