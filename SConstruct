@@ -96,6 +96,7 @@ STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 
 FUNCTION_SUBDIR = "function_objects/"
+FUNCTION_1D_SUBDIR = "function_objects_1d/"
 
 os_type = os.uname()[0]
 
@@ -113,7 +114,7 @@ lib_list = ["fftw3", "cfitsio", "m"]
 lib_list_1d = ["fftw3","cfitsio",  "m"]
 
 
-include_path = ["/usr/local/include", FUNCTION_SUBDIR]
+include_path = ["/usr/local/include", FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR]
 #lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
@@ -554,12 +555,14 @@ modelobject1d_obj_string = """model_object model_object_1d oversampled_region do
 modelobject1d_objs = modelobject1d_obj_string.split()
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
-# 1D FunctionObject classes:
-functionobject1d_obj_string = """function_object func1d_gaussian func1d_exp func1d_sersic 
+# 1D FunctionObject classes (note that we have to add a separate entry for function_object.cpp,
+# which is in a different subdirectory):
+functionobject1d_obj_string = """func1d_gaussian func1d_exp func1d_sersic 
 		func1d_core-sersic func1d_broken-exp func1d_moffat func1d_delta func1d_sech 
 		func1d_sech2 func1d_vdksech func1d_gaussian2side  func1d_nuker
 		func1d_n1543majmin_circbulge func1d_n1543majmin func1d_n1543majmin2"""
-functionobject1d_objs = [ FUNCTION_SUBDIR + name for name in functionobject1d_obj_string.split() ]
+functionobject1d_objs = [ FUNCTION_1D_SUBDIR + name for name in functionobject1d_obj_string.split() ]
+functionobject1d_objs.append(FUNCTION_SUBDIR + "function_object")
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
