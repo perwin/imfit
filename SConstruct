@@ -97,6 +97,7 @@ STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
+SOLVER_SUBDIR = "solvers/"
 
 os_type = os.uname()[0]
 
@@ -114,7 +115,7 @@ lib_list = ["fftw3", "cfitsio", "m"]
 lib_list_1d = ["fftw3","cfitsio",  "m"]
 
 
-include_path = ["/usr/local/include", FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR]
+include_path = [".", "/usr/local/include", SOLVER_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR]
 #lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
@@ -480,27 +481,28 @@ functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_st
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
 
+# Solvers and associated code
+solver_obj_string = """levmar_fit mpfit diff_evoln_fit DESolver dispatch_solver solver_results"""
+if useNLopt:
+	solver_obj_string += " nmsimplex_fit nlopt_fit"
+solver_objs = [ SOLVER_SUBDIR + name for name in solver_obj_string.split() ]
+solver_sources = [name + ".cpp" for name in solver_objs]
+
 # Base files for imfit and makeimage:
 base_obj_string = """commandline_parser utilities image_io config_file_parser add_functions"""
 base_objs = base_obj_string.split()
 
-imfit_obj_string = """levmar_fit mpfit diff_evoln_fit DESolver dispatch_solver print_results 
-		bootstrap_errors solver_results estimate_memory imfit_main"""
-if useNLopt:
-	imfit_obj_string += " nmsimplex_fit nlopt_fit"
+imfit_obj_string = """print_results bootstrap_errors estimate_memory imfit_main"""
 imfit_base_objs = base_objs + imfit_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
-# Base files for makeimage:
-# makeimage_base_obj_string = """commandline_parser utilities image_io config_file_parser 
-# 			add_functions makeimage_main"""
 makeimage_base_objs = base_objs + ["makeimage_main"]
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 
 # imfit: put all the object and source-code lists together
-imfit_objs = imfit_base_objs + modelobject_objs + functionobject_objs + c_objs
-imfit_sources = imfit_base_sources + modelobject_sources + functionobject_sources + c_sources
+imfit_objs = imfit_base_objs + modelobject_objs + functionobject_objs + solver_objs + c_objs
+imfit_sources = imfit_base_sources + modelobject_sources + functionobject_sources + solver_sources + c_sources
 
 # makeimage: put all the object and source-code lists together
 makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs + c_objs

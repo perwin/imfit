@@ -13,7 +13,7 @@ CPP=g++-4.9
 echo
 echo "Generating and compiling unit tests for utilities..."
 $CXXTESTGEN --error-printer -o test_runner_utilities.cpp unit_tests/unittest_utilities.t.h 
-$CPP -o test_runner_utilities test_runner_utilities.cpp utilities.cpp -I. -I/usr/local/include -I$CXXTEST
+$CPP -o test_runner_utilities test_runner_utilities.cpp utilities.cpp -I. -Isolvers -I/usr/local/include -I$CXXTEST
 echo "Running unit tests for utilities:"
 ./test_runner_utilities 2> temperror_unittests.log
 
@@ -21,7 +21,7 @@ echo "Running unit tests for utilities:"
 echo
 echo "Generating and compiling unit tests for command-line parser..."
 $CXXTESTGEN --error-printer -o test_runner_cmparser.cpp unit_tests/unittest_commandline_parser.t.h 
-$CPP -Wno-write-strings -o test_runner_cmparser test_runner_cmparser.cpp commandline_parser.cpp utilities.cpp -I. -I/usr/local/include -I$CXXTEST
+$CPP -Wno-write-strings -o test_runner_cmparser test_runner_cmparser.cpp commandline_parser.cpp utilities.cpp -I. -Isolvers -I/usr/local/include -I$CXXTEST
 echo "Running unit tests for command-line parser:"
 ./test_runner_cmparser 2>> temperror.log
 
@@ -29,7 +29,7 @@ echo "Running unit tests for command-line parser:"
 echo
 echo "Generating and compiling unit tests for config-file parser..."
 $CXXTESTGEN --error-printer -o test_runner_config.cpp unit_tests/unittest_config_parser.t.h
-$CPP -o test_runner_config test_runner_config.cpp config_file_parser.cpp utilities.cpp -I. -I/usr/local/include -I$CXXTEST
+$CPP -o test_runner_config test_runner_config.cpp config_file_parser.cpp utilities.cpp -I. -Isolvers -I/usr/local/include -I$CXXTEST
 echo "Running unit tests for config-file parser:"
 ./test_runner_config 2>> temperror.log
 
@@ -39,7 +39,7 @@ echo "Generating and compiling unit tests for oversampled_region..."
 $CXXTESTGEN --error-printer -o test_runner_oversampled_region.cpp unit_tests/unittest_downsample.t.h 
 $CPP -o test_runner_oversampled_region test_runner_oversampled_region.cpp downsample.cpp \
 convolver.cpp image_io.cpp function_objects/function_object.cpp \
-function_objects/func_gaussian.cpp -I. -I/usr/local/include -I$CXXTEST -lcfitsio -lfftw3 -lm
+function_objects/func_gaussian.cpp -I. -Isolvers -I/usr/local/include -I$CXXTEST -lcfitsio -lfftw3 -lm
 echo "Running unit tests for oversampled_region:"
 ./test_runner_oversampled_region 2>> temperror.log
 
@@ -47,14 +47,14 @@ echo "Running unit tests for oversampled_region:"
 echo
 echo "Generating and compiling unit tests for downsample..."
 $CXXTESTGEN --error-printer -o test_runner_downsample.cpp unit_tests/unittest_downsample.t.h 
-$CPP -o test_runner_downsample test_runner_downsample.cpp downsample.cpp image_io.cpp -I. -I/usr/local/include -I$CXXTEST -lcfitsio -lm
+$CPP -o test_runner_downsample test_runner_downsample.cpp downsample.cpp image_io.cpp -I. -Isolvers -I/usr/local/include -I$CXXTEST -lcfitsio -lm
 echo "Running unit tests for downsample:"
 ./test_runner_downsample 2>> temperror.log
 
 echo
 echo "Generating and compiling unit tests for mpfit..."
 $CXXTESTGEN --error-printer -o test_runner_mpfit.cpp unit_tests/unittest_mpfit.t.h 
-$CPP -o test_runner_mpfit test_runner_mpfit.cpp mpfit.cpp -I. -I/usr/local/include -I$CXXTEST
+$CPP -o test_runner_mpfit test_runner_mpfit.cpp solvers/mpfit.cpp -I. -Isolvers -Isolvers -I/usr/local/include -I$CXXTEST
 echo "Running unit tests for utilities:"
 ./test_runner_mpfit 2>> temperror.log
 
@@ -65,11 +65,11 @@ echo "Generating and compiling unit tests for function objects..."
 $CXXTESTGEN --error-printer -o test_runner_funcs.cpp unit_tests/unittest_funcs.t.h 
 $CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
 function_objects/func_exp.cpp function_objects/func_gaussian.cpp function_objects/func_sersic.cpp \
--I/usr/local/include -I$CXXTEST -I. -lm -lgsl
+-I/usr/local/include -I$CXXTEST -I. -Isolvers -lm -lgsl
 # $CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
 # function_objects/func_exp.o function_objects/func_sersic.o \
 # function_objects/func_gaussian.o function_objects/func_edge-on-disk.o \
-# -I. -I/usr/local/include -I$CXXTEST -lm -lgsl
+# -I. -Isolvers -I/usr/local/include -I$CXXTEST -lm -lgsl
 echo "Running unit tests for function objects:"
 ./test_runner_funcs 2>> ../temperror.log
 
@@ -92,7 +92,7 @@ function_objects/func_edge-on-disk_n4762v2.o function_objects/func_edge-on-ring.
 function_objects/func_edge-on-ring2side.o function_objects/func_edge-on-disk.o \
 function_objects/integrator.o function_objects/func_expdisk3d.o function_objects/func_brokenexpdisk3d.o \
 function_objects/func_gaussianring3d.o function_objects/func_king.o \
--I. -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lm
+-I. -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lm
 echo "Running unit tests for add_functions:"
 ./test_runner_add_functions 2>> temperror.log
 
@@ -114,7 +114,7 @@ function_objects/func_edge-on-disk_n4762v2.o function_objects/func_edge-on-ring.
 function_objects/func_edge-on-ring2side.o function_objects/func_edge-on-disk.o \
 function_objects/integrator.o function_objects/func_expdisk3d.o function_objects/func_brokenexpdisk3d.o \
 function_objects/func_gaussianring3d.o function_objects/func_king.o \
--I. -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lm -std=c++11
+-I. -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lm -std=c++11
 echo "Running unit tests for model_object:"
 ./test_runner_modelobj 2>> temperror.log
 
