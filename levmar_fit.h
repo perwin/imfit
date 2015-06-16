@@ -25,8 +25,8 @@
 // #define MP_GTOL (8)              /* gtol is too small; no further improvement*/
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
-				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
-				bool paramLimitsExist, int verbose, SolverResults *solverResults=0 );
+				mp_par *parameterLimits, ModelObject *theModel, const double ftol, 
+				const bool paramLimitsExist, const int verbose, SolverResults *solverResults=0 );
 
 
 #endif  // _LEVMAR_FIT_H_

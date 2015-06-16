@@ -20,18 +20,20 @@
     should be non-NULL (i.e., should point to a file object opened for writing, possibly
     with header information already written).
 */
-int BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
-					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					int whichStatistic, FILE *outputFile_ptr );
+int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits, 
+				const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
+				const int nIterations, const int nFreeParams, const int whichStatistic, 
+				FILE *outputFile_ptr );
 
 /*! \brief Alternate wrapper: returns array of best-fit parameters in outputParamArray;
            doesn't print any summary statistics (e.g., sigmas, confidence intervals). 
            
     Note that outputParamArray will be allocated here; it should be de-allocated by 
     whatever function is calling this function. */
-int BootstrapErrorsArrayOnly( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
-					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					int whichStatistic, double **outputParamArray );
+int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimits, 
+					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
+					const int nIterations, const int nFreeParams, const int whichStatistic, 
+					double **outputParamArray );
 
 
 #endif  // _BOOTSTRAP_ERRORS_H_

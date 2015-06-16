@@ -18,7 +18,7 @@
 //    value = 5   --> max iterations reached
 
 int DiffEvolnFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
-									ModelObject *theModel, double ftol, int verbose,
+									ModelObject *theModel, const double ftol, const int verbose,
 									SolverResults *solverResults=0 );
 
 

@@ -175,7 +175,7 @@ public:
     int  nRows_psf = 3;
     int  nPixels_psf = 9;
     double  smallPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
-    int  status;
+    int  status4a, status4b;
     
     // This is the correct order
     // add PSF pixels first

@@ -20,10 +20,10 @@ for all minimizers)
 		[ ] Set up unit tests
 
 
-[x] Update memory estimation to account for smaller FFT-related arrays
+[] Add one or two oversampled-PSF tests to do_imfit_tests (and do_makeimage_tests)
+	do_makeimage_tests -- ensure that we recreate reference image
 
-
-[] Update memory estimation to account for possible oversampled PSF use
+[..] Update memory estimation to account for possible oversampled PSF use
 
 
 [] Add "const" specifies to input parameters of functions, as appropriate
@@ -44,14 +44,34 @@ image oversampled
 	actual time with oversampling includes FFT + downsampling)
 
 
+[] Reorganize directory structure:
+	src/core
+	src/solvers
+	src/function_objects
+	src/function_objects_extra -- for specialized, non-public stuff (n4762 funcs, experimental stuff, etc.)
+	src/function_objects1d
+	src/profilefit -- for all the 1D stuff (except func1d_*)
+	src/utilities ?
+	src/extra ? -- for timing_main.cpp
+	src/model_object ? -- for model_object convolver oversampled_region downsample
+		[but note that Convolver is used by psfconvolve_main.cpp
+	test/ -- regression tests, etc.
+	test/unittests/
+	docs/ -- where Doxygen input files go
+		html -- created by Doxygen
+		latex -- created by Doxygen
+	
+	[] Possibly create SConstript files for subdirectories -- see 
+	http://stackoverflow.com/questions/8810418/scons-setup-for-hierarchical-source-but-single-target
+
+
 [] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
 
 
+[] Refactor print_results.cpp to be simpler and less mangled-from-mpfit
+
+
 [] Optional convolution with charge-diffusion kernel?
-
-
-[] Test generation (and saving?) of FFTW plans
-	-- might require making a cloned repo
 
 
 [] Annotations to describe function parameters
@@ -73,7 +93,7 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 
 
-* FIXED
+* BUGS FIXED
 
 [X] --quiet option with Nelder-Mead simplex (--nm) is not truly quiet (some of N-M
 simplex output is suppressed, but "iteration XXX" is still printed)
@@ -84,3 +104,11 @@ simplex output is suppressed, but "iteration XXX" is still printed)
 function NMSimplexFit in bootstrap_errors.cpp
 	Reported by Guillermo Barro
 	-- FIX: add preprocessor directives to comment out all references to NLopt stuff
+
+
+
+* IMPROVEMENTS APPLIED
+
+[X] Update memory estimation to account for smaller FFT-related arrays
+
+

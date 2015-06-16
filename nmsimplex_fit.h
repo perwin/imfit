@@ -26,11 +26,11 @@
 //      NLOPT_MAXEVAL_REACHED = 5,
 //      NLOPT_MAXTIME_REACHED = 6
 
-int NMSimplexFit(int nParamsTot, double *initialParams, mp_par *parameterLimits, 
-									ModelObject *theModel, double ftol, int verbose,
+int NMSimplexFit( const int nParamsTot, double *initialParams, mp_par *parameterLimits, 
+									ModelObject *theModel, const double ftol, const int verbose,
 									SolverResults *solverResults=0 );
 
-void GetInterpretation_NM( int resultValue, string& outputString );
+void GetInterpretation_NM( const int resultValue, string& outputString );
 
 
 #endif  // _NM_SIMPLEX_FIT_H_

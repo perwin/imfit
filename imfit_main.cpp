@@ -364,9 +364,19 @@ int main(int argc, char *argv[])
     usingCashTerms = true;
   else
     usingCashTerms = false;
-  estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  												usingLevMar, usingCashTerms, options.saveResidualImage, 
-  												options.saveModel);
+  if (options.psfOversampledImagePresent) {
+    int  deltaX_oversampled = x2_oversample - x1_oversample + 1;
+    int  deltaY_oversampled = y2_oversample - y1_oversample + 1;
+    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+  										usingLevMar, usingCashTerms, options.saveResidualImage, 
+  										options.saveModel, nColumns_psf_oversampled, nRows_psf_oversampled,
+  										deltaX_oversampled, deltaY_oversampled, 
+  										options.psfOversamplingScale);
+  }
+  else
+    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+  										usingLevMar, usingCashTerms, options.saveResidualImage, 
+  										options.saveModel);
   nGBytes = (1.0*estimatedMemory) / GIGABYTE;
   if (nGBytes >= 1.0)
     printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);

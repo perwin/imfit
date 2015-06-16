@@ -78,7 +78,7 @@ nlopt_opt  optimizer;
 // Keep track of how many times this function has been called, and report current
 // chi^2 (or other objective-function value) every 20 calls
 // Note that parameters n and grad are unused, but required by the NLopt interface.
-double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_data)
+double myfunc_nlopt( unsigned n, const double *x, double *grad, void *my_func_data )
 {
   ModelObject *theModel = (ModelObject *)my_func_data;
   // following is a necessary kludge bcs theModel->GetFitStatistic() won't accept const double*
@@ -110,7 +110,7 @@ double myfunc_nlopt(unsigned n, const double *x, double *grad, void *my_func_dat
 
 
 
-void GetInterpretation_NM( int resultValue, string& outputString )
+void GetInterpretation_NM( const int resultValue, string& outputString )
 {
   string  description;
   ostringstream converter;   // stream used for the conversion
@@ -153,8 +153,8 @@ void GetInterpretation_NM( int resultValue, string& outputString )
 
 
 
-int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
-                  ModelObject *theModel, double ftol, int verbose, SolverResults *solverResults )
+int NMSimplexFit( const int nParamsTot, double *paramVector, mp_par *parameterLimits, 
+                  ModelObject *theModel, const double ftol, const int verbose, SolverResults *solverResults )
 {
   nlopt_result  result;
   int  maxEvaluations;
@@ -210,8 +210,9 @@ int NMSimplexFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
     nlopt_set_upper_bounds(optimizer, maxParamValues);
   }
   
-  // record initial fit-statistic value
-  initialStatisticVal = theModel->GetFitStatistic(paramVector);
+  // record initial fit-statistic value, if we're going to save it
+  if (solverResults != NULL)
+    initialStatisticVal = theModel->GetFitStatistic(paramVector);
   
   // Specify level of verbosity and start the optimization
   verboseOutput = verbose;

@@ -66,8 +66,8 @@ int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
 
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
-				mp_par *parameterLimits, ModelObject *theModel, double ftol, 
-				bool paramLimitsExist, int verbose, SolverResults *solverResults )
+				mp_par *parameterLimits, ModelObject *theModel, const double ftol, 
+				const bool paramLimitsExist, const int verbose, SolverResults *solverResults )
 {
   double  *paramErrs;
   mp_par  *mpfitParameterConstraints;

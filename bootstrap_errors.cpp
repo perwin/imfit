@@ -55,9 +55,10 @@ using namespace std;
 
 /* ------------------- Function Prototypes ----------------------------- */
 
-int BootstrapErrorsBase( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
-					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					int whichStatistic, double **outputParamArray, FILE *outputFile_ptr );
+int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits, 
+					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
+					const int nIterations, const int nFreeParams, const int whichStatistic, 
+					double **outputParamArray, FILE *outputFile_ptr );
 
 
 
@@ -67,9 +68,10 @@ int BootstrapErrorsBase( double *bestfitParams, mp_par *parameterLimits, bool pa
 // If saving of all best-fit parameters to file is requested, then outputFile_ptr
 // should be non-NULL (i.e., should point to a file object opened for writing, possibly
 // with header information already written).
-int BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
-					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					int whichStatistic, FILE *outputFile_ptr )
+int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits, 
+					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
+					const int nIterations, const int nFreeParams, const int whichStatistic, 
+					FILE *outputFile_ptr )
 {
   double  *paramSigmas;
   double **outputParamArray;
@@ -140,9 +142,10 @@ int BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramL
 // doesn't print any summary statistics (e.g., sigmas, confidence intervals). 
 // Note that outputParamArray will be allocated here; it should be de-allocated by 
 // whatever function is calling this function.
-int BootstrapErrorsArrayOnly( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
-					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					int whichStatistic, double **outputParamArray )
+int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimits, 
+					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
+					const int nIterations, const int nFreeParams, const int whichStatistic, 
+					double **outputParamArray )
 {
   int  i, nSuccessfulIterations;
   int  nParams = theModel->GetNParams();
@@ -166,9 +169,10 @@ int BootstrapErrorsArrayOnly( double *bestfitParams, mp_par *parameterLimits, bo
 // Base function called by the wrapper functions (above), which does the main work
 // of overseeing the bootstrap resampling.
 // Saving individual best-fit vales to file is done *if* outputFile_ptr != NULL.
-int BootstrapErrorsBase( double *bestfitParams, mp_par *parameterLimits, bool paramLimitsExist, 
-					ModelObject *theModel, double ftol, int nIterations, int nFreeParams,
-					int whichStatistic, double **outputParamArray, FILE *outputFile_ptr )
+int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits, 
+					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
+					const int nIterations, const int nFreeParams, const int whichStatistic, 
+					double **outputParamArray, FILE *outputFile_ptr )
 {
   double  *paramsVect;
   int  i, status, nIter, nSuccessfulIters;

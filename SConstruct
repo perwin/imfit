@@ -75,7 +75,14 @@
 
 import os, subprocess, platform
 
-# the following is for when we want to force static linking to the GSL library
+
+
+# *** Hard-coded paths to static libraries (to ensure static linking when that's what
+# we want to do; compilers sometimes insist on linking to shared library even when you 
+# don't specify that)
+# We assume that FFTW library is static-only (since that's the default installation).
+
+# The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
 STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
 STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/lib/libgsl.a")
@@ -91,6 +98,9 @@ STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 FUNCTION_SUBDIR = "function_objects/"
 
 os_type = os.uname()[0]
+
+
+# *** Set up compiler flags, library lists, include paths
 
 cflags_opt = ["-O2", "-g0"]
 cflags_db = ["-Wall", "-g3"]
@@ -109,30 +119,6 @@ lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
 
 
-# older version, only works for MacOS X 10.8 and earlier:
-# def CheckForXcode5( ):
-# 	# code to check whether installed version of XCode is 5.0 or later, in which case
-# 	# we should specify llvm-g++-4.2 explicitly instead of relying on SCons to use g++
-# 	# [which for XCode 5 is Apple's llvm-based version *without* OpenMP support]
-# 	if #OS 10.8 or earlier:
-# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"
-# 	else:  # OS X 10.9 case
-# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.CLTools_Executables"
-# 	output = subprocess.check_output(["pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"],shell=True)
-# 	else:
-# 	output = subprocess.check_output([checkCommand],shell=True)
-# 	lines = output.splitlines()
-# 	for line in lines:
-# 		if line.find("version:") >= 0:
-# 			versionString = line.split()[1]
-# 			# version "number" is something like "5.0.1.0.1.1377666378", which can't
-# 			# be converted directly to a floating-point number; but we only need the
-# 			# major version, which is the very first part...
-# 			pp = versionString.split(".")
-# 			majorVersion = int(pp[0])
-# 			if (majorVersion >= 5):
-# 				return True
-# 	return False
 
 # newer version, should work on MacOS X 10.9 (and also earlier versions)
 def CheckForXcode5( ):
@@ -165,7 +151,7 @@ def CheckForXcode5( ):
 	return False
 
 
-# get default compilers
+# find out what the default compilers are
 env = DefaultEnvironment()
 cc_default = env["CC"]
 cpp_default = env["CXX"]
@@ -175,7 +161,7 @@ c_compiler_changed = False
 cpp_compiler_changed = False
 
 
-# system-specific setup
+# *** System-specific setup
 xcode5 = False
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
@@ -188,7 +174,6 @@ if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 if (os_type == "Linux"):
 	# change the following path definitions as needed
 	include_path.append("/usr/include")
-#	lib_list.append("pthread")
 	if os.getlogin() == "erwin":
 		include_path.append("/home/erwin/include")
 		lib_path.append("/home/erwin/lib")
@@ -205,6 +190,9 @@ defines_db = base_defines
 extra_defines = []
 
 
+
+# *** Set up default settings, check for user-requested changes
+
 # Default settings for compilation
 useGSL = True
 useNLopt = True
@@ -214,7 +202,6 @@ useExtraFuncs = False
 useStaticLibs = False
 buildFatBinary = False
 buildForOldMacOS = False
-
 
 # Define some user options
 AddOption("--lib-path", dest="libraryPath", type="string", action="store", default=None,
@@ -250,6 +237,7 @@ AddOption("--old-mac", dest="buildForOldMac", action="store_true",
 	default=False, help="compile for Mac OS 10.6 and 10.7")
 
 
+# * Check to see if user actually specified something, and implement it
 if GetOption("headerPath") is not None:
 	extraPaths = GetOption("headerPath").split(":")
 	print "extra header search paths: ", extraPaths
@@ -272,7 +260,7 @@ doExtraChecks = False
 if GetOption("doExtraChecks") is True:
 	doExtraChecks = True
 
-# user-changeable compilers
+# change the compilers if user requests it
 if GetOption("cc_compiler") is not None:
 	CC_COMPILER = GetOption("cc_compiler")
 	print "using %s for C compiler" % CC_COMPILER
@@ -296,6 +284,9 @@ if GetOption("makeFatBinaries") is True:
 if GetOption("buildForOldMac") is True:
 	buildForOldMacOS = True
 
+
+
+# *** Setup for various options (either default, or user-altered)
 
 if useFFTWThreading:   # default is to do this
 	lib_list.insert(0, "fftw3_threads")
@@ -331,7 +322,7 @@ if useNLopt:   # default is to do this
 		if (os_type == "Darwin"):
 			if buildForOldMacOS is True:
 				# Special case compiling for Mac OS 10.6 and 10.7 -- use local path
-				# to NLopt library build without thread-local storage
+				# to NLopt library built *without* thread-local storage
 				lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
 				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
 			else:
@@ -367,6 +358,7 @@ for key, value in ARGLIST:
 		extra_defines.append(value)
 
 
+# *** Special distribution-building options
 if buildFatBinary and (os_type == "Darwin"):
 	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
 	# passes "-arch xxx" wrapped in quotation marks, which gcc/g++ chokes on.
@@ -380,13 +372,14 @@ if buildForOldMacOS and (os_type == "Darwin"):
 	link_flags += ["-mmacosx-version-min=10.6"]
 
 
+# * Collect together all the updated preprocessor definitions
 defines_db = defines_db + extra_defines
 defines_opt = defines_opt + extra_defines
 
 
 
 
-# "Environments" for compilation:
+# *** Create Environments for compilation:
 # "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling
 
@@ -397,12 +390,6 @@ if xcode5 is True:
 		CC_COMPILER = "llvm-gcc-4.2"
 	if not cpp_compiler_changed:
 		CPP_COMPILER = "llvm-g++-4.2"
-#	ALT_CC = "gcc-4.8"
-#	ALT_CPP = "g++-4.8"
-# 	env_opt = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-# 						CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
-# 	env_debug = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list, LIBPATH=lib_path,
-# 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 env_opt = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
 					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
@@ -492,19 +479,21 @@ functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_st
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 
 
-# Base files for imfit:
-imfit_base_obj_string = """commandline_parser utilities image_io levmar_fit mpfit 
-		diff_evoln_fit DESolver dispatch_solver config_file_parser add_functions print_results 
+# Base files for imfit and makeimage:
+base_obj_string = """commandline_parser utilities image_io config_file_parser add_functions"""
+base_objs = base_obj_string.split()
+
+imfit_obj_string = """levmar_fit mpfit diff_evoln_fit DESolver dispatch_solver print_results 
 		bootstrap_errors solver_results estimate_memory imfit_main"""
 if useNLopt:
-	imfit_base_obj_string += " nmsimplex_fit nlopt_fit"
-imfit_base_objs = imfit_base_obj_string.split()
+	imfit_obj_string += " nmsimplex_fit nlopt_fit"
+imfit_base_objs = base_objs + imfit_obj_string.split()
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
 # Base files for makeimage:
-makeimage_base_obj_string = """commandline_parser utilities image_io config_file_parser 
-			add_functions makeimage_main"""
-makeimage_base_objs = makeimage_base_obj_string.split()
+# makeimage_base_obj_string = """commandline_parser utilities image_io config_file_parser 
+# 			add_functions makeimage_main"""
+makeimage_base_objs = base_objs + ["makeimage_main"]
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 
@@ -518,7 +507,7 @@ makeimage_sources = makeimage_base_sources + modelobject_sources + functionobjec
 
 
 
-# Finally, define the actual targets
+# *** Finally, define the actual targets for building
 # specify ".do" as the suffix for "full-debug" object code
 imfit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
 env_debug.Program("imfit_db", imfit_dbg_objlist)
@@ -540,12 +529,14 @@ env_opt.Command("alltests", None, "./run_unit_tests.sh ; ./do_makeimage_tests ; 
 
 
 
+
+
 # *** Other programs (profilefit, psfconvolve, older stuff)
 
 if xcode5 is True:
 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
 	# to ensure we can use OpenMP.
-	# Replace the following with alternate compilers if needed (e.g., "gcc-4.8", "g++-4.8")
+	# Replace the following with alternate compilers if needed (e.g., "gcc-4.9", "g++-4.9")
 	ALT_CC = "llvm-gcc-4.2"
 	ALT_CPP = "llvm-g++-4.2"
 	env_1d = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
