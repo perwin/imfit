@@ -1,0 +1,59 @@
+	Image file = tests/oversamp_test4.fits
+	* Using Poisson maximum-likelihood-ratio statistic instead of chi^2 for minimization!
+	* Nelder-Mead simplex solver selected!
+	configuration file = tests/config_imfit_gauss-oversample-test2.dat
+	PSF image = tests/psf_standard.fits
+	Oversampled PSF image = tests/psf_oversamp.fits
+	PSF oversampling scale = 3
+	PSF oversampling region = 100:110,100:110
+	gain = 100 e-/ADU
+Reading data image ("tests/oversamp_test4.fits") ...
+naxis1 [# pixels/row] = 200, naxis2 [# pixels/col] = 200; nPixels_tot = 40000
+Reading PSF image ("tests/psf_standard.fits") ...
+naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
+Reading oversampled PSF image ("tests/psf_oversamp.fits") ...
+naxis1 [# pixels/row] = 105, naxis2 [# pixels/col] = 105; nPixels_tot = 11025
+	Region to be oversampled within image: [100:110,100:110]
+Function: Gaussian
+6 total parameters
+Estimated memory use: 13112762 bytes (12.5 MB)
+Model Object: 40000 data values (pixels)
+ModelObject: mask vector applied to weight vector. (40000 valid pixels remain)
+Setting up parameter information array ...
+4 free parameters (39996 degrees of freedom)
+
+Performing fit by minimizing Poisson MLR statistic:
+Calling Nelder-Mead Simplex solver ..
+	N-M simplex: function call 20: objective = 18256.302173
+	N-M simplex: function call 40: objective = 1602.988937
+	N-M simplex: function call 60: objective = 377.463635
+	N-M simplex: function call 80: objective = 133.389642
+	N-M simplex: function call 100: objective = 51.090543
+	N-M simplex: function call 120: objective = 8.456978
+	N-M simplex: function call 140: objective = 2.316035
+	N-M simplex: function call 160: objective = 0.507341
+	N-M simplex: function call 180: objective = 0.028464
+	N-M simplex: function call 200: objective = 0.002190
+	N-M simplex: function call 220: objective = 0.001864
+	N-M simplex: function call 240: objective = 0.001857
+	N-M simplex: function call 260: objective = 0.001856
+	N-M simplex: function call 280: objective = 0.001855
+Nelder-Mead Simplex: status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
+
+  POISSON-MLR STATISTIC = 0.001855
+  NFEV = 291
+
+Reduced Chi^2 equivalent = 0.000000
+AIC = 8.002855, BIC = 42.388394
+
+X0		105.2377
+Y0		105.4582
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		99.8787
+sigma		1.20062
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+Done!
+

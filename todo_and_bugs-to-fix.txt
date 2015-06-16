@@ -1,10 +1,6 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-[x] New class encapsulating return metadata from minimizers (like mp_results, but
-for all minimizers)
-
-
 [..] King model FunctionObject
 	-- function_objects/func_king.h/cpp : in progress
 	-- need to set up some profile-computation tests (e.g., compare 1-D slices
@@ -20,13 +16,7 @@ for all minimizers)
 		[ ] Set up unit tests
 
 
-[] Add one or two oversampled-PSF tests to do_imfit_tests (and do_makeimage_tests)
-	do_makeimage_tests -- ensure that we recreate reference image
-
-[..] Update memory estimation to account for possible oversampled PSF use
-
-
-[] Add "const" specifies to input parameters of functions, as appropriate
+[..] Add "const" specifies to input parameters of functions, as appropriate
 
 
 [] Option to output default/simple configuration file (and then quite)
@@ -109,6 +99,13 @@ function NMSimplexFit in bootstrap_errors.cpp
 
 * IMPROVEMENTS APPLIED
 
+[X] New class encapsulating return metadata from minimizers (like mp_results, but
+for all minimizers)
+
 [X] Update memory estimation to account for smaller FFT-related arrays
 
+[x] Update memory estimation to account for possible oversampled PSF use
+
+[X] Add one or two oversampled-PSF tests to do_imfit_tests (and do_makeimage_tests)
+	do_makeimage_tests -- ensure that we recreate reference image
 

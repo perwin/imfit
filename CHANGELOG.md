@@ -23,6 +23,8 @@ algorithms (taking advantage of the specific real-to-complex, complex-to-real
 transformations in FFTW). The result is a reduction in memory use by ~ 20%, and
 a factor of ~20% speedup in doing PSF convolutions.
 
+- Memory-use estimation now accounts for convolutions with oversampled PSFs.
+
 - Updates to documentation.
 
 

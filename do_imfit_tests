@@ -1,7 +1,9 @@
 #!/bin/bash
 #
-# How to skip the DE test: run script as
-# $ ./do_imfit_tests --node
+# How to skip DE and oversampled-PSF tests: run script as
+# $ ./do_imfit_tests
+# Including DE and oversampled-PSF tests: run script as
+# $ ./do_imfit_tests --all
 
 FAILED_TEXT=" ** Test failed. **"
 
@@ -25,13 +27,13 @@ echo "Running tests for imfit..."
 # same, using N-M Simplex fitting
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --nm --quiet &> test_dump3b
 # same, using DE fitting [skip if requested by user, since it's slow!]
-if [ "$1" != "--node" ]
+if [ "$1" == "--all" ]
 then
   echo -n "   (now running fit with DE ...)"
   ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --de &>  test_dump3c
   echo ""
 else
-  echo "   (skipping DE test)"
+  echo "   (-- skipping DE test --)"
 fi
 # same L-M fit with --loud turned on, to ensure we print intermediate values correctly during fit
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --loud  &> test_dump3d
@@ -48,6 +50,17 @@ echo -n "   (now running fit with PSF convolution ...)"
 ./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> test_dump4c
 ./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only --cashstat &> test_dump4d
 echo ""
+
+# test use of oversampled PSF (don't use L-M; doesn't converge)
+if [ "$1" == "--all" ]
+then
+  echo -n "   (now running fits with oversampled PSF ...)"
+  ./imfit -c tests/config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm tests/oversamp_test4.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110  &> test_dump4e
+  ./imfit -c tests/config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm tests/oversamp_test4.fits[51:200,41:190] --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110  &> test_dump4e2
+  echo ""
+else
+  echo "   (-- skipping oversampled PSF tests --)"
+fi
 
 # test fitting with Cash statistic
 echo -n "   (now running Cash-statistic and Poisson MLR fits ...)"
@@ -131,7 +144,7 @@ fi
 
 # special test for DE output because final parameter are more variable from one fit
 # to the next...
-if [ "$1" != "--node" ]
+if [ "$1" == "--all" ]
 then
   tail -n 17 test_dump3c > test_dump3c_tail
   echo -n "*** Comparison with archives (tolerances ~ 5e-5 or smaller): tiny SDSS cutout image (DE fit)... "
@@ -191,6 +204,27 @@ then
 else
   echo "Diff output:"
   diff test_dump4d tests/imfit_textout4d
+fi
+
+if [ "$1" == "--all" ]
+then
+  echo -n "*** Diff comparison with archives: fit using oversampled PSF... "
+  if (diff --brief test_dump4e tests/imfit_textout4e)
+  then
+    echo " OK"
+  else
+    echo "Diff output:"
+    diff test_dump4e tests/imfit_textout4e
+  fi
+
+  echo -n "*** Diff comparison with archives: fit using oversampled PSF + image section... "
+  if (diff --brief test_dump4e2 tests/imfit_textout4e2)
+  then
+    echo " OK"
+  else
+    echo "Diff output:"
+    diff test_dump4e2 tests/imfit_textout4e2
+  fi
 fi
 
 echo -n "*** Diff comparison with archives: fit using Cash statistic... "
