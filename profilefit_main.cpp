@@ -30,6 +30,8 @@
 
 
 // Solvers (optimization algorithms)
+#include "dispatch_solver.h"
+#include "solver_results.h"
 #include "levmar_fit.h"
 #include "diff_evoln_fit.h"
 #ifndef NO_NLOPT
@@ -149,6 +151,8 @@ int main(int argc, char *argv[])
   mp_par  *mpfitParameterConstraints;
   commandOptions  options;
   configOptions  userConfigOptions;
+  SolverResults  resultsFromSolver;
+  string  nloptSolverName;
   
   
   /* PROCESS COMMAND-LINE: */
@@ -178,6 +182,7 @@ int main(int argc, char *argv[])
   options.saveBestFitParams = true;
   options.outputParameterFileName = DEFAULT_1D_OUTPUT_PARAMETER_FILE;
   options.verbose = 1;
+  options.nloptSolverName = "";
 
   ProcessInput(argc, argv, &options);
 
@@ -392,45 +397,52 @@ int main(int argc, char *argv[])
   if (options.printChiSquaredOnly) {
     printf("\n");
     fitStatus = 1;
-    PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+    PrintFitStatistic(paramsVect, theModel, nFreeParams);
+//    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus);
     printf("\n");
     // turn off saveing of parameter file
     options.saveBestFitParams = false;
   }
   else {
     // DO THE FIT!
-    if (options.solver == MPFIT_SOLVER) {
-      printf("\nCalling Levenberg-Marquardt solver ...\n");
-      fitStatus = LevMarFit(nParamsTot, nFreeParams, nStoredDataVals, paramsVect, parameterInfo, 
-      						theModel, options.ftol, paramLimitsExist, options.verbose);
-    }
-    else if (options.solver == DIFF_EVOLN_SOLVER) {
-      printf("\nCalling Differential Evolution solver ..\n");
-      fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      				options.verbose);
-      printf("\n");
-      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-      printf("\n");
-    }
-#ifndef NO_NLOPT
-    else if (options.solver == NMSIMPLEX_SOLVER) {
-      printf("\nCalling Nelder-Mead Simplex solver ..\n");
-      fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      							options.verbose);
-      printf("\n");
-      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-      printf("\n");
-    }
-    else if (options.solver == GENERIC_NLOPT_SOLVER) {
-      printf("\nCalling miscellaneous NLOpt solver ..\n");
-      fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-      						options.verbose, options.nloptSolverName);
-      printf("\n");
-      PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-      printf("\n");
-    }
-#endif
+    fitStatus = DispatchToSolver(options.solver, nParamsTot, nFreeParams, nStoredDataVals, 
+    							paramsVect, parameterInfo, theModel, options.ftol, paramLimitsExist, 
+    							options.verbose, &resultsFromSolver, options.nloptSolverName);
+    							
+    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
   }
+//     if (options.solver == MPFIT_SOLVER) {
+//       printf("\nCalling Levenberg-Marquardt solver ...\n");
+//       fitStatus = LevMarFit(nParamsTot, nFreeParams, nStoredDataVals, paramsVect, parameterInfo, 
+//       						theModel, options.ftol, paramLimitsExist, options.verbose);
+//     }
+//     else if (options.solver == DIFF_EVOLN_SOLVER) {
+//       printf("\nCalling Differential Evolution solver ..\n");
+//       fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+//       				options.verbose);
+//       printf("\n");
+//       PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, NULL);
+//       printf("\n");
+//     }
+// #ifndef NO_NLOPT
+//     else if (options.solver == NMSIMPLEX_SOLVER) {
+//       printf("\nCalling Nelder-Mead Simplex solver ..\n");
+//       fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+//       							options.verbose);
+//       printf("\n");
+//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+//       printf("\n");
+//     }
+//     else if (options.solver == GENERIC_NLOPT_SOLVER) {
+//       printf("\nCalling miscellaneous NLOpt solver ..\n");
+//       fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
+//       						options.verbose, options.nloptSolverName);
+//       printf("\n");
+//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
+//       printf("\n");
+//     }
+// #endif
+//   }
 
 
 
@@ -450,7 +462,8 @@ int main(int argc, char *argv[])
     string  progNameVer = "profilefit ";
     progNameVer += VERSION_STRING;
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-                    progNameVer, argc, argv, nFreeParams, options.solver, fitStatus);
+                    progNameVer, argc, argv, nFreeParams, options.solver, fitStatus,
+                    resultsFromSolver);
   }
 
   if (options.saveBestProfile) {
@@ -518,7 +531,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" --nlopt <name>               Select misc. NLopt solver");
 #endif
   optParser->AddUsageLine(" --de                         Solve using differential evolution");
-  optParser->AddUsageLine(" --newlm                      Use modified L-M solver");
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" --ftol                       Fractional tolerance in chi^2 for convergence [default = 1.0e-8]");
   optParser->AddUsageLine(" --chisquare-only             Print chi^2 of input model and quit");
@@ -547,7 +559,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("nlopt");
 #endif
   optParser->AddFlag("de");
-  optParser->AddFlag("newlm");
   optParser->AddOption("ftol");
   optParser->AddFlag("chisquare-only");
   optParser->AddFlag("no-fitting");
@@ -645,10 +656,6 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if (optParser->FlagSet("de")) {
     printf("\t Differential Evolution selected!\n");
     theOptions->solver = DIFF_EVOLN_SOLVER;
-  }
-  if (optParser->FlagSet("newlm")) {
-  	printf("\t* Modified L-M selected!\n");
-  	theOptions->solver = ALT_SOLVER;
   }
   if (optParser->FlagSet("chisquare-only")) {
     printf("\t* No fitting will be done!\n");

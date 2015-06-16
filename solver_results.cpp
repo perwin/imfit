@@ -133,6 +133,12 @@ void SolverResults::SetSolverType( int solverType )
     case NMSIMPLEX_SOLVER:
       solverName = "Nelder-Mead Simplex";
       break;
+    case GENERIC_NLOPT_SOLVER:
+      solverName = "[unspecified NLOpt solver]";
+      break;
+    default:
+      solverName = "";
+      fprintf(stderr, "* WARNING: SolverResults::SetSolverType -- unrecognized solver type (%d)!\n", solverType);
   }
 }
 
@@ -142,6 +148,8 @@ int SolverResults::GetSolverType( )
 }
 
 
+// The following is mainly intended to be used for specifying individual NLOpt
+// algorithm names
 void SolverResults::SetSolverName( string& name )
 {
   solverName = name;

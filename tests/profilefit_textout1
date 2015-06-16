@@ -9,7 +9,6 @@ ModelObject(1d): 46 data values
 Setting up parameter information array ...
 Fixed parameter detected (i = 0)
 3 free parameters (43 degrees of freedom)
-
 Calling Levenberg-Marquardt solver ...
 
 *** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.

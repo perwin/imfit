@@ -69,6 +69,27 @@ public:
     TS_ASSERT_EQUALS(correct, output);
   }
 
+  void testSetAndGetSolverName( void )
+  {
+    string  output;
+    string  correct1 = "Levenberg-Marquardt";
+    string  correct2 = "Nelder-Mead Simplex";
+    string  correct3 = "[unspecified NLOpt solver]";
+
+    // first, test that we get correct solver name when we set the solver *type*
+    solverResults->SetSolverType(MPFIT_SOLVER);
+    output = solverResults->GetSolverName();
+    TS_ASSERT_EQUALS(correct1, output);
+
+    solverResults->SetSolverType(NMSIMPLEX_SOLVER);
+    output = solverResults->GetSolverName();
+    TS_ASSERT_EQUALS(correct2, output);
+    
+    solverResults->SetSolverType(GENERIC_NLOPT_SOLVER);
+    output = solverResults->GetSolverName();
+    TS_ASSERT_EQUALS(correct3, output);
+  }
+
   void testSetAndGetFitStatistic( void )
   {
     int  output;

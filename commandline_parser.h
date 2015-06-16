@@ -58,18 +58,18 @@ class CLineParser
     // Public member functions:
     void PrintUsage( );
     void UnrecognizedAreErrors( );   //!< interpret unrecognized flags/options as errors
-    void AddFlag( string shortFlagString );
-    void AddFlag( string shortFlagString, string longFlagString );
-    void AddOption( string shortOptString );
-    void AddOption( string shortOptString, string longOptString );
-    void AddUsageLine( string usageLine );
+    void AddFlag( const string shortFlagString );
+    void AddFlag( const string shortFlagString, const string longFlagString );
+    void AddOption( const string shortOptString );
+    void AddOption( const string shortOptString, const string longOptString );
+    void AddUsageLine( const string usageLine );
     int ParseCommandLine( int argc, char *argv[] );
     bool CommandLineEmpty( );
-    bool FlagSet( string flagName );
-    bool OptionSet( string optName );
-    string& GetTargetString( string optName );
+    bool FlagSet( const string flagName );
+    bool OptionSet( const string optName );
+    string& GetTargetString( const string optName );
     int nArguments( );
-    string& GetArgument( int n );
+    string& GetArgument( const int n );
 
   private:
   // Private member functions:

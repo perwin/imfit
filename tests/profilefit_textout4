@@ -17,11 +17,5 @@ Reduced Chi^2 = 0.292314
 AIC = 19.140947, BIC = 24.055443
 
 
-X0		0.000000
-FUNCTION Sersic-1D
-n		4.000000
-mu_e		20.000000
-r_e		20.000000
-
 All done!
 

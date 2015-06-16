@@ -132,7 +132,7 @@ double myfunc_nlopt_gen(unsigned n, const double *x, double *grad, void *my_func
     }
   }
   
-  if isnan(fitStatistic) {
+  if (isnan(fitStatistic)) {
     fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
     fprintf(stderr, "*** Terminating the fit...\n");
     junk = nlopt_force_stop(theOptimizer);

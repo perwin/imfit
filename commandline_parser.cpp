@@ -188,7 +188,7 @@ void CLineParser::UnrecognizedAreErrors( )
 // CLineParser object is destroyed.
 
 //! Add a possible flag (single-character only) to the set of command-line flags/options
-void CLineParser::AddFlag( string shortFlagString )
+void CLineParser::AddFlag( const string shortFlagString )
 {
   OptionObject *newOptionObj = new OptionObject;
   optObjPointers.push_back(newOptionObj);
@@ -198,7 +198,7 @@ void CLineParser::AddFlag( string shortFlagString )
 
 
 //! Add a possible flag (with both short and long versions) to the set of command-line flags/options
-void CLineParser::AddFlag( string shortFlagString, string longFlagString )
+void CLineParser::AddFlag( const string shortFlagString, const string longFlagString )
 {
   OptionObject *newOptionObj = new OptionObject;
   optObjPointers.push_back(newOptionObj);
@@ -209,7 +209,7 @@ void CLineParser::AddFlag( string shortFlagString, string longFlagString )
 
 
 //! Add a possible options (single-character only) to the set of command-line flags/options
-void CLineParser::AddOption( string shortOptString )
+void CLineParser::AddOption( const string shortOptString )
 {
   OptionObject *newOptionObj = new OptionObject;
   optObjPointers.push_back(newOptionObj);
@@ -218,7 +218,7 @@ void CLineParser::AddOption( string shortOptString )
 
 
 //! Add a possible option (with both short and long versions) to the set of command-line options
-void CLineParser::AddOption( string shortOptString, string longOptString )
+void CLineParser::AddOption( const string shortOptString, const string longOptString )
 {
   OptionObject *newOptionObj = new OptionObject;
   optObjPointers.push_back(newOptionObj);
@@ -228,7 +228,7 @@ void CLineParser::AddOption( string shortOptString, string longOptString )
 
 
 //! Add a string of help-text to the internal help-text list
-void CLineParser::AddUsageLine( string usageLine )
+void CLineParser::AddUsageLine( const string usageLine )
 {
   usageStrings.push_back(usageLine);
 }
@@ -323,7 +323,7 @@ bool CLineParser::CommandLineEmpty( )
 
 
 //! Checks if associated flag was set
-bool CLineParser::FlagSet( string flagName )
+bool CLineParser::FlagSet( const string flagName )
 {
   if (optMap.count(flagName) > 0)
     return optMap[flagName]->FlagSet();
@@ -335,7 +335,7 @@ bool CLineParser::FlagSet( string flagName )
 
 
 //! Checks if target was supplied for the associated option
-bool CLineParser::OptionSet( string optName )
+bool CLineParser::OptionSet( const string optName )
 {
   if (optMap.count(optName) > 0)
     return optMap[optName]->TargetSet();
@@ -347,7 +347,7 @@ bool CLineParser::OptionSet( string optName )
 
 
 //! Returns the stored target string for the associated option
-string& CLineParser::GetTargetString( string optName )
+string& CLineParser::GetTargetString( const string optName )
 {
   if (optMap.count(optName) > 0)
     return optMap[optName]->GetTargetString();
@@ -366,7 +366,7 @@ int CLineParser::nArguments( )
 
 
 //! Returns argument number n as a string
-string& CLineParser::GetArgument( int n )
+string& CLineParser::GetArgument( const int n )
 {
   return argStrings[n];
 }
