@@ -27,11 +27,10 @@ using namespace std;
 
 #include "definitions.h"
 #include "print_results.h"
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "param_struct.h"
 #include "statistics.h"
 #include "utilities_pub.h"
-#include "mpfit_cpp.h"
 #include "nmsimplex_fit.h"
 #include "nlopt_fit.h"
 #include "solver_results.h"

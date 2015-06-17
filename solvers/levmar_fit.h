@@ -10,7 +10,7 @@
 
 
 // Note on possible return values for LevMarFit: these are the same as the return values
-// of mpfit (see mpfit_cpp.h). In summary:
+// of mpfit (see mpfit.h). In summary:
 //    values <= 0: error of some kind
 //    values = 1--4: general convergence success of different types
 //    value = 5: max number of iterations

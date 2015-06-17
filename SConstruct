@@ -568,17 +568,14 @@ functionobject1d_objs.append(FUNCTION_SUBDIR + "function_object")
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
-profilefit_base_obj_string = """commandline_parser utilities solver_results dispatch_solver
-		levmar_fit mpfit diff_evoln_fit DESolver read_profile config_file_parser 
+profilefit_base_obj_string = """commandline_parser utilities read_profile config_file_parser 
 		add_functions_1d print_results convolver convolver1d bootstrap_errors_1d profilefit_main"""
-if useNLopt:
-	profilefit_base_obj_string += " nmsimplex_fit nlopt_fit"
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
 # profilefit: put all the object and source-code lists together
-profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + c_objs
-profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + c_sources
+profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + solver_objs + c_objs
+profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + solver_sources + c_sources
 
 # psfconvolve1d: put all the object and source-code lists together
 psfconvolve1d_objs = ["psfconvolve1d_main", "commandline_parser", "utilities",

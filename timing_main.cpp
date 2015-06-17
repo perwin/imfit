@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
     paramsVect[i] = parameterList[i];
   
   
-  // Generate the image (including convolution, if requested, repeatedly
+  // Generate the image (including convolution, if requested), repeatedly
   gettimeofday(&timer_start, NULL);
   for (int ii = 0; ii < options.nIterations; ii++)
     theModel->CreateModelImage(paramsVect);

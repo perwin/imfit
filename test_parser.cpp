@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "utilities_pub.h"
 #include "config_file_parser.h"
 

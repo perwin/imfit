@@ -31,7 +31,7 @@
 
 #include "model_object.h"
 #include "param_struct.h"   // for mp_par structure
-#include "mpfit_cpp.h"   // lightly modified mpfit from Craig Markwardt
+#include "mpfit.h"
 #include "print_results.h"
 #include "solver_results.h"
 

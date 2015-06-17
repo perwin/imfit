@@ -100,9 +100,6 @@ protected:
   double *maxBounds;
   // added by PE for user specification of fractional tolerance (for convergence test)
   double  tolerance;
-	
-	// added by PE for debugging purposes
-  double  lastBestEnergy;
 
 private:
   void Best1Exp(int candidate);

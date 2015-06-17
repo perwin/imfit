@@ -36,5 +36,7 @@ I_e		20.0081
 r_e		60.7635
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.461210 sec for fit, 0.463647 sec total)
 Done!
 

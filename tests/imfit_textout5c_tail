@@ -1,5 +1,3 @@
-      NFEV = 36
-
 Reduced Chi^2 equivalent = 1.012648
 AIC = 22790.496751, BIC = 22838.620640
 
@@ -14,5 +12,7 @@ FUNCTION FlatSky
 I_sky		     20 # +/-       0
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.048762 sec for fit, 0.051709 sec total)
 Done!
 

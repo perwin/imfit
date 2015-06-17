@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "model_object.h"
 
 using namespace std;

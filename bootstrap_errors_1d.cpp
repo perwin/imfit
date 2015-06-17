@@ -19,7 +19,7 @@
 
 #include "definitions.h"
 #include "model_object_1d.h"
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "mersenne_twister.h"
 #include "bootstrap_errors_1d.h"
 #include "statistics.h"

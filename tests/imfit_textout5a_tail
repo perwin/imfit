@@ -1,5 +1,3 @@
-  CASH STATISTIC = -2611601.272876
-  NFEV = 329
 
 AIC = -2611589.269141, BIC = -2611541.145252
 
@@ -14,5 +12,7 @@ FUNCTION FlatSky
 I_sky		     20
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.250401 sec for fit, 0.253003 sec total)
 Done!
 

@@ -6,11 +6,14 @@ syntax: glob
 *.pyc
 test_dump*
 old_distributions/*
-michael_williams/*
+other_people/*
 misc/*
-nan_testing/*
+other_tests/*
 oldstuff/*
-stephanie/*
+ununsed_but_interesting/*
+de_godwin/*
+de_storn/*
+budda_tests/*
 tempo/*
 .deps
 .libs

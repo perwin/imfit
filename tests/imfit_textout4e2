@@ -56,5 +56,7 @@ I_0		99.8787
 sigma		1.20062
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 5.343188 sec for fit, 5.417968 sec total)
 Done!
 

@@ -44,5 +44,7 @@ I_0		    100 # +/- 0.152262
 h		     20 # +/- 0.0727724
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.009812 sec for fit, 0.356937 sec total)
 Done!
 

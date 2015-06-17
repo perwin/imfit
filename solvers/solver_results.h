@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 
 using namespace std;
 

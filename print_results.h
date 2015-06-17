@@ -9,7 +9,7 @@
 #define _PRINT_RESULTS_H_
 
 #include <string>
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "model_object.h"
 #include "param_struct.h"
 #include "solver_results.h"

@@ -32,15 +32,12 @@
 
 /* ------------------------ Include Files (Header Files )--------------- */
 
-#ifndef USING_SCONS
-#include "config.h"
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
 #include <string>
 #include <vector>
+#include <sys/time.h>
 
 #include "definitions.h"
 #include "utilities_pub.h"
@@ -150,10 +147,16 @@ int main(int argc, char *argv[])
   const std::string  Y0_string("Y0");
   string  progNameVersion = "imfit ";
   FILE  *bootstrapSaveFile_ptr = NULL;
+  // timing-related
+  struct timeval  timer_start_all, timer_end_all;
+  struct timeval  timer_start_fit, timer_end_fit;
+  struct timeval  timer_start_bootstrap, timer_end_bootstrap;
 
   progNameVersion += VERSION_STRING;
   
   
+  gettimeofday(&timer_start_all, NULL);
+
   /* Define default options, then process the command line */
   SetDefaultImfitOptions(&options);
   ProcessInput(argc, argv, &options);
@@ -534,10 +537,11 @@ int main(int argc, char *argv[])
       printf("chi^2 (model-based errors):\n");
     else
       printf("chi^2 (data-based errors):\n");
-    
+    gettimeofday(&timer_start_fit, NULL);
     fitStatus = DispatchToSolver(options.solver, nParamsTot, nFreeParams, nPixels_tot, 
     							paramsVect, parameterInfo, theModel, options.ftol, paramLimitsExist, 
     							options.verbose, &resultsFromSolver, options.nloptSolverName);
+    gettimeofday(&timer_end_fit, NULL);
     							
     PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
   }
@@ -554,10 +558,12 @@ int main(int argc, char *argv[])
     
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options.bootstrapIterations);
+    gettimeofday(&timer_start_bootstrap, NULL);
     nSucessfulIterations = BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, 
     									theModel, options.ftol, options.bootstrapIterations, 
     									nFreeParams, theModel->WhichFitStatistic(), 
     									bootstrapSaveFile_ptr);
+    gettimeofday(&timer_end_bootstrap, NULL);
     if ((nSucessfulIterations > 0) && (options.outputBootstrapFileName.length() > 0))
       printf("Bootstrap-resampling output saved to file %s.\n", options.outputBootstrapFileName.c_str());
     fclose(bootstrapSaveFile_ptr);
@@ -619,6 +625,29 @@ int main(int argc, char *argv[])
   if (parameterInfo_allocated)
     free(parameterInfo);
   delete theModel;
+  
+  // Elapsed time reports
+  if (options.verbose >= 0) {
+    gettimeofday(&timer_end_all, NULL);
+    double  microsecs, time_elapsed_all, time_elapsed_fit, time_elapsed_bootstrap;
+    microsecs = timer_end_all.tv_usec - timer_start_all.tv_usec;
+    time_elapsed_all = timer_end_all.tv_sec - timer_start_all.tv_sec + microsecs/1e6;
+    if (options.printFitStatisticOnly)
+      printf("\n(Elapsed time: %.6f sec)\n", time_elapsed_all);
+    else {
+      microsecs = timer_end_fit.tv_usec - timer_start_fit.tv_usec;
+      time_elapsed_fit = timer_end_fit.tv_sec - timer_start_fit.tv_sec + microsecs/1e6;
+      if (options.doBootstrap) {
+        microsecs = timer_end_bootstrap.tv_usec - timer_start_bootstrap.tv_usec;
+        time_elapsed_bootstrap = timer_end_bootstrap.tv_sec - timer_start_bootstrap.tv_sec + microsecs/1e6;
+        printf("\n(Elapsed time: %.6f sec for fit, %.6f for bootstrap, %.6f sec total)\n", 
+        		time_elapsed_fit, time_elapsed_bootstrap, time_elapsed_all);
+      }
+      else
+        printf("\n(Elapsed time: %.6f sec for fit, %.6f sec total)\n", time_elapsed_fit, 
+        		time_elapsed_all);
+    }
+  }
   
   printf("Done!\n\n");
   

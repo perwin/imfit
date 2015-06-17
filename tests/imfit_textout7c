@@ -36,5 +36,7 @@ FUNCTION FlatSky
 I_sky		      1 # +/- 0.353553
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.000523 sec for fit, 0.001792 sec total)
 Done!
 

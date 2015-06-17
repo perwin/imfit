@@ -82,7 +82,7 @@
 #include <math.h>
 #include <string.h>
 #include <string>
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "model_object.h"
 
 /* Forward declarations of functions in this module */
@@ -141,11 +141,11 @@ int CheckFinite(int ntot, double *matrix);
 *                      upon return, contains adjusted parameter values
 *     mp_par *pars   - array of npar structures specifying constraints;
 *                      or 0 (null pointer) for unconstrained fitting
-*                      [ see README and mpfit_cpp.h for definition & use of mp_par]
+*                      [ see README and mpfit.h for definition & use of mp_par]
 *     mp_config *config - pointer to structure which specifies the
 *                      configuration of mpfit(); or 0 (null pointer)
 *                      if the default configuration is to be used.
-*                      See README and mpfit.h [or mpfit_cpp.h] for definition and use
+*                      See README and mpfit.h for definition and use
 *                      of config.
 *     void *theModel  - any private user data which is to be passed directly
 *                      to funct without modification by mpfit().

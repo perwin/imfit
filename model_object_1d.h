@@ -90,7 +90,7 @@ class ModelObject1d : public ModelObject
 	  double  *dataXValues, *modelXValues;
 	  bool  dataAreMagnitudes;
 	// things useful for PSF convolution
-	  int  dataStartOffset, nPSFVals, nModelVals;
+	  int  dataStartOffset, nPSFVals;
 // 	double  *weightVector;
 // 	double  *modelVector;
 // 	double  *parameterBounds;

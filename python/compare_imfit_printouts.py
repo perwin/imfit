@@ -52,13 +52,18 @@ Done!
 
 """
 
-
-def ApproxEqual( val1, val2, tolerance ):
-	relativeDiff = (val1 - val2) / val1
-	if (relativeDiff) > tolerance:
-		return False
-	else:
-		return True
+def MakeDict( lines ):
+	theDict = {}
+	nameList = []
+	for line in lines:
+		pp = line.split()
+		if len(pp) > 0:
+			theDict[pp[0]] = line
+			nameList.append(pp[0])
+	return theDict, nameList
+	
+def RelativeDiff( val1, val2 ):
+	return abs((val1 - val2) / val1)
 
 def CompareResultsEqual( textFile1, textFile2 ):
 	
@@ -67,32 +72,37 @@ def CompareResultsEqual( textFile1, textFile2 ):
 	if len(textLines1) != len(textLines1):
 		return False
 
-	# get numerical results
-	# chisquare line
-	p1, p2 = textLines1[0].split(), textLines2[0].split()
-	chi21, chi22 = float(p1[2]), float(p2[2])
-	if not ApproxEqual(chi21, chi22, 1e-9):
-		return False
-	# reduced chisquare line
-	p1, p2 = textLines1[2].split(), textLines2[2].split()
-	chi21, chi22 = float(p1[3]), float(p2[3])
-	if not ApproxEqual(chi21, chi22, 1e-9):
-		return False
-	# AIC,BIC line
-	p1, p2 = textLines1[3].split(), textLines2[3].split()
-	aic1, aic2 = float(p1[2].rstrip(",")), float(p2[2].rstrip(","))
-	if not ApproxEqual(aic1, aic2, 1e-9):
-		return False
-	bic1, bic2 = float(p1[5]), float(p2[5])
-	if not ApproxEqual(bic1, bic2, 1e-9):
-		return False
-	# parameter lines; we use tol = 5e-5 to allow for 2--3e-5 differences in PA
-	for i in [5,6,8,9,10,11,12]:
-		p1,p2 = textLines1[i].split(), textLines2[i].split()
-		if (p1[0] != p2[0]):
+	dict1, names1 = MakeDict(textLines1)
+	dict2, names2 = MakeDict(textLines2)
+	
+	for name in names1:
+		if name not in names2:
+			print("\tLine beginning with \"{0}\" is missing from file {1}!".format(name, textFile2))
 			return False
-		if not ApproxEqual(float(p1[1]), float(p2[1]), 5e-5):
-			return False
+		line1 = dict1[name]
+		line2 = dict2[name]
+		if name in ['Reduced', 'AIC', 'X0', 'Y0', 'PA', 'ell', 'n', 'I_e', 'r_e']:
+			#proper line with numerical values
+			if name in ['X0', 'Y0', 'PA', 'ell', 'n', 'I_e', 'r_e']:
+				# parameter lines; we use tolerance = 5e-5 to allow for 2--3e-5 differences in PA
+				num1,num2 = float(line1.split()[1]), float(line2.split()[1])
+				tolerance = 5.0e-5
+				relDiff = RelativeDiff(num1,num2)
+				if (relDiff > tolerance):
+					print("\tValue of {0} differs by {1}".format(name, tolerance))
+					return False
+			else:
+				tolerance = 1.0e-9
+				if name == "Reduced":   # Reduced chi^2 line
+					num1,num2 = float(line1.split()[3]), float(line2.split()[3])
+				else:   # AIC, BIC line
+					n1 = line1.split()[2].rstrip(",")
+					n2 = line2.split()[2].rstrip(",")
+					num1,num2 = float(n1), float(n2)
+				relDiff = RelativeDiff(num1,num2)
+				if (relDiff > tolerance):
+					print("\tValue of {0} differs by {1}".format(name, tolerance))
+					return False
 
 	return True
 

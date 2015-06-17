@@ -11,6 +11,8 @@ are now recorded in the output best-fitting-parameters file in the same way that
 printed to the screen; e.g., "X0              32.9439 # +/- 0.0128".
 (Thanks to Rebecca Lange for suggesting this.)
 
+- Imfit now reports the time taken at the end of its run (including separate times for
+fitting and bootstrap resampling), unless the "--silent" command-line flag is used.
 
 ### Changed:
 - Mac [and Linux??] precompiled binaries now use a version of the FFTW library
@@ -22,6 +24,8 @@ with PSF convolution by ~ 20-30%.
 algorithms (taking advantage of the specific real-to-complex, complex-to-real
 transformations in FFTW). The result is a reduction in memory use by ~ 20%, and
 a factor of ~20% speedup in doing PSF convolutions.
+
+- Output from "imfit --help" has been reorganized into a (hopefully) more logical form.
 
 - Memory-use estimation now accounts for convolutions with oversampled PSFs.
 

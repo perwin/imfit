@@ -63,6 +63,7 @@ README.txt
 CHANGELOG.md
 """
 
+# header files in top-level directory
 source_header_files = """
 definitions
 mersenne_twister
@@ -71,12 +72,6 @@ param_struct
 statistics
 utilities_pub
 bootstrap_errors
-levmar_fit
-mpfit_cpp
-diff_evoln_fit
-DESolver
-nmsimplex_fit
-nlopt_fit
 add_functions
 commandline_parser
 config_file_parser
@@ -90,6 +85,7 @@ option_struct_imfit
 option_struct_makeimage
 """
 
+# C files in top-level directory 
 source_files_c = """
 mersenne_twister
 mp_enorm
@@ -97,6 +93,7 @@ statistics
 """
 
 # the following are C++ files
+# C++ files in top-level directory
 source_files = """
 model_object
 bootstrap_errors
@@ -104,12 +101,6 @@ convolver
 commandline_parser 
 utilities 
 image_io 
-levmar_fit
-mpfit 
-diff_evoln_fit
-DESolver
-nmsimplex_fit
-nlopt_fit
 config_file_parser
 add_functions
 print_results
@@ -118,6 +109,18 @@ downsample
 imfit_main
 makeimage_main
 """
+
+source_files_solvers ="""
+levmar_fit
+mpfit 
+diff_evoln_fit
+DESolver
+nmsimplex_fit
+nlopt_fit
+dispatch_solver
+solver_results
+"""
+solversFileDict = {"dir": "solvers", "file_list": source_files_solvers.split()}
 
 source_files_funcobj = """
 function_object 
@@ -144,6 +147,7 @@ func_gaussianring3d
 integrator
 """
 funcObjFileDict = {"dir": "function_objects", "file_list": source_files_funcobj.split()}
+
 
 example_files = """
 config_sersic_ic3478_256.dat
@@ -216,6 +220,8 @@ imfit_textout4
 imfit_textout4b
 imfit_textout4c
 imfit_textout4d
+imfit_textout4e
+imfit_textout4e2
 imfit_textout5a_tail
 imfit_textout5b_tail
 imfit_textout5c_tail
@@ -257,7 +263,8 @@ makeimage_textout15
 """
 testFileDict = {"dir": "tests", "file_list": test_files.split()}
 
-# file lists:
+
+# Lists of files:
 binary_only_file_list = binary_only_files.split()
 misc_required_files_list = misc_required_files.split()
 testing_scripts_list = testing_scripts.split()
@@ -276,6 +283,10 @@ example_file_list = [ exampleFileDict["dir"] + "/" + fname for fname in exampleF
 python_file_list = [ pythonFileDict["dir"] + "/" + fname for fname in pythonFileDict["file_list"] ]
 test_file_list = [ testFileDict["dir"] + "/" + fname for fname in testFileDict["file_list"] ]
 
+solvers_file_list_cpp = [ solversFileDict["dir"] + "/" + fname + ".cpp" for fname in solversFileDict["file_list"] ]
+solvers_file_list_h = [ solversFileDict["dir"] + "/" + fname + ".h" for fname in solversFileDict["file_list"] ]
+solvers_file_list = solvers_file_list_h + solvers_file_list_cpp
+
 funcobj_file_list_cpp = [ funcObjFileDict["dir"] + "/" + fname + ".cpp" for fname in funcObjFileDict["file_list"] ]
 funcobj_file_list_h = [ funcObjFileDict["dir"] + "/" + fname + ".h" for fname in funcObjFileDict["file_list"] ]
 funcobj_file_list_h.append(funcObjFileDict["dir"] + "/" + "definitions.h")
@@ -283,7 +294,8 @@ funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 
 
 allFileLists = [binary_only_file_list, misc_required_files_list, toplevel_source_list, documentation_file_list,
-				example_file_list, python_file_list, testing_scripts_list, test_file_list, funcobj_file_list]
+				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
+				funcobj_file_list]
 subdirs_list = ["docs", "examples", "python", "tests", "function_objects"]
 
 

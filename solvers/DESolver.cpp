@@ -44,7 +44,7 @@ bool TestConverged( double *relativeDeltas, double ftol );
 DESolver::DESolver( int dim, int popSize ) :
           nDim(dim), nPop(popSize),
           generations(0), strategy(stRand1Exp),
-          scale(0.7), probability(0.5), bestEnergy(0.0),
+          scale(0.7), probability(0.5), trialEnergy(0), bestEnergy(0.0),
           trialSolution(0), bestSolution(0),
           popEnergy(0), population(0), oldValues(0), minBounds(0), maxBounds(0)
 {
@@ -159,8 +159,11 @@ int DESolver::Solve( int maxGenerations, int verbose )
   int candidate;
   bool bAtSolution;
   double  relativeDeltas[3] = {100.0, 100.0, 100.0};
+  double  lastBestEnergy;
 
   bestEnergy = 1.0E20;
+  lastBestEnergy = bestEnergy;
+
   bAtSolution = false;
 
   for (generation = 0; (generation < maxGenerations) && !bAtSolution; generation++) {
@@ -196,7 +199,7 @@ int DESolver::Solve( int maxGenerations, int verbose )
     }
     
     // Debugging printout code added by PE -- print an update every 10 generations
-    double  relativeDeltaEnergy;
+    double  relativeDeltaEnergy = 0.0;
     if ((generation % 10) == 0) {
       if (verbose > 0)
         printf("\nGeneration %4d: bestEnergy = %12.10f", generation, bestEnergy);

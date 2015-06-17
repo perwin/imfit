@@ -34,7 +34,7 @@ using namespace std;
 
 //#include "messages_and_defs.h"
 #include "utilities_pub.h"
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "statistics.h"
 
 /* ------------------- Function Prototypes ----------------------------- */

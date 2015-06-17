@@ -21,7 +21,7 @@
 #include <stdio.h>
 
 #include "definitions.h"
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "solver_results.h"
 
 using namespace std;

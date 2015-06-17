@@ -38,7 +38,7 @@
 
 #include "definitions.h"
 #include "model_object.h"
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "levmar_fit.h"
 #ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
@@ -140,8 +140,9 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
 /* ---------------- FUNCTION: BootstrapErrorsArrayOnly ----------------- */
 // Alternate wrapper function: returns array of best-fit parameters in outputParamArray;
 // doesn't print any summary statistics (e.g., sigmas, confidence intervals). 
-// Note that outputParamArray will be allocated here; it should be de-allocated by 
+// * Note that outputParamArray will be allocated here; it should be de-allocated by 
 // whatever function is calling this function.
+// CURRENTLY UNUSED (UNLESS BY SOMEONE ELSE) -- REMOVE?
 int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 

@@ -1,17 +1,17 @@
-  NFEV = 12600
-
 Reduced Chi^2 = 1.114196
-AIC = 4569.975052, BIC = 4614.172017
+AIC = 4569.975051, BIC = 4614.172017
 
-X0		32.9440
+X0		32.9439
 Y0		34.0933
 FUNCTION Sersic
 PA		18.2613
-ell		0.235988
+ell		0.235989
 n		2.40028
 I_e		20.0094
-r_e		60.7611
+r_e		60.7612
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 7.701630 sec for fit, 7.703656 sec total)
 Done!
 
