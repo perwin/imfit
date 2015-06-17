@@ -43,6 +43,7 @@
 #include "config_file_parser.h"
 #include "utilities_pub.h"
 #include "option_struct_makeimage.h"
+#include "sample_configs.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -406,6 +407,7 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
 {
 
   CLineParser *optParser = new CLineParser();
+  string  tempString = "";
 
   /* SET THE USAGE/HELP   */
   optParser->AddUsageLine("Usage: ");
@@ -414,6 +416,8 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   optParser->AddUsageLine(" -v  --version                Prints version number");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
+  tempString = PrintToString("     --sample-config          Generates an example configuration file (%s)", configMakeimageFile.c_str());
+  optParser->AddUsageLine(tempString);
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image [default = modelimage.fits]");
   optParser->AddUsageLine("     --refimage <reference-image.fits>   reference image (for image size)");
@@ -452,6 +456,7 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   optParser->AddFlag("version", "v");
   optParser->AddFlag("list-functions");
   optParser->AddFlag("list-parameters");
+  optParser->AddFlag("sample-config");
   optParser->AddFlag("printimage");
   optParser->AddFlag("save-expanded");
   optParser->AddFlag("nosubsampling");
@@ -505,6 +510,13 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   }
   if (optParser->FlagSet("list-parameters")) {
     ListFunctionParameters();
+    delete optParser;
+    exit(1);
+  }
+  if (optParser->FlagSet("sample-config")) {
+    int saveStatus = SaveExampleMakeimageConfig();
+    if (saveStatus == 0)
+      printf("Sample configuration file \"%s\" saved.\n", configMakeimageFile.c_str());
     delete optParser;
     exit(1);
   }

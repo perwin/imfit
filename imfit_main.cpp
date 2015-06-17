@@ -62,6 +62,7 @@
 #include "config_file_parser.h"
 #include "print_results.h"
 #include "estimate_memory.h"
+#include "sample_configs.h"
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
@@ -660,6 +661,7 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
 {
 
   CLineParser *optParser = new CLineParser();
+  string  tempString = "";
 
   /* SET THE USAGE/HELP   */
   optParser->AddUsageLine("Usage: ");
@@ -668,6 +670,8 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddUsageLine(" -v  --version                Prints version number");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
   optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
+  tempString = PrintToString("     --sample-config          Generates an example configuration file (%s)", configImfitFile.c_str());
+  optParser->AddUsageLine(tempString);
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -c  --config <config-file>   configuration file [REQUIRED!]");
   optParser->AddUsageLine("");
@@ -731,6 +735,7 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddFlag("version", "v");
   optParser->AddFlag("list-functions");
   optParser->AddFlag("list-parameters");
+  optParser->AddFlag("sample-config");
   optParser->AddFlag("printimage");
   optParser->AddFlag("chisquare-only");
   optParser->AddFlag("fitstat-only");
@@ -750,7 +755,7 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddFlag("quiet");
   optParser->AddFlag("silent");
   optParser->AddFlag("loud");
-  optParser->AddOption("noise");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("noise");
   optParser->AddOption("mask");
   optParser->AddOption("psf");
   optParser->AddOption("overpsf");
@@ -768,7 +773,7 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddOption("ftol");
   optParser->AddOption("bootstrap");
   optParser->AddOption("save-bootstrap");
-  optParser->AddOption("config", "c");        /* an option (takes an argument), supporting both short & long forms */
+  optParser->AddOption("config", "c");
   optParser->AddOption("max-threads");
 
   // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
@@ -810,6 +815,13 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   }
   if (optParser->FlagSet("list-parameters")) {
     ListFunctionParameters();
+    delete optParser;
+    exit(1);
+  }
+  if (optParser->FlagSet("sample-config")) {
+    int saveStatus = SaveExampleImfitConfig();
+    if (saveStatus == 0)
+      printf("Sample configuration file \"%s\" saved.\n", configImfitFile.c_str());
     delete optParser;
     exit(1);
   }
