@@ -31,8 +31,10 @@ using namespace std;
 #include "statistics.h"
 #include "utilities_pub.h"
 #include "mpfit_cpp.h"
+#ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
 #include "nlopt_fit.h"
+#endif
 
 #define  FILE_OPEN_ERR_STRING "\n   Couldn't open file \"%s\"\n\n"
 
@@ -149,6 +151,7 @@ void GetSolverSummary( int status, int solverID, string& outputString )
       InterpretMpfitResult(status, tempString);
       outputString += tempString;
       break;
+#ifndef NO_NLOPT
     case NMSIMPLEX_SOLVER:
       GetInterpretation_NM(status, tempString);
       outputString += tempString;
@@ -157,6 +160,7 @@ void GetSolverSummary( int status, int solverID, string& outputString )
       GetInterpretation_NLOpt(status, tempString);
       outputString += tempString;
       break;
+#endif
     case DIFF_EVOLN_SOLVER:
       outputString += PrintToString("Differential Evolution: status = %d -- ", status);
       if (status == 1)

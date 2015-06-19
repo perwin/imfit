@@ -108,7 +108,7 @@ int BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, bool paramL
   printf(" (%d successful iterations):\n", nSuccessfulIterations);
   printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
   for (i = 0; i < nParams; i++) {
-    if ((paramLimitsExist) && (parameterLimits[i].fixed == 0)) {
+    if (parameterLimits[i].fixed == 0) {
       // OK, this parameter was not fixed
       ConfidenceInterval(outputParamArray[i], nSuccessfulIterations, &lower, &upper);
       plus = upper - bestfitParams[i];
