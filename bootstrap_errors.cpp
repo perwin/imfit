@@ -83,8 +83,7 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
   outputParamArray = (double **)calloc( (size_t)nParams, sizeof(double *) );
   for (i = 0; i < nParams; i++)
     outputParamArray[i] = (double *)calloc( (size_t)nIterations, sizeof(double) );
-  
-  
+
   // write column header info to file, if user requested saving to file
   if (outputFile_ptr != NULL) {
     string  headerLine = theModel->GetParamHeader();

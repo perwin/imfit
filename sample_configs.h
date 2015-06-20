@@ -1,5 +1,6 @@
 /** @file
-    \brief Header file containing text for example config files
+    \brief Header file containing text for example config files, and functions
+    for writing them to files.
  *
  */
 
@@ -12,6 +13,7 @@
 std::string configImfitFile = "config_imfit_sample.dat";
 std::string configMakeimageFile = "config_makeimage_sample.dat";
 
+/// Full text for the example imfit config file
 // compiler will concatenate all this together into a single string
 std::string configImfitText = "# This is a sample configuration file for imfit (it will also work with makeimage).\n"
 "# Comments are introduced with the \"#\" character; anything following this character\n"
@@ -36,6 +38,7 @@ std::string configImfitText = "# This is a sample configuration file for imfit (
 "I_e    15     0,500       # intensity (ADU/pixel) at r_e\n"
 "r_e    25     0,100       # half-light radius (pixels)\n";
 
+/// Full text for the example makeimage config file
 std::string configMakeimageText = "# This is a sample configuration file for makeimage.\n"
 "# Comments are introduced with the \"#\" character; anything following this character\n"
 "# on the same line is ignored by makeimage. Blank lines are also ignored.\n"
@@ -54,6 +57,7 @@ std::string configMakeimageText = "# This is a sample configuration file for mak
 "r_e    25        # half-light radius (pixels)\n";
 
 
+/// Saves an example config file for imfit. Returns 0 for success, -1 if file couldn't be opened.
 int SaveExampleImfitConfig( )
 {
   FILE *outFile_ptr = fopen(configImfitFile.c_str(), "w");
@@ -69,6 +73,7 @@ int SaveExampleImfitConfig( )
 }
 
 
+/// Saves an example config file for makeimage. Returns 0 for success, -1 if file couldn't be opened.
 int SaveExampleMakeimageConfig( )
 {
   FILE *outFile_ptr = fopen(configMakeimageFile.c_str(), "w");

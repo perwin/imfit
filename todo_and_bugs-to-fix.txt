@@ -19,9 +19,9 @@
 [..] Add "const" specifies to input parameters of functions, as appropriate
 
 
-[] Option to output default/simple configuration file (and then quite)
-	-- for imfit, this could include e.g. GAIN = 1 as well as single function
-	-- for makeimage, this could include NROWS and NCOLS as well as single function
+[] Bootstrap resampling output file needs a better header
+	-- should say that this is bootstrap-resampling output
+	-- include name of original bestfit-params output?
 
 
 [] Modify handling of oversampled PSF to catch case where user wants entire
@@ -39,7 +39,7 @@ image oversampled
 	src/solvers
 	src/function_objects
 	src/function_objects_extra -- for specialized, non-public stuff (n4762 funcs, experimental stuff, etc.)
-	src/function_objects1d
+	src/function_objects_1d
 	src/profilefit -- for all the 1D stuff (except func1d_*)
 	src/utilities ?
 	src/extra ? -- for timing_main.cpp
@@ -81,7 +81,51 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 ** MINOR BUGS TO FIX/IMPROVEMENTS TO MAKE:
 
+[] Doing bootstrap resampling when the input config file contains the best-fitting
+solution for the model + image results in mysteriously non-existent boostrap
+error estimates:
+E.g., [with version 1.3b; seen by Semyeong Oh in an earlier version]
+$ ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 --bootstrap 100
+	==> OK output
+$ ./imfit tests/ic3478rss_64x64.fits --config bestfit_parameters_imfit.dat --gain=4.725 --readnoise=4.3 --sky=130.1 --bootstrap 100
+	==> yieds:
+Best-fit		 Bootstrap      [68% conf.int., half-width]; (mean +/- standard deviation)
+X0 = 32.9439     [fixed parameter]
+Y0 = 34.0933     [fixed parameter]
+PA = 18.2613     [fixed parameter]
+ell = 0.235989     [fixed parameter]
+n = 2.40028     [fixed parameter]
+I_e = 20.0094     [fixed parameter]
+r_e = 60.7611     [fixed parameter]
 
+f1 = '/Users/erwin/coding/imfit/bstest1.dat'
+df1 = du.ReadCompositeTableFromText(open(f1).readlines(),dataFrame=True, columnRow=14)
+f2 = '/Users/erwin/coding/imfit/bstest2.dat'
+df2 = du.ReadCompositeTableFromText(open(f2).readlines(),dataFrame=True, columnRow=14)
+
+astrostat.genstats(df1.X0_1)
+astrostat.genstats(df2.X0_1)
+astrostat.genstats(df1.Y0_1)
+astrostat.genstats(df2.Y0_1)
+astrostat.genstats(df1.n_1)
+astrostat.genstats(df2.n_1)
+
+OK, bootstrap output from 2nd case (starting with best-fit values) seems similar to
+first case (starting from original guesses), so *that* part works...
+
+OK, here is the problem:
+	1. In BootstrapErrors(), we check for *fixed* parameters with this:
+    if ((paramLimitsExist) && (parameterLimits[i].fixed == 0)) {
+	BUT: if the config file had no limits at all (as is always true for an output
+	best-fit parameters file), then paramLimitsExist = false
+	
+	Confirmed by removing all the limits from the regular param file
+		==> produces the same "[fixed parameter]" output...
+	
+	[] SOLUTION: Remove parameterLimitsExist from all Bootstrap functions -- we don't
+	need it, and it causes a bug when config file is completely parameter-limit-free!
+	
+	
 
 * BUGS FIXED
 
@@ -108,4 +152,8 @@ for all minimizers)
 
 [X] Add one or two oversampled-PSF tests to do_imfit_tests (and do_makeimage_tests)
 	do_makeimage_tests -- ensure that we recreate reference image
+
+[X] Option to output default/simple configuration file (and then quite)
+	-- for imfit, this could include e.g. GAIN = 1 as well as single function
+	-- for makeimage, this could include NROWS and NCOLS as well as single function
 

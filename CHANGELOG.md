@@ -14,20 +14,23 @@ printed to the screen; e.g., "X0              32.9439 # +/- 0.0128".
 - Imfit now reports the time taken at the end of its run (including separate times for
 fitting and bootstrap resampling), unless the "--silent" command-line flag is used.
 
+- Imfit and makeimage can now output sample configuration files, using the "--sample-config"
+command-line flag.
+
 ### Changed:
 - Mac [and Linux??] precompiled binaries now use a version of the FFTW library
-which includes SSE2 vectorization (which is available in all Intel and AMD x86-type
+which includes SSE2 vectorization (available in all Intel and AMD x86-type
 CPUs manufactured since about 2003). In practice, this appears to speed up fits
 with PSF convolution by ~ 20-30%.
 
 - PSF convolution code rewritten to use smaller arrays and slightly faster
-algorithms (taking advantage of the specific real-to-complex, complex-to-real
+algorithms (taking advantage of the specialized real-to-complex, complex-to-real
 transformations in FFTW). The result is a reduction in memory use by ~ 20%, and
 a factor of ~20% speedup in doing PSF convolutions.
 
 - Output from "imfit --help" has been reorganized into a (hopefully) more logical form.
 
-- Memory-use estimation now accounts for convolutions with oversampled PSFs.
+- Memory-use estimates now account for convolutions with oversampled PSFs.
 
 - Updates to documentation.
 
@@ -38,7 +41,7 @@ a factor of ~20% speedup in doing PSF convolutions.
 ### Added: 
 - Imfit can now optionally convolve part of the model image with an
 oversampled PSF. E.g., you can specify that a 10x10-pixel region
-centered on the galaxy nucleus should be modeled using a
+centered on a galaxy nucleus should be modeled using a
 five-times-smaller pixel size and convolved with a corresponding
 (five-times-oversampled) PSF image. The resulting oversampled and
 convolved sub-image is then downsampled back to the main image pixel
@@ -74,25 +77,25 @@ cause mysterious segmentation faults otherwise).
 ## 1.1 -- 2014-10-22
 ### Added:
 - New version of Poisson-based fit statistic for minimization ("Poisson 
-maximum-likelihood-ratio statistic", via --poisson-mlr/--mlr flag) which is always >= 0, 
+maximum-likelihood-ratio statistic", via "--poisson-mlr"/"--mlr" flag) which is always >= 0, 
 and can thus be used with Levenberg-Marquardt minimization, unlike the Cash statistic;
 actual fit results should be effectively identical to Cash-statistic fits. 
 Thanks to David Streich for pointing out this possibility.
 
 - Full bootstrap-resampling output (i.e., the individual best-fit parameters from
 each bootstrap iteration) can now be saved to a text file for later analysis,
-via the --save-bootstrap option. (Thanks to David Streich for suggesting this.)
+via the "--save-bootstrap" option. (Thanks to David Streich for suggesting this.)
 
 - Extra minimization algorithms from the NLopt library, specified via
-the --nlopt command-line option (basically, this includes all the "local
+the "--nlopt" command-line option (basically, this includes all the "local
 derivative-free optimization" algorithms from NLopt; see
 [http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms](http://ab-
 initio.mit.edu/wiki/index.php/NLopt_Algorithms) for more details). The
 Nelder-Mead simplex algorithm is of course still available via its usual
-flag (--nm), and is probably the best of all the NLopt algorithms for
+flag ("--nm"), and is probably the best of all the NLopt algorithms for
 general image-fitting.
 
-- Command-line flag --fitstat-only, which is a synonym for --chisquare-only.
+- Command-line flag "--fitstat-only", which is a synonym for "--chisquare-only".
 
 ### Changed:
 - Minor changes to the wording of help text and error messages.
@@ -167,11 +170,11 @@ NLopt library wasn't available.
 - Fixed an uninitialized boolean-flag bug which was causing OpenMP failures 
 (on at least some 32-bit Linux systems).
 
-- Fixed handling of --no-openmp compilation option in SConstruct file so
+- Fixed handling of "--no-openmp" compilation option in SConstruct file so
 that it actually turns off use of OpenMP (thanks to Sergio Pascual for
 identifying this problem).
 
-- Fixed handling of --no-nlopt compilation option (NO_NLOPT preprocessor
+- Fixed handling of "--no-nlopt" compilation option (NO_NLOPT preprocessor
 definition) in bootstrap-resampling code (thanks to Guillermo Barro for
 identifying this problem).
 
