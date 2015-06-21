@@ -89,4 +89,4 @@ int SaveExampleMakeimageConfig( )
 }
 
 
-#endif _SAMPLE_CONFIGS_H_
+#endif    // _SAMPLE_CONFIGS_H_

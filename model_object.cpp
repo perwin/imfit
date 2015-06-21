@@ -45,7 +45,9 @@
 
 /* ------------------------ Include Files (Header Files )--------------- */
 
+#ifdef USE_OPENMP
 #include <omp.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

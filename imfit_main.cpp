@@ -91,6 +91,7 @@ void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset);
 //void SetDefaultOptions( commandOptions *theOptions );
 void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions );
+bool RequestedFilesPresent( imfitCommandOptions &theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								imfitCommandOptions *mainOptions );
 
@@ -137,7 +138,6 @@ int main(int argc, char *argv[])
   vector<int>  FunctionBlockIndices;
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
-  bool  allFilesPresent;
   mp_par  *parameterInfo;
   int  status, fitStatus, nSucessfulIterations;
   SolverResults  resultsFromSolver;
@@ -148,6 +148,7 @@ int main(int argc, char *argv[])
   const std::string  Y0_string("Y0");
   string  progNameVersion = "imfit ";
   FILE  *bootstrapSaveFile_ptr = NULL;
+  bool  didBootstrap = false;
   // timing-related
   struct timeval  timer_start_all, timer_end_all;
   struct timeval  timer_start_fit, timer_end_fit;
@@ -163,36 +164,10 @@ int main(int argc, char *argv[])
   ProcessInput(argc, argv, &options);
 
 
-  /* Check for presence of user-requested files; if any are missing, quit.
-   * Look for all of them here, so we can list *all* the missing files before
-   * we quit */
-  allFilesPresent = true;
-  if (! FileExists(options.configFileName.c_str())) {
-    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n", 
-           options.configFileName.c_str());
-    allFilesPresent = false;
-  }
-  if (! ImageFileExists(options.imageFileName.c_str())) {
-    fprintf(stderr, "\n*** ERROR: Unable to find image file \"%s\"!\n", 
-           options.imageFileName.c_str());
-    allFilesPresent = false;
-  }
-  if ( (options.maskImagePresent) && (! ImageFileExists(options.maskFileName.c_str())) ) {
-    fprintf(stderr, "\n*** ERROR: Unable to find mask file \"%s\"!\n", 
-           options.maskFileName.c_str());
-    allFilesPresent = false;
-  }
-  if ( (options.noiseImagePresent) && (! ImageFileExists(options.noiseFileName.c_str())) ) {
-    fprintf(stderr, "\n*** ERROR: Unable to find noise-image file \"%s\"!\n", 
-           options.noiseFileName.c_str());
-    allFilesPresent = false;
-  }
-  if ( (options.psfImagePresent) && (! ImageFileExists(options.psfFileName.c_str())) ) {
-    fprintf(stderr, "\n*** ERROR: Unable to find PSF image file \"%s\"!\n", 
-           options.psfFileName.c_str());
-    allFilesPresent = false;
-  }
-  if (! allFilesPresent) {
+  // Check for presence of user-requested files; if any are missing, quit.
+  // (Appropriate error messages regarding which files are missing will be printed
+  // to stderr by RequestedFilesPresent)
+  if (! RequestedFilesPresent(options)) {
     fprintf(stderr, "\n");
     exit(-1);
   }
@@ -523,7 +498,6 @@ int main(int argc, char *argv[])
     printf("\n");
     status = 1;
     PrintFitStatistic(paramsVect, theModel, nFreeParams);
-//    PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, status);
     printf("\n");
     options.saveBestFitParams = false;
   }
@@ -568,6 +542,7 @@ int main(int argc, char *argv[])
     if ((nSucessfulIterations > 0) && (options.outputBootstrapFileName.length() > 0))
       printf("Bootstrap-resampling output saved to file %s.\n", options.outputBootstrapFileName.c_str());
     fclose(bootstrapSaveFile_ptr);
+    didBootstrap = true;
   }
 
 
@@ -638,7 +613,7 @@ int main(int argc, char *argv[])
     else {
       microsecs = timer_end_fit.tv_usec - timer_start_fit.tv_usec;
       time_elapsed_fit = timer_end_fit.tv_sec - timer_start_fit.tv_sec + microsecs/1e6;
-      if (options.doBootstrap) {
+      if (didBootstrap) {
         microsecs = timer_end_bootstrap.tv_usec - timer_start_bootstrap.tv_usec;
         time_elapsed_bootstrap = timer_end_bootstrap.tv_sec - timer_start_bootstrap.tv_sec + microsecs/1e6;
         printf("\n(Elapsed time: %.6f sec for fit, %.6f for bootstrap, %.6f sec total)\n", 
@@ -1111,6 +1086,50 @@ void HandleConfigFileOptions( configOptions *configFileOptions, imfitCommandOpti
   }
 }
 
+
+
+/// Checks to see that all user-requested files are present; returns false if
+/// any are missing, and prints appropriate error messages.
+/// Files we check:
+///    config file (options.configFileName)
+///    data image (options.imageFileName)
+/// and the following, if the user supplied names for them:
+///    mask image (options.maskFileName)
+///    noise image (options.noiseFileName)
+///    PSF image (options.psfFileName)
+bool RequestedFilesPresent( imfitCommandOptions &theOptions )
+{
+  bool  allFilesPresent = true;
+  
+  if (! FileExists(theOptions.configFileName.c_str())) {
+    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n", 
+           theOptions.configFileName.c_str());
+    allFilesPresent = false;
+  }
+  if (! ImageFileExists(theOptions.imageFileName.c_str())) {
+    fprintf(stderr, "\n*** ERROR: Unable to find image file \"%s\"!\n", 
+           theOptions.imageFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (theOptions.maskImagePresent) && (! ImageFileExists(theOptions.maskFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find mask file \"%s\"!\n", 
+           theOptions.maskFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (theOptions.noiseImagePresent) && (! ImageFileExists(theOptions.noiseFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find noise-image file \"%s\"!\n", 
+           theOptions.noiseFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (theOptions.psfImagePresent) && (! ImageFileExists(theOptions.psfFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find PSF image file \"%s\"!\n", 
+           theOptions.psfFileName.c_str());
+    allFilesPresent = false;
+  }
+
+  return allFilesPresent;
+}
+ 
 
 
 /* Function which takes the user-supplied image filename and determines what,

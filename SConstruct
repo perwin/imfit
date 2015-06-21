@@ -26,7 +26,7 @@
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
 #    $ scons --cc=gcc-4.9 --cpp=g++-4.9 <target-name>
-# shorthand for the previous case (GCC 4.9 only)
+# shorthand for using GCC 5.1
 #    $ scons --use-gcc <target-name>
 #
 #
@@ -204,6 +204,7 @@ useExtraFuncs = False
 useStaticLibs = False
 buildFatBinary = False
 buildForOldMacOS = False
+scanBuild = False
 
 # Define some user options
 AddOption("--lib-path", dest="libraryPath", type="string", action="store", default=None,
@@ -229,6 +230,8 @@ AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=N
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
 	default=False, help="use gcc and g++ v4.9 compilers")
+AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
+	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -272,12 +275,18 @@ if GetOption("cpp_compiler") is not None:
 	print "using %s for C++ compiler" % CPP_COMPILER
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
-	CC_COMPILER = "gcc-4.9"
-	CPP_COMPILER = "g++-4.9"
+# 	CC_COMPILER = "gcc-4.9"
+# 	CPP_COMPILER = "g++-4.9"
+	CC_COMPILER = "gcc-5"
+	CPP_COMPILER = "g++-5"
 	print "using %s for C compiler" % CC_COMPILER
 	print "using %s for C++ compiler" % CPP_COMPILER
 	c_compiler_changed = True
 	cpp_compiler_changed = True
+
+if GetOption("doingScanBuild") is True:
+	scanBuild = True
+	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
 
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
@@ -285,7 +294,6 @@ if GetOption("makeFatBinaries") is True:
 	buildFatBinary = True
 if GetOption("buildForOldMac") is True:
 	buildForOldMacOS = True
-
 
 
 # *** Setup for various options (either default, or user-altered)
@@ -508,6 +516,12 @@ imfit_sources = imfit_base_sources + modelobject_sources + functionobject_source
 makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs + c_objs
 makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources + c_sources
 
+
+# import environment variables if we're doing scan-build static analysis
+if scanBuild is True:
+	env_debug["CC"] = os.getenv("CC")
+	env_debug["CXX"] = os.getenv("CXX")
+	env_debug["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
 
 
 # *** Finally, define the actual targets for building
