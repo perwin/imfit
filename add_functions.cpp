@@ -170,9 +170,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 // extra functions
 #ifdef USE_EXTRA_FUNCS
-  // in testing/development
-//  ExponentialDisk3Dv2::GetClassShortName(classFuncName);
-//  input_factory_map[classFuncName] = new funcobj_factory<ExponentialDisk3Dv2>();
 
   BrokenExponentialBar::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponentialBar>();

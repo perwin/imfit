@@ -84,12 +84,8 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 /* ------------------- Function Prototypes ----------------------------- */
-/* External functions: */
-
-/* Local Functions: */
 void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset);
-//void SetDefaultOptions( commandOptions *theOptions );
 void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions );
 bool RequestedFilesPresent( imfitCommandOptions &theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
@@ -154,11 +150,11 @@ int main(int argc, char *argv[])
   struct timeval  timer_start_fit, timer_end_fit;
   struct timeval  timer_start_bootstrap, timer_end_bootstrap;
 
-  progNameVersion += VERSION_STRING;
-  
-  
+
   gettimeofday(&timer_start_all, NULL);
 
+  progNameVersion += VERSION_STRING;
+  
   /* Define default options, then process the command line */
   SetDefaultImfitOptions(&options);
   ProcessInput(argc, argv, &options);
@@ -175,7 +171,7 @@ int main(int argc, char *argv[])
 
   /* Read configuration file, parse & process user-supplied (non-function-related) values */
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
-  								paramLimits, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
+  							paramLimits, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
@@ -217,7 +213,7 @@ int main(int argc, char *argv[])
              options.maskFileName.c_str(), nMaskColumns, nMaskRows);
       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
              options.imageFileName.c_str(), nColumns, nRows);
-      return -1;
+      exit(-1);
     }
     maskAllocated = true;
   }
@@ -237,7 +233,7 @@ int main(int argc, char *argv[])
              noiseImage.c_str(), nErrColumns, nErrRows);
       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
              options.imageFileName.c_str(), nColumns, nRows);
-      return -1;
+      exit(-1);
     }
   }
   
@@ -496,7 +492,6 @@ int main(int argc, char *argv[])
   // else call one of the solvers!
   if (options.printFitStatisticOnly) {
     printf("\n");
-    status = 1;
     PrintFitStatistic(paramsVect, theModel, nFreeParams);
     printf("\n");
     options.saveBestFitParams = false;
@@ -588,15 +583,15 @@ int main(int argc, char *argv[])
 
 
   // Free up memory
-  free(allPixels);       // allocated in ReadImageAsVector()
+  free(allPixels);       // allocated externally, in ReadImageAsVector()
   if (errorPixels_allocated)
-    free(allErrorPixels);  // allocated in ReadImageAsVector()
+    free(allErrorPixels);  // allocated externally, in ReadImageAsVector()
   if (options.psfImagePresent)
-    free(psfPixels);  // allocated in ReadImageAsVector()
+    free(psfPixels);  // allocated externally, in ReadImageAsVector()
   if (options.psfOversampledImagePresent)
-    free(psfOversampledPixels);  // allocated in ReadImageAsVector()
+    free(psfOversampledPixels);  // allocated externally, in ReadImageAsVector()
   if (maskAllocated)
-    free(allMaskPixels);  // allocated in ReadImageAsVector()
+    free(allMaskPixels);  // allocated externally, in ReadImageAsVector()
   free(paramsVect);
   if (parameterInfo_allocated)
     free(parameterInfo);
@@ -1016,6 +1011,50 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
 
 
 
+/// Checks to see that all user-requested files are present; returns false if
+/// any are missing, and prints appropriate error messages.
+/// Files we check:
+///    config file (options.configFileName)
+///    data image (options.imageFileName)
+/// and the following, if the user supplied names for them:
+///    mask image (options.maskFileName)
+///    noise image (options.noiseFileName)
+///    PSF image (options.psfFileName)
+bool RequestedFilesPresent( imfitCommandOptions &theOptions )
+{
+  bool  allFilesPresent = true;
+  
+  if (! FileExists(theOptions.configFileName.c_str())) {
+    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n", 
+           theOptions.configFileName.c_str());
+    allFilesPresent = false;
+  }
+  if (! ImageFileExists(theOptions.imageFileName.c_str())) {
+    fprintf(stderr, "\n*** ERROR: Unable to find image file \"%s\"!\n", 
+           theOptions.imageFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (theOptions.maskImagePresent) && (! ImageFileExists(theOptions.maskFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find mask file \"%s\"!\n", 
+           theOptions.maskFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (theOptions.noiseImagePresent) && (! ImageFileExists(theOptions.noiseFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find noise-image file \"%s\"!\n", 
+           theOptions.noiseFileName.c_str());
+    allFilesPresent = false;
+  }
+  if ( (theOptions.psfImagePresent) && (! ImageFileExists(theOptions.psfFileName.c_str())) ) {
+    fprintf(stderr, "\n*** ERROR: Unable to find PSF image file \"%s\"!\n", 
+           theOptions.psfFileName.c_str());
+    allFilesPresent = false;
+  }
+
+  return allFilesPresent;
+}
+
+
+
 // Note that we only use options from the config file if they have *not*
 // already been set by the command line (i.e., command-line options override
 // config-file values).
@@ -1088,54 +1127,11 @@ void HandleConfigFileOptions( configOptions *configFileOptions, imfitCommandOpti
 
 
 
-/// Checks to see that all user-requested files are present; returns false if
-/// any are missing, and prints appropriate error messages.
-/// Files we check:
-///    config file (options.configFileName)
-///    data image (options.imageFileName)
-/// and the following, if the user supplied names for them:
-///    mask image (options.maskFileName)
-///    noise image (options.noiseFileName)
-///    PSF image (options.psfFileName)
-bool RequestedFilesPresent( imfitCommandOptions &theOptions )
-{
-  bool  allFilesPresent = true;
-  
-  if (! FileExists(theOptions.configFileName.c_str())) {
-    fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n", 
-           theOptions.configFileName.c_str());
-    allFilesPresent = false;
-  }
-  if (! ImageFileExists(theOptions.imageFileName.c_str())) {
-    fprintf(stderr, "\n*** ERROR: Unable to find image file \"%s\"!\n", 
-           theOptions.imageFileName.c_str());
-    allFilesPresent = false;
-  }
-  if ( (theOptions.maskImagePresent) && (! ImageFileExists(theOptions.maskFileName.c_str())) ) {
-    fprintf(stderr, "\n*** ERROR: Unable to find mask file \"%s\"!\n", 
-           theOptions.maskFileName.c_str());
-    allFilesPresent = false;
-  }
-  if ( (theOptions.noiseImagePresent) && (! ImageFileExists(theOptions.noiseFileName.c_str())) ) {
-    fprintf(stderr, "\n*** ERROR: Unable to find noise-image file \"%s\"!\n", 
-           theOptions.noiseFileName.c_str());
-    allFilesPresent = false;
-  }
-  if ( (theOptions.psfImagePresent) && (! ImageFileExists(theOptions.psfFileName.c_str())) ) {
-    fprintf(stderr, "\n*** ERROR: Unable to find PSF image file \"%s\"!\n", 
-           theOptions.psfFileName.c_str());
-    allFilesPresent = false;
-  }
 
-  return allFilesPresent;
-}
- 
-
-
-/* Function which takes the user-supplied image filename and determines what,
- * if any, x0 and y0 pixel offsets are implied by any section specification
- * in the filename.  Note that offsets are always >= 0.
- */
+/// Takes user-supplied image filename and determines what, if any, x0 and y0
+/// pixel offsets are implied by any section specification in the filename
+/// (e.g. "somefile.fits[100:250,400:400]").
+/// Note that offsets are always >= 0.
 void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset)
 {
@@ -1145,8 +1141,6 @@ void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
   *x_offset = xStart - 1;
   *y_offset = yStart - 1;
 }
-
-
 
 
 

@@ -261,7 +261,7 @@ class ModelObject
     vector<int> paramSizes;
     vector<string>  parameterLabels;
     
-    // experimental stuff for ovsersampled PSF convolution
+    // stuff for ovsersampled PSF convolution
     Convolver  *psfConvolver_osamp;
     int  oversamplingScale, nPSFColumns_osamp, nPSFRows_osamp;
     int  nOversampledModelColumns, nOversampledModelRows, nOversampledModelVals;

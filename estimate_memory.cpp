@@ -8,11 +8,7 @@ const int  FFTW_SIZE = 16;
 const int  DOUBLE_SIZE = 8;
 
 
-// How this is called in imfit_main.cpp:
-//   estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-//   												usingLevMar, usingCashTerms, options.saveResidualImage, 
-//   												options.saveModel);
-
+/* ------------------- Function Prototypes ----------------------------- */
 long EstimateConvolverMemory( int nData_cols, int nData_rows, int nPSF_cols, int nPSF_rows );
 
 
@@ -25,8 +21,6 @@ long EstimateConvolverMemory( int nModel_cols, int nModel_rows, int nPSF_cols, i
   int  nCols_padded, nRows_padded, nCols_padded_trimmed;
 
   nBytesNeeded += (long)(nPSF_cols * nPSF_rows);   // allocated outside
-//   nModel_cols = oversampleScale * nData_cols + 2*nPSF_cols;
-//   nModel_rows = oversampleScale * nData_rows + 2*nPSF_rows;
   // Convolver stuff
   nCols_padded = nModel_cols + nPSF_cols - 1;
   nRows_padded = nModel_rows + nPSF_rows - 1;

@@ -197,7 +197,6 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, mp_par *parameterLi
   nlopt_set_ftol_abs(optimizer, ftol);
   // specify relative tolerance for all parameters
   nlopt_set_xtol_rel(optimizer, ftol);
-//  nlopt_set_xtol_abs1(optimizer, XTOL);
   // maximum number of function calls (MAXEVAL_BASE * total number of parameters)
   maxEvaluations = nParamsTot * MAXEVAL_BASE;
   nlopt_set_maxeval(optimizer, maxEvaluations);
@@ -217,7 +216,6 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, mp_par *parameterLi
   // Specify level of verbosity and start the optimization
   verboseOutput = verbose;
   result = nlopt_optimize(optimizer, paramVector, &finalStatisticVal);
-  //double stopval = nlopt_get_stopval(optimizer);
   if (verbose >= 0) {
     string interpretedResult;
     GetInterpretation_NM((int)result, interpretedResult);

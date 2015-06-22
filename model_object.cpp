@@ -392,7 +392,6 @@ void ModelObject::GenerateErrorVector( )
   // Compute noise estimate for each pixel (see above for derivation)
   // Note that we assume a constant sky background (presumably already subtracted)
   for (int z = 0; z < nDataVals; z++) {
-    // total flux = nCombined*(source + subtracted_sky_value)
     totalFlux = dataVector[z] + originalSky;
     if (totalFlux < 0.0)
       totalFlux = 0.0;
@@ -1160,7 +1159,6 @@ double ModelObject::ChiSquared( double params[] )
   double  chi;
   
   if (! deviatesVectorAllocated) {
-//    deviatesVector = (double *) malloc(nDataVals * sizeof(double));
     deviatesVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     deviatesVectorAllocated = true;
   }

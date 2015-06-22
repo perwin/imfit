@@ -187,7 +187,7 @@ void CLineParser::UnrecognizedAreErrors( )
 // keep track of them for purposes of freeing up the allocated memory when this
 // CLineParser object is destroyed.
 
-//! Add a possible flag (single-character only) to the set of command-line flags/options
+/// Add a possible flag (single-character only) to the set of command-line flags/options
 void CLineParser::AddFlag( const string shortFlagString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -197,7 +197,7 @@ void CLineParser::AddFlag( const string shortFlagString )
 }
 
 
-//! Add a possible flag (with both short and long versions) to the set of command-line flags/options
+/// Add a possible flag (with both short and long versions) to the set of command-line flags/options
 void CLineParser::AddFlag( const string shortFlagString, const string longFlagString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -208,7 +208,7 @@ void CLineParser::AddFlag( const string shortFlagString, const string longFlagSt
 }
 
 
-//! Add a possible options (single-character only) to the set of command-line flags/options
+/// Add a possible options (single-character only) to the set of command-line flags/options
 void CLineParser::AddOption( const string shortOptString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -217,7 +217,7 @@ void CLineParser::AddOption( const string shortOptString )
 }
 
 
-//! Add a possible option (with both short and long versions) to the set of command-line options
+/// Add a possible option (with both short and long versions) to the set of command-line options
 void CLineParser::AddOption( const string shortOptString, const string longOptString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -227,14 +227,14 @@ void CLineParser::AddOption( const string shortOptString, const string longOptSt
 }
 
 
-//! Add a string of help-text to the internal help-text list
+/// Add a string of help-text to the internal help-text list
 void CLineParser::AddUsageLine( const string usageLine )
 {
   usageStrings.push_back(usageLine);
 }
 
 
-//! Main method which parses command line
+/// Main method which parses command line
 int CLineParser::ParseCommandLine( int argc, char *argv[] )
 {
   string  currentString;
@@ -313,7 +313,7 @@ int CLineParser::ParseCommandLine( int argc, char *argv[] )
 }
 
 
-//! Returns whether or not command line was empty
+/// Returns whether or not command line was empty
 bool CLineParser::CommandLineEmpty( )
 {
   return commandLineEmpty;
@@ -322,7 +322,7 @@ bool CLineParser::CommandLineEmpty( )
 
 
 
-//! Checks if associated flag was set
+/// Checks if associated flag was set
 bool CLineParser::FlagSet( const string flagName )
 {
   if (optMap.count(flagName) > 0)
@@ -334,7 +334,7 @@ bool CLineParser::FlagSet( const string flagName )
 }
 
 
-//! Checks if target was supplied for the associated option
+/// Checks if target was supplied for the associated option
 bool CLineParser::OptionSet( const string optName )
 {
   if (optMap.count(optName) > 0)
@@ -346,7 +346,7 @@ bool CLineParser::OptionSet( const string optName )
 }
 
 
-//! Returns the stored target string for the associated option
+/// Returns the stored target string for the associated option
 string& CLineParser::GetTargetString( const string optName )
 {
   if (optMap.count(optName) > 0)
@@ -358,14 +358,14 @@ string& CLineParser::GetTargetString( const string optName )
 }
 
 
-//! Returns the number of arguments (excluding flags, options) found in parsed command line
+/// Returns the number of arguments (excluding flags, options) found in parsed command line
 int CLineParser::nArguments( )
 {
   return (int)argStrings.size();
 }
 
 
-//! Returns argument number n as a string
+/// Returns argument number n as a string
 string& CLineParser::GetArgument( const int n )
 {
   return argStrings[n];

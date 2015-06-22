@@ -120,8 +120,6 @@
 
 #include "convolver.h"
 
-//using namespace std;
-
 
 			
 /* ---------------- CONSTRUCTOR ---------------------------------------- */

@@ -450,8 +450,6 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   optParser->AddUsageLine("   makeimage bestfit_parameters.dat --print-fluxes --zero-point 26.24 --nosave");
   optParser->AddUsageLine("");
 
-
-  /* by default all options are checked on the command line and from option/resource file */
   optParser->AddFlag("help", "h");
   optParser->AddFlag("version", "v");
   optParser->AddFlag("list-functions");
@@ -462,18 +460,18 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   optParser->AddFlag("nosubsampling");
   optParser->AddFlag("print-fluxes");
   optParser->AddFlag("nosave");
-  optParser->AddOption("output", "o");      /* an option (takes an argument) */
-  optParser->AddOption("ncols");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("nrows");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("refimage");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("psf");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("output", "o");
+  optParser->AddOption("ncols");
+  optParser->AddOption("nrows");
+  optParser->AddOption("refimage");
+  optParser->AddOption("psf");
   optParser->AddOption("overpsf");
   optParser->AddOption("overpsf_scale");
   optParser->AddOption("overpsf_region");
-  optParser->AddOption("zero-point");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("estimation-size");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("output-functions");      /* an option (takes an argument), supporting only long form */
-  optParser->AddOption("max-threads");      /* an option (takes an argument), supporting only long form */
+  optParser->AddOption("zero-point");
+  optParser->AddOption("estimation-size");
+  optParser->AddOption("output-functions");
+  optParser->AddOption("max-threads");
   optParser->AddOption("debug");
 
   /* parse the command line:  */

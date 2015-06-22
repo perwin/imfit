@@ -27,25 +27,25 @@ typedef struct {
 } configOptions;
 
 
-//! \brief Utility function which does basic sanity-checking on config file
+/// \brief Utility function which does basic sanity-checking on config file
 //
-//! (This is only used inside ReadConfigFile, but is exposed in the header file so
-//! we can do unit tests on it)
+/// (This is only used inside ReadConfigFile, but is exposed in the header file so
+/// we can do unit tests on it)
 int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, bool mode2D,
 									int *badLineNumber );
 
-//! \brief Utility function: returns true if line has 2+ elements and 2nd is numeric
+/// \brief Utility function: returns true if line has 2+ elements and 2nd is numeric
 //
-//! (This is only used inside VetConfigFile, but is exposed in the header file so
-//! we can do unit tests on it)
+/// (This is only used inside VetConfigFile, but is exposed in the header file so
+/// we can do unit tests on it)
 bool ValidParameterLine( string& currentLine );
 
-//! Function for use by makeimage
+/// Function for use by makeimage
 int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<int>& fblockStartIndices,
                      configOptions& configFileOptions );
 
-//! Function for use by e.g. imfit: reads in parameters *and* parameter limits
+/// Function for use by e.g. imfit: reads in parameters *and* parameter limits
 int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
                     vector<int>& fblockStartIndices, bool& parameterLimitsFound,

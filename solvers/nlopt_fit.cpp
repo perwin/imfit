@@ -297,7 +297,6 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   nlopt_set_ftol_abs(theOptimizer, ftol);
   // specify relative tolerance for all parameters
   nlopt_set_xtol_rel(theOptimizer, ftol);
-//  nlopt_set_xtol_abs1(theOptimizer, XTOL);
   // maximum number of function calls (MAXEVAL_BASE * total number of parameters)
   maxEvaluations = nParamsTot * MAXEVAL_BASE;
   nlopt_set_maxeval(theOptimizer, maxEvaluations);
@@ -316,7 +315,6 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   // Specify level of verbosity and start the optimization
   verboseOutput = verbose;
   result = nlopt_optimize(theOptimizer, paramVector, &finalStatisticVal);
-  //double stopval = nlopt_get_stopval(theOptimizer);
   if (verbose >= 0)
     InterpretResult(result, algorithmName);
 

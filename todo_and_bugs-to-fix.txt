@@ -34,7 +34,7 @@ image oversampled
 	actual time with oversampling includes FFT + downsampling)
 
 
-[] Reorganize directory structure:
+[..] Reorganize directory structure:
 	src/core
 	src/solvers
 	src/function_objects
@@ -81,7 +81,21 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 ** MINOR BUGS TO FIX/IMPROVEMENTS TO MAKE:
 
-[] Doing bootstrap resampling when the input config file contains the best-fitting
+
+
+* BUGS FIXED
+
+[X] --quiet option with Nelder-Mead simplex (--nm) is not truly quiet (some of N-M
+simplex output is suppressed, but "iteration XXX" is still printed)
+	-- OK, this is a difference between the current version of NLopt library ints
+	dynamic form (what we normally use) and the static-linking one
+
+[X] Compiling with our SCons option --no-nlopt fails to catch references to NLopt
+function NMSimplexFit in bootstrap_errors.cpp
+	Reported by Guillermo Barro
+	-- FIX: add preprocessor directives to comment out all references to NLopt stuff
+
+[X] Doing bootstrap resampling when the input config file contains the best-fitting
 solution for the model + image results in mysteriously non-existent boostrap
 error estimates:
 E.g., [with version 1.3b; seen by Semyeong Oh in an earlier version]
@@ -122,22 +136,8 @@ OK, here is the problem:
 	Confirmed by removing all the limits from the regular param file
 		==> produces the same "[fixed parameter]" output...
 	
-	[] SOLUTION: Remove parameterLimitsExist from all Bootstrap functions -- we don't
-	need it, and it causes a bug when config file is completely parameter-limit-free!
-	
-	
-
-* BUGS FIXED
-
-[X] --quiet option with Nelder-Mead simplex (--nm) is not truly quiet (some of N-M
-simplex output is suppressed, but "iteration XXX" is still printed)
-	-- OK, this is a difference between the current version of NLopt library ints
-	dynamic form (what we normally use) and the static-linking one
-
-[X] Compiling with our SCons option --no-nlopt fails to catch references to NLopt
-function NMSimplexFit in bootstrap_errors.cpp
-	Reported by Guillermo Barro
-	-- FIX: add preprocessor directives to comment out all references to NLopt stuff
+	[X] SOLUTION: Remove parameterLimitsExist test when determining whether to
+	print conf. intervals
 
 
 

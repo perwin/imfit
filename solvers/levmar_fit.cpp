@@ -93,13 +93,6 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
   status = mpfit(myfunc_mpfit, nDataVals, nParamsTot, paramVector, mpfitParameterConstraints,
 					&mpConfig, theModel, &mpfitResult);
 
-//   if (verbose >= 0) {
-//     printf("\n");
-//     PrintResults(paramVector, &mpfitResult, theModel, nFreeParams, parameterLimits, 
-//     			status);
-//     printf("\n");
-//   }
-  
   // Store information about the optimization, if SolverResults object was supplied
   if (solverResults != NULL) {
     solverResults->SetSolverType(MPFIT_SOLVER);

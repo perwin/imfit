@@ -28,7 +28,7 @@
 
 
 
-int SortComp(const void *x, const void *y );
+int SortComp( const void *x, const void *y );
 
 
 
@@ -100,7 +100,7 @@ void ConfidenceInterval( double *vector, int nVals, double *lower, double *upper
 /* Callback function used by qsort() in ConfidenceInterval() to sort a
  * vector of doubles
  */
-int SortComp(const void *x, const void *y )
+int SortComp( const void *x, const void *y )
 {
   const double  *xx = (const double *)x;
   const double  *yy = (const double *)y;
