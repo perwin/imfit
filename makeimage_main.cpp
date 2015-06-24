@@ -34,6 +34,7 @@
 #include <string.h>
 #include <math.h>
 #include <string>
+#include "fftw3.h"
 
 #include "definitions.h"
 #include "image_io.h"
@@ -392,9 +393,9 @@ int main( int argc, char *argv[] )
 
   // Free up memory
   if (options.psfImagePresent)
-    free(psfPixels);       // allocated in ReadImageAsVector()
+    fftw_free(psfPixels);       // allocated in ReadImageAsVector()
   if (options.psfOversampledImagePresent)
-    free(psfOversampledPixels);       // allocated in ReadImageAsVector()
+    fftw_free(psfOversampledPixels);       // allocated in ReadImageAsVector()
   free(paramsVect);
   delete theModel;
   

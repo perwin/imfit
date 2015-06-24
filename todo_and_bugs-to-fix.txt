@@ -19,6 +19,11 @@
 [..] Add "const" specifies to input parameters of functions, as appropriate
 
 
+[] Solver summary info in header of bestfit_parameters output should include
+	subtype of chi^2 (i.e., "(data-based)", "(model-based)", "(user-supplied noise map"),
+	or something like that)
+
+
 [] Bootstrap resampling output file needs a better header
 	-- should say that this is bootstrap-resampling output
 	-- include name of original bestfit-params output?

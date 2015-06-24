@@ -104,7 +104,7 @@ os_type = os.uname()[0]
 
 # *** Set up compiler flags, library lists, include paths
 
-cflags_opt = ["-O2", "-g0"]
+cflags_opt = ["-O3", "-g0", "-msse2"]
 cflags_db = ["-Wall", "-g3"]
 
 base_defines = ["ANSI", "USING_SCONS"]

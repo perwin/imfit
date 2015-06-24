@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include "fftw3.h"
 
 #include "fitsio.h"
 
@@ -167,7 +168,8 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
   nPixelsTot = n_columns * n_rows;      // number of pixels in the image
   
   // Allocate memory for the image-data vector:
-  imageVector = (double *) malloc(nPixelsTot * sizeof(double));
+  //imageVector = (double *) malloc(nPixelsTot * sizeof(double));
+  imageVector = fftw_alloc_real(nPixelsTot);
   // Read in the image data
   problems = fits_read_pix(imfile_ptr, TDOUBLE, firstPixel, nPixelsTot, NULL, imageVector,
                             NULL, &status);

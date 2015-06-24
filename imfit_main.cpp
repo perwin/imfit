@@ -38,6 +38,7 @@
 #include <string>
 #include <vector>
 #include <sys/time.h>
+#include "fftw3.h"
 
 #include "definitions.h"
 #include "utilities_pub.h"
@@ -583,15 +584,15 @@ int main(int argc, char *argv[])
 
 
   // Free up memory
-  free(allPixels);       // allocated externally, in ReadImageAsVector()
+  fftw_free(allPixels);       // allocated externally, in ReadImageAsVector()
   if (errorPixels_allocated)
-    free(allErrorPixels);  // allocated externally, in ReadImageAsVector()
+    fftw_free(allErrorPixels);  // allocated externally, in ReadImageAsVector()
   if (options.psfImagePresent)
-    free(psfPixels);  // allocated externally, in ReadImageAsVector()
+    fftw_free(psfPixels);  // allocated externally, in ReadImageAsVector()
   if (options.psfOversampledImagePresent)
-    free(psfOversampledPixels);  // allocated externally, in ReadImageAsVector()
+    fftw_free(psfOversampledPixels);  // allocated externally, in ReadImageAsVector()
   if (maskAllocated)
-    free(allMaskPixels);  // allocated externally, in ReadImageAsVector()
+    fftw_free(allMaskPixels);  // allocated externally, in ReadImageAsVector()
   free(paramsVect);
   if (parameterInfo_allocated)
     free(parameterInfo);
