@@ -7,6 +7,6 @@ Function: Sersic_GenEllipse
 Model Object: 262144 data values (pixels)
 8 total parameters
 
-Saving output model image ("gensersictest_conv.fits") ...
+Saving output model image ("temptest/gensersictest_conv.fits") ...
 Done!
 

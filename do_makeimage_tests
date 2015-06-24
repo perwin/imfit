@@ -9,213 +9,217 @@ then
   echo -n "Tests will skip comparison of FITS files"
 fi
 
+# create output directory for test_dump*, etc. files (will do nothing if
+# directory already exists)
+mkdir -p temptest
+
 
 echo ""
 echo "Running tests for makeimage..."
 # do we correctly print list of available functions?
-./makeimage --list-functions > test_dump0
+./makeimage --list-functions > temptest/test_dump0
 # simple tests using small images
-./makeimage tests/config_biggertest_4c.dat -o biggertest.fits --ncols 64 --nrows 64 > test_dump1
-./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest.fits > test_dump2
+./makeimage tests/config_biggertest_4c.dat -o temptest/biggertest.fits --ncols 64 --nrows 64 > temptest/test_dump1
+./makeimage tests/config_makeimage_gensersic512.dat -o temptest/gensersictest.fits > temptest/test_dump2
 # test two functions and also --output-functions mode
-./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp.fits --output-functions singleImage > test_dump3
+./makeimage tests/config_makeimage_sersic+exp512.dat -o temptest/sersic+exp.fits --output-functions temptest/singleImage > temptest/test_dump3
 # same, but now testing --refimage [we assume that tests/gensersictest_orig.fits is 512x512]
-./makeimage tests/config_makeimage_sersic+exp512_nosize.dat -o sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > test_dump3b
+./makeimage tests/config_makeimage_sersic+exp512_nosize.dat -o temptest/sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > temptest/test_dump3b
 # test using PSF convolution:
-./makeimage tests/config_makeimage_gensersic512.dat -o gensersictest_conv.fits --psf tests/psf_moffat_35.fits > test_dump4
+./makeimage tests/config_makeimage_gensersic512.dat -o temptest/gensersictest_conv.fits --psf tests/psf_moffat_35.fits > temptest/test_dump4
 # test doing --print-fluxes:
-./makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > test_dump5
+./makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > temptest/test_dump5
 # tests of --output-functions with PSF convolution:
-./makeimage tests/config_makeimage_sersic+exp512.dat -o sersic+exp_conv.fits --output-functions singleImage_conv --psf tests/psf_moffat_35.fits > test_dump_null
+./makeimage tests/config_makeimage_sersic+exp512.dat -o temptest/sersic+exp_conv.fits --output-functions temptest/singleImage_conv --psf tests/psf_moffat_35.fits > temptest/test_dump_null
 
-# testing that bad config files are caught (redirect stderr to test_dump* files):
-./makeimage tests/config_makeimage_sersictest512_bad1.dat &> test_dump6
-./makeimage tests/config_makeimage_sersictest512_bad2.dat &> test_dump7
-./makeimage tests/config_makeimage_sersictest512_bad3.dat &> test_dump8
-./makeimage tests/config_makeimage_sersictest512_bad4.dat &> test_dump9
-./makeimage tests/config_makeimage_sersictest512_bad5.dat &> test_dump10
-./makeimage tests/config_makeimage_sersic+exp512_nosize.dat &> test_dump11
+# testing that bad config files are caught (redirect stderr to temptest/test_dump* files):
+./makeimage tests/config_makeimage_sersictest512_bad1.dat &> temptest/test_dump6
+./makeimage tests/config_makeimage_sersictest512_bad2.dat &> temptest/test_dump7
+./makeimage tests/config_makeimage_sersictest512_bad3.dat &> temptest/test_dump8
+./makeimage tests/config_makeimage_sersictest512_bad4.dat &> temptest/test_dump9
+./makeimage tests/config_makeimage_sersictest512_bad5.dat &> temptest/test_dump10
+./makeimage tests/config_makeimage_sersic+exp512_nosize.dat &> temptest/test_dump11
 
-# testing that bad reference files are caught (redirect stderr to test_dump* files):
-./makeimage tests/config_makeimage_sersic+exp512_nosize.dat --refimage=tests/config_makeimage_gensersic512.dat &> test_dump12
-# testing that bad PSF files (non-FITS or nonexistent) are caught (redirect stderr to test_dump* files):
-./makeimage tests/config_makeimage_sersic+exp512.dat --psf=tests/config_makeimage_gensersic512.dat  &> test_dump13
-./makeimage tests/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> test_dump14
-./makeimage tests/config_imfit_badparamline.dat  &> test_dump15
+# testing that bad reference files are caught (redirect stderr to temptest/test_dump* files):
+./makeimage tests/config_makeimage_sersic+exp512_nosize.dat --refimage=tests/config_makeimage_gensersic512.dat &> temptest/test_dump12
+# testing that bad PSF files (non-FITS or nonexistent) are caught (redirect stderr to temptest/test_dump* files):
+./makeimage tests/config_makeimage_sersic+exp512.dat --psf=tests/config_makeimage_gensersic512.dat  &> temptest/test_dump13
+./makeimage tests/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> temptest/test_dump14
+./makeimage tests/config_imfit_badparamline.dat  &> temptest/test_dump15
 
 echo ""
 
 echo -n "*** Diff comparison with archives: printing function list... "
-if (diff --brief test_dump0 tests/makeimage_textout0)
+if (diff --brief temptest/test_dump0 tests/makeimage_textout0)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump0 tests/makeimage_textout0
+  diff temptest/test_dump0 tests/makeimage_textout0
 fi
 
 echo -n "*** Diff comparison with archives: biggertest... "
-if (diff --brief test_dump1 tests/makeimage_textout1)
+if (diff --brief temptest/test_dump1 tests/makeimage_textout1)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump1 tests/makeimage_textout1
+  diff temptest/test_dump1 tests/makeimage_textout1
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./python/compare_fits_files.py biggertest.fits tests/biggertest_orig.fits
+  ./python/compare_fits_files.py temptest/biggertest.fits tests/biggertest_orig.fits
 fi
 
 echo -n "*** Diff comparison with archives: gensersictest... "
-if (diff --brief test_dump2 tests/makeimage_textout2)
+if (diff --brief temptest/test_dump2 tests/makeimage_textout2)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump2 tests/makeimage_textout2
+  diff temptest/test_dump2 tests/makeimage_textout2
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./python/compare_fits_files.py gensersictest.fits tests/gensersictest_orig.fits
+  ./python/compare_fits_files.py temptest/gensersictest.fits tests/gensersictest_orig.fits
 fi
 
 echo -n "*** Diff comparison with archives: sersic + exponential... "
-if (diff --brief test_dump3 tests/makeimage_textout3)
+if (diff --brief temptest/test_dump3 tests/makeimage_textout3)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump3 tests/makeimage_textout3
+  diff temptest/test_dump3 tests/makeimage_textout3
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./python/compare_fits_files.py sersic+exp.fits tests/sersic+exp_orig.fits
+  ./python/compare_fits_files.py temptest/sersic+exp.fits tests/sersic+exp_orig.fits
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./python/compare_fits_files.py sersic+exp_b.fits tests/sersic+exp_orig.fits
+  ./python/compare_fits_files.py temptest/sersic+exp_b.fits tests/sersic+exp_orig.fits
 fi
 
 echo -n "*** Diff comparison with archives: gensersictest + PSF convolution... "
 # note that here we are comparing a 512x512 output image with the 512x512 cutout of
 # a larger original image (to test that PSF convolution properly handles edges)
-if (diff --brief test_dump4 tests/makeimage_textout4)
+if (diff --brief temptest/test_dump4 tests/makeimage_textout4)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump4 tests/makeimage_textout4
+  diff temptest/test_dump4 tests/makeimage_textout4
 fi
 if [ $do_fits_tests = "1" ]
 then
-  ./python/compare_fits_files.py gensersictest_conv.fits tests/gensersictest612_conv_cutout512.fits
+  ./python/compare_fits_files.py temptest/gensersictest_conv.fits tests/gensersictest612_conv_cutout512.fits
 fi
 
 if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that single-function images add up to combined-function image... "
   echo ""
 then
-  ./python/compare_fits_files.py --compare-sum singleImage_conv1_Sersic.fits singleImage_conv2_Exponential.fits sersic+exp_conv.fits
+  ./python/compare_fits_files.py --compare-sum temptest/singleImage_conv1_Sersic.fits temptest/singleImage_conv2_Exponential.fits temptest/sersic+exp_conv.fits
 fi
 
 echo -n "*** Diff comparison with archives: print-fluxes mode... "
-if (diff --brief test_dump5 tests/makeimage_textout5)
+if (diff --brief temptest/test_dump5 tests/makeimage_textout5)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump5 tests/makeimage_textout5
+  diff temptest/test_dump5 tests/makeimage_textout5
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 1... "
-if (diff --brief test_dump6 tests/makeimage_textout6)
+if (diff --brief temptest/test_dump6 tests/makeimage_textout6)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump6 tests/makeimage_textout6
+  diff temptest/test_dump6 tests/makeimage_textout6
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 2... "
-if (diff --brief test_dump7 tests/makeimage_textout7)
+if (diff --brief temptest/test_dump7 tests/makeimage_textout7)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump7 tests/makeimage_textout7
+  diff temptest/test_dump7 tests/makeimage_textout7
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 3... "
-if (diff --brief test_dump8 tests/makeimage_textout8)
+if (diff --brief temptest/test_dump8 tests/makeimage_textout8)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump8 tests/makeimage_textout8
+  diff temptest/test_dump8 tests/makeimage_textout8
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 4... "
-if (diff --brief test_dump9 tests/makeimage_textout9)
+if (diff --brief temptest/test_dump9 tests/makeimage_textout9)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump9 tests/makeimage_textout9
+  diff temptest/test_dump9 tests/makeimage_textout9
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 5... "
-if (diff --brief test_dump10 tests/makeimage_textout10)
+if (diff --brief temptest/test_dump10 tests/makeimage_textout10)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump10 tests/makeimage_textout10
+  diff temptest/test_dump10 tests/makeimage_textout10
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 6... "
-if (diff --brief test_dump11 tests/makeimage_textout11)
+if (diff --brief temptest/test_dump11 tests/makeimage_textout11)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump11 tests/makeimage_textout11
+  diff temptest/test_dump11 tests/makeimage_textout11
 fi
 
 echo -n "*** Diff comparison with archives: bad reference file... "
-if (diff --brief test_dump12 tests/makeimage_textout12)
+if (diff --brief temptest/test_dump12 tests/makeimage_textout12)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump12 tests/makeimage_textout12
+  diff temptest/test_dump12 tests/makeimage_textout12
 fi
 
 echo -n "*** Diff comparison with archives: bad PSF-image file... "
-if (diff --brief test_dump13 tests/makeimage_textout13)
+if (diff --brief temptest/test_dump13 tests/makeimage_textout13)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump13 tests/makeimage_textout13
+  diff temptest/test_dump13 tests/makeimage_textout13
 fi
 
 echo -n "*** Diff comparison with archives: non-existent PSF-image file... "
-if (diff --brief test_dump14 tests/makeimage_textout14)
+if (diff --brief temptest/test_dump14 tests/makeimage_textout14)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump14 tests/makeimage_textout14
+  diff temptest/test_dump14 tests/makeimage_textout14
 fi
 
 echo -n "*** Diff comparison with archives: bad parameter specification... "
-if (diff --brief test_dump15 tests/makeimage_textout15)
+if (diff --brief temptest/test_dump15 tests/makeimage_textout15)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff test_dump15 tests/makeimage_textout15
+  diff temptest/test_dump15 tests/makeimage_textout15
 fi
 
 

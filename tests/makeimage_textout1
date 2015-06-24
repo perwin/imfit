@@ -9,6 +9,6 @@ Function: Gaussian
 Model Object: 4096 data values (pixels)
 36 total parameters
 
-Saving output model image ("biggertest.fits") ...
+Saving output model image ("temptest/biggertest.fits") ...
 Done!
 

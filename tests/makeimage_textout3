@@ -6,8 +6,8 @@ Function: Exponential
 Model Object: 262144 data values (pixels)
 11 total parameters
 
-Saving output model image ("sersic+exp.fits") ...
-singleImage1_Sersic.fits
-singleImage2_Exponential.fits
+Saving output model image ("temptest/sersic+exp.fits") ...
+temptest/singleImage1_Sersic.fits
+temptest/singleImage2_Exponential.fits
 Done!
 

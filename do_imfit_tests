@@ -14,6 +14,10 @@ then
   echo -n "Tests will skip comparison of FITS files"
 fi
 
+# create output directory for test_dump*, etc. files (will do nothing if
+# directory already exists)
+mkdir -p temptest
+
 
 echo ""
 echo "Running tests for imfit..."
