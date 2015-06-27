@@ -107,6 +107,7 @@ ModelObject::ModelObject( )
   modelVectorAllocated = false;
   maskVectorAllocated = false;
   weightVectorAllocated = false;
+  standardWeightVectorAllocated = false;
   residualVectorAllocated = false;
   outputModelVectorAllocated = false;
   deviatesVectorAllocated = false;
@@ -143,6 +144,8 @@ ModelObject::ModelObject( )
   gain = 1.0;
   exposureTime = 1.0;
   nCombined = 1;
+  effectiveGain = 1.0;
+  readNoise_adu_squared = 0.0;
   
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
   ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
@@ -323,16 +326,23 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
 {
   assert( (nDataValues == nDataVals) && (nImageColumns == nDataColumns) && 
           (nImageRows == nDataRows) );
+
+  // Avoid memory leak if pre-existing weight vector was internally allocated
+  if (weightVectorAllocated) {
+    free(weightVector);
+    weightVectorAllocated = false;
+  }
   weightVector = pixelVector;
   
+  weightValsSet = true;
+  externalErrorVectorSupplied = true;
+
   // Convert noise values into weights, if needed.  Our standard approach is
   // to compute weights as 1/sigma; this assumes that whatever function calls
   // ComputeDeviates() will then square the individual (weighted) deviate values
   // in order to get the proper chi^2 result.
   // Currently, we assume three possibilities for weight-map pixel values:
-  //    sigma (std.dev.); variance (sigma^2); and plain weights
-  //    Note that correct interpretation of chi^2 values depends on weights
-  //    being based on sigmas or variances!
+  //    sigma (std.dev.); variance (sigma^2); and "standard" weights (1/sigma^2)
   switch (inputType) {
     case WEIGHTS_ARE_SIGMAS:
       for (int z = 0; z < nDataVals; z++) {
@@ -344,15 +354,16 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
         weightVector[z] = 1.0 / sqrt(weightVector[z]);
       }
       break;
+    case WEIGHTS_ARE_WEIGHTS:   // convert external "normal" weights to internal weights
+      for (int z = 0; z < nDataVals; z++) {
+        weightVector[z] = sqrt(weightVector[z]);
+      }
+      break;
     default:
-      // do nothing, since input values *are* weights (e.g., the input image is
-      // a weight map with pixel values = 1/sigma already)
-      ;
+      fprintf(stderr, "ERROR: incorrect input-type specification in ModelObject::AddErrorVector!\n");
+      weightValsSet = false;
   }
   
-  weightValsSet = true;
-  
-  externalErrorVectorSupplied = true;
 }
 
 
@@ -1200,7 +1211,7 @@ double ModelObject::ChiSquared( double params[] )
     }
   }
   
-  // Recall that mp_enorm returns sqrt( Sum_i(chi_i^2) ) = sqrt( Sum_i(deviatesVector[i]^2) )
+  // mp_enorm returns sqrt( Sum_i(chi_i^2) ) = sqrt( Sum_i(deviatesVector[i]^2) )
   if (doBootstrap)
     chi = mp_enorm(nValidDataVals, deviatesVector);
   else
@@ -1665,7 +1676,7 @@ double * ModelObject::GetResidualImageVector( )
 
 
 /* ---------------- PUBLIC METHOD: GetWeightImageVector ---------------- */
-
+/// Returns the weightVector converted to 1/sigma^2 (i.e., 1/variance) form
 double * ModelObject::GetWeightImageVector( )
 {
   if (! weightValsSet) {
@@ -1673,7 +1684,13 @@ double * ModelObject::GetWeightImageVector( )
     return NULL;
   }
   
-  return weightVector;
+  standardWeightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  for (int z = 0; z < nDataVals; z++) {
+    double  w_sqrt = weightVector[z];   // internal weight value (sqrt of formal weight)
+  	standardWeightVector[z] = w_sqrt*w_sqrt;
+  }
+  standardWeightVectorAllocated = true;
+  return standardWeightVector;
 }
 
 
@@ -1850,6 +1867,8 @@ ModelObject::~ModelObject()
     free(modelVector);
   if (weightVectorAllocated)
     free(weightVector);
+  if (standardWeightVectorAllocated)
+    free(standardWeightVector);
   if (maskVectorAllocated)   // only true if we construct mask vector internally
     free(maskVector);
   if (deviatesVectorAllocated)

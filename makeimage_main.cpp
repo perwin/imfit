@@ -58,9 +58,9 @@ static string  kNRows = "NROWS";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.2 (OpenMP-enabled)"
+#define VERSION_STRING      "1.3b1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.2"
+#define VERSION_STRING      "1.3b1"
 #endif
 
 

@@ -69,7 +69,7 @@
 
 \newcommand{\pmlr}{PMLR}
 
-\newcommand{\versionnum}{1.2}
+\newcommand{\versionnum}{1.3b}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -376,15 +376,10 @@ previous version of Xcode (e.g., from a prior installation) or a
 separate installation of \textsc{gcc} 4.2 or later (such as those
 available via package managers such as Fink, MacPorts, or Homebrew).
 
-(Current work on LLVM and Clang includes adding support for OpenMP, so future versions
-of Xcode \textit{might} hopefully restore support for OpenMP, though this is just
-speculation at the moment.)
+(Current work on LLVM and Clang includes adding support for OpenMP, so
+future versions of Xcode \textit{might} hopefully restore support for
+OpenMP, though this is just speculation at the moment.)
 
-%If you are using the \texttt{configure + make} approach instead, you can use the
-%following when running \texttt{configure}:
-%\begin{quote}
-%\texttt{\$ ./configure --disable-openmp}
-%\end{quote}
 
 
 \subsubsection{Options: Compiling Without FFT Multithreading}
@@ -538,11 +533,11 @@ $\geq 1.0$ being good pixels.
 
 \item \texttt{--noise} \textit{noisemap-image} --- specifies a pre-existing noise
 or error \textsc{fits} image to use in the \chisquare{} fitting process (by default, pixel values in the
-noise map are assumed to be Gaussian sigma values).
+noise map are assumed to be Gaussian $\sigma$ values).
 \item \texttt{--errors-are-variances} --- indicates that pixel values in the noise
-map are variances (sigma$^2$) instead of sigmas.
+map are variances ($\sigma^2$) instead of sigmas.
 \item \texttt{--errors-are-weights} --- indicates that pixel values in the noise
-map should be interpreted as weights, not as sigmas or variances. (None
+map should be interpreted as weights (e.g., $1/\sigma^2$), not as sigmas or variances. (None
 of these three options is usable with Cash statistic or Poisson-MLR statistic minimization.)
 
 \bigskip
@@ -655,6 +650,10 @@ during computation (the default is to use \textit{all} available CPU cores); has
 effect if \imfit{} was compiled without OpenMP or \textsc{fftw} multithreading support.
 
 \bigskip
+
+\item \texttt{--sample-config} --- generates and saves a simple example
+of an \imfit{} configuration file (named
+\texttt{config\_imfit\_sample.dat}).
 
 \item \texttt{--list-functions} --- list all the functions \imfit{} can use.
 
@@ -971,16 +970,17 @@ obtained by running \imfitprog{} with the ``\texttt{--list-parameters}'' option:
 
 \chapter{Images}
 
-\Imfit{} is designed to fit 2D astronomical images in \textsc{fits} format, where
-pixel values are some form of linear surface-brightness (or surface
-density) measurement. The default internal error calculations (see
-Section~\ref{sec:noise-maps}, below) assume that pixel values are
-integrated counts (e.g., ADUs), which can be converted to detected
-photons using the $A/D$ gain (provided by ``\texttt{--gain}'' option, or
-by the GAIN keyword in a configuration file). However, since \imfit{} can
-also accept a user-supplied noise/error image in \textsc{fits} format, you can
-use any linear pixel values as long as the corresponding noise image is
-appropriately scaled to match.
+\Imfit{} is designed to fit 2D astronomical images in \textsc{fits}
+format, where pixel values are some form of linear surface-brightness
+(or surface density) measurement. The default internal error
+calculations (see Section~\ref{sec:noise-maps}, below) assume that pixel
+values are integrated counts (e.g., ADUs), which can be converted to
+detected photons using the $A/D$ gain (provided by the 
+``\texttt{--gain}'' option, or by the GAIN keyword in a configuration
+file). However, since \imfit{} can also accept a user-supplied
+noise/error image in \textsc{fits} format, you can use any linear pixel
+values as long as the corresponding noise image is appropriately scaled
+to match.
 
 If your image is in counts/second, you can either multiply it by the
 exposure time to recover the integrated counts, or include the actual
@@ -1005,15 +1005,14 @@ image. You can always make a smaller cutout image and fit that, but it may be co
 specify the image subsection directly. You can do this using a subset of the image-section
 syntax of \textsc{cfitsio} (which will be familiar to you if you've ever worked with
 image sections in \textsc{iraf}). An example:
-
 \begin{quote}
 ic3478rss\_256.fits[45:150,200:310]
 \end{quote}
 This will fit columns 45--150 and rows 200--310 of the image (column and row
 numbering starts at~1). Pixel coordinates in the configuration (and output)
 files refer to locations within the \textit{full} image. Note that this works
-as-is with the Bash shell; for the C shell, you may need to enclose the image name + 
-specification in quotation marks.
+as-is when running \Imfit{} from within the Bash shell; for the C shell, you may 
+need to enclose the image name + specification in quotation marks.
 
 The only kind of image section specification that's allowed is a simple
 [x1:x2,y1:y2] format, though you can specify all of a particular dimension using
@@ -1062,7 +1061,7 @@ By default, \imfitprog{} uses \chisquare{} as the statistic for
 minimization. As part of this, \imfitprog{} normally calculates an internal
 weight map, using the input pixel intensities, the A/D gain, any
 previously subtracted background level, and the read noise to estimate
-Gaussian errors $\sigma_{i}$ for each pixel $i$. The error-based weight
+Gaussian errors $\sigma_{i}$ for each pixel $i$. In formal terms, the error-based weight
 map is $w_{i} = 1/\sigma^{2}_{i}$, with the dispersion (in ADU) defined as
 \begin{equation}
 \sigma^{2}_{i} \; = \; (I_{d, i} + I_{\mathrm{sky}})/g_{\mathrm{eff}} \, + \, N_{\mathrm{c}} \, \sigma_{\mathrm{rdn}}^{2}/g_{\mathrm{eff}}^{2} \, ,
@@ -1097,6 +1096,25 @@ that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via t
 \texttt{--errors-are-weights} flag, if that happens to be the case. (If a mask
 image is supplied, the weights of masked pixels will still be set to 0,
 regardless of their individual values in the weight image.)
+
+Internally, the weight map for \chisquare{} calculations is actually stored using
+the \textit{square root} $\sqrt{w_{i}}$ of the weights as defined above. This is because the
+Levenberg-Marquardt solver relies on access to a vector of ``deviate'' values, which are
+the square roots of individual terms in the formal \chisquare{} sum:
+\begin{equation}
+\sqrt{w_{i}} \, (I_{m, i} - I_{d, i}) .
+\end{equation}
+
+\textbf{Important Note:} Prior to version 1.3, \imfitprog{} incorrectly
+interpreted the \texttt{--errors-are-weights} flag as indicating that
+the pixel values of the input ``noise map'' were $\sqrt{w_{i}}$, and the
+\texttt{--save-weights} option caused \imfitprog{} to output a \textsc{fits} file with
+$\sqrt{w_{i}}$ values. Starting with version 1.3, \imfitprog{} treats those two
+commandline-flags/options as referring to $w_{i}$ as defined above, and
+conversions to and from the internal $\sqrt{w_{i}}$ values are handled
+correctly.
+
+\bigskip
 
 In the case of minimizing the Cash statistic $C$ or the related Poisson-MLR statistic, the 
 only relevant external maps are masks. For the Cash statistic $C$, the actual minimized 
@@ -1179,7 +1197,8 @@ command-line options:
 \begin{itemize}
 \item \texttt{--overpsf} to specify the FITS file which holds the oversampled PSF image;
 \item \texttt{--overpsf\_scale} to specify the \textit{amount} of oversampling corresponding
-to the PSF image;
+to the PSF image (i.e., how many oversampled pixels fit into an original pixel along
+one axis; this must be an integer);
 \item \texttt{--overpsf\_region} to specify what part of the image should have convolution
 with the oversampled PSF applied to the model.
 \end{itemize}
@@ -1323,20 +1342,21 @@ TBD. [more details of DE implementation]
 
 \medskip
 
-Note that the N-M simplex and DE algorithms do \textit{not} produce uncertainty
-estimates for the best-fitting parameter values, in contrast to the
-Levenberg-Marquardt approach. However, the L-M error estimates are themselves
-only reliable if the minimum in the \chisquare{} landscape is symmetric and
-parabolic, and if the errors for the input image are truly Gaussian and
-well-determined.  See Section~\ref{sec:bootstrap} for an alternative (and probably
-more accurate) way of estimating the parameter uncertainties.
+Note that the N-M simplex and DE algorithms do \textit{not} produce
+uncertainty estimates for the best-fitting parameter values, in contrast
+to the Levenberg-Marquardt approach. However, the L-M error estimates
+are themselves only reliable if the minimum in the \chisquare{}
+landscape is symmetric and parabolic, and if the errors for the input
+image are truly Gaussian and well-determined.  See
+Section~\ref{sec:bootstrap} for an alternativ way of estimating the
+parameter uncertainties.
 
 \medskip
 
 The fact that the minimization algorithms are relatively decoupled from the rest
 of the code means that future versions of \imfit{} could include
-other minimization techniques, or that an ambitious user could add such techniques
-on their own.
+other minimization techniques, or that ambitious users can add such techniques
+themselves.
 
 
 \section{Controlling the Tolerance for Minimization}
@@ -1770,7 +1790,7 @@ the new class.
 \end{enumerate}
 
 Finally, the name of the C++ implementation file for the new class should be added
-to the \texttt{Sconstruct} file to ensure it gets included in the compilation.
+to the \texttt{SConstruct} file to ensure it gets included in the compilation.
 
 Existing examples of FunctionObject subclasses can be found in the ``\texttt{function\_objects}''
 subdirectory of the source-code distribution, and are the best place to look in order
@@ -2507,7 +2527,7 @@ Saglia for urging me to implement the Core-S{\'e}rsic function, and to
 Maximilian Fabricius for suggesting improvements to the documentation.
 Additional bug reports and suggestions from Andr{\'e} Luiz de Amorim,
 Giulia Savorgnan, David Streich, Guillermo Barro, Sergio Pascual, Lee
-Kelvin, and Colleen Gilhuly are gratefully appreciated.
+Kelvin, Colleen Gilhuly, and Semyeong Oh are gratefully appreciated.
 
 
 \section{Data Sources}
@@ -2542,7 +2562,8 @@ the Argonne National Laboratory.
 \section{Miscellaneous Useful Software}
 
 The development of \imfit{} has benefitted from the C++ unit-testing framework CxxTest,\footnote{\url{http://cxxtest.com}}
-and also from the static analyzer Cppcheck.\footnote{\url{http://cppcheck.sourceforge.net}}
+and also from the static analyzers Cppcheck\footnote{\url{http://cppcheck.sourceforge.net}}
+and the Clang Static Analyzer.\footnote{\url{http://clang-analyzer.llvm.org}}
 
 
 

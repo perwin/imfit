@@ -234,6 +234,7 @@ class ModelObject
     int  maxRequestedThreads, ompChunkSize;
     bool  dataValsSet, parameterBoundsSet;
     bool  modelVectorAllocated, weightVectorAllocated, maskVectorAllocated;
+    bool  standardWeightVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;
     bool  fblockStartFlags_allocated;
     bool  modelImageSetupDone;
@@ -247,7 +248,7 @@ class ModelObject
     bool  zeroPointSet;
     int  nFunctions, nFunctionBlocks, nFunctionParams, nParamsTot;
     double  *dataVector;
-    double  *weightVector;
+    double  *weightVector, *standardWeightVector;
     double  *maskVector;
     double  *modelVector;
     double  *deviatesVector;

@@ -412,7 +412,7 @@ bool ImageFileExists(const char * filename)
 
 bool FileExists(const char * filename)
 {
-  return ifstream(filename);
+  return ifstream(filename).is_open();
 }
 
 

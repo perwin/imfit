@@ -39,7 +39,12 @@ class NewTestSuite : public CxxTest::TestSuite
 {
 public:
   ModelObject *modelObj1;
-  ModelObject *modelObj2;
+  ModelObject *modelObj2a;
+  ModelObject *modelObj2b;
+  ModelObject *modelObj2c;
+  ModelObject *modelObj2d;
+  ModelObject *modelObj2e;
+  ModelObject *modelObj2f;
   ModelObject *modelObj3;
   ModelObject *modelObj4a;
   ModelObject *modelObj4b;
@@ -52,6 +57,10 @@ public:
   int  status;
   configOptions  userConfigOptions1, userConfigOptions3;
   double  *smallDataImage;
+  double  *smallErrorImage;
+  double  *smallVarianceImage;
+  double  *smallWeightImage;
+  double  *smallMaskImage;
   int nSmallDataCols, nSmallDataRows;
 
 
@@ -63,11 +72,39 @@ public:
     
     nSmallDataCols = nSmallDataRows = 2;
     
-    smallDataImage = (double *)calloc( nSmallDataCols*nSmallDataRows, sizeof(double) );
-    smallDataImage[0] = 0.1;
-    smallDataImage[1] = 0.1;
-    smallDataImage[2] = 0.1;
+    smallDataImage = (double *)calloc(nSmallDataCols*nSmallDataRows, sizeof(double));
+    smallDataImage[0] = 0.25;
+    smallDataImage[1] = 0.25;
+    smallDataImage[2] = 0.25;
     smallDataImage[3] = 1.0;
+
+    // small image corresponding to square root of smallDataImage
+    smallErrorImage = (double *)calloc(nSmallDataCols*nSmallDataRows, sizeof(double));
+    smallErrorImage[0] = 0.5;
+    smallErrorImage[1] = 0.5;
+    smallErrorImage[2] = 0.5;
+    smallErrorImage[3] = 1.0;
+
+	// variance image
+    smallVarianceImage = (double *)calloc(nSmallDataCols*nSmallDataRows, sizeof(double));
+    smallVarianceImage[0] = 0.25;
+    smallVarianceImage[1] = 0.25;
+    smallVarianceImage[2] = 0.25;
+    smallVarianceImage[3] = 1.0;
+
+	// weight = inverse variance image
+    smallWeightImage = (double *)calloc(nSmallDataCols*nSmallDataRows, sizeof(double));
+    smallWeightImage[0] = 4.0;
+    smallWeightImage[1] = 4.0;
+    smallWeightImage[2] = 4.0;
+    smallWeightImage[3] = 1.0;
+
+    smallMaskImage = (double *)calloc(nSmallDataCols*nSmallDataRows, sizeof(double));
+    smallMaskImage[0] = 0.0;
+    smallMaskImage[1] = 1.0;
+    smallMaskImage[2] = 0.0;
+    smallMaskImage[3] = 0.0;
+
 
     modelObj1 = new ModelObject();    
     // Initialize modelObj1; set up internal FunctionObjects vector (Exp + FlatSky) inside
@@ -75,8 +112,13 @@ public:
   								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, userConfigOptions1);
     status = AddFunctions(modelObj1, functionList1, FunctionBlockIndices1, true);
 
-    // Initialize modelObj2
-    modelObj2 = new ModelObject();
+    // Initialize modelObj2a, etc.
+    modelObj2a = new ModelObject();
+    modelObj2b = new ModelObject();
+    modelObj2c = new ModelObject();
+    modelObj2d = new ModelObject();
+    modelObj2e = new ModelObject();
+    modelObj2f = new ModelObject();
     
     
     // Initialize modelObj3 and add model function & params (FlatSky)
@@ -97,8 +139,17 @@ public:
   void tearDown()
   {
     free(smallDataImage);
+    free(smallErrorImage);
+    free(smallVarianceImage);
+    free(smallWeightImage);
+    free(smallMaskImage);
     delete modelObj1;
-    delete modelObj2;
+    delete modelObj2a;
+    delete modelObj2b;
+    delete modelObj2c;
+    delete modelObj2d;
+    delete modelObj2e;
+    delete modelObj2f;
     delete modelObj3;
     delete modelObj4a;
     delete modelObj4b;
@@ -137,18 +188,93 @@ public:
     TS_ASSERT_EQUALS(cashStatUsed, true);
   }
  
+ 
   void testStoreAndRetrieveDataImage( void )
   {
     double *outputVect;
-    double trueVals[4] = {0.1, 0.1, 0.1, 1.0};
+    double trueVals[4] = {0.25, 0.25, 0.25, 1.0};   // data values
     int  nDataVals = nSmallDataCols*nSmallDataRows;
     
-    modelObj2->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-    outputVect = modelObj2->GetDataVector();
+    modelObj2a->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    outputVect = modelObj2a->GetDataVector();
 
     for (int i = 0; i < nDataVals; i++)
       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
   }
+
+  void testGenerateAndRetrieveErrorImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2b->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2b->GenerateErrorVector();
+    outputVect = modelObj2b->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+ 
+  void testStoreAndRetrieveErrorImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2c->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2c->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallErrorImage, WEIGHTS_ARE_SIGMAS);
+    outputVect = modelObj2c->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+ 
+  void testStoreAndRetrieveVarianceImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2d->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2d->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallVarianceImage, WEIGHTS_ARE_VARIANCES);
+    outputVect = modelObj2d->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+ 
+  void testStoreAndRetrieveWeightImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2e->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2e->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
+    outputVect = modelObj2e->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+
+  void testStoreAndApplyMaskImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 0.0, 4.0, 1.0};   // 1/sigma^2, with second pixel masked out
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2f->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2f->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
+	modelObj2f->AddMaskVector(nDataVals, nSmallDataCols, nSmallDataRows, smallMaskImage, MASK_ZERO_IS_GOOD);
+	modelObj2f->ApplyMask();
+    outputVect = modelObj2f->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+
+ 
  
    void testModelImageGeneration( void )
   {
