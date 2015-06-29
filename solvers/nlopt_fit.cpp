@@ -248,8 +248,19 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   nlopt_algorithm  algorithmName;
   map<string, nlopt_algorithm>  algorithmMap;
 
+  // get NLOpt algorithm code-name from user-supplied string; exit if said string
+  // is not in algorithmMap
   PopulateAlgorithmMap(algorithmMap);
-  
+  map<string, nlopt_algorithm>::iterator mapPair_iter = algorithmMap.find(solverName);
+  if (mapPair_iter == algorithmMap.end()) {
+    fprintf(stderr, "** ERROR -- unrecognized named (\"%s\") for optimizer name!\n", solverName.c_str());
+    return -1;
+  }
+  else {
+    algorithmName = mapPair_iter->second;
+    currentSolverName = solverName;
+  }
+
   minParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
   maxParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
 
@@ -273,19 +284,6 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
       }
     }
   }
-
-  // get NLOpt algorithm code-name from user-supplied string; exit if said string
-  // is not in algorithmMap
-  map<string, nlopt_algorithm>::iterator mapPair_iter = algorithmMap.find(solverName);
-  if (mapPair_iter == algorithmMap.end()) {
-    fprintf(stderr, "** ERROR -- unrecognized named (\"%s\") for optimizer name!\n", solverName.c_str());
-    return -1;
-  }
-  else {
-    algorithmName = mapPair_iter->second;
-    currentSolverName = solverName;
-  }
-
 
   // Create an nlopt object, specifying user-specified algorithm
   theOptimizer = nlopt_create(algorithmName, nParamsTot); /* algorithm and dimensionality */

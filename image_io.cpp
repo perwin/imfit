@@ -186,6 +186,7 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    fftw_free(imageVector);
     return NULL;
   }
 

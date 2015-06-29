@@ -53,6 +53,6 @@ class ModifiedKing : public FunctionObject
   private:
     double  x0, y0, PA, ell, I_0, r_c, r_t, alpha;   // parameters
     double  q, PA_rad, cosPA, sinPA;   // other useful, geometry-related quantities
-    double  I_1, one_over_alpha, constantTerm;   // other useful, profile-related quantities
+    double  I_1, one_over_alpha, one_over_rc, constantTerm;   // other useful, profile-related quantities
 };
 

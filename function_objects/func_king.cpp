@@ -1,5 +1,5 @@
 /* FILE: func_king.cpp ------------------------------------------------- */
-/* VERSION 0.01
+/* VERSION 0.1
  *
  *   Function object class for an King-model function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
@@ -92,7 +92,7 @@ void ModifiedKing::Setup( double params[], int offsetIndex, double xc, double yc
   I_0 = params[2 + offsetIndex ];
   r_c = params[3 + offsetIndex ];
   r_t = params[4 + offsetIndex ];
-  alpha = params[5 + offsetIndex ];
+  alpha = params[5 + offsetIndex ];   // alpha = 2 for standard King model
   
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
@@ -102,8 +102,9 @@ void ModifiedKing::Setup( double params[], int offsetIndex, double xc, double yc
   sinPA = sin(PA_rad);
   
   one_over_alpha = 1.0 / alpha;
-  constantTerm = 1.0 / (1.0 + pow((r_t/r_c)*(r_t/r_c), one_over_alpha));
-  I_1 = I_0 / (1.0 - constantTerm);
+  one_over_rc = 1.0 / r_c;
+  constantTerm = 1.0 / pow(1.0 + (r_t/r_c)*(r_t/r_c), one_over_alpha);
+  I_1 = I_0 * pow(1.0 - constantTerm, -alpha);
 }
 
 
@@ -114,7 +115,8 @@ double ModifiedKing::CalculateIntensity( double r )
 {
   double  intensity = 0.0;
   if (r < r_t) {  // ensure we return 0 when r >= r_t
-    double  variableTerm = 1.0 / (1.0 + pow((r/r_c)*(r/r_c), one_over_alpha));
+    double  r_over_rc = r * one_over_rc;
+    double  variableTerm = 1.0 / pow(1.0 + r_over_rc*r_over_rc, one_over_alpha);
     double  secondPart = pow(variableTerm - constantTerm, alpha);
     intensity = I_1 * secondPart;
   }

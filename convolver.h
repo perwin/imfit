@@ -31,16 +31,16 @@ class Convolver
     ~Convolver( );
     
     // Public member functions:
-    /// Supply PSF image to Convolver object
-    void SetupPSF( double *psfPixels_input, int nColumns, int nRows );
-    
     /// Set maximum number of FFTW threads
-    void SetMaxThreads( int maximumThreadNumber );
+    void SetMaxThreads( const int maximumThreadNumber );
     
-    void SetupImage( int nColumns, int nRows );
+    /// Supply PSF image to Convolver object
+    void SetupPSF( double *psfPixels_input, const int nColumns, const int nRows );
+    
+    void SetupImage( const int nColumns, const int nRows );
     
     /// Do final setup work (allocate things, generate FT of PSF image, etc.)
-    int DoFullSetup( int debugLevel=0, bool doFFTWMeasure=false );
+    int DoFullSetup( const int debugLevel=0, const bool doFFTWMeasure=false );
 
     /// Replace input model image (pixelVector) with convolution using stored PSF
     void ConvolveImage( double *pixelVector );

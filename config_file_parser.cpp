@@ -45,9 +45,9 @@ using namespace std;
 /* ------------------- Function Prototypes ----------------------------- */
 void AddParameter( string& currentLine, vector<double>& parameterList );
 int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
-														vector<mp_par>& parameterLimits, int origLineNumber );
+							vector<mp_par>& parameterLimits, int origLineNumber );
 void AddFunctionName( string& currentLine, vector<string>& functionNameList );
-void ReportConfigError( int errorCode, int origLineNumber );
+void ReportConfigError( const int errorCode, const int origLineNumber );
 
 
 /* ------------------------ Global Variables --------------------------- */
@@ -60,7 +60,8 @@ static string  fixedIndicatorString = "fixed";
 // Checks to see that a line has at least two tokens, that the second one
 // is a number, and that if there is a third token, it consists of two
 // comma-separated numbers.
-bool ValidParameterLine( string& currentLine ) {
+bool ValidParameterLine( string& currentLine ) 
+{
   vector<string>  stringPieces, stringPieces2;
   string  token2, token3;
   int  nPieces;
@@ -115,7 +116,7 @@ void AddParameter( string& currentLine, vector<double>& parameterList ) {
 // Returns true for the existence of a parameter limit; false if no limits were
 // found
 int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
-														vector<mp_par>& parameterLimits, int origLineNumber ) {
+							vector<mp_par>& parameterLimits, int origLineNumber ) {
   double  paramVal;
   double  lowerLimit, upperLimit;
   string  extraPiece;
@@ -176,7 +177,8 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
 /* ---------------- FUNCTION: AddFunctionName -------------------------- */
 // Parses a line, extracting the second element as a string and storing it in 
 // the functionNameList vector.
-void AddFunctionName( string& currentLine, vector<string>& functionNameList ) {
+void AddFunctionName( string& currentLine, vector<string>& functionNameList ) 
+{
   vector<string>  stringPieces;
   
   ChopComment(currentLine);
@@ -196,8 +198,8 @@ void AddFunctionName( string& currentLine, vector<string>& functionNameList ) {
 // Returns the index for the start of the function section on sucess, or
 // error code on failure.  If an error can be traced to a particular line, then
 // that line number is stored in *badLineNumber.
-int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, bool mode2D,
-									int *badLineNumber )
+int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumbers, 
+					const bool mode2D, int *badLineNumber )
 {
   int  i, nInputLines;
   int  functionSectionStart = -1;
@@ -271,7 +273,7 @@ int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, boo
 
 
 /* ---------------- FUNCTION: ReportConfigError ------------------------ */
-void ReportConfigError( int errorCode, int origLineNumber )
+void ReportConfigError( const int errorCode, const int origLineNumber )
 {
   switch (errorCode) {
     case CONFIG_FILE_ERROR_NOFUNCSECTION:
@@ -306,7 +308,7 @@ void ReportConfigError( int errorCode, int origLineNumber )
 //    parameterList = output, will contain vector of parameter values
 //    fblockStartIndices = output, will contain vector of integers specifying
 //                   which functions mark start of new function block
-int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
+int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                      vector<double>& parameterList, vector<int>& fblockStartIndices,
                      configOptions& configFileOptions )
 {
@@ -410,7 +412,7 @@ int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functio
 //                   possible limits on parameter values)
 //    fblockStartIndices = output, will contain vector of integers specifying
 //                   which functions mark start of new function block
-int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
+int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
                     vector<int>& fblockStartIndices, bool& parameterLimitsFound,
                     configOptions& configFileOptions )

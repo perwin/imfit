@@ -31,8 +31,8 @@ typedef struct {
 //
 /// (This is only used inside ReadConfigFile, but is exposed in the header file so
 /// we can do unit tests on it)
-int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, bool mode2D,
-									int *badLineNumber );
+int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumbers, 
+					const bool mode2D, int *badLineNumber );
 
 /// \brief Utility function: returns true if line has 2+ elements and 2nd is numeric
 //
@@ -41,12 +41,12 @@ int VetConfigFile( vector<string>& inputLines, vector<int>& origLineNumbers, boo
 bool ValidParameterLine( string& currentLine );
 
 /// Function for use by makeimage
-int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
+int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<int>& fblockStartIndices,
                      configOptions& configFileOptions );
 
 /// Function for use by e.g. imfit: reads in parameters *and* parameter limits
-int ReadConfigFile( string& configFileName, bool mode2D, vector<string>& functionNameList,
+int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
                     vector<int>& fblockStartIndices, bool& parameterLimitsFound,
                      configOptions& configFileOptions );

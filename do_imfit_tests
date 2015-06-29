@@ -45,7 +45,9 @@ fi
 # using --loud and one or more fixed parameters)
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --loud  &> temptest/test_dump3d2
 # same L-M fit, using external noise image (default = sigmas)
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --noise=tests/ic3478rss_64x64_sigma.fits  &> temptest/test_dump3e
 # same L-M fit, using external variance image (default = sigmas)
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --noise=tests/ic3478rss_64x64_variance.fits --errors-are-variances  &> temptest/test_dump3e2
 # same L-M fit, using external "weight" image (= inverse variance)
 
 # test non-square SDSS image + PSF convolution; then test count/sec version with --exptime

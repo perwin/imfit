@@ -73,7 +73,7 @@
 #    os.uname()[0] = "SunOS" --> Solaris
 #    os.uname()[0] = "Linux" --> Linux
 
-import os, subprocess, platform
+import os, subprocess, platform, getpass
 
 
 
@@ -153,7 +153,7 @@ def CheckForXcode5( ):
 	return False
 
 
-# find out what the default compilers are
+# find out what the default compilers (according to SCons) are
 env = DefaultEnvironment()
 cc_default = env["CC"]
 cpp_default = env["CXX"]
@@ -162,6 +162,15 @@ CPP_COMPILER = cpp_default
 c_compiler_changed = False
 cpp_compiler_changed = False
 
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v5 is installed and
+# callable via gcc-5 and g++-5)
+# Comment this out otherwise!
+if (os_type == "Darwin") and (getpass.getuser() == "erwin"): 
+	CC_COMPILER = "gcc-5"
+	CPP_COMPILER = "g++-5"
+	c_compiler_changed = True
+	cpp_compiler_changed = True
+
 
 # *** System-specific setup
 xcode5 = False
@@ -169,8 +178,6 @@ if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
 	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
 	# are 32-bit, use the following
-#	cflags_opt.append("-m32")
-#	link_flags = ["-m32"]
 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 	xcode5 = CheckForXcode5()
 if (os_type == "Linux"):
@@ -203,6 +210,7 @@ useOpenMP = True
 useExtraFuncs = False
 useStaticLibs = False
 buildFatBinary = False
+build32bit = False
 buildForOldMacOS = False
 scanBuild = False
 
@@ -229,15 +237,17 @@ AddOption("--cc", dest="cc_compiler", type="string", action="store", default=Non
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v4.9 compilers")
+	default=False, help="use gcc and g++ v5.1 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
 	default=False, help="force static library linking")
-AddOption("--fat", dest="makeFatBinaries", action="store_true", 
-	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
+# AddOption("--fat", dest="makeFatBinaries", action="store_true", 
+# 	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
+AddOption("--32bit", dest="make32bit", action="store_true", 
+	default=False, help="generate a 32-bit binary for Mac OS X")
 AddOption("--old-mac", dest="buildForOldMac", action="store_true", 
 	default=False, help="compile for Mac OS 10.6 and 10.7")
 
@@ -290,8 +300,10 @@ if GetOption("doingScanBuild") is True:
 
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
-if GetOption("makeFatBinaries") is True:
-	buildFatBinary = True
+# if GetOption("makeFatBinaries") is True:
+# 	buildFatBinary = True
+if GetOption("make32bit") is True:
+	build32bit = True
 if GetOption("buildForOldMac") is True:
 	buildForOldMacOS = True
 
@@ -369,12 +381,20 @@ for key, value in ARGLIST:
 
 
 # *** Special distribution-building options
+# This particular approach is deprecated, bcs it's easier to use GCC 5 and lipo rather 
+# than rely on existence of pre-existing llvm-gcc-4.2 installation
 if buildFatBinary and (os_type == "Darwin"):
 	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
 	# passes "-arch xxx" wrapped in quotation marks, which gcc/g++ chokes on.
 	cflags_opt += ["-arch", "i686", "-arch", "x86_64"]
 	cflags_db += ["-arch", "i686", "-arch", "x86_64"]
 	link_flags += ["-arch", "i686", "-arch", "x86_64"]
+
+# Preferred approach for fat binaries: build normal 64-bit version, then build
+# 32-bit version (and then use lipo to merge them)
+if build32bit and (os_type == "Darwin"):
+	cflags_opt += ["-m32"]
+	link_flags += ["-m32"]
 
 if buildForOldMacOS and (os_type == "Darwin"):
 	cflags_opt += ["-mmacosx-version-min=10.6"]

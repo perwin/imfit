@@ -1,6 +1,9 @@
 
 ** NEAR-TERM FUTURE TODO:
 
+[..] PREPARE V1.2.1 BUG-FIX RELEASE
+
+
 [..] FOR V1.3: King model FunctionObject
 	-- function_objects/func_king.h/cpp : in progress
 	-- need to set up some profile-computation tests (e.g., compare 1-D slices
@@ -9,26 +12,34 @@
 		with same ranges as Fig.10 of Peng+2010 and comparing (overlay in Illustrator?)
 		[x] Generate plot with all profiles
 		[x] Compare plot with Fig.10 of Peng+2010 in Illustrator
-	-- check that we get I= 0 for r > r_t; possibly introduce shortcut in code
+	[x]-- check that we get I= 0 for r > r_t; possibly introduce shortcut in code
 	to just return 0 in that case.
-		[ ] Generate images (with no subsampling) and compare profiles with
+		[x] Generate images (with no subsampling) and compare profiles with
 		output of Python code
-		[ ] Set up unit tests
+		[x] Set up unit tests
+	[ ] Add notes to documentation for Modified King function
 
 
-[] FOR V1.3: Convert handling of user-supplied "weight" map ("--errors-are-weights")
+[..] FOR V1.3: Convert handling of user-supplied "weight" map ("--errors-are-weights")
 	so that the user can assume "weight = inverse variance" (rather than 
 	"weight = inverse simga", which is how it's actually implemented at present)
 		-- set up comparison tests
 		-- Need to modify ModelObject::GetWeightImageVector [used in imfit_main.cpp]
 		
-		[]0. Set up unit tests
-		[]1. Modify ModelObject::GetWeightImageVector to output 1/sigma^2 weights
-		[]2. Modify ModelObject::AddErrorVector to convert "weight" input properly
-		[]3. Edit imfit_howto.tex to reflect reality of weights
-
+		[x]0. Set up unit tests
+		[x]1. Modify ModelObject::GetWeightImageVector to output 1/sigma^2 weights
+		[x]2. Modify ModelObject::AddErrorVector to convert "weight" input properly
+		[x]3. Edit imfit_howto.tex to reflect reality of weights
+		[.]4. modify do_imfit_tests to incorporate weight-map checks
+				[] Input maps produce approx. same fits as internally-generated maps
+				[] Output weight maps are approx. correct
+				[] Input an error map and output it; check
 
 [..] Add "const" specifies to input parameters of functions, as appropriate
+	Done through: convolver
+
+
+[] Makeimage should quit when encountering unknown command-line parameter (like imift)
 
 
 [] Solver summary info in header of bestfit_parameters output should include

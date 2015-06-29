@@ -15,7 +15,7 @@ MAC_DEST_BIN = "/Users/erwin/Documents/Working/web site/code/imfit/binaries/"
 MAC_CHANGELOG_MD = "CHANGELOG.md"
 MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/CHANGELOG.html"
 
-VERSION_STRING = "1.2"
+VERSION_STRING = "1.3b"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -27,12 +27,9 @@ SOURCE_TARFILE = "imfit-%s-source.tar.gz" % VERSION_STRING
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	BINARY_TARFILE = "imfit-%s-macintel.tar.gz" % VERSION_STRING
 	BINARY_TARFILE_OLDMAC = "imfit-%s-macintel_10.6-10.7.tar.gz" % VERSION_STRING
-	# and we can do "fat" compilation (combine 32-bit and 64-bit binaries)
-	#scons_string += " --fat"
-	# 10.6/10.7 compilation ("--old-mac") should use llvm-g++-4.2
-	scons_string_oldmac = scons_string + " --fat --old-mac"
-	# ensure that we use GCC-4.9 for 10.8--10.10 compilation (avoids
+	# ensure that we use GCC-5.1 for all compilation
 	scons_string += " --use-gcc"
+	scons_string_oldmac = scons_string + " --old-mac"
 	SOURCE_COPY_DEST_DIR = MAC_DEST
 	BINARY_COPY_DEST_DIR = MAC_DEST_BIN
 else:
@@ -330,20 +327,47 @@ def MakeDistributionDir( ):
 	shutil.copy("SConstruct_export", distDir + "SConstruct")
 
 
+def MakeFatFile( file1, file2, outputName ):
+	cmdText = "lipo -create {0} {1} -output {2}".format(file1, file2, outputName)
+	subprocess.check_output(cmdText, shell=True)
+	
+def MakeFatBinaries( ):
+	"""We need this because we now default to using GCC 5.1, which cannot make
+	"fat" binaries by default.
+	We only do this for the "oldmac" case (Mac OS X 10.6 and 10.7), since
+	no one is trying to run 32-bit programs on 10.8 or later.
+	"""
+
+	print("   Calling SCons to generate 32-bit imfit binary for Mac OS 10.6/10.7...")
+	subprocess.check_output(scons_string_oldmac + " --32bit" + " imfit", shell=True)
+	shutil.move("imfit", "imfit32")
+	print("   Calling SCons to generate 64-bit imfit binary for Mac OS 10.6/10.7...")
+	subprocess.check_output(scons_string_oldmac + " imfit", shell=True)
+	shutil.move("imfit", "imfit64")
+	print("Merging into combined 32-bit/64-bit binary...")
+	MakeFatFile("imfit32", "imfit64", "imfit")
+
+	print("   Calling SCons to generate 32-bit makeimage binary for Mac OS 10.6/10.7...")
+	subprocess.check_output(scons_string_oldmac + " --32bit" + " makeimage", shell=True)
+	shutil.move("makeimage", "makeimage32")
+	print("   Calling SCons to generate 64-bit makeimage binary for Mac OS 10.6/10.7...")
+	subprocess.check_output(scons_string_oldmac + " makeimage", shell=True)
+	shutil.move("makeimage", "makeimage64")
+	print("Merging into combined 32-bit/64-bit binary...")
+	MakeFatFile("makeimage32", "makeimage64", "makeimage")
+	
+
 def MakeBinaries( mode=None ):
 	# Generate appropriate binaries
 	if (mode is None):
 		# Mac OS 10.8 or newer, or Linux
-		print("Calling scons to generate imfit binary...")
+		print("   Calling SCons to generate imfit binary...")
 		subprocess.check_output(scons_string + " imfit", shell=True)
-		print("Calling scons to generate makeimage binary...")
+		print("   Calling SCons to generate makeimage binary...")
 		subprocess.check_output(scons_string + " makeimage", shell=True)
 	else:
 		# Mac OS 10.6 or 10.7
-		print("Calling scons to generate imfit binary for Mac OS 10.6/10.7...")
-		subprocess.check_output(scons_string_oldmac + " imfit", shell=True)
-		print("Calling scons to generate makeimage binary for Mac OS 10.6/10.7...")
-		subprocess.check_output(scons_string_oldmac + " makeimage", shell=True)
+		MakeFatBinaries()
 	
 
 def MakeBinaryDist( mode=None ):
@@ -405,7 +429,7 @@ def main(argv):
 	print("\nMaking distribution directory and copying files into it...")
 	if options.binaryDist is True:
 		if (os_type == "Darwin"):
-			print("Generating binary-only Mac distribution (%s)..." % BINARY_TARFILE)
+			print("\nGenerating binary-only Mac distribution (%s)..." % BINARY_TARFILE)
 			MakeBinaries()
 			MakeDistributionDir()
 			MakeBinaryDist()
@@ -414,12 +438,12 @@ def main(argv):
 			MakeDistributionDir()
 			MakeBinaryDist(mode="oldmac")
 		else:
-			print("Generating binary-only Linux distribution (%s)..." % BINARY_TARFILE)
+			print("\nGenerating binary-only Linux distribution (%s)..." % BINARY_TARFILE)
 			MakeBinaries()
 			MakeDistributionDir()
 			MakeBinaryDist()
 	if options.sourceDist is True:
-		print("Generating source distribution (%s)..." % SOURCE_TARFILE)
+		print("\nGenerating source distribution (%s)..." % SOURCE_TARFILE)
 		MakeDistributionDir()
 		MakeSourceDist()
 	

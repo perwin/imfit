@@ -18,6 +18,14 @@ fitting and bootstrap resampling), unless the "--silent" command-line flag is us
 command-line flag.
 
 ### Changed:
+- Import of external error/noise/weight-map images has been changed, but only in the case of
+"--errors-are-weights" option (previously, these were treated as though they were
+identical to imfit's internal 1/sigma weights, but *described* in the documentation
+and paper as though they were 1/sigma^2). If error map *is* specified as *weights*,
+it is now read in assuming it has 1/sigma^2 values, and saved weight maps (via the
+"--save-weights" option) are converted to the same format. (Thanks to Semyeong Oh for
+spotting this problem.)
+
 - Mac [and Linux??] precompiled binaries now use a version of the FFTW library
 which includes SSE2 vectorization (available in all Intel and AMD x86-type
 CPUs manufactured since about 2003). In practice, this appears to speed up fits
@@ -36,9 +44,16 @@ a factor of ~20% speedup in doing PSF convolutions.
 
 
 
-## 1.2.1 -- 2015-xx-xx
+## 1.2.1 -- 2015-07-01
 ### Fixed:
-- Fixes XXX
+- Fixes a bug in the bootstrap-resampling summary output (if none of the parameters
+had user-specified limits, then "[fixed]" would erroneously be printed in place of 
+the actual bootstrap confidence intervals). (Thanks to Semyeong Oh for spotting this.)
+
+- Fixes compilation bug with --no-nlopt option. (Thanks to Semyeong Oh for spotting this.)
+
+- Added note to imfit_howto.pdf explaining how weights are internally handled, which
+contradicts with previous statements in the paper (this will be resolved in v1.3).
 
 
 

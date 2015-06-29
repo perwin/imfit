@@ -16,6 +16,7 @@ using namespace std;
 #include "function_objects/func_exp.h"
 #include "function_objects/func_gaussian.h"
 #include "function_objects/func_sersic.h"
+#include "function_objects/func_king.h"
 #include "function_objects/func_edge-on-disk.h"
 
 #define DELTA  1.0e-10
@@ -228,6 +229,148 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
 
+  }
+};
+
+
+class TestModifiedKing : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new ModifiedKing();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 6;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("ell");
+    correctParamNames.push_back("I_0");
+    correctParamNames.push_back("r_c");
+    correctParamNames.push_back("r_t");
+    correctParamNames.push_back("alpha");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+    
+  }
+  
+  void testCalculations_alpha2( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular ModifiedKing with I_0 = 100, r_c = 5, r_t = 9, alpha = 2
+    double  params[6] = {90.0, 0.0, 100.0, 5.0, 9.0, 2.0};
+    
+    
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 100.0, DELTA );
+    // r = 1 value (calculated with Python function astro_funcs.ModifiedKing_intensity)
+    double  rEqualsOneValue = 92.59162886983584;
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+    // r = 5 value (calculated with Python function astro_funcs.ModifiedKing_intensity)
+    double  rEqualsFiveValue = 18.53857147439379;
+    TS_ASSERT_DELTA( thisFunc->GetValue(15.0, 10.0), rEqualsFiveValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(5.0, 10.0), rEqualsFiveValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 5.0), rEqualsFiveValue, DELTA );
+    // r = 10 value
+    double  rEqualsSigmaValue = 0.0;
+    TS_ASSERT_DELTA( thisFunc->GetValue(20.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
+  }
+
+  void testCalculations_alpha1( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular ModifiedKing with I_0 = 100, r_c = 5, r_t = 9, alpha = 1
+    double  params[6] = {90.0, 0.0, 100.0, 5.0, 9.0, 1.0};
+    
+    
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 100.0, DELTA );
+    // r = 1 value (calculated with Python function astro_funcs.ModifiedKing_intensity)
+    double  rEqualsOneValue = 94.96676163342828;
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+    // r = 5 value (calculated with Python function astro_funcs.ModifiedKing_intensity)
+    double  rEqualsFiveValue = 34.567901234567906;
+    TS_ASSERT_DELTA( thisFunc->GetValue(15.0, 10.0), rEqualsFiveValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(5.0, 10.0), rEqualsFiveValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 5.0), rEqualsFiveValue, DELTA );
+    // r = 10 value
+    double  rEqualsSigmaValue = 0.0;
+    TS_ASSERT_DELTA( thisFunc->GetValue(20.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
+  }
+
+  void testCalculations_alpha3( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular ModifiedKing with I_0 = 100, r_c = 5, r_t = 9, alpha = 3
+    double  params[6] = {90.0, 0.0, 100.0, 5.0, 9.0, 3.0};
+    
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 100.0, DELTA );
+    // r = 1 value (calculated with Python function astro_funcs.ModifiedKing_intensity)
+    double  rEqualsOneValue = 90.14642898820081;
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+    // r = 5 value (calculated with Python function astro_funcs.ModifiedKing_intensity)
+    double  rEqualsFiveValue = 9.744462560365605;
+    TS_ASSERT_DELTA( thisFunc->GetValue(15.0, 10.0), rEqualsFiveValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(5.0, 10.0), rEqualsFiveValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 5.0), rEqualsFiveValue, DELTA );
+    // r = 10 value
+    double  rEqualsSigmaValue = 0.0;
+    TS_ASSERT_DELTA( thisFunc->GetValue(20.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
   }
 };
 
