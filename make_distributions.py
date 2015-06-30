@@ -9,11 +9,11 @@ import markdown
 # Linux virtual machines on MacBook Pro and local web-site directory for Mac
 # versions)
 LINUX_DEST = "/media/sf_vbox_shared/"
-MAC_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/"
-MAC_DEST_BIN = "/Users/erwin/Documents/Working/web site/code/imfit/binaries/"
+MAC_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/"
+MAC_DEST_BIN = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/binaries/"
 
 MAC_CHANGELOG_MD = "CHANGELOG.md"
-MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web site/code/imfit/CHANGELOG.html"
+MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/CHANGELOG.html"
 
 VERSION_STRING = "1.3b"
 

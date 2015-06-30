@@ -44,7 +44,7 @@ a factor of ~20% speedup in doing PSF convolutions.
 
 
 
-## 1.2.1 -- 2015-07-01
+## 1.2.1 -- 2015-06-30
 ### Fixed:
 - Fixes a bug in the bootstrap-resampling summary output (if none of the parameters
 had user-specified limits, then "[fixed]" would erroneously be printed in place of 
@@ -53,7 +53,8 @@ the actual bootstrap confidence intervals). (Thanks to Semyeong Oh for spotting 
 - Fixes compilation bug with --no-nlopt option. (Thanks to Semyeong Oh for spotting this.)
 
 - Added note to imfit_howto.pdf explaining how weights are internally handled, which
-contradicts with previous statements in the paper (this will be resolved in v1.3).
+disagrees with how they are presented in the paper (this is largely cosmetic, except
+when using the --errors-are-weights and --save-weights option, and will be resolved in v1.3).
 
 
 
