@@ -586,7 +586,7 @@ env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LI
 # so we need to include those in the compilation and link, even though they aren't
 # actually used in model_object1d. Similarly, code in image_io is referenced from
 # downsample.)
-modelobject1d_obj_string = """model_object model_object_1d oversampled_region downsample image_io"""
+modelobject1d_obj_string = """model_object oversampled_region downsample image_io"""
 modelobject1d_objs = modelobject1d_obj_string.split()
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
@@ -601,8 +601,9 @@ functionobject1d_objs.append(FUNCTION_SUBDIR + "function_object")
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
-profilefit_base_obj_string = """commandline_parser utilities profile_fitting/read_profile config_file_parser 
-		print_results profile_fitting/add_functions_1d convolver profile_fitting/convolver1d 
+profilefit_base_obj_string = """commandline_parser utilities profile_fitting/read_profile 
+		config_file_parser print_results profile_fitting/add_functions_1d convolver 
+		profile_fitting/convolver1d profile_fitting/model_object_1d 
 		profile_fitting/bootstrap_errors_1d profile_fitting/profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]

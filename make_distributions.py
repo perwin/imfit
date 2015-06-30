@@ -63,6 +63,7 @@ CHANGELOG.md
 # header files in top-level directory
 source_header_files = """
 definitions
+estimate_memory 
 mersenne_twister
 mp_enorm
 param_struct
@@ -80,6 +81,7 @@ oversampled_region
 downsample
 option_struct_imfit
 option_struct_makeimage
+sample_configs
 """
 
 # C files in top-level directory 
@@ -96,6 +98,7 @@ model_object
 bootstrap_errors
 convolver
 commandline_parser 
+estimate_memory 
 utilities 
 image_io 
 config_file_parser
@@ -129,6 +132,7 @@ func_gen-sersic
 func_core-sersic 
 func_broken-exp 
 func_broken-exp2d
+func_king
 func_moffat 
 func_flatsky 
 func_gaussian-ring 
@@ -165,6 +169,7 @@ python_files = """
 py_startup_test.py
 compare_fits_files.py
 compare_imfit_printouts.py
+diff_printouts.py
 """
 pythonFileDict = {"dir": "python", "file_list": python_files.split()}
 
@@ -179,6 +184,7 @@ config_imfit_pgc35772.dat
 config_imfit_poisson.dat
 config_imfit_flatsky.dat
 config_3x3_flatsky.dat
+config_imfit_gauss-oversample-test2.dat
 config_makeimage_sersictest512_bad1.dat
 config_makeimage_sersictest512_bad2.dat
 config_makeimage_sersictest512_bad3.dat
@@ -206,6 +212,9 @@ flatsky_128x128.fits
 testimage_3x3_nan.fits
 testimage_3x3_onezero.fits
 mask_for_onezero.fits
+oversamp_test4.fits
+psf_standard.fits
+psf_oversamp.fits
 imfit_textout1
 imfit_textout2
 imfit_textout3
@@ -293,7 +302,10 @@ funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 allFileLists = [binary_only_file_list, misc_required_files_list, toplevel_source_list, documentation_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
 				funcobj_file_list]
-subdirs_list = ["docs", "examples", "python", "tests", "function_objects"]
+allFileLists_source = [misc_required_files_list, toplevel_source_list, documentation_file_list,
+				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
+				funcobj_file_list]
+subdirs_list = ["docs", "examples", "python", "tests", "function_objects", "solvers"]
 
 
 
@@ -309,7 +321,7 @@ def TrimSConstruct( ):
 	outf.close()
 
 
-def MakeDistributionDir( ):
+def MakeDistributionDir( mode="binary" ):
 	distDir = "imfit-%s/" % VERSION_STRING
 	# create distribution subdirectories, if needed
 	if not os.path.exists(distDir):
@@ -318,8 +330,14 @@ def MakeDistributionDir( ):
 		if not os.path.exists(distDir + subdir):
 			os.mkdir(distDir + subdir)
 	# copy files to distribution subdirectory
-	for fileList in allFileLists:
+	if (mode == "binary"):
+		fileLists = allFileLists
+	else:
+		fileLists = allFileLists_source
+	for fileList in fileLists:
+		print fileList
 		for fname in fileList:
+			print fname
 			shutil.copy(fname, distDir + fname)
 	# copy misc. files requring renaming
 	# copy trimmed version of SConstruct
@@ -397,6 +415,7 @@ def MakeSourceDist( ):
 	final_file_list += c_file_list
 	final_file_list += cplusplus_file_list
 	final_file_list += funcobj_file_list
+	final_file_list += solvers_file_list
 	final_file_list += python_file_list
 	final_file_list += testing_scripts_list
 	final_file_list += test_file_list
@@ -431,20 +450,20 @@ def main(argv):
 		if (os_type == "Darwin"):
 			print("\nGenerating binary-only Mac distribution (%s)..." % BINARY_TARFILE)
 			MakeBinaries()
-			MakeDistributionDir()
+			MakeDistributionDir(mode="binary")
 			MakeBinaryDist()
 			print("Generating binary-only Mac distribution for 10.6/10.7 (%s)..." % BINARY_TARFILE_OLDMAC)
 			MakeBinaries(mode="oldmac")
-			MakeDistributionDir()
+			#MakeDistributionDir()
 			MakeBinaryDist(mode="oldmac")
 		else:
 			print("\nGenerating binary-only Linux distribution (%s)..." % BINARY_TARFILE)
 			MakeBinaries()
-			MakeDistributionDir()
+			MakeDistributionDir(mode="binary")
 			MakeBinaryDist()
 	if options.sourceDist is True:
 		print("\nGenerating source distribution (%s)..." % SOURCE_TARFILE)
-		MakeDistributionDir()
+		MakeDistributionDir(mode="source")
 		MakeSourceDist()
 	
 	print("Done!\n")
