@@ -3,7 +3,7 @@
 // Code for downsampling an oversampled image and copying the downsampled version
 // into a larger, standard-sampled image.
 
-// Copyright 2014 by Peter Erwin.
+// Copyright 2014-2015 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -34,28 +34,29 @@
 
 
 /* ---------------- FUNCTION: DownsampleAndReplace() ------------------- */
-// This function takes an image (assumed to be an oversampled sub-region of the
-// main image), downsamples it via block-averaging, and copies the result
-// into the main image.
-// We assume the following about the images:
-//    Oversampled image (oversampledImage): nOversampCols x nOversampRows in total
-// size, with assumed padding for (oversampled) PSF-convolution specified by 
-// nOversampPSFCols and nOversampPSFRows.
-//    Main image (mainImage): nMainCols x nMainRows in total size, with assumed padding 
-// for (standard) PSF-convolution specified by nMainPSFCols and nMainPSFRows.
-//    Target sub-region within mainImage is specified by 1-based coordinates 
-// (x,y) = startX,startY, where (x,y) = (1,1) is the lower-left pixel of the *data*
-// image; this same pixel is at (i,j) = (1 + nMainPSFCols, 1 + nMainPSFRows) within
-// the full (PSF-padded) mainImage.
-//    Oversampling scale (oversampleScale) specifies the 1D oversampling, so that
-// each main-size pixel in the sub-region corresponds to oversampleScale x oversampleScale
-// subpixels (i.e., pixels in oversampledImage)
+/// This function takes an image (assumed to be an oversampled sub-region of the
+/// main image), downsamples it via block-averaging, and copies the result into
+/// the main image.
+/// We assume the following about the images:
+///    Oversampled image (oversampledImage): nOversampCols x nOversampRows in total
+/// size, with assumed padding for (oversampled) PSF-convolution specified by 
+/// nOversampPSFCols and nOversampPSFRows.
+///    Main image (mainImage): nMainCols x nMainRows in total size, with assumed padding 
+/// for (standard) PSF-convolution specified by nMainPSFCols and nMainPSFRows.
+///    Target sub-region within mainImage is specified by 1-based coordinates 
+/// (x,y) = startX,startY, where (x,y) = (1,1) is the lower-left pixel of the *data*
+/// image; this same pixel is at (i,j) = (1 + nMainPSFCols, 1 + nMainPSFRows) within
+/// the full (PSF-padded) mainImage.
+///    Oversampling scale (oversampleScale) specifies the 1D oversampling, so that
+/// each main-size pixel in the sub-region corresponds to oversampleScale x oversampleScale
+/// subpixels (i.e., pixels in oversampledImage)
 
-void DownsampleAndReplace( double *oversampledImage, int nOversampCols, int nOversampRows,
-							int nOversampPSFCols, int nOversampPSFRows,
-							double *mainImage, int nMainCols, int nMainRows,
-							int nMainPSFCols, int nMainPSFRows,
-							int startX, int startY, int oversampleScale, int debugLevel )
+void DownsampleAndReplace( double *oversampledImage, const int nOversampCols, 
+						const int nOversampRows, const int nOversampPSFCols, 
+						const int nOversampPSFRows,	double *mainImage, const int nMainCols, 
+						const int nMainRows, const int nMainPSFCols, const int nMainPSFRows,
+						const int startX, const int startY, const int oversampleScale, 
+						const int debugLevel )
 {
   int  i, j, i_sub, j_sub, ii, jj;
   int  i1, j1, ii1, jj1;

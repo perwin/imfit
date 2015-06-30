@@ -98,6 +98,7 @@ STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
 SOLVER_SUBDIR = "solvers/"
+PROFILEFIT_SUBDIR = "profile_fitting/"
 
 os_type = os.uname()[0]
 
@@ -115,8 +116,8 @@ lib_list = ["fftw3", "cfitsio", "m"]
 lib_list_1d = ["fftw3","cfitsio",  "m"]
 
 
-include_path = [".", "/usr/local/include", SOLVER_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR]
-#lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
+include_path = [".", "/usr/local/include", SOLVER_SUBDIR, FUNCTION_SUBDIR, 
+				FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
 lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
 
@@ -285,8 +286,6 @@ if GetOption("cpp_compiler") is not None:
 	print "using %s for C++ compiler" % CPP_COMPILER
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
-# 	CC_COMPILER = "gcc-4.9"
-# 	CPP_COMPILER = "g++-4.9"
 	CC_COMPILER = "gcc-5"
 	CPP_COMPILER = "g++-5"
 	print "using %s for C compiler" % CC_COMPILER
@@ -570,16 +569,16 @@ env_opt.Command("alltests", None, "./run_unit_tests.sh ; ./do_makeimage_tests ; 
 
 # *** Other programs (profilefit, psfconvolve, older stuff)
 
-if xcode5 is True:
-	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
-	# to ensure we can use OpenMP.
-	# Replace the following with alternate compilers if needed (e.g., "gcc-4.9", "g++-4.9")
-	ALT_CC = "llvm-gcc-4.2"
-	ALT_CPP = "llvm-g++-4.2"
-	env_1d = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
-						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-else:
-	env_1d = Environment( CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
+# if xcode5 is True:
+# 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
+# 	# to ensure we can use OpenMP.
+# 	# Replace the following with alternate compilers if needed (e.g., "gcc-4.9", "g++-4.9")
+# 	ALT_CC = "llvm-gcc-4.2"
+# 	ALT_CPP = "llvm-g++-4.2"
+# 	env_1d = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
+# 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
+#else:
+env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 # ModelObject1d and related classes:
@@ -602,8 +601,9 @@ functionobject1d_objs.append(FUNCTION_SUBDIR + "function_object")
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
-profilefit_base_obj_string = """commandline_parser utilities read_profile config_file_parser 
-		add_functions_1d print_results convolver convolver1d bootstrap_errors_1d profilefit_main"""
+profilefit_base_obj_string = """commandline_parser utilities profile_fitting/read_profile config_file_parser 
+		print_results profile_fitting/add_functions_1d convolver profile_fitting/convolver1d 
+		profile_fitting/bootstrap_errors_1d profile_fitting/profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
@@ -612,8 +612,8 @@ profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_o
 profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + solver_sources + c_sources
 
 # psfconvolve1d: put all the object and source-code lists together
-psfconvolve1d_objs = ["psfconvolve1d_main", "commandline_parser", "utilities",
-					"read_profile", "convolver1d"]
+psfconvolve1d_objs = ["profile_fitting/psfconvolve1d_main", "commandline_parser", "utilities",
+					"profile_fitting/read_profile", "profile_fitting/convolver1d"]
 psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 
 

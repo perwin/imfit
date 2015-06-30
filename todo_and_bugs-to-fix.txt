@@ -1,9 +1,6 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-[..] PREPARE V1.2.1 BUG-FIX RELEASE
-
-
 [..] FOR V1.3: King model FunctionObject
 	-- function_objects/func_king.h/cpp : in progress
 	-- need to set up some profile-computation tests (e.g., compare 1-D slices

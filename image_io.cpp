@@ -74,7 +74,7 @@ static void PrintError( int status );
 /// size of the image and returns the dimensions in nRows and nColumns.
 ///
 ///   Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
-int GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose )
+int GetImageSize( const std::string filename, int *nColumns, int *nRows, const bool verbose )
 {
   fitsfile  *imfile_ptr;
   int  status, nfound;
@@ -128,8 +128,8 @@ int GetImageSize( std::string filename, int *nColumns, int *nRows, bool verbose 
 /// in the pointer-parameters nRows and nColumns.
 ///
 ///    Returns NULL (and prints error message) if a CFITSIO-related error occurred.
-double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
-														bool verbose )
+double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRows,
+							const bool verbose )
 {
   fitsfile  *imfile_ptr;
   double  *imageVector;
@@ -201,8 +201,8 @@ double * ReadImageAsVector( std::string filename, int *nColumns, int *nRows,
 /// vector written as comments to the FITS header.
 ///
 ///    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
-int SaveVectorAsImage( double *pixelVector, std::string filename, int nColumns,
-                         int nRows, std::vector<std::string> comments )
+int SaveVectorAsImage( double *pixelVector, const std::string filename, const int nColumns,
+                         const int nRows, std::vector<std::string> comments )
 {
   fitsfile  *imfile_ptr;
   std::string  finalFilename = "!";   // starting filename with "!" ==> clobber any existing file

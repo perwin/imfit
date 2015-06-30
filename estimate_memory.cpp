@@ -13,6 +13,8 @@ long EstimateConvolverMemory( int nData_cols, int nData_rows, int nPSF_cols, int
 
 
 
+/// Returns an estimate of the number of bytes needed by a Convolver object due
+/// to arrays allocated within the object.
 long EstimateConvolverMemory( int nModel_cols, int nModel_rows, int nPSF_cols, int nPSF_rows )
 {
   long  nPaddedPixels = 0;
@@ -36,6 +38,8 @@ long EstimateConvolverMemory( int nModel_cols, int nModel_rows, int nPSF_cols, i
 }
 
 
+/// Returns an estimate of the total number of bytes needed due to array allocations
+/// within ModelObject (and associated Convolver objects), mpfit, and main.
 long EstimateMemoryUse( int nData_cols, int nData_rows, int nPSF_cols, int nPSF_rows,
 						int nFreeParams, bool levMarFit, bool cashTerms, bool outputResidual,
 						bool outputModel, int nPSF_osamp_cols, int nPSF_osamp_rows,
