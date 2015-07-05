@@ -256,7 +256,8 @@ void Convolver1D::ConvolveProfile( double *pixelVector )
   // Extract & rescale the real part of the convolved profile and copy into
   // input pixel vector:
   for (ii = 0; ii < nPixels_data; ii++) {
-      realPart = fabs(convolvedProfile_cmplx[ii][0]);
+//      realPart = fabs(convolvedProfile_cmplx[ii][0]);
+      realPart = convolvedProfile_cmplx[ii][0];
       pixelVector[ii] = rescaleFactor * realPart;
   }
 }

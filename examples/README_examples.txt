@@ -2,9 +2,10 @@ FILES:
 The files in this directory are sample images and configuration files to give
 you a quick example of how to use Imfit.
 
-* Galaxy image (a 256x256-pixel cutout from an SDSS DR7 r-band image of the dE galaxy
-IC 3478): ic3478rss_256.fits
-(this image has had a constant sky value of 130.14 subtracted from it)
+* Galaxy image -- a 256x256-pixel cutout from an SDSS DR7 r-band image of the dE galaxy
+IC 3478: ic3478rss_256.fits
+Note that this image has had a constant sky value of 130.14 subtracted from it (in
+addition to the standard SDSS "soft bias" level of 1000).
 
 * Mask file: ic3478rss_256_mask.fits
 (the DS9 region file which was used to generate the mask is ic3478rss_256.reg)

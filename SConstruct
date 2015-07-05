@@ -95,6 +95,7 @@ STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit
 STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 
+CORE_SUBDIR = "core/"
 FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
 SOLVER_SUBDIR = "solvers/"
@@ -116,7 +117,7 @@ lib_list = ["fftw3", "cfitsio", "m"]
 lib_list_1d = ["fftw3","cfitsio",  "m"]
 
 
-include_path = [".", "/usr/local/include", SOLVER_SUBDIR, FUNCTION_SUBDIR, 
+include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, FUNCTION_SUBDIR, 
 				FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
 lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
@@ -479,7 +480,8 @@ c_sources = [name + ".c" for name in c_objs]
 
 # ModelObject and related classes/files:
 modelobject_obj_string = """model_object convolver oversampled_region downsample"""
-modelobject_objs = modelobject_obj_string.split()
+#modelobject_objs = modelobject_obj_string.split()
+modelobject_objs = [ CORE_SUBDIR + name for name in modelobject_obj_string.split() ]
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
 # Function objects:
@@ -517,13 +519,16 @@ solver_sources = [name + ".cpp" for name in solver_objs]
 
 # Base files for imfit and makeimage:
 base_obj_string = """commandline_parser utilities image_io config_file_parser add_functions"""
-base_objs = base_obj_string.split()
+base_objs = [ CORE_SUBDIR + name for name in base_obj_string.split() ]
+#base_objs = base_obj_string.split()
 
 imfit_obj_string = """print_results bootstrap_errors estimate_memory imfit_main"""
-imfit_base_objs = base_objs + imfit_obj_string.split()
+imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
+#imfit_base_objs = base_objs + imfit_obj_string.split()
+imfit_base_objs = base_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
-makeimage_base_objs = base_objs + ["makeimage_main"]
+makeimage_base_objs = base_objs + [CORE_SUBDIR + "makeimage_main"]
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 
@@ -587,7 +592,7 @@ env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LI
 # actually used in model_object1d. Similarly, code in image_io is referenced from
 # downsample.)
 modelobject1d_obj_string = """model_object oversampled_region downsample image_io"""
-modelobject1d_objs = modelobject1d_obj_string.split()
+modelobject1d_objs = [CORE_SUBDIR + name for name in modelobject1d_obj_string.split()]
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
 # 1D FunctionObject classes (note that we have to add a separate entry for function_object.cpp,
@@ -601,8 +606,8 @@ functionobject1d_objs.append(FUNCTION_SUBDIR + "function_object")
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
-profilefit_base_obj_string = """commandline_parser utilities profile_fitting/read_profile 
-		config_file_parser print_results profile_fitting/add_functions_1d convolver 
+profilefit_base_obj_string = """core/commandline_parser core/utilities profile_fitting/read_profile 
+		core/config_file_parser core/print_results profile_fitting/add_functions_1d core/convolver 
 		profile_fitting/convolver1d profile_fitting/model_object_1d 
 		profile_fitting/bootstrap_errors_1d profile_fitting/profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
@@ -613,7 +618,7 @@ profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_o
 profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + solver_sources + c_sources
 
 # psfconvolve1d: put all the object and source-code lists together
-psfconvolve1d_objs = ["profile_fitting/psfconvolve1d_main", "commandline_parser", "utilities",
+psfconvolve1d_objs = ["profile_fitting/psfconvolve1d_main", "core/commandline_parser", "core/utilities",
 					"profile_fitting/read_profile", "profile_fitting/convolver1d"]
 psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 
@@ -630,8 +635,8 @@ psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 readimage_sources = ["readimage_main.cpp", "image_io.cpp"]
 
 # psfconvolve: put all the object and source-code lists together
-psfconvolve_objs = ["psfconvolve_main", "commandline_parser", "utilities",
-					"image_io", "convolver"]
+psfconvolve_objs = ["extra/psfconvolve_main", "core/commandline_parser", "core/utilities",
+					"core/image_io", "core/convolver"]
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
 # test_parser: put all the object and source-code lists together
@@ -656,8 +661,8 @@ env_1d.Program("psfconvolve1d", psfconvolve1d_dbg_objlist)
 
 # timing: variation on makeimage designed to time image-generation and convolution
 # Base files for timing:
-timing_base_obj_string = """commandline_parser utilities image_io config_file_parser 
-			add_functions timing_main"""
+timing_base_obj_string = """core/commandline_parser core/utilities core/image_io core/config_file_parser 
+			core/add_functions extra/timing_main"""
 timing_base_objs = timing_base_obj_string.split()
 timing_base_sources = [name + ".cpp" for name in timing_base_objs]
 

@@ -1,4 +1,18 @@
 
+** BUGS TO FIX:
+
+[] Convolution of an image with substantial region of negative pixels produces
+weird ringing and positive pixels in negative region.
+	-- tests using astropy.convolution.convolve() and astropy.convolution.convolve_fft()
+	show apparently correct results
+	-- see if this also happens with 1-D convolution?
+	?? Is output the absolute value of what it should be?
+		-- compare with astropy.convolution output
+			[]1. Compare astropy.convolution output on all-positive image (how much
+			does our convolution differ from theirs?)
+			[]2. Compare astropy.convolution output on partially-negative image
+
+
 ** NEAR-TERM FUTURE TODO:
 
 [..] FOR V1.3: King model FunctionObject
@@ -60,12 +74,12 @@ image oversampled
 
 
 [..] Reorganize directory structure:
-	src/core
-	src/solvers
-	src/function_objects
+	[x]src/core
+	[x]src/solvers
+	[x]src/function_objects
 	src/function_objects_extra -- for specialized, non-public stuff (n4762 funcs, experimental stuff, etc.)
-	src/function_objects_1d
-	src/profilefit -- for all the 1D stuff (except func1d_*)
+	[x]src/function_objects_1d
+	[x]src/profilefit -- for all the 1D stuff (except func1d_*)
 	src/utilities ?
 	src/extra ? -- for timing_main.cpp
 	src/model_object ? -- for model_object convolver oversampled_region downsample
@@ -85,6 +99,10 @@ image oversampled
 
 [] Refactor print_results.cpp to be simpler and less mangled-from-mpfit
 
+
+[] Look into possible use of FFTW++ library for convolution
+	-- C++ wrapper around FFTW, with added optimization for "implicit zero-padding"
+	of convolutions
 
 [] Optional convolution with charge-diffusion kernel?
 

@@ -39,9 +39,9 @@
 // order, as is standard for C.  This means that an image which is W x H (W columns
 // by H rows) is indexed thusly:
 //    (column x, row y) = A[y][x] = A[y*Ncols + x]
-// In the confusing terminology of the FFTW manual: "the last dimension has the fastest-varying
-// index in the array" -- meaning that the "last dimension" corresponds to x-values,
-// and thus to the number of *columns*.
+// In the confusing terminology of the FFTW manual: "the last dimension has the 
+// fastest-varying index in the array" -- meaning that the "last dimension" corresponds 
+// to x-values, and thus to the number of *columns*.
 //    Thus, the proper way to call fftw_plan_dft_2d(), which is described in the
 // FFTW manual as:
 //       fftw_plan_dft_2d(int n0, int n1, fftw_complex *in, fftw_complex *out,
@@ -217,7 +217,8 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
   int  nCols_trimmed = (int)(floor(nColumns_padded/2)) + 1;
   nPixels_padded_complex = nRows_padded * nCols_trimmed;
   if (debugStatus >= 1)
-    printf("Complex images will have dimensions %d x %d pixels in size\n", nCols_trimmed, nRows_padded);
+    printf("Complex images will have dimensions %d x %d pixels in size\n", nCols_trimmed, 
+    		nRows_padded);
 
 
 #ifdef FFTW_THREADING
@@ -243,7 +244,8 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
     fftwFlags = FFTW_ESTIMATE;
   // Note that there's not much purpose in multi-threading plan_psf, since we only do
   // the FFT of the PSF once
-  plan_psf = fftw_plan_dft_r2c_2d(nRows_padded, nColumns_padded, psf_in_padded, psf_fft_cmplx, fftwFlags);
+  plan_psf = fftw_plan_dft_r2c_2d(nRows_padded, nColumns_padded, psf_in_padded, 
+  									psf_fft_cmplx, fftwFlags);
 
 #ifdef FFTW_THREADING
   int  nThreads, nCores;
@@ -258,11 +260,11 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
   fftw_plan_with_nthreads(nThreads);
 #endif  // FFTW_THREADING
 
-  plan_inputImage = fftw_plan_dft_r2c_2d(nRows_padded, nColumns_padded, image_in_padded, image_fft_cmplx,
-                             fftwFlags);
+  plan_inputImage = fftw_plan_dft_r2c_2d(nRows_padded, nColumns_padded, image_in_padded, 
+  										image_fft_cmplx, fftwFlags);
 
-  plan_inverse = fftw_plan_dft_c2r_2d(nRows_padded, nColumns_padded, multiplied_cmplx, convolvedImage_out, 
-                             fftwFlags);
+  plan_inverse = fftw_plan_dft_c2r_2d(nRows_padded, nColumns_padded, multiplied_cmplx, 
+  									convolvedImage_out, fftwFlags);
   fftPlansCreated = true;
   
 
@@ -310,7 +312,8 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
 /// Given an input image (pointer to its pixel vector), convolve it with the PSF
 /// by: 1) Copying image to image_in_padded array (with zero-padding); 
 /// 2) Taking FFT of image; 3) Multiplying transform of image by transform of PSF; 
-/// 4) Taking inverse FFT of product; 5) Copying (and rescaling) result back into input image.
+/// 4) Taking inverse FFT of product; 5) Copying (and rescaling) result back into 
+///    input image.
 void Convolver::ConvolveImage( double *pixelVector )
 {
   int  ii, jj;
