@@ -258,12 +258,12 @@ int main(int argc, char *argv[])
   if (options.psfOversampledImagePresent) {
     if (options.psfOversamplingScale < 1) {
       fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n");
-      fprintf(stderr, "           (use --overpsf_scale to specify the scale)\n");
+      fprintf(stderr, "           (use --overpsf_scale to specify the scale)\n\n");
       exit(-1);
     }
     if (! options.oversampleRegionSet) {
       fprintf(stderr, "\n*** ERROR: the oversampling region was not defined!\n");
-      fprintf(stderr, "           (use --overpsf_region to specify the region)\n");
+      fprintf(stderr, "           (use --overpsf_region to specify the region)\n\n");
       exit(-1);
     }
     printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());

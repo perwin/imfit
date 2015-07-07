@@ -145,7 +145,8 @@ int main( int argc, char *argv[] )
     options.noImageDimensions = false;
   if ( (options.noRefImage) && (options.noImageDimensions)) {
     if (options.saveImage) {
-      fprintf(stderr, "\n*** ERROR: Insufficient image dimensions (or no reference image) supplied!\n\n");
+      fprintf(stderr, "\n*** ERROR: Insufficient image dimensions (or no reference image) supplied!\n");
+      fprintf(stderr, "           (Use --nrows and --ncols, or else --refimage)\n\n");
       return -1;
     }
     else {
@@ -193,11 +194,13 @@ int main( int argc, char *argv[] )
   // Read in oversampled PSF image, if supplied
   if (options.psfOversampledImagePresent) {
     if (options.psfOversamplingScale < 1) {
-      fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n\n");
+      fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n");
+      fprintf(stderr, "           (use --overpsf_scale to specify the scale)\n\n");
       exit(-1);
     }
     if (! options.oversampleRegionSet) {
-      fprintf(stderr, "\n*** ERROR: the oversampling region within the main image was not defined!\n\n");
+      fprintf(stderr, "\n*** ERROR: the oversampling region within the main image was not defined!\n");
+      fprintf(stderr, "           (use --overpsf_region to specify the region)\n\n");
       exit(-1);
     }
     printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());

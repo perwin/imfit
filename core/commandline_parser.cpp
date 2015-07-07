@@ -285,7 +285,7 @@ int CLineParser::ParseCommandLine( int argc, char *argv[] )
             }
             else {
               // we need a target for this option, but we've run out of command-line!
-              fprintf(stderr, "WARNING: option \"%s\" expects a following argument!\n",
+              fprintf(stderr, "WARNING: option \"%s\" requires an argument!\n",
                       argv[i]);
               return -1;
             }
