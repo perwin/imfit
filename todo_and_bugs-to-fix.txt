@@ -119,6 +119,8 @@ image oversampled
 	-- Start with Metropolis-Hastings, just to make sure we get the overall
 	machinery working
 		-- Then try DE-MCMC (ter Braak; 
+			-- C++ code for "DREAM" here: http://people.sc.fsu.edu/~jburkardt/cpp_src/dream/dream.html
+			(this is really C code with some minmimal C++ idioms, like std::string)
 	-- Option to use config file for initial conditions
 	-- Run L-M first to generate initial conditions and parameter sigmas
 		-- alternate: run L-M separately, then use results as initial conditions

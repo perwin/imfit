@@ -257,11 +257,13 @@ int main(int argc, char *argv[])
   /* Read in oversampled PSF image, if supplied */
   if (options.psfOversampledImagePresent) {
     if (options.psfOversamplingScale < 1) {
-      fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n\n");
+      fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n");
+      fprintf(stderr, "           (use --overpsf_scale to specify the scale)\n");
       exit(-1);
     }
     if (! options.oversampleRegionSet) {
-      fprintf(stderr, "\n*** ERROR: the oversampling region was not defined!\n\n");
+      fprintf(stderr, "\n*** ERROR: the oversampling region was not defined!\n");
+      fprintf(stderr, "           (use --overpsf_region to specify the region)\n");
       exit(-1);
     }
     printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());
@@ -406,7 +408,7 @@ int main(int argc, char *argv[])
   // statistic + L-M minimizer
   if (options.useCashStatistic) {
     if ((options.solver == MPFIT_SOLVER) && (! options.printFitStatisticOnly)) {
-      fprintf(stderr, "*** ERROR -- Cannot use standard Cash statistic with L-M solver!\n\n");
+      fprintf(stderr, "*** ERROR -- Cash statistic cannot be used with L-M solver!\n\n");
       return -1;
     }
     theModel->UseCashStatistic();
@@ -584,15 +586,15 @@ int main(int argc, char *argv[])
 
 
   // Free up memory
-  fftw_free(allPixels);       // allocated externally, in ReadImageAsVector()
+  fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()
   if (errorPixels_allocated)
-    fftw_free(allErrorPixels);  // allocated externally, in ReadImageAsVector()
+    fftw_free(allErrorPixels);          // allocated externally, in ReadImageAsVector()
   if (options.psfImagePresent)
-    fftw_free(psfPixels);  // allocated externally, in ReadImageAsVector()
+    fftw_free(psfPixels);               // allocated externally, in ReadImageAsVector()
   if (options.psfOversampledImagePresent)
-    fftw_free(psfOversampledPixels);  // allocated externally, in ReadImageAsVector()
+    fftw_free(psfOversampledPixels);    // allocated externally, in ReadImageAsVector()
   if (maskAllocated)
-    fftw_free(allMaskPixels);  // allocated externally, in ReadImageAsVector()
+    fftw_free(allMaskPixels);           // allocated externally, in ReadImageAsVector()
   free(paramsVect);
   if (parameterInfo_allocated)
     free(parameterInfo);
