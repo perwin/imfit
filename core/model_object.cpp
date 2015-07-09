@@ -338,10 +338,10 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
   externalErrorVectorSupplied = true;
 
   // Convert noise values into weights, if needed.  Our standard approach is
-  // to compute weights as 1/sigma; this assumes that whatever function calls
+  // to compute & store weights as 1/sigma; this assumes that whatever function calls
   // ComputeDeviates() will then square the individual (weighted) deviate values
   // in order to get the proper chi^2 result.
-  // Currently, we assume three possibilities for weight-map pixel values:
+  // Currently, we assume three possibilities for the input weight-map pixel values:
   //    sigma (std.dev.); variance (sigma^2); and "standard" weights (1/sigma^2)
   switch (inputType) {
     case WEIGHTS_ARE_SIGMAS:

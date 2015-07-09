@@ -151,6 +151,7 @@ funcObjFileDict = {"dir": "function_objects", "file_list": source_files_funcobj.
 
 
 example_files = """
+config_exponential_ic3478_256.dat
 config_sersic_ic3478_256.dat
 ic3478rss_256.fits
 ic3478rss_256_mask.fits
