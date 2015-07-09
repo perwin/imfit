@@ -44,6 +44,7 @@ fi
 # same, but now with Sersic n fixed (to ensure we don't re-introduce bug originally seen when
 # using --loud and one or more fixed parameters)
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --loud  &> temptest/test_dump3d2
+
 # same L-M fit, using external noise image (default = sigmas)
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --noise=tests/ic3478rss_64x64_sigma.fits  &> temptest/test_dump3e
 # same L-M fit, using external variance image (default = sigmas)
@@ -122,43 +123,15 @@ echo ""
 
 echo -n "*** Diff comparison with archives: first test... "
 ./python/diff_printouts.py tests/imfit_textout1 temptest/test_dump1 --skip-last=3
-# if (diff --brief <(head -n 46 temptest/test_dump1) <(head -n 46 tests/imfit_textout1))
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff <(head -n 46 temptest/test_dump1) <(head -n 46 tests/imfit_textout1)
-# fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image... "
 ./python/diff_printouts.py tests/imfit_textout2 temptest/test_dump2 --skip-last=3
-# if (diff --brief <(head -n 54 temptest/test_dump2) <(head -n 54 tests/imfit_textout2))
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff <(head -n 54 temptest/test_dump2) <(head -n 54 tests/imfit_textout2)
-# fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (take 2)... "
 ./python/diff_printouts.py tests/imfit_textout3 temptest/test_dump3 --skip-last=3
-# if (diff --brief temptest/test_dump3 tests/imfit_textout3)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump3 tests/imfit_textout3
-# fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (N-M simplex fit)... "
 ./python/diff_printouts.py tests/imfit_textout3b temptest/test_dump3b --skip-last=3
-# if (diff --brief temptest/test_dump3b tests/imfit_textout3b)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump3b tests/imfit_textout3b
-# fi
 
 # special test for DE output because final parameter are more variable from one fit
 # to the next...
@@ -171,132 +144,53 @@ fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud)... "
 ./python/diff_printouts.py tests/imfit_textout3d temptest/test_dump3d --skip-last=3
-# if (diff --brief temptest/test_dump3d tests/imfit_textout3d)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump3d tests/imfit_textout3d
-# fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud, fixed parameter)... "
 ./python/diff_printouts.py tests/imfit_textout3d2 temptest/test_dump3d2 --skip-last=3
-# if (diff --brief temptest/test_dump3d2 tests/imfit_textout3d2)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump3d2 tests/imfit_textout3d2
-# fi
+
+echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit using sigma map)... "
+./python/diff_printouts.py tests/imfit_textout3e temptest/test_dump3e --skip-last=3
+
+echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit using variance map)... "
+./python/diff_printouts.py tests/imfit_textout3e2 temptest/test_dump3e2 --skip-last=3
 
 
 echo -n "*** Diff comparison with archives: fit to larger (rectangular) SDSS image w/ PSF convolution... "
 ./python/diff_printouts.py tests/imfit_textout4 temptest/test_dump4 --skip-last=3
-# if (diff --brief temptest/test_dump4 tests/imfit_textout4)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump4 tests/imfit_textout4
-# fi
 
 echo -n "*** Diff comparison with archives: same, but using counts/sec image + --exptime option... "
 ./python/diff_printouts.py tests/imfit_textout4b temptest/test_dump4b --skip-last=3
-# if (diff --brief temptest/test_dump4b tests/imfit_textout4b)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump4b tests/imfit_textout4b
-# fi
 
 echo -n "*** Diff comparison with archives: chisquare-only calculation... "
 ./python/diff_printouts.py tests/imfit_textout4c temptest/test_dump4c --skip-last=3
-# if (diff --brief temptest/test_dump4c tests/imfit_textout4c)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump4c tests/imfit_textout4c
-# fi
 
 echo -n "*** Diff comparison with archives: chisquare-only (Cash statistic) calculation... "
 ./python/diff_printouts.py tests/imfit_textout4d temptest/test_dump4d --skip-last=3
-# if (diff --brief temptest/test_dump4d tests/imfit_textout4d)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump4d tests/imfit_textout4d
-# fi
 
 if [ "$1" == "--all" ]
 then
   echo -n "*** Diff comparison with archives: fit using oversampled PSF... "
   ./python/diff_printouts.py tests/imfit_textout4e temptest/test_dump4e --skip-last=3
-#   if (diff --brief temptest/test_dump4e tests/imfit_textout4e)
-#   then
-#     echo " OK"
-#   else
-#     echo "Diff output:"
-#     diff temptest/test_dump4e tests/imfit_textout4e
-#   fi
 
   echo -n "*** Diff comparison with archives: fit using oversampled PSF + image section... "
   ./python/diff_printouts.py tests/imfit_textout4e2 temptest/test_dump4e2 --skip-last=3
-#   if (diff --brief temptest/test_dump4e2 tests/imfit_textout4e2)
-#   then
-#     echo " OK"
-#   else
-#     echo "Diff output:"
-#     diff temptest/test_dump4e2 tests/imfit_textout4e2
-#   fi
 fi
 
 echo -n "*** Diff comparison with archives: fit using Cash statistic... "
 tail -n 18 temptest/test_dump5a > temptest/test_dump5a_tail
 ./python/diff_printouts.py tests/imfit_textout5a_tail temptest/test_dump5a_tail --skip-last=3
-# tail -n 18 temptest/test_dump5a > temptest/test_dump5a_tail
-# if (diff --brief temptest/test_dump5a_tail tests/imfit_textout5a_tail)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump5a_tail tests/imfit_textout5a_tail
-# fi
 
 echo -n "*** Diff comparison with archives: fit using Poisson MLR statistic (+ N-M solver)... "
 tail -n 18 temptest/test_dump5b > temptest/test_dump5b_tail
 ./python/diff_printouts.py tests/imfit_textout5b_tail temptest/test_dump5b_tail --skip-last=3
-# if (diff --brief temptest/test_dump5b_tail tests/imfit_textout5b_tail)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump5b_tail tests/imfit_textout5b_tail
-# fi
 
 echo -n "*** Diff comparison with archives: fit using Poisson MLR statistic (+ L-M solver)... "
 tail -n 18 temptest/test_dump5c > temptest/test_dump5c_tail
 ./python/diff_printouts.py tests/imfit_textout5c_tail temptest/test_dump5c_tail --skip-last=3
-# if (diff --brief temptest/test_dump5c_tail tests/imfit_textout5c_tail)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump5c_tail tests/imfit_textout5c_tail
-# fi
 
 echo -n "*** Diff comparison with archives: Poisson-MLR-stat fit to problematic image (+ L-M solver)... "
 tail -n 18 temptest/test_dump5d > temptest/test_dump5d_tail
 ./python/diff_printouts.py tests/imfit_textout5d_tail temptest/test_dump5d_tail --skip-last=3
-# if (diff --brief temptest/test_dump5d_tail tests/imfit_textout5d_tail)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump5d_tail tests/imfit_textout5d_tail
-# fi
 
 
 if [ $do_fits_tests = "1" ]
@@ -315,33 +209,12 @@ fi
 
 echo -n "*** Diff comparison with archives: automatic masking of NaN values... "
 ./python/diff_printouts.py tests/imfit_textout7a temptest/test_dump7a --skip-last=3
-# if (diff --brief temptest/test_dump7a tests/imfit_textout7a)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump7a tests/imfit_textout7a
-# fi
 
 echo -n "*** Diff comparison with archives: detection of zero-valued pixel (bad for data-based errors)... "
 ./python/diff_printouts.py tests/imfit_textout7b temptest/test_dump7b --skip-last=3
-# if (diff --brief temptest/test_dump7b tests/imfit_textout7b)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump7b tests/imfit_textout7b
-# fi
 
 echo -n "*** Diff comparison with archives: ignore zero-valued pixel when it's masked... "
 ./python/diff_printouts.py tests/imfit_textout7c temptest/test_dump7c --skip-last=3
-# if (diff --brief temptest/test_dump7c tests/imfit_textout7c)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump7c tests/imfit_textout7c
-# fi
 
 
 
