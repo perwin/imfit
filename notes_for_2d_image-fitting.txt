@@ -1062,8 +1062,8 @@ Larsen 1999 (main reference paper for ISHAPE) notes that ISHAPE has King profile
 of 5, 15, 30, and 100
 
 GALFIT 3 (according to the README file) has "empirical (modified)" King profile,
-which is attributed to Elson (1999 = 10th Canary Islands Winter School of Astrophysics: Globular clusters, p. 209 - 248,
-with no links to actual text/paper in ADS!
+which is attributed to Elson (1999 = 10th Canary Islands Winter School of Astrophysics: 
+Globular clusters, p. 209 - 248, with no links to actual text/paper in ADS!
 which allows for arbitrary concentration (actually arbitrary values of r_t and r_c)
 along with variable power-law index alpha [which is 2 in the standard definition]
 
@@ -1074,6 +1074,24 @@ c
 alpha
 
 (Makes it easier to specify a fixed concentration value)
+
+
+
+** POSSIBLE ALTERNATE LIBRARY CODE:
+
+Non-GPL FFT code:
+http://anthonix.com/ffts/
+	-- apparently nice and modern and fast; BSD license; restricted to power-of-2 arrays
+
+
+Numerical integration code:
+
+http://www.feynarts.de/cuba/ -- LGPL
+
+http://ab-initio.mit.edu/wiki/index.php/Cubature -- GPL
+
+Port of F77 QUADPACK to C:
+http://www.crbond.com/scientific.htm -- "All downloadable software is offered freely and without  restriction"
 
 
 

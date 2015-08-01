@@ -109,8 +109,8 @@ void GaussianRing3D::Setup( double params[], int offsetIndex, double xc, double 
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
   
-  // ring PA rotations are computed relative to +y axis; convert to +x-axis reference
   ringPA_rad = (ringPA + 90.0) * DEG2RAD;
+  // ring PA rotations are computed relative to +y axis; convert to +x-axis reference
   cosRingPA = cos(ringPA_rad);
   sinRingPA = sin(ringPA_rad);
   

@@ -1354,6 +1354,7 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[],
         y0 += parameterInfo[k + 1].offset;
       }
       if (errs != NULL) {
+        fprintf(output_ptr, "\n");
         fprintf(output_ptr, X0_FORMAT_WITH_ERRS, prefix, x0, errs[k]);
         fprintf(output_ptr, Y0_FORMAT_WITH_ERRS, prefix, y0, errs[k + 1]);
       } else {

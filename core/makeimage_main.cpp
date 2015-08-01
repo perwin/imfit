@@ -478,6 +478,10 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   optParser->AddOption("max-threads");
   optParser->AddOption("debug");
 
+  // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
+  // to be ignored only, rather than causing program to exit
+  optParser->UnrecognizedAreErrors();
+
   /* parse the command line:  */
   int status = optParser->ParseCommandLine( argc, argv );
   if (status < 0) {

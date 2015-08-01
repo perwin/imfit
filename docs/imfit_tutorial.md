@@ -4,43 +4,46 @@
 ## Fitting Your First Image
 
 Imfit requires, as a bare minimum, two things:
+
 1. An image in FITS format containing the data to be fit;
 2. A configuration file describing the model you want to fit to the data.
 
-So to start off, we'll try fitting the image file ic3478rss_256.fits (which is a
-256 x 256-pixel cutout from an SDSS r-band image) with a simple exponential
-model, which is described in the configuration file config_sersic_ic3478_256.dat.
+So to start off, we'll try fitting the image file ic3478rss\_256.fits (which is a
+256 x 256-pixel cutout from an SDSS *r*-band image) with a simple exponential
+model, which is described in the configuration file config_sersic\_ic3478\_256.dat.
 To do the fit, just type:
 
-imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat --sky=130.14
+	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat --sky=130.14
 
-(The "--sky-130.14" is a note to imfit that the image has had a background sky
-level of 130.14 counts/pixel previously subtracted; if we don't include this,
-imfit will get confused by the fact that some of the pixels have slightly negative
-values.)
+The `--sky=130.14` is a note to imfit that the image has had a
+background sky level of 130.14 counts/pixel previously subtracted; if we
+don't include this, imfit will get confused by the fact that some of the
+pixels in the image have slightly negative values. (Note that you can
+use `=` or a space to connect an option with its argument on the command
+line.)
 
-Imfit will print some preliminary information (confirming which files are being
-used, the size of the image being fit, the image functions used in the model, etc.).
-It will then call the minimization routine, which by default prints a minimal set
+Imfit will print some preliminary information, confirming which files are being
+used, the size of the image being fit, the image functions used in the model, etc.
+It will then call the minimization routine, which prints a minimal set
 of updates for each iteration. At the end, a summary of the fit is printed
 (final chi^2, etc.), along with the best-fitting parameters of the model.
-These parameters are also saved in a text file: bestfit_parameters_imfit.dat,
+These parameters are also saved in a text file: bestfit\_parameters\_imfit.dat,
 while also has a record of how imfit was called and a short summary of the fit.
-(You can specify a different name for the output file via the --save-params option.)
+(You can specify a different name for the output file via the `--save-params` option.)
 
 Congratulations; you've fit your first image!
 
 
-Reduced Chi^2 = 0.450366
-AIC = 29524.514967, BIC = 29579.055814
+	Reduced Chi^2 = 0.450366
+	AIC = 29524.514967, BIC = 29579.055814
 
-X0		128.8530 # +/- 0.0517
-Y0		129.1035 # +/- 0.0633
-FUNCTION Exponential
-PA		19.7364 # +/- 0.467417
-ell		0.231428 # +/- 0.00333939
-I_0		315.173 # +/- 1.33252
-h		20.5726 # +/- 0.0748152
+	X0		128.8530 # +/- 0.0517
+	Y0		129.1035 # +/- 0.0633
+	FUNCTION Exponential
+	PA		19.7364 # +/- 0.467417
+	ell		0.231428 # +/- 0.00333939
+	I_0		315.173 # +/- 1.33252
+	h		20.5726 # +/- 0.0748152
 
 
 ## Inspecting the Fit: Model Images and Residuals
@@ -60,19 +63,21 @@ Leaving aside the question of possible mismatch between an exponential model and
 galaxy, this isn't the best possible fit yet for our model.  (You may have noticed
 that imfit reported a reduced chi^2 value of ~ 0.45, which a sign
 something odd is going on.) For one thing, we've deceived imfit
-about the nature of the data. The chi^2 fitting process that imfit uses
+about the nature of the data. The default chi^2 fitting process that imfit uses
 is based on the Gaussian approximation to Poisson statistics, and
 assumes that the pixel values in the image are detected photoelectrons
 (or N-body particles, or something else that obeys Poisson statistics).
 In reality, our image deviates from this ideal in three ways:
+
 1. There was a sky background that was subtracted from the image;
 2. The pixel values are counts (ADUs), not detected photoelectrons;
 3. The image has some Gaussian read noise.
 
 To fix this, we can tell imfit three things:
+
 1. The original background level (which we're already doing, via the --sky option);
-2. The A/D gain in electrons/count, via the --gain option;
-3. The read noise value (in electrons), via the --readnoise option
+2. The A/D gain in electrons/count, via the `--gain` option;
+3. The read noise value (in electrons), via the `--readnoise` option
 
 In the case of this SDSS image, the corresponding tsField FITS table (from the SDSS
 archive) has information about the A/D gain and the read noise (or "dark variance")
@@ -81,21 +86,22 @@ for the r-band image.
 
 So we can re-run the fit with the following command:
 
-imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat --sky=130.14 --gain=4.725 --readnoise=4.3
+	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat --sky=130.14 \
+	--gain=4.725 --readnoise=4.3
 
 Now the reduced chi^2 is about 2.1, which isn't necessarily that good, but is at
 least statistically plausible!
 
-Reduced Chi^2 = 2.082564
-AIC = 136482.400611, BIC = 136536.941458
+	Reduced Chi^2 = 2.082564
+	AIC = 136482.400611, BIC = 136536.941458
 
-X0		128.8540 # +/- 0.0239
-Y0		129.1028 # +/- 0.0293
-FUNCTION Exponential
-PA		19.7266 # +/- 0.217212
-ell		0.23152 # +/- 0.00155236
-I_0		316.313 # +/- 0.619616
-h		 20.522 # +/- 0.0346742
+	X0		128.8540 # +/- 0.0239
+	Y0		129.1028 # +/- 0.0293
+	FUNCTION Exponential
+	PA		19.7266 # +/- 0.217212
+	ell		0.23152 # +/- 0.00155236
+	I_0		316.313 # +/- 0.619616
+	h		 20.522 # +/- 0.0346742
 
 
 
@@ -113,32 +119,67 @@ done with a separate mask image: an image of the same size as the data, but with
 pixel values = 0 for all the "good" pixels and >= 1 for all the "bad" pixels
 (i.e., those pixels you want Imfit to ignore).
 
-The file ic3478rss_256_mask.fits in the examples directory is a mask image. You can
-use it in the fit with the "--mask" option:
+The file ic3478rss\_256\_mask.fits in the examples directory is a mask image. You can
+use it in the fit with the "`--mask`" option:
 
-$ imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits --sky=130.14 --gain=4.725 --readnoise=4.3
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
+	--sky=130.14 --gain=4.725 --readnoise=4.3
 
-The reduced chi^2 is slightly smaller; in addition, the position angle, ellipticity, and
-
-Reduced Chi^2 = 1.964467
-AIC = 124602.443320, BIC = 124656.787960
-
-X0		128.8793 # +/- 0.0237
-Y0		129.0589 # +/- 0.0289
-FUNCTION Exponential
-PA		18.7492 # +/- 0.23086
-ell		0.220646 # +/- 0.00159077
-I_0		321.631 # +/- 0.634224
-h		20.0684 # +/- 0.034584
+The reduced chi^2 is slightly smaller; in addition, the position angle, ellipticity, and 
 
 
-## Better Fits: Trying a different model
+	Reduced Chi^2 = 1.964467
+	AIC = 124602.443320, BIC = 124656.787960
+
+	X0		128.8793 # +/- 0.0237
+	Y0		129.0589 # +/- 0.0289
+	FUNCTION Exponential
+	PA		18.7492 # +/- 0.23086
+	ell		0.220646 # +/- 0.00159077
+	I_0		321.631 # +/- 0.634224
+	h		20.0684 # +/- 0.034584
+
+
+## Better Fits: Trying different models
+
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
+	--gain=4.725 --readnoise=4.3 --sky=130.14
+
+
+	Reduced Chi^2 = 1.055366
+	AIC = 66946.393806, BIC = 67009.795665
+
+	X0		128.9321 # +/- 0.0130
+	Y0		129.0983 # +/- 0.0155
+	FUNCTION Sersic
+	PA		19.0449 # +/- 0.247618
+	ell		0.221656 # +/- 0.00171861
+	n		 2.3108 # +/- 0.00818546
+	I_e		22.1351 # +/- 0.163568
+	r_e		56.2217 # +/- 0.256568
 
 
 
  
 
 ## Better Fits: PSF Convolution
+
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
+	--gain=4.725 --readnoise=4.3 --sky=130.14 --psf psf_moffat_51.fits
+	
+	Reduced Chi^2 = 1.074154
+	AIC = 68137.906037, BIC = 68201.307896
+
+	X0		128.9174 # +/- 0.0147
+	Y0		129.0800 # +/- 0.0176
+	FUNCTION Sersic
+	PA		19.0576 # +/- 0.247209
+	ell		0.227617 # +/- 0.00175711
+	n		2.48051 # +/- 0.00983808
+	I_e		19.9097 # +/- 0.169477
+	r_e		59.5241 # +/- 0.309487
+
+
 
 
 

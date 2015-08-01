@@ -40,6 +40,9 @@ CPUs manufactured since about 2003).
 PSF convolution about 30% faster on average than they were in version
 1.2 (in some cases they can even be twice as fast).
 
+- Printouts and output files listing the best-fitting parameter values (and errors) 
+now include a blank line between function blocks, for easier reading.
+
 - Output from "imfit --help" has been reorganized into a (hopefully) more logical form.
 
 - Memory-use estimates now account for convolutions with oversampled PSFs (and the
