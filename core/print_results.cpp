@@ -309,7 +309,18 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
     statName = "Poisson-MLR statistic";
   }
   else {
-    statName = "chi-squared";
+    whichStat = model->WhichFitStatistic(true);
+    switch (whichStat) {
+      case FITSTAT_CHISQUARE_USER:
+        statName = "chi-squared (user-supplied errors)";
+        break;
+      case FITSTAT_CHISQUARE_MODEL:
+        statName = "chi-squared (model-based errors)";
+        break;
+      default:
+        statName = "chi-squared (data-based errors)";
+        break;
+    }
   }
   
   char  *timeStamp;

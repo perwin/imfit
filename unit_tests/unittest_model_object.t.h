@@ -175,6 +175,10 @@ public:
     // special case of verbose output
     whichStat = modelObj1->WhichFitStatistic(true);
     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_DATA);
+    // switch to using model-based chi^2
+    modelObj1->UseModelErrors();
+    whichStat = modelObj1->WhichFitStatistic(true);
+    TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_MODEL);
     
     modelObj1->UseCashStatistic();
     whichStat = modelObj1->WhichFitStatistic();
