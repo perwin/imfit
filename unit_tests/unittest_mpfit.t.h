@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string>
 using namespace std;
-#include "mpfit_cpp.h"
+#include "mpfit.h"
 #include "model_object.h"
 
 

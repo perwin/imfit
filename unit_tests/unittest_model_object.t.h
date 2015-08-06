@@ -110,7 +110,7 @@ public:
     // Initialize modelObj1; set up internal FunctionObjects vector (Exp + FlatSky) inside
     status = ReadConfigFile(filename1, true, functionList1, parameterList1, 
   								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, userConfigOptions1);
-    status = AddFunctions(modelObj1, functionList1, FunctionBlockIndices1, true);
+    status = AddFunctions(modelObj1, functionList1, FunctionBlockIndices1, true, -1);
 
     // Initialize modelObj2a, etc.
     modelObj2a = new ModelObject();
@@ -125,14 +125,14 @@ public:
     status = ReadConfigFile(filename3, true, functionList3, parameterList3, 
   								paramLimits3, FunctionBlockIndices3, paramLimitsExist3, userConfigOptions3);
     modelObj3 = new ModelObject();
-    status = AddFunctions(modelObj3, functionList3, FunctionBlockIndices3, true);
+    status = AddFunctions(modelObj3, functionList3, FunctionBlockIndices3, true, -1);
 
     // Initialize modelObj4a and add model function & params (FlatSky)
     modelObj4a = new ModelObject();
-    status = AddFunctions(modelObj4a, functionList3, FunctionBlockIndices3, true);
+    status = AddFunctions(modelObj4a, functionList3, FunctionBlockIndices3, true, -1);
     // Initialize modelObj4b and add model function & params (FlatSky)
     modelObj4b = new ModelObject();
-    status = AddFunctions(modelObj4b, functionList3, FunctionBlockIndices3, true);
+    status = AddFunctions(modelObj4b, functionList3, FunctionBlockIndices3, true, -1);
     
   }
 
@@ -172,6 +172,9 @@ public:
     // default should be chi^2
     whichStat = modelObj1->WhichFitStatistic();
     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE);
+    // special case of verbose output
+    whichStat = modelObj1->WhichFitStatistic(true);
+    TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_DATA);
     
     modelObj1->UseCashStatistic();
     whichStat = modelObj1->WhichFitStatistic();

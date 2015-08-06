@@ -42,6 +42,9 @@ const int  DEBUG_ALL   =            10;
 const int FITSTAT_CHISQUARE   =      1;   /// standard chi^2
 const int FITSTAT_CASH        =      2;   /// standard (minimal) Cash statistic
 const int FITSTAT_POISSON_MLR =      3;   /// Poisson Maximum Likelihood Ratio statistic
+const int FITSTAT_CHISQUARE_DATA    =      10;   /// chi^2, per-pixel errors from data values
+const int FITSTAT_CHISQUARE_MODEL   =      11;   /// chi^2, per-pixel errors from model values
+const int FITSTAT_CHISQUARE_USER    =      12;   /// chi^2, per-pixel errors are user-supplied
 
 const double DEFAULT_FTOL = 1.0e-8;
 

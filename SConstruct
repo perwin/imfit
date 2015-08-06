@@ -82,6 +82,8 @@ import os, subprocess, platform, getpass
 # don't specify that)
 # We assume that FFTW library is static-only (since that's the default installation).
 
+STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/libcfitsio.a")
+
 # The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
 STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
@@ -112,9 +114,9 @@ cflags_db = ["-Wall", "-g3"]
 base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-lib_list = ["fftw3", "cfitsio", "m"]
+lib_list = ["fftw3", "m"]
 # libraries needed for profilefit and psfconvolve1d compilation
-lib_list_1d = ["fftw3","cfitsio",  "m"]
+lib_list_1d = ["fftw3", "m"]
 
 
 include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, FUNCTION_SUBDIR, 
@@ -309,6 +311,14 @@ if GetOption("buildForOldMac") is True:
 
 
 # *** Setup for various options (either default, or user-altered)
+
+if useStaticLibs:
+	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
+else:
+	# append to standard library list, which means linker will look for
+	# library in standard or specified locations (and will link with dynamic
+	# version in preference to static version, if dynamic version exists)
+	lib_list.append("cfitsio")
 
 if useFFTWThreading:   # default is to do this
 	lib_list.insert(0, "fftw3_threads")

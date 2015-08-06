@@ -122,7 +122,7 @@ class ModelObject
  
     virtual bool UsingCashStatistic( );
  
-    virtual int WhichFitStatistic( );
+    virtual int WhichFitStatistic( bool verbose=false );
  
     virtual double GetFitStatistic( double params[] );
     

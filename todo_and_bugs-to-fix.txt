@@ -15,7 +15,7 @@ weird ringing and positive pixels in negative region.
 
 ** NEAR-TERM FUTURE TODO:
 
-[] FOR V1.3: Tweak output of best-fit parameters for mult-function-block case
+[X] FOR V1.3: Tweak output of best-fit parameters for mult-function-block case
 	-- currently, additional function blocks are appended directly; would be
 	nicer to have a blank line before each new "X0 ..." line
 	
@@ -56,7 +56,7 @@ weird ringing and positive pixels in negative region.
 	Done through: convolver
 
 
-[] Makeimage should quit when encountering unknown command-line parameter (like imift)
+[X] Makeimage should quit when encountering unknown command-line parameter (like imift)
 
 
 [] Solver summary info in header of bestfit_parameters output should include

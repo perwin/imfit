@@ -1,3 +1,4 @@
 
 *** ERROR: Insufficient image dimensions (or no reference image) supplied!
+           (Use --nrows and --ncols, or else --refimage)
 

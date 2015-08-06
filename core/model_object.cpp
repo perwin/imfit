@@ -337,7 +337,7 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
   weightValsSet = true;
   externalErrorVectorSupplied = true;
 
-  // Convert noise values into weights, if needed.  Our standard approach is
+  // Convert noise values into weights, if needed.  Our normal ("internal") approach is
   // to compute & store weights as 1/sigma; this assumes that whatever function calls
   // ComputeDeviates() will then square the individual (weighted) deviate values
   // in order to get the proper chi^2 result.
@@ -410,6 +410,7 @@ void ModelObject::GenerateErrorVector( )
     // Note that we store 1/sigma instead of 1/sigma^2, since the chi^2 calculation in 
     // ChiSquared() [or the equivalent in mpfit.cpp) will square the individual terms
     weightVector[z] = 1.0 / sqrt(noise_squared);
+//    printf("z = %d, noise_squared = %f\n", z, noise_squared);
   }
 
   weightValsSet = true;
@@ -1134,7 +1135,7 @@ bool ModelObject::UsingCashStatistic( )
 
 /* ---------------- PUBLIC METHOD: WhichStatistic ---------------------- */
 
-int ModelObject::WhichFitStatistic( )
+int ModelObject::WhichFitStatistic( bool verbose )
 {
   if (useCashStatistic) {
     if (poissonMLR)
@@ -1143,7 +1144,18 @@ int ModelObject::WhichFitStatistic( )
       return FITSTAT_CASH;
   }
   else
-    return FITSTAT_CHISQUARE;
+  {
+    if (verbose) {
+      if (modelErrors)
+        return FITSTAT_CHISQUARE_MODEL;
+      else if (externalErrorVectorSupplied)
+        return FITSTAT_CHISQUARE_USER;
+      else
+        return FITSTAT_CHISQUARE_DATA;
+    }
+    else
+      return FITSTAT_CHISQUARE;
+  }
 }
 
 
@@ -1226,9 +1238,9 @@ double ModelObject::ChiSquared( double params[] )
 //
 // Note that weightVector is used here *only* for its masking purposes
 //
-// In the case of using the modified Cash statistic, the extraCashTermsVector
+// In the case of using Poisson MLR statistic, the extraCashTermsVector
 // will be pre-populated with the appropriate terms (and will be = 0 for the
-// standard Cash statistic).
+// classical Cash statistic).
 //
 double ModelObject::CashStatistic( double params[] )
 {
@@ -1253,7 +1265,7 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        extraTerms = extraCashTermsVector[b];   // = 0 for standard Cash stat
+        extraTerms = extraCashTermsVector[b];   // = 0 for Cash stat
         cashStat += weightVector[b] * (modVal - dataVal*logModel + extraTerms);
       }
     } else {
@@ -1268,7 +1280,7 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        extraTerms = extraCashTermsVector[z];   // = 0 for standard Cash stat
+        extraTerms = extraCashTermsVector[z];   // = 0 for Cash stat
         cashStat += weightVector[z] * (modVal - dataVal*logModel + extraTerms);
       }
     }
@@ -1283,7 +1295,7 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        extraTerms = extraCashTermsVector[b];   // = 0 for standard Cash stat
+        extraTerms = extraCashTermsVector[b];   // = 0 for Cash stat
         cashStat += weightVector[b] * (modVal - dataVal*logModel + extraTerms);
       }
     } else {
@@ -1294,7 +1306,7 @@ double ModelObject::CashStatistic( double params[] )
           logModel = LOG_SMALL_VALUE;
         else
           logModel = log(modVal);
-        extraTerms = extraCashTermsVector[z];   // = 0 for standard Cash stat
+        extraTerms = extraCashTermsVector[z];   // = 0 for Cash stat
         cashStat += weightVector[z] * (modVal - dataVal*logModel + extraTerms);
       }
     }
