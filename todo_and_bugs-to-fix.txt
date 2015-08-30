@@ -1,17 +1,6 @@
 
 ** BUGS TO FIX:
 
-[X] Convolution of an image with substantial region of negative pixels produces
-weird ringing and positive pixels in negative region.
-	-- tests using astropy.convolution.convolve() and astropy.convolution.convolve_fft()
-	show apparently correct results
-	-- see if this also happens with 1-D convolution?
-	?? Is output the absolute value of what it should be?
-		-- compare with astropy.convolution output
-			[]1. Compare astropy.convolution output on all-positive image (how much
-			does our convolution differ from theirs?)
-			[]2. Compare astropy.convolution output on partially-negative image
-
 
 ** NEAR-TERM FUTURE TODO:
 
@@ -59,7 +48,7 @@ weird ringing and positive pixels in negative region.
 [X] Makeimage should quit when encountering unknown command-line parameter (like imift)
 
 
-[] Solver summary info in header of bestfit_parameters output should include
+[X] Solver summary info in header of bestfit_parameters output should include
 	subtype of chi^2 (i.e., "(data-based)", "(model-based)", "(user-supplied noise map"),
 	or something like that)
 
@@ -149,6 +138,18 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 
 * BUGS FIXED
+
+[X] Convolution of an image with substantial region of negative pixels produces
+weird ringing and positive pixels in negative region.
+	-- tests using astropy.convolution.convolve() and astropy.convolution.convolve_fft()
+	show apparently correct results
+	-- see if this also happens with 1-D convolution?
+	?? Is output the absolute value of what it should be?
+		-- compare with astropy.convolution output
+			[]1. Compare astropy.convolution output on all-positive image (how much
+			does our convolution differ from theirs?)
+			[]2. Compare astropy.convolution output on partially-negative image
+
 
 [X] --quiet option with Nelder-Mead simplex (--nm) is not truly quiet (some of N-M
 simplex output is suppressed, but "iteration XXX" is still printed)
