@@ -69,7 +69,7 @@
 
 \newcommand{\pmlr}{PMLR}
 
-\newcommand{\versionnum}{1.3b}
+\newcommand{\versionnum}{1.3}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -1058,7 +1058,7 @@ with the command-line flag \texttt{--mask-zero-is-bad}.
 (See Section~\ref{sec:fit-statistics} for background on the different fit statistics.)
 
 By default, \imfitprog{} uses \chisquare{} as the statistic for
-minimization. As part of this, \imfitprog{} normally calculates an internal
+minimization. As part of this process, \imfitprog{} normally calculates an internal
 weight map, using the input pixel intensities, the A/D gain, any
 previously subtracted background level, and the read noise to estimate
 Gaussian errors $\sigma_{i}$ for each pixel $i$. In formal terms, the error-based weight
@@ -2099,6 +2099,52 @@ beta
 %  return (I_0 / denominator);
 
 
+\subsubsection{ModifiedKing}
+
+This is an elliptical 2D function with the intensity profile given by a 
+``modified King'' function \citep{elson99,peng10}, which is a generalization
+of the original King profile \citep{king62}:
+\begin{equation}
+I(a) \, = \, I_{0} \left[1 - \frac{1}{(1 + (r_{t}/r_{c})^{2})^{1/\alpha}} \right]^{-\alpha}
+  \times \: \left[ \frac{1}{(1 + (r/r_{c})^{2})^{1/\alpha}} - 
+  \frac{1}{(1 + (r_{t}/r_{c})^{2})^{1/\alpha}} \right]^{\alpha},
+\end{equation}
+where $I_{0}$ is the central intensiy, $r_{c}$ is the ``core'' radius,
+and $r_{t}$ is the ``tidal'' or ``truncation'' radius (outside of which
+the intensity is 0).
+This reduces to the original King profile when $\alpha = 2$.
+
+\begin{verbatim}
+FUNCTION ModifiedKing
+PA
+ell
+I_0
+r_c
+r_t
+alpha
+\end{verbatim}
+
+
+\subsubsection{ModifiedKing2}
+
+This is an alternate interface for the ModifiedKing profile. It produces
+exactly the same surface-brightness model, but uses the
+``concentration'' $c = r_t/r_c$ as a free parameter (in place of the
+tidal/truncation radius $r_{t}$, which can be recovered as $r_{t} = c r_{c}$).
+
+\begin{verbatim}
+FUNCTION ModifiedKing2
+PA
+ell
+I_0
+r_c
+c
+alpha
+\end{verbatim}
+
+
+
+
 \subsubsection{Exponential}
 
 This is an elliptical 2D exponential function, with the major-axis intensity
@@ -2573,7 +2619,7 @@ and the Clang Static Analyzer.\footnote{\url{http://clang-analyzer.llvm.org}}
 
 
 \bibitem[Abazajian et al.(2009)]{abazajian09} Abazajian, K. N.., et al.\ 2009, ``The Seventh 
-Data Release of the Sloan Digital Sky Survey'', \textit{Astrophys.J. Supplement} \textbf{182}: 182
+Data Release of the Sloan Digital Sky Survey'', \textit{Astrophys.J. Supplement} \textbf{182}: 182.
 
 \bibitem[Athanassoula et al.(1990)]{athanassoula90} Athanassoula, E., Morin, S., Wozniak, H.,
 Puy, D., Pierce, M. J., Lombard, J., \& Bosma, A. 1990, \textit{Monthly Notices of the Royal
@@ -2588,12 +2634,17 @@ Gadotti, D. A., \& dos Anjos, S. 2004, ``BUDDA: A New Two-dimensional Bulge/Disk
 Decomposition Code for Detailed Structural Analysis of Galaxies'',
 \textit{Astrophys.J. Supplement} \textbf{153}: 411.
 
+\bibitem[Elson(1999)]{elson99} Elson, R.~A.~W. 1999, ``Stellar dynamics in globular clusters'',
+in \textit{Globular clusters: X Canary Islands Winter School of Astrophysics}, 
+C. Mart{\'{\i}}nez Roger, I. Perez Fourn{\'o}n, and F. S{\'a}nchez, eds., 
+(Cambridge: Cambridge U. Press), 209.
+
 \bibitem[Erwin, Pohlen, \& Beckman(2008)]{erwin08} Erwin, P.,
 Pohlen, B., \& Beckman, J. E. 2008, ``The Outer Disks of Early-Type Galaxies. I. 
 Surface-Brightness Profiles of Barred Galaxies'', \textit{Astron.J.} \textbf{135}: 20.
 
 \bibitem[Erwin(2015)]{erwin15} Erwin, P. 2015, ``Imfit: A Fast, Flexible
-New Program for Astronomical Image Fitting'', \textit{Astrophys.J.} \textbf{799:} 226..
+New Program for Astronomical Image Fitting'', \textit{Astrophys.J.} \textbf{799:} 226.
 
 \bibitem[Gadotti(2008)]{gadotti08} Gadotti, D. A. 2008, ``Image
 decomposition of barred galaxies and AGN hosts'', \textit{Monthly
@@ -2602,12 +2653,16 @@ Notices of the Royal Astronomical Society} \textbf{384}: 420.
 \bibitem[Graham et al.(2003)]{graham03} Graham, A., Erwin, P., Trujillo, I., \&
 Asensio Ramos, A. 2003 ``A New Empirical Model for the Structural Analysis of
 Early-Type Galaxies, and A Critical Review of the Nuker Model'',
-\textit{Astron.J.} \textbf{125}: 2951
+\textit{Astron.J.} \textbf{125}: 2951.
 
 \bibitem[Humphrey, Liu, \& Buote(2009)]{humphrey09} Humphrey, P.~J.,
 Liu, W., \& Buote, D.~A. 2009, ``{$\chi$}$^{2}$ and Poissonian Data:
 Biases Even in the High-Count Regime and How to Avoid Them'',
 \textit{Astrophys.J.} \textbf{693}: 822.
+
+\bibitem[King(1962)]{king62} King, I. 1962, ``The structure of star
+clusters. I. an empirical density law'', \textit{Astron.J.} \textbf{67}:
+471.
 
 \bibitem[Krist(1995)]{krist95} Krist, J. 1995, ``Simulation of HST PSFs using
 Tiny Tim'', in \textit{Astronomical Data Analysis Software and Systems IV}, R.A.
@@ -2626,18 +2681,18 @@ Mathematics} \textbf{630}: 105.
 
 \bibitem[Peng et al.(2002)]{peng02} Peng, C. Y., Ho, L. C., Impey, C. D., \&
 Rix, H. W. 2002, ``Detailed Structural Decomposition of Galaxy Images'',
-\textit{Astron.J.} \textbf{124}: 266
+\textit{Astron.J.} \textbf{124}: 266.
 
 \bibitem[Peng et al.(2010)]{peng10} Peng, C. Y., Ho, L. C., Impey, C. D., \&
 Rix, H. W. 2010, ``Detailed Decomposition of Galaxy Images. II. Beyond
-Axisymmetric Models'', \textit{Astron.J.} \textbf{139}: 2097
+Axisymmetric Models'', \textit{Astron.J.} \textbf{139}: 2097.
 
 \bibitem[S{\'e}rsic(1968)]{sersic68} S{\'e}rsic, J.-L. 1968, \textit{Atlas de 
-Galaxias Australes} (Cordoba: Obs.\ Astron.)
+Galaxias Australes} (Cordoba: Obs.\ Astron.).
 
 \bibitem[Storn \& Price(1997)]{de} Storn, R. and Price, K. 1997, ``Differential
 Evolution --- A Simple and Efficient Heuristic for Global Optimization Over
-Continuous Spaces'', \textit{Journal of Global Optimization} \textbf{11}: 314
+Continuous Spaces'', \textit{Journal of Global Optimization} \textbf{11}: 314.
 
 \bibitem[Trujillo et al.(2001)]{trujillo01} Trujillo, I., Aguerri, J. A. L.,
 Cepa, J., \& Guti{\'e}rrez, C. M. 2001, ``The effects of seeing on S{\'e}rsic
@@ -2646,23 +2701,23 @@ Astronomical Society} \textbf{328}: 977.
 
 \bibitem[Trujillo et al.(2004)]{trujillo04} Trujillo, I., Erwin, P., Asensio
 Ramos, A., \& Graham, A. 2004, ``Evidence for a New Elliptical-Galaxy Paradigm:
-S{\'e}rsic and Core Galaxies'', \textit{Astron.J.} \textbf{127}: 1917
+S{\'e}rsic and Core Galaxies'', \textit{Astron.J.} \textbf{127}: 1917.
 
 \bibitem[van der Kruit \& Searle(1981)]{vdk81} van der Kruit, P. C., \&
 Searle, L. 1981, ``Surface Photometry of Edge-on Spiral Galaxies: I. A
 Model for the Three-dimensional Distribution of Light in Galactic
-Disks'', \textit{Astron.\ Astrophys.} \textbf{95}: 105
+Disks'', \textit{Astron.\ Astrophys.} \textbf{95}: 105.
 
 \bibitem[van der Kruit(1988)]{vdk88} van der Kruit, P. 1988, ``The
 Three-dimensional Distribution of Light and Mass in Disks of Spiral
-Galaxies'', \textit{Astron.\ Astrophys.} \textbf{192}: 117
+Galaxies'', \textit{Astron.\ Astrophys.} \textbf{192}: 117.
 
 \bibitem[Yoachim \& Dalcanton(2006)]{yoachim06} Yoachim, P., \& Dalconton, J. J.
 2006, ``Structural Parameters of Thin and Thick Disks in Edge-On Disk
-Galaxies'', \textit{Astron.J.} \textbf{131}: 226
+Galaxies'', \textit{Astron.J.} \textbf{131}: 226.
 
 \bibitem[York et al.(2000)]{york00} York, D. G., et al.\ 2000, ``The Sloan Digital 
-Sky Survey: Technical Summary'', \textit{Astron.J.} \textbf{120}: 1579
+Sky Survey: Technical Summary'', \textit{Astron.J.} \textbf{120}: 1579.
 
 
 \end{thebibliography}

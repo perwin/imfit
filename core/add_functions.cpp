@@ -50,6 +50,7 @@
 #include "func_gaussian-ring2side.h"
 #include "func_moffat.h"
 #include "func_king.h"
+#include "func_king2.h"
 #include "func_flatsky.h"
 // modules requiring GSL:
 #ifndef NO_GSL
@@ -68,6 +69,7 @@
 #include "func_edge-on-disk_n4762v2.h"
 #include "func_logspiral.h"
 #include "func_nan.h"
+#include "func_expdisk3d_trunc.h"
 #endif
 
 using namespace std;
@@ -150,6 +152,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   ModifiedKing::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<ModifiedKing>();
 
+  ModifiedKing2::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<ModifiedKing2>();
+
   FlatSky::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatSky>();
 
@@ -179,6 +184,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   BoxyTest3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BoxyTest3D>();
+
+  ExpDisk3D_PerfectTrunc::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<ExpDisk3D_PerfectTrunc>();
 
   // weird extra stuff we may not keep
   EdgeOnDiskN4762::GetClassShortName(classFuncName);

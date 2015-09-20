@@ -66,7 +66,7 @@ echo "Generating and compiling unit tests for function objects..."
 $CXXTESTGEN --error-printer -o test_runner_funcs.cpp unit_tests/unittest_funcs.t.h 
 $CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
 function_objects/func_exp.cpp function_objects/func_gaussian.cpp function_objects/func_sersic.cpp \
-function_objects/func_king.cpp function_objects/func_edge-on-disk.cpp \
+function_objects/func_king.cpp function_objects/func_king2.cpp function_objects/func_edge-on-disk.cpp \
 -I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -lm -lgsl
 # $CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
 # function_objects/func_exp.o function_objects/func_sersic.o \
@@ -95,6 +95,7 @@ function_objects/func_edge-on-disk_n4762v2.cpp function_objects/func_edge-on-rin
 function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.cpp \
 function_objects/integrator.cpp function_objects/func_expdisk3d.cpp function_objects/func_brokenexpdisk3d.cpp \
 function_objects/func_gaussianring3d.cpp function_objects/func_king.cpp \
+function_objects/func_king2.cpp \
 -I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lm
 echo "Running unit tests for add_functions:"
 ./test_runner_add_functions 2>> temperror.log
@@ -118,6 +119,7 @@ function_objects/func_edge-on-disk_n4762v2.o function_objects/func_edge-on-ring.
 function_objects/func_edge-on-ring2side.o function_objects/func_edge-on-disk.o \
 function_objects/integrator.o function_objects/func_expdisk3d.o function_objects/func_brokenexpdisk3d.o \
 function_objects/func_gaussianring3d.o function_objects/func_king.o \
+function_objects/func_king2.o \
 -I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lm -std=c++11
 echo "Running unit tests for model_object:"
 ./test_runner_modelobj 2>> temperror.log
