@@ -61,27 +61,31 @@ CHANGELOG.md
 """
 
 # header files in top-level directory
-source_header_files = """
+source_header_files_top = """
 definitions
-estimate_memory 
 mersenne_twister
 mp_enorm
+option_struct_imfit
+option_struct_makeimage
 param_struct
+sample_configs
 statistics
-utilities_pub
-bootstrap_errors
+"""
+
+# header files in core/
+source_header_files_core = """
 add_functions
+bootstrap_errors
 commandline_parser
 config_file_parser
 convolver
+downsample
+estimate_memory 
 image_io
 model_object
-print_results
 oversampled_region
-downsample
-option_struct_imfit
-option_struct_makeimage
-sample_configs
+print_results
+utilities_pub
 """
 
 # C files in top-level directory 
@@ -94,21 +98,25 @@ statistics
 # the following are C++ files
 # C++ files in top-level directory
 source_files = """
-model_object
-bootstrap_errors
-convolver
-commandline_parser 
-estimate_memory 
-utilities 
-image_io 
-config_file_parser
+"""
+
+source_files_core = """
 add_functions
-print_results
-oversampled_region
+bootstrap_errors
+commandline_parser 
+config_file_parser
+convolver
 downsample
+estimate_memory 
+image_io 
 imfit_main
 makeimage_main
+model_object
+oversampled_region
+print_results
+utilities 
 """
+coreFileDict = {"dir": "core", "file_list": source_files_core.split()}
 
 source_files_solvers ="""
 levmar_fit
@@ -200,6 +208,8 @@ uniform_image32.fits
 testimage_expdisk32.fits
 testimage_poisson_lowsn20.fits
 ic3478rss_64x64.fits
+ic3478rss_64x64_sigma.fits
+ic3478rss_64x64_variance.fits
 n3073rss_small.fits
 n3073rss_small_cps.fits
 n3073rss_small_mask.fits
@@ -224,6 +234,8 @@ imfit_textout3b
 imfit_textout3c_tail
 imfit_textout3d
 imfit_textout3d2
+imfit_textout3e
+imfit_textout3e2
 imfit_textout4
 imfit_textout4b
 imfit_textout4c
@@ -277,13 +289,13 @@ binary_only_file_list = binary_only_files.split()
 misc_required_files_list = misc_required_files.split()
 testing_scripts_list = testing_scripts.split()
 
-header_file_list = [fname + ".h" for fname in source_header_files.split()]
+header_file_list = [fname + ".h" for fname in source_header_files_top.split()]
 #print header_file_list
 c_file_list = [fname + ".c" for fname in source_files_c.split()]
 #print c_file_list
-cplusplus_file_list = [fname + ".cpp" for fname in source_files.split()]
+#cplusplus_file_list = [fname + ".cpp" for fname in source_files.split()]
 #print cplusplus_file_list
-toplevel_source_list = c_file_list + cplusplus_file_list + header_file_list
+toplevel_source_list = c_file_list + header_file_list
 
 documentation_file_list = [ documentationFileDict["dir"] + "/" + fname for fname in documentationFileDict["file_list"] ]
 
@@ -295,6 +307,10 @@ solvers_file_list_cpp = [ solversFileDict["dir"] + "/" + fname + ".cpp" for fnam
 solvers_file_list_h = [ solversFileDict["dir"] + "/" + fname + ".h" for fname in solversFileDict["file_list"] ]
 solvers_file_list = solvers_file_list_h + solvers_file_list_cpp
 
+core_file_list_cpp = [ coreFileDict["dir"] + "/" + fname + ".cpp" for fname in coreFileDict["file_list"] ]
+core_file_list_h = [ coreFileDict["dir"] + "/" + fname + ".h" for fname in source_header_files_core.split() ]
+core_file_list = core_file_list_h + core_file_list_cpp
+
 funcobj_file_list_cpp = [ funcObjFileDict["dir"] + "/" + fname + ".cpp" for fname in funcObjFileDict["file_list"] ]
 funcobj_file_list_h = [ funcObjFileDict["dir"] + "/" + fname + ".h" for fname in funcObjFileDict["file_list"] ]
 funcobj_file_list_h.append(funcObjFileDict["dir"] + "/" + "definitions.h")
@@ -303,11 +319,11 @@ funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 
 allFileLists = [binary_only_file_list, misc_required_files_list, toplevel_source_list, documentation_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
-				funcobj_file_list]
+				core_file_list, funcobj_file_list]
 allFileLists_source = [misc_required_files_list, toplevel_source_list, documentation_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
-				funcobj_file_list]
-subdirs_list = ["docs", "examples", "python", "tests", "function_objects", "solvers"]
+				core_file_list, funcobj_file_list]
+subdirs_list = ["docs", "examples", "python", "tests", "function_objects", "solvers", "core"]
 
 
 
@@ -339,7 +355,7 @@ def MakeDistributionDir( mode="binary" ):
 	for fileList in fileLists:
 		print fileList
 		for fname in fileList:
-			print fname
+			print("%s -> %s" % (fname, distDir + fname))
 			shutil.copy(fname, distDir + fname)
 	# copy misc. files requring renaming
 	# copy trimmed version of SConstruct
@@ -415,9 +431,10 @@ def MakeSourceDist( ):
 	final_file_list = example_file_list + misc_required_files_list + documentation_file_list
 	final_file_list += header_file_list
 	final_file_list += c_file_list
-	final_file_list += cplusplus_file_list
+#	final_file_list += cplusplus_file_list
 	final_file_list += funcobj_file_list
 	final_file_list += solvers_file_list
+	final_file_list += core_file_list
 	final_file_list += python_file_list
 	final_file_list += testing_scripts_list
 	final_file_list += test_file_list

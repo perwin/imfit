@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.3 -- 2015-xx-xx
+## 1.3 -- 2015-10-03
 ### Added: 
 - New image function: modified (or "empirical") King profile, as
 described in Elson et al. (1999) and Peng et al. (2010). This comes in
