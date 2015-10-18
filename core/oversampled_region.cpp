@@ -1,6 +1,5 @@
 /* FILE: oversampled_region.cpp ---------------------------------------- */
-/* VERSION 0.1
- *
+/* 
  *   Module for computing oversampled image regions, and (optionally) convolving them
  * with oversampled PSF.
  *
@@ -115,14 +114,14 @@ OversampledRegion::~OversampledRegion( )
 
 /* ---------------- SetDebugImageName ---------------------------------- */
 // Primarily for debugging purpooses
-void OversampledRegion::SetDebugImageName( string imageName )
+void OversampledRegion::SetDebugImageName( const string imageName )
 {
   debugImageName = imageName;
 }
 
 
 /* ---------------- SetDebugLevel ------------------------------------- */
-void OversampledRegion::SetDebugLevel( int debuggingLevel )
+void OversampledRegion::SetDebugLevel( const int debuggingLevel )
 {
   debugLevel = debuggingLevel;
 }
@@ -131,7 +130,7 @@ void OversampledRegion::SetDebugLevel( int debuggingLevel )
 /* ---------------- SetMaxThreads -------------------------------------- */
 // User specifies maximum number of FFTW threads to use (ignored if not compiled
 // with multithreaded FFTW library)
-void OversampledRegion::SetMaxThreads( int maximumThreadNumber )
+void OversampledRegion::SetMaxThreads( const int maximumThreadNumber )
 {
   maxRequestedThreads = maximumThreadNumber;
 }
@@ -142,7 +141,8 @@ void OversampledRegion::SetMaxThreads( int maximumThreadNumber )
 // the image dimensions.
 // We assume this is an oversampled PSF, with the same oversampling scale as
 // specified in the input to SetupModelImage(), below
-void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int nRows_psf )
+void OversampledRegion::AddPSFVector( double *psfPixels, const int nColumns_psf, 
+										const int nRows_psf )
 {
   assert( (nColumns_psf >= 1) && (nRows_psf >= 1) );
   

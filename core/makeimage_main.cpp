@@ -442,7 +442,7 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   optParser->AddUsageLine(EST_SIZE_HELP_STRING);
   optParser->AddUsageLine("     --zero-point <value>     Zero point (for estimating component & total magnitudes)");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing, or for use with --print-fluxes))");
+  optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing, or for use with --print-fluxes)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
   optParser->AddUsageLine("");

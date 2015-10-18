@@ -28,19 +28,20 @@ class OversampledRegion
     ~OversampledRegion( );
     
     // Public member functions:
-    void SetDebugImageName( string imageName );
+    void SetDebugImageName( const string imageName );
     
-    void AddPSFVector( double *psfPixels_input, int nColumns, int nRows );
+    void AddPSFVector( double *psfPixels_input, const int nColumns, const int nRows );
     
-    void SetMaxThreads( int maximumThreadNumber );
+    void SetMaxThreads( const int maximumThreadNumber );
 
-    void SetDebugLevel( int debuggingLevel );
+    void SetDebugLevel( const int debuggingLevel );
 
     void SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
     					int nColumnsMain, int nRowsMain, int nColumnsPSF_main,
     					int nRowsPSF_main, int oversampScale );
     					
-    void ComputeRegionAndDownsample( double *mainImageVector, vector<FunctionObject *> functionObjectVect, int nFunctionObjects );
+    void ComputeRegionAndDownsample( double *mainImageVector, 
+    				vector<FunctionObject *> functionObjectVect, int nFunctionObjects );
 
 
   private:

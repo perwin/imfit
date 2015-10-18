@@ -5,6 +5,9 @@
 import sys, os, shutil, optparse, tarfile, subprocess, copy
 import markdown
 
+sys.path.append(os.getcwd())
+import distribution_manifest as dm
+
 # where to copy binary (or source) tarballs when completed (specialized for
 # Linux virtual machines on MacBook Pro and local web-site directory for Mac
 # versions)
@@ -42,259 +45,23 @@ else:
 	SOURCE_COPY_DEST_DIR = LINUX_DEST
 
 
-binary_only_files = """
-imfit
-makeimage
-"""
-
-documentation_files = """
-imfit_howto.pdf
-imfit_howto.tex
-"""
-documentationFileDict = {"dir": "docs", "file_list": documentation_files.split()}
-
-misc_required_files = """
-COPYING.txt
-DISCLAIMER
-README.txt
-CHANGELOG.md
-"""
-
-# header files in top-level directory
-source_header_files_top = """
-definitions
-mersenne_twister
-mp_enorm
-option_struct_imfit
-option_struct_makeimage
-param_struct
-sample_configs
-statistics
-"""
-
-# header files in core/
-source_header_files_core = """
-add_functions
-bootstrap_errors
-commandline_parser
-config_file_parser
-convolver
-downsample
-estimate_memory 
-image_io
-model_object
-oversampled_region
-print_results
-utilities_pub
-"""
-
-# C files in top-level directory 
-source_files_c = """
-mersenne_twister
-mp_enorm
-statistics
-"""
-
-# the following are C++ files
-# C++ files in top-level directory
-source_files = """
-"""
-
-source_files_core = """
-add_functions
-bootstrap_errors
-commandline_parser 
-config_file_parser
-convolver
-downsample
-estimate_memory 
-image_io 
-imfit_main
-makeimage_main
-model_object
-oversampled_region
-print_results
-utilities 
-"""
-coreFileDict = {"dir": "core", "file_list": source_files_core.split()}
-
-source_files_solvers ="""
-levmar_fit
-mpfit 
-diff_evoln_fit
-DESolver
-nmsimplex_fit
-nlopt_fit
-dispatch_solver
-solver_results
-"""
-solversFileDict = {"dir": "solvers", "file_list": source_files_solvers.split()}
-
-source_files_funcobj = """
-function_object 
-func_gaussian 
-func_exp 
-func_gen-exp  
-func_sersic 
-func_gen-sersic 
-func_core-sersic 
-func_broken-exp 
-func_broken-exp2d
-func_king
-func_king2
-func_moffat 
-func_flatsky 
-func_gaussian-ring 
-func_gaussian-ring2side
-func_edge-on-disk_n4762 
-func_edge-on-disk_n4762v2 
-func_edge-on-ring 
-func_edge-on-ring2side
-func_edge-on-disk
-func_brokenexpdisk3d 
-func_expdisk3d 
-func_gaussianring3d 
-integrator
-"""
-funcObjFileDict = {"dir": "function_objects", "file_list": source_files_funcobj.split()}
-
-
-example_files = """
-config_exponential_ic3478_256.dat
-config_sersic_ic3478_256.dat
-ic3478rss_256.fits
-ic3478rss_256_mask.fits
-config_makeimage_moffat_psf.dat
-psf_moffat_51.fits
-README_examples.txt
-"""
-exampleFileDict = {"dir": "examples", "file_list": example_files.split()}
-
-testing_scripts = """
-do_imfit_tests
-do_makeimage_tests
-"""
-
-python_files = """
-py_startup_test.py
-compare_fits_files.py
-compare_imfit_printouts.py
-diff_printouts.py
-"""
-pythonFileDict = {"dir": "python", "file_list": python_files.split()}
-
-
-test_files = """
-config_imfit_expdisk32.dat
-imfit_config_ic3478_64x64.dat
-imfit_config_ic3478_64x64b.dat
-imfit_config_ic3478_64x64c.dat
-imfit_config_n3073.dat
-config_imfit_pgc35772.dat
-config_imfit_poisson.dat
-config_imfit_flatsky.dat
-config_3x3_flatsky.dat
-config_imfit_gauss-oversample-test2.dat
-config_makeimage_sersictest512_bad1.dat
-config_makeimage_sersictest512_bad2.dat
-config_makeimage_sersictest512_bad3.dat
-config_makeimage_sersictest512_bad4.dat
-config_makeimage_sersictest512_bad5.dat
-config_imfit_sersictest512_badlimits1.dat
-config_imfit_sersictest512_badlimits2.dat
-config_imfit_sersictest512_badlimits3.dat
-config_imfit_badparamline.dat
-uniform_image32.fits
-testimage_expdisk32.fits
-testimage_poisson_lowsn20.fits
-ic3478rss_64x64.fits
-ic3478rss_64x64_sigma.fits
-ic3478rss_64x64_variance.fits
-n3073rss_small.fits
-n3073rss_small_cps.fits
-n3073rss_small_mask.fits
-pgc35772_continuum.fits
-pgc35772_mask.fits
-totalmask_64x64.fits
-biggertest_orig.fits
-gensersictest_orig.fits
-sersic+exp_orig.fits
-gensersictest612_conv_cutout512.fits
-flatsky_128x128.fits
-testimage_3x3_nan.fits
-testimage_3x3_onezero.fits
-mask_for_onezero.fits
-oversamp_test4.fits
-psf_standard.fits
-psf_oversamp.fits
-imfit_textout1
-imfit_textout2
-imfit_textout3
-imfit_textout3b
-imfit_textout3c_tail
-imfit_textout3d
-imfit_textout3d2
-imfit_textout3e
-imfit_textout3e2
-imfit_textout4
-imfit_textout4b
-imfit_textout4c
-imfit_textout4d
-imfit_textout4e
-imfit_textout4e2
-imfit_textout5a_tail
-imfit_textout5b_tail
-imfit_textout5c_tail
-imfit_textout5d_tail
-imfit_textout6
-imfit_textout7a
-imfit_textout7b
-imfit_textout7c
-imfit_textout_bad1
-imfit_textout_bad2
-imfit_textout_bad3
-imfit_textout_bad4
-imfit_textout_bad5
-imfit_textout_bad6
-imfit_textout_bad7
-imfit_textout_bad8
-imfit_textout_badnloptname
-config_biggertest_4c.dat
-config_makeimage_gensersic512.dat
-config_makeimage_sersic+exp512.dat
-config_makeimage_sersic+exp512_nosize.dat
-psf_moffat_35.fits
-makeimage_textout0
-makeimage_textout1
-makeimage_textout2
-makeimage_textout3
-makeimage_textout4
-makeimage_textout5
-makeimage_textout6
-makeimage_textout7
-makeimage_textout8
-makeimage_textout9
-makeimage_textout10
-makeimage_textout11
-makeimage_textout12
-makeimage_textout13
-makeimage_textout14
-makeimage_textout15
-"""
-testFileDict = {"dir": "tests", "file_list": test_files.split()}
+# Create dictionaries holding subdirectory names and lists of associated files
+documentationFileDict = {"dir": "docs", "file_list": dm.documentation_files.split()}
+coreFileDict = {"dir": "core", "file_list": dm.source_files_core.split()}
+solversFileDict = {"dir": "solvers", "file_list": dm.source_files_solvers.split()}
+funcObjFileDict = {"dir": "function_objects", "file_list": dm.source_files_funcobj.split()}
+exampleFileDict = {"dir": "examples", "file_list": dm.example_files.split()}
+pythonFileDict = {"dir": "python", "file_list": dm.python_files.split()}
+testFileDict = {"dir": "tests", "file_list": dm.test_files.split()}
 
 
 # Lists of files:
-binary_only_file_list = binary_only_files.split()
-misc_required_files_list = misc_required_files.split()
-testing_scripts_list = testing_scripts.split()
+binary_only_file_list = dm.binary_only_files.split()
+misc_required_files_list = dm.misc_required_files.split()
+testing_scripts_list = dm.testing_scripts.split()
 
-header_file_list = [fname + ".h" for fname in source_header_files_top.split()]
-#print header_file_list
-c_file_list = [fname + ".c" for fname in source_files_c.split()]
-#print c_file_list
-#cplusplus_file_list = [fname + ".cpp" for fname in source_files.split()]
-#print cplusplus_file_list
+header_file_list = [fname + ".h" for fname in dm.source_header_files_top.split()]
+c_file_list = [fname + ".c" for fname in dm.source_files_c.split()]
 toplevel_source_list = c_file_list + header_file_list
 
 documentation_file_list = [ documentationFileDict["dir"] + "/" + fname for fname in documentationFileDict["file_list"] ]
@@ -308,7 +75,7 @@ solvers_file_list_h = [ solversFileDict["dir"] + "/" + fname + ".h" for fname in
 solvers_file_list = solvers_file_list_h + solvers_file_list_cpp
 
 core_file_list_cpp = [ coreFileDict["dir"] + "/" + fname + ".cpp" for fname in coreFileDict["file_list"] ]
-core_file_list_h = [ coreFileDict["dir"] + "/" + fname + ".h" for fname in source_header_files_core.split() ]
+core_file_list_h = [ coreFileDict["dir"] + "/" + fname + ".h" for fname in dm.source_header_files_core.split() ]
 core_file_list = core_file_list_h + core_file_list_cpp
 
 funcobj_file_list_cpp = [ funcObjFileDict["dir"] + "/" + fname + ".cpp" for fname in funcObjFileDict["file_list"] ]

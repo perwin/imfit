@@ -4,37 +4,19 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-[..] FOR V1.3: Convert handling of user-supplied "weight" map ("--errors-are-weights")
-	so that the user can assume "weight = inverse variance" (rather than 
-	"weight = inverse simga", which is how it's actually implemented at present)
-		-- set up comparison tests
-		-- Need to modify ModelObject::GetWeightImageVector [used in imfit_main.cpp]
-		
-		[x]0. Set up unit tests
-		[x]1. Modify ModelObject::GetWeightImageVector to output 1/sigma^2 weights
-		[x]2. Modify ModelObject::AddErrorVector to convert "weight" input properly
-		[x]3. Edit imfit_howto.tex to reflect reality of weights
-		[.]4. modify do_imfit_tests to incorporate weight-map checks
-				[] Input maps produce approx. same fits as internally-generated maps
-				[] Output weight maps are approx. correct
-				[] Input an error map and output it; check
-
 [..] Add "const" specifies to input parameters of functions, as appropriate
 	Done through: convolver
-
-
-[X] Makeimage should quit when encountering unknown command-line parameter (like imift)
-
-
-[X] Solver summary info in header of bestfit_parameters output should include
-	subtype of chi^2 (i.e., "(data-based)", "(model-based)", "(user-supplied noise map"),
-	or something like that)
 
 
 [] Bootstrap resampling output file needs a better header
 	-- should say that this is bootstrap-resampling output
 	-- include name of original bestfit-params output?
 
+
+[] Possible improved error reporting
+	[] When negative pixel values are encountered during vetting of input data image,
+	mention possibility of missing sky parameter
+	
 
 [] Modify handling of oversampled PSF to catch case where user wants entire
 image oversampled
@@ -68,6 +50,16 @@ image oversampled
 
 
 [] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
+	-- multiple sub-regions, all with same PSF
+	-- multiple sub-regions, each with its own PSF
+	-- probably simpler to require that each sub-region have its own PSF; use must
+	repeatedly specify the same PSF file if they want all sub-regions to share a PSF
+	
+	[] Code up user interface (vector of sub-region and PSF specifications in main)
+	
+	[] Code up array of sub-region convolutions in ModelObject
+		[] Start with 1-element array (i.e., have all the looping, etc., but just one sub-region)
+		[] Add in code to set up multiple sub-regions
 
 
 [] Refactor print_results.cpp to be simpler and less mangled-from-mpfit
@@ -226,5 +218,30 @@ for all minimizers)
 		[x] Set up unit tests
 	[x] Add variant model where concentration (r_t/r_c) is adjustable parameter
 	[x] Add notes to documentation for Modified King function
+
+
+[x] FOR V1.3: Convert handling of user-supplied "weight" map ("--errors-are-weights")
+	so that the user can assume "weight = inverse variance" (rather than 
+	"weight = inverse simga", which is how it's actually implemented at present)
+		-- set up comparison tests
+		-- Need to modify ModelObject::GetWeightImageVector [used in imfit_main.cpp]
+		
+		[x]0. Set up unit tests
+		[x]1. Modify ModelObject::GetWeightImageVector to output 1/sigma^2 weights
+		[x]2. Modify ModelObject::AddErrorVector to convert "weight" input properly
+		[x]3. Edit imfit_howto.tex to reflect reality of weights
+		[x]4. modify do_imfit_tests to incorporate weight-map checks
+				[] Input maps produce approx. same fits as internally-generated maps
+				[] Output weight maps are approx. correct
+				[] Input an error map and output it; check
+
+
+[X] Makeimage should quit when encountering unknown command-line parameter (like imift)
+
+
+[X] Solver summary info in header of bestfit_parameters output should include
+	subtype of chi^2 (i.e., "(data-based)", "(model-based)", "(user-supplied noise map"),
+	or something like that)
+
 
 

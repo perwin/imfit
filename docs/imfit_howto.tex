@@ -195,7 +195,9 @@ that the system GNU C library be version 2.15 or more recent.)
 \item Install the \textsc{fftw} library (version 3.0 or higher) --- note that if you have a
 multi-core CPU (or multiple CPUs sharing main memory), you should
 install the threaded version of \textsc{fftw} as well, since this speeds up PSF
-convolution.
+convolution considerably. Installing \textsc{fftw} with SSE2 support will provide a
+$\sim 10$--20\% speedup for PSF convolutions, so that's also recommended,
+though not as strongly.
 
 \item (Optional, but strongly recommended) Install the NLopt library ---
 this is necessary if you wish to use the Nelder-Mead minimization
