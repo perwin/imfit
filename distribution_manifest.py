@@ -145,6 +145,7 @@ config_imfit_poisson.dat
 config_imfit_flatsky.dat
 config_3x3_flatsky.dat
 config_imfit_gauss-oversample-test2.dat
+config_makeimage_gauss-oversample.dat
 config_makeimage_sersictest512_bad1.dat
 config_makeimage_sersictest512_bad2.dat
 config_makeimage_sersictest512_bad3.dat
@@ -175,6 +176,7 @@ testimage_3x3_nan.fits
 testimage_3x3_onezero.fits
 mask_for_onezero.fits
 oversamp_test4.fits
+oversampled_orig.fits
 psf_standard.fits
 psf_oversamp.fits
 imfit_textout1

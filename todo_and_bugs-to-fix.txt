@@ -47,6 +47,8 @@ image oversampled
 	
 	[] Possibly create SConstript files for subdirectories -- see 
 	http://stackoverflow.com/questions/8810418/scons-setup-for-hierarchical-source-but-single-target
+	[or maybe not, since that's getting into "recursive Makefile considered harmful"
+	territory, even if SCons isn't necessarily afflicted with the same problems]
 
 
 [] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)

@@ -7,6 +7,7 @@
 #define _IMFIT_OPTION_STRUCT_H_
 
 #include <string>
+#include <vector>
 
 #include "definitions.h"
 
@@ -25,6 +26,7 @@ typedef struct {
   std::string  psfOversampledFileName;     // []
   int  psfOversamplingScale;
   bool  oversampleRegionSet;
+  int  nOversampleRegions;
   std::string  psfOversampleRegion;     // []
   
   bool  noiseImagePresent;
@@ -98,6 +100,7 @@ void SetDefaultImfitOptions( imfitCommandOptions *theOptions )
   theOptions->psfOversampledFileName = "";
   theOptions->psfOversamplingScale = 0;
   theOptions->oversampleRegionSet = false;
+  theOptions->nOversampleRegions = 0;
   theOptions->psfOversampleRegion = "";
   
   theOptions->noiseImagePresent = false;

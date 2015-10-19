@@ -896,6 +896,7 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   if (optParser->OptionSet("overpsf_region")) {
     theOptions->psfOversampleRegion = optParser->GetTargetString("overpsf_region");
     theOptions->oversampleRegionSet = true;
+    theOptions->nOversampleRegions += 1;
     printf("\tPSF oversampling region = %s\n", theOptions->psfOversampleRegion.c_str());
   }
   if (optParser->OptionSet("mask")) {

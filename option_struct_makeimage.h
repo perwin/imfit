@@ -8,6 +8,7 @@
 #define _MAKEIMAGE_OPTION_STRUCT_H_
 
 #include <string>
+#include <vector>
 
 #include "definitions.h"
 
@@ -43,7 +44,8 @@ typedef struct {
   std::string  psfOversampledFileName;     // []
   int  psfOversamplingScale;
   bool  oversampleRegionSet;
-  std::string  psfOversampleRegion;     // []
+  int  nOversampleRegions;
+  std::vector<std::string>  psfOversampleRegions;     // []
 
   double  magZeroPoint;
   
@@ -89,7 +91,8 @@ void SetDefaultMakeimageOptions( makeimageCommandOptions *theOptions )
   theOptions->psfOversampledFileName = "";
   theOptions->psfOversamplingScale = 0;
   theOptions->oversampleRegionSet = false;
-  theOptions->psfOversampleRegion = "";
+  theOptions->nOversampleRegions = 0;
+//  theOptions->psfOversampleRegion = "";
   
   theOptions->magZeroPoint = NO_MAGNITUDES;
 

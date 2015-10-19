@@ -1,0 +1,11 @@
+# config file for makeimage: oversampled-convolved Gaussian image
+NCOLS		200
+NROWS		200
+
+X0              105.2377
+Y0              105.4582
+FUNCTION Gaussian
+PA                    0
+ell                   0
+I_0             99.8787
+sigma           1.20062
