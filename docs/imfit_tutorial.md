@@ -15,10 +15,11 @@
 
 ## <a name="prelim"></a>Preliminaries
 
-To get started with imfit, you need to download the pre-compiled binary
+To get started with Imfit, you need to download the pre-compiled binary
 distribution for your platform (Mac or Linux), or else download and
 compile the source code; links to both can be found on [the main imfit
-page](../index.html).
+page](../index.html). Notes on how to compile the source code can be
+found in the Imfit [documentation](../../../resources/imfit/imfit_howto.pdf).
 
 In both the binary-only and source-code distributions, there is a subdirectory
 called "examples", which has some images we'll be using in this tutorial --
@@ -184,7 +185,7 @@ least statistically plausible!
 ## <a name="betterfits-masking"></a>Better Fits: Masking
 
 If you look at the image (e.g., with SAOimage DS9 or another FITS-displaying
-program), you can see features that probably aren't part of the galaxy
+program), you can see features that most likely aren't part of the galaxy
 -- for example, there are certainly three (and possibly five) distinct,
 small objects near the galaxy which are probably foreground stars or
 background galaxies. Since they're relatively bright compared to the
@@ -225,7 +226,7 @@ by radially stretching the exponential).
 ## <a name="betterfits-models"></a>Better Fits: Trying different models
 
 As noted above, it looks like the exponential model is not a good match to the galaxy.
-You can see the available models ("image functions") by calling imfit with the 
+You can see the available model components ("image functions") by calling imfit with the 
 `--list-functions` option:
 
 	imfit --list-functions
@@ -237,12 +238,12 @@ option:
 
 A model fit to an image can consist of multiple image functions (and multiple
 copies of each image function), but for now let's just try a S&eacute;rsic function with
-elliptical isophotes. This is encoded in the "config\_sersic\_ic3478\_256.dat" file
+elliptical isophotes. This is encoded in the "config\_sersic\_ic3478\_256.dat" file.
 
 	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
 	--gain=4.725 --readnoise=4.3 --sky=130.14
 
-The result is (statistically, at least) a significantly better fit:
+The result is a significantly better fit:
 
 	Reduced Chi^2 = 1.055366
 	AIC = 66946.393806, BIC = 67009.795665
@@ -339,7 +340,8 @@ Makeimage can also be used to *generate* PSF images; in fact, the PSF
 image we used above was generated using the
 "config\_makeimage\_moffat_psf.dat" configuration file, which is
 included in the examples subdirectory (note that this file includes
-directives specifying the size of the output image). A model PSF image
+directives specifying the size of the output image, so the `--refimage`
+option isn't necessary in this case). A model PSF image
 can be constructed using any combination of the image functions that imfit
 and makeimage know about -- Gaussian, Moffat, the *sum* of Gaussians and
 Moffats, etc.
@@ -354,7 +356,7 @@ pixel values are drawn from. This in turn affects how the "fit statistic" -- the
 quantity you are trying to minimize in order to get the best fit -- is calculated.
 
 By default, imfit uses a "data-based" &chi;<sup>2</sup> approach, which assumes that
-individual pixel values are drawn from (the Gaussian approximation to) a 
+individual pixel values are drawn from the Gaussian approximation of a 
 Poisson distribution. To compare a model pixel value to the data value, we
 assume that the Gaussian distribution has a mean equal to the model value, with
 the dispersion equal the square root of the <i>data</i> value. (If you provide

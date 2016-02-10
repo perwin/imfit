@@ -213,6 +213,7 @@ useFFTWThreading = True
 useOpenMP = True
 useExtraFuncs = False
 useStaticLibs = False
+totalStaticLinking = False
 buildFatBinary = False
 build32bit = False
 buildForOldMacOS = False
@@ -248,6 +249,8 @@ AddOption("--scan-build", dest="doingScanBuild", action="store_true",
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
 	default=False, help="force static library linking")
+AddOption("--allstatic", dest="useTotalStaticLinking", action="store_true", 
+	default=False, help="force static library linking, *including* system libraries if possible")
 # AddOption("--fat", dest="makeFatBinaries", action="store_true", 
 # 	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
 AddOption("--32bit", dest="make32bit", action="store_true", 
@@ -302,6 +305,9 @@ if GetOption("doingScanBuild") is True:
 
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
+if GetOption("useTotalStaticLinking") is True:
+	useStaticLibs = True
+	totalStaticLinking = True
 # if GetOption("makeFatBinaries") is True:
 # 	buildFatBinary = True
 if GetOption("make32bit") is True:
@@ -370,6 +376,12 @@ if useNLopt:   # default is to do this
 		lib_list_1d.append("nlopt")	
 else:
 	extra_defines.append("NO_NLOPT")
+
+# Special case where we try to link libstdc++, libgomp, and libgcc_s statically
+# (probably *won't* work with clang/clang++, only with GCC)
+if totalStaticLinking:
+	link_flags.append("-static-libgcc")
+	link_flags.append("-static-libstdc++")
 
 if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
 	cflags_opt.append("-fopenmp")
@@ -690,6 +702,10 @@ env_opt.Program("timing", timing_sources)
 # env_opt.Program("readimage", readimage_sources)
 # testparser_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(testparser_objs, testparser_sources) ]
 # env_debug.Program("testparser", testparser_objlist)
+readimage_test_objs = ["readimage_test", "core/image_io"]
+readimage_test_sources = [name + ".cpp" for name in readimage_test_objs]
+readimage_test_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(readimage_test_objs, readimage_test_sources) ]
+env_opt.Program("readimage_test", readimage_test_dbg_objlist)
 
 
 # Run the tests (note that these work because we define nonexistent files

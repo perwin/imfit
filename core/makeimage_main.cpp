@@ -214,8 +214,9 @@ int main( int argc, char *argv[] )
     nPixels_psf_oversampled = nColumns_psf_oversampled * nRows_psf_oversampled;
     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
-    // Determine oversampling region
-    GetAllCoordsFromBracket2(options.psfOversampleRegions[0], x1_oversample, x2_oversample, 
+    // Determine oversampling regions
+    for (int ii = 0; ii < options.nOversampleRegions; ii++)
+      GetAllCoordsFromBracket2(options.psfOversampleRegions[ii], x1_oversample, x2_oversample, 
     						y1_oversample, y2_oversample);
   }
 

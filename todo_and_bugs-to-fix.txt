@@ -4,6 +4,16 @@
 
 ** NEAR-TERM FUTURE TODO:
 
+[] Handle multi-extension FITS images
+	-- at least to the point of recognizing them and complaining clearly
+	-- current behavior just quits with
+	"FITSIO status = 320: illegal number of dimensions"
+	[] When reading in a FITS file (data, mask, PSF, etc.), check to see if
+	it's multi-extension
+	
+	[] Implement <filename>.fits[n] reading?
+
+
 [..] Add "const" specifies to input parameters of functions, as appropriate
 	Done through: convolver
 
@@ -26,6 +36,9 @@ image oversampled
 
 	-- need to test this to make sure time spent isn't wrongly estimated (e.g.,
 	actual time with oversampling includes FFT + downsampling)
+	
+	-- add option for user to specify this directly?
+	e.g. "--overpsf_region all"
 
 
 [..] Reorganize directory structure:
@@ -60,6 +73,7 @@ image oversampled
 	[] Code up user interface (vector of sub-region and PSF specifications in main)
 	
 	[] Code up array of sub-region convolutions in ModelObject
+		[] New data members: nSubregions
 		[] Start with 1-element array (i.e., have all the looping, etc., but just one sub-region)
 		[] Add in code to set up multiple sub-regions
 
