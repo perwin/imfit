@@ -33,6 +33,9 @@ using namespace std;
 //#define CLASS_SHORT_NAME  "GaussianRing3D"
 
 
+/// \brief Class for image function using LOS integration through 3D model
+///        of elliptical ring with Gaussian radial profile and exponential
+///        vertical profile
 class GaussianRing3D : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

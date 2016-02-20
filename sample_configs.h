@@ -1,6 +1,6 @@
 /** @file
-    \brief Header file containing text for example config files, and functions
-    for writing them to files.
+    \brief Header file containing text for examples of imfit and makeimage 
+    config files, and functions for writing them to files.
  *
  */
 

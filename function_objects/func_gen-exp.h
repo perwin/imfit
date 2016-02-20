@@ -25,6 +25,7 @@
 //#define CLASS_SHORT_NAME  "Exponential_GenEllipse"
 
 
+/// \brief Class for image function with generalized-elliptical isophotes and exponential profile
 class GenExponential : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

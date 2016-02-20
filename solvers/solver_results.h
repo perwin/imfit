@@ -1,3 +1,8 @@
+/** @file
+ * \brief Class definition for SolverResults, for storing results and messages from
+ * minimization algorithms
+ */
+ 
 #ifndef _SOLVER_RESULTS_H_
 #define _SOLVER_RESULTS_H_
 

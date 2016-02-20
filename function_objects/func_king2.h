@@ -30,7 +30,7 @@
 using namespace std;
 
 
-/// Class for image function with elliptical isophotes and modified King profile
+/// Class for image function with elliptical isophotes and modified King profile (using concentration as free parameter instead of tidal radius)
 class ModifiedKing2 : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

@@ -1,3 +1,7 @@
+/** @file
+ * \brief Pseudo-random-number-generator functions based on Mersenne Twister algorithm
+ */
+
 /* Header file for useful Mersenne Twister functions.
  * See mersenne_twister.c for full credits */
 

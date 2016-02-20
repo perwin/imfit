@@ -1,4 +1,6 @@
-/*   Public interfaces for function(s) which deal with fitting via Nelder-Mead Simplex
+/** @file
+ * \brief Public functions for setting up and running Levenberg-Marquardt minimizer
+ *
  */
 
 #ifndef _LEVMAR_FIT_H_

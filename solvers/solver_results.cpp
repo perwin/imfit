@@ -1,4 +1,3 @@
-
 // Copyright 2015 by Peter Erwin.
 // 
 // This file is part of Imfit.

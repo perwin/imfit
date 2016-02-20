@@ -1,3 +1,7 @@
+/** @file
+ * \brief Class definition for DESolver (base class for Differential Evolution solver)
+ */
+
 // Differential Evolution Solver Class
 // Based on algorithms developed by Dr. Rainer Storn & Kenneth Price
 // Written By: Lester E. Godwin
@@ -28,6 +32,7 @@ const int stRandToBest1Bin =    7;
 const int stBest2Bin       =    8;
 const int stRand2Bin       =    9;
 
+
 class DESolver;
 
 // this defines a type called "StrategyFunction" which is a pointer to
@@ -36,6 +41,7 @@ class DESolver;
 // use it.
 //typedef void (DESolver::*StrategyFunction)(int);
 
+/// \brief Base class implementing Differential Evolution minimization
 class DESolver
 {
 public:

@@ -14,6 +14,7 @@
 //#define CLASS_SHORT_NAME  "NaNFunc"
 
 
+/// Class for image function generating NaN for all pixels (for testing)
 class NaNFunc : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

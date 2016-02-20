@@ -61,6 +61,9 @@
 /* ------------------- Function Prototypes ----------------------------- */
 static void PrintError( int status );
 
+bool CheckForMultipleExtensions( fitsfile *imfile_ptr, int *nExtensions );
+
+
 
 /* ------------------------ Global Variables --------------------------- */
 
@@ -134,6 +137,8 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   fitsfile  *imfile_ptr;
   double  *imageVector;
   int  status, nfound;
+  int  nExtensions = -1;
+  bool  extensionsExist = false;
   int  problems;
   long  naxes[2];
   int  nPixelsTot;
@@ -150,6 +155,27 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
     return NULL;
   }
 
+  char  comment[100];
+  int  nhdu = -1;
+  if (verbose)
+    printf("BEFORE: nhdu = %d\n", nhdu);
+  fits_get_num_hdus(imfile_ptr, &nhdu, &status);
+  if (verbose)
+    printf("AFTER: nhdu = %d\n", nhdu);
+
+  bool  extensionsFlag;
+  if (verbose)
+    printf("BEFORE: extensionsFlag = %d\n", extensionsFlag);
+  problems = fits_read_key(imfile_ptr, TLOGICAL, "EXTEND", &extensionsFlag,
+				  			comment, &status);
+  if (verbose)
+    printf("AFTER: extensionsFlag = %d\n", extensionsFlag);
+
+//   extensionsExist = CheckForMultipleExtensions(imfile_ptr, &nExtensions);
+//   if (extensionsExist) {
+//   	printf("\n** Multiple-extensions FITS file: %d extensions\n", nExtensions);
+//   }
+  
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
 				  &status);
@@ -250,6 +276,29 @@ int SaveVectorAsImage( double *pixelVector, const std::string filename, const in
   }
   
   return 0;
+}
+
+
+
+/* ---------------- FUNCTION: CheckForMultiExtension --------------- */
+bool CheckForMultipleExtensions( fitsfile *imfile_ptr, int *nExtensions )
+{
+  bool  extensionsPresent = false;
+  int  nHDU = -1;
+  int  nn = 0;
+  int  hdunum = -1;
+  
+  int  extensionsFlag = -1;
+  char  *dummyComment;
+  int  problems, status;
+
+  problems = fits_read_key(imfile_ptr, TLOGICAL, "EXTEND", &extensionsFlag,
+				  			dummyComment, &status);
+
+  printf("CheckForMultipleExtensions: extensionsFlag = %d\n", extensionsFlag);
+  //*nExtensions = nHDU;
+  
+  return extensionsPresent;
 }
 
 

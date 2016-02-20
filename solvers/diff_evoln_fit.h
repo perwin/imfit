@@ -1,4 +1,7 @@
-/*   Public interfaces for function(s) which deal with fitting via
+/** @file
+ * \brief Public functions for setting up and running Differential Evolution minimizer
+ *
+ *   Public interfaces for function(s) which deal with fitting via
  * differential evolution.
  */
 

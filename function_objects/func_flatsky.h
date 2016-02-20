@@ -14,6 +14,7 @@
 //#define CLASS_SHORT_NAME  "FlatSky"
 
 
+/// Class for image function with constant background level
 class FlatSky : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

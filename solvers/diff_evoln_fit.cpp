@@ -1,3 +1,6 @@
+/** @file
+ * \brief Implementation of DiffEvolnFit; also includes ImfitSolver class
+ */
 /* FILE: diff_evoln_fit.cpp ---------------------------------------------- */
 /*
  * Code for doing Differential Evolution fits. Implements a subclass of DESolver,
@@ -58,6 +61,8 @@ const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;
 
 // Derived DESolver class for our fitting problem
 
+/// \brief Derived class implementing Differential Evolution minimization,
+///        specialized for Imfit
 class ImfitSolver : public DESolver
 {
 public:

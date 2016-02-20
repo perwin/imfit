@@ -25,6 +25,7 @@
 //#define CLASS_SHORT_NAME  "EdgeOnRing"
 
 
+/// Class for image function with simplistic edge-on Gaussian ring profile
 class EdgeOnRing : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file
