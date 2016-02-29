@@ -1,8 +1,7 @@
 # Imfit
 
 Imfit
-([http://www.mpe.mpg.de/~erwin/code/imfit/](http://www.mpe.mpg.de/~erwin
-/code/imfit/)) is an open-source program for fitting astronomical images
+([http://www.mpe.mpg.de/~erwin/code/imfit/](http://www.mpe.mpg.de/~erwin/code/imfit/)) is an open-source program for fitting astronomical images
 (primarily of galaxies). It is fast, flexible, and designed to be easily
 extensible with new image-component functions.
 
