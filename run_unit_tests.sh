@@ -34,15 +34,19 @@ $CPP -o test_runner_config test_runner_config.cpp core/config_file_parser.cpp co
 echo "Running unit tests for config-file parser:"
 ./test_runner_config 2>> temperror.log
 
+# NOTE: the following code will correctly set up and run unittest_oversampled_region.t.h;
+# However, that "unit test" doesn't perform proper tests; instead, it generates test image
+# output meant to be inspected with DS9. Therefore, it is currently commented out.
+#
 # Unit tests for oversampled_region
-echo
-echo "Generating and compiling unit tests for oversampled_region..."
-$CXXTESTGEN --error-printer -o test_runner_oversampled_region.cpp unit_tests/unittest_downsample.t.h 
-$CPP -o test_runner_oversampled_region test_runner_oversampled_region.cpp core/downsample.cpp \
-core/convolver.cpp core/image_io.cpp function_objects/function_object.cpp \
-function_objects/func_gaussian.cpp -I. -Icore -Isolvers -I/usr/local/include -I$CXXTEST -lcfitsio -lfftw3 -lm
-echo "Running unit tests for oversampled_region:"
-./test_runner_oversampled_region 2>> temperror.log
+# echo
+# echo "Generating and compiling unit tests for oversampled_region..."
+# $CXXTESTGEN --error-printer -o test_runner_oversampled_region.cpp unit_tests/unittest_oversampled_region.t.h 
+# $CPP -o test_runner_oversampled_region test_runner_oversampled_region.cpp core/downsample.cpp \
+# core/oversampled_region.cpp core/convolver.cpp core/image_io.cpp function_objects/function_object.cpp \
+# function_objects/func_gaussian.cpp -I. -Icore -Isolvers -I/usr/local/include -I$CXXTEST -lcfitsio -lfftw3 -lm
+# echo "Running unit tests for oversampled_region:"
+# ./test_runner_oversampled_region 2>> temperror.log
 
 # Unit tests for downsample
 echo

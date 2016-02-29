@@ -3,34 +3,37 @@
 // This is not very useful except for testing the basic interface, because most of the
 // real work is done internally, or requires a lot of surrounding setup first.
 //
-// cxxtestgen --error-printer -o test_runner.cpp unittest_oversampled_region.h
-// g++ -o test_runner test_runner.cpp oversampled_region.cpp downsample.cpp convolver.cpp \
+// cxxtestgen --error-printer -o test_runner_oversampled_region.cpp.cpp unit_tests/unittest_oversampled_region.h
+// g++ -o test_runner test_runner_oversampled_region.cpp.cpp oversampled_region.cpp downsample.cpp convolver.cpp \
 // image_io.cpp function_objects/function_object.cpp function_objects/func_gaussian.cpp \
 // -I/usr/local/include -I$CXXTEST -lcfitsio -lfftw3 -lm
 // ./test_runner
 
 #include <cxxtest/TestSuite.h>
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include <string>
 #include <vector>
 
 using namespace std;
 
-#include "image_io.h"
+#include "core/image_io.h"
 #include "function_objects/function_object.h"
 #include "function_objects/func_gaussian.h"
-#include "oversampled_region.h"
+#include "core/oversampled_region.h"
 
 #define DELTA  1.0e-10
 
 
 // Need multiple PSFs, one for each oversampling scale
-string  psfImage_scale1_filename = string("psf_gauss_sigma3_35.fits");
-string  psfImage_scale5_filename = string("psf_gauss_sigma15_175.fits");
-string  psfImage_scale10_filename = string("psf_gauss_sigma30_351.fits");
+// These files are assumed to exist
+string  psfImage_scale1_filename = string("unit_tests/psf_gauss_sigma3_35.fits");
+string  psfImage_scale5_filename = string("unit_tests/psf_gauss_sigma15_175.fits");
+string  psfImage_scale10_filename = string("unit_tests/psf_gauss_sigma30_351.fits");
 // "target" image into which oversampled-and-downsampled regions will be copied
-string  simpleNullImage51_filename = string("simpleimage_51x51_zeros.fits");
+string  simpleNullImage51_filename = string("unit_tests/simpleimage_51x51_zeros.fits");
 
 
 
@@ -185,7 +188,9 @@ public:
     int  delXmain = 11, delYmain = 11;
     double  params[] = {0.0, 0.0, 1.0, 2.0};
     
+    printf("About to read image...\n");
     double *mainImage = ReadImageAsVector(simpleNullImage51_filename, &nColsMain, &nRowsMain);
+    printf("Done.\n");
     oversampledRegion1c->SetupModelImage(x1, y1, delXmain, delYmain, nColsMain, nRowsMain, 0, 0, oversampleScale);
 
     // set up functions
