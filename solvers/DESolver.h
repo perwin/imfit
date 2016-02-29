@@ -1,5 +1,5 @@
 /** @file
- * \brief Class definition for DESolver (base class for Differential Evolution solver)
+ * \brief Class declaration for DESolver (base class for Differential Evolution solver)
  */
 
 // Differential Evolution Solver Class

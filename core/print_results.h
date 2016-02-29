@@ -1,5 +1,6 @@
 /** @file
- * \brief Code for printing the results of a fit to stdout or to file.
+ * \brief Public interface for functions which print the results of a fit 
+ *        to stdout or to file.
  *
  *    Utility functions for interpreting and printing results from fits
  *

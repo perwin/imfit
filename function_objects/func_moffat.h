@@ -23,7 +23,7 @@
 //#define CLASS_SHORT_NAME  "Moffat"
 
 
-/// Class for image function with elliptical isophotes and Moffat profile
+/// Class for image function with elliptical isophotes and %Moffat profile
 class Moffat : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

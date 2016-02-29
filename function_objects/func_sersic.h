@@ -24,7 +24,7 @@
 
 //#define CLASS_SHORT_NAME  "Sersic"
 
-/// Class for image function with elliptical isophotes and Sersic profile
+/// Class for image function with elliptical isophotes and %Sersic profile
 class Sersic : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

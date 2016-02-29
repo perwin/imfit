@@ -1,3 +1,6 @@
+/** @file
+ * \brief Class declaration for ModelObject
+ */
 /*   Abstract base class interface definition for model_object.cpp [imfit]
  *
  * This is the abstract base class for 1D and 2D "model" objects.
@@ -25,6 +28,8 @@ using namespace std;
 // assume that all methods are "common" to both 2D (base) and 1D (derived) versions,
 // unless otherwise stated
 
+/// \brief Main class holding data, model information, and code for generating
+///        model images, computing chi^2, etc.
 class ModelObject
 {
   public:

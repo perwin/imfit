@@ -27,7 +27,7 @@
 
 
 /// \brief Class for image function with broken-exponential major-axis profile
-///        and Gaussian minor-axis profile
+///        and %Gaussian minor-axis profile
 class BrokenExponentialBar : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

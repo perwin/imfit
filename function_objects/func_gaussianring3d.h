@@ -34,7 +34,7 @@ using namespace std;
 
 
 /// \brief Class for image function using LOS integration through 3D model
-///        of elliptical ring with Gaussian radial profile and exponential
+///        of elliptical ring with %Gaussian radial profile and exponential
 ///        vertical profile
 class GaussianRing3D : public FunctionObject
 {

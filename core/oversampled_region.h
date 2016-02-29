@@ -1,5 +1,7 @@
-/*   Public interfaces for class which deals with computing oversampled regions
- * of an image and (optionally) convolving them with an oversampled PSF.
+/*! \file
+   \brief  Class declaration for OversampledRegion (deals with computing 
+           oversampled regions of an image and (optionally) convolving them 
+           with an oversampled PSF).
  */
  
 

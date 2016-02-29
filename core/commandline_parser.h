@@ -1,5 +1,6 @@
 /** @file
-    \brief Public interfaces for command-line parser.
+    \brief Public interfaces for command-line parser, including class declarations
+           for OptionObject and CLineParser.
 
  */
 

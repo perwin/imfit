@@ -27,7 +27,7 @@
 //#define CLASS_SHORT_NAME  "EdgeOnRing2Side"
 
 
-/// Class for image function with simplistic edge-on asymmetric (2-sided) Gaussian ring profile
+/// Class for image function with simplistic edge-on asymmetric (2-sided) %Gaussian ring profile
 class EdgeOnRing2Side : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

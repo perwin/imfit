@@ -1,5 +1,5 @@
 /*! \file
-   \brief  Class description for convolving images with PSF.
+   \brief  Class declaration for Convolver (for convolving images with PSF).
   
  */
 

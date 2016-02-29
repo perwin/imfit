@@ -27,7 +27,7 @@
 
 
 /// \brief Class for image function using 2D elliptical ring with asymmetric
-///        (2-sided) Gaussian radial profile
+///        (2-sided) %Gaussian radial profile
 class GaussianRing2Side : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

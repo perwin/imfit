@@ -24,7 +24,7 @@
 //#define CLASS_SHORT_NAME  "GaussianRing"
 
 
-/// \brief Class for image function using 2D elliptical ring with Gaussian radial profile
+/// \brief Class for image function using 2D elliptical ring with %Gaussian radial profile
 class GaussianRing : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

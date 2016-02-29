@@ -16,7 +16,7 @@
 //#define CLASS_SHORT_NAME  "Gaussian"
 
 
-/// Class for image function with elliptical isophotes and Gaussian profile
+/// Class for image function with elliptical isophotes and %Gaussian profile
 class Gaussian : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

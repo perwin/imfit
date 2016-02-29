@@ -26,7 +26,7 @@
 //#define CLASS_SHORT_NAME  "Sersic_GenEllipse"
 
 
-/// \brief Class for image function with generalized-elliptical isophotes and Sersic profile
+/// \brief Class for image function with generalized-elliptical isophotes and %Sersic profile
 class GenSersic : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file

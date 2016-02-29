@@ -1,5 +1,5 @@
 /** @file
-    \brief Public interfaces for the FITS image wrapper routines.
+    \brief Public interfaces for the FITS image I/O routines.
  *
  */
 

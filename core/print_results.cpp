@@ -1,4 +1,7 @@
-/*! \file */ 
+/** @file
+ * \brief Utility functions for interpreting and printing results from fits.
+ */
+
 /* FILE: print_results.cpp ----------------------------------------- */
 
 // Copyright 2010--2015 by Peter Erwin.
