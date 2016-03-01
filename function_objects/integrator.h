@@ -1,5 +1,5 @@
-/*   Public interfaces for function(s) which takes a list of user-specified
- * function objects and adds them to the ModelObject.
+/*   Public interface for function which performs line-of-sight integration 
+ * using Gnu Scientific Library's QAGS integration.
  */
 
 #ifndef _GSL_INTEGRATOR_H_

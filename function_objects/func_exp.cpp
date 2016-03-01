@@ -24,7 +24,7 @@
  *     [v0.1]: 18 Nov 2009: Created (as modification of func_gauss.cpp.
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -88,30 +88,18 @@ Exponential::Exponential( )
 
 void Exponential::Setup( double params[], int offsetIndex, double xc, double yc )
 {
-//   x0 = params[0 + offsetIndex];
-//   y0 = params[1 + offsetIndex];
-//   PA = params[2 + offsetIndex];
-//   ell = params[3 + offsetIndex];
-//   I_0 = params[4 + offsetIndex ];
-//   h = params[5 + offsetIndex ];
   x0 = xc;
   y0 = yc;
   PA = params[0 + offsetIndex];
   ell = params[1 + offsetIndex];
   I_0 = params[2 + offsetIndex ];
   h = params[3 + offsetIndex ];
-// #ifdef DEBUG
-//   printf("func_exp: x0 = %g, y0 = %g, PA = %g, ell = %g, I_0 = %g, h = %g\n",
-//           x0, y0, PA, ell, I_0, h);
-// #endif  
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
   // convert PA to +x-axis reference
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
-//  printf("func_exp: q = %g, PA_rad = %g, cosPA = %g, sinPA = %g\n",
-//         q, PA_rad, cosPA, sinPA);
 }
 
 
