@@ -8,7 +8,7 @@ extensible with new image-component functions.
 Pre-compiled binaries for Linux and Mac OS X, along with documentation
 and example files, can be found 
 [at the main web page](http://www.mpe.mpg.de/~erwin/code/imfit/index.html#downloads),
-as can a condensed subset of the main code, suitable for making your own modifications.
+as can a source-code distribution suitable for local compilations and for making your own modifications.
 
 A basic [tutorial](http://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html) is also available.
 
