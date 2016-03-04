@@ -69,7 +69,7 @@ The optional limit specifications for X0 and Y0, which are only used by imfit, c
 An **image-function declaration** consists of the word "FUNCTION" followed by the
 name of an image function. (Recall that you can use `--list-functions` to
 get a list of the available image functions and `--list-parameters` to get that
-list along with the parameter list for each function.). This is followed by the
+list along with the parameter list for each function.) This is followed by the
 list of parameter values; these are the values for generating a model image with
 makeimage, or the *initial* values for the fitting process
 in imfit.
@@ -94,7 +94,7 @@ X0 and Y0 values (see above):
 
 Note that limit specifications are actually *required* by the Differential Evolution
 solver; they are optional for the other solvers (including the default Levenberg-Marquardt solver).
-Limit specifications are simply *ignored* by makeimage.
+Limit specifications are *ignored* by makeimage.
 
 
 ## Examples

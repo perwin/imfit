@@ -15,7 +15,7 @@ The basic operation of imfit, as implemented in imfit_main.cpp, is:
    4. PSF image(s), if any
 4. Create ModelObject instance and supply it with data
    1. List of image functions to use
-      1. ModelObject instance will then instantiate corresponding FunctionObject instances
+      1. The ModelObject instance will then instantiate corresponding FunctionObject instances
    2. PSF image data (if supplied by user)
    3. Image to be fit
    4. Data image characteristics
@@ -23,7 +23,7 @@ The basic operation of imfit, as implemented in imfit_main.cpp, is:
    6. Mask image data (if supplied by user)
    7. Type of fit statistic to be calculated
    8. Noise/error/weight image data (if supplied by user)
-   9. Call FinalSetup() method
+   9. Call FinalSetup() method on the ModelObject instance
 5. Do the fit
    1. Set up initial parameter vector and parameter-limits structure (mp\_par structure)
    2. Call the user-specified solver (Levenberg-Marquardt is default)
@@ -31,12 +31,12 @@ The basic operation of imfit, as implemented in imfit_main.cpp, is:
 8. Optionally, do bootstrap resampling to get parameter uncertainty estimates
 9. Save results
    1. Save best-fitting parameter values
-   2. Optionally, save best-fitting model image, residual image
+   2. Optionally, save best-fitting model image and/or residual image
 
 
 ## General design and operation of makeimage
 
-The operation of makeimage is similar to, but simpler than, imfit.
+The operation of makeimage is similar to (but simpler than) imfit.
 
 The key difference in terms of generating the model image is that the user must
 specify the *size* of the output image, since there is no data image to use as
@@ -55,7 +55,7 @@ The basic operation of makeimage, as implemented in makeimage_main.cpp, is:
    1. Give it list of image functions to use
    2. PSF image data (if supplied by user)
    3. Dimensions of model image
-   4. Optionally, supply oversampled PSF data (if supplied by user)
+   4. Oversampled PSF data (if supplied by user)
 5. Create model image:
    1. Set up parameter vector
    2. Call CreateModelImage() method of ModelObject instance, passing in the
@@ -85,30 +85,31 @@ the data-related members are used by makeimage, and the error image is not
 generated or used if a fit uses Poisson-based statistics instead of chi^2.
 
 The main functionality of the class includes:
-- Generation of a model image using the vector of FunctionObjects and the current array 
+- Generating a model image using the vector of FunctionObjects and the current array 
 of parameter values
-- Generation of individual-function model images (--output-functions option of makeimage)
-- Computation of individual-function and total fluxes for current model
-- Computation of deviances vector between current model image and data image (for
+- Generating individual-function model images (i.e., the --output-functions option of makeimage)
+- Computing individual-function and total fluxes for current model
+- Computing deviances vector between current model image and data image (for
 use by Levenberg-Marquardt solver)
-- Computation of fit statistic from comparison of current model image and
-data image
-- Printing of current parameter values
+- Computing the fit statistic from comparison of the current model image and
+the data image
+- Printing current parameter values
 - Generating a bootstrap resampling pixel-index vector when bootstrap resampling
 is being done
 
 
 ## Constructing a model image
 
-The actual generation of individual-pixel values in the model image
-depends on the vector of FunctionObjects, and current array of corresponding parameter
-values. This vector contains instantiations of one or more classes
-(e.g., Gaussian, Exponential, Sersic, ExponentialDisk3D) which are
-subclasses of the abstract base class FunctionObject (function_object.h).
+The actual generation of pixel values in the model image depends on the
+vector of FunctionObjects and the current array of corresponding parameter
+values. (And, of course, convolution with a PSF if that is requested.)
+The FunctionObjects vector contains instantiations of one or more classes (e.g.,
+Gaussian, Exponential, Sersic, ExponentialDisk3D) which are subclasses
+of the abstract base class FunctionObject (function_object.h).
 
 When a model image is constructed, the first step is to call the Setup()
 method on each FunctionObject and pass in the corresponding parameter values.
-This enables the FunctionObject instances to do an initial computations which
+This enables the FunctionObject instances to do any initial computations which
 don't depend on actual location within the image.
 
 The value of an individual pixel in the model image is obtained by

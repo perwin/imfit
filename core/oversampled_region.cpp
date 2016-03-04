@@ -72,7 +72,9 @@
 #include "function_objects/function_object.h"
 #include "oversampled_region.h"
 #include "downsample.h"
+#ifdef DEBUG
 #include "image_io.h"
+#endif
 
 using namespace std;
 
@@ -266,6 +268,7 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   } // end omp parallel section
 
 
+#ifdef DEBUG
   if (debugLevel > 0) {
     vector<string>  imageCommentsList;
     outputName = debugImageName + ".fits";
@@ -273,12 +276,13 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
     status = SaveVectorAsImage(modelVector, outputName, 
                         nModelColumns, nModelRows, imageCommentsList);
   }
-
+#endif
 
   // Do PSF convolution, if requested
   if (doConvolution)
     psfConvolver->ConvolveImage(modelVector);
 
+#ifdef DEBUG
   if (debugLevel > 0) {
     vector<string>  imageCommentsList;
     outputName = debugImageName + "_conv.fits";
@@ -286,6 +290,7 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
     status = SaveVectorAsImage(modelVector, outputName, 
                         nModelColumns, nModelRows, imageCommentsList);
   }
+#endif
 
   // downsample & copy into main image
   DownsampleAndReplace(modelVector, nModelColumns,nModelRows,nPSFColumns,nPSFRows, 

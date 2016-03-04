@@ -614,7 +614,8 @@ env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LI
 # so we need to include those in the compilation and link, even though they aren't
 # actually used in model_object1d. Similarly, code in image_io is referenced from
 # downsample.)
-modelobject1d_obj_string = """model_object oversampled_region downsample image_io"""
+#modelobject1d_obj_string = """model_object oversampled_region downsample image_io"""
+modelobject1d_obj_string = """model_object oversampled_region downsample"""
 modelobject1d_objs = [CORE_SUBDIR + name for name in modelobject1d_obj_string.split()]
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
