@@ -11,9 +11,10 @@ addons:
     - libfftw3-dev
     - libcfitsio3-dev
     - libgsl0-dev
+    - libnlopt-dev
 
 #before_install:
 #  - apt-get -qq update
 #  - apt-get install -y libfftw3-dev
 #  - apt-get install -y libnlopt-dev
-script: scons --no-nlopt --no-openmp testparser
+script: scons --no-openmp testparser
