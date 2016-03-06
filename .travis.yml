@@ -12,4 +12,4 @@ addons:
 #  - apt-get -qq update
 #  - apt-get install -y libfftw3-dev
 #  - apt-get install -y libnlopt-dev
-script: scons testparser
+script: scons --no-nlopt --no-gsl --no-openmp testparser
