@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
   vector<double>  parameterList;
   vector<mp_par>  paramLimits;
   vector<int>  setStarts;   // which function number marks start of new set
-  mp_par  test_parlimit;
   bool  paramLimitsExist = false;
   bool mode2D_flag = true;   // we're testing the reading of 2D config files (non-profilefit)
   int  nSets, nParamsTot;

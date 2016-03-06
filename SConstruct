@@ -347,11 +347,11 @@ if useGSL:   # default is to do this
 		lib_list.append("gslcblas")
 		
 	# and stuff for 1D programs:
-	lib_list_1d.append("gsl")
-	lib_list_1d.append("gslcblas")
-	if (os_type == "Linux"):
-		lib_list.append("gslcblas")
-		lib_list_1d.append("gslcblas")
+# 	lib_list_1d.append("gsl")
+# 	lib_list_1d.append("gslcblas")
+# 	if (os_type == "Linux"):
+# 		lib_list.append("gslcblas")
+# 		lib_list_1d.append("gslcblas")
 else:
 	extra_defines.append("NO_GSL")
 
@@ -664,7 +664,7 @@ psfconvolve_objs = ["extra/psfconvolve_main", "core/commandline_parser", "core/u
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
 # test_parser: put all the object and source-code lists together
-testparser_objs = ["test_parser", "config_file_parser", "utilities"]
+testparser_objs = ["test_parser", "core/config_file_parser", "core/utilities"]
 testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 
@@ -701,8 +701,8 @@ env_opt.Program("timing", timing_sources)
 
 # older programs
 # env_opt.Program("readimage", readimage_sources)
-# testparser_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(testparser_objs, testparser_sources) ]
-# env_debug.Program("testparser", testparser_objlist)
+testparser_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(testparser_objs, testparser_sources) ]
+env_debug.Program("testparser", testparser_objlist)
 readimage_test_objs = ["readimage_test", "core/image_io"]
 readimage_test_sources = [name + ".cpp" for name in readimage_test_objs]
 readimage_test_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(readimage_test_objs, readimage_test_sources) ]
