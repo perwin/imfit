@@ -1,4 +1,7 @@
+sudo: required
+dist: precise
 language: cpp
+
 compiler: gcc
 os:
 - linux
