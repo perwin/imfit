@@ -5,7 +5,7 @@ os:
 addons:
   apt:
     packages:
-    - fftw-dev
+    - libfftw3-dev
 
 #before_install:
 #  - apt-get -qq update
