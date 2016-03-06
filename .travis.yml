@@ -1,10 +1,12 @@
-sudo: required
+# We need to specify "trusty" (Ubuntu 14.04) as the dist in order to access the NLopt package
+sudo: false
 dist: trusty
-language: cpp
 
+language: cpp
 compiler: gcc
 os:
 - linux
+
 addons:
   apt:
     packages:
