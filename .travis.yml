@@ -7,7 +7,7 @@ addons:
     packages:
     - libfftw3-dev
     - libcfitsio3-dev
-    - libgsl-dev
+    - libgsl0-dev
 
 #before_install:
 #  - apt-get -qq update
