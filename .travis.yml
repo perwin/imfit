@@ -18,14 +18,11 @@ addons:
     - libgsl0-dev
     - libnlopt-dev
 
-#before_install:
-#  - apt-get -qq update
-#  - apt-get install -y libfftw3-dev
-#  - apt-get install -y libnlopt-dev
 script: 
   - scons --no-openmp makeimage
   - scons --no-openmp imfit
 
 after_success:
   - ./do_makeimage_tests
+  - ./do_imfit_tests
 
