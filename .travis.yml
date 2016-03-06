@@ -6,6 +6,7 @@ addons:
   apt:
     packages:
     - libfftw3-dev
+    - libcfitsio-dev
 
 #before_install:
 #  - apt-get -qq update
