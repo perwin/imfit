@@ -22,4 +22,10 @@ addons:
 #  - apt-get -qq update
 #  - apt-get install -y libfftw3-dev
 #  - apt-get install -y libnlopt-dev
-script: scons --no-openmp makeimage
+script: 
+  - scons --no-openmp makeimage
+  - scons --no-openmp imfit
+
+after_success:
+  - ./do_makeimage_tests
+
