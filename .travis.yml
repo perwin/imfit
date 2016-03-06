@@ -1,5 +1,8 @@
-# We need to specify "trusty" (Ubuntu 14.04) as the dist in order to access the NLopt package
-sudo: false
+# In order to be able to install the NLopt package, we need to use the "beta"
+# Ubntu 14.04 ("trusty") build environment. This also needs to have "sudo: required".
+# (https://docs.travis-ci.com/user/trusty-ci-environment/)
+
+sudo: required
 dist: trusty
 
 language: cpp
