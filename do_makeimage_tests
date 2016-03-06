@@ -18,7 +18,7 @@ if [ ! -f ./makeimage ]
 fi
 
 
-STATUS = 0
+STATUS=0
 
 # create output directory for test_dump*, etc. files (will do nothing if
 # directory already exists)
