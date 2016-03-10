@@ -1173,8 +1173,6 @@ slow things down considerably.
 
 \subsection{Convolution with Oversampled PSF}
 
-TBD.
-
 The default convolution performed by \imfit{} uses a PSF image and a
 model image which have the same spatial scaling as the data image. While
 this is adequate for most purposes, it is a somewhat crude approximation
@@ -1185,11 +1183,11 @@ of the image in pixel space by the detector.
 A better approach would be to construct a model image at higher resolution
 and convolve it with a higher-resolution PSF, then downsample the resulting
 image to the same pixel scale as the data image. Unfortunately, this can be
-quite time-consuming (and memory-consuming as well), due to the larger
+quite time-consuming (and memory-consuming), due to the larger
 images required. 
 
-A compromise is to perform standard convolution on the entire image, but
-to then replace a small subset of the model image (e.g., around a bright
+A compromise is to perform a standard convolution on the entire image, and
+then replace a small subset of the model image (e.g., around a bright
 point source where more accurate PSF convolution is desirable) with the
 result of a higher-resolution convolution. This can be done in \imfit{}
 with the ``\texttt{overpsf}'' command-line options.
@@ -1218,6 +1216,9 @@ corresponds to $5 \times 5$ pixels in the oversampled model and the PSF).
 \chapter{What Gets Minimized During a Fit, and How to Minimize It}
 
 \section{Fit Statistics: \chisquare{} or Poisson Statistics}\label{sec:fit-statistics}
+
+(See \cite{erwin15} for a more detailed discussion of the statistical
+background and the effects of minimizing different fit statistics.)
 
 \Imfit's default behavior is to minimize the total \chisquare{} for the model. This
 is defined by computing the sum over individual pixels $i$:
@@ -1251,6 +1252,7 @@ C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I_{m, i} \, - \, I_{d, i} \ln I_{m, i}) .
 \end{equation}
 In this case, all weights are automatically $=1$, except for masked pixels, which are still set $= 0$.
 Specifying the Cash statistic is done with the \texttt{--cashstat} command-line flag.
+
 A drawback of the Cash statistic is that it \textit{cannot} be minimized with the
 Levenberg-Marquardt algorithm, since the latter assumes that all terms in the summation are
 $\ge 0$, which is usually not true for the Cash statistic.  Fortunately, there is also the 
@@ -1341,6 +1343,8 @@ Section~\ref{sec:imfit-flags} for details on the use of the
 \medskip
 
 TBD. [more details of DE implementation]
+% e.g., we use stRandToBest1Exp strategy, with F = 0.85 and CR = 1.0
+
 
 \medskip
 
@@ -1380,7 +1384,8 @@ iterations for the L-M algorithm (1000), a maximum number of generations for DE
 images) for the Nelder-Mead simplex algorithm (10000 times the number of free
 parameters).
 
-TBD: info about extra stopping conditions for the L-M and N-M simplex algorithms
+%TBD: info about extra stopping conditions for the L-M and N-M simplex algorithms
+% [taken care of now?]
 
 
 
@@ -1438,16 +1443,27 @@ without modification.
 The final value of the fit statistic is also printed; if the fit
 statistic was \chisquare{} or PMLR, then the ``reduced'' $\chi^{2}$ or
 PMLR (which accounts for the total number of unmasked pixels and
-non-fixed parameter values)\footnote{The reduced values should
-be interpreted with caution; it is valid in absolute terms only if the
+non-fixed parameter values)\footnote{The reduced values should be
+interpreted with caution; it is valid in absolute terms only if the
 noise has been correctly estimated \textit{and} if all differences
 between the model and the data are solely due to noise, which is rarely
 true for galaxies and other astronomical objects.} is also printed.
 Finally, two alternate measures of the fit are also printed: the Akaike
 Information Criterion (\textsc{aic}) and the Bayesian Information
-Criterion (\textsc{bic}). The latter two are included on a provisional
-basis; they are, in principle, useful for comparing different models fit
-to the same data.
+Criterion (\textsc{bic}). These two are, in principle, useful for
+comparing different models fit to the same data. They are defined in the
+usual sense (for \textsc{aic}, \imfit{} uses the ``corrected'' version,
+which accounts for cases of few data points):
+\begin{eqnarray}
+\mathrm{AIC} & = & -2 \ln \mathcal{L} \, +\,  2k \, + \, \frac{2k(k + 1)}{n - k - 1} \\
+\mathrm{BIC} & = & -2 \ln \mathcal{L} \, + \, k \ln n ,
+\end{eqnarray}
+where $\mathcal{L}$ is the likelihood of the best-fit model, $k$ is the
+number of free parameters, and $n$ is the number of data points (i.e.,
+unmasked pixels). The value of $-2 \ln \mathcal{L}$ is equal to the
+best-fit value of the chosen fit statistic: e.g., $-2 \ln \mathcal{L} =
+\chisquare$ for fits that minimize \chisquare{}, and = PMLR for fits
+using that statistic.
 
 A short summary of the results of the fitting process --- minimization
 algorithm and its final status, fit-statistic value, etc. --- is also
@@ -1456,10 +1472,10 @@ the original command line and the timestamp) are commented out.
 
 By default, no model or residual (image $-$ model) images are saved, but
 the command-line options \texttt{--save-model} and
-\texttt{save-residual} can be used to specify output names for those
+\texttt{--save-residual} can be used to specify output names for those
 images, and corresponding \textsc{fits} files will be saved to disk.
 
-%TBD.
+
 
 \section{Uncertainties on Parameter Values: L-M Estimates vs.\ Bootstrap Resampling}
 \label{sec:bootstrap}
