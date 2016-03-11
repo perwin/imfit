@@ -2,6 +2,10 @@
 # Ubntu 14.04 ("trusty") build environment. This also needs to have "sudo: required".
 # (https://docs.travis-ci.com/user/trusty-ci-environment/)
 
+# Currently, the regression test scripts can't use the Python image-comparison scripts,
+# because we haven't figure out how to get numpy and pyfits installed so that the
+# Python scripts can find them...
+
 sudo: required
 dist: trusty
 
@@ -34,8 +38,11 @@ addons:
 
 script: 
   - scons makeimage
-  - scons --no-openmp imfit
+  - scons imfit
 
+# Note that the following tend to produce the usual Linux-vs-OSX output mismatches
+# in the final decimal places for some of the outputs (probably due to subtle
+# floating-point issues).
 after_success:
   - ./do_makeimage_tests
   - ./do_imfit_tests
