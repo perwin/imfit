@@ -21,8 +21,11 @@ addons:
     - libgsl0-dev
     - libnlopt-dev
 
+# python stuff so we can run python-using scripts in regression tests
+python:
+  - 2.7
 install:
-  pip install numpy
+  - pip install numpy
 
 script: 
   - scons --no-openmp makeimage
