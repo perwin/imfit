@@ -17,6 +17,8 @@ addons:
     - libcfitsio3-dev
     - libgsl0-dev
     - libnlopt-dev
+    - python-numpy
+    - python-pyfits
 
 script: 
   - scons --no-openmp makeimage
