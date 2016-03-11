@@ -10,6 +10,9 @@ compiler: gcc
 os:
 - linux
 
+env:
+  - OMP_NUM_THREADS=4
+
 addons:
   apt:
     packages:
@@ -17,8 +20,9 @@ addons:
     - libcfitsio3-dev
     - libgsl0-dev
     - libnlopt-dev
-    - python-numpy
-    - python-pyfits
+
+install:
+  pip install numpy
 
 script: 
   - scons --no-openmp makeimage
