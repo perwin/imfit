@@ -13,8 +13,8 @@ os:
 env:
   - OMP_NUM_THREADS=4
 
-python:
-  - "2.7_with_system_site_packages"
+#python:
+#  - "2.7_with_system_site_packages"
 
 addons:
   apt:
@@ -23,8 +23,8 @@ addons:
     - libcfitsio3-dev
     - libgsl0-dev
     - libnlopt-dev
-    - python-numpy
-    - python-pyfits
+#    - python-numpy
+#    - python-pyfits
 
 # python stuff so we can run python-using scripts in regression tests
 #python:
@@ -33,7 +33,7 @@ addons:
 #  - pip install numpy
 
 script: 
-  - scons --no-openmp makeimage
+  - scons makeimage
   - scons --no-openmp imfit
 
 after_success:
