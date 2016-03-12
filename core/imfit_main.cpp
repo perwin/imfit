@@ -538,7 +538,7 @@ int main(int argc, char *argv[])
     									bootstrapSaveFile_ptr);
     gettimeofday(&timer_end_bootstrap, NULL);
     if ((nSucessfulIterations > 0) && (options.outputBootstrapFileName.length() > 0))
-      printf("Bootstrap-resampling output saved to file %s.\n", options.outputBootstrapFileName.c_str());
+      printf("Bootstrap-resampling output saved to file \"%s\".\n", options.outputBootstrapFileName.c_str());
     fclose(bootstrapSaveFile_ptr);
     didBootstrap = true;
   }

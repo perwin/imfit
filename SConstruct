@@ -102,6 +102,7 @@ FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
 SOLVER_SUBDIR = "solvers/"
 PROFILEFIT_SUBDIR = "profile_fitting/"
+C_SUBDIR = "c_code/"
 
 os_type = os.uname()[0]
 
@@ -120,7 +121,7 @@ lib_list_1d = ["fftw3", "m"]
 
 
 include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, FUNCTION_SUBDIR, 
-				FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
+				FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR, C_SUBDIR]
 lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
 
@@ -494,7 +495,8 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 
 # Pure C code
 c_obj_string = """mp_enorm statistics mersenne_twister"""
-c_objs = c_obj_string.split()
+#c_objs = c_obj_string.split()
+c_objs = [ C_SUBDIR + name for name in c_obj_string.split() ]
 c_sources = [name + ".c" for name in c_objs]
 
 

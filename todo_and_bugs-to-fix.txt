@@ -18,11 +18,6 @@
 	Done through: convolver
 
 
-[] Bootstrap resampling output file needs a better header
-	-- should say that this is bootstrap-resampling output
-	-- include name of original bestfit-params output?
-
-
 [] Possible improved error reporting
 	[] When negative pixel values are encountered during vetting of input data image,
 	mention possibility of missing sky parameter
@@ -52,9 +47,9 @@ image oversampled
 	src/extra ? -- for timing_main.cpp
 	src/model_object ? -- for model_object convolver oversampled_region downsample
 		[but note that Convolver is used by psfconvolve_main.cpp
-	test/ -- regression tests, etc.
-	test/unittests/
-	docs/ -- where Doxygen input files go
+	[x]tests/ -- regression tests, etc.
+	[x]unit_tests/
+	[x]docs/ -- where Doxygen input files go
 		html -- created by Doxygen
 		latex -- created by Doxygen
 	
@@ -132,6 +127,7 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 [X] Convolution of an image with substantial region of negative pixels produces
 weird ringing and positive pixels in negative region.
+	Reported by Semyeong Oh
 	-- tests using astropy.convolution.convolve() and astropy.convolution.convolve_fft()
 	show apparently correct results
 	-- see if this also happens with 1-D convolution?
@@ -140,6 +136,11 @@ weird ringing and positive pixels in negative region.
 			[]1. Compare astropy.convolution output on all-positive image (how much
 			does our convolution differ from theirs?)
 			[]2. Compare astropy.convolution output on partially-negative image
+	-- This turns out to have been a longstanding bug due to the fact that I ahd
+	(for some mysterious reason) taken the absolute value of the inverse transform
+	at the end of the convolution. This had no effect when all pixels were >= 0,
+	but was wrong for negative pixels... Accidentally fixed in version 1.3 when
+	I changed how the transform was computed.
 
 
 [X] --quiet option with Nelder-Mead simplex (--nm) is not truly quiet (some of N-M
