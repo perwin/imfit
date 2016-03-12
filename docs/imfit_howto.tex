@@ -1220,10 +1220,18 @@ corresponds to $5 \times 5$ pixels in the oversampled model and the PSF).
 (See \cite{erwin15} for a more detailed discussion of the statistical
 background and the effects of minimizing different fit statistics.)
 
-\Imfit's default behavior is to minimize the total \chisquare{} for the model. This
-is defined by computing the sum over individual pixels $i$:
+\Imfit{} attempts to find the best-fitting model via a
+maximum-likelihood approach. In practice, this is done by
+\textit{minimizing} a maximum-likelihood statistic defined as $-2 \ln
+\mathcal{L}$, where $\mathcal{L}$ is the likelihood of a given model. The rest
+of this section describes the different versions of $-2 \ln \mathcal{L}$
+which can be minimized to achieve the best fit.
+
+By default, \Imfit{} uses a Gaussian-based maximum likelihood statistic
+which is the total \chisquare{} for the model. This is defined by
+computing the sum over individual pixels $i$:
 \begin{equation}
-\chisquare \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{m, i} - I_{d, i})^2 ,
+-2 \ln \mathcal{L}  \; = \; \chisquare \; = \; \sum_{i = 0}^{N} w_{i} \, (I_{m, i} - I_{d, i})^2 ,
 \end{equation}
 where $N$ is the total number of pixels, $I_{m, i}$ and $I_{d, i}$ are the model and data intensities
 for the individual pixels, and $w_{i}$ are per-pixel weights. These weights can be
@@ -1248,7 +1256,7 @@ as is often the case for, e.g., X-ray images --- is to minimize a maximum likeli
 statistic based directly on Poisson statistics (rather than Gaussian approximation thereof). 
 One way of doing this involves computing the Cash statistic $C$:
 \begin{equation}
-C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I_{m, i} \, - \, I_{d, i} \ln I_{m, i}) .
+-2 \ln \mathcal{L}  \; = \; C \; = \; 2 \sum_{i = 0}^{N} w_{i} \, (I_{m, i} \, - \, I_{d, i} \ln I_{m, i}) .
 \end{equation}
 In this case, all weights are automatically $=1$, except for masked pixels, which are still set $= 0$.
 Specifying the Cash statistic is done with the \texttt{--cashstat} command-line flag.
@@ -1258,15 +1266,17 @@ Levenberg-Marquardt algorithm, since the latter assumes that all terms in the su
 $\ge 0$, which is usually not true for the Cash statistic.  Fortunately, there is also the 
 Poisson-MLR statistic \pmlr, which includes extra terms based on the data values:
 \begin{equation}
-\mathrm{\pmlr} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
+-2 \ln \mathcal{L}  \; = \; \mathrm{\pmlr} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I_{m, i} - I_{d, i} \ln I_{m, i} + I_{d, i} \ln I_{d, i} - I_{d, i} \right).
 \end{equation}
-Since the extra terms do not depend on the model values, they remain unchanged during
-the minimization and do not affect it. However, they have
-the key advantage of ensuring that all individual-pixel values are always $\ge 0$, which
-makes it possible to use the Levenberg-Marquardt algorithm to minimize \pmlr.
-Use of \pmlr{} is done via the \texttt{--poisson-mlr} flag (or its shortened
-version \texttt{--mlr}).
+Since the extra terms do not depend on the
+model values, they remain unchanged during the minimization and do not
+affect it. However, they have the key advantage of ensuring that all
+individual-pixel values are always $\ge 0$, which makes it possible to
+use the Levenberg-Marquardt algorithm to minimize \pmlr. Use of \pmlr{}
+is done via the \texttt{--poisson-mlr} flag (or its shortened version
+\texttt{--mlr}).\footnote{\pmlr{} is actually defined as $-2 \ln
+(\mathcal{L}/\mathcal{L}_{\mathrm{max}})$; see Section~4.1.3 of \cite{erwin15}.} 
 
 (See Section~\ref{sec:noise-maps} above for more details on how the data
 and model intensities, $\sigma_{i}$ values, and weights are actually
@@ -1433,12 +1443,11 @@ that file as an input configuration file for \imfit{} or \makeimage.
 
 The best-fitting parameters will also be written to an output text file
 (the default name for this is \texttt{bestfit\_parameters\_imfit.dat};
-use \texttt{--save-params} to specify a different name),
-\textit{without} the error estimates. The output file will also include
-a copy of the original command used to start \imfit{} and the date and
-time it was generated; these are commented out so that the file can be
-subsequently used as an \imfit{} or \makeimage{} configuration file
-without modification.
+use \texttt{--save-params} to specify a different name). The output file
+will also include a copy of the original command used to start \imfit{}
+and the date and time it was generated; these are commented out so that
+the file can be subsequently used as an \imfit{} or \makeimage{}
+configuration file without modification.
 
 The final value of the fit statistic is also printed; if the fit
 statistic was \chisquare{} or PMLR, then the ``reduced'' $\chi^{2}$ or
