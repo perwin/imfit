@@ -13,8 +13,10 @@ using namespace std;
 
 #include "function_objects/function_object.h"
 // FUNCTION-SPECIFIC:
+#include "function_objects/func_flatsky.h"
 #include "function_objects/func_exp.h"
 #include "function_objects/func_gaussian.h"
+#include "function_objects/func_moffat.h"
 #include "function_objects/func_sersic.h"
 #include "function_objects/func_king.h"
 #include "function_objects/func_king2.h"
@@ -210,7 +212,7 @@ public:
     double  y0 = 10.0;
     // FUNCTION-SPECIFIC:
     // test setup: circular Gaussian with I_e = 1, sigma = 10,
-    double  params[5] = {90.0, 0.0, 1.0, 10.0};
+    double  params[4] = {90.0, 0.0, 1.0, 10.0};
     
     
     thisFunc->Setup(params, 0, x0, y0);
@@ -230,6 +232,168 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
 
+  }
+};
+
+
+class TestFlatSky : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new FlatSky();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 1;
+    correctParamNames.push_back("I_sky");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+    
+  }
+  
+  void testCalculations( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: FlatSky with I_0 = 1.0
+    double  params1[1] = {1.0};
+    double  params2[1] = {-1.0};
+    
+    
+    thisFunc->Setup(params1, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 1.0, DELTA );
+    // r = 1 value (should be identical)
+    double  rEqualsOneValue = 1.0;
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+    
+    // Same, but with negative value
+    thisFunc->Setup(params2, 0, x0, y0);
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), -1.0, DELTA );
+    // r = 1 value (should be identical)
+    rEqualsOneValue = -1.0;
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+
+  }
+};
+
+
+class TestMoffat : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new Moffat();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 5;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("ell");
+    correctParamNames.push_back("I_0");
+    correctParamNames.push_back("fwhm");
+    correctParamNames.push_back("beta");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+    
+  }
+  
+  void testCalculations( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular Moffat with I_e = 1, fwhm = 10, beta = 3.0
+    double  params1[5] = {90.0, 0.0, 1.0, 10.0, 3.0};
+    double  params2[5] = {90.0, 0.0, 1.0, 10.0, 1.0};
+    double  rEqualsOneValue, rEqualsFWHMValue;
+    
+    
+    thisFunc->Setup(params1, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 1.0, DELTA );
+    // r = 1 value
+    rEqualsOneValue = 0.96944697430705418;
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+    // r = fwhm value
+    rEqualsFWHMValue = 0.11784501202946467;
+    TS_ASSERT_DELTA( thisFunc->GetValue(20.0, 10.0), rEqualsFWHMValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsFWHMValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsFWHMValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsFWHMValue, DELTA );
+
+    // Same, but with beta = 1.0
+    thisFunc->Setup(params2, 0, x0, y0);
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 1.0, DELTA );
+    // r = 1 value
+    rEqualsOneValue = 0.96153846153846145;
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+    // r = fwhm value
+    rEqualsFWHMValue = 0.20000000000000001;
+    TS_ASSERT_DELTA( thisFunc->GetValue(20.0, 10.0), rEqualsFWHMValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsFWHMValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsFWHMValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsFWHMValue, DELTA );
   }
 };
 
