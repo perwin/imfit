@@ -359,6 +359,7 @@ public:
     // test setup: circular Moffat with I_e = 1, fwhm = 10, beta = 3.0
     double  params1[5] = {90.0, 0.0, 1.0, 10.0, 3.0};
     double  params2[5] = {90.0, 0.0, 1.0, 10.0, 1.0};
+    double  params3[5] = {90.0, 0.5, 1.0, 10.0, 1.0};
     double  rEqualsOneValue, rEqualsFWHMValue;
     
     
@@ -394,6 +395,19 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsFWHMValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsFWHMValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsFWHMValue, DELTA );
+
+    // Same, but with ellipticity = 0.5
+    thisFunc->Setup(params3, 0, x0, y0);
+    // a = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 1.0, DELTA );
+    // a = 1 value
+    rEqualsOneValue = 0.96153846153846145;
+    // along major axis
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    // along minor axis: delta-y = +/-0.5
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.5), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.5), rEqualsOneValue, DELTA );
   }
 };
 
