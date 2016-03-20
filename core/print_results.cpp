@@ -282,8 +282,9 @@ void GetSolverSummary( int status, int solverID, string& outputString )
 
 
 /// Saves best-fit parameters (and summary of fit statistics) to a file.
+
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
-                    string& outputFilename, string& programName, int argc, char *argv[],
+         			 string& outputFilename, vector<string>& outputHeader,
                     int nFreeParameters, int whichSolver, int fitStatus, SolverResults& solverResults )
 {
   FILE  *file_ptr;
@@ -326,13 +327,8 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
     }
   }
   
-  char  *timeStamp;
-  timeStamp = TimeStamp();
-  fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
-  fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
-          timeStamp);
-  for (int i = 0; i < argc; i++)
-    fprintf(file_ptr, " %s", argv[i]);
+  for (int i = 0; i < outputHeader.size(); i++)
+    fprintf(file_ptr, "%s\n", outputHeader[i].c_str());
   fprintf(file_ptr, "\n# Results of fit:\n");
   fprintf(file_ptr, "#   %s\n", algorithmSummary.c_str());
   fprintf(file_ptr, "#   Fit statistic: %s\n", statName.c_str());
@@ -359,26 +355,111 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   fclose(file_ptr);
 
 }
+// void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
+//                     string& outputFilename, string& programName, int argc, char *argv[],
+//                     int nFreeParameters, int whichSolver, int fitStatus, SolverResults& solverResults )
+// {
+//   FILE  *file_ptr;
+//   string  statName, algorithmSummary;
+//   double  *parameterErrs = NULL;
+//   
+//   if ((file_ptr = fopen(outputFilename.c_str(), "w")) == NULL) {
+//     fprintf(stderr, FILE_OPEN_ERR_STRING, outputFilename.c_str());
+//     exit(-1);
+//   }
+// 
+//   // Get minimization (solver output) info
+//   GetSolverSummary(fitStatus, whichSolver, algorithmSummary);
+//   
+//   // Get fit-results info
+//   int  nValidPixels = model->GetNValidPixels();
+//   int  nDegreesFreedom = nValidPixels - nFreeParameters;
+//   double  fitStatistic = model->GetFitStatistic(params);
+//   double  aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
+//   double  bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
+//   int  whichStat = model->WhichFitStatistic();
+//   if (whichStat == FITSTAT_CASH) {
+//     statName = "Cash statistic";
+//   }
+//   else if (whichStat == FITSTAT_POISSON_MLR) {
+//     statName = "Poisson-MLR statistic";
+//   }
+//   else {
+//     whichStat = model->WhichFitStatistic(true);
+//     switch (whichStat) {
+//       case FITSTAT_CHISQUARE_USER:
+//         statName = "chi-squared (user-supplied errors)";
+//         break;
+//       case FITSTAT_CHISQUARE_MODEL:
+//         statName = "chi-squared (model-based errors)";
+//         break;
+//       default:
+//         statName = "chi-squared (data-based errors)";
+//         break;
+//     }
+//   }
+//   
+//   char  *timeStamp;
+//   timeStamp = TimeStamp();
+//   fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
+//   fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
+//           timeStamp);
+//   for (int i = 0; i < argc; i++)
+//     fprintf(file_ptr, " %s", argv[i]);
+//   fprintf(file_ptr, "\n# Results of fit:\n");
+//   fprintf(file_ptr, "#   %s\n", algorithmSummary.c_str());
+//   fprintf(file_ptr, "#   Fit statistic: %s\n", statName.c_str());
+//   fprintf(file_ptr, "#   Best-fit value: %f\n", fitStatistic);
+//   if (whichStat == FITSTAT_CASH) {
+//     fprintf(file_ptr, "#   Reduced value: none\n");
+//   }
+//   else {
+//     fprintf(file_ptr, "#   Reduced value: %f\n", fitStatistic / nDegreesFreedom);
+//   }
+//   fprintf(file_ptr, "#   AIC: %f\n", aic);
+//   fprintf(file_ptr, "#   BIC: %f\n", bic);
+// //  fprintf(file_ptr, "\n");
+// 
+//   if (solverResults.ErrorsPresent()) {
+//     parameterErrs = (double *)calloc(model->GetNParams(), sizeof(double));
+//     solverResults.GetErrors(parameterErrs);
+//     model->PrintModelParams(file_ptr, params, parameterInfo, parameterErrs);
+//     free(parameterErrs);
+//   }
+//   else
+//     model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
+// 
+//   fclose(file_ptr);
+// 
+// }
 
 
 // Same as previous, but requires a previously opened file pointer; also allows
 // optional prefix string for each line (default declaration in header file = "")
 void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
-                    string& programName, int argc, char *argv[], const char *prefix )
+                    vector<string>& outputHeader, const char *prefix )
 {
-  char  *timeStamp;
-  timeStamp = TimeStamp();
-  fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
-  fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
-          timeStamp);
-  for (int i = 0; i < argc; i++)
-    fprintf(file_ptr, " %s", argv[i]);
-  fprintf(file_ptr, "\n");
+  for (int i = 0; i < outputHeader.size(); i++)
+    fprintf(file_ptr, "%s\n", outputHeader[i].c_str());
   fprintf(file_ptr, "%s\n", prefix);
-
   model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
-
 }
+// void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
+//                     string& programName, int argc, char *argv[], const char *prefix )
+// {
+//   char  *timeStamp;
+//   timeStamp = TimeStamp();
+//   fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
+//   fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
+//           timeStamp);
+//   for (int i = 0; i < argc; i++)
+//     fprintf(file_ptr, " %s", argv[i]);
+//   fprintf(file_ptr, "\n");
+//   fprintf(file_ptr, "%s\n", prefix);
+// 
+//   model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
+// 
+// }
 
 
 /* END OF FILE: print_results.cpp ---------------------------------- */

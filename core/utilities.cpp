@@ -92,6 +92,30 @@ string vformat( const char *fmt, va_list ap )
 
 
 
+/* ---------------- FUNCTION: MakeOutputHeader() ------------------- */
+
+void MakeOutputHeader( vector<string> *headerLines, const string& programName, 
+						const int argc, char *argv[] )
+{  
+  char  *timeStamp = TimeStamp();
+  string  tempString;
+
+  tempString = PrintToString("# Best-fit model results for %s", programName.c_str());
+  headerLines->push_back(tempString);
+  tempString = PrintToString("# Generated on %s by the following command:", 
+          timeStamp);
+  headerLines->push_back(tempString);
+  tempString = "#   ";
+  for (int i = 0; i < argc; i++) {
+    tempString += PrintToString(" %s", argv[i]);
+  }
+  headerLines->push_back(tempString);
+}
+
+
+
+/* ---------------- FUNCTION: PrepareImageComments() --------------- */
+
 void PrepareImageComments( vector<string> *comments, const string &programName, 
                            const string &configFileName, bool psfUsed, 
                            const string &psfFileName )

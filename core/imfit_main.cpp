@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
   string  progNameVersion = "imfit ";
+  vector<string> programHeader;
   FILE  *bootstrapSaveFile_ptr = NULL;
   bool  didBootstrap = false;
   // timing-related
@@ -155,7 +156,9 @@ int main(int argc, char *argv[])
   gettimeofday(&timer_start_all, NULL);
 
   progNameVersion += VERSION_STRING;
-  
+  MakeOutputHeader(&programHeader, progNameVersion, argc, argv);
+
+ 
   /* Define default options, then process the command line */
   SetDefaultImfitOptions(&options);
   ProcessInput(argc, argv, &options);
@@ -525,8 +528,8 @@ int main(int argc, char *argv[])
     if (options.outputBootstrapFileName.length() > 0) {
       bootstrapSaveFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");
       // write general info + best-fitting params as a commented-out header
-      SaveParameters2(bootstrapSaveFile_ptr, paramsVect, theModel, parameterInfo, progNameVersion, 
-      				argc, argv, "#");
+      SaveParameters2(bootstrapSaveFile_ptr, paramsVect, theModel, parameterInfo, 
+      				programHeader, "#");
     }
     
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
@@ -551,7 +554,7 @@ int main(int argc, char *argv[])
   if (options.saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-    								progNameVersion, argc, argv, nFreeParams, options.solver, 
+    								programHeader, nFreeParams, options.solver, 
     								fitStatus, resultsFromSolver);
   }
   if (options.saveModel) {

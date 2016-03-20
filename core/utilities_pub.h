@@ -27,6 +27,12 @@ const int kPosReal    =    4;
 string PrintToString( const char *fmt, ... );
 
 
+/// \brief Generates vector of strings containing program name, time stamp,
+///        and command-line invocation, intended to be written to start of
+///        best-fit output-parameter files, etc.
+void MakeOutputHeader( vector<string> *headerLines, const string& programName, 
+						const int argc, char *argv[] );
+
 /// \brief Generates vector of strings containing program name, config file name,
 ///        and PSF image (if any), intended to be written to output FITS image header(s).
 void PrepareImageComments( vector<string> *comments, const string &programName, 

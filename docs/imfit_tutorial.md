@@ -45,7 +45,8 @@ dwarf elliptical galaxy IC 3478) with a simple exponential model, which is
 described in the configuration file config_sersic\_ic3478\_256.dat. To
 do the fit, just type:
 
-	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat --sky=130.14
+	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat 
+	  --sky=130.14
 
 The `--sky=130.14` is a note to Imfit that the image had a
 background sky level of 130.14 counts/pixel which was previously subtracted; if we
@@ -53,6 +54,11 @@ don't include this, Imfit will get confused by the fact that some of the
 pixels in the image have slightly negative values. (Note that you can
 use `=` or a space to connect an option with its argument on the command
 line.)
+
+(Note that, as is normal for Unix-style commands, all invocations of
+`imfit` should be entered as a single line, even though in this and some
+of the other examples it's displayed on two or more lines to fit the web page
+better.)
 
 Imfit will print some preliminary information, confirming which files
 are being used, the size of the image being fit, the image functions
@@ -87,8 +93,8 @@ So what kind of fit did we get, and how good was it? When you run imfit, you can
 to save the best-fitting model image, and the residual image (data - model) as well,
 using the `--save-model` and `--save-residual` commandline options:
 
-	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat --sky=130.14 \
-	  --save-model=model.fits --save-residual=resid.fits
+	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat 
+	  --sky=130.14 --save-model=model.fits --save-residual=resid.fits
 
 These are FITS files with the same dimensions as the data image.
 
@@ -99,11 +105,11 @@ try to address in a bit.
 
 <a name="fig1"></a>
 
-<!-- URL for Rapidweaver
 <img src="../../../resources/images/fig1_for_tutorial.png" alt="SDSS image, exponential model, residual" style="width:700px;"/>
--->
 
+<!-- local, non-RapidWeaver path
 <img src="fig1_for_tutorial.png" alt="SDSS image, exponential model, residual" style="width:750px;"/>
+-->
 
 <b>Figure 1:</b>  log-scaled isophotes for original SDSS image (left) 
 and  best-fitting exponential model (middle), along with linear-scaled residual image 
@@ -163,8 +169,8 @@ for the *r*-band image.
 
 So we can re-run the fit with the following command:
 
-	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat --sky=130.14 \
-	--gain=4.725 --readnoise=4.3
+	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat 
+	  --sky=130.14 --gain=4.725 --readnoise=4.3
 
 Now the reduced &chi;<sup>2</sup> is about 2.1, which isn't necessarily that good, but is at
 least statistically plausible!
@@ -199,8 +205,9 @@ pixel values = 0 for all the "good" pixels and >= 1 for all the "bad" pixels
 The file ic3478rss\_256\_mask.fits in the examples directory is a mask image. You can
 use it in the fit with the "`--mask`" option:
 
-	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
-	  --sky=130.14 --gain=4.725 --readnoise=4.3
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
+	  --mask ic3478rss_256_mask.fits --sky=130.14 --gain=4.725 
+	  --readnoise=4.3
 
 (Again, note that options can be linked to their targets with "=" or with just a space,
 whichever make more sense to you.)
@@ -240,8 +247,9 @@ A model fit to an image can consist of multiple image functions (and multiple
 copies of each image function), but for now let's just try a S&eacute;rsic function with
 elliptical isophotes. This is encoded in the "config\_sersic\_ic3478\_256.dat" file.
 
-	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
-	--gain=4.725 --readnoise=4.3 --sky=130.14
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
+	  --mask ic3478rss_256_mask.fits --gain=4.725 --readnoise=4.3 
+	  --sky=130.14
 
 The result is a significantly better fit:
 
@@ -259,11 +267,11 @@ The result is a significantly better fit:
 
 
 <a name="fig2"></a>
-<!-- URL for Rapidweaver
 <img src="../../../resources/images/fig2_for_tutorial.png" alt="SDSS image, S&eacute;rsic model, residual" style="width:700px;"/>
--->
 
+<!-- local, non-RapidWeaver path 
 <img src="fig2_for_tutorial.png" alt="SDSS image, S&eacute;rsic model, residual" style="width:750px;"/>
+-->
 
 <b>Figure 2:</b> log-scaled isophotes for original
 SDSS image (left) and best-fitting S&eacute;rsic model (middle), along with
@@ -291,8 +299,9 @@ model with the data.
 Here, we use a pre-generated 51 x 51-pixel PSF image which approximates the seeing in the
 SDSS image using a circular Moffat function:
 
-	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
-	--gain=4.725 --readnoise=4.3 --sky=130.14 --psf psf_moffat_51.fits
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
+	  --mask ic3478rss_256_mask.fits --gain=4.725 --readnoise=4.3 
+	  --sky=130.14 --psf psf_moffat_51.fits
 	
 	Reduced Chi^2 = 1.074154
 	AIC = 68137.906037, BIC = 68201.307896
@@ -308,11 +317,11 @@ SDSS image using a circular Moffat function:
 
 <a name="fig3"></a>
 
-<!-- URL for Rapidweaver
 <img src="../../../resources/images/fig3_for_tutorial.png" alt="SDSS image, S&eacute;rsic model, residual" style="width:700px;"/>
--->
 
+<!-- local, non-RapidWeaver path 
 <img src="fig3_for_tutorial.png" alt="SDSS image, S&eacute;rsic model, residual" style="width:750px;"/>
+-->
 
 <b>Figure 3:</b> log-scaled isophotes for original
 SDSS image (left) and best-fitting, PSF-convolved S&eacute;rsic model (middle), along with
@@ -334,7 +343,8 @@ than just a S&eacute;rsic function by itself.)
 Makeimage can be used with PSF images to generate properly convolved model images,
 using the same `--psf` option that imfit uses. E.g.
 
-	makeimage bestfit_parameters_imfit.dat --refimage=ic3478rss_256.fits --psf=psf_moffat_51.fits
+	makeimage bestfit_parameters_imfit.dat --refimage=ic3478rss_256.fits 
+	  --psf=psf_moffat_51.fits
 
 Makeimage can also be used to *generate* PSF images; in fact, the PSF
 image we used above was generated using the
@@ -365,8 +375,9 @@ a read-noise value, this is added in quadrature to the data-based dispersion.)
 One alternative is to take the dispersion from the square root of the (current)
 <i>model</i> value, which you can do with the `--model-errors` flag:
  
-	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
-	--gain=4.725 --readnoise=4.3 --sky=130.14 --psf psf_moffat_51.fits --model-errors
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
+	  --mask ic3478rss_256_mask.fits --gain=4.725 --readnoise=4.3 
+	  --sky=130.14 --psf psf_moffat_51.fits --model-errors
 
     Reduced Chi^2 = 1.075389
     AIC = 68216.271136, BIC = 68279.672995
@@ -400,8 +411,9 @@ MLR) approach, and is especially appropriate for data with
 very low counts per pixel, where the Gaussian approximation really breaks down.
 Imfit allows you to do with the `--poisson-mlr` flag (or just `--mlr` for short):
 
-	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat --mask ic3478rss_256_mask.fits \
-	--gain=4.725 --sky=130.14 --psf psf_moffat_51.fits --mlr
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
+	  --mask ic3478rss_256_mask.fits --gain=4.725 --sky=130.14 
+	  --psf psf_moffat_51.fits --mlr
 
     Reduced Chi^2 equivalent = 1.104470
     AIC = 70060.584150, BIC = 70123.986009
