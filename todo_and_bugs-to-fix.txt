@@ -36,6 +36,13 @@ image oversampled
 	e.g. "--overpsf_region all"
 
 
+[] Combine code for generating output header 
+	Currently: lines 329--335 and also 369--375 of print_results.cpp
+	-- generate in main() as list of strings?
+	-- would allow us to remove "string& programName, int argc, char *argv[]" from
+	interface of SaveParams() and SaveParams2()
+
+
 [..] Reorganize directory structure:
 	[x]src/core
 	[x]src/solvers
@@ -89,6 +96,11 @@ image oversampled
 	-- printed on same line as parameter name, with "#" in between
 	-- possibly alternate command-line flag to specify this instead of the
 	current, "bare-bones" version
+
+[] User annotations for functions in config file
+	-- i.e., allow user to add names to individual functions, e.g.
+	FUNCTION Sersic   # NGC 100: bulge
+	-- these would be stored and written to output files
 
 
 [] Add option for MCMC
