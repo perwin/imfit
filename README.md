@@ -18,7 +18,9 @@ The paper describing Imfit can be found here:
 [Erwin 2015](http://adsabs.harvard.edu/abs/2015ApJ...799..226E).
 
 
-### About the code at this Github site
+## About the code at this Github site
+
+[![Build Status](https://travis-ci.org/perwin/imfit.svg?branch=master)](https://travis-ci.org/perwin/imfit)
 
 This Github repository hosts the complete codebase, including regression
 and unit tests, miscellaneous extra tests and notes, and assorted
