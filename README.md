@@ -40,7 +40,8 @@ for both); the [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt) library an
 strongly recommended as well, but Imfit can be built without them at the
 cost of some functionality. Imfit uses [SCons](http://scons.org) as the build tool,
 and should build under any version of GCC from 4.2 onward. See the
-"Getting and Installing Imfit" chapter of the documentation for more
+"Getting and Installing Imfit" chapter of the documentation 
+([imfit_howto.pdf](http://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf)) for more
 details.
 
 

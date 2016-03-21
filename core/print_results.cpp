@@ -50,16 +50,6 @@ void GetSolverSummary( int status, int solverID, string& outputString );
 
 
 
-// The following is used by PrintResults()
-// void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr )
-// {
-//   if (paramErr == 0.0)
-//     fprintf(outFile, "  %10s = %f\n", paramName.c_str(), paramValue);
-//   else
-//     fprintf(outFile, "  %10s = %f +/- %f\n", paramName.c_str(), paramValue, paramErr);
-// }
-
-
 // This is a function to print the results of a fit.  It's based on code from
 // Craig Markwardt's testmpfit.c, but will also accomodate results from a fit
 // done with other minimization algorithms, such as Nelder-Mead simplex or
@@ -122,7 +112,6 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     
     double *paramErrs = (double *)calloc(model->GetNParams(), sizeof(double));
     solverResults.GetErrors(paramErrs);
-//    model->PrintModelParams(stdout, params, parameterInfo, mpResult->xerror);
     model->PrintModelParams(stdout, params, parameterInfo, paramErrs);
     printf("\n");
     free(paramErrs);
@@ -141,13 +130,7 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     else if (whichStat == FITSTAT_POISSON_MLR) {
       fitStatName = "POISSON-MLR STATISTIC";
       reducedStatName = "Reduced Chi^2 equivalent";
-//      printf("\n  POISSON-MLR STATISTIC = %f\n", fitStatistic);
-//      printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
     }
-//     else {
-//       printf("\n  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
-//       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
-//     }
     printf("\n  %s = %f\n", fitStatName.c_str(), fitStatistic);
     printf("  NFEV = %d\n\n", solverResults.GetNFunctionEvals());
     if (printReduced)
@@ -159,67 +142,7 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     model->PrintModelParams(stdout, params, parameterInfo, NULL);
     printf("\n");
   }
-  
-  
-  // Case of non-LM minimization (e.g., Nelder-Mead simplex, DE)
-//   if (mpResult == 0) {
-    // Only print results of fit if fitStatus >= 1
-//     if (fitStatus < 1)
-//       return;
-//     fitStatistic = model->GetFitStatistic(params);
-//     if (whichStat == FITSTAT_CASH)
-//       printf("  CASH STATISTIC = %f\n", fitStatistic);
-//     else if (whichStat == FITSTAT_POISSON_MLR) {
-//       printf("  POISSON-MLR STATISTIC = %f\n", fitStatistic);
-//       printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
-//     }
-//     else {
-//       printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
-//       printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
-//     }
-//     aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
-//     bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
-//     printf("AIC = %f, BIC = %f\n\n", aic, bic);
-//     // output the best-fit parameters
-//     model->PrintModelParams(stdout, params, parameterInfo, NULL);
-//     return;
-//   }
-  
-  // Case of mpfit output (L-M minimization)
-//   InterpretMpfitResult(fitStatus, mpfitMessage);
-//   printf("*** mpfit status = %d -- %s\n", fitStatus, mpfitMessage.c_str());
-//     // Only print results of fit if valid fit was achieved
-//   if ((params == 0) || (mpResult == 0))
-//     return;
-//   if (whichStat == FITSTAT_CASH) {
-//     printf("  CASH STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
-//     printf("  INITIAL CASH STATISTIC = %f\n", mpResult->orignorm);
-//   }
-//   else if (whichStat == FITSTAT_POISSON_MLR) {
-//     printf("  POISSON-MLR STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
-//     printf("  INITIAL POISSON-MLR STATISTIC = %f\n", mpResult->orignorm);
-//   }
-//   else {
-//     printf("  CHI-SQUARE = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
-//     printf("  INITIAL CHI^2 = %f\n", mpResult->orignorm);
-//   }
-//   printf("        NPAR = %d\n", mpResult->npar);
-//   printf("       NFREE = %d\n", mpResult->nfree);
-//   printf("     NPEGGED = %d\n", mpResult->npegged);
-//   printf("     NITER = %d\n", mpResult->niter);
-//   printf("      NFEV = %d\n", mpResult->nfev);
-//   printf("\n");
-//   aic = AIC_corrected(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
-//   bic = BIC(mpResult->bestnorm, nFreeParameters, nValidPixels, 1);
-//   if (whichStat == FITSTAT_CHISQUARE)
-//     printf("Reduced Chi^2 = %f\n", mpResult->bestnorm / nDegreesFreedom);
-//   if (whichStat == FITSTAT_POISSON_MLR)
-//     printf("Reduced Chi^2 equivalent = %f\n", mpResult->bestnorm / nDegreesFreedom);
-//   printf("AIC = %f, BIC = %f\n\n", aic, bic);
-//   
-//   model->PrintModelParams(stdout, params, parameterInfo, mpResult->xerror);
 }
-
 
 /// Simple function for computing and printing the fit statistic given the input
 /// parameter vector. Meant for use in imfit_main.cpp with the "--fitstat-only"
@@ -282,7 +205,6 @@ void GetSolverSummary( int status, int solverID, string& outputString )
 
 
 /// Saves best-fit parameters (and summary of fit statistics) to a file.
-
 void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
          			 string& outputFilename, vector<string>& outputHeader,
                     int nFreeParameters, int whichSolver, int fitStatus, SolverResults& solverResults )
@@ -341,7 +263,6 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   }
   fprintf(file_ptr, "#   AIC: %f\n", aic);
   fprintf(file_ptr, "#   BIC: %f\n", bic);
-//  fprintf(file_ptr, "\n");
 
   if (solverResults.ErrorsPresent()) {
     parameterErrs = (double *)calloc(model->GetNParams(), sizeof(double));
@@ -355,86 +276,10 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   fclose(file_ptr);
 
 }
-// void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
-//                     string& outputFilename, string& programName, int argc, char *argv[],
-//                     int nFreeParameters, int whichSolver, int fitStatus, SolverResults& solverResults )
-// {
-//   FILE  *file_ptr;
-//   string  statName, algorithmSummary;
-//   double  *parameterErrs = NULL;
-//   
-//   if ((file_ptr = fopen(outputFilename.c_str(), "w")) == NULL) {
-//     fprintf(stderr, FILE_OPEN_ERR_STRING, outputFilename.c_str());
-//     exit(-1);
-//   }
-// 
-//   // Get minimization (solver output) info
-//   GetSolverSummary(fitStatus, whichSolver, algorithmSummary);
-//   
-//   // Get fit-results info
-//   int  nValidPixels = model->GetNValidPixels();
-//   int  nDegreesFreedom = nValidPixels - nFreeParameters;
-//   double  fitStatistic = model->GetFitStatistic(params);
-//   double  aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
-//   double  bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
-//   int  whichStat = model->WhichFitStatistic();
-//   if (whichStat == FITSTAT_CASH) {
-//     statName = "Cash statistic";
-//   }
-//   else if (whichStat == FITSTAT_POISSON_MLR) {
-//     statName = "Poisson-MLR statistic";
-//   }
-//   else {
-//     whichStat = model->WhichFitStatistic(true);
-//     switch (whichStat) {
-//       case FITSTAT_CHISQUARE_USER:
-//         statName = "chi-squared (user-supplied errors)";
-//         break;
-//       case FITSTAT_CHISQUARE_MODEL:
-//         statName = "chi-squared (model-based errors)";
-//         break;
-//       default:
-//         statName = "chi-squared (data-based errors)";
-//         break;
-//     }
-//   }
-//   
-//   char  *timeStamp;
-//   timeStamp = TimeStamp();
-//   fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
-//   fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
-//           timeStamp);
-//   for (int i = 0; i < argc; i++)
-//     fprintf(file_ptr, " %s", argv[i]);
-//   fprintf(file_ptr, "\n# Results of fit:\n");
-//   fprintf(file_ptr, "#   %s\n", algorithmSummary.c_str());
-//   fprintf(file_ptr, "#   Fit statistic: %s\n", statName.c_str());
-//   fprintf(file_ptr, "#   Best-fit value: %f\n", fitStatistic);
-//   if (whichStat == FITSTAT_CASH) {
-//     fprintf(file_ptr, "#   Reduced value: none\n");
-//   }
-//   else {
-//     fprintf(file_ptr, "#   Reduced value: %f\n", fitStatistic / nDegreesFreedom);
-//   }
-//   fprintf(file_ptr, "#   AIC: %f\n", aic);
-//   fprintf(file_ptr, "#   BIC: %f\n", bic);
-// //  fprintf(file_ptr, "\n");
-// 
-//   if (solverResults.ErrorsPresent()) {
-//     parameterErrs = (double *)calloc(model->GetNParams(), sizeof(double));
-//     solverResults.GetErrors(parameterErrs);
-//     model->PrintModelParams(file_ptr, params, parameterInfo, parameterErrs);
-//     free(parameterErrs);
-//   }
-//   else
-//     model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
-// 
-//   fclose(file_ptr);
-// 
-// }
 
 
-// Same as previous, but requires a previously opened file pointer; also allows
+
+// Same as SaveParameters, but requires a previously opened file pointer; also allows
 // optional prefix string for each line (default declaration in header file = "")
 void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
                     vector<string>& outputHeader, const char *prefix )
@@ -444,22 +289,6 @@ void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par
   fprintf(file_ptr, "%s\n", prefix);
   model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
 }
-// void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
-//                     string& programName, int argc, char *argv[], const char *prefix )
-// {
-//   char  *timeStamp;
-//   timeStamp = TimeStamp();
-//   fprintf(file_ptr, "# Best-fit model results for %s\n", programName.c_str());
-//   fprintf(file_ptr, "# Generated on %s by the following command:\n#   ", 
-//           timeStamp);
-//   for (int i = 0; i < argc; i++)
-//     fprintf(file_ptr, " %s", argv[i]);
-//   fprintf(file_ptr, "\n");
-//   fprintf(file_ptr, "%s\n", prefix);
-// 
-//   model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
-// 
-// }
 
 
 /* END OF FILE: print_results.cpp ---------------------------------- */
