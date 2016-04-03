@@ -1,4 +1,8 @@
-# Imfit
+<!-- # Imfit -->
+
+<!-- <img src="https://github.com/perwin/imfit/" width="600"> -->
+<img src="graphics/logo_for_README.png" width="600">
+
 
 Imfit
 ([http://www.mpe.mpg.de/~erwin/code/imfit/](http://www.mpe.mpg.de/~erwin/code/imfit/)) 
