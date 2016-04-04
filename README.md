@@ -28,23 +28,25 @@ The paper describing Imfit can be found here:
 This repository hosts the complete codebase, including regression
 and unit tests, miscellaneous extra tests and notes, and assorted
 (nonessential) auxiliary programs. If all you want to do is use Imfit to
-model astronomical images, it's probably simpler to grab the precompiled
+model images, it's probably simpler to grab the precompiled
 versions (or the basic source-code tarball) from [the main Imfit
 site](http://www.mpe.mpg.de/~erwin/code/imfit/).
 
 But if you're more comfortable forking things on Github, now you can!
 (Feel free to open an issue if you find a bug or want to suggest a feature --
-or just email me directly.)
+or just email me directly [erwin at sigmaxi.net].)
 
 
 ## Requirements
 
-Building Imfit from source requires the [FFTW](http://www.fftw.org) and 
-[CFITSIO](http://heasarc.gsfc.nasa.gov/fitsio/fitsio.html) libraries (v3
-for both); the [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt) library and 
-[GSL](http://www.gnu.org/software/gsl/) (GNU Scientific Library) are
-strongly recommended as well, but Imfit can be built without them at the
-cost of some functionality. Imfit uses [SCons](http://scons.org) as the build tool,
+Building Imfit requires the following libraries:
+
+* [FFTW](http://www.fftw.org) (version 3)
+* [CFITSIO](http://heasarc.gsfc.nasa.gov/fitsio/fitsio.html) (version 3)
+* [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt) -- optional, but strongly recommended
+* [GSL](http://www.gnu.org/software/gsl/) (GNU Scientific Library) -- optional, but strongly recommended
+
+Imfit uses [SCons](http://scons.org) as the build tool,
 and should build under any version of GCC from 4.2 onward. 
 
 See the "Getting and Installing Imfit" chapter of the documentation
