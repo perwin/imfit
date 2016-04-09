@@ -6,10 +6,10 @@
 
 [] Handle multi-extension FITS images
 	-- at least to the point of recognizing them and complaining clearly
-	-- current behavior just quits with
-	"FITSIO status = 320: illegal number of dimensions"
+		
 	[] When reading in a FITS file (data, mask, PSF, etc.), check to see if
 	it's multi-extension
+		[x] Generate error if primary HDU is *not* a 2D image
 	
 	[] Implement <filename>.fits[n] reading?
 

@@ -1,7 +1,7 @@
 // Unit tests for code in image_io.cpp
 
 // $CXXTESTGEN --error-printer -o test_runner_imageio.cpp unit_tests/unittest_image_io.t.h 
-// $CPP -o test_runner_imageio test_runner_imageio.cpp image_io.cpp -I. -I/usr/local/include -I$CXXTEST -lcfitsio
+// $CPP -o test_runner_imageio test_runner_imageio.cpp core/image_io.cpp -I. -I/usr/local/include -Icore -I$CXXTEST -lcfitsio -lfftw3
 
 #include <cxxtest/TestSuite.h>
 
@@ -13,19 +13,24 @@
 #include <string>
 using namespace std;
 
-#include "utilities_pub.h"
+//#include "utilities_pub.h"
 #include "image_io.h"
 
 // small, along with values of lower-left and upper-right pixels
 const string  TEST_IMAGE_32x32("tests/testimage_expdisk32.fits");
 const double  VALUE_LL = 20.903625;
 const double  VALUE_UR = 14.947027;
+// test images with no image data, or none in primary HDU
+const string  TEST_IMAGE_EMPTY("tests/test_emptyhdu.fits");
+const string  TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU("tests/test_multiextension_hdu1empty.fits");
+const string  TEST_TABLE("tests/test_table.fits");
 // nonexistent file (for error-checking)
 const string  BAD_IMAGE_NAME("no_image_with_this_name.fits");
-// filename for an image file we can't possibly write (permission denied)
-const string  IMPOSSIBLE_IMAGE_FILENAME("/arglebargle.fits");
+// filename for an image file we can't possibly write (permission denied or
+// at least directory doesn't exist)
+const string  IMPOSSIBLE_IMAGE_FILENAME("/nopath/nohow/ZZZ/arglebargle.fits");
 
-// simple image data
+// simple image data and filename we will save it under
 double  tinyImage[9] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
 const string  TINY_IMAGE_FILENAME("tinyimage_temp.fits");
 
@@ -47,12 +52,42 @@ public:
   }
 
   // Test for GetImageSize() with nonexistent file
-  void testGetImageSize_failure( void )
+  void testGetImageSize_nofile( void )
   {
     int  status;
     int  nCols, nRows;
 
     status = GetImageSize(BAD_IMAGE_NAME, &nCols, &nRows);
+    TS_ASSERT_EQUALS(-1, status);
+  }
+
+  // Test for GetImageSize() with empty FITS file
+  void testGetImageSize_emptyfile( void )
+  {
+    int  status;
+    int  nCols, nRows;
+
+    status = GetImageSize(TEST_IMAGE_EMPTY, &nCols, &nRows);
+    TS_ASSERT_EQUALS(-1, status);
+  }
+
+  // Test for GetImageSize() with multi-extension FITS file having empty primary HDU
+  void testGetImageSize_emptyfile2( void )
+  {
+    int  status;
+    int  nCols, nRows;
+
+    status = GetImageSize(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU, &nCols, &nRows);
+    TS_ASSERT_EQUALS(-1, status);
+  }
+
+  // Test for GetImageSize() with FITS table, not image
+  void testGetImageSize_tablefile( void )
+  {
+    int  status;
+    int  nCols, nRows;
+
+    status = GetImageSize(TEST_TABLE, &nCols, &nRows);
     TS_ASSERT_EQUALS(-1, status);
   }
 

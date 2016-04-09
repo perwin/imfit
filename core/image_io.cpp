@@ -61,8 +61,6 @@
 /* ------------------- Function Prototypes ----------------------------- */
 static void PrintError( int status );
 
-bool CheckForMultipleExtensions( fitsfile *imfile_ptr, int *nExtensions );
-
 
 
 /* ------------------------ Global Variables --------------------------- */
@@ -92,6 +90,25 @@ int GetImageSize( const std::string filename, int *nColumns, int *nRows, const b
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
+    return -1;
+  }
+
+  // Check to make sure primary HDU is an image, and is actually a 2D array
+  int hdutype, naxis;
+  fits_get_hdu_type(imfile_ptr, &hdutype, &status);  /* Get the HDU type */
+  if (hdutype == IMAGE_HDU) {   /* primary array or image HDU */
+    fits_get_img_dim(imfile_ptr, &naxis, &status);
+    if (naxis != 2) {
+      fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not a 2D image (NAXIS = %d)!\n", 
+    		  filename.c_str(), naxis);
+      return -1;
+    }
+  }
+  else {
+    // currently it seems unlikely for us to get here, since most FITS tables have
+    // an (empty, 0-dimensional) "array" as the primary HDU, followed by the table
+    fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not an image!\n", 
+    		filename.c_str());
     return -1;
   }
 
@@ -280,27 +297,16 @@ int SaveVectorAsImage( double *pixelVector, const std::string filename, const in
 
 
 
-/* ---------------- FUNCTION: CheckForMultiExtension --------------- */
-bool CheckForMultipleExtensions( fitsfile *imfile_ptr, int *nExtensions )
+/* ---------------- FUNCTION: CountHeaderDataUnits ----------------- */
+int CountHeaderDataUnits( fitsfile *imfile_ptr )
 {
-  bool  extensionsPresent = false;
-  int  nHDU = -1;
-  int  nn = 0;
-  int  hdunum = -1;
+  int  nHDUs = 0;
   
-  int  extensionsFlag = -1;
-  char  *dummyComment;
-  int  problems, status;
-
-  problems = fits_read_key(imfile_ptr, TLOGICAL, "EXTEND", &extensionsFlag,
-				  			dummyComment, &status);
-
-  printf("CheckForMultipleExtensions: extensionsFlag = %d\n", extensionsFlag);
-  //*nExtensions = nHDU;
+  // reset pointer to beginning of file
   
-  return extensionsPresent;
+  // loop over file, reading in HDUs until we get error
+  
 }
-
 
 
 
