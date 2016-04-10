@@ -38,9 +38,9 @@ def main():
 	#    1 = necessary libraries are present
 	#    0 = one or more necessary libraries are *not* present
 	if (numpyPresent and (astropyPresent or pyfitsPresent)):
-		print 1
+		print(1)
 	else:
-		print 0
+		print(0)
 
 
 if __name__ == '__main__':	
