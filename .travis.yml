@@ -30,6 +30,7 @@ addons:
 # actually works. For Python 2.7, it adds about 30s to the build time (for installing pyfits, 
 # because pip detects that numpy is already installed[?!]); if we use Python 3.4, it adds about 
 # 3 minutes (needs to install numpy as well as pyfits)
+# This needs to go *after* the C++ setup, otherwise the numpy intall doesn't work...
 language: python
 python:
   # OK, the "2.7_with_system_site_packages" sort of works, except that importing numpy fails due to Unicode 
