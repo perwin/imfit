@@ -5,14 +5,6 @@
 sudo: required
 dist: trusty
 
-language: cpp
-compiler: gcc
-os:
-- linux
-
-env:
-  - OMP_NUM_THREADS=4
-
 language: python
 python:
   # OK, the "2.7_with_system_site_packages" sort of works, except that importing numpy fails due to Unicode 
@@ -25,6 +17,14 @@ python:
   # So we'll just stick with Python 2.7 for now...
   - 2.7
 
+language: cpp
+compiler: gcc
+os:
+- linux
+
+env:
+  - OMP_NUM_THREADS=4
+
 addons:
   apt:
     packages:
@@ -32,6 +32,7 @@ addons:
     - libcfitsio3-dev
     - libgsl0-dev
     - libnlopt-dev
+    - cxxtest
 # the following are not useful, bcs the Python virtualenv can't see them (see above for why
 # "_with_system_site_packages" options don't seem to work)
 #    - python-pyfits
@@ -46,6 +47,7 @@ install:
   - pip install pyfits
 
 script: 
+  - ./run_unittest_imageio.sh
   - scons makeimage
   - scons imfit
 
