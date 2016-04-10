@@ -51,7 +51,7 @@ def main(argv=None):
  	usageString = "OR: %prog --compare-sum FITS_file_1 FITS_file_2 reference_sum_FITS_file\n"
  	parser = optparse.OptionParser(usage=usageString, version="%prog ")
 	parser.add_option("--compare-sum", action="store_true", dest="compareSum",
-					  default=False, help="test that sum of first two images matches third image within tolerances")
+					default=False, help="test that sum of first two images matches third image within tolerances")
 
  	(options, args) = parser.parse_args(argv)
  
