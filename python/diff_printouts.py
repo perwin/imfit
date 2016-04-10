@@ -16,14 +16,14 @@ DEFAULT_START = 0
 
 def main( argv=None ):
 
- 	usageString = "%prog reference_text_file new_text_file\n"
- 	parser = optparse.OptionParser(usage=usageString, version="%prog ")
- 	parser.add_option("--skip-first", type="int", dest="skipFirst", default=DEFAULT_START,
- 				help="skip the first N lines of lines retrieved from  each file")
- 	parser.add_option("--skip-last", type="int", dest="skipLast", default=0,
- 				help="skip the last N lines of lines retrieved from each file")
- 	parser.add_option("--get-last", type="int", dest="getLast", default=0,
- 				help="retrieve the last N lines of each file (before applying --skip options")
+	usageString = "%prog reference_text_file new_text_file\n"
+	parser = optparse.OptionParser(usage=usageString, version="%prog ")
+	parser.add_option("--skip-first", type="int", dest="skipFirst", default=DEFAULT_START,
+				help="skip the first N lines of lines retrieved from  each file")
+	parser.add_option("--skip-last", type="int", dest="skipLast", default=0,
+				help="skip the last N lines of lines retrieved from each file")
+	parser.add_option("--get-last", type="int", dest="getLast", default=0,
+				help="retrieve the last N lines of each file (before applying --skip options")
 
  	(options, args) = parser.parse_args(argv)
  
