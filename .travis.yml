@@ -23,7 +23,9 @@ python:
   # incompatibilities between Travis Python 2.7 and the numpy library in 2.7_with_system_site_packages
   # (/home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/numpy/)
   #- "2.7_with_system_site_packages"
-  - "3.4_with_system_site_packages"
+  - 2.7
+  # the following seems to work, but numpy isn't available for some reason
+  #- "3.4_with_system_site_packages"
 
 addons:
   apt:
@@ -36,8 +38,7 @@ addons:
 #    - python-numpy
 
 # python stuff so we can run python-using scripts in regression tests
-#python:
-#  - 2.7
+# OK: the following *works*, but adds about 3 minutes to the Travis run
 install:
   - pip install numpy
   - pip install pyfits
