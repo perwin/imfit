@@ -2,10 +2,6 @@
 # Ubntu 14.04 ("trusty") build environment. This also needs to have "sudo: required".
 # (https://docs.travis-ci.com/user/trusty-ci-environment/)
 
-# Currently, the regression test scripts can't use the Python image-comparison scripts,
-# because we haven't figure out how to get numpy and pyfits installed so that the
-# Python scripts can find them...
-
 sudo: required
 dist: trusty
 
@@ -19,11 +15,15 @@ env:
 
 language: python
 python:
-  # OK, the "2.7_with_system_site_packages" sort of works, except that it fails due to Unicode 
+  # OK, the "2.7_with_system_site_packages" sort of works, except that importing numpy fails due to Unicode 
   # incompatibilities between Travis Python 2.7 and the numpy library in 2.7_with_system_site_packages
   # (/home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/numpy/)
   #- "2.7_with_system_site_packages"
-  - "3.4_with_system_site_packages"
+  # the following seems to work, but numpy isn't available for some reason
+  #- "3.4_with_system_site_packages"
+  
+  # So we'll just stick with Python 2.7 for now...
+  - 2.7
 
 addons:
   apt:
@@ -32,12 +32,15 @@ addons:
     - libcfitsio3-dev
     - libgsl0-dev
     - libnlopt-dev
+# the following are not useful, bcs the Python virtualenv can't see them (see above for why
+# "_with_system_site_packages" options don't seem to work)
 #    - python-pyfits
 #    - python-numpy
 
-# python stuff so we can run python-using scripts in regression tests
-#python:
-#  - 2.7
+# Python stuff so we can run python-using scripts in regression tests. The following
+# actually works. For Python 2.7, it adds about 30s to the build time (for installing pyfits, 
+# because pip detects that numpy is already installed[?!]); if we use Python 3.4, it adds about 
+# 3 minutes (needs to install numpy as well as pyfits)
 install:
   - pip install numpy
   - pip install pyfits
@@ -48,7 +51,9 @@ script:
 
 # Note that running do_imfit_tests tends to produce the usual Linux-vs-OSX output mismatches
 # in the final decimal places for some of the outputs (probably due to subtle
-# floating-point issues).
+# floating-point issues), and sometimes mysterious segfaults.
+# Also, do_makeimage_tests finds image mismatches for the oversampled PSF case which
+# don't appear on OS X.
 after_success:
   - ./do_makeimage_tests
   - ./do_imfit_tests
