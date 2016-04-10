@@ -1,6 +1,6 @@
 <!-- # Imfit -->
 
-<img src="graphics/logo_for_README.png" width="600">
+<img src="graphics/logo_for_README.png" width=95%>
 
 
 Imfit
