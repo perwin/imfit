@@ -5,18 +5,6 @@
 sudo: required
 dist: trusty
 
-language: python
-python:
-  # OK, the "2.7_with_system_site_packages" sort of works, except that importing numpy fails due to Unicode 
-  # incompatibilities between Travis Python 2.7 and the numpy library in 2.7_with_system_site_packages
-  # (/home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/numpy/)
-  #- "2.7_with_system_site_packages"
-  # the following seems to work, but numpy isn't available for some reason
-  #- "3.4_with_system_site_packages"
-  
-  # So we'll just stick with Python 2.7 for now...
-  - 2.7
-
 language: cpp
 compiler: gcc
 os:
@@ -42,6 +30,18 @@ addons:
 # actually works. For Python 2.7, it adds about 30s to the build time (for installing pyfits, 
 # because pip detects that numpy is already installed[?!]); if we use Python 3.4, it adds about 
 # 3 minutes (needs to install numpy as well as pyfits)
+language: python
+python:
+  # OK, the "2.7_with_system_site_packages" sort of works, except that importing numpy fails due to Unicode 
+  # incompatibilities between Travis Python 2.7 and the numpy library in 2.7_with_system_site_packages
+  # (/home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/numpy/)
+  #- "2.7_with_system_site_packages"
+  # the following seems to work, but numpy isn't available for some reason
+  #- "3.4_with_system_site_packages"
+  
+  # So we'll just stick with Python 2.7 for now...
+  - 2.7
+
 install:
   - pip install numpy
   - pip install pyfits
