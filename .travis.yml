@@ -17,6 +17,10 @@ os:
 env:
   - OMP_NUM_THREADS=4
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y python-pyfits
+
 language: python
 python:
   # OK, the "2.7_with_system_site_packages" sort of works, except that it fails due to Unicode 
@@ -32,7 +36,7 @@ addons:
     - libcfitsio3-dev
     - libgsl0-dev
     - libnlopt-dev
-    - python-pyfits
+#    - python-pyfits
 #    - python-numpy
 
 # python stuff so we can run python-using scripts in regression tests
