@@ -48,7 +48,7 @@ install:
   - pip install pyfits
 
 script: 
-  - ./run_unittest_imageio.sh
+  - ./run_unit_tests.sh
   - scons makeimage
   - scons imfit
 

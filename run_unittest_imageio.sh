@@ -11,10 +11,7 @@ else
   CPP=g++-5
   CC=gcc-5
 fi
-#CXXTEST=/usr/local/cxxtest-4.4
 CXXTESTGEN=$CXXTEST/bin/cxxtestgen
-#CPP=g++-5
-#CC=gcc-5
 
 echo
 echo "Generating and compiling unit tests for image_io..."
