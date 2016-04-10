@@ -19,7 +19,11 @@ env:
 
 language: python
 python:
-  - "2.7_with_system_site_packages"
+  # OK, the following sort of works, but fails due to Unicode incompatibilities between Travis Python 2.
+  # and the numpy library in 2.7_with_system_site_packages
+  # (/home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/numpy/)
+  #- "2.7_with_system_site_packages"
+  - "3.2_with_system_site_packages"
 
 addons:
   apt:
