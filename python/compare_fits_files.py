@@ -47,13 +47,12 @@ def CompareSum( fname1, fname2, referenceSum_fname ):
 
 def main(argv=None):
 
- 	usageString = "%prog FITS_file_1 FITS_file_2\n"
- 	usageString = "OR: %prog --compare-sum FITS_file_1 FITS_file_2 reference_sum_FITS_file\n"
- 	parser = optparse.OptionParser(usage=usageString, version="%prog ")
-	parser.add_option("--compare-sum", action="store_true", dest="compareSum",
-					default=False, help="test that sum of first two images matches third image within tolerances")
+	usageString = "%prog FITS_file_1 FITS_file_2\n"
+	usageString = "OR: %prog --compare-sum FITS_file_1 FITS_file_2 reference_sum_FITS_file\n"
+	parser = optparse.OptionParser(usage=usageString, version="%prog ")
+	parser.add_option("--compare-sum", action="store_true", dest="compareSum", default=False, help="test that sum of first two images matches third image within tolerances")
 
- 	(options, args) = parser.parse_args(argv)
+	(options, args) = parser.parse_args(argv)
  
 	# args[0] = name program was called with
 	# args[1] = first actual argument, etc.
