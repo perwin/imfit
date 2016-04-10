@@ -14,6 +14,44 @@
  *
  *   Must be linked with the cfitsio library.
  *
+ * NOTES AND WARNINGS ABOUT CFITSIO:
+ *   CFITSIO functions typically take as input a pointer-to-int called "status".
+ * Although this is generally meant to be an *output* parameter (because CFITSIO
+ * is based on old Fortran code, where subroutines can't return values), quite a
+ * few internal functions will actually check the value of (*status) and, if
+ * it's nonzero, will then exit as though an error had been encountered (or
+ * if it's < 0, will behave in a different fashion; there are about eight or so
+ * negative "error codes" defined so as to control internal behavior).
+ *
+ *   Lesson: *always* set "status" = 0 at the start of a function that will
+ * call a series of CFITSIO routines.
+ *
+ *   Confusingly, the value of *status is usually *also* returned as the return
+ * value of the function. Some CFITSIO functions have code like this:
+ *       *status = somethingorother;
+ *       return (*status);
+ * or even:
+ *       *status = fits_close_file(tmpfptr,status);
+ *
+ *   Quoting from the "Examples Programs" part of the documentation:
+ *
+ *   "Almost every CFITSIO routine has a status parameter as the last
+ *   argument. The status value is also usually returned as the value of the
+ *   function itself. Normally status = 0, and a positive status value
+ *   indicates an error of some sort. The status variable must always be
+ *   initialized to zero before use, because if status is greater than zero
+ *   on input then the CFITSIO routines will simply return without doing
+ *   anything. This `inherited status' feature, where each CFITSIO routine
+ *   inherits the status from the previous routine, makes it unnecessary to
+ *   check the status value after every single CFITSIO routine call.
+ *   Generally you should check the status after an especially important or
+ *   complicated routine has been called, or after a block of closely related
+ *   CFITSIO calls. This example program has taken this feature to the
+ *   extreme and only checks the status value at the very end of the program."
+ *
+ *   [Comment: nasty, because the `inherited status' feature amounts to hidden
+ *   state...]
+ *
  *   MODIFICATION HISTORY:
  *     [version 0.2:] 20 Aug 2010: Added writing of (optional) comments to
  # output FITS header.
@@ -23,7 +61,7 @@
  * include SaveVectorAsImage().
  */
 
-// Copyright 2010--2015 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -70,6 +108,56 @@ static void PrintError( int status );
 
 
 
+/* ---------------- FUNCTION: CheckForImage ---------------------------- */
+///    Given the filename of a FITS image, this function opens the file and
+/// checks the first header-data unit to see if it is a 2D image.
+///
+///   Returns -1 if something is wrong with file; otherwise, returns the
+/// HDU number (1 = first HDU) where the first valid image was found.
+int CheckForImage( const std::string filename, const bool verbose )
+{
+  fitsfile  *imfile_ptr;
+  int  problems = 0;
+  int  status = 0;
+  int  imageHDU_num = -1;
+
+   /* Open the FITS file: */
+  problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
+  if ( problems ) {
+    fprintf(stderr, "\n*** WARNING: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
+    PrintError(status);
+    return -1;
+  }
+
+  // Check to make sure primary HDU is an image, and is actually a 2D array
+  int nHDUs, hdutype, naxis;
+  fits_get_num_hdus(imfile_ptr, &nHDUs, & status);
+
+  fits_get_hdu_type(imfile_ptr, &hdutype, &status);  /* Get the HDU type */
+  if (hdutype == IMAGE_HDU) {   /* primary array or image HDU */
+    fits_get_img_dim(imfile_ptr, &naxis, &status);
+    if (naxis != 2) {
+      fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not a 2D image (NAXIS = %d)!\n", 
+    		  filename.c_str(), naxis);
+      return -1;
+    }
+  }
+  else {
+    // currently it seems unlikely for us to get here, since most FITS tables have
+    // an (empty, 0-dimensional) "array" as the primary HDU, followed by the table
+    fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not an image!\n", 
+    		filename.c_str());
+    return -1;
+  }
+
+  fits_close_file(imfile_ptr, &status);
+  
+  imageHDU_num = 1;
+  return imageHDU_num;
+};
+
+
+
 /* ---------------- FUNCTION: GetImageSize ----------------------------- */
 ///    Given the filename of a FITS image, this function opens the file, reads the 
 /// size of the image and returns the dimensions in nRows and nColumns.
@@ -78,12 +166,11 @@ static void PrintError( int status );
 int GetImageSize( const std::string filename, int *nColumns, int *nRows, const bool verbose )
 {
   fitsfile  *imfile_ptr;
-  int  status, nfound;
-  int  problems;
+  int  status = 0;
+  int  problems = 0;
+  int  nfound;
   long  naxes[2];
   int  n_rows, n_columns;
-
-  status = problems = 0;
   
    /* Open the FITS file: */
   problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
@@ -128,6 +215,7 @@ int GetImageSize( const std::string filename, int *nColumns, int *nRows, const b
   n_rows = naxes[1];         // FITS keyword NAXIS2 = # rows
   *nRows = n_rows;
 
+  problems = fits_close_file(imfile_ptr, &status);
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
@@ -153,10 +241,11 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
 {
   fitsfile  *imfile_ptr;
   double  *imageVector;
-  int  status, nfound;
+  int  status = 0;
+  int  problems = 0;
+  int  nfound;
   int  nExtensions = -1;
   bool  extensionsExist = false;
-  int  problems;
   long  naxes[2];
   int  nPixelsTot;
   long  firstPixel[2] = {1, 1};
@@ -188,11 +277,6 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   if (verbose)
     printf("AFTER: extensionsFlag = %d\n", extensionsFlag);
 
-//   extensionsExist = CheckForMultipleExtensions(imfile_ptr, &nExtensions);
-//   if (extensionsExist) {
-//   	printf("\n** Multiple-extensions FITS file: %d extensions\n", nExtensions);
-//   }
-  
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
 				  &status);
@@ -249,7 +333,8 @@ int SaveVectorAsImage( double *pixelVector, const std::string filename, const in
 {
   fitsfile  *imfile_ptr;
   std::string  finalFilename = "!";   // starting filename with "!" ==> clobber any existing file
-  int  status, problems;
+  int  status = 0;
+  int  problems = 0;
   long  naxes[2];
   int  nPixels;
   long  firstPixel[2] = {1, 1};

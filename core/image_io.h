@@ -12,6 +12,9 @@
 #include "fitsio.h"
 
 
+/// Checks to see if FITS file has proper 2D image in first HDU
+int CheckForImage( const std::string filename, const bool verbose=false );
+
 /// Gets dimensions (nColumns, nRows) of specified FITS image
 int GetImageSize( const std::string filename, int *nColumns, int *nRows, const bool verbose=false );
 

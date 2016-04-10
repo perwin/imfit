@@ -22,8 +22,9 @@ const double  VALUE_LL = 20.903625;
 const double  VALUE_UR = 14.947027;
 // test images with no image data, or none in primary HDU
 const string  TEST_IMAGE_EMPTY("tests/test_emptyhdu.fits");
-const string  TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU("tests/test_multiextension_hdu1empty.fits");
 const string  TEST_TABLE("tests/test_table.fits");
+// possibly good image (empty primary HDU, good image in 2nd HDU)
+const string  TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU("tests/test_multiextension_hdu1empty.fits");
 // nonexistent file (for error-checking)
 const string  BAD_IMAGE_NAME("no_image_with_this_name.fits");
 // filename for an image file we can't possibly write (permission denied or
@@ -39,6 +40,60 @@ const string  TINY_IMAGE_FILENAME("tinyimage_temp.fits");
 class NewTestSuite : public CxxTest::TestSuite 
 {
 public:
+
+  // Test for CheckForImage() with good file
+  void testCheckForImage_good( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(TEST_IMAGE_32x32);    
+    TS_ASSERT_EQUALS(response, 1);
+  }
+
+  // Test for CheckForImage() with nonexistent file
+  void testCheckForImage_nofile( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(BAD_IMAGE_NAME);    
+    TS_ASSERT_EQUALS(response, -1);
+  }
+
+  // Test for CheckForImage() with files containing empty HDUs
+  void testCheckForImage_emptyfiles( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(TEST_IMAGE_EMPTY);    
+    TS_ASSERT_EQUALS(response, -1);
+  }
+
+  // Test for CheckForImage() with files containing empty HDUs
+  void testCheckForImage_tablefile( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(TEST_TABLE);    
+    TS_ASSERT_EQUALS(response, -1);
+  }
+
+  // Test for CheckForImage() with multi-ext. file: [empty HDU, good image]
+  void testCheckForImage_multiext( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    // later we may modify CheckForImage [and image-reading code] so that
+    // they correctly ID the 2nd HDU as a valid image. For now, we treat
+    // this file as bad.
+    response = CheckForImage(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU);    
+    TS_ASSERT_EQUALS(response, -1);
+  }
+
 
   // Test for GetImageSize() with good file
   void testGetImageSize_good( void )
@@ -61,7 +116,7 @@ public:
     TS_ASSERT_EQUALS(-1, status);
   }
 
-  // Test for GetImageSize() with empty FITS file
+  // Test for GetImageSize() with empty FITS files
   void testGetImageSize_emptyfile( void )
   {
     int  status;
@@ -69,13 +124,6 @@ public:
 
     status = GetImageSize(TEST_IMAGE_EMPTY, &nCols, &nRows);
     TS_ASSERT_EQUALS(-1, status);
-  }
-
-  // Test for GetImageSize() with multi-extension FITS file having empty primary HDU
-  void testGetImageSize_emptyfile2( void )
-  {
-    int  status;
-    int  nCols, nRows;
 
     status = GetImageSize(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU, &nCols, &nRows);
     TS_ASSERT_EQUALS(-1, status);

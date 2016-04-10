@@ -6,6 +6,7 @@ do_fits_tests=$(./python/py_startup_test.py)
 if [ $do_fits_tests = "0" ]
 then
   echo -n "Unable to load numpy and/or pyfits Python modules"
+  echo
   echo -n "Tests will skip comparison of FITS files"
 fi
 

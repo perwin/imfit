@@ -13,6 +13,9 @@
 	
 	[] Implement <filename>.fits[n] reading?
 
+[] Check to make sure that masks and noise maps are same size as data image!
+
+
 
 [..] Add "const" specifies to input parameters of functions, as appropriate
 	Done through: convolver
