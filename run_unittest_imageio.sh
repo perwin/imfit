@@ -3,7 +3,7 @@
 # determine if we're running locally, or in a Travis CI VM:
 if env | grep -q ^TRAVIS=
 then
-  CXXTEST=/usr/local/cxxtest-4.3
+  CXXTEST=/usr
   CPP=g++
   CC=gcc
 else
