@@ -14,12 +14,12 @@ using namespace std;
 #include "utilities_pub.h"
 #include "config_file_parser.h"
 
-const string  TEST_CONFIGFILE_GOOD("tests/config_makeimage_sersictest512.dat");
-const string  TEST_CONFIGFILE_BAD1("tests/config_makeimage_sersictest512_bad1.dat");
-const string  TEST_CONFIGFILE_BAD2("tests/config_makeimage_sersictest512_bad2.dat");
-const string  TEST_CONFIGFILE_BAD3("tests/config_makeimage_sersictest512_bad3.dat");
-const string  TEST_CONFIGFILE_BAD4("tests/config_imfit_badparamline.dat");  // parameter line with name only
-const string  TEST_CONFIGFILE_BADLIMIT4("tests/config_imfit_sersictest512_badlimits4.dat");  // parameter line with only one limit
+const string  TEST_CONFIGFILE_GOOD("./tests/config_makeimage_sersictest512.dat");
+const string  TEST_CONFIGFILE_BAD1("./tests/config_makeimage_sersictest512_bad1.dat");
+const string  TEST_CONFIGFILE_BAD2("./tests/config_makeimage_sersictest512_bad2.dat");
+const string  TEST_CONFIGFILE_BAD3("./tests/config_makeimage_sersictest512_bad3.dat");
+const string  TEST_CONFIGFILE_BAD4("./tests/config_imfit_badparamline.dat");  // parameter line with name only
+const string  TEST_CONFIGFILE_BADLIMIT4("./tests/config_imfit_sersictest512_badlimits4.dat");  // parameter line with only one limit
 //const string  TEST_CONFIGFILE_BADLIMIT5("tests/config_imfit_sersictest512_badlimits5.dat");
 
 

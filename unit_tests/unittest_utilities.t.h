@@ -217,12 +217,12 @@ public:
   
   void testImageFileExists_RealFile( void )
   {
-    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/tests/n3073rss_small.fits") == true);
+    TS_ASSERT( ImageFileExists("./tests/n3073rss_small.fits") == true);
   }
   
   void testImageFileExists_RealFileWithSection( void )
   {
-    TS_ASSERT( ImageFileExists("/Users/erwin/coding/imfit/tests/n3073rss_small.fits[100:200,200:300]") == true);
+    TS_ASSERT( ImageFileExists("./tests/n3073rss_small.fits[100:200,200:300]") == true);
   }
   
   
