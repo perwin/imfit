@@ -24,15 +24,15 @@ fi
 CXXTESTGEN=$CXXTEST/bin/cxxtestgen
 
 echo
-echo "Generating and compiling unit tests for image_io..."
-$CXXTESTGEN --error-printer -o test_runner_imageio.cpp unit_tests/unittest_image_io.t.h 
-$CPP -o test_runner_imageio test_runner_imageio.cpp core/image_io.cpp -I. -I/usr/local/include -Icore -I$CXXTEST -lcfitsio -lfftw3
+echo "Generating and compiling unit tests for utilities..."
+$CXXTESTGEN --error-printer -o test_runner_utilities.cpp unit_tests/unittest_utilities.t.h 
+$CPP -o test_runner_utilities test_runner_utilities.cpp core/utilities.cpp -I. -Icore -Ic_code -Isolvers -I/usr/local/include -I$CXXTEST
 if [ $? -eq 0 ]
 then
-  echo "Running unit tests for image_io:"
-  ./test_runner_imageio
+  echo "Running unit tests for utilities:"
+  ./test_runner_utilities
   exit
 else
-  echo "Compilation of unit tests for image_io.cpp failed."
+  echo "Compilation of unit tests for utilities.cpp failed."
   exit 1
 fi

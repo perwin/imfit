@@ -382,19 +382,6 @@ int SaveVectorAsImage( double *pixelVector, const std::string filename, const in
 
 
 
-/* ---------------- FUNCTION: CountHeaderDataUnits ----------------- */
-int CountHeaderDataUnits( fitsfile *imfile_ptr )
-{
-  int  nHDUs = 0;
-  
-  // reset pointer to beginning of file
-  
-  // loop over file, reading in HDUs until we get error
-  
-}
-
-
-
 /* ---------------- FUNCTION: PrintError --------------------------- */
 
 static void PrintError( int status )

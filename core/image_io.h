@@ -28,6 +28,4 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
 int SaveVectorAsImage( double *pixelVector, const std::string filename, const int nColumns,
                          const int nRows, std::vector<std::string> comments );
 
-int CountHeaderDataUnits( fitsfile  *imfile_ptr );
-
 #endif  // _IMAGE_IO_H

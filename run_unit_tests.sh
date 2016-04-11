@@ -1,54 +1,53 @@
 #!/bin/bash
 #
-# Unit tests for imfit/makeimage:
+# Unit tests for imfit/makeimage, using individual shell scripts for each
+# subset of unit tests.
 
-# determine if we're running locally, or in a Travis CI VM
+# The following has been moved into the individual run_unittest_*.sh shell scripts
+
+# determine if we're running on a Mac (specify specific version of
+# gcc/g++ to avoid , or in a Travis CI VM
 # (Travis CI defines TRAVIS=true)
-if env | grep -q ^TRAVIS=
-then
-  CXXTEST=/usr
-  CPP=g++
-  CC=gcc
-else
-  CXXTEST=/usr/local/cxxtest-4.4
-  CPP=g++-5
-  CC=gcc-5
-fi
-CXXTESTGEN=$CXXTEST/bin/cxxtestgen
+# if [[ $OSTYPE == darwin* ]]
+# then
+#   CPP=g++
+#   CC=gcc
+#   CPP=g++-5
+#   CC=gcc-5
+# else
+#   CPP=g++
+#   CC=gcc
+# fi
+# 
+# Set the path to cxxtestgen depending on whether we're running under Travis or not
+# if env | grep -q ^TRAVIS=
+# then
+#   CXXTEST=/usr
+# else
+#   CXXTEST=/usr/local/cxxtest-4.4
+# fi
+# CXXTESTGEN=$CXXTEST/bin/cxxtestgen
 
 
-# counter to keep track of how many errors occur
+# integer-variable counter to keep track of how many errors occur (if no errors, 
+# then value will remain = 0)
 declare -i RESULT=0
 
 
 # Unit tests for utilities
-echo
-echo "Generating and compiling unit tests for utilities..."
-$CXXTESTGEN --error-printer -o test_runner_utilities.cpp unit_tests/unittest_utilities.t.h 
-$CPP -o test_runner_utilities test_runner_utilities.cpp core/utilities.cpp -I. -Icore -Ic_code -Isolvers -I/usr/local/include -I$CXXTEST
-RESULT+=$?
-echo "Running unit tests for utilities:"
-./test_runner_utilities 2> temperror_unittests.log
+./run_unittest_utilities.sh 2>> temperror.log
 RESULT+=$?
 
 # Unit tests for command-line parser
-echo
-echo "Generating and compiling unit tests for command-line parser..."
-$CXXTESTGEN --error-printer -o test_runner_cmparser.cpp unit_tests/unittest_commandline_parser.t.h 
-$CPP -Wno-write-strings -o test_runner_cmparser test_runner_cmparser.cpp core/commandline_parser.cpp core/utilities.cpp -I. -Icore -Ic_code -Isolvers -I/usr/local/include -I$CXXTEST
-RESULT+=$?
-echo "Running unit tests for command-line parser:"
-./test_runner_cmparser 2>> temperror.log
+./run_unittest_cmlineparser.sh 2>> temperror.log
 RESULT+=$?
 
 # Unit tests for config-file parser -- currently fails partly on Travis CI
-echo
-echo "Generating and compiling unit tests for config-file parser..."
-$CXXTESTGEN --error-printer -o test_runner_config.cpp unit_tests/unittest_config_parser.t.h
-$CPP -o test_runner_config test_runner_config.cpp core/config_file_parser.cpp core/utilities.cpp -I. -Icore -Ic_code -Isolvers -I/usr/local/include -I$CXXTEST
+./run_unittest_configfileparser.sh 2>> temperror.log
 RESULT+=$?
-echo "Running unit tests for config-file parser:"
-./test_runner_config 2>> temperror.log
+
+# Unit tests for image_io
+./run_unittest_imageio.sh 2>> temperror.log
 RESULT+=$?
 
 # NOTE: the following code will correctly set up and run unittest_oversampled_region.t.h;
@@ -66,66 +65,31 @@ RESULT+=$?
 # ./test_runner_oversampled_region 2>> temperror.log
 
 # Unit tests for downsample
-echo
-echo "Generating and compiling unit tests for downsample..."
-$CXXTESTGEN --error-printer -o test_runner_downsample.cpp unit_tests/unittest_downsample.t.h 
-$CPP -o test_runner_downsample test_runner_downsample.cpp core/downsample.cpp core/image_io.cpp -I. -Icore -Ic_code -Isolvers -I/usr/local/include -I$CXXTEST -lcfitsio -lfftw3 -lm
-RESULT+=$?
-echo "Running unit tests for downsample:"
-./test_runner_downsample 2>> temperror.log
+./run_unittest_downsample.sh 2>> temperror.log
 RESULT+=$?
 
-echo
-echo "Generating and compiling unit tests for mpfit..."
-$CXXTESTGEN --error-printer -o test_runner_mpfit.cpp unit_tests/unittest_mpfit.t.h 
-$CPP -o test_runner_mpfit test_runner_mpfit.cpp solvers/mpfit.cpp -I. -Icore -Ic_code -Isolvers -Isolvers -I/usr/local/include -I$CXXTEST
-RESULT+=$?
-echo "Running unit tests for utilities:"
-./test_runner_mpfit 2>> temperror.log
+# Unit tests for mpfit
+./run_unittest_mpfit.sh 2>> temperror.log
 RESULT+=$?
 
 
 # Unit tests for function objects
-echo
-echo "Generating and compiling unit tests for function objects..."
-$CXXTESTGEN --error-printer -o test_runner_funcs.cpp unit_tests/unittest_funcs.t.h 
-$CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
-function_objects/func_exp.cpp function_objects/func_flatsky.cpp \
-function_objects/func_gaussian.cpp function_objects/func_moffat.cpp \
-function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects/func_king2.cpp \
-function_objects/func_edge-on-disk.cpp \
--I/usr/local/include -I$CXXTEST -I. -Icore -Ic_code -Isolvers -lm -lgsl -lgslcblas
-RESULT+=$?
-echo "Running unit tests for function objects:"
-./test_runner_funcs 2>> ../temperror.log
+# echo
+# echo "Generating and compiling unit tests for function objects..."
+# $CXXTESTGEN --error-printer -o test_runner_funcs.cpp unit_tests/unittest_funcs.t.h 
+# $CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
+# function_objects/func_exp.cpp function_objects/func_flatsky.cpp \
+# function_objects/func_gaussian.cpp function_objects/func_moffat.cpp \
+# function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects/func_king2.cpp \
+# function_objects/func_edge-on-disk.cpp \
+# -I/usr/local/include -I$CXXTEST -I. -Icore -Ic_code -Isolvers -lm -lgsl -lgslcblas
+# RESULT+=$?
+# echo "Running unit tests for function objects:"
+./run_unittest_funcs.sh 2>> ../temperror.log
 RESULT+=$?
 
 # Unit tests for add_functions
-echo
-echo "Generating and compiling unit tests for add_functions..."
-$CXXTESTGEN --error-printer -o test_runner_add_functions.cpp unit_tests/unittest_add_functions.t.h
-$CC -c c_code/mersenne_twister.c c_code/mp_enorm.c
-RESULT+=$?
-$CPP -fopenmp -o test_runner_add_functions test_runner_add_functions.cpp core/add_functions.cpp \
-core/model_object.cpp core/utilities.cpp core/convolver.cpp \
-core/config_file_parser.cpp c_code/mersenne_twister.o c_code/mp_enorm.o \
-core/oversampled_region.cpp core/downsample.cpp core/image_io.cpp \
-function_objects/function_object.cpp function_objects/func_gaussian.cpp \
-function_objects/func_exp.cpp function_objects/func_gen-exp.cpp \
-function_objects/func_sersic.cpp function_objects/func_gen-sersic.cpp \
-function_objects/func_core-sersic.cpp function_objects/func_broken-exp.cpp \
-function_objects/func_broken-exp2d.cpp function_objects/func_moffat.cpp \
-function_objects/func_flatsky.cpp function_objects/func_gaussian-ring.cpp \
-function_objects/func_gaussian-ring2side.cpp function_objects/func_edge-on-disk_n4762.cpp \
-function_objects/func_edge-on-disk_n4762v2.cpp function_objects/func_edge-on-ring.cpp \
-function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.cpp \
-function_objects/integrator.cpp function_objects/func_expdisk3d.cpp function_objects/func_brokenexpdisk3d.cpp \
-function_objects/func_gaussianring3d.cpp function_objects/func_king.cpp \
-function_objects/func_king2.cpp \
--I. -Icore -Ic_code -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lm
-RESULT+=$?
-echo "Running unit tests for add_functions:"
-./test_runner_add_functions 2>> temperror.log
+./run_unittest_add_functions.sh 2>> temperror.log
 RESULT+=$?
 
 # Unit tests for model_object (for speed, we'll assume things have already been compiled...)

@@ -7,8 +7,6 @@
 
 #include "gsl/gsl_integration.h"
 
-using namespace std;
-
 
 double  Integrate( gsl_function F, double s1, double s2 );
 

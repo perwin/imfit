@@ -27,7 +27,7 @@ class NewTestSuite : public CxxTest::TestSuite
 {
 public:
   double  *paramVector;
-  double  *paramVector_null = NULL;
+  double  *paramVector_null;
   mp_par  *parameterInfo;
   ModelObject  *theModel;
   mp_result  theResult;
@@ -44,6 +44,8 @@ public:
     paramVector = (double *) calloc((size_t)nParams, sizeof(double));
     for (i = 0; i < nParams; i++)
       paramVector[i] = 1.0;
+    // define paramVector_null to be null
+    paramVector_null = NULL;
     
     parameterInfo = (mp_par *) calloc((size_t)nParams, sizeof(mp_par));
     // set lower & upper limits = 0,100 for all parameters
