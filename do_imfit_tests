@@ -82,7 +82,7 @@ echo -n "   (now running Cash-statistic and Poisson MLR fits ...)"
 ./imfit tests/pgc35772_continuum.fits[340:630,300:580] --config tests/config_imfit_pgc35772.dat --mask=tests/pgc35772_mask.fits[340:630,300:580] --mlr  &> temptest/test_dump5d
 echo ""
 
-# test bootstrap resampling (just to see that program doesn't crash
+# test bootstrap resampling (just to see that program doesn't crash) -- currently crashes on Travis(??)
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 &> /dev/null
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 --save-bootstrap temp_bootstrap_output.dat &> /dev/null
 
@@ -93,6 +93,9 @@ echo ""
 
 # testing that we catch the case of all pixels masked:
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/totalmask_64x64.fits  &> temptest/test_dump6
+
+# testing that we catch the case mismatched image sizes:
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump6b
 
 # test to see if we mask NaN value in small image
 ./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_nan.fits &> temptest/test_dump7a
@@ -205,6 +208,15 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump6 tests/imfit_textout6
+fi
+
+echo -n "*** Diff comparison with archives: catching the case mismatch in data and mask sizes... "
+if (diff --brief temptest/test_dump6b tests/imfit_textout6b)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump6b tests/imfit_textout6b
 fi
 
 echo -n "*** Diff comparison with archives: automatic masking of NaN values... "

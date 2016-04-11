@@ -516,7 +516,9 @@ int ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
 
 
 /* ---------------- PUBLIC METHOD: ApplyMask --------------------------- */
-
+// Assuming both mask and weight vectors exist, this function applies the mask
+// to the weight vector by multiplying the weight vector by the mask.
+// (E.g., pixels with mask = 0 have weight set = 0.)
 void ModelObject::ApplyMask( )
 {
   double  newVal;
