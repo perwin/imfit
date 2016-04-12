@@ -70,7 +70,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump0 tests/makeimage_textout0
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: biggertest... "
@@ -80,7 +80,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump1 tests/makeimage_textout1
-  STATUS = 1
+  STATUS=1
 fi
 if [ $do_fits_tests = "1" ]
 then
@@ -94,7 +94,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump2 tests/makeimage_textout2
-  STATUS = 1
+  STATUS=1
 fi
 if [ $do_fits_tests = "1" ]
 then
@@ -108,7 +108,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump3 tests/makeimage_textout3
-  STATUS = 1
+  STATUS=1
 fi
 if [ $do_fits_tests = "1" ]
 then
@@ -128,7 +128,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump4 tests/makeimage_textout4
-  STATUS = 1
+  STATUS=1
 fi
 if [ $do_fits_tests = "1" ]
 then
@@ -156,7 +156,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump5 tests/makeimage_textout5
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 1... "
@@ -166,7 +166,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump6 tests/makeimage_textout6
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 2... "
@@ -176,7 +176,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump7 tests/makeimage_textout7
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 3... "
@@ -186,7 +186,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump8 tests/makeimage_textout8
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 4... "
@@ -196,7 +196,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump9 tests/makeimage_textout9
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 5... "
@@ -206,7 +206,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump10 tests/makeimage_textout10
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 6... "
@@ -216,7 +216,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump11 tests/makeimage_textout11
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad reference file... "
@@ -226,7 +226,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump12 tests/makeimage_textout12
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad PSF-image file... "
@@ -236,7 +236,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump13 tests/makeimage_textout13
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: non-existent PSF-image file... "
@@ -246,7 +246,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump14 tests/makeimage_textout14
-  STATUS = 1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad parameter specification... "
@@ -256,7 +256,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump15 tests/makeimage_textout15
-  STATUS = 1
+  STATUS=1
 fi
 
 

@@ -112,8 +112,10 @@ static void PrintError( int status );
 ///    Given the filename of a FITS image, this function opens the file and
 /// checks the first header-data unit to see if it is a 2D image.
 ///
-///   Returns -1 if something is wrong with file; otherwise, returns the
-/// HDU number (1 = first HDU) where the first valid image was found.
+///   Returns -1 if something goes wrong opening the file or if primary HDU is not
+/// a proper 2D image; otherwise, returns the HDU number (1 = first HDU) where 
+/// the first valid image was found. [CURRENTLY JUST RETURNS 1 IF FIRST HDU IS
+/// A PROPER IMAGE -- FIXME]
 int CheckForImage( const std::string filename, const bool verbose )
 {
   fitsfile  *imfile_ptr;
@@ -137,14 +139,15 @@ int CheckForImage( const std::string filename, const bool verbose )
   if (hdutype == IMAGE_HDU) {   /* primary array or image HDU */
     fits_get_img_dim(imfile_ptr, &naxis, &status);
     if (naxis != 2) {
-      fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not a 2D image (NAXIS = %d)!\n", 
+      fprintf(stderr, "\n*** WARNING: Primary HDU of file \"%s\" is not a 2D image (NAXIS = %d)!\n", 
     		  filename.c_str(), naxis);
       return -1;
     }
   }
   else {
     // currently it seems unlikely for us to get here, since most FITS tables have
-    // an (empty, 0-dimensional) "array" as the primary HDU, followed by the table
+    // an null (0-dimensional) "array" as the primary HDU, followed by the table
+    // in the second HDU.
     fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not an image!\n", 
     		filename.c_str());
     return -1;
@@ -243,6 +246,7 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   double  *imageVector;
   int  status = 0;
   int  problems = 0;
+  int  imageHDU_num = 0;
   int  nfound;
   int  nExtensions = -1;
   bool  extensionsExist = false;
@@ -253,13 +257,15 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   
   status = problems = 0;
   
-   /* Open the FITS file: */
-  problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
-  if ( problems ) {
-    fprintf(stderr, "\n*** WARNING: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
-    PrintError(status);
+  // Check to make sure this is a valid image, then open the FITS file for 
+  // further operations
+  // Note that return value of CheckForImage is called imageHDU_num bcs we
+  // may use it in the future.
+  imageHDU_num = CheckForImage(filename);
+  if (imageHDU_num > 0)
+    fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
+  else
     return NULL;
-  }
 
   char  comment[100];
   int  nhdu = -1;
