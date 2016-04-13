@@ -153,6 +153,8 @@ int main(int argc, char *argv[])
   configOptions  userConfigOptions;
   SolverResults  resultsFromSolver;
   string  nloptSolverName;
+  vector<string> programHeader;
+  string  progNameVersion = "profilefit ";
   
   
   /* PROCESS COMMAND-LINE: */
@@ -183,6 +185,9 @@ int main(int argc, char *argv[])
   options.outputParameterFileName = DEFAULT_1D_OUTPUT_PARAMETER_FILE;
   options.verbose = 1;
   options.nloptSolverName = "";
+
+  progNameVersion += VERSION_STRING;
+  MakeOutputHeader(&programHeader, progNameVersion, argc, argv);
 
   ProcessInput(argc, argv, &options);
 
@@ -462,8 +467,7 @@ int main(int argc, char *argv[])
     string  progNameVer = "profilefit ";
     progNameVer += VERSION_STRING;
     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-                    progNameVer, argc, argv, nFreeParams, options.solver, fitStatus,
-                    resultsFromSolver);
+                    programHeader, nFreeParams, options.solver, fitStatus, resultsFromSolver);
   }
 
   if (options.saveBestProfile) {
