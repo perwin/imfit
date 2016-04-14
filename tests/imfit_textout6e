@@ -1,0 +1,12 @@
+
+*** WARNING: Primary HDU of file "tests/test_multiextension_hdu1empty.fits" is not a 2D image (NAXIS = 0)!
+
+*** ERROR: Unable to read image file "tests/test_multiextension_hdu1empty.fits"!
+
+	Image file = tests/test_multiextension_hdu1empty.fits
+	configuration file = tests/imfit_config_ic3478_64x64b.dat
+	mask image = tests/n3073rss_small_mask.fits
+Value from config file: gain = 4.725000 e-/ADU
+Value from config file: read noise = 4.300000 e-
+Value from config file: original sky = 130.100000
+Reading data image ("tests/test_multiextension_hdu1empty.fits") ...

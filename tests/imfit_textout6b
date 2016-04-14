@@ -1,0 +1,13 @@
+
+*** ERROR: Dimensions of mask image (tests/n3073rss_small_mask.fits: 150 columns, 200 rows)
+do not match dimensions of data image (tests/ic3478rss_64x64.fits: 64 columns, 64 rows)!
+
+	Image file = tests/ic3478rss_64x64.fits
+	configuration file = tests/imfit_config_ic3478_64x64b.dat
+	mask image = tests/n3073rss_small_mask.fits
+Value from config file: gain = 4.725000 e-/ADU
+Value from config file: read noise = 4.300000 e-
+Value from config file: original sky = 130.100000
+Reading data image ("tests/ic3478rss_64x64.fits") ...
+naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
+Reading mask image ("tests/n3073rss_small_mask.fits") ...

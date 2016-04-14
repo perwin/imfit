@@ -1,6 +1,7 @@
 # .hgignore file
 syntax: glob
 
+.DS_Store
 *.o
 *.do
 *.pyc
@@ -15,6 +16,12 @@ de_godwin/*
 de_storn/*
 budda_tests/*
 tempo/*
+tests/comparisons/*
+tests/convolution/*
+tests/galfit_tests/*
+tests/n7457/*
+tests/n1332/*
+temptest/*
 .deps
 .libs
 autom4te.cache

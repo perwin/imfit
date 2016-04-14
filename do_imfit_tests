@@ -91,6 +91,8 @@ echo ""
 ./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --save-weights=temptest/test_weights_data.fits &> /dev/null
 ./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --model-errors --save-weights=temptest/test_weights_model.fits &> /dev/null
 
+# Weird input-image problems: all pixels masked, mismatched image sizes,
+# FITS files that are tables or null-array (in the primary HDU)
 # testing that we catch the case of all pixels masked:
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/totalmask_64x64.fits  &> temptest/test_dump6
 # testing that we catch the case of mismatched image sizes:
@@ -99,6 +101,8 @@ echo ""
 ./imfit tests/test_emptyhdu.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump6c
 # testing that we the case of a non-image HDU for the mask image
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/test_emptyhdu.fits  &> temptest/test_dump6d
+# testing that we catch the case of a non-image primary HDU in multi-extensions file
+./imfit tests/test_multiextension_hdu1empty.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump6e
 
 # test to see if we mask NaN value in small image
 ./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_nan.fits &> temptest/test_dump7a
@@ -231,10 +235,13 @@ echo -n "*** Diff comparison with archives: catching non-image FITS file for dat
 echo -n "*** Diff comparison with archives: catching non-image FITS file for mask image... "
 ./python/diff_printouts.py tests/imfit_textout6d temptest/test_dump6d
 
-echo -n "*** Diff comparison with archives: automatic masking of NaN values... "
+echo -n "*** Diff comparison with archives: catching non-image primary HDU in multi-ext. FITS file... "
+./python/diff_printouts.py tests/imfit_textout6e temptest/test_dump6e
+
+echo -n "*** Diff comparison with archives: automatic masking of NaN values in data... "
 ./python/diff_printouts.py tests/imfit_textout7a temptest/test_dump7a --skip-last=3
 
-echo -n "*** Diff comparison with archives: detection of zero-valued pixel (bad for data-based errors)... "
+echo -n "*** Diff comparison with archives: detection of zero-valued pixel (bad for data-based chi^2 errors)... "
 ./python/diff_printouts.py tests/imfit_textout7b temptest/test_dump7b --skip-last=3
 
 echo -n "*** Diff comparison with archives: ignore zero-valued pixel when it's masked... "
