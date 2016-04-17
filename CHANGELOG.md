@@ -2,28 +2,32 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## NEXT RELEASE
+## 1.3.1 -- 2016-04-17
 ### Added:
-- The full codebase for Imfit is now available on Github at [github.com/perwin/imfit](https://github.com/perwin/imfit), 
-with automated unit and build tests via Travis CI.
+
+- The full codebase for Imfit is now available on Github at
+[github.com/perwin/imfit](https://github.com/perwin/imfit), with
+automated unit and build tests executed via Travis CI. (The compact,
+all-you-need-to-compile version of the source code will continue
+to be available via the main web page.)
 
 ### Changed:
 
-- Pixels in the noise/error image (if any) which have non-finite values
+- Any pixels in the noise/error image which have non-finite values
 (NaN, +/- infinity) are now automatically masked, rather than causing
 Imfit to quit with an error message. (Thanks to Dave Wilman for requesting this.)
 
-- Pixels in the mask image which have non-finite values (NaN, +/- infinity) are now
+- Any pixels in the mask image which have non-finite values (NaN, +/- infinity) are now
 treated as part of the mask; previously, they were (unintentionally) treated as
-indicating valid data pixels. (This is arguably more of a "fix" than a "change",
+indicating *valid* data pixels. (This is arguably more of a "fix" than a "change",
 since it seems unlikely anyone would intend NaN mask values to actually indicate
 good data.)
 
 ### Fixed:
-- Better checking of input images: FITS files which do *not* have valid 2D images
+- Better checking of input images: FITS files which do *not* have a valid 2D image
 in their primary header-data unit are now recognized and rejected. (Previously,
-they were sometimes rejected with a somewhat opaque error message and sometimes read in,
-which would, obviously, cause problems....)
+they were sometimes rejected with a rather opaque error message and sometimes read in;
+the latter would, obviously, cause problems....)
 
 
 

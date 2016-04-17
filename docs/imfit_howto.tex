@@ -69,7 +69,7 @@
 
 \newcommand{\pmlr}{PMLR}
 
-\newcommand{\versionnum}{1.3}
+\newcommand{\versionnum}{1.3.1}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -1049,7 +1049,7 @@ cannot \textit{save} files to URLs, however.
 
 \chapter{Extras for Fitting Images}
 
-\section{Masks}
+\section{Masks (and automatic masking of certain pixels)}
 
 A mask image can be supplied to \imfitprog{} by using the command-line
 option \texttt{--mask}. The mask image should be an
@@ -1062,10 +1062,10 @@ image as \textit{good} and pixels with values $> 0$ as \textit{bad}
 zero-valued pixels are \textit{bad} with the command-line flag
 \texttt{--mask-zero-is-bad}.
 
-Note that any pixels in the mask image with non-finite values will
-automatically be considered part of the mask (i.e., corresponding pixels
-in the data image will be excluded from the fit).
-
+Any pixels in the data image, the noise/error/weight image (see below),
+\textit{or} the mask image which have non-finite values (i.e., NaN,
+$\pm\infty$) will automatically be considered part of the mask (i.e.,
+corresponding pixels in the data image will be excluded from the fit).
 
 
 \section{Noise, Variance, or Weight Maps}\label{sec:noise-maps}
@@ -2613,28 +2613,31 @@ Saglia for urging me to implement the Core-S{\'e}rsic function, and to
 Maximilian Fabricius for suggesting improvements to the documentation.
 Additional bug reports and suggestions from Andr{\'e} Luiz de Amorim,
 Giulia Savorgnan, David Streich, Guillermo Barro, Sergio Pascual, Lee
-Kelvin, Colleen Gilhuly, and Semyeong Oh are gratefully appreciated.
+Kelvin, Colleen Gilhuly, Semyeong Oh, Bennie Holwerde, and David Wilman
+are gratefully appreciated.
 
 
 \section{Data Sources}
 
-Sample \textsc{fits} images for demonstration and testing use are taken from Data Release
-7 \citep{abazajian09} of the Sloan Digital Sky Survey \citep{york00}. Funding
-for the creation and distribution of the Sloan Digital Sky Survey Archive has been provided by the
-Alfred P. Sloan Foundation, the Participating Institutions, the National
-Aeronautics and Space Administration, the National Science Foundation, the U.S.
-Department of Energy, the Japanese Monbukagakusho, and the Max Planck Society. 
-The \textsc{sdss} Web site is \url{http://www.sdss.org/}.
+Sample \textsc{fits} images for demonstration and testing use are taken
+from Data Release 7 \citep{abazajian09} of the Sloan Digital Sky Survey
+\citep{york00}. Funding for the creation and distribution of the Sloan
+Digital Sky Survey Archive has been provided by the Alfred P. Sloan
+Foundation, the Participating Institutions, the National Aeronautics and
+Space Administration, the National Science Foundation, the U.S.
+Department of Energy, the Japanese Monbukagakusho, and the Max Planck
+Society. The \textsc{sdss} Web site is \url{http://www.sdss.org/}.
 
-The \textsc{sdss} is managed by the Astrophysical Research Consortium (\textsc{arc}) for
-the Participating Institutions.  The Participating Institutions are
-The University of Chicago, Fermilab, the Institute for Advanced Study,
-the Japan Participation Group, The Johns Hopkins University, the
-Korean Scientist Group, Los Alamos National Laboratory, the
-Max-Planck-Institute for Astronomy (\textsc{mpia}), the Max-Planck-Institute
-for Astrophysics (\textsc{mpa}), New Mexico State University, University of
-Pittsburgh, University of Portsmouth, Princeton University, the United
-States Naval Observatory, and the University of Washington.
+The \textsc{sdss} is managed by the Astrophysical Research Consortium
+(\textsc{arc}) for the Participating Institutions.  The Participating
+Institutions are The University of Chicago, Fermilab, the Institute for
+Advanced Study, the Japan Participation Group, The Johns Hopkins
+University, the Korean Scientist Group, Los Alamos National Laboratory,
+the Max-Planck-Institute for Astronomy (\textsc{mpia}), the
+Max-Planck-Institute for Astrophysics (\textsc{mpa}), New Mexico State
+University, University of Pittsburgh, University of Portsmouth,
+Princeton University, the United States Naval Observatory, and the
+University of Washington.
 
 
 
@@ -2647,9 +2650,11 @@ the Argonne National Laboratory.
 
 \section{Miscellaneous Useful Software}
 
-The development of \imfit{} has benefitted from the C++ unit-testing framework CxxTest,\footnote{\url{http://cxxtest.com}}
-and also from the static analyzers Cppcheck\footnote{\url{http://cppcheck.sourceforge.net}}
-and the Clang Static Analyzer.\footnote{\url{http://clang-analyzer.llvm.org}}
+The development of \imfit{} has benefitted from the C++ unit-testing
+framework CxxTest,\footnote{\url{http://cxxtest.com}} and also from the
+static analyzers
+Cppcheck\footnote{\url{http://cppcheck.sourceforge.net}} and the Clang
+Static Analyzer.\footnote{\url{http://clang-analyzer.llvm.org}}
 
 
 

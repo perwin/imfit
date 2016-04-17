@@ -18,16 +18,16 @@ CHANGELOG.md
 """
 
 # header files in top-level directory
-source_header_files_top = """
-definitions
-mersenne_twister
-mp_enorm
-option_struct_imfit
-option_struct_makeimage
-param_struct
-sample_configs
-statistics
-"""
+# source_header_files_top = """
+# definitions
+# mersenne_twister
+# mp_enorm
+# option_struct_imfit
+# option_struct_makeimage
+# param_struct
+# sample_configs
+# statistics
+# """
 
 # header files in core/
 source_header_files_core = """
@@ -36,12 +36,17 @@ bootstrap_errors
 commandline_parser
 config_file_parser
 convolver
+definitions
 downsample
 estimate_memory 
 image_io
 model_object
+option_struct_imfit
+option_struct_makeimage
 oversampled_region
+param_struct
 print_results
+sample_configs
 utilities_pub
 """
 
@@ -154,6 +159,7 @@ config_makeimage_sersictest512_bad5.dat
 config_imfit_sersictest512_badlimits1.dat
 config_imfit_sersictest512_badlimits2.dat
 config_imfit_sersictest512_badlimits3.dat
+config_imfit_sersictest512_badlimits4.dat
 config_imfit_badparamline.dat
 uniform_image32.fits
 testimage_expdisk32.fits
@@ -174,9 +180,12 @@ gensersictest612_conv_cutout512.fits
 flatsky_128x128.fits
 testimage_3x3_nan.fits
 testimage_3x3_onezero.fits
+testimage_3x3_ones.fits
 mask_for_onezero.fits
 oversamp_test4.fits
 oversampled_orig.fits
+test_emptyhdu.fits
+test_multiextension_hdu1empty.fits
 psf_standard.fits
 psf_oversamp.fits
 imfit_textout1
@@ -199,9 +208,15 @@ imfit_textout5b_tail
 imfit_textout5c_tail
 imfit_textout5d_tail
 imfit_textout6
+imfit_textout6b
+imfit_textout6c
+imfit_textout6d
+imfit_textout6e
 imfit_textout7a
 imfit_textout7b
 imfit_textout7c
+imfit_textout7d
+imfit_textout7e
 imfit_textout_bad1
 imfit_textout_bad2
 imfit_textout_bad3
