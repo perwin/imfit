@@ -9,19 +9,22 @@
 		
 	[] When reading in a FITS file (data, mask, PSF, etc.), check to see if
 	it's multi-extension
-		[x] Generate error if primary HDU is *not* a 2D image
+		[X] Generate error if primary HDU is *not* a 2D image
 	
 	[] Implement <filename>.fits[n] reading?
 
-*[] Check input noise map (if supplied) for NaN values and add those pixels
+
+*[ ] Check input noise map (if supplied) for NaN values and add those pixels
 to mask.
-	[] Set up example noise-map image with NaN values for testing
+			1. Go through error and mask image simultaneously, ID bad error pixels
+			and add to mask
+			
+			
+	[X] Set up example noise-map image with NaN values for testing
 	[] Apply change to:
 		ModelObject::FinalSetupForFitting( )
 		[after "Identify currently unmasked data pixels which have non-finite values" step]
 	[] Test change
-
-*[] Check input mask image for NaN values
 
 
 [..] Add "const" specifies to input parameters of functions, as appropriate

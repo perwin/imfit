@@ -2,6 +2,31 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## NEXT RELEASE
+### Added:
+- The full codebase for Imfit is now available on Github at [github.com/perwin/imfit](https://github.com/perwin/imfit), 
+with automated unit and build tests via Travis CI.
+
+### Changed:
+
+- Pixels in the noise/error image (if any) which have non-finite values
+(NaN, +/- infinity) are now automatically masked, rather than causing
+Imfit to quit with an error message. (Thanks to Dave Wilman for requesting this.)
+
+- Pixels in the mask image which have non-finite values (NaN, +/- infinity) are now
+treated as part of the mask; previously, they were (unintentionally) treated as
+indicating valid data pixels. (This is arguably more of a "fix" than a "change",
+since it seems unlikely anyone would intend NaN mask values to actually indicate
+good data.)
+
+### Fixed:
+- Better checking of input images: FITS files which do *not* have valid 2D images
+in their primary header-data unit are now recognized and rejected. (Previously,
+they were sometimes rejected with a somewhat opaque error message and sometimes read in,
+which would, obviously, cause problems....)
+
+
+
 ## 1.3 -- 2015-10-05
 ### Added: 
 - New image function: modified (or "empirical") King profile, as

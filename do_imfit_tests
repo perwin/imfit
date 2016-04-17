@@ -104,13 +104,17 @@ echo ""
 # testing that we catch the case of a non-image primary HDU in multi-extensions file
 ./imfit tests/test_multiextension_hdu1empty.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump6e
 
-# test to see if we mask NaN value in small image
+# test to see if we mask NaN value in small image (3x3, all pixels = 1.5 except corner = NaN)
 ./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_nan.fits &> temptest/test_dump7a
+# test to see if we mask NaN value in mask image (3x3, all pixels = 0 except corner = NaN)
+./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_ones.fits --mask=tests/testimage_3x3_mask-with-nan.fits &> temptest/test_dump7b
+# test to see if we mask NaN value in error image (3x3, all pixels = 1.5 except corner = NaN)
+./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_ones.fits --noise=tests/testimage_3x3_nan.fits &> temptest/test_dump7c
 # test to see if we correctly catch bad pixel value (=0, which is bad for data-based chi^2 estimation)
-./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits &> temptest/test_dump7b
+./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits &> temptest/test_dump7d
 # and now test to see if we correctly ignore bad pixel value when it's masked
-./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits --mask=tests/mask_for_onezero.fits &> temptest/test_dump7c
-
+./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits --mask=tests/mask_for_onezero.fits &> temptest/test_dump7e
+ 
 #    Testing to see that bad config files are caught:
 ./imfit --config tests/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
 ./imfit --config tests/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
@@ -241,11 +245,17 @@ echo -n "*** Diff comparison with archives: catching non-image primary HDU in mu
 echo -n "*** Diff comparison with archives: automatic masking of NaN values in data... "
 ./python/diff_printouts.py tests/imfit_textout7a temptest/test_dump7a --skip-last=3
 
-echo -n "*** Diff comparison with archives: detection of zero-valued pixel (bad for data-based chi^2 errors)... "
+echo -n "*** Diff comparison with archives: automatic masking of NaN values in mask... "
 ./python/diff_printouts.py tests/imfit_textout7b temptest/test_dump7b --skip-last=3
 
-echo -n "*** Diff comparison with archives: ignore zero-valued pixel when it's masked... "
+echo -n "*** Diff comparison with archives: automatic masking of NaN values in noise map... "
 ./python/diff_printouts.py tests/imfit_textout7c temptest/test_dump7c --skip-last=3
+
+echo -n "*** Diff comparison with archives: detection of zero-valued pixel (bad for data-based chi^2 errors)... "
+./python/diff_printouts.py tests/imfit_textout7d temptest/test_dump7d --skip-last=3
+
+echo -n "*** Diff comparison with archives: ignore zero-valued pixel when it's masked... "
+./python/diff_printouts.py tests/imfit_textout7e temptest/test_dump7e --skip-last=3
 
 
 

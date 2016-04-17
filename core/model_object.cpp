@@ -460,6 +460,8 @@ void ModelObject::GenerateExtraCashTerms( )
 // to 1, so that we can multiply the weight vector by the (internal) mask values.
 // The mask is applied to the weight vector by calling the ApplyMask() method
 // for a given ModelObject instance.
+//
+// Pixels with non-finite values (e.g. NaN) are converted to "bad" (0-valued).
 int ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
                                       int nImageRows, double *pixelVector,
                                       int inputType )
@@ -482,9 +484,10 @@ int ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       if (verboseLevel >= 0)
         printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
       for (int z = 0; z < nDataVals; z++) {
-        if (maskVector[z] > 0.0) {
+        // Values of NaN or -infinity will fail > 0 test, but we want them masked, too
+        if ( (! isfinite(maskVector[z])) || (maskVector[z] > 0.0) )
           maskVector[z] = 0.0;
-        } else {
+        else {
           maskVector[z] = 1.0;
           nValidDataVals++;
         }
@@ -496,7 +499,8 @@ int ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       if (verboseLevel >= 0)
         printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
       for (int z = 0; z < nDataVals; z++) {
-        if (maskVector[z] < 1.0)
+        // Values of NaN or +infinity will fail < 1 test, but we want them masked, too
+        if ( (! isfinite(maskVector[z])) || (maskVector[z] < 1.0) )
           maskVector[z] = 0.0;
         else {
           maskVector[z] = 1.0;
@@ -647,6 +651,7 @@ void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
 int ModelObject::FinalSetupForFitting( )
 {
   int  nNonFinitePixels = 0;
+  int  nNonFiniteErrorPixels = 0;
   int  returnStatus = 0;
   
   // Create a default all-pixels-valid mask if no mask already exists
@@ -673,16 +678,42 @@ int ModelObject::FinalSetupForFitting( )
       printf("ModelObject: One pixel with non-finite value found (and masked) in data image\n");
     else
       printf("ModelObject: %d pixels with non-finite values found (and masked) in data image\n", nNonFinitePixels);
-    }
+  }
   
   // Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
+  // and no external error map was supplied
   if ((! useCashStatistic) && (dataErrors) && (! externalErrorVectorSupplied))
     GenerateErrorVector();
   
   // Generate extra terms vector from data for modified Cash statistic, if using latter
   if ((useCashStatistic) && (poissonMLR))
     GenerateExtraCashTerms();
-  
+
+  // If an external error map was supplied, identify currently unmasked *error* pixels 
+  // which have non-finite values and add those pixels to the mask
+  //   Possible sources of bad pixel values:
+  //      1. NaN or +/-infinity in input image
+  //      2. 0-valued pixels in WEIGHTS_ARE_SIGMAS case
+  //      3. 0-valued or negative pixels in WEIGHTS_ARE_VARIANCES case
+  //      4. Negative pixels in WEIGHTS_ARE_WEIGHTS case
+  // Check only pixels which are still unmasked
+  if (externalErrorVectorSupplied) {
+    for (int z = 0; z < nDataVals; z++) {
+      if ( (maskVector[z] > 0.0) && (! isfinite(weightVector[z])) ) {
+        maskVector[z] = 0.0;
+        weightVector[z] = 0.0;
+        nNonFiniteErrorPixels++;
+        nValidDataVals--;
+      }
+    }
+    if ((nNonFiniteErrorPixels > 0) && (verboseLevel >= 0)) {
+      if (nNonFiniteErrorPixels == 1)
+        printf("ModelObject: One pixel with non-finite value found (and masked) in noise/weight image\n");
+      else
+        printf("ModelObject: %d pixels with non-finite values found (and masked) in noise/weight image\n", nNonFiniteErrorPixels);
+    }
+  }
+
 #ifdef DEBUG
   PrintWeights();
 #endif

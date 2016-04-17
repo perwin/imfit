@@ -1052,13 +1052,19 @@ cannot \textit{save} files to URLs, however.
 \section{Masks}
 
 A mask image can be supplied to \imfitprog{} by using the command-line
-option \texttt{--mask}. The mask image should be an \textit{integer}-valued
-\textsc{fits} file with the same dimensions as the image being fitted (\textsc{iraf} \texttt{.pl}
-mask files are not recognized, but these can be converted to \textsc{fits} format within
-\textsc{iraf}). The default is to treat zero-valued pixels in the mask image as
-\textit{good} and pixels with values $> 0$ as \textit{bad} (i.e., to be excluded
-from the fit); however, you can specify that zero-valued pixels are \textit{bad}
-with the command-line flag \texttt{--mask-zero-is-bad}.
+option \texttt{--mask}. The mask image should be an
+\textit{integer}-valued \textsc{fits} file with the same dimensions as
+the image being fitted (\textsc{iraf} \texttt{.pl} mask files are not
+recognized, but these can be converted to \textsc{fits} format within
+\textsc{iraf}). The default is to treat zero-valued pixels in the mask
+image as \textit{good} and pixels with values $> 0$ as \textit{bad}
+(i.e., to be excluded from the fit); however, you can specify that
+zero-valued pixels are \textit{bad} with the command-line flag
+\texttt{--mask-zero-is-bad}.
+
+Note that any pixels in the mask image with non-finite values will
+automatically be considered part of the mask (i.e., corresponding pixels
+in the data image will be excluded from the fit).
 
 
 
