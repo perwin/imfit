@@ -14,17 +14,17 @@
 	[] Implement <filename>.fits[n] reading?
 
 
-*[ ] Check input noise map (if supplied) for NaN values and add those pixels
+*[X] Check input noise map (if supplied) for NaN values and add those pixels
 to mask.
 			1. Go through error and mask image simultaneously, ID bad error pixels
 			and add to mask
 			
 			
 	[X] Set up example noise-map image with NaN values for testing
-	[] Apply change to:
+	[X] Apply change to:
 		ModelObject::FinalSetupForFitting( )
 		[after "Identify currently unmasked data pixels which have non-finite values" step]
-	[] Test change
+	[X] Test change
 
 
 [..] Add "const" specifies to input parameters of functions, as appropriate

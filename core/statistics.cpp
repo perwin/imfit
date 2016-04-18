@@ -1,4 +1,4 @@
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

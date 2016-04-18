@@ -48,7 +48,7 @@
 # etc.
 
 
-# Copyright 2010--2015 by Peter Erwin.
+# Copyright 2010--2016 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -102,7 +102,7 @@ FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
 SOLVER_SUBDIR = "solvers/"
 PROFILEFIT_SUBDIR = "profile_fitting/"
-C_SUBDIR = "c_code/"
+#C_SUBDIR = "c_code/"
 
 os_type = os.uname()[0]
 
@@ -121,7 +121,7 @@ lib_list_1d = ["fftw3", "m"]
 
 
 include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, FUNCTION_SUBDIR, 
-				FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR, C_SUBDIR]
+				FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
 lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
 
@@ -345,14 +345,7 @@ if useGSL:   # default is to do this
 			lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 	else:
 		lib_list.append("gsl")
-		lib_list.append("gslcblas")
-		
-	# and stuff for 1D programs:
-# 	lib_list_1d.append("gsl")
-# 	lib_list_1d.append("gslcblas")
-# 	if (os_type == "Linux"):
-# 		lib_list.append("gslcblas")
-# 		lib_list_1d.append("gslcblas")
+		lib_list.append("gslcblas")		
 else:
 	extra_defines.append("NO_GSL")
 
@@ -416,8 +409,8 @@ if buildFatBinary and (os_type == "Darwin"):
 # Preferred approach for fat binaries: build normal 64-bit version, then build
 # 32-bit version (and then use lipo to merge them)
 if build32bit and (os_type == "Darwin"):
-	cflags_opt += ["-m32"]
-	link_flags += ["-m32"]
+	cflags_opt += ["-m32", "-ansi"]
+	link_flags += ["-m32", "-ansi"]
 
 if buildForOldMacOS and (os_type == "Darwin"):
 	cflags_opt += ["-mmacosx-version-min=10.6"]
@@ -494,17 +487,17 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 # source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
 
 # Pure C code
-c_obj_string = """mp_enorm statistics mersenne_twister"""
+#c_obj_string = """mp_enorm statistics mersenne_twister"""
+#c_obj_string = ""
 #c_objs = c_obj_string.split()
-c_objs = [ C_SUBDIR + name for name in c_obj_string.split() ]
-c_sources = [name + ".c" for name in c_objs]
+#c_objs = [ C_SUBDIR + name for name in c_obj_string.split() ]
+#c_sources = [name + ".c" for name in c_objs]
 
 
 # C++ code
 
 # ModelObject and related classes/files:
 modelobject_obj_string = """model_object convolver oversampled_region downsample"""
-#modelobject_objs = modelobject_obj_string.split()
 modelobject_objs = [ CORE_SUBDIR + name for name in modelobject_obj_string.split() ]
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
@@ -543,13 +536,11 @@ solver_objs = [ SOLVER_SUBDIR + name for name in solver_obj_string.split() ]
 solver_sources = [name + ".cpp" for name in solver_objs]
 
 # Base files for imfit and makeimage:
-base_obj_string = """commandline_parser utilities image_io config_file_parser add_functions"""
+base_obj_string = """mp_enorm statistics mersenne_twister commandline_parser utilities image_io config_file_parser add_functions"""
 base_objs = [ CORE_SUBDIR + name for name in base_obj_string.split() ]
-#base_objs = base_obj_string.split()
 
 imfit_obj_string = """print_results bootstrap_errors estimate_memory imfit_main"""
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
-#imfit_base_objs = base_objs + imfit_obj_string.split()
 imfit_base_objs = base_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
@@ -558,12 +549,12 @@ makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 
 # imfit: put all the object and source-code lists together
-imfit_objs = imfit_base_objs + modelobject_objs + functionobject_objs + solver_objs + c_objs
-imfit_sources = imfit_base_sources + modelobject_sources + functionobject_sources + solver_sources + c_sources
+imfit_objs = imfit_base_objs + modelobject_objs + functionobject_objs + solver_objs
+imfit_sources = imfit_base_sources + modelobject_sources + functionobject_sources + solver_sources
 
 # makeimage: put all the object and source-code lists together
-makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs + c_objs
-makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources + c_sources
+makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs
+makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources
 
 
 # import environment variables if we're doing scan-build static analysis
@@ -616,7 +607,6 @@ env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LI
 # so we need to include those in the compilation and link, even though they aren't
 # actually used in model_object1d. Similarly, code in image_io is referenced from
 # downsample.)
-#modelobject1d_obj_string = """model_object oversampled_region downsample image_io"""
 modelobject1d_obj_string = """model_object oversampled_region downsample"""
 modelobject1d_objs = [CORE_SUBDIR + name for name in modelobject1d_obj_string.split()]
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
@@ -640,8 +630,8 @@ profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
 # profilefit: put all the object and source-code lists together
-profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + solver_objs + c_objs
-profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + solver_sources + c_sources
+profilefit_objs = profilefit_base_objs + modelobject1d_objs + functionobject1d_objs + solver_objs
+profilefit_sources = profilefit_base_sources + modelobject1d_sources + functionobject1d_sources + solver_sources
 
 # psfconvolve1d: put all the object and source-code lists together
 psfconvolve1d_objs = ["profile_fitting/psfconvolve1d_main", "core/commandline_parser", "core/utilities",
@@ -675,7 +665,6 @@ testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 # profile fit is fast, so we don't really need an "optimized" version
 profilefit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(profilefit_objs, profilefit_sources) ]
-#profilefit_objlist = [ env_debug.Object(obj, src) for (obj,src) in zip(profilefit_objs, profilefit_sources) ]
 env_1d.Program("profilefit", profilefit_dbg_objlist)
 
 psfconvolve_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve_objs, psfconvolve_sources) ]
@@ -692,7 +681,7 @@ timing_base_obj_string = """core/commandline_parser core/utilities core/image_io
 timing_base_objs = timing_base_obj_string.split()
 timing_base_sources = [name + ".cpp" for name in timing_base_objs]
 
-timing_sources = timing_base_sources + modelobject_sources + functionobject_sources + c_sources
+timing_sources = timing_base_sources + modelobject_sources + functionobject_sources
 
 env_opt.Program("timing", timing_sources)
 
@@ -702,7 +691,6 @@ env_opt.Program("timing", timing_sources)
 # env_debug.Program("test_commandline", test_commandline_objlist)
 
 # older programs
-# env_opt.Program("readimage", readimage_sources)
 testparser_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(testparser_objs, testparser_sources) ]
 env_debug.Program("testparser", testparser_objlist)
 readimage_test_objs = ["readimage_test", "core/image_io"]

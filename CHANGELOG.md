@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.3.1 -- 2016-04-17
+## 1.3.1 -- 2016-04-18
 ### Added:
 
 - The full codebase for Imfit is now available on Github at
@@ -12,7 +12,6 @@ all-you-need-to-compile version of the source code will continue
 to be available via the main web page.)
 
 ### Changed:
-
 - Any pixels in the noise/error image which have non-finite values
 (NaN, +/- infinity) are now automatically masked, rather than causing
 Imfit to quit with an error message. (Thanks to Dave Wilman for requesting this.)

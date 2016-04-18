@@ -6,12 +6,8 @@
 echo
 echo "Generating and compiling unit tests for add_functions..."
 $CXXTESTGEN --error-printer -o test_runner_add_functions.cpp unit_tests/unittest_add_functions.t.h
-$CC -c c_code/mersenne_twister.c -o c_code/mersenne_twister.o
-$CC -c c_code/mp_enorm.c -o c_code/mp_enorm.o
-RESULT+=$?
 $CPP -o test_runner_add_functions test_runner_add_functions.cpp core/add_functions.cpp \
-core/model_object.cpp core/utilities.cpp core/convolver.cpp \
-core/config_file_parser.cpp c_code/mersenne_twister.o c_code/mp_enorm.o \
+core/model_object.cpp core/utilities.cpp core/convolver.cpp core/config_file_parser.cpp  \
 core/oversampled_region.cpp core/downsample.cpp core/image_io.cpp \
 function_objects/function_object.cpp function_objects/func_gaussian.cpp \
 function_objects/func_exp.cpp function_objects/func_gen-exp.cpp \
@@ -25,7 +21,8 @@ function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.c
 function_objects/integrator.cpp function_objects/func_expdisk3d.cpp function_objects/func_brokenexpdisk3d.cpp \
 function_objects/func_gaussianring3d.cpp function_objects/func_king.cpp \
 function_objects/func_king2.cpp \
--I. -Icore -Ic_code -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lgslcblas -lm
+core/mersenne_twister.cpp core/mp_enorm.cpp \
+-I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lgslcblas -lm
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for add_functions:"

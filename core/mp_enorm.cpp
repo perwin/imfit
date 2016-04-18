@@ -61,13 +61,7 @@ double mp_enorm( int n, double *x )
   double  x1max = 0.0;
   double  x3max = 0.0;
   double  ans, temp;
-//  double  rdwarf = RDWARF;
-//  double  rgiant = RGIANT;
-//  static  double zero = 0.0;
-//  static  double one = 1.0;
   
-//  s1 = s2 = s3 = 0.0;
-//  x1max = x3max = 0.0;
   floatn = n;
   agiant = RGIANT/floatn;
   

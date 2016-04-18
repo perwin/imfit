@@ -50,7 +50,7 @@ sample_configs
 utilities_pub
 """
 
-# C files in top-level directory 
+# C files in c_code/
 source_files_c = """
 mersenne_twister
 mp_enorm

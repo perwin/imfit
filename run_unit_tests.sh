@@ -60,7 +60,7 @@ RESULT+=$?
 # $CXXTESTGEN --error-printer -o test_runner_oversampled_region.cpp unit_tests/unittest_oversampled_region.t.h 
 # $CPP -o test_runner_oversampled_region test_runner_oversampled_region.cpp core/downsample.cpp \
 # core/oversampled_region.cpp core/convolver.cpp core/image_io.cpp function_objects/function_object.cpp \
-# function_objects/func_gaussian.cpp -I. -Icore -Ic_code -Isolvers -I/usr/local/include -I$CXXTEST -lcfitsio -lfftw3 -lm
+# function_objects/func_gaussian.cpp -I. -Icore -Isolvers -I/usr/local/include -I$CXXTEST -lcfitsio -lfftw3 -lm
 # echo "Running unit tests for oversampled_region:"
 # ./test_runner_oversampled_region 2>> temperror.log
 
@@ -82,7 +82,7 @@ RESULT+=$?
 # function_objects/func_gaussian.cpp function_objects/func_moffat.cpp \
 # function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects/func_king2.cpp \
 # function_objects/func_edge-on-disk.cpp \
-# -I/usr/local/include -I$CXXTEST -I. -Icore -Ic_code -Isolvers -lm -lgsl -lgslcblas
+# -I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -lm -lgsl -lgslcblas
 # RESULT+=$?
 # echo "Running unit tests for function objects:"
 ./run_unittest_funcs.sh 2>> ../temperror.log

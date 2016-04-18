@@ -18,7 +18,7 @@ MAC_DEST_BIN = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/bina
 MAC_CHANGELOG_MD = "CHANGELOG.md"
 MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/CHANGELOG.html"
 
-VERSION_STRING = "1.3"
+VERSION_STRING = "1.3.1"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -48,6 +48,7 @@ else:
 # Create dictionaries holding subdirectory names and lists of associated files
 documentationFileDict = {"dir": "docs", "file_list": dm.documentation_files.split()}
 coreFileDict = {"dir": "core", "file_list": dm.source_files_core.split()}
+cFileDict = {"dir": "c_code", "file_list": dm.source_files_c.split()}
 solversFileDict = {"dir": "solvers", "file_list": dm.source_files_solvers.split()}
 funcObjFileDict = {"dir": "function_objects", "file_list": dm.source_files_funcobj.split()}
 exampleFileDict = {"dir": "examples", "file_list": dm.example_files.split()}
@@ -60,9 +61,9 @@ binary_only_file_list = dm.binary_only_files.split()
 misc_required_files_list = dm.misc_required_files.split()
 testing_scripts_list = dm.testing_scripts.split()
 
-header_file_list = [fname + ".h" for fname in dm.source_header_files_top.split()]
-c_file_list = [fname + ".c" for fname in dm.source_files_c.split()]
-toplevel_source_list = c_file_list + header_file_list
+# header_file_list = [fname + ".h" for fname in dm.source_header_files_top.split()]
+# c_file_list = [fname + ".c" for fname in dm.source_files_c.split()]
+# toplevel_source_list = c_file_list + header_file_list
 
 documentation_file_list = [ documentationFileDict["dir"] + "/" + fname for fname in documentationFileDict["file_list"] ]
 
@@ -78,19 +79,23 @@ core_file_list_cpp = [ coreFileDict["dir"] + "/" + fname + ".cpp" for fname in c
 core_file_list_h = [ coreFileDict["dir"] + "/" + fname + ".h" for fname in dm.source_header_files_core.split() ]
 core_file_list = core_file_list_h + core_file_list_cpp
 
+c_file_list_cpp = [ cFileDict["dir"] + "/" + fname + ".c" for fname in cFileDict["file_list"] ]
+c_file_list_h = [ cFileDict["dir"] + "/" + fname + ".h" for fname in cFileDict["file_list"] ]
+c_file_list = c_file_list_h + c_file_list_cpp
+
 funcobj_file_list_cpp = [ funcObjFileDict["dir"] + "/" + fname + ".cpp" for fname in funcObjFileDict["file_list"] ]
 funcobj_file_list_h = [ funcObjFileDict["dir"] + "/" + fname + ".h" for fname in funcObjFileDict["file_list"] ]
-funcobj_file_list_h.append(funcObjFileDict["dir"] + "/" + "definitions.h")
+#funcobj_file_list_h.append(funcObjFileDict["dir"] + "/" + "definitions.h")
 funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 
 
-allFileLists = [binary_only_file_list, misc_required_files_list, toplevel_source_list, documentation_file_list,
+allFileLists = [binary_only_file_list, misc_required_files_list, documentation_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
-				core_file_list, funcobj_file_list]
-allFileLists_source = [misc_required_files_list, toplevel_source_list, documentation_file_list,
+				core_file_list, c_file_list, funcobj_file_list]
+allFileLists_source = [misc_required_files_list, documentation_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
-				core_file_list, funcobj_file_list]
-subdirs_list = ["docs", "examples", "python", "tests", "function_objects", "solvers", "core"]
+				core_file_list, c_file_list, funcobj_file_list]
+subdirs_list = ["docs", "examples", "python", "tests", "function_objects", "solvers", "core", "c_code"]
 
 
 
@@ -202,6 +207,7 @@ def MakeSourceDist( ):
 	final_file_list += funcobj_file_list
 	final_file_list += solvers_file_list
 	final_file_list += core_file_list
+	final_file_list += c_file_list
 	final_file_list += python_file_list
 	final_file_list += testing_scripts_list
 	final_file_list += test_file_list

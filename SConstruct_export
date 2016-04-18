@@ -102,6 +102,7 @@ FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
 SOLVER_SUBDIR = "solvers/"
 PROFILEFIT_SUBDIR = "profile_fitting/"
+C_SUBDIR = "c_code/"
 
 os_type = os.uname()[0]
 
@@ -120,7 +121,7 @@ lib_list_1d = ["fftw3", "m"]
 
 
 include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, FUNCTION_SUBDIR, 
-				FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
+				FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR, C_SUBDIR]
 lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
 
@@ -213,6 +214,7 @@ useFFTWThreading = True
 useOpenMP = True
 useExtraFuncs = False
 useStaticLibs = False
+totalStaticLinking = False
 buildFatBinary = False
 build32bit = False
 buildForOldMacOS = False
@@ -248,6 +250,8 @@ AddOption("--scan-build", dest="doingScanBuild", action="store_true",
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
 	default=False, help="force static library linking")
+AddOption("--allstatic", dest="useTotalStaticLinking", action="store_true", 
+	default=False, help="force static library linking, *including* system libraries if possible")
 # AddOption("--fat", dest="makeFatBinaries", action="store_true", 
 # 	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
 AddOption("--32bit", dest="make32bit", action="store_true", 
@@ -302,6 +306,9 @@ if GetOption("doingScanBuild") is True:
 
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
+if GetOption("useTotalStaticLinking") is True:
+	useStaticLibs = True
+	totalStaticLinking = True
 # if GetOption("makeFatBinaries") is True:
 # 	buildFatBinary = True
 if GetOption("make32bit") is True:
@@ -341,11 +348,11 @@ if useGSL:   # default is to do this
 		lib_list.append("gslcblas")
 		
 	# and stuff for 1D programs:
-	lib_list_1d.append("gsl")
-	lib_list_1d.append("gslcblas")
-	if (os_type == "Linux"):
-		lib_list.append("gslcblas")
-		lib_list_1d.append("gslcblas")
+# 	lib_list_1d.append("gsl")
+# 	lib_list_1d.append("gslcblas")
+# 	if (os_type == "Linux"):
+# 		lib_list.append("gslcblas")
+# 		lib_list_1d.append("gslcblas")
 else:
 	extra_defines.append("NO_GSL")
 
@@ -370,6 +377,12 @@ if useNLopt:   # default is to do this
 		lib_list_1d.append("nlopt")	
 else:
 	extra_defines.append("NO_NLOPT")
+
+# Special case where we try to link libstdc++, libgomp, and libgcc_s statically
+# (probably *won't* work with clang/clang++, only with GCC)
+if totalStaticLinking:
+	link_flags.append("-static-libgcc")
+	link_flags.append("-static-libstdc++")
 
 if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
 	cflags_opt.append("-fopenmp")
@@ -482,7 +495,8 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 
 # Pure C code
 c_obj_string = """mp_enorm statistics mersenne_twister"""
-c_objs = c_obj_string.split()
+#c_objs = c_obj_string.split()
+c_objs = [ C_SUBDIR + name for name in c_obj_string.split() ]
 c_sources = [name + ".c" for name in c_objs]
 
 

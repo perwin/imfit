@@ -82,6 +82,7 @@ class factory
 {
 public:
     virtual FunctionObject* create() = 0;
+
 };
 
 

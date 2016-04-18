@@ -1,14 +1,10 @@
 /** @file
- * \brief C code for computing statistics: mean, std.dev., confidence intervals, AIC, BIC.
+ * \brief code for computing statistics: mean, std.dev., confidence intervals, AIC, BIC.
  *
 */
 
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 double Mean( double *vector, int nVals );
 
@@ -20,9 +16,5 @@ double AIC_corrected( double logLikelihood, int nParams, long nData, int chiSqua
 
 double BIC( double logLikelihood, int nParams, long nData, int chiSquareUsed );
 
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif /* _STATISTICS_H_ */

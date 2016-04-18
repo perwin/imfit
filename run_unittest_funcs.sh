@@ -11,7 +11,7 @@ function_objects/func_exp.cpp function_objects/func_flatsky.cpp \
 function_objects/func_gaussian.cpp function_objects/func_moffat.cpp \
 function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects/func_king2.cpp \
 function_objects/func_edge-on-disk.cpp \
--I/usr/local/include -I$CXXTEST -I. -Icore -Ic_code -Isolvers -lm -lgsl -lgslcblas
+-I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -lm -lgsl -lgslcblas
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for function objects:"
