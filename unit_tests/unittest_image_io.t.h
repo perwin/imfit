@@ -1,5 +1,8 @@
 // Unit tests for code in image_io.cpp
 
+// See run_unittest_imageio.sh for how to compile and run these tests.
+
+// older compilation notes:
 // $CXXTESTGEN --error-printer -o test_runner_imageio.cpp unit_tests/unittest_image_io.t.h 
 // $CPP -o test_runner_imageio test_runner_imageio.cpp core/image_io.cpp -I. -I/usr/local/include -Icore -I$CXXTEST -lcfitsio -lfftw3
 

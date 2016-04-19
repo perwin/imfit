@@ -40,22 +40,25 @@ definitions
 downsample
 estimate_memory 
 image_io
+mersenne_twister
 model_object
+mp_enorm
 option_struct_imfit
 option_struct_makeimage
 oversampled_region
 param_struct
 print_results
 sample_configs
+statistics
 utilities_pub
 """
 
 # C files in c_code/
-source_files_c = """
-mersenne_twister
-mp_enorm
-statistics
-"""
+#source_files_c = """
+#mersenne_twister
+#mp_enorm
+#statistics
+#"""
 
 
 # the following are C++ files
@@ -71,9 +74,12 @@ estimate_memory
 image_io 
 imfit_main
 makeimage_main
+mersenne_twister
 model_object
+mp_enorm
 oversampled_region
 print_results
+statistics
 utilities 
 """
 
@@ -164,6 +170,8 @@ config_imfit_badparamline.dat
 uniform_image32.fits
 testimage_expdisk32.fits
 testimage_poisson_lowsn20.fits
+testimage_3x3_ones.fits
+testimage_3x3_mask-with-nan.fits
 ic3478rss_64x64.fits
 ic3478rss_64x64_sigma.fits
 ic3478rss_64x64_variance.fits

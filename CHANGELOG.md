@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.3.1 -- 2016-04-18
+## 1.3.1 -- 2016-04-19
 ### Added:
 
 - The full codebase for Imfit is now available on Github at
@@ -21,6 +21,11 @@ treated as part of the mask; previously, they were (unintentionally) treated as
 indicating *valid* data pixels. (This is arguably more of a "fix" than a "change",
 since it seems unlikely anyone would intend NaN mask values to actually indicate
 good data.)
+
+- I have dropped the pre-compiled 32-bit Mac OS X version from the standard
+binary distributions. (If you have a 32-bit-only machine running OS X 10.6 or
+10.7, it should still be possible to compile from source code.)
+
 
 ### Fixed:
 - Better checking of input images: FITS files which do *not* have a valid 2D image

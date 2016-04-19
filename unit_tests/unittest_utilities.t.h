@@ -1,3 +1,6 @@
+// See run_unittest_utilities.sh for how to compile and run these tests.
+
+// older compilation notes:
 // $CXXTESTGEN --error-printer -o test_runner_utilities.cpp unittest_utilities.t.h
 // $CPP -o test_runner_utilities test_runner_utilities.cpp utilities.cpp -I/usr/local/include -I$CXXTEST
 // ./test_runner_utilities

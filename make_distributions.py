@@ -48,7 +48,7 @@ else:
 # Create dictionaries holding subdirectory names and lists of associated files
 documentationFileDict = {"dir": "docs", "file_list": dm.documentation_files.split()}
 coreFileDict = {"dir": "core", "file_list": dm.source_files_core.split()}
-cFileDict = {"dir": "c_code", "file_list": dm.source_files_c.split()}
+#cFileDict = {"dir": "c_code", "file_list": dm.source_files_c.split()}
 solversFileDict = {"dir": "solvers", "file_list": dm.source_files_solvers.split()}
 funcObjFileDict = {"dir": "function_objects", "file_list": dm.source_files_funcobj.split()}
 exampleFileDict = {"dir": "examples", "file_list": dm.example_files.split()}
@@ -79,9 +79,9 @@ core_file_list_cpp = [ coreFileDict["dir"] + "/" + fname + ".cpp" for fname in c
 core_file_list_h = [ coreFileDict["dir"] + "/" + fname + ".h" for fname in dm.source_header_files_core.split() ]
 core_file_list = core_file_list_h + core_file_list_cpp
 
-c_file_list_cpp = [ cFileDict["dir"] + "/" + fname + ".c" for fname in cFileDict["file_list"] ]
-c_file_list_h = [ cFileDict["dir"] + "/" + fname + ".h" for fname in cFileDict["file_list"] ]
-c_file_list = c_file_list_h + c_file_list_cpp
+# c_file_list_cpp = [ cFileDict["dir"] + "/" + fname + ".c" for fname in cFileDict["file_list"] ]
+# c_file_list_h = [ cFileDict["dir"] + "/" + fname + ".h" for fname in cFileDict["file_list"] ]
+# c_file_list = c_file_list_h + c_file_list_cpp
 
 funcobj_file_list_cpp = [ funcObjFileDict["dir"] + "/" + fname + ".cpp" for fname in funcObjFileDict["file_list"] ]
 funcobj_file_list_h = [ funcObjFileDict["dir"] + "/" + fname + ".h" for fname in funcObjFileDict["file_list"] ]
@@ -91,11 +91,11 @@ funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 
 allFileLists = [binary_only_file_list, misc_required_files_list, documentation_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
-				core_file_list, c_file_list, funcobj_file_list]
+				core_file_list, funcobj_file_list]
 allFileLists_source = [misc_required_files_list, documentation_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
-				core_file_list, c_file_list, funcobj_file_list]
-subdirs_list = ["docs", "examples", "python", "tests", "function_objects", "solvers", "core", "c_code"]
+				core_file_list, funcobj_file_list]
+subdirs_list = ["docs", "examples", "python", "tests", "function_objects", "solvers", "core"]
 
 
 
@@ -201,13 +201,13 @@ def MakeBinaryDist( mode=None ):
 def MakeSourceDist( ):
 	distDir = "imfit-%s/" % VERSION_STRING
 	final_file_list = example_file_list + misc_required_files_list + documentation_file_list
-	final_file_list += header_file_list
-	final_file_list += c_file_list
+#	final_file_list += header_file_list
+#	final_file_list += c_file_list
 #	final_file_list += cplusplus_file_list
 	final_file_list += funcobj_file_list
 	final_file_list += solvers_file_list
 	final_file_list += core_file_list
-	final_file_list += c_file_list
+#	final_file_list += c_file_list
 	final_file_list += python_file_list
 	final_file_list += testing_scripts_list
 	final_file_list += test_file_list

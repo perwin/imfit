@@ -1,17 +1,14 @@
 // Unit tests for code in commandline_parser.cpp
 
+// See run_unittest_cmlineparser.sh for how to compile and run these tests.
+
+// older compilation notes:
 // $ cxxtestgen.py --error-printer -o test_runner.cpp unittest_commandline_parser.h
 // $ g++ -Wno-write-strings -o test_runner test_runner.cpp commandline_parser.cpp utilities.cpp -I/usr/local/include
 //
 // [the "-Wno-write-strings" is to suppress warnings when we create and use the
 // argv c-string arrays]
 
-// Things to test:
-// [x]StripLeadingDashes() function
-//
-// [x]OptionObject class
-//
-// [x]CLineParser class
 
 
 #include <cxxtest/TestSuite.h>

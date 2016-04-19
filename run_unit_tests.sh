@@ -34,21 +34,42 @@
 declare -i RESULT=0
 
 
-# Unit tests for utilities
-./run_unittest_utilities.sh 2>> temperror.log
+# Unit tests for add_functions
+./run_unittest_add_functions.sh 2>> temperror.log
 RESULT+=$?
 
 # Unit tests for command-line parser
 ./run_unittest_cmlineparser.sh 2>> temperror.log
 RESULT+=$?
 
-# Unit tests for config-file parser -- currently fails partly on Travis CI
+# Unit tests for config-file parser
 ./run_unittest_configfileparser.sh 2>> temperror.log
+RESULT+=$?
+
+# Unit tests for downsample
+./run_unittest_downsample.sh 2>> temperror.log
+RESULT+=$?
+
+# Unit tests for standard image-function classes
+./run_unittest_funcs.sh 2>> ../temperror.log
 RESULT+=$?
 
 # Unit tests for image_io
 ./run_unittest_imageio.sh 2>> temperror.log
 RESULT+=$?
+
+# Unit tests for mpfit
+./run_unittest_mpfit.sh 2>> temperror.log
+RESULT+=$?
+
+# Unit tests for solver_results
+./run_unittest_solverresults.sh 2>> temperror.log
+RESULT+=$?
+
+# Unit tests for utilities
+./run_unittest_utilities.sh 2>> temperror.log
+RESULT+=$?
+
 
 # NOTE: the following code will correctly set up and run unittest_oversampled_region.t.h;
 # However, that "unit test" doesn't perform proper tests; instead, it generates test image
@@ -64,33 +85,7 @@ RESULT+=$?
 # echo "Running unit tests for oversampled_region:"
 # ./test_runner_oversampled_region 2>> temperror.log
 
-# Unit tests for downsample
-./run_unittest_downsample.sh 2>> temperror.log
-RESULT+=$?
 
-# Unit tests for mpfit
-./run_unittest_mpfit.sh 2>> temperror.log
-RESULT+=$?
-
-
-# Unit tests for function objects
-# echo
-# echo "Generating and compiling unit tests for function objects..."
-# $CXXTESTGEN --error-printer -o test_runner_funcs.cpp unit_tests/unittest_funcs.t.h 
-# $CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
-# function_objects/func_exp.cpp function_objects/func_flatsky.cpp \
-# function_objects/func_gaussian.cpp function_objects/func_moffat.cpp \
-# function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects/func_king2.cpp \
-# function_objects/func_edge-on-disk.cpp \
-# -I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -lm -lgsl -lgslcblas
-# RESULT+=$?
-# echo "Running unit tests for function objects:"
-./run_unittest_funcs.sh 2>> ../temperror.log
-RESULT+=$?
-
-# Unit tests for add_functions
-./run_unittest_add_functions.sh 2>> temperror.log
-RESULT+=$?
 
 # Unit tests for model_object (for speed, we'll assume things have already been compiled...)
 # echo

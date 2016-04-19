@@ -1,5 +1,8 @@
 // Unit tests for code in config_file_parser.cpp
 
+// See run_unittest_configfileparser.sh for how to compile and run these tests.
+
+// older compilation notes:
 // $ cxxtestgen.py --error-printer -o test_runner.cpp unittest_config_parser.h
 // $ g++ -o test_runner test_runner.cpp utilities.cpp config_file_parser.cpp -I/usr/local/include
 
@@ -20,7 +23,6 @@ const string  TEST_CONFIGFILE_BAD2("./tests/config_makeimage_sersictest512_bad2.
 const string  TEST_CONFIGFILE_BAD3("./tests/config_makeimage_sersictest512_bad3.dat");
 const string  TEST_CONFIGFILE_BAD4("./tests/config_imfit_badparamline.dat");  // parameter line with name only
 const string  TEST_CONFIGFILE_BADLIMIT4("./tests/config_imfit_sersictest512_badlimits4.dat");  // parameter line with only one limit
-//const string  TEST_CONFIGFILE_BADLIMIT5("tests/config_imfit_sersictest512_badlimits5.dat");
 
 
 class NewTestSuite : public CxxTest::TestSuite 

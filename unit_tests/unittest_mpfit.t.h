@@ -1,5 +1,7 @@
 // Unit/integration tests for mpfit.cpp
 
+// See run_unittest_cmlineparser.sh for how to compile and run these tests.
+
 
 #include <cxxtest/TestSuite.h>
 

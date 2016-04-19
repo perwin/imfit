@@ -1,5 +1,8 @@
+// See run_unittest_solverresults.sh for how to compile and run these tests.
+
+// older compilation notes:
 // $CXXTESTGEN --error-printer -o test_runner_solver_results.cpp unit_tests/unittest_solver_results.t.h
-// $CPP -std=c++11 -o test_runner_solver_results test_runner_solver_results.cpp solver_results.cpp -I. -I/usr/local/include -I$CXXTEST
+// $CPP -std=c++11 -o test_runner_solver_results test_runner_solver_results.cpp solvers/solver_results.cpp -I. -Isolvers -Icore -I/usr/local/include -I$CXXTEST
 // ./test_runner_solver_results
 
 // NOTE: we compile with the -std=c++11 flag in order to make the initialization of

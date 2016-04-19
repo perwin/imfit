@@ -3,6 +3,8 @@
 // "FUNCTION-SPECIFIC" denotes code which needs to be changed when testing
 // a different function object (e.g., Sersic vs Exponential, etc.).
 
+// See run_unittest_funcs.sh for how to compile and run these tests.
+
 
 #include <cxxtest/TestSuite.h>
 

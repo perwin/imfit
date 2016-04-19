@@ -1,8 +1,6 @@
 // Unit/integration tests for add_functions.cpp
 
-// See run_unittest_add_functions.sh for how to compile & run the tests (assuming
-// all of the necessary func_*.cpp files, along with model_object.cpp, have already 
-// been compiled).
+// See run_unittest_add_functions.sh for how to compile & run the tests
 
 // Note that we don't try to test PrintAvailableFunctions() or ListFunctionParameters(),
 // because these print to standard output (and can in principle be tested in the
