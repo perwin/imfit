@@ -22,6 +22,8 @@ using namespace std;
 #include "function_objects/func_sersic.h"
 #include "function_objects/func_king.h"
 #include "function_objects/func_king2.h"
+#include "function_objects/func_broken-exp.h"
+#include "function_objects/func_broken-exp2d.h"
 #include "function_objects/func_edge-on-disk.h"
 
 #define DELTA  1.0e-10
@@ -697,6 +699,165 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsSigmaValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
+  }
+};
+
+
+class TestBrokenExponential : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new BrokenExponential();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 7;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("ell");
+    correctParamNames.push_back("I_0");
+    correctParamNames.push_back("h1");
+    correctParamNames.push_back("h2");
+    correctParamNames.push_back("r_break");
+    correctParamNames.push_back("alpha");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+    
+  }
+
+  void testCalculations_circular( void )
+  {
+    // centered at x0,y0 = 100,100
+    double  x0 = 100.0;
+    double  y0 = 100.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular broken-exp with I_0 = 100, h1 = 50, h2 = 10, r_break = 50
+    double  params[7] = {90.0, 0.0, 100.0, 50.0, 10.0, 50.0, 10.0};
+    double  rEqualsOneValue, rEqualsRbValue, rEquals2RbValue;
+    
+    // test
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), 100.0, DELTA );
+    // r = 1 value
+    rEqualsOneValue = 98.019867330675524;
+    TS_ASSERT_DELTA( thisFunc->GetValue(101.0, 100.0), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(99.0, 100.0), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 99.0), rEqualsOneValue, DELTA);
+    // r = r_break value
+    rEqualsRbValue = 36.584512991317212;
+    TS_ASSERT_DELTA( thisFunc->GetValue(150.0, 100.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(50.0, 100.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 50.0), rEqualsRbValue, DELTA);
+    // r = 2*r_break value
+    rEquals2RbValue = 0.24787521766663584;
+    TS_ASSERT_DELTA( thisFunc->GetValue(200.0, 100.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 100.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 0.0), rEquals2RbValue, DELTA);
+  }
+
+  void testCalculations_elliptical( void )
+  {
+    // centered at x0,y0 = 100,100
+    double  x0 = 100.0;
+    double  y0 = 100.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: ell=0.5 broken-exp with I_0 = 100, h1 = 50, h2 = 10, r_break = 50
+    double  params[7] = {90.0, 0.5, 100.0, 50.0, 10.0, 50.0, 10.0};
+    double  rEqualsOneValue, rEqualsRbValue, rEquals2RbValue;
+    
+    // test
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), 100.0, DELTA );
+    // r = 1 value; account for ellipticity = 0.5 for y offsets
+    rEqualsOneValue = 98.019867330675524;
+    TS_ASSERT_DELTA( thisFunc->GetValue(101.0, 100.0), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(99.0, 100.0), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 99.5), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.5), rEqualsOneValue, DELTA);
+    // r = r_break value
+    rEqualsRbValue = 36.584512991317212;
+    TS_ASSERT_DELTA( thisFunc->GetValue(150.0, 100.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(50.0, 100.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 75.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 125.0), rEqualsRbValue, DELTA);
+    // r = 2*r_break value
+    rEquals2RbValue = 0.24787521766663584;
+    TS_ASSERT_DELTA( thisFunc->GetValue(200.0, 100.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 100.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 50.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 150.0), rEquals2RbValue, DELTA);
+  }
+};
+
+
+class TestBrokenExponential2D : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new BrokenExponential2D();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 7;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("I_0");
+    correctParamNames.push_back("h1");
+    correctParamNames.push_back("h2");
+    correctParamNames.push_back("r_break");
+    correctParamNames.push_back("alpha");
+    correctParamNames.push_back("h_z");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+    
   }
 };
 

@@ -163,6 +163,16 @@ def MakeFatBinaries( ):
 	shutil.move("makeimage", "makeimage64")
 	print("Merging into combined 32-bit/64-bit binary...")
 	MakeFatFile("makeimage32", "makeimage64", "makeimage")
+
+def MakeOldMacBinaries( ):
+	"""This is for making 64-bit binaries for Mac OS X 10.6 or 10.7.
+	"""
+
+	print("   Calling SCons to generate 64-bit imfit binary for Mac OS 10.6/10.7...")
+	subprocess.check_output("scons -c", shell=True)
+	subprocess.check_output(scons_string_oldmac + " imfit", shell=True)
+	print("   Calling SCons to generate 64-bit makeimage binary for Mac OS 10.6/10.7...")
+	subprocess.check_output(scons_string_oldmac + " makeimage", shell=True)
 	
 
 def MakeBinaries( mode=None ):
@@ -175,7 +185,8 @@ def MakeBinaries( mode=None ):
 		subprocess.check_output(scons_string + " makeimage", shell=True)
 	else:
 		# Mac OS 10.6 or 10.7
-		MakeFatBinaries()
+		#MakeFatBinaries()
+		MakeOldMacBinaries()
 	
 
 def MakeBinaryDist( mode=None ):

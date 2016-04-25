@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.3.1 -- 2016-04-19
+## 1.3.1 -- 2016-04-26
 ### Added:
 
 - The full codebase for Imfit is now available on Github at
@@ -16,7 +16,7 @@ to be available via the main web page.)
 (NaN, +/- infinity) are now automatically masked, rather than causing
 Imfit to quit with an error message. (Thanks to Dave Wilman for requesting this.)
 
-- Any pixels in the mask image which have non-finite values (NaN, +/- infinity) are now
+- Any pixels in the *mask* image which have non-finite values (NaN, +/- infinity) are now
 treated as part of the mask; previously, they were (unintentionally) treated as
 indicating *valid* data pixels. (This is arguably more of a "fix" than a "change",
 since it seems unlikely anyone would intend NaN mask values to actually indicate
