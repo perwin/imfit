@@ -229,7 +229,6 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
   
   // Check to make sure we have at least one FUNCTION line
   if ((functionSectionFound) && (yValueOK)) {
-    i = functionSectionStart;
     for (i = functionSectionStart; i < nInputLines; i++) {
       if (inputLines[i].find("FUNCTION", 0) != string::npos) {
         functionsExist = true;
@@ -242,7 +241,6 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
   // have at least parameter name and a value
   if (functionsExist) {
     allOK = true;
-    i = functionSectionStart;
     for (i = functionSectionStart; i < nInputLines; i++) {
       if (inputLines[i].find("FUNCTION", 0) == string::npos) {
         // test for valid line

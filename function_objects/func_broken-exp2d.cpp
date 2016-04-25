@@ -165,7 +165,6 @@ double BrokenExponential2D::GetValue( double x, double y )
         y_diff = y_ii - y0;
         xp = x_diff*cosPA + y_diff*sinPA;
         z_perp = -x_diff*sinPA + y_diff*cosPA;
-        r = sqrt(xp*xp + z_perp*z_perp);
         theSum += CalculateIntensity(xp, z_perp);
       }
     }

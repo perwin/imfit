@@ -220,6 +220,9 @@ void ModelObject::DefineFunctionBlocks( vector<int>& functionStartIndices )
   fblockStartFlags = (bool *)calloc(nFunctions, sizeof(bool));
   fblockStartFlags_allocated = true;
 
+  // just to be extra safe, ensure that the very first parameter is indeed start 
+  // of a function-block (this will be taken care of during the loop as well)
+  fblockStartFlags[0] = true;
   for (i = 0; i < nFunctionBlocks; i++) {
     nn = functionStartIndices[i];
     // function number nn is start of new function block; change fblockStartFlags[n] to true

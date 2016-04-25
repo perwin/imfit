@@ -248,8 +248,6 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   int  problems = 0;
   int  imageHDU_num = 0;
   int  nfound;
-  int  nExtensions = -1;
-  bool  extensionsExist = false;
   long  naxes[2];
   int  nPixelsTot;
   long  firstPixel[2] = {1, 1};
@@ -274,14 +272,6 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   fits_get_num_hdus(imfile_ptr, &nhdu, &status);
   if (verbose)
     printf("AFTER: nhdu = %d\n", nhdu);
-
-  bool  extensionsFlag;
-  if (verbose)
-    printf("BEFORE: extensionsFlag = %d\n", extensionsFlag);
-  problems = fits_read_key(imfile_ptr, TLOGICAL, "EXTEND", &extensionsFlag,
-				  			comment, &status);
-  if (verbose)
-    printf("AFTER: extensionsFlag = %d\n", extensionsFlag);
 
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
