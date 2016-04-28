@@ -248,14 +248,21 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 
 /* ---------------- PUBLIC METHOD: AddImageDataVector ------------------ */
 
-void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
+int ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
                                       int nImageRows )
 {
+  int  status = 0;
+  
   nDataVals = nValidDataVals = nImageColumns * nImageRows;
   dataVector = pixelVector;
   dataValsSet = true;
   
-  SetupModelImage(nImageColumns, nImageRows);
+  status = SetupModelImage(nImageColumns, nImageRows);
+  if (status < 0) {
+    fprintf(stderr, "*** ERROR: AddImageDataVector: Call to SetupModelImage failed!n");
+    return -1;
+  }
+  return 0;
 }
 
 
@@ -267,7 +274,7 @@ void ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
 // nImageColumns and nImageRows should refer to the size of the data image
 // (in image-fitting mode) OR the requested size of the output model image
 // (in make-image mode).
-void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
+int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
 {
   int  result;
   assert( (nImageColumns >= 1) && (nImageRows >= 1) );
@@ -296,8 +303,15 @@ void ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   //    If this function *is* called again, then nModelVals could be different
   //    from the first call, in wich case we'd need to realloc modelVector
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
+  if (modelVector == NULL) {
+    fprintf(stderr, "*** ERROR: Unable to allocate memory for model image!\n");
+    fprintf(stderr, "    (Requested image size was %d x %d = %d pixels)\n", nModelRows,
+    		nModelColumns, nModelVals);
+    return -1;
+  }
   modelVectorAllocated = true;
   modelImageSetupDone = true;
+  return 0;
 }
 
 

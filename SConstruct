@@ -589,6 +589,7 @@ env_opt.Command("alltests", None, "./run_unit_tests.sh ; ./do_makeimage_tests ; 
 
 
 # *** Other programs (profilefit, psfconvolve, older stuff)
+# From here to the end of the file: removed from exported distribution version of SConstruct
 
 # if xcode5 is True:
 # 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
@@ -697,11 +698,3 @@ readimage_test_objs = ["readimage_test", "core/image_io"]
 readimage_test_sources = [name + ".cpp" for name in readimage_test_objs]
 readimage_test_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(readimage_test_objs, readimage_test_sources) ]
 env_opt.Program("readimage_test", readimage_test_dbg_objlist)
-
-
-# Run the tests (note that these work because we define nonexistent files
-# (e.g., "azprofile_test") as targets; since the specified commands never
-# create these "files", they are always "out-of-date" and always force 
-# execution of the command.
-#env_debug.Command("nonlinfit_test", "nonlinfit3_db", "./do_test_suite3")
-

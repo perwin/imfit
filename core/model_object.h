@@ -61,14 +61,14 @@ class ModelObject
 
  
 	// 2D only
-    void AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
+    int AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
 
 	// 2D only
     void AddImageCharacteristics( double imageGain, double readoutNoise, double expTime, 
     							int nCombinedImages, double originalSkyBackground );
     
 	// 2D only
-    void SetupModelImage( int nImageColumns, int nImageRows );
+    int SetupModelImage( int nImageColumns, int nImageRows );
     
 	// 2D only
     virtual void AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,

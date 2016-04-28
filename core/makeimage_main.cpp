@@ -253,7 +253,11 @@ int main( int argc, char *argv[] )
   }
 
   /* Define the size of the requested model image */
-  theModel->SetupModelImage(nColumns, nRows);
+  status = theModel->SetupModelImage(nColumns, nRows);
+  if (status < 0) {
+    fprintf(stderr, "*** ERROR: Failure in ModelObject::SetupModelImage!\n\n");
+    exit(-1);
+  }
   
   // Add oversampled PSF image vector and corresponding info, if present
   if (options.psfOversampledImagePresent) {

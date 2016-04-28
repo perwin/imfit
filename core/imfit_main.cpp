@@ -380,7 +380,12 @@ int main(int argc, char *argv[])
   }
 
   // Add image data and useful information about image (gain, read noise, t_exp, etc.)
-  theModel->AddImageDataVector(allPixels, nColumns, nRows);
+  status = theModel->AddImageDataVector(allPixels, nColumns, nRows);
+  if (status < 0) {
+    // Possible failure if attempt to allocate memory for model image fails
+    fprintf(stderr, "*** ERROR: Failure in ModelObject::AddImageDataVector!\n\n");
+    exit(-1);
+  }
   theModel->AddImageCharacteristics(options.gain, options.readNoise, options.expTime, options.nCombined,
   							options.originalSky);
   theModel->PrintDescription();

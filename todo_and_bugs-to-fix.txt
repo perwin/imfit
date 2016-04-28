@@ -27,6 +27,22 @@ to mask.
 	[X] Test change
 
 
+[] Implement Kahan summation in PSF normalization
+	Convolver::DoFullSetup
+
+[] Implement Kahan summation in ModelObject::FindTotalFluxes
+	[] Compute some current flux outputs (e.g., including correct total flux for Exponential)
+	[] Implement Kahan summation
+	[] Compare results with/without Kahan summation
+
+
+[] Test for possible memory-allocation failures
+	[x] Reading in large images -- effectively already caught by cfitsio
+	[] Allocating memory for model images
+	[] Allocating FFTW arrays in Convolver
+	[] Test using makeimage and very large --nrows,--ncols ?
+	
+
 [..] Add "const" specifies to input parameters of functions, as appropriate
 	Done through: convolver
 
