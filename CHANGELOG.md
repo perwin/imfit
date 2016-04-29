@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.3.1 -- 2016-04-26
+## 1.3.1 -- 2016-04-29
 ### Added:
 
 - The full codebase for Imfit is now available on Github at
@@ -32,6 +32,8 @@ binary distributions. (If you have a 32-bit-only machine running OS X 10.6 or
 in their primary header-data unit are now recognized and rejected. (Previously,
 they were sometimes rejected with a rather opaque error message and sometimes read in;
 the latter would, obviously, cause problems....)
+
+- Added checking for memory-allocation failures.
 
 
 

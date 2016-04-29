@@ -81,7 +81,7 @@ class ModelObject
     virtual int AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { return 0; };
     
 	// 2D only
-    virtual void GenerateErrorVector( );
+    virtual int GenerateErrorVector( );
 
 	// 2D only
     virtual void GenerateExtraCashTerms( );
@@ -119,7 +119,7 @@ class ModelObject
     virtual void ComputeDeviates( double yResults[], double params[] );
 
 
-    virtual void UseModelErrors( );
+    virtual int UseModelErrors( );
 
     virtual void UseCashStatistic( );
 

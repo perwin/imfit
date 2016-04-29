@@ -432,7 +432,11 @@ int main(int argc, char *argv[])
     else {
       if (options.useModelForErrors) {
         printf("* No noise image supplied ... will generate noise image from model image.\n");
-        theModel->UseModelErrors();
+        status = theModel->UseModelErrors();
+        if (status < 0) {
+          fprintf(stderr, "*** ERROR: Failure in ModelObject::UseModelErrors!\n\n");
+          exit(-1);
+        }
       }
       else {
         // default mode

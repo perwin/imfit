@@ -166,7 +166,7 @@ public:
   
   void testSetAndGetStatisticType( void )
   {
-    int  whichStat;
+    int  whichStat, status;
     bool cashStatUsed = false;
     
     // default should be chi^2
@@ -176,7 +176,7 @@ public:
     whichStat = modelObj1->WhichFitStatistic(true);
     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_DATA);
     // switch to using model-based chi^2
-    modelObj1->UseModelErrors();
+    status = modelObj1->UseModelErrors();
     whichStat = modelObj1->WhichFitStatistic(true);
     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_MODEL);
     

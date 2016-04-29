@@ -38,7 +38,9 @@ to mask.
 
 [] Test for possible memory-allocation failures
 	[x] Reading in large images -- effectively already caught by cfitsio
-	[] Allocating memory for model images
+	[x] Allocating memory for model images
+	[] Allocating memory for internally-generated error image
+	[] Allocating memory for weight image
 	[] Allocating FFTW arrays in Convolver
 	[] Test using makeimage and very large --nrows,--ncols ?
 	

@@ -404,7 +404,7 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
 //    noise(adu)^2 = (object_flux(adu) + sky(adu))/gain_eff + N_combined * rdnoise^2/gain_eff^2
 // (where "adu" can be adu/sec if t_exp != 1)
 
-void ModelObject::GenerateErrorVector( )
+int ModelObject::GenerateErrorVector( )
 {
   double  noise_squared, totalFlux;
 
@@ -413,6 +413,11 @@ void ModelObject::GenerateErrorVector( )
   // nDataVals *might* have changed; we are currently assuming it hasn't!
   if (! weightVectorAllocated) {
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    if (weightVector == NULL) {
+      fprintf(stderr, "*** ERROR: Unable to allocate memory for weight image!\n");
+      fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+      return -1;
+    }
     weightVectorAllocated = true;
   }
   
@@ -431,6 +436,7 @@ void ModelObject::GenerateErrorVector( )
   }
 
   weightValsSet = true;
+  return 0;
 }
 
 
@@ -1097,7 +1103,7 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
 
 /* ---------------- PUBLIC METHOD: UseModelErrors --------==----------- */
 
-void ModelObject::UseModelErrors( )
+int ModelObject::UseModelErrors( )
 {
   modelErrors = true;
   dataErrors = false;
@@ -1116,6 +1122,12 @@ void ModelObject::UseModelErrors( )
   // nDataVals *might* have changed; we are currently assuming it hasn't!
   if (! weightVectorAllocated) {
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    if (weightVector == NULL) {
+      fprintf(stderr, "*** ERROR: Unable to allocate memory for model image!\n");
+      fprintf(stderr, "    (Requested image size was %d x %d = %d pixels)\n", nModelRows,
+        		nModelColumns, nModelVals);
+      return -1;
+    }
     weightVectorAllocated = true;
   }
   else {
@@ -1126,7 +1138,8 @@ void ModelObject::UseModelErrors( )
     weightVector[z] = 1.0;
   }
   weightValsSet = true;
-  }
+  return 0;
+}
 
 
 /* ---------------- PUBLIC METHOD: UseCashStatistic ------------------- */

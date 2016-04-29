@@ -120,7 +120,7 @@ int CheckFinite(int ntot, double *matrix);
     goto CLEANUP; \
   } else { \
     int _k; \
-    for (_k=0; _k<(size); _k++) dest[_k] = 0; \
+    for (_k=0; _k < (size); _k++) dest[_k] = 0; \
   } 
 
 /*
