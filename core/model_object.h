@@ -121,7 +121,7 @@ class ModelObject
 
     virtual int UseModelErrors( );
 
-    virtual void UseCashStatistic( );
+    virtual int UseCashStatistic( );
 
     virtual void UsePoissonMLR( );
  

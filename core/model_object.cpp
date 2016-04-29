@@ -676,10 +676,18 @@ int ModelObject::FinalSetupForFitting( )
   int  nNonFinitePixels = 0;
   int  nNonFiniteErrorPixels = 0;
   int  returnStatus = 0;
+  int  status = 0;
   
   // Create a default all-pixels-valid mask if no mask already exists
   if (! maskExists) {
     maskVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    if (maskVector == NULL) {
+      fprintf(stderr, "*** ERROR: Unable to allocate memory for mask image!\n");
+      fprintf(stderr, "    (Requested vector size was %d pixels)\n", nDataVals);
+      // go ahead and return now, otherwise we'll be trying to access a null
+      // pointer in the very next step
+      return -1;
+    }
     for (int z = 0; z < nDataVals; z++) {
       maskVector[z] = 1.0;
     }
@@ -705,8 +713,11 @@ int ModelObject::FinalSetupForFitting( )
   
   // Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
   // and no external error map was supplied
-  if ((! useCashStatistic) && (dataErrors) && (! externalErrorVectorSupplied))
-    GenerateErrorVector();
+  if ((! useCashStatistic) && (dataErrors) && (! externalErrorVectorSupplied)) {
+    status = GenerateErrorVector();
+    if (status < 0)  // go ahead and return now (standard behavior for memory allocation failure
+      return -1;
+  }
   
   // Generate extra terms vector from data for modified Cash statistic, if using latter
   if ((useCashStatistic) && (poissonMLR))
@@ -1144,7 +1155,7 @@ int ModelObject::UseModelErrors( )
 
 /* ---------------- PUBLIC METHOD: UseCashStatistic ------------------- */
 
-void ModelObject::UseCashStatistic( )
+int ModelObject::UseCashStatistic( )
 {
   useCashStatistic = true;
 
@@ -1165,6 +1176,11 @@ void ModelObject::UseCashStatistic( )
   }
   if (! extraCashTermsVectorAllocated) {
     extraCashTermsVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    if (extraCashTermsVector == NULL) {
+      fprintf(stderr, "*** ERROR: Unable to allocate memory for extra Cash terms vector!\n");
+      fprintf(stderr, "    (Requested vector size was %d pixels)\n", nDataVals);
+      return -1;
+    }
     extraCashTermsVectorAllocated = true;
   }
   else {
@@ -1175,6 +1191,7 @@ void ModelObject::UseCashStatistic( )
     weightVector[z] = 1.0;
   }
   weightValsSet = true;
+  return 0;
 }
 
 

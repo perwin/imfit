@@ -419,7 +419,11 @@ int main(int argc, char *argv[])
       fprintf(stderr, "*** ERROR -- Cash statistic cannot be used with L-M solver!\n\n");
       return -1;
     }
-    theModel->UseCashStatistic();
+    status = theModel->UseCashStatistic();
+    if (status < 0) {
+      fprintf(stderr, "*** ERROR: Failure in ModelObject::UseCashStatistic!\n\n");
+      exit(-1);
+    }
   } 
   else if (options.usePoissonMLR) {
     theModel->UsePoissonMLR();
