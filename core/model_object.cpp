@@ -948,6 +948,11 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   if (doConvolution) {
     if (! outputModelVectorAllocated) {
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+      if (outputModelVector == NULL) {
+        fprintf(stderr, "*** ERROR: Unable to allocate memory for output model image!\n");
+        fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+        return NULL;
+      }
       outputModelVectorAllocated = true;
     }
     psfConvolver->ConvolveImage(modelVector);
@@ -1134,9 +1139,8 @@ int ModelObject::UseModelErrors( )
   if (! weightVectorAllocated) {
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (weightVector == NULL) {
-      fprintf(stderr, "*** ERROR: Unable to allocate memory for model image!\n");
-      fprintf(stderr, "    (Requested image size was %d x %d = %d pixels)\n", nModelRows,
-        		nModelColumns, nModelVals);
+      fprintf(stderr, "*** ERROR: Unable to allocate memory for weight vector!\n");
+      fprintf(stderr, "    (Requested image size was %d pixels)\n", nModelVals);
       return -1;
     }
     weightVectorAllocated = true;

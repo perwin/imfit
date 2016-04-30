@@ -71,10 +71,10 @@ def main(argv=None):
 		if not os.path.exists(refSumFile):
 			print("ERROR: unable to find FITS image file %s!\n" % refSumFile)
 			return None
-		print("\tComparing sum of images %s and %s with %s... " % (fitsFile1, fitsFile2, refSumFile), end="")
+		print("\tComparing sum of %s + %s with %s... " % (fitsFile1, fitsFile2, refSumFile), end="")
 		result = CompareSum(fitsFile1, fitsFile2, refSumFile)
 		if (result is False):
-			print("\n\t>>> WARNING: image %s + image %s DO NOT match %s!\n" % (fitsFile1, fitsFile2, refSumFile))
+			print("\n\t>>> WARNING: image %s + image %s DOES NOT match %s!\n" % (fitsFile1, fitsFile2, refSumFile))
 		else:
 			print(" OK.")
 	else:

@@ -103,6 +103,7 @@ int main( int argc, char *argv[] )
   vector<double>  parameterList;
   vector<int>  functionBlockIndices;
   vector<string>  imageCommentsList;
+  double  *singleFunctionImage;
   makeimageCommandOptions  options;
   configOptions  userConfigOptions;
   bool  printFluxesOnly = false;
@@ -332,6 +333,13 @@ int main( int argc, char *argv[] )
       string  newString;
       char  *new_string;
       for (int i = 0; i < nFuncs; i++) {
+        // Generate single-function image (exit if that failed -- e.g., due to
+        // memory allocation failure)
+        singleFunctionImage = theModel->GetSingleFunctionImage(paramsVect, i);
+        if (singleFunctionImage == NULL) {
+          fprintf(stderr, "\n*** ERROR: Unable to generate single-function image #%d!\n\n", i);
+          exit(-1);
+        }
         currentFilename = options.functionRootName;
         sprintf(numstring, "%d", i + 1);
         currentFilename += numstring;
@@ -343,7 +351,7 @@ int main( int argc, char *argv[] )
         asprintf(&new_string, "FUNCTION %s", functionNames[i].c_str());
         newString = new_string;
         imageCommentsList.push_back(newString);
-        status = SaveVectorAsImage(theModel->GetSingleFunctionImage(paramsVect, i), currentFilename, 
+        status = SaveVectorAsImage(singleFunctionImage, currentFilename, 
                         nColumns, nRows, imageCommentsList);
         if (status != 0) {
           fprintf(stderr,  "\n*** WARNING: Unable to save output single-function image file \"%s\"!\n\n", 
