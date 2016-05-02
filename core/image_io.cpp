@@ -337,6 +337,12 @@ int SaveVectorAsImage( double *pixelVector, const std::string filename, const in
 
   status = problems = 0;
   
+  // Check for bad input
+  if (pixelVector == NULL) {
+    fprintf(stderr, "\n*** WARNING: input image array to SaveVectorAsImage is NULL!\n");
+    return -1;
+  }
+  
   naxes[0] = nColumns;
   naxes[1] = nRows;
   nPixels = nColumns * nRows;

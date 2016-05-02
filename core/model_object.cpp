@@ -1709,14 +1709,23 @@ double * ModelObject::GetModelImageVector( )
     return NULL;
   }
   
-  if (! outputModelVectorAllocated) {
-    outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-    outputModelVectorAllocated = true;
-  }
+//   if (! outputModelVectorAllocated) {
+//     outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+//     outputModelVectorAllocated = true;
+//   }
   
   if (doConvolution) {
-    // Step through model image so that we correctly match its pixels with corresponding
-    // pixels output image
+    if (! outputModelVectorAllocated) {
+      outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+      if (outputModelVector == NULL) {
+        fprintf(stderr, "*** ERROR: Unable to allocate memory for output model image!\n");
+        fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+        return NULL;
+      }
+      outputModelVectorAllocated = true;
+    }
+    // Step through (previously computed) model image so that we correctly match 
+    // its pixels with corresponding pixels output image
     for (z = 0; z < nDataVals; z++) {
       iDataRow = z / nDataColumns;
       iDataCol = z - iDataRow*nDataColumns;
