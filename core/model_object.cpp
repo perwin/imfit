@@ -1515,23 +1515,35 @@ string ModelObject::GetParamHeader( )
 /// Tells ModelObject1d object that from now on we'll operate in bootstrap
 /// resampling mode, so that bootstrapIndices vector is used to access the
 /// data and model values (and weight values, if any).
-void ModelObject::UseBootstrap( )
+/// Returns the status from MakeBootstrapSample(), which will be -1 if memory
+/// allocation for the bootstrap-indices vector failed.
+int ModelObject::UseBootstrap( )
 {
+  int  status = 0;
+  
   doBootstrap = true;
-  MakeBootstrapSample();
+  status = MakeBootstrapSample();
+  return status;
 }
 
 
 /* ---------------- PUBLIC METHOD: MakeBootstrapSample ----------------- */
 /// Generate a new bootstrap resampling of the data (more precisely, this generate a
 /// bootstrap resampling of the data *indices*)
-void ModelObject::MakeBootstrapSample( )
+/// Returns -1 if memory allocation for the bootstrap indices vector failed,
+/// otherwise returns 0.
+int ModelObject::MakeBootstrapSample( )
 {
   int  n;
   bool  badIndex;
   
   if (! bootstrapIndicesAllocated) {
     bootstrapIndices = (int *) calloc((size_t)nValidDataVals, sizeof(int));
+    if (bootstrapIndices == NULL) {
+      fprintf(stderr, "*** ERROR: Unable to allocate memory for bootstrap-resampling pixel indices!\n");
+      fprintf(stderr, "    (Requested vector size was %d pixels)\n", nValidDataVals);
+      return -1;
+    }
     bootstrapIndicesAllocated = true;
   }
   for (int i = 0; i < nValidDataVals; i++) {
@@ -1546,6 +1558,7 @@ void ModelObject::MakeBootstrapSample( )
     } while (badIndex);
     bootstrapIndices[i] = n;
   }
+  return 0;
 }
 
 

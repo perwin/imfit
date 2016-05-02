@@ -52,6 +52,8 @@
 using namespace std;
 
 
+const int MIN_ITERATIONS_FOR_STATISTICS = 3;
+
 
 /* ------------------- Function Prototypes ----------------------------- */
 
@@ -64,10 +66,12 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
 
 
 /* ---------------- FUNCTION: BootstrapErrors -------------------------- */
-// Primary wrapper function (meant to be called from main() in imfit_main.cpp, etc.).
-// If saving of all best-fit parameters to file is requested, then outputFile_ptr
-// should be non-NULL (i.e., should point to a file object opened for writing, possibly
-// with header information already written).
+/// Primary wrapper function (meant to be called from main() in imfit_main.cpp, etc.).
+/// If saving of all best-fit parameters to file is requested, then outputFile_ptr
+/// should be non-NULL (i.e., should point to a file object opened for writing, possibly
+/// with header information already written).
+/// Returns the number of (successful) bootstrap iterations (returns -1 if error
+/// encountered).
 int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
@@ -96,33 +100,38 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
 					outputParamArray, outputFile_ptr);
   
   
-  // Calculate sigmas and 68% confidence intervals for the parameters
-  // vector to hold estimated sigmas for each parameter
-  paramSigmas = (double *)calloc( (size_t)nParams, sizeof(double) );
-  /* Determine dispersions for parameter values */
-  for (i = 0; i < nParams; i++) {
-    paramSigmas[i] = StandardDeviation(outputParamArray[i], nSuccessfulIterations);
+  if (nSuccessfulIterations < MIN_ITERATIONS_FOR_STATISTICS) {
+    printf("\nNot enough successful bootstrap iterations for meaningful statistics!\n",
+    		nSuccessfulIterations);
   }
-  /* Print parameter values + standard deviations: */
-  /* (note that calling ConfidenceInterval() sorts the vectors in place!) */
-  printf("\nStatistics for parameter values from bootstrap resampling");
-  printf(" (%d successful iterations):\n", nSuccessfulIterations);
-  printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
-  for (i = 0; i < nParams; i++) {
-    if (parameterLimits[i].fixed == 0) {
-      // OK, this parameter was not fixed
-      ConfidenceInterval(outputParamArray[i], nSuccessfulIterations, &lower, &upper);
-      plus = upper - bestfitParams[i];
-      minus = bestfitParams[i] - lower;
-      halfwidth = (upper - lower)/2.0;
-      printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", 
-             theModel->GetParameterName(i).c_str(), 
-             bestfitParams[i], plus, minus, lower, upper, halfwidth,
-             Mean(outputParamArray[i], nSuccessfulIterations), paramSigmas[i]);
-    }
-    else {
-      printf("%s = %g     [fixed parameter]\n", theModel->GetParameterName(i).c_str(),
-                  bestfitParams[i]);
+  else {
+    // Calculate sigmas and 68% confidence intervals for the parameters
+    // vector to hold estimated sigmas for each parameter
+    paramSigmas = (double *)calloc( (size_t)nParams, sizeof(double) );
+    /* Determine dispersions for parameter values */
+    for (i = 0; i < nParams; i++)
+      paramSigmas[i] = StandardDeviation(outputParamArray[i], nSuccessfulIterations);
+    /* Print parameter values + standard deviations: */
+    /* (note that calling ConfidenceInterval() sorts the vectors in place!) */
+    printf("\nStatistics for parameter values from bootstrap resampling");
+    printf(" (%d successful iterations):\n", nSuccessfulIterations);
+    printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
+    for (i = 0; i < nParams; i++) {
+      if (parameterLimits[i].fixed == 0) {
+        // OK, this parameter was not fixed
+        ConfidenceInterval(outputParamArray[i], nSuccessfulIterations, &lower, &upper);
+        plus = upper - bestfitParams[i];
+        minus = bestfitParams[i] - lower;
+        halfwidth = (upper - lower)/2.0;
+        printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", 
+               theModel->GetParameterName(i).c_str(), 
+               bestfitParams[i], plus, minus, lower, upper, halfwidth,
+               Mean(outputParamArray[i], nSuccessfulIterations), paramSigmas[i]);
+      }
+      else {
+        printf("%s = %g     [fixed parameter]\n", theModel->GetParameterName(i).c_str(),
+                    bestfitParams[i]);
+      }
     }
   }
 
@@ -137,11 +146,11 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
 
 
 /* ---------------- FUNCTION: BootstrapErrorsArrayOnly ----------------- */
-// Alternate wrapper function: returns array of best-fit parameters in outputParamArray;
-// doesn't print any summary statistics (e.g., sigmas, confidence intervals). 
-// * Note that outputParamArray will be allocated here; it should be de-allocated by 
-// whatever function is calling this function.
-// CURRENTLY UNUSED (UNLESS BY SOMEONE ELSE) -- REMOVE?
+/// Alternate wrapper function: returns array of best-fit parameters in outputParamArray;
+/// doesn't print any summary statistics (e.g., sigmas, confidence intervals). 
+/// * Note that outputParamArray will be allocated here; it should be de-allocated by 
+/// whatever function is calling this function.
+/// CURRENTLY UNUSED (UNLESS BY SOMEONE ELSE) -- REMOVE?
 int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
@@ -166,9 +175,11 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimi
 
 
 /* ---------------- FUNCTION: BootstrapErrorsBase ---------------------- */
-// Base function called by the wrapper functions (above), which does the main work
-// of overseeing the bootstrap resampling.
-// Saving individual best-fit vales to file is done *if* outputFile_ptr != NULL.
+/// Base function called by the wrapper functions (above), which does the main work
+/// of overseeing the bootstrap resampling.
+/// Saving individual best-fit vales to file is done *if* outputFile_ptr != NULL.
+/// Returns the number of successful iterations performed (-1 if an error was
+/// encountered)
 int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
@@ -189,7 +200,11 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
 
   paramsVect = (double *) malloc(nParams * sizeof(double));
 
-  theModel->UseBootstrap();
+  status = theModel->UseBootstrap();
+  if (status < 0) {
+    fprintf(stderr, "Error encountered during bootstrap setup!\n");
+    return -1;
+  }
 
   if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_POISSON_MLR))
     printf("\nStarting bootstrap iterations (L-M solver): ");

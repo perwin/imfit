@@ -212,9 +212,9 @@ class ModelObject
     virtual int GetModelVector( double *profileVector ) { return -1; };
 
 
-    virtual void UseBootstrap( );
+    virtual int UseBootstrap( );
     
-    virtual void MakeBootstrapSample( );
+    virtual int MakeBootstrapSample( );
 
 
   protected:
