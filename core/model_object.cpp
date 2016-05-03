@@ -1756,7 +1756,9 @@ double * ModelObject::GetExpandedModelImageVector( )
 
 
 /* ---------------- PUBLIC METHOD: GetResidualImageVector -------------- */
-
+/// Computes residual image (data - model) using current model image (usually
+/// best-fit image), and returns pointer to residual-image vector.
+/// Returns NULL if memory allocation failed.
 double * ModelObject::GetResidualImageVector( )
 {
   int  iDataRow, iDataCol, z, zModel;
@@ -1800,7 +1802,8 @@ double * ModelObject::GetResidualImageVector( )
 
 
 /* ---------------- PUBLIC METHOD: GetWeightImageVector ---------------- */
-/// Returns the weightVector converted to 1/sigma^2 (i.e., 1/variance) form
+/// Returns the weightVector converted to 1/sigma^2 (i.e., 1/variance) form.
+/// Returns NULL if memory allocation failed.
 double * ModelObject::GetWeightImageVector( )
 {
   if (! weightValsSet) {
@@ -1809,6 +1812,11 @@ double * ModelObject::GetWeightImageVector( )
   }
   
   standardWeightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+  if (standardWeightVector == NULL) {
+    fprintf(stderr, "*** ERROR: Unable to allocate memory for output weight image!\n");
+    fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+    return NULL;
+  }
   for (int z = 0; z < nDataVals; z++) {
     double  w_sqrt = weightVector[z];   // internal weight value (sqrt of formal weight)
   	standardWeightVector[z] = w_sqrt*w_sqrt;

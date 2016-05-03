@@ -82,7 +82,7 @@ echo -n "   (now running Cash-statistic and Poisson MLR fits ...)"
 ./imfit tests/pgc35772_continuum.fits[340:630,300:580] --config tests/config_imfit_pgc35772.dat --mask=tests/pgc35772_mask.fits[340:630,300:580] --mlr  &> temptest/test_dump5d
 echo ""
 
-# test bootstrap resampling (just to see that program doesn't crash) -- currently crashes on Travis(??)
+# test bootstrap resampling (just to see that program doesn't crash)
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 &> /dev/null
 ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 --save-bootstrap temp_bootstrap_output.dat &> /dev/null
 
@@ -90,6 +90,9 @@ echo ""
 # first using data values for errors, then using model values (should be identical)
 ./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --save-weights=temptest/test_weights_data.fits &> /dev/null
 ./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --model-errors --save-weights=temptest/test_weights_model.fits &> /dev/null
+
+# testing saving of model and residual images
+./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --save-model=temptest/test_model_ic3478.fits --save-residual=temptest/test_residual_ic3478.fits &> /dev/null
 
 # Weird input-image problems: all pixels masked, mismatched image sizes,
 # FITS files that are tables or null-array (in the primary HDU)
@@ -207,9 +210,16 @@ tail -n 18 temptest/test_dump5d > temptest/test_dump5d_tail
 ./python/diff_printouts.py tests/imfit_textout5d_tail temptest/test_dump5d_tail --skip-last=3
 
 
+# do output weight images agree?
 if [ $do_fits_tests = "1" ]
 then
   ./python/compare_fits_files.py temptest/test_weights_data.fits temptest/test_weights_model.fits
+fi
+
+# Does residual + model = original image?
+if [ $do_fits_tests = "1" ]
+then
+  ./python/compare_fits_files.py --compare-sum temptest/test_residual_ic3478.fits temptest/test_model_ic3478.fits tests/ic3478rss_64x64.fits
 fi
 
 echo -n "*** Diff comparison with archives: catching the case of masking all pixels... "
