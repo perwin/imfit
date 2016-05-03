@@ -20,6 +20,12 @@ const int kPosInt     =    2;
 const int kAnyReal    =    3;
 const int kPosReal    =    4;
 
+/* constants for use with PrepareImageComments: */
+const int HDR_MAKEIMAGE = 0;
+const int HDR_MODELIMAGE = 1;
+const int HDR_RESIDUALIMAGE = 2;
+const int HDR_WEIGHTIMAGE = 3;
+
 
 // String-processing functions
 
@@ -37,7 +43,8 @@ void MakeOutputHeader( vector<string> *headerLines, const string& programName,
 ///        and PSF image (if any), intended to be written to output FITS image header(s).
 void PrepareImageComments( vector<string> *comments, const string &programName, 
                            const string &configFileName, bool psfUsed, 
-                           const string &psfFileName );
+                           const string &psfFileName, int mode=HDR_MAKEIMAGE,
+                           const string &dataFileName="" );
 
 /// \brief Splits a string and returns substrings ("tokens").
 ///

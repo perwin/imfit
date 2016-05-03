@@ -572,7 +572,8 @@ int main(int argc, char *argv[])
   }
   if (options.saveModel) {
     PrepareImageComments(&imageCommentsList, progNameVersion, options.outputParameterFileName,
-    					options.psfImagePresent, options.psfFileName);
+    					options.psfImagePresent, options.psfFileName, HDR_MODELIMAGE,
+    					options.imageFileName);
     printf("Saving model image in file \"%s\"\n", options.outputModelFileName.c_str());
     status = SaveVectorAsImage(theModel->GetModelImageVector(), options.outputModelFileName, 
                       nColumns, nRows, imageCommentsList);
@@ -582,6 +583,10 @@ int main(int argc, char *argv[])
     }
   }
   if (options.saveResidualImage) {
+    imageCommentsList.clear();
+    PrepareImageComments(&imageCommentsList, progNameVersion, options.outputParameterFileName,
+    					options.psfImagePresent, options.psfFileName, HDR_RESIDUALIMAGE,
+    					options.imageFileName);
     printf("Saving residual (data - best-fit model) image in file \"%s\"\n", options.outputResidualFileName.c_str());
     status = SaveVectorAsImage(theModel->GetResidualImageVector(), options.outputResidualFileName, 
                       nColumns, nRows, imageCommentsList);
@@ -591,6 +596,10 @@ int main(int argc, char *argv[])
     }
   }
   if (options.saveWeightImage) {
+    imageCommentsList.clear();
+    PrepareImageComments(&imageCommentsList, progNameVersion, options.outputParameterFileName,
+    					options.psfImagePresent, options.psfFileName, HDR_WEIGHTIMAGE,
+    					options.imageFileName);
     printf("Saving weight image in file \"%s\"\n", options.outputWeightFileName.c_str());
     status = SaveVectorAsImage(theModel->GetWeightImageVector(), options.outputWeightFileName, 
                       nColumns, nRows, imageCommentsList);
