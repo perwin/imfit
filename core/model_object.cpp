@@ -24,7 +24,7 @@
  * cases, as suggested by André Luiz de Amorim.
  */
 
-// Copyright 2010--2015 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -421,7 +421,6 @@ int ModelObject::GenerateErrorVector( )
     weightVectorAllocated = true;
   }
   
-//  readNoise_adu_squared = readNoise*readNoise/(effectiveGain*effectiveGain);
   // Compute noise estimate for each pixel (see above for derivation)
   // Note that we assume a constant sky background (presumably already subtracted)
   for (int z = 0; z < nDataVals; z++) {
@@ -432,7 +431,6 @@ int ModelObject::GenerateErrorVector( )
     // Note that we store 1/sigma instead of 1/sigma^2, since the chi^2 calculation in 
     // ChiSquared() [or the equivalent in mpfit.cpp) will square the individual terms
     weightVector[z] = 1.0 / sqrt(noise_squared);
-//    printf("z = %d, noise_squared = %f\n", z, noise_squared);
   }
 
   weightValsSet = true;
@@ -1549,7 +1547,6 @@ int ModelObject::MakeBootstrapSample( )
   for (int i = 0; i < nValidDataVals; i++) {
     // pick random data point between 0 and nDataVals - 1, inclusive;
     // reject masked pixels
-    //n = round( (random()/MAX_RANDF)*(nDataVals - 1) );
     badIndex = true;
     do {
       n = (int)floor( genrand_real2()*nDataVals );
@@ -1708,11 +1705,6 @@ double * ModelObject::GetModelImageVector( )
     fprintf(stderr, "* ModelObject::GetModelImageVector -- Model image has not yet been computed!\n\n");
     return NULL;
   }
-  
-//   if (! outputModelVectorAllocated) {
-//     outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-//     outputModelVectorAllocated = true;
-//   }
   
   if (doConvolution) {
     if (! outputModelVectorAllocated) {
