@@ -1770,6 +1770,11 @@ double * ModelObject::GetResidualImageVector( )
   // nDataVals *might* have changed; we are currently assuming it hasn't!
   if (! residualVectorAllocated) {
     residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
+    if (residualVector == NULL) {
+      fprintf(stderr, "*** ERROR: Unable to allocate memory for output residual image!\n");
+      fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+      return NULL;
+    }
     residualVectorAllocated = true;
   }
     

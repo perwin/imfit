@@ -21,6 +21,7 @@ using namespace std;
 
 // small, along with values of lower-left and upper-right pixels
 const string  TEST_IMAGE_32x32("tests/testimage_expdisk32.fits");
+const string  TARGET_FOR_NULL_IMAGE("nullimage_temp.fits");
 const double  VALUE_LL = 20.903625;
 const double  VALUE_UR = 14.947027;
 // test images with no image data, or none in primary HDU
@@ -229,6 +230,7 @@ public:
   void testSaveImageAsVector_failure( void )
   {
     int  nCols, nRows, status;
+    double  *nullImage = NULL;
     vector<string>  comments;
     
     nCols = 3;
@@ -237,6 +239,10 @@ public:
     status = SaveVectorAsImage(tinyImage, IMPOSSIBLE_IMAGE_FILENAME, nCols, nRows, comments);
 	// check that error value was returned
     TS_ASSERT_EQUALS(status, -1);
+
+    status = SaveVectorAsImage(nullImage, TARGET_FOR_NULL_IMAGE, nCols, nRows, comments);
+	// check that error value was returned
+    TS_ASSERT_EQUALS(status, -2);
   }
 
 };
