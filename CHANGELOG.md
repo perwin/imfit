@@ -39,6 +39,10 @@ the latter would, obviously, cause problems....)
 
 - Added checking for memory-allocation failures.
 
+- Fixed minor bug which could cause segfault at very end of imfit's run
+*if* bootstrapping was done without requesting that bootstrap output be
+saved (but only on Linux).
+
 
 
 ## 1.3 -- 2015-10-05
