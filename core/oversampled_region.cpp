@@ -168,11 +168,11 @@ void OversampledRegion::AddPSFVector( double *psfPixels, const int nColumns_psf,
 //    x1,y1 = x,y location of lower-left corner of image region w/in main image (IRAF-numbering)
 //    nBaseColumns,nBaseRows = x,y size of region in main ("base") image
 //    nColumnsMain, nRowsMain = x,y size of full main model ("base") image
-void OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
+int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
 						int nColumnsMain, int nRowsMain, int nColumnsPSF_main,
 						int nRowsPSF_main, int oversampScale )
 {
-  int  result;
+  int  result = 0;
   assert( (nBaseColumns >= 1) && (nBaseRows >= 1) && (oversampScale >= 1) );
   assert( (nColumnsMain >= 1) && (nRowsMain >= 1) );
   assert( (nColumnsPSF_main >= 0) && (nRowsPSF_main >= 0) );
@@ -200,10 +200,11 @@ void OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int n
     nModelColumns = nRegionColumns + 2*nPSFColumns;
     nModelRows = nRegionRows + 2*nPSFRows;
     psfConvolver->SetupImage(nModelColumns, nModelRows);
-    // NOTE: for now we're ignoring the status of psfConvolver->DoFullSetup because
-    // we assume that it can't fail (we give psfConvolver the PSF info before
-    // setting doConvolution to true, and we give it the image info in the line above)
     result = psfConvolver->DoFullSetup(debugLevel);
+    if (result < 0) {
+      fprintf(stderr, "*** Error returned from Convolver::DoFullSetup!\n");
+      return result;
+    }
     nModelVals = nModelColumns*nModelRows;
   }
   else {
@@ -217,8 +218,15 @@ void OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int n
   //    If this function *is* called again, then nModelVals could be different
   //    from the first call, in wich case we'd need to realloc modelVector
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
+  if (modelVector == NULL) {
+    fprintf(stderr, "*** ERROR: Unable to allocate memory for oversampled model image!\n");
+    fprintf(stderr, "    (Requested image size was %d pixels)\n", nModelVals);
+    return -1;
+  }
   modelVectorAllocated = true;
   setupComplete = true;
+  
+  return 0;
 }
 
 

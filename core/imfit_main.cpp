@@ -396,9 +396,13 @@ int main(int argc, char *argv[])
   // (this operates on a sub-region of the main image, so ModelObject does not need
   // to know about this prior to the image data)
   if (options.psfOversampledImagePresent) {
-    theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
+    status = theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
     			nRows_psf_oversampled, psfOversampledPixels, options.psfOversamplingScale,
     			x1_oversample, x2_oversample, y1_oversample, y2_oversample);
+    if (status < 0) {
+      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
+  	  exit(-1);
+    }
   }
 
   // If user supplied a mask image, add it and apply it to the internal weight image

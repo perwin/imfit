@@ -38,7 +38,7 @@ class OversampledRegion
 
     void SetDebugLevel( const int debuggingLevel );
 
-    void SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
+    int SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
     					int nColumnsMain, int nRowsMain, int nColumnsPSF_main,
     					int nRowsPSF_main, int oversampScale );
     					

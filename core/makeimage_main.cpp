@@ -263,9 +263,13 @@ int main( int argc, char *argv[] )
   // Add oversampled PSF image vector and corresponding info, if present
   if (options.psfOversampledImagePresent) {
     int ii = 0;
-    theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
+    status = theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
     			nRows_psf_oversampled, psfOversampledPixels, options.psfOversamplingScale,
     			x1_oversample[ii], x2_oversample[ii], y1_oversample[ii], y2_oversample[ii]);
+    if (status < 0) {
+      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
+  	  exit(-1);
+    }
   }
   
   theModel->PrintDescription();

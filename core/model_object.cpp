@@ -276,7 +276,7 @@ int ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
 // (in make-image mode).
 int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
 {
-  int  result;
+  int  result = 0;
   assert( (nImageColumns >= 1) && (nImageRows >= 1) );
   
   nDataColumns = nImageColumns;
@@ -287,10 +287,11 @@ int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
     nModelColumns = nDataColumns + 2*nPSFColumns;
     nModelRows = nDataRows + 2*nPSFRows;
     psfConvolver->SetupImage(nModelColumns, nModelRows);
-    // NOTE: for now we're ignoring the status of psfConvolver->DoFullSetup because
-    // we assume that it can't fail (we give psfConvolver the PSF info before
-    // setting doConvolution to true, and we give it the image info in the line above)
     result = psfConvolver->DoFullSetup(debugLevel);
+    if (result < 0) {
+      fprintf(stderr, "*** Error returned from Convolver::DoFullSetup!\n");
+      return result;
+    }
     nModelVals = nModelColumns*nModelRows;
   }
   else {
@@ -611,16 +612,17 @@ int ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
 //    This function *must* be called *after* SetupModelImage() [or after AddImageDataVector(),
 // which itself calls SetupModelImage()], otherwise the necessary information about the 
 // size of the main model image (nModelColumns, nModelRows) will not be known.
-void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf, 
+int ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf, 
 						int nRows_psf, double *psfPixels_osamp, int oversampleScale,
 						int x1, int x2, int y1, int y2 )
 {
   int  deltaX, deltaY, nCols_osamp, nRows_osamp;
+  int  status = 0;
   
   assert( (nPixels >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
   assert( (oversampleScale >= 1) );
   // assertion to check that nModelColumns and nModelRows *have* been set to good values
-  assert( (nModelColumns > 0) && (nModelRows > 0));
+  assert( (nModelColumns > 0) && (nModelRows > 0) );
 
   // restrict region to be oversampled (in data or output image) to lie within image bounds
   if (x1 < 1)
@@ -651,9 +653,15 @@ void ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
   // Allocate OversampledRegion object and give it necessary info
   oversampledRegion = new OversampledRegion();
   oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
-  oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
-  									nPSFColumns, nPSFRows, oversamplingScale);
   oversampledRegionAllocated = true;
+  status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
+  									nPSFColumns, nPSFRows, oversamplingScale);
+  if (status < 0) {
+    fprintf(stderr, "*** ERROR: AddOversampledPSFVector: Call to oversampledRegion->SetupModelImage failed!n");
+    return -1;
+  }
+  
+  return 0;
 }
 
 

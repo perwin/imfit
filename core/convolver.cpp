@@ -204,7 +204,7 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
   
   // compute padding dimensions
   if ((! psfInfoSet) || (! imageInfoSet)) {
-    fprintf(stderr, "*** WARNING: Convolver.DoFullSetup: PSF and/or image parameters not set!\n");
+    fprintf(stderr, "*** WARNING: Convolver::DoFullSetup: PSF and/or image parameters not set!\n");
     return -1;
   }
   nColumns_padded = nColumns_image + nColumns_psf - 1;
@@ -226,7 +226,6 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
   threadStatus = fftw_init_threads();
 #endif  // FFTW_THREADING
 
-
   // allocate memory for double and fftw_complex arrays
   image_in_padded = (double*) fftw_malloc(sizeof(double) * nPixels_padded);
   image_fft_cmplx = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nPixels_padded_complex);
@@ -234,6 +233,12 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
   psf_fft_cmplx = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nPixels_padded_complex);
   multiplied_cmplx = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nPixels_padded_complex);
   convolvedImage_out = (double*) fftw_malloc(sizeof(double) * nPixels_padded);
+  if ( (image_in_padded == NULL) || (image_fft_cmplx == NULL) || (psf_in_padded == NULL)
+  		|| (psf_fft_cmplx == NULL) || (multiplied_cmplx == NULL) 
+  		|| (convolvedImage_out == NULL) ) {
+    fprintf(stderr, "*** WARNING: Convolver::DoFullSetup: memory allocation failure!\n");
+	return -2;
+  }
   fftVectorsAllocated = true;
 
 
@@ -266,7 +271,7 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
   plan_inverse = fftw_plan_dft_c2r_2d(nRows_padded, nColumns_padded, multiplied_cmplx, 
   									convolvedImage_out, fftwFlags);
   fftPlansCreated = true;
-  
+
 
   // Generate the Fourier transform of the PSF:
   // 1. Normalize the PSF

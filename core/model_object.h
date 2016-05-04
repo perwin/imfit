@@ -95,7 +95,7 @@ class ModelObject
                          double *psfPixels );
 
  	// 2D only
-    void AddOversampledPSFVector( int nPixels, int nColumns_psf, int nRows_psf, 
+    int AddOversampledPSFVector( int nPixels, int nColumns_psf, int nRows_psf, 
     					double *psfPixels_osamp, int oversampleScale, int x1, int x2, 
     					int y1, int y2 );
 

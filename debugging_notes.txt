@@ -1,5 +1,11 @@
 NOTES ON DEBUGGING (MAC OS X):
 
+
+NOTE: As of 2014, standard gdb (e.g., as installed by Homebrew) does *not*
+work on Macs
+http://stackoverflow.com/questions/27680712/homebrew-gdb-cant-open-core-file-on-yosemite-10-10
+
+
 [] Core-dump peculiarities on Mac OS X:
 
 http://mindarray.org/techlog/gdb-debugging.html
