@@ -542,7 +542,7 @@ int main(int argc, char *argv[])
 
   // Optional bootstrap resampling
   if ((options.doBootstrap) && (options.bootstrapIterations > 0)) {
-    if (options.outputBootstrapFileName.length() > 0) {
+    if (options.saveBootstrap) {
       bootstrapSaveFile_ptr = fopen(options.outputBootstrapFileName.c_str(), "w");
       // write general info + best-fitting params as a commented-out header
       SaveParameters2(bootstrapSaveFile_ptr, paramsVect, theModel, parameterInfo, 
@@ -557,9 +557,12 @@ int main(int argc, char *argv[])
     									nFreeParams, theModel->WhichFitStatistic(), 
     									bootstrapSaveFile_ptr);
     gettimeofday(&timer_end_bootstrap, NULL);
-    if ((nSucessfulIterations > 0) && (options.outputBootstrapFileName.length() > 0))
-      printf("Bootstrap-resampling output saved to file \"%s\".\n", options.outputBootstrapFileName.c_str());
-    fclose(bootstrapSaveFile_ptr);
+    if (options.saveBootstrap) {
+      if (nSucessfulIterations > 0)
+        printf("Bootstrap-resampling output saved to file \"%s\".\n", options.outputBootstrapFileName.c_str());
+      // even if we didn't have any successful iterations, we need to close the file
+      fclose(bootstrapSaveFile_ptr);
+    }
     didBootstrap = true;
   }
 
