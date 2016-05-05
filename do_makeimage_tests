@@ -18,6 +18,11 @@ if [ ! -f ./makeimage ]
     exit 2
 fi
 
+case "$OSTYPE" in
+  darwin*)  osname="osx" ;; 
+  linux*)   osname="linux" ;;
+  *)        echo "unknown: $OSTYPE" ;;
+esac
 
 STATUS=0
 
@@ -142,11 +147,13 @@ then
   ./python/compare_fits_files.py --compare-sum temptest/singleImage_conv1_Sersic.fits temptest/singleImage_conv2_Exponential.fits temptest/sersic+exp_conv.fits
 fi
 
+# Note that we chose an OS-specific path for the reference file (image output is
+# marginally different for Linux vs OS X)
 if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that convolution with oversampled PSF works... "
   echo ""
 then
-  ./python/compare_fits_files.py temptest/oversampled.fits tests/oversampled_orig.fits
+  ./python/compare_fits_files.py temptest/oversampled.fits tests/${osname}/oversampled_orig.fits
 fi
 
 echo -n "*** Diff comparison with archives: print-fluxes mode... "
