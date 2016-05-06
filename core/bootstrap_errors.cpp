@@ -101,7 +101,7 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
   
   
   if (nSuccessfulIterations < MIN_ITERATIONS_FOR_STATISTICS) {
-    printf("\nNot enough successful bootstrap iterations for meaningful statistics!\n",
+    printf("\nNot enough successful bootstrap iterations (%d) for meaningful statistics!\n",
     		nSuccessfulIterations);
   }
   else {
