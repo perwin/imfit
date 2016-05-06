@@ -29,6 +29,8 @@ const string  TEST_IMAGE_EMPTY("tests/test_emptyhdu.fits");
 const string  TEST_TABLE("tests/test_table.fits");
 // possibly good image (empty primary HDU, good image in 2nd HDU)
 const string  TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU("tests/test_multiextension_hdu1empty.fits");
+// file with images in both primary HDU and 2nd HDU
+const string  TEST_IMAGE_MULTI_2IMAGEHDUS("tests/test_multiextension_2images.fits");
 // nonexistent file (for error-checking)
 const string  BAD_IMAGE_NAME("no_image_with_this_name.fits");
 // filename for an image file we can't possibly write (permission denied or
@@ -41,7 +43,7 @@ const string  TINY_IMAGE_FILENAME("tinyimage_temp.fits");
 
 
 
-class NewTestSuite : public CxxTest::TestSuite 
+class BasicTestSuite : public CxxTest::TestSuite 
 {
 public:
 
@@ -84,20 +86,6 @@ public:
     response = CheckForImage(TEST_TABLE);    
     TS_ASSERT_EQUALS(response, -1);
   }
-
-  // Test for CheckForImage() with multi-ext. file: [empty HDU, good image]
-  void testCheckForImage_multiext( void )
-  {
-    int  response;
-    int  nCols, nRows;
-
-    // later we may modify CheckForImage [and image-reading code] so that
-    // they correctly ID the 2nd HDU as a valid image. For now, we treat
-    // this file as bad.
-    response = CheckForImage(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU);    
-    TS_ASSERT_EQUALS(response, -1);
-  }
-
 
   // Test for GetImageSize() with good file
   void testGetImageSize_good( void )
@@ -246,3 +234,60 @@ public:
   }
 
 };
+
+
+class MultiExtTestSuite : public CxxTest::TestSuite 
+{
+public:
+
+  // Test for CheckForImage() with good file
+  // Test for CheckForImage() with multi-ext. file: [empty HDU, good image]
+  void testCheckForImage_multiextv1( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    // later we may modify CheckForImage [and image-reading code] so that
+    // they correctly ID the 2nd HDU as a valid image. For now, we treat
+    // this file as bad.
+    response = CheckForImage(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU);    
+    TS_ASSERT_EQUALS(response, -1);
+  }
+
+  // Test for CheckForImage() with multi-ext. file: [image in first HDU]
+  void testCheckForImage_multiextv2( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    // later we may modify CheckForImage [and image-reading code] so that
+    // they correctly ID the 2nd HDU as a valid image. For now, we treat
+    // this file as bad.
+    response = CheckForImage(TEST_IMAGE_MULTI_2IMAGEHDUS);    
+    TS_ASSERT_EQUALS(response, 1);
+  }
+
+  // Test reading of 1st HDU in multi-ext image via "imagename.fits[1]"
+  // Test for GetImageSize() with good file
+  void testGetImageSize_hdu2image( void )
+  {
+    int  status;
+    int  nCols, nRows;
+    string  imageName;
+
+	imageName = TEST_IMAGE_MULTI_2IMAGEHDUS + "[0]";
+    status = GetImageSize(imageName, &nCols, &nRows);    
+    TS_ASSERT_EQUALS(nCols, 5);
+    TS_ASSERT_EQUALS(nRows, 5);
+
+	imageName = TEST_IMAGE_MULTI_2IMAGEHDUS + "[1]";
+    status = GetImageSize(imageName, &nCols, &nRows);    
+    TS_ASSERT_EQUALS(nCols, 10);
+    TS_ASSERT_EQUALS(nRows, 10);
+  }
+
+
+  // Test reading of 2nd HDU in multi-ext image via "imagename.fits[2]"
+
+};
+
