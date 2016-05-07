@@ -332,6 +332,16 @@ public:
   {
     TS_ASSERT( ImageFileExists("./tests/n3073rss_small.fits[100:200,200:300]") == true);
   }
+
+  void testImageFileExists_RealFileWithExtension( void )
+  {
+    TS_ASSERT( ImageFileExists("./tests/n3073rss_small.fits[1]") == true);
+  }
+
+  void testImageFileExists_RealFileWithExtensionAndSection( void )
+  {
+    TS_ASSERT( ImageFileExists("./tests/n3073rss_small.fits[1][100:200,200:300]") == true);
+  }
   
   
   // Tests for FileExists()
