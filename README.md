@@ -54,8 +54,7 @@ Imfit uses [SCons](http://scons.org) as the build tool,
 and should build under any version of GCC from 4.2 onward. 
 
 See the "Getting and Installing Imfit" chapter of the documentation
-([imfit_howto.pdf](http://www.mpe.mpg.de/~erwin/resources/imfit/
-imfit_howto.pdf)) for more details.
+-- [imfit_howto.pdf](http://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf) -- for more details. 
 
 
 ## License
