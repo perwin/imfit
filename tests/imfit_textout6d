@@ -1,14 +1,11 @@
 
-*** WARNING: Primary HDU of file "tests/test_emptyhdu.fits" is not a 2D image (NAXIS = 0)!
+*** WARNING: Unable to find valid 2D image in extension 0 (HDU 1) of tests/test_table.fits!
 
-*** ERROR: Unable to read mask file "tests/test_emptyhdu.fits"!
+*** ERROR: Unable to read image file "tests/test_table.fits"!
 
-	Image file = tests/ic3478rss_64x64.fits
+	Image file = tests/test_table.fits
 	configuration file = tests/imfit_config_ic3478_64x64b.dat
-	mask image = tests/test_emptyhdu.fits
 Value from config file: gain = 4.725000 e-/ADU
 Value from config file: read noise = 4.300000 e-
 Value from config file: original sky = 130.100000
-Reading data image ("tests/ic3478rss_64x64.fits") ...
-naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
-Reading mask image ("tests/test_emptyhdu.fits") ...
+Reading data image ("tests/test_table.fits") ...

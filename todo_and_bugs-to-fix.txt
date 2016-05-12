@@ -11,7 +11,33 @@
 	it's multi-extension
 		[X] Generate error if primary HDU is *not* a 2D image
 	
-	[] Implement <filename>.fits[n] reading?
+	[] PROBLEM: how to handle user-suppled "....fits[n]" filename?
+		Need to check that image *had* at least n HDUs
+		Need to explicitly check whether HDU n is an image
+	
+	WHERE WE ARE, WHAT TO DO NEXT:
+		1. ./imfit tests/test_multiextension_hdu1empty.fits --config tests/imfit_config_ic3478_64x64b.dat
+		FAILS because, inside ReadImageAsVector, CheckImage returns 2 [we think] for
+		valid HDU number, but ReadImageAsVector only checks to see if value is > 0,
+		and then goes ahead and reads the first HDU!
+			-- ReadImageAsVector needs to check 
+			-- How should ReadImageAsVector and CheckImage handle user-specified
+			"[n]" HDU numbers?
+		2. We need to figure out how cfitsio numbers the HDUs (is the first one always
+		"[1]"? what happens if user gives "[0]"			
+			OK: the answer is: "The HDU may be specified either by
+			absolute position number, starting with 0 for the primary
+			array, or by reference to the HDU name, and optionally, the
+			version number and the HDU type of the desired extension."
+			
+			BUT: the documentation for fits_movabs_hdu says: "The first
+			routine moves to a specified absolute HDU number (starting
+			with 1 for the primary array) in the FITS file,"
+			
+			SO: User-specified "[n]" numbering is 0-based, but internal
+			numbering is 1-based!
+			
+			
 
 
 *[X] Check input noise map (if supplied) for NaN values and add those pixels
@@ -39,9 +65,9 @@ to mask.
 [] Test for possible memory-allocation failures
 	[x] Reading in large images -- effectively already caught by cfitsio
 	[x] Allocating memory for model images
-	[] Allocating memory for internally-generated error image
-	[] Allocating memory for weight image
-	[] Allocating FFTW arrays in Convolver
+	[x] Allocating memory for internally-generated error image
+	[x] Allocating memory for weight image
+	[x] Allocating FFTW arrays in Convolver
 	[] Test using makeimage and very large --nrows,--ncols ?
 	
 

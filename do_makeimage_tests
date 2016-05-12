@@ -66,6 +66,9 @@ echo "Running tests for makeimage..."
 ./makeimage tests/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> temptest/test_dump14
 ./makeimage tests/config_imfit_badparamline.dat  &> temptest/test_dump15
 
+
+
+
 echo ""
 
 echo -n "*** Diff comparison with archives: printing function list... "

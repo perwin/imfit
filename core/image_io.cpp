@@ -12,6 +12,16 @@
  * NAXIS1 = naxes[0] = nColumns = sizeX;
  * NAXIS2 = naxes[1] = nRows = sizeY.
  *
+ * The public filename interface for specifying HDUs/extensions is 0-based:
+ *    filename.fits[0] = primary HDU
+ *    filename.fits[1] = second HDU (first extension)
+ *    etc.
+ * HOWEVER, the *internal* number scheme for HDU numbers is 1-based:
+ *    1 = primary HDU
+ *    2 = second HDU (first extension)
+ *    etc.
+ *
+ *
  *   Must be linked with the cfitsio library.
  *
  * NOTES AND WARNINGS ABOUT CFITSIO:
@@ -22,9 +32,6 @@
  * it's nonzero, will then exit as though an error had been encountered (or
  * if it's < 0, will behave in a different fashion; there are about eight or so
  * negative "error codes" defined so as to control internal behavior).
- *
- *   Lesson: *always* set "status" = 0 at the start of a function that will
- * call a series of CFITSIO routines.
  *
  *   Confusingly, the value of *status is usually *also* returned as the return
  * value of the function. Some CFITSIO functions have code like this:
@@ -108,20 +115,46 @@ static void PrintError( int status );
 
 
 
+// Possible FITS file situations:
+// single HDU is valid image -- OK
+// single HDU is not image -- REJECT
+// user-specified HDU
+//    check if that is valid or not
+
+/* ---------------- FUNCTION: CheckHDUForImage ------------------------- */
+bool CheckHDUForImage( fitsfile *imageFile_ptr, int hduNum, int *status_ptr )
+{
+  bool validImageFlag = false;
+  int  hduType, naxis;
+
+  fits_movabs_hdu(imageFile_ptr, hduNum, &hduType, status_ptr);
+  if (hduType == IMAGE_HDU) {   /* primary array or image HDU */
+    fits_get_img_dim(imageFile_ptr, &naxis, status_ptr);
+    if (naxis == 2)
+      validImageFlag = true;
+  }
+  return validImageFlag;
+}
+
+
 /* ---------------- FUNCTION: CheckForImage ---------------------------- */
 ///    Given the filename of a FITS image, this function opens the file and
-/// checks the first header-data unit to see if it is a 2D image.
+/// checks the first header-data unit to see if it is a 2D image. If it is
+/// *not* and a second HDU exists, then that is also checked.
 ///
 ///   Returns -1 if something goes wrong opening the file or if primary HDU is not
-/// a proper 2D image; otherwise, returns the HDU number (1 = first HDU) where 
-/// the first valid image was found. [CURRENTLY JUST RETURNS 1 IF FIRST HDU IS
-/// A PROPER IMAGE -- FIXME]
+/// a proper 2D image; otherwise, returns 1 if the specified FITS file (including 
+/// implicitly specified extension number, if that was part of filename) is a proper2D image.
+///
+///   Currently uses int as return value for possible case of finding and returning
+/// a different HDU. FIXME: probably good idea to make this bool return value.
 int CheckForImage( const std::string filename, const bool verbose )
 {
   fitsfile  *imfile_ptr;
   int  problems = 0;
   int  status = 0;
-  int  imageHDU_num = -1;
+  int  validHDU = -1;   // meaningless bad value (for possible test purposes)
+  int  currentHDU = -1;
 
    /* Open the FITS file: */
   problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
@@ -131,36 +164,21 @@ int CheckForImage( const std::string filename, const bool verbose )
     return -1;
   }
 
-  // Check to make sure primary HDU is an image, and is actually a 2D array
-  int nHDUs, hdutype, naxis;
-  fits_get_num_hdus(imfile_ptr, &nHDUs, & status);
-
-  fits_get_hdu_type(imfile_ptr, &hdutype, &status);  /* Get the HDU type */
-  if (hdutype == IMAGE_HDU) {   /* primary array or image HDU */
-    fits_get_img_dim(imfile_ptr, &naxis, &status);
-    if (naxis != 2) {
-      fprintf(stderr, "\n*** WARNING: Primary HDU of file \"%s\" is not a 2D image (NAXIS = %d)!\n", 
-    		  filename.c_str(), naxis);
-      return -1;
-    }
-  }
-  else {
-    // currently it seems unlikely for us to get here, since most FITS tables have
-    // an null (0-dimensional) "array" as the primary HDU, followed by the table
-    // in the second HDU.
-    fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not an image!\n", 
-    		filename.c_str());
-    return -1;
-  }
-
-  fits_close_file(imfile_ptr, &status);
+  // Get the current HDU (= 1 = primaryHDU if use didn't specify anything, = n+1 if
+  // user specified "filename.fits[n]"
+  fits_get_hdu_num(imfile_ptr, &currentHDU);
   
-  imageHDU_num = 1;
-  return imageHDU_num;
-};
-
-
-
+  if (CheckHDUForImage(imfile_ptr, currentHDU, &status))
+    validHDU = 1;
+  
+  fits_close_file(imfile_ptr, &status);
+  if (validHDU < 0)
+    fprintf(stderr, "\n*** WARNING: Unable to find valid 2D image in extension %d (HDU %d) of %s!\n", 
+    		currentHDU - 1, currentHDU, filename.c_str());
+  return validHDU;
+}
+  
+  
 /* ---------------- FUNCTION: GetImageSize ----------------------------- */
 ///    Given the filename of a FITS image, this function opens the file, reads the 
 /// size of the image and returns the dimensions in nRows and nColumns.
@@ -184,23 +202,14 @@ int GetImageSize( const std::string filename, int *nColumns, int *nRows, const b
   }
 
   // Check to make sure primary HDU is an image, and is actually a 2D array
-  int hdutype, naxis;
-  fits_get_hdu_type(imfile_ptr, &hdutype, &status);  /* Get the HDU type */
-  if (hdutype == IMAGE_HDU) {   /* primary array or image HDU */
-    fits_get_img_dim(imfile_ptr, &naxis, &status);
-    if (naxis != 2) {
-      fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not a 2D image (NAXIS = %d)!\n", 
-    		  filename.c_str(), naxis);
-      return -1;
-    }
-  }
-  else {
-    // currently it seems unlikely for us to get here, since most FITS tables have
-    // an (empty, 0-dimensional) "array" as the primary HDU, followed by the table
-    fprintf(stderr, "\n*** WARNING: Primary HDU of FITS file \"%s\" is not an image!\n", 
-    		filename.c_str());
+  int  currentHDU = -1;
+  
+  fits_get_hdu_num(imfile_ptr, &currentHDU);
+  if (! CheckHDUForImage(imfile_ptr, currentHDU, &status)) {
+    fprintf(stderr, "\n*** WARNING: Unable to find valid 2D image in extension %d (HDU %d) of %s!\n", 
+    		currentHDU - 1, currentHDU, filename.c_str());
     return -1;
-  }
+  }  
 
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
@@ -246,7 +255,7 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   double  *imageVector;
   int  status = 0;
   int  problems = 0;
-  int  imageHDU_num = 0;
+  int  validHDU_flag = 0;
   int  nfound;
   long  naxes[2];
   int  nPixelsTot;
@@ -257,21 +266,11 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   
   // Check to make sure this is a valid image, then open the FITS file for 
   // further operations
-  // Note that return value of CheckForImage is called imageHDU_num bcs we
-  // may use it in the future.
-  imageHDU_num = CheckForImage(filename);
-  if (imageHDU_num > 0)
+  validHDU_flag = CheckForImage(filename);
+  if (validHDU_flag > 0)
     fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
   else
     return NULL;
-
-  char  comment[100];
-  int  nhdu = -1;
-  if (verbose)
-    printf("BEFORE: nhdu = %d\n", nhdu);
-  fits_get_num_hdus(imfile_ptr, &nhdu, &status);
-  if (verbose)
-    printf("AFTER: nhdu = %d\n", nhdu);
 
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
@@ -291,7 +290,6 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   nPixelsTot = n_columns * n_rows;      // number of pixels in the image
   
   // Allocate memory for the image-data vector:
-  //imageVector = (double *) malloc(nPixelsTot * sizeof(double));
   imageVector = fftw_alloc_real(nPixelsTot);
   // Read in the image data
   problems = fits_read_pix(imfile_ptr, TDOUBLE, firstPixel, nPixelsTot, NULL, imageVector,

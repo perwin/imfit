@@ -1,0 +1,10 @@
+# config file for imfit: simple Gaussian, small image
+ORIGINAL_SKY	100
+
+X0		4.5		1,10
+Y0		4.5		1,10
+FUNCTION Gaussian
+PA              0               fixed
+ell             0               fixed
+I_0             500             1,2000
+sigma   		3               0.1,15

@@ -1,0 +1,48 @@
+	Image file = tests/test_multiextension_hdu0empty.fits[1][1:8,1:8]
+	configuration file = tests/config_imfit_small-gaussian.dat
+Value from config file: original sky = 100.000000
+Reading data image ("tests/test_multiextension_hdu0empty.fits[1][1:8,1:8]") ...
+naxis1 [# pixels/row] = 8, naxis2 [# pixels/col] = 8; nPixels_tot = 64
+* No PSF image supplied -- no image convolution will be done!
+Function: Gaussian
+6 total parameters
+Estimated memory use: 6656 bytes (0.0 MB)
+Model Object: 64 data values (pixels)
+* No noise image supplied ... will generate noise image from input data image.
+ModelObject: mask vector applied to weight vector. (64 valid pixels remain)
+Setting up parameter information array ...
+4 free parameters (60 degrees of freedom)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 84.525665
+	mpfit iteration 2: fit statistic = 69.072602
+	mpfit iteration 3: fit statistic = 69.053955
+	mpfit iteration 4: fit statistic = 69.053948
+	mpfit iteration 5: fit statistic = 69.053948
+
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+  CHI-SQUARE = 69.053948    (60 DOF)
+  INITIAL CHI^2 = 1457.981067
+        NPAR = 6
+       NFREE = 4
+     NPEGGED = 0
+     NITER = 6
+      NFEV = 26
+
+Reduced Chi^2 = 1.150899
+AIC = 77.731914, BIC = 85.689480
+
+X0		4.9882 # +/- 0.0332
+Y0		4.9930 # +/- 0.0330
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		505.169 # +/- 7.78522
+sigma		 2.4924 # +/- 0.0285509
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.004407 sec for fit, 0.008354 sec total)
+Done!
+

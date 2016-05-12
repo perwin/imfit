@@ -6,6 +6,18 @@
 // $CXXTESTGEN --error-printer -o test_runner_imageio.cpp unit_tests/unittest_image_io.t.h 
 // $CPP -o test_runner_imageio test_runner_imageio.cpp core/image_io.cpp -I. -I/usr/local/include -Icore -I$CXXTEST -lcfitsio -lfftw3
 
+// makeimage
+// 	1. GetImageSize(options.referenceImageName, &nColumns, &nRows)
+// 	2. ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf)
+// 	3. same as 2, for oversampled PSF
+// 
+// imfit
+// 	Numerous calls to ReadImageAsVector
+// // [ ] CheckImage
+// [ ] GetImageSize with various HDUs
+
+
+
 #include <cxxtest/TestSuite.h>
 
 #include <stdio.h>
@@ -25,12 +37,13 @@ const string  TARGET_FOR_NULL_IMAGE("nullimage_temp.fits");
 const double  VALUE_LL = 20.903625;
 const double  VALUE_UR = 14.947027;
 // test images with no image data, or none in primary HDU
-const string  TEST_IMAGE_EMPTY("tests/test_emptyhdu.fits");
-const string  TEST_TABLE("tests/test_table.fits");
+const string  TEST_FILE_EMPTYHDU("tests/test_emptyhdu.fits");
+const string  TEST_FILE_TABLE("tests/test_table.fits");
 // possibly good image (empty primary HDU, good image in 2nd HDU)
-const string  TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU("tests/test_multiextension_hdu1empty.fits");
-// file with images in both primary HDU and 2nd HDU
+const string  TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU("tests/test_multiextension_hdu0empty.fits");
+// files with images in both primary HDU and 2nd HDU
 const string  TEST_IMAGE_MULTI_2IMAGEHDUS("tests/test_multiextension_2images.fits");
+const string  TEST_IMAGE_MULTI_2IMAGEHDUS2("tests/multiextension_ic3478rss_64x64_twice.fits");
 // nonexistent file (for error-checking)
 const string  BAD_IMAGE_NAME("no_image_with_this_name.fits");
 // filename for an image file we can't possibly write (permission denied or
@@ -67,27 +80,80 @@ public:
     TS_ASSERT_EQUALS(response, -1);
   }
 
-  // Test for CheckForImage() with files containing empty HDUs
+  // Test for CheckForImage() with file containing only empty HDU
   void testCheckForImage_emptyfiles( void )
   {
     int  response;
     int  nCols, nRows;
 
-    response = CheckForImage(TEST_IMAGE_EMPTY);    
+    response = CheckForImage(TEST_FILE_EMPTYHDU);    
     TS_ASSERT_EQUALS(response, -1);
   }
 
-  // Test for CheckForImage() with files containing empty HDUs
+  // Test for CheckForImage() with files containing only a table
   void testCheckForImage_tablefile( void )
   {
     int  response;
     int  nCols, nRows;
 
-    response = CheckForImage(TEST_TABLE);    
+    response = CheckForImage(TEST_FILE_TABLE);    
     TS_ASSERT_EQUALS(response, -1);
   }
 
-  // Test for GetImageSize() with good file
+  // Test for CheckForImage() with multi-ext. containing empty primary HDU
+  void testCheckForImage_multiext_emptyprimary( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU);    
+    TS_ASSERT_EQUALS(response, -1);
+  }
+
+  // Test for CheckForImage() with multi-ext. containing empty primary HDU, specifying
+  // 2nd HDU (valid image)
+  void testCheckForImage_multiext_emptyprimary_hdu1( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU + "[1]");    
+    TS_ASSERT_EQUALS(response, 1);
+  }
+
+  // Test for CheckForImage() with multi-ext. file (primary HDU = valid image)
+  void testCheckForImage_multiext_hdu1( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(TEST_IMAGE_MULTI_2IMAGEHDUS);    
+    TS_ASSERT_EQUALS(response, 1);
+  }
+
+  // Test for CheckForImage() with multi-ext. file (explicitly specifying primary HDU = valid image)
+  void testCheckForImage_multiext_hdu1v2( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(TEST_IMAGE_MULTI_2IMAGEHDUS + "[0]");    
+    TS_ASSERT_EQUALS(response, 1);
+  }
+
+  // Test for CheckForImage() with multi-ext. file (explicitly specifying second HDU = valid image)
+  void testCheckForImage_multiext_hdu2( void )
+  {
+    int  response;
+    int  nCols, nRows;
+
+    response = CheckForImage(TEST_IMAGE_MULTI_2IMAGEHDUS + "[1]");    
+    TS_ASSERT_EQUALS(response, 1);
+  }
+
+
+
+  // Test for GetImageSize() with good image file
   void testGetImageSize_good( void )
   {
     int  status;
@@ -108,13 +174,13 @@ public:
     TS_ASSERT_EQUALS(-1, status);
   }
 
-  // Test for GetImageSize() with empty FITS files
+  // Test for GetImageSize() with empty FITS files (or empty primary HDU)
   void testGetImageSize_emptyfile( void )
   {
     int  status;
     int  nCols, nRows;
 
-    status = GetImageSize(TEST_IMAGE_EMPTY, &nCols, &nRows);
+    status = GetImageSize(TEST_FILE_EMPTYHDU, &nCols, &nRows);
     TS_ASSERT_EQUALS(-1, status);
 
     status = GetImageSize(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU, &nCols, &nRows);
@@ -127,7 +193,7 @@ public:
     int  status;
     int  nCols, nRows;
 
-    status = GetImageSize(TEST_TABLE, &nCols, &nRows);
+    status = GetImageSize(TEST_FILE_TABLE, &nCols, &nRows);
     TS_ASSERT_EQUALS(-1, status);
   }
 
@@ -240,33 +306,107 @@ class MultiExtTestSuite : public CxxTest::TestSuite
 {
 public:
 
-  // Test for CheckForImage() with good file
-  // Test for CheckForImage() with multi-ext. file: [empty HDU, good image]
-  void testCheckForImage_multiextv1( void )
+  void testCheckHDUForImage_valid1( void )
   {
-    int  response;
-    int  nCols, nRows;
+    fitsfile  *imfile_ptr;
+    int  problems = 0;
+    int  status = 0;
+    int  imageHDU_num = -1;
+    bool  result;
 
-    // later we may modify CheckForImage [and image-reading code] so that
-    // they correctly ID the 2nd HDU as a valid image. For now, we treat
-    // this file as bad.
-    response = CheckForImage(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU);    
-    TS_ASSERT_EQUALS(response, -1);
+    problems = fits_open_file(&imfile_ptr, TEST_IMAGE_32x32.c_str(), READONLY, &status);
+    result = CheckHDUForImage(imfile_ptr, 1, &status);
+    TS_ASSERT_EQUALS(result, true);
+    fits_close_file(imfile_ptr, &status);
   }
 
-  // Test for CheckForImage() with multi-ext. file: [image in first HDU]
-  void testCheckForImage_multiextv2( void )
+  void testCheckHDUForImage_valid2( void )
   {
-    int  response;
-    int  nCols, nRows;
+    fitsfile  *imfile_ptr;
+    int  problems = 0;
+    int  status = 0;
+    int  imageHDU_num = -1;
+    bool  result;
 
-    // later we may modify CheckForImage [and image-reading code] so that
-    // they correctly ID the 2nd HDU as a valid image. For now, we treat
-    // this file as bad.
-    response = CheckForImage(TEST_IMAGE_MULTI_2IMAGEHDUS);    
-    TS_ASSERT_EQUALS(response, 1);
+    problems = fits_open_file(&imfile_ptr, TEST_IMAGE_MULTI_2IMAGEHDUS.c_str(), READONLY, &status);
+    result = CheckHDUForImage(imfile_ptr, 1, &status);
+    TS_ASSERT_EQUALS(result, true);
+    fits_close_file(imfile_ptr, &status);
   }
 
+  void testCheckHDUForImage_valid3( void )
+  {
+    fitsfile  *imfile_ptr;
+    int  problems = 0;
+    int  status = 0;
+    int  imageHDU_num = -1;
+    bool  result;
+
+    problems = fits_open_file(&imfile_ptr, TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU.c_str(), READONLY, &status);
+    result = CheckHDUForImage(imfile_ptr, 2, &status);
+    TS_ASSERT_EQUALS(result, true);
+    fits_close_file(imfile_ptr, &status);
+  }
+
+  void testCheckHDUForImage_valid4( void )
+  {
+    fitsfile  *imfile_ptr;
+    int  problems = 0;
+    int  status = 0;
+    int  imageHDU_num = -1;
+    bool  result;
+
+    problems = fits_open_file(&imfile_ptr, TEST_IMAGE_MULTI_2IMAGEHDUS.c_str(), READONLY, &status);
+    result = CheckHDUForImage(imfile_ptr, 2, &status);
+    TS_ASSERT_EQUALS(result, true);
+    fits_close_file(imfile_ptr, &status);
+  }
+
+
+  void testCheckHDUForImage_invalid1( void )
+  {
+    fitsfile  *imfile_ptr;
+    int  problems = 0;
+    int  status = 0;
+    int  imageHDU_num = -1;
+    bool  result;
+
+    problems = fits_open_file(&imfile_ptr, TEST_FILE_EMPTYHDU.c_str(), READONLY, &status);
+    result = CheckHDUForImage(imfile_ptr, 1, &status);
+    TS_ASSERT_EQUALS(result, false);    
+    fits_close_file(imfile_ptr, &status);
+  }
+
+  void testCheckHDUForImage_invalid2( void )
+  {
+    fitsfile  *imfile_ptr;
+    int  problems = 0;
+    int  status = 0;
+    int  imageHDU_num = -1;
+    bool  result;
+
+    problems = fits_open_file(&imfile_ptr, TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU.c_str(), READONLY, &status);
+    result = CheckHDUForImage(imfile_ptr, 1, &status);
+    TS_ASSERT_EQUALS(result, false);    
+    fits_close_file(imfile_ptr, &status);
+  }
+
+  void testCheckHDUForImage_invalid3( void )
+  {
+    fitsfile  *imfile_ptr;
+    int  problems = 0;
+    int  status = 0;
+    int  imageHDU_num = -1;
+    bool  result;
+
+    problems = fits_open_file(&imfile_ptr, TEST_FILE_TABLE.c_str(), READONLY, &status);
+    result = CheckHDUForImage(imfile_ptr, 1, &status);
+    TS_ASSERT_EQUALS(result, false);    
+    fits_close_file(imfile_ptr, &status);
+  }
+  
+  
+  
   // Test reading of 1st HDU in multi-ext image via "imagename.fits[1]"
   // Test for GetImageSize() with good file
   void testGetImageSize_hdu2image( void )
@@ -284,10 +424,18 @@ public:
     status = GetImageSize(imageName, &nCols, &nRows);    
     TS_ASSERT_EQUALS(nCols, 10);
     TS_ASSERT_EQUALS(nRows, 10);
+
+	imageName = TEST_IMAGE_MULTI_2IMAGEHDUS2 + "[0]";
+    status = GetImageSize(imageName, &nCols, &nRows);    
+    TS_ASSERT_EQUALS(nCols,64);
+    TS_ASSERT_EQUALS(nRows, 64);
+
+	imageName = TEST_IMAGE_MULTI_2IMAGEHDUS2 + "[1]";
+    status = GetImageSize(imageName, &nCols, &nRows);    
+    TS_ASSERT_EQUALS(nCols, 64);
+    TS_ASSERT_EQUALS(nRows, 64);
   }
 
-
-  // Test reading of 2nd HDU in multi-ext image via "imagename.fits[2]"
 
 };
 

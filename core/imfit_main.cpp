@@ -163,7 +163,6 @@ int main(int argc, char *argv[])
   SetDefaultImfitOptions(&options);
   ProcessInput(argc, argv, &options);
 
-
   // Check for presence of user-requested files; if any are missing, quit.
   // (Appropriate error messages regarding which files are missing will be printed
   // to stderr by RequestedFilesPresent)

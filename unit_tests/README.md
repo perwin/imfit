@@ -5,7 +5,7 @@ This directory contains code for unit tests for (some of) Imfit's various functi
 The shell script `run_unit_tests.sh` in the top-level directory will compile and execute all
 the tests; it does so by calling the individual `run_unittest_*` shell scripts in the
 top-level directory. (You can also execute the individual scripts by themselves if you
-just want to run one set of unit tests.)
+just want to run one set of tests.)
 
 To run the tests, you will need to install the
 [CxxTest](http://cxxtest.com) unit-test framework. You should also

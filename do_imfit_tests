@@ -14,6 +14,14 @@ then
   echo -n "Tests will skip comparison of FITS files"
 fi
 
+case "$OSTYPE" in
+  darwin*)  osname="osx" ;; 
+  linux*)   osname="linux" ;;
+  *)        echo "unknown: $OSTYPE" ;;
+esac
+
+STATUS=0
+
 # create output directory for test_dump*, etc. files (will do nothing if
 # directory already exists)
 mkdir -p temptest
@@ -22,43 +30,43 @@ mkdir -p temptest
 echo ""
 echo "Running tests for imfit..."
 # simple tests using small images
-./imfit --config tests/config_imfit_expdisk32.dat --noise tests/uniform_image32.fits tests/testimage_expdisk32.fits --nosubsampling &> temptest/test_dump1
+./imfit -c tests/config_imfit_expdisk32.dat --noise tests/uniform_image32.fits tests/testimage_expdisk32.fits --nosubsampling &> temptest/test_dump1
 
 # test using cutout SDSS image
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> temptest/test_dump2
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> temptest/test_dump2
 # same, now with gain, etc. put into config file
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat  &> temptest/test_dump3
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat  &> temptest/test_dump3
 # same, using N-M Simplex fitting
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --nm --quiet &> temptest/test_dump3b
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --nm --quiet &> temptest/test_dump3b
 # same, using DE fitting [skip if requested by user, since it's slow!]
 if [ "$1" == "--all" ]
 then
   echo -n "   (now running fit with DE ...)"
-  ./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --de &> temptest/test_dump3c
+  ./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --de &> temptest/test_dump3c
   echo ""
 else
   echo "   (-- skipping DE test --)"
 fi
 # same L-M fit with --loud turned on, to ensure we print intermediate values correctly during fit
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --loud  &> temptest/test_dump3d
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --loud  &> temptest/test_dump3d
 # same, but now with Sersic n fixed (to ensure we don't re-introduce bug originally seen when
 # using --loud and one or more fixed parameters)
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --loud  &> temptest/test_dump3d2
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64c.dat --loud  &> temptest/test_dump3d2
 
 # same L-M fit, using external noise image (default = sigmas)
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --noise=tests/ic3478rss_64x64_sigma.fits  &> temptest/test_dump3e
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64c.dat --noise=tests/ic3478rss_64x64_sigma.fits  &> temptest/test_dump3e
 # same L-M fit, using external variance image (default = sigmas)
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64c.dat --noise=tests/ic3478rss_64x64_variance.fits --errors-are-variances  &> temptest/test_dump3e2
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64c.dat --noise=tests/ic3478rss_64x64_variance.fits --errors-are-variances  &> temptest/test_dump3e2
 # same L-M fit, using external "weight" image (= inverse variance)
 
 # test non-square SDSS image + PSF convolution; then test count/sec version with --exptime
 # option; then just do chisquare-only calculations (for chi^2 and Cash statistic)
 echo -n "   (now running fit with PSF convolution ...)"
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> temptest/test_dump4
+./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> temptest/test_dump4
 # test on count/sec image using --exptime; remember to rescale --sky as well! (= 154.33 / 53.907456)
-./imfit tests/n3073rss_small_cps.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --exptime=53.907456 --sky=2.8628692847238053 &> temptest/test_dump4b
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> temptest/test_dump4c
-./imfit tests/n3073rss_small.fits --config tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only --cashstat &> temptest/test_dump4d
+./imfit tests/n3073rss_small_cps.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --exptime=53.907456 --sky=2.8628692847238053 &> temptest/test_dump4b
+./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> temptest/test_dump4c
+./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only --cashstat &> temptest/test_dump4d
 echo ""
 
 # test use of oversampled PSF (don't use L-M; doesn't converge)
@@ -74,63 +82,73 @@ fi
 
 # test fitting with Cash statistic
 echo -n "   (now running Cash-statistic and Poisson MLR fits ...)"
-./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nm &> temptest/test_dump5a
+./imfit tests/testimage_poisson_lowsn20.fits -c tests/config_imfit_poisson.dat --cashstat --nm &> temptest/test_dump5a
 # test fitting with Poisson MLR statistic (using image that failed before fabs() bug-fix)
-./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --mlr --nm &> temptest/test_dump5b
-./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --mlr &> temptest/test_dump5c
+./imfit tests/testimage_poisson_lowsn20.fits -c tests/config_imfit_poisson.dat --mlr --nm &> temptest/test_dump5b
+./imfit tests/testimage_poisson_lowsn20.fits -c tests/config_imfit_poisson.dat --mlr &> temptest/test_dump5c
 # test fitting with image that failed prior to the fabs() bug-fix
-./imfit tests/pgc35772_continuum.fits[340:630,300:580] --config tests/config_imfit_pgc35772.dat --mask=tests/pgc35772_mask.fits[340:630,300:580] --mlr  &> temptest/test_dump5d
+./imfit tests/pgc35772_continuum.fits[340:630,300:580] -c tests/config_imfit_pgc35772.dat --mask=tests/pgc35772_mask.fits[340:630,300:580] --mlr  &> temptest/test_dump5d
 echo ""
 
 # test bootstrap resampling (just to see that program doesn't crash)
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 &> /dev/null
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 --save-bootstrap temp_bootstrap_output.dat &> /dev/null
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 &> /dev/null
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 --save-bootstrap temp_bootstrap_output.dat &> /dev/null
 
 # testing error-image generation and saving
 # first using data values for errors, then using model values (should be identical)
-./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --save-weights=temptest/test_weights_data.fits &> /dev/null
-./imfit tests/flatsky_128x128.fits --config tests/config_imfit_flatsky.dat --model-errors --save-weights=temptest/test_weights_model.fits &> /dev/null
+./imfit tests/flatsky_128x128.fits -c tests/config_imfit_flatsky.dat --save-weights=temptest/test_weights_data.fits &> /dev/null
+./imfit tests/flatsky_128x128.fits -c tests/config_imfit_flatsky.dat --model-errors --save-weights=temptest/test_weights_model.fits &> /dev/null
 
 # testing saving of model and residual images
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --save-model=temptest/test_model_ic3478.fits --save-residual=temptest/test_residual_ic3478.fits &> /dev/null
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --save-model=temptest/test_model_ic3478.fits --save-residual=temptest/test_residual_ic3478.fits &> /dev/null
 
 # Weird input-image problems: all pixels masked, mismatched image sizes,
 # FITS files that are tables or null-array (in the primary HDU)
-# testing that we catch the case of all pixels masked:
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/totalmask_64x64.fits  &> temptest/test_dump6
-# testing that we catch the case of mismatched image sizes:
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump6b
-# testing that we catch the case of a non-image HDU for the data image
-./imfit tests/test_emptyhdu.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump6c
-# testing that we the case of a non-image HDU for the mask image
-./imfit tests/ic3478rss_64x64.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/test_emptyhdu.fits  &> temptest/test_dump6d
-# testing that we catch the case of a non-image primary HDU in multi-extensions file
-./imfit tests/test_multiextension_hdu1empty.fits --config tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump6e
+# 6: testing that we catch error: case of all pixels masked:
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --mask tests/totalmask_64x64.fits  &> temptest/test_dump6
+# 6b: testing that we catch error: case of mismatched image sizes:
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump6b
+# 6c: testing that we catch error: case of a non-image (empty) HDU for the data image
+./imfit tests/test_emptyhdu.fits -c tests/imfit_config_ic3478_64x64b.dat &> temptest/test_dump6c
+# 6d: testing that we catch error: case of a non-image (table) HDU for the data image (empty HDU 0, table in HDU 1)
+./imfit tests/test_table.fits -c tests/imfit_config_ic3478_64x64b.dat &> temptest/test_dump6d
+# 6e: testing that we catch error: case of a non-image HDU for the mask image
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --mask tests/test_emptyhdu.fits  &> temptest/test_dump6e
+# 6f: testing that we catch error: case of multi-extension FITS file with [0] naming empty primary HDU
+./imfit tests/test_multiextension_hdu0empty.fits[0] -c tests/imfit_config_ic3478_64x64b.dat &> temptest/test_dump6f
+# And a couple of cases with *valid* images -- testing that we handle "[n]" and "[n][x1:x2,y1:y2]" correctly
+# 6g: testing that we handle case of multi-extension FITS file with [1] naming valid image HDU
+./imfit tests/test_multiextension_hdu0empty.fits[1] -c tests/config_imfit_small-gaussian.dat &> temptest/test_dump6g
+# 6h: testing that we handle case of multi-extension FITS file with [1] + image subsection
+./imfit tests/test_multiextension_hdu0empty.fits[1][1:8,1:8] -c tests/config_imfit_small-gaussian.dat &> temptest/test_dump6h
 
 # test to see if we mask NaN value in small image (3x3, all pixels = 1.5 except corner = NaN)
-./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_nan.fits &> temptest/test_dump7a
+./imfit -c tests/config_3x3_flatsky.dat tests/testimage_3x3_nan.fits &> temptest/test_dump7a
 # test to see if we mask NaN value in mask image (3x3, all pixels = 0 except corner = NaN)
-./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_ones.fits --mask=tests/testimage_3x3_mask-with-nan.fits &> temptest/test_dump7b
+./imfit -c tests/config_3x3_flatsky.dat tests/testimage_3x3_ones.fits --mask=tests/testimage_3x3_mask-with-nan.fits &> temptest/test_dump7b
 # test to see if we mask NaN value in error image (3x3, all pixels = 1.5 except corner = NaN)
-./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_ones.fits --noise=tests/testimage_3x3_nan.fits &> temptest/test_dump7c
+./imfit -c tests/config_3x3_flatsky.dat tests/testimage_3x3_ones.fits --noise=tests/testimage_3x3_nan.fits &> temptest/test_dump7c
 # test to see if we correctly catch bad pixel value (=0, which is bad for data-based chi^2 estimation)
-./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits &> temptest/test_dump7d
+./imfit -c tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits &> temptest/test_dump7d
 # and now test to see if we correctly ignore bad pixel value when it's masked
-./imfit --config tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits --mask=tests/mask_for_onezero.fits &> temptest/test_dump7e
+./imfit -c tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits --mask=tests/mask_for_onezero.fits &> temptest/test_dump7e
  
 #    Testing to see that bad config files are caught:
-./imfit --config tests/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
-./imfit --config tests/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
-./imfit --config tests/config_makeimage_sersictest512_bad3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad3
-./imfit --config tests/config_makeimage_sersictest512_bad4.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad4
-./imfit --config tests/config_imfit_sersictest512_badlimits1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad5
-./imfit --config tests/config_imfit_sersictest512_badlimits2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad6
-./imfit --config tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
-./imfit --config tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
-./imfit --config tests/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
+./imfit -c tests/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
+./imfit -c tests/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
+./imfit -c tests/config_makeimage_sersictest512_bad3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad3
+./imfit -c tests/config_makeimage_sersictest512_bad4.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad4
+./imfit -c tests/config_imfit_sersictest512_badlimits1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad5
+./imfit -c tests/config_imfit_sersictest512_badlimits2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad6
+./imfit -c tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
+./imfit -c tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
+./imfit -c tests/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
 
 #    Other input testing -- bad NLOpt specifiers, etc.
-./imfit tests/testimage_poisson_lowsn20.fits --config tests/config_imfit_poisson.dat --cashstat --nlopt=BADNAME &> temptest/test_dump_badnloptname
+./imfit tests/testimage_poisson_lowsn20.fits -c tests/config_imfit_poisson.dat --cashstat --nlopt=BADNAME &> temptest/test_dump_badnloptname
+
+
+
 
 echo ""
 
@@ -229,28 +247,30 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump6 tests/imfit_textout6
+  STATUS=1
 fi
-
-# echo -n "*** Diff comparison with archives: catching the case mismatch in data and mask sizes... "
-# if (diff --brief temptest/test_dump6b tests/imfit_textout6b)
-# then
-#   echo " OK"
-# else
-#   echo "Diff output:"
-#   diff temptest/test_dump6b tests/imfit_textout6b
-# fi
 
 echo -n "*** Diff comparison with archives: catching the case of mismatch in data and mask sizes... "
 ./python/diff_printouts.py tests/imfit_textout6b temptest/test_dump6b
 
-echo -n "*** Diff comparison with archives: catching non-image FITS file for data image... "
+echo -n "*** Diff comparison with archives: catching non-image FITS file (empty HDU) for data image... "
 ./python/diff_printouts.py tests/imfit_textout6c temptest/test_dump6c
 
-echo -n "*** Diff comparison with archives: catching non-image FITS file for mask image... "
+echo -n "*** Diff comparison with archives: catching non-image FITS file (table in HDU 1) for data image... "
 ./python/diff_printouts.py tests/imfit_textout6d temptest/test_dump6d
 
-echo -n "*** Diff comparison with archives: catching non-image primary HDU in multi-ext. FITS file... "
+echo -n "*** Diff comparison with archives: catching non-image FITS file (empty HDU) for mask image... "
 ./python/diff_printouts.py tests/imfit_textout6e temptest/test_dump6e
+
+echo -n "*** Diff comparison with archives: catching [0] referring to empty HDU... "
+./python/diff_printouts.py tests/imfit_textout6f temptest/test_dump6f
+
+echo -n "*** Diff comparison with archives: correctly handling [1] referring to valid image in FITS file... "
+./python/diff_printouts.py tests/imfit_textout6g temptest/test_dump6g --skip-last=3
+
+echo -n "*** Diff comparison with archives: correctly handling [1] + image subsection... "
+./python/diff_printouts.py tests/imfit_textout6h temptest/test_dump6h --skip-last=3
+
 
 echo -n "*** Diff comparison with archives: automatic masking of NaN values in data... "
 ./python/diff_printouts.py tests/imfit_textout7a temptest/test_dump7a --skip-last=3
@@ -277,6 +297,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_bad1 tests/imfit_textout_bad1
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 2... "
@@ -286,6 +307,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_bad2 tests/imfit_textout_bad2
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 3... "
@@ -295,6 +317,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_bad3 tests/imfit_textout_bad3
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 4... "
@@ -304,6 +327,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_bad4 tests/imfit_textout_bad4
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 5... "
@@ -313,6 +337,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_bad5 tests/imfit_textout_bad5
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 6... "
@@ -322,6 +347,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_bad6 tests/imfit_textout_bad6
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 7... "
@@ -331,6 +357,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_bad7 tests/imfit_textout_bad7
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad parameter specification... "
@@ -340,6 +367,7 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_bad8 tests/imfit_textout_bad7
+  STATUS=1
 fi
 
 echo -n "*** Diff comparison with archives: bad --nlopt name... "
@@ -349,9 +377,12 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump_badnloptname tests/imfit_textout_badnloptname
+  STATUS=1
 fi
 
 
 echo ""
 echo "Done."
 echo ""
+
+exit $STATUS

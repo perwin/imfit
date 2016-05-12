@@ -1009,6 +1009,8 @@ keywords in the \textsc{fits} file.
 
 \section{Specifying Image Subsections, Compressed Images, etc.}
 
+\subsection{Image Subsections}
+
 In many cases, you may want to fit an object which is much smaller than the whole
 image. You can always make a smaller cutout image and fit that, but it may be convenient to
 specify the image subsection directly. You can do this using a subset of the image-section
@@ -1027,8 +1029,22 @@ The only kind of image section specification that's allowed is a simple
 [x1:x2,y1:y2] format, though you can specify all of a particular dimension using
 an asterisk (e.g., [*,y1:y2] to specify the full range of x values). More
 complicated expressions which might extract part of a 3D datacube are not
-(currently) possible. However, you \textit{can} specify a particular extension
-(header-data unit) in a multi-extension \textsc{fits} file, e.g.:
+(currently) possible. 
+
+Obviously, if you are also using a mask image (and/or a noise image), you should
+specify the same subsection in those images!
+
+
+\subsection{Image Extensions; Compressed Files}
+
+By default, \Imfit{} will try to read the first (``primary'') Header
+Data Unit (HDU) in a \textsc{fits} file. If this is \textit{not} a
+proper 2D image -- e.g, if it is an empty, header-only HUD; if it is a
+1D spectrum; if it is a table; etc.\ -- then \Imfit{} will report an
+error and quit.
+
+You \textit{can} specify a particular extension in a multi-extension
+\textsc{fits} file using the \textsc{cfitsio} format, e.g.:
 
 \begin{quote}
 ic3478rss.fits[2]
@@ -1036,14 +1052,14 @@ ic3478rss.fits[2]
 ic3478rss.fits[2][45:150,200:310]
 \end{quote}
 
-Obviously, if you are also using a mask image (and/or a noise image), you should
-specify the same subsection in those images!
+This particular numbering scheme is zero-based: the primary HDU is 0, the
+first extension (which is the second HDU) is 1, etc.
 
-You can also fit (or generate) images which have been compressed with gzip or
-Unix compress --- e.g., \texttt{ic3478rss\_256.fits.gz}.
-Images, masks, etc., can even be read via \texttt{http://} or \texttt{ftp://} URLs which point directly to
-accessible \textsc{fits} files; you
-cannot \textit{save} files to URLs, however.
+You can also fit (or generate) images which have been compressed with
+gzip or Unix compress -- e.g., \texttt{ic3478rss\_256.fits.gz}. Images,
+masks, etc., can even be read via \texttt{http://} or \texttt{ftp://}
+URLs which point directly to accessible \textsc{fits} files; you cannot
+\textit{save} files to URLs, however.
 
 
 
