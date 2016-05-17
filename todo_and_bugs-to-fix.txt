@@ -4,62 +4,30 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-[] Handle multi-extension FITS images
-	-- at least to the point of recognizing them and complaining clearly
-		
-	[] When reading in a FITS file (data, mask, PSF, etc.), check to see if
-	it's multi-extension
-		[X] Generate error if primary HDU is *not* a 2D image
-	
-	[] PROBLEM: how to handle user-suppled "....fits[n]" filename?
-		Need to check that image *had* at least n HDUs
-		Need to explicitly check whether HDU n is an image
-	
-	WHERE WE ARE, WHAT TO DO NEXT:
-		1. ./imfit tests/test_multiextension_hdu1empty.fits --config tests/imfit_config_ic3478_64x64b.dat
-		FAILS because, inside ReadImageAsVector, CheckImage returns 2 [we think] for
-		valid HDU number, but ReadImageAsVector only checks to see if value is > 0,
-		and then goes ahead and reads the first HDU!
-			-- ReadImageAsVector needs to check 
-			-- How should ReadImageAsVector and CheckImage handle user-specified
-			"[n]" HDU numbers?
-		2. We need to figure out how cfitsio numbers the HDUs (is the first one always
-		"[1]"? what happens if user gives "[0]"			
-			OK: the answer is: "The HDU may be specified either by
-			absolute position number, starting with 0 for the primary
-			array, or by reference to the HDU name, and optionally, the
-			version number and the HDU type of the desired extension."
-			
-			BUT: the documentation for fits_movabs_hdu says: "The first
-			routine moves to a specified absolute HDU number (starting
-			with 1 for the primary array) in the FITS file,"
-			
-			SO: User-specified "[n]" numbering is 0-based, but internal
-			numbering is 1-based!
-			
-			
-
-
-*[X] Check input noise map (if supplied) for NaN values and add those pixels
-to mask.
-			1. Go through error and mask image simultaneously, ID bad error pixels
-			and add to mask
-			
-			
-	[X] Set up example noise-map image with NaN values for testing
-	[X] Apply change to:
-		ModelObject::FinalSetupForFitting( )
-		[after "Identify currently unmasked data pixels which have non-finite values" step]
-	[X] Test change
-
-
 [] Implement Kahan summation in PSF normalization
 	Convolver::DoFullSetup
 
 [] Implement Kahan summation in ModelObject::FindTotalFluxes
+	-- http://stackoverflow.com/questions/18013345/openmp-parallel-for-reduction-delivers-wrong-results
 	[] Compute some current flux outputs (e.g., including correct total flux for Exponential)
 	[] Implement Kahan summation
 	[] Compare results with/without Kahan summation
+	
+	Testing Gaussian (I_0 = 1, sigma = 10)
+				true				--print-fluxes
+	circular	628.3185307179587	628.18
+	ell=0.25	471.23889803846896	471.10
+	Testing Gaussian (I_0 = 1, sigma = 1)
+				true				--print-fluxes
+	circular	6.283185307179587	6.2819
+
+	Testing Exponential (I_0 = 1, h = 10)
+				true				--print-fluxes
+	circular	628.3185307179587	628.32
+	ell=0.25	471.23889803846896	471.24
+	Testing Exponential (I_0 = 1, h = 1)
+				true				--print-fluxes
+	circular	6.283185307179587	6.2832
 
 
 [] Test for possible memory-allocation failures
@@ -71,7 +39,7 @@ to mask.
 	[] Test using makeimage and very large --nrows,--ncols ?
 	
 
-[..] Add "const" specifies to input parameters of functions, as appropriate
+[..] Add "const" specifiers to input parameters of functions, as appropriate
 	Done through: convolver
 
 
@@ -330,4 +298,49 @@ for all minimizers)
 	or something like that)
 
 
+[X] Handle multi-extension FITS images
+	-- at least to the point of recognizing them and complaining clearly
+		
+	[] When reading in a FITS file (data, mask, PSF, etc.), check to see if
+	it's multi-extension
+		[X] Generate error if primary HDU is *not* a 2D image
+	
+	[] PROBLEM: how to handle user-suppled "....fits[n]" filename?
+		Need to check that image *had* at least n HDUs
+		Need to explicitly check whether HDU n is an image
+	
+	WHERE WE ARE, WHAT TO DO NEXT:
+		1. ./imfit tests/test_multiextension_hdu1empty.fits --config tests/imfit_config_ic3478_64x64b.dat
+		FAILS because, inside ReadImageAsVector, CheckImage returns 2 [we think] for
+		valid HDU number, but ReadImageAsVector only checks to see if value is > 0,
+		and then goes ahead and reads the first HDU!
+			-- ReadImageAsVector needs to check 
+			-- How should ReadImageAsVector and CheckImage handle user-specified
+			"[n]" HDU numbers?
+		2. We need to figure out how cfitsio numbers the HDUs (is the first one always
+		"[1]"? what happens if user gives "[0]"			
+			OK: the answer is: "The HDU may be specified either by
+			absolute position number, starting with 0 for the primary
+			array, or by reference to the HDU name, and optionally, the
+			version number and the HDU type of the desired extension."
+			
+			BUT: the documentation for fits_movabs_hdu says: "The first
+			routine moves to a specified absolute HDU number (starting
+			with 1 for the primary array) in the FITS file,"
+			
+			SO: User-specified "[n]" numbering is 0-based, but internal
+			numbering is 1-based!
+
+
+*[X] Check input noise map (if supplied) for NaN values and add those pixels
+to mask.
+			1. Go through error and mask image simultaneously, ID bad error pixels
+			and add to mask
+			
+			
+	[X] Set up example noise-map image with NaN values for testing
+	[X] Apply change to:
+		ModelObject::FinalSetupForFitting( )
+		[after "Identify currently unmasked data pixels which have non-finite values" step]
+	[X] Test change
 

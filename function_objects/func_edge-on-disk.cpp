@@ -1,14 +1,22 @@
 /* FILE: func_edge-on-disk.cpp ----------------------------------------- */
-/* VERSION 0.3
+/* 
  *
  *   Class derived from FunctionObject (function_object.h/cpp) which produces
  * surface brightnesses for a generalized edge-on exponential disk, using 
  * Bessel-function solution of van der Kruit & Searle (1981) for radial profile 
- * and generalized sech function (van der Kruit 1988) for vertical profile:
+ * and generalized sech function (van der Kruit 1988) for vertical profile.
  *
+ *   Starting with the following for the luminosity density:
+ *      L_(r,z) = L_0 exp(-r/h) * sech^(2/n)(n*z/(2*z0))
+ *
+ *   The edge-on surface-brightness is
  *      Sigma(r,z) = Sigma(0,) * (r/h) * K_1(r/h) * sech^(2/n)(n*z/(2*z0))
+ *         where Sigma(0,0) = 2 * h * L_0
  *
- *    with Sigma(0,0) = 2 * h * L_0
+ *   And the face-on surface-brightness is
+ *      mu(r) = mu_0 exp(-r/h)
+ *         where mu_0 = 2 z_0 L_0
+ *
  *
  *   Note that for the case of a sech^2 vertical profile (n = 1), our z0
  * is 1/2 of the usual z0 in e.g. van der Kruit & Searle (1981).
@@ -43,7 +51,7 @@
  *     [v0.1]  21 Sept 2010: Created as modification of func_broken-exp2d.cpp.
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -237,7 +245,6 @@ int EdgeOnDisk::CalculateSubsamples( double r, double z )
   }
   return nSamples;
 }
-
 
 
 /* END OF FILE: func_edge-on-disk.cpp ---------------------------------- */

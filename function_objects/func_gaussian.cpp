@@ -40,6 +40,7 @@ using namespace std;
 const int  N_PARAMS = 4;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "sigma"};
 const char  FUNCTION_NAME[] = "Elliptical Gaussian function";
+const double PI = 3.14159265358979;
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
@@ -170,5 +171,19 @@ int Gaussian::CalculateSubsamples( double r )
 }
 
 
+/* ---------------- PUBLIC METHOD: CanCalculateTotalFlux --------------- */
+
+bool Gaussian::CanCalculateTotalFlux( )
+{
+  return true;
+}
+
+
+/* ---------------- PUBLIC METHOD: TotalFlux --------------------------- */
+
+double Gaussian::TotalFlux( )
+{
+  return (1.0 - ell)*2.0*PI*I_0*sigma*sigma;
+}
 
 /* END OF FILE: func_gaussian.cpp -------------------------------------- */

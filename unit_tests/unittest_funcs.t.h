@@ -28,6 +28,8 @@ using namespace std;
 
 #define DELTA  1.0e-10
 
+const double PI  =3.14159265358979;
+
 
 class TestExponential : public CxxTest::TestSuite 
 {
@@ -80,7 +82,6 @@ public:
     // test setup: circular exponential with I_0 = 1, h = 10,
     double  params[4] = {90.0, 0.0, 1.0, 10.0};
     
-    
     thisFunc->Setup(params, 0, x0, y0);
     
     // FUNCTION-SPECIFIC:
@@ -93,6 +94,37 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
 
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, true);
+  }
+
+  void testTotalFlux_calcs( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular or elliptical exponential with I_0 = 1, h = 10,
+    double  I0 = 1.0;
+    double  h = 10.0;
+    double  ell1 = 0.0;
+    double  ell2 = 0.25;
+    double  params1[4] = {90.0, ell1, I0, h};
+    double  params2[4] = {90.0, ell2, I0, h};
+
+
+    // FUNCTION-SPECIFIC:
+    thisFunc->Setup(params1, 0, x0, y0);
+    double  correctCircFlux = 2.0*PI*I0*h*h;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA );
+    
+    thisFunc->Setup(params2, 0, x0, y0);
+    double  correctEllFlux = (1 - ell2) * correctCircFlux;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctEllFlux, DELTA );
   }
 };
 
@@ -164,6 +196,12 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), 1.0, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), 1.0, DELTA );
 
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
   }
 };
 
@@ -237,6 +275,37 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
 
   }
+  
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, true);
+  }
+
+  void testTotalFlux_calcs( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular or elliptical Gaussian with I_0 = 1, sigma = 10,
+    double  I0 = 1.0;
+    double  sigma = 10.0;
+    double  ell1 = 0.0;
+    double  ell2 = 0.25;
+    double  params1[4] = {90.0, ell1, I0, sigma};
+    double  params2[4] = {90.0, ell2, I0, sigma};
+
+
+    // FUNCTION-SPECIFIC:
+    thisFunc->Setup(params1, 0, x0, y0);
+    double  correctCircFlux = 2.0*PI*I0*sigma*sigma;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA );
+    
+    thisFunc->Setup(params2, 0, x0, y0);
+    double  correctEllFlux = (1 - ell2) * correctCircFlux;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctEllFlux, DELTA );
+  }
 };
 
 
@@ -309,6 +378,12 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
 
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
   }
 };
 
@@ -412,6 +487,12 @@ public:
     // along minor axis: delta-y = +/-0.5
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.5), rEqualsOneValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.5), rEqualsOneValue, DELTA );
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
   }
 };
 
@@ -554,6 +635,12 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsSigmaValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
   }
 };
 
@@ -700,6 +787,12 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
   }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
+  }
 };
 
 
@@ -814,6 +907,12 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 50.0), rEquals2RbValue, DELTA);
     TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 150.0), rEquals2RbValue, DELTA);
   }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
+  }
 };
 
 
@@ -858,6 +957,12 @@ public:
     thisFunc->GetParameterNames(paramNames);
     TS_ASSERT( paramNames == correctParamNames );
     
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
   }
 };
 
@@ -933,5 +1038,11 @@ public:
     //printf("offsetFlux = %.18f, x = %.18f\n", offsetFlux, x);
     TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 110.0), offsetFlux, DELTA );
 
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
   }
 };
