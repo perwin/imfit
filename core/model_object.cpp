@@ -1869,17 +1869,23 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
 
 //  int  chunk = OPENMP_CHUNK_SIZE;
 
+  // NOTE: I tried implementing the Kahan summation algorithm for this
+  // calculation; it increased the time for a single-component Gaussian
+  // model by a factor of 2--2.5, and did *not* produce any noticeable
+  // difference in output flux (even for a Gaussian with sigma = 500 pix).
+  // So: probably not useful to use Kahan summation here (better accuracy
+  // can be achieved by using native TotalFlux() methods of function
+  // objects).
+  
   totalModelFlux = 0.0;
   // Integrate over the image, once per function
   for (n = 0; n < nFunctions; n++) {
     if (functionObjects[n]->CanCalculateTotalFlux()) {
       totalComponentFlux = functionObjects[n]->TotalFlux();
+      printf("\tUsing %s.TotalFlux() method...\n", functionObjects[n]->GetShortName().c_str());
     } else {
       totalComponentFlux = 0.0;
-// Note: since this bit of OpenMP code explicitly involves integrating over a very large
-// image, we don't bother using the fast-for-small-images, single-loop version that's 
-// used in CreateModelImage()
-#pragma omp parallel private(i,j,x,y) reduction(+:totalComponentFlux)
+      #pragma omp parallel private(i,j,x,y) reduction(+:totalComponentFlux)
       {
       #pragma omp for schedule (static, ompChunkSize)
       for (i = 0; i < ySize; i++) {   // step by row number = y

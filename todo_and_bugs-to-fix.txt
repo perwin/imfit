@@ -7,27 +7,15 @@
 [] Implement Kahan summation in PSF normalization
 	Convolver::DoFullSetup
 
-[] Implement Kahan summation in ModelObject::FindTotalFluxes
+[-] Implement Kahan summation in ModelObject::FindTotalFluxes
 	-- http://stackoverflow.com/questions/18013345/openmp-parallel-for-reduction-delivers-wrong-results
-	[] Compute some current flux outputs (e.g., including correct total flux for Exponential)
-	[] Implement Kahan summation
-	[] Compare results with/without Kahan summation
+	[x] Compute some current flux outputs (e.g., including correct total flux for Exponential)
+	[x] Implement Kahan summation
+	[x] Compare results with/without Kahan summation
 	
-	Testing Gaussian (I_0 = 1, sigma = 10)
-				true				--print-fluxes
-	circular	628.3185307179587	628.18
-	ell=0.25	471.23889803846896	471.10
-	Testing Gaussian (I_0 = 1, sigma = 1)
-				true				--print-fluxes
-	circular	6.283185307179587	6.2819
-
-	Testing Exponential (I_0 = 1, h = 10)
-				true				--print-fluxes
-	circular	628.3185307179587	628.32
-	ell=0.25	471.23889803846896	471.24
-	Testing Exponential (I_0 = 1, h = 1)
-				true				--print-fluxes
-	circular	6.283185307179587	6.2832
+	RESUT: for case of simple Gaussian model, Kahan summation took 2--3 times as long
+	and produced *no* difference in calculated flux (at 10^-5 level), even for a
+	very extended Gaussian.
 
 
 [] Test for possible memory-allocation failures

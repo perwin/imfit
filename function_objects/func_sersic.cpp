@@ -1,6 +1,5 @@
 /* FILE: func_sersic.cpp ----------------------------------------------- */
-/* VERSION 0.3
- *
+/*
  *   Function object class for a Sersic function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
  *   
@@ -24,7 +23,7 @@
  *     [v0.1]: 19 Nov 2009: Created (as modification of func_exp.cpp.
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -49,6 +48,7 @@
 #include <string.h>
 #include <string>
 #include <algorithm>
+#include <gsl/gsl_sf_gamma.h>
 
 #include "func_sersic.h"
 
@@ -61,6 +61,7 @@ const char  PARAM_LABELS[][20] = {"PA", "ell", "n", "I_e", "r_e"};
 const char  FUNCTION_NAME[] = "Sersic function";
 //const char SHORT_FUNCTION_NAME[] = "Sersic";
 const double  DEG2RAD = 0.017453292519943295;
+const double PI = 3.14159265358979;
 const int  SUBSAMPLE_R = 10;
 
 const char Sersic::className[] = "Sersic";
@@ -95,13 +96,6 @@ Sersic::Sersic( )
 
 void Sersic::Setup( double params[], int offsetIndex, double xc, double yc )
 {
-//   x0 = params[0 + offsetIndex];
-//   y0 = params[1 + offsetIndex];
-//   PA = params[2 + offsetIndex];
-//   ell = params[3 + offsetIndex];
-//   n = params[4 + offsetIndex ];
-//   I_e = params[5 + offsetIndex ];
-//   r_e = params[6 + offsetIndex ];
   x0 = xc;
   y0 = yc;
   PA = params[0 + offsetIndex];
@@ -220,5 +214,42 @@ int Sersic::CalculateSubsamples( double r )
 }
 
 
+// Conditional compilation: if GSL library is *not* present, we don't have a
+// Gamma function, so we can't calculate the total flux.
+
+#ifdef NO_GSL
+/* ---------------- PUBLIC METHOD: CanCalculateTotalFlux --------------- */
+
+bool Sersic::CanCalculateTotalFlux( )
+{
+  return false;
+}
+
+
+/* ---------------- PUBLIC METHOD: TotalFlux --------------------------- */
+
+double Sersic::TotalFlux( )
+{
+  return  -1.0;
+}
+
+#else
+/* ---------------- PUBLIC METHOD: CanCalculateTotalFlux --------------- */
+
+bool Sersic::CanCalculateTotalFlux( )
+{
+  return true;
+}
+
+
+/* ---------------- PUBLIC METHOD: TotalFlux --------------------------- */
+
+double Sersic::TotalFlux( )
+{
+  double  bn2n = pow(bn, 2.0*n);
+  double  L = 2*PI*n*exp(bn)*I_e*(r_e*r_e);
+  return  q*L*gsl_sf_gamma(2*n)/bn2n;
+}
+#endif
 
 /* END OF FILE: func_sersic.cpp ---------------------------------------- */

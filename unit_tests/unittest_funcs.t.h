@@ -26,9 +26,11 @@ using namespace std;
 #include "function_objects/func_broken-exp2d.h"
 #include "function_objects/func_edge-on-disk.h"
 
-#define DELTA  1.0e-10
+const double  DELTA = 1.0e-9;
+const double  DELTA_e9 = 1.0e-9;
+const double  DELTA_e7 = 1.0e-7;
 
-const double PI  =3.14159265358979;
+const double PI = 3.14159265358979;
 
 
 class TestExponential : public CxxTest::TestSuite 
@@ -113,13 +115,18 @@ public:
     double  h = 10.0;
     double  ell1 = 0.0;
     double  ell2 = 0.25;
+    double  params0[4] = {90.0, ell2, 0.0, h};
     double  params1[4] = {90.0, ell1, I0, h};
     double  params2[4] = {90.0, ell2, I0, h};
 
 
     // FUNCTION-SPECIFIC:
+    thisFunc->Setup(params0, 0, x0, y0);
+    double  correctCircFlux = 0.0;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA );
+    
     thisFunc->Setup(params1, 0, x0, y0);
-    double  correctCircFlux = 2.0*PI*I0*h*h;
+    correctCircFlux = 2.0*PI*I0*h*h;
     TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA );
     
     thisFunc->Setup(params2, 0, x0, y0);
@@ -201,7 +208,59 @@ public:
   void testCanCalculateTotalFlux( void )
   {
     bool result = thisFunc->CanCalculateTotalFlux();
-    TS_ASSERT_EQUALS(result, false);
+    TS_ASSERT_EQUALS(result, true);
+  }
+
+  void testTotalFlux_calcs( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular or elliptical Sersic with 
+    double  I_e = 1.0;
+    double  r_e = 10.0;
+    double  ell1 = 0.0;
+    double  ell2 = 0.25;
+    double  params0[5] = {90.0, ell1, 1.0, 0.0, r_e};
+    double  params1[5] = {90.0, ell1, 1.0, I_e, r_e};
+    double  params2[5] = {90.0, ell2, 1.0, I_e, r_e};
+    double  params3[5] = {90.0, ell1, 4.0, I_e, r_e};
+    double  params4[5] = {90.0, ell2, 4.0, I_e, r_e};
+    double  params5[5] = {90.0, ell1, 0.5, I_e, r_e};
+    double  params6[5] = {90.0, ell1, 10.0, I_e, r_e};
+
+
+    // FUNCTION-SPECIFIC:
+    thisFunc->Setup(params0, 0, x0, y0);
+    double  correctCircFlux = 0.0;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA );
+    
+    thisFunc->Setup(params1, 0, x0, y0);
+    correctCircFlux = 1194.839934018338;   // from astro_utils.LSersic, using non-exact b_n
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA_e9 );
+    
+    thisFunc->Setup(params2, 0, x0, y0);
+    double  correctEllFlux = (1 - ell2) * correctCircFlux;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctEllFlux, DELTA_e9 );
+
+    thisFunc->Setup(params3, 0, x0, y0);
+    correctCircFlux = 2266.523319362499;   // from astro_utils.LSersic, using non-exact b_n
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA_e9 );
+    
+    thisFunc->Setup(params4, 0, x0, y0);
+    correctEllFlux = (1 - ell2) * correctCircFlux;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctEllFlux, DELTA_e9 );
+
+    thisFunc->Setup(params5, 0, x0, y0);
+    correctCircFlux = 906.370725112331;   // from astro_utils.LSersic, using non-exact b_n
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA_e9 );
+
+    // n = 10 case diverges slightly more from Python estimate (but not enough
+    // to worry about)
+    thisFunc->Setup(params6, 0, x0, y0);
+    correctCircFlux = 3546.3105962151512;   // from astro_utils.LSersic, using non-exact b_n
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA_e7 );
   }
 };
 

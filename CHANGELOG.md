@@ -2,6 +2,21 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.xxx
+
+### Changed:
+
+- Some of the image functions now have the ability to calculate the
+total flux analytically rather than by the standard "integrate over
+large internal image" method. This makes estimating total fluxes via
+makeimage's "--print-fluxes" option much faster for those functions. In
+some cases, the resulting fluxes are different from the previous
+approach, but only at levels <~ 10^-4 (i.e., about 0.0001 mag). Affected
+functions: Gaussian, Exponential, Sersic (the latter only if
+makeimage was compiled with the GNU Scientific Library).
+
+
+
 ## 1.3.1 -- 2016-05-05
 ### Added:
 
