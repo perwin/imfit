@@ -1,6 +1,5 @@
 /* FILE: convolver.cpp ------------------------------------------------- */
-/* VERSION 0.2
- *
+/* 
  *   Module for image convolution functions.
  *
  *   MODIFICATION HISTORY:
@@ -11,7 +10,7 @@
  *     [v0.01]: 26 Mar 2010: Created.
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

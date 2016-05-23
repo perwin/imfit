@@ -306,7 +306,7 @@ int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
   if (modelVector == NULL) {
     fprintf(stderr, "*** ERROR: Unable to allocate memory for model image!\n");
-    fprintf(stderr, "    (Requested image size was %d x %d = %d pixels)\n", nModelRows,
+    fprintf(stderr, "    (Requested image size was %d x %d = %li pixels)\n", nModelRows,
     		nModelColumns, nModelVals);
     return -1;
   }
@@ -416,7 +416,7 @@ int ModelObject::GenerateErrorVector( )
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (weightVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for weight image!\n");
-      fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+      fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
       return -1;
     }
     weightVectorAllocated = true;
@@ -578,8 +578,8 @@ void ModelObject::ApplyMask( )
 // This function must be called *before* SetupModelImage() is called (to ensure
 // that we know the proper model-image dimensions), so we return an error if 
 // SetupModelImage() hasn't been called yet.
-int ModelObject::AddPSFVector(int nPixels_psf, int nColumns_psf, int nRows_psf,
-                         double *psfPixels)
+int ModelObject::AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
+                         double *psfPixels )
 {
   int  returnStatus = 0;
   
@@ -956,7 +956,7 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
       if (outputModelVector == NULL) {
         fprintf(stderr, "*** ERROR: Unable to allocate memory for output model image!\n");
-        fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+        fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
         return NULL;
       }
       outputModelVectorAllocated = true;
@@ -1146,7 +1146,7 @@ int ModelObject::UseModelErrors( )
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (weightVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for weight vector!\n");
-      fprintf(stderr, "    (Requested image size was %d pixels)\n", nModelVals);
+      fprintf(stderr, "    (Requested image size was %li pixels)\n", nModelVals);
       return -1;
     }
     weightVectorAllocated = true;
@@ -1719,7 +1719,7 @@ double * ModelObject::GetModelImageVector( )
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
       if (outputModelVector == NULL) {
         fprintf(stderr, "*** ERROR: Unable to allocate memory for output model image!\n");
-        fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+        fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
         return NULL;
       }
       outputModelVectorAllocated = true;
@@ -1774,7 +1774,7 @@ double * ModelObject::GetResidualImageVector( )
     residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (residualVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for output residual image!\n");
-      fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+      fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
       return NULL;
     }
     residualVectorAllocated = true;
@@ -1814,7 +1814,7 @@ double * ModelObject::GetWeightImageVector( )
   standardWeightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   if (standardWeightVector == NULL) {
     fprintf(stderr, "*** ERROR: Unable to allocate memory for output weight image!\n");
-    fprintf(stderr, "    (Requested image size was %d pixels)\n", nDataVals);
+    fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
     return NULL;
   }
   for (int z = 0; z < nDataVals; z++) {
