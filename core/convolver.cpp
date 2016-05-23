@@ -282,9 +282,15 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
       PrintRealImage(psfPixels, nColumns_psf, nRows_psf);
     }
   }
+  // Use Kahan summation to avoid underflow
   psfSum = 0.0;
-  for (k = 0; k < nPixels_psf; k++)
-    psfSum += psfPixels[k];
+  double  storedError = 0.0, adjustedVal = 0.0, tempSum = 0.0;
+  for (k = 0; k < nPixels_psf; k++) {
+    adjustedVal = psfPixels[k] - storedError;
+    tempSum = psfSum + adjustedVal;
+    storedError = (tempSum - psfSum) - adjustedVal;
+    psfSum = tempSum;
+  }
   for (k = 0; k < nPixels_psf; k++)
     psfPixels[k] = psfPixels[k] / psfSum;
   if (debugStatus >= 2) {

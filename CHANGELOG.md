@@ -6,6 +6,12 @@
 
 ### Changed:
 
+- Imfit's internal PSF normalization (which takes place when PSF images are
+read in during startup) now uses the Kahan summation algorithm, which gives
+more accurate results when many pixel values are very close to zero. This should
+generally have no effect at all, but might be relevant when using very large
+PSF images with very faint, extended wings.
+
 - Some of the image functions now have the ability to calculate the
 total flux analytically rather than by the standard "integrate over
 large internal image" method. This makes estimating total fluxes via

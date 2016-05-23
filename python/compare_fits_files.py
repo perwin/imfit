@@ -74,7 +74,8 @@ def main(argv=None):
 		print("\tComparing sum of %s + %s with %s... " % (fitsFile1, fitsFile2, refSumFile), end="")
 		result = CompareSum(fitsFile1, fitsFile2, refSumFile)
 		if (result is False):
-			print("\n\t>>> WARNING: image %s + image %s DOES NOT match %s!\n" % (fitsFile1, fitsFile2, refSumFile))
+			print("\n\t>>> WARNING: image %s + image %s DOES NOT match %s!" % (fitsFile1, fitsFile2, refSumFile))
+			print("t            (one or more pixels differ by > %.1e in relative terms\n" % (TOLERANCE))
 		else:
 			print(" OK.")
 	else:
