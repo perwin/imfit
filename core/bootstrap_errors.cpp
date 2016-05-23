@@ -240,7 +240,7 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
       for (i = 0; i < nParams; i++)
         outputParamArray[i][nSuccessfulIters] = paramsVect[i];
       if (saveToFile) {
-        for (int i = 0; i < (nParams - 1); i++)
+        for (i = 0; i < (nParams - 1); i++)
           fprintf(outputFile_ptr, "%f\t\t", paramsVect[i]);
         fprintf(outputFile_ptr, "%f\n", paramsVect[nParams - 1]);
       }

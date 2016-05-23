@@ -87,12 +87,14 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
 int main( int argc, char *argv[] )
 {
   int  nColumns, nRows;
-  int  nPixels_psf, nRows_psf, nColumns_psf;
+  int  nRows_psf, nColumns_psf;
+  long  nPixels_psf;
   int  nParamsTot;
   int  status;
   double  *psfPixels;
   double  *psfOversampledPixels;
-  int  nPixels_psf_oversampled, nColumns_psf_oversampled, nRows_psf_oversampled;
+  int  nColumns_psf_oversampled, nRows_psf_oversampled;
+  long  nPixels_psf_oversampled;
   vector<int>  x1_oversample;
   vector<int>  x2_oversample;
   vector<int>  y1_oversample;
@@ -185,8 +187,8 @@ int main( int argc, char *argv[] )
       			options.psfFileName.c_str());
       exit(-1);
     }
-    nPixels_psf = nColumns_psf * nRows_psf;
-    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
+    nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %li\n", 
            nColumns_psf, nRows_psf, nPixels_psf);
   }
   else
@@ -212,8 +214,8 @@ int main( int argc, char *argv[] )
     			options.psfOversampledFileName.c_str());
       exit(-1);
     }
-    nPixels_psf_oversampled = nColumns_psf_oversampled * nRows_psf_oversampled;
-    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
+    nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %li\n", 
            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
     // Determine oversampling regions
     for (int ii = 0; ii < options.nOversampleRegions; ii++)

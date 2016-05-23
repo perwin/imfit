@@ -281,8 +281,8 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
     vector<string>  imageCommentsList;
     outputName = debugImageName + ".fits";
     printf("\nOversampledRegion::ComputeRegionAndDownsample -- Saving output model image (\"%s\") ...\n", outputName.c_str());
-    status = SaveVectorAsImage(modelVector, outputName, 
-                        nModelColumns, nModelRows, imageCommentsList);
+    status = SaveVectorAsImage(modelVector, outputName, nModelColumns, nModelRows, 
+    							imageCommentsList);
   }
 #endif
 

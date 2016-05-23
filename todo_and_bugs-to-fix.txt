@@ -41,10 +41,9 @@
 	convolver.cpp: Convolver::ShiftAndWrapPSF( ) -- pos_in_psf, pos_in_dest;
 	oversampled_region.h: nModelVals
 	oversampled_region.cpp: ---
-	image_io.h: 
-	image_io.cpp: 
+	[X]image_io.cpp: 
 		ReadImageAsVector -- nPixelsTot
-	makeimage_main.cpp: 
+	[X]makeimage_main.cpp: 
 	imfit_main.cpp: 
 
 

@@ -58,7 +58,6 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
 					mp_par *parameterInfo, int fitStatus, SolverResults& solverResults,
 					bool recomputeStatistic )
 {
-  int  i;
   int  nValidPixels = model->GetNValidPixels();
   int  nDegreesFreedom = nValidPixels - nFreeParameters;
   int  whichStat, whichSolver;

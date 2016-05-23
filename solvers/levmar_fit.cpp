@@ -73,7 +73,7 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
   mp_par  *mpfitParameterConstraints;
   mp_result  mpfitResult;
   mp_config  mpConfig;
-  int  i, status;
+  int  status;
 
   if (! paramLimitsExist) {
     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array

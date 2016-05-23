@@ -105,12 +105,13 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
 
 int main(int argc, char *argv[])
 {
-  int  nPixels_tot, nColumns, nRows;
-  int  nPixels_psf = 0;
+  int  nColumns, nRows;
+  long  nPixels_tot;
   int  nRows_psf = 0;
   int  nColumns_psf = 0;
+  long  nPixels_psf = 0;
   int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
-  int  nDegFreedom;
+  long  nDegFreedom;
   int  nParamsTot, nFreeParams;
   double  *allPixels;
   double  *psfPixels;
@@ -119,7 +120,8 @@ int main(int argc, char *argv[])
   double  *allMaskPixels;
   bool  maskAllocated = false;
   double  *psfOversampledPixels;
-  int  nPixels_psf_oversampled, nColumns_psf_oversampled, nRows_psf_oversampled;
+  int  nColumns_psf_oversampled, nRows_psf_oversampled;
+  long  nPixels_psf_oversampled;
   double  *paramsVect;
   double  X0_offset = 0.0;
   double  Y0_offset = 0.0;
@@ -196,8 +198,8 @@ int main(int argc, char *argv[])
     exit(-1);
   }
   // Reminder: nColumns = n_pixels_per_row = x-size; nRows = n_pixels_per_column = y-size
-  nPixels_tot = nColumns * nRows;
-  printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
+  nPixels_tot = (long)nColumns * (long)nRows;
+  printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %li\n", 
            nColumns, nRows, nPixels_tot);
   // Determine X0,Y0 pixel offset values if user specified an image section
   DetermineImageOffset(options.imageFileName, &X0_offset, &Y0_offset);
@@ -249,8 +251,8 @@ int main(int argc, char *argv[])
     			options.psfFileName.c_str());
       exit(-1);
     }
-    nPixels_psf = nColumns_psf * nRows_psf;
-    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
+    nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %li\n", 
            nColumns_psf, nRows_psf, nPixels_psf);
   }
   else
@@ -276,8 +278,8 @@ int main(int argc, char *argv[])
     			options.psfOversampledFileName.c_str());
       exit(-1);
     }
-    nPixels_psf_oversampled = nColumns_psf_oversampled * nRows_psf_oversampled;
-    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %d\n", 
+    nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %li\n", 
            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
     // Determine oversampling region; correct for X0,Y0 pixel offset values if user 
     // specified an image section (if not, X0_offset and Y0_offset will be = 0)
@@ -495,7 +497,7 @@ int main(int argc, char *argv[])
     }
   }
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
-  printf("%d free parameters (%d degrees of freedom)\n", nFreeParams, nDegFreedom);
+  printf("%d free parameters (%ld degrees of freedom)\n", nFreeParams, nDegFreedom);
   
   
   /* Copy initial parameter values into C array, correcting for X0,Y0 offsets */
