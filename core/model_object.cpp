@@ -253,7 +253,7 @@ int ModelObject::AddImageDataVector( double *pixelVector, int nImageColumns,
 {
   int  status = 0;
   
-  nDataVals = nValidDataVals = nImageColumns * nImageRows;
+  nDataVals = nValidDataVals = (long)nImageColumns * (long)nImageRows;
   dataVector = pixelVector;
   dataValsSet = true;
   
@@ -281,7 +281,7 @@ int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   
   nDataColumns = nImageColumns;
   nDataRows = nImageRows;
-  nDataVals = nImageColumns*nImageRows;
+  nDataVals = (long)nImageColumns * (long)nImageRows;
   
   if (doConvolution) {
     nModelColumns = nDataColumns + 2*nPSFColumns;
@@ -292,7 +292,7 @@ int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
       fprintf(stderr, "*** Error returned from Convolver::DoFullSetup!\n");
       return result;
     }
-    nModelVals = nModelColumns*nModelRows;
+    nModelVals = (long)nModelColumns * (long)nModelRows;
   }
   else {
     nModelColumns = nDataColumns;
@@ -319,7 +319,7 @@ int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
 /* ---------------- PUBLIC METHOD: AddImageCharacteristics ------------ */
 
 void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise, double expTime, 
-									int nCombinedImages, double originalSkyBackground )
+										int nCombinedImages, double originalSkyBackground )
 {
   assert( (imageGain > 0.0) && (readoutNoise >= 0.0) );
   assert( (expTime > 0.0) && (nCombinedImages >= 1) );
@@ -338,13 +338,15 @@ void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise
 
 /* ---------------- PUBLIC METHOD: AddErrorVector ---------------------- */
 
-void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
+void ModelObject::AddErrorVector( long nDataValues, int nImageColumns,
                                       int nImageRows, double *pixelVector,
                                       int inputType )
 {
   assert( (nDataValues == nDataVals) && (nImageColumns == nDataColumns) && 
           (nImageRows == nDataRows) );
 
+  long  z;
+  
   // Avoid memory leak if pre-existing weight vector was internally allocated
   if (weightVectorAllocated) {
     free(weightVector);
@@ -363,17 +365,17 @@ void ModelObject::AddErrorVector( int nDataValues, int nImageColumns,
   //    sigma (std.dev.); variance (sigma^2); and "standard" weights (1/sigma^2)
   switch (inputType) {
     case WEIGHTS_ARE_SIGMAS:
-      for (int z = 0; z < nDataVals; z++) {
+      for (z = 0; z < nDataVals; z++) {
         weightVector[z] = 1.0 / weightVector[z];
       }
       break;
     case WEIGHTS_ARE_VARIANCES:
-      for (int z = 0; z < nDataVals; z++) {
+      for (z = 0; z < nDataVals; z++) {
         weightVector[z] = 1.0 / sqrt(weightVector[z]);
       }
       break;
     case WEIGHTS_ARE_WEIGHTS:   // convert external "normal" weights to internal weights
-      for (int z = 0; z < nDataVals; z++) {
+      for (z = 0; z < nDataVals; z++) {
         weightVector[z] = sqrt(weightVector[z]);
       }
       break;
@@ -424,7 +426,7 @@ int ModelObject::GenerateErrorVector( )
   
   // Compute noise estimate for each pixel (see above for derivation)
   // Note that we assume a constant sky background (presumably already subtracted)
-  for (int z = 0; z < nDataVals; z++) {
+  for (long z = 0; z < nDataVals; z++) {
     totalFlux = dataVector[z] + originalSky;
     if (totalFlux < 0.0)
       totalFlux = 0.0;
@@ -462,7 +464,7 @@ void ModelObject::GenerateExtraCashTerms( )
 {
   double dataVal, extraTerm;
   
-  for (int z = 0; z < nDataVals; z++) {
+  for (long z = 0; z < nDataVals; z++) {
     dataVal = effectiveGain*(dataVector[z] + originalSky);
     // the following is strictly OK only for dataVal == 0 (lim_{x -> 0} x ln(x) = 0); 
     // the case of dataVal < 0 is undefined
@@ -484,11 +486,11 @@ void ModelObject::GenerateExtraCashTerms( )
 // for a given ModelObject instance.
 //
 // Pixels with non-finite values (e.g. NaN) are converted to "bad" (0-valued).
-int ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
-                                      int nImageRows, double *pixelVector,
-                                      int inputType )
+int ModelObject::AddMaskVector( long nDataValues, int nImageColumns,
+                                int nImageRows, double *pixelVector, int inputType )
 {
   int  returnStatus = 0;
+  long  z;
   
   assert( (nDataValues == nDataVals) && (nImageColumns == nDataColumns) && 
           (nImageRows == nDataRows) );
@@ -505,7 +507,7 @@ int ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       // are positive integers
       if (verboseLevel >= 0)
         printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
-      for (int z = 0; z < nDataVals; z++) {
+      for (z = 0; z < nDataVals; z++) {
         // Values of NaN or -infinity will fail > 0 test, but we want them masked, too
         if ( (! isfinite(maskVector[z])) || (maskVector[z] > 0.0) )
           maskVector[z] = 0.0;
@@ -520,7 +522,7 @@ int ModelObject::AddMaskVector( int nDataValues, int nImageColumns,
       // Alternate form for input masks: good pixels are 1, bad pixels are 0
       if (verboseLevel >= 0)
         printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
-      for (int z = 0; z < nDataVals; z++) {
+      for (z = 0; z < nDataVals; z++) {
         // Values of NaN or +infinity will fail < 1 test, but we want them masked, too
         if ( (! isfinite(maskVector[z])) || (maskVector[z] < 1.0) )
           maskVector[z] = 0.0;
@@ -550,7 +552,7 @@ void ModelObject::ApplyMask( )
   double  newVal;
   
   if ( (weightValsSet) && (maskExists) ) {
-    for (int z = 0; z < nDataVals; z++) {
+    for (long z = 0; z < nDataVals; z++) {
       newVal = maskVector[z] * weightVector[z];
       // check to make sure that masked non-finite values (e.g. NaN) get zeroed
       // (because if weightVector[z] = NaN, then product will automatically be NaN)
@@ -560,7 +562,7 @@ void ModelObject::ApplyMask( )
     }
     if (verboseLevel >= 0) {
       printf("ModelObject: mask vector applied to weight vector. ");
-      printf("(%d valid pixels remain)\n", nValidDataVals);
+      printf("(%li valid pixels remain)\n", nValidDataVals);
     }
   }
   else {
@@ -578,8 +580,8 @@ void ModelObject::ApplyMask( )
 // This function must be called *before* SetupModelImage() is called (to ensure
 // that we know the proper model-image dimensions), so we return an error if 
 // SetupModelImage() hasn't been called yet.
-int ModelObject::AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
-                         double *psfPixels )
+int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf,
+                         	double *psfPixels )
 {
   int  returnStatus = 0;
   
@@ -612,7 +614,7 @@ int ModelObject::AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
 //    This function *must* be called *after* SetupModelImage() [or after AddImageDataVector(),
 // which itself calls SetupModelImage()], otherwise the necessary information about the 
 // size of the main model image (nModelColumns, nModelRows) will not be known.
-int ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf, 
+int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf, 
 						int nRows_psf, double *psfPixels_osamp, int oversampleScale,
 						int x1, int x2, int y1, int y2 )
 {
@@ -648,7 +650,7 @@ int ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
   // Size of actual oversampled model sub-image (including padding for PSF conv.)
   nOversampledModelColumns = nCols_osamp + 2*nPSFColumns_osamp;
   nOversampledModelRows = nRows_osamp + 2*nPSFRows_osamp;
-  nOversampledModelVals = nOversampledModelColumns*nOversampledModelRows;
+  nOversampledModelVals = (long)nOversampledModelColumns * (long)nOversampledModelRows;
 
   // Allocate OversampledRegion object and give it necessary info
   oversampledRegion = new OversampledRegion();
@@ -679,8 +681,9 @@ int ModelObject::AddOversampledPSFVector( int nPixels, int nColumns_psf,
 //       unmasked data values.
 int ModelObject::FinalSetupForFitting( )
 {
-  int  nNonFinitePixels = 0;
-  int  nNonFiniteErrorPixels = 0;
+  long  nNonFinitePixels = 0;
+  long  nNonFiniteErrorPixels = 0;
+  long  z;
   int  returnStatus = 0;
   int  status = 0;
   
@@ -689,12 +692,12 @@ int ModelObject::FinalSetupForFitting( )
     maskVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (maskVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for mask image!\n");
-      fprintf(stderr, "    (Requested vector size was %d pixels)\n", nDataVals);
+      fprintf(stderr, "    (Requested vector size was %li pixels)\n", nDataVals);
       // go ahead and return now, otherwise we'll be trying to access a null
       // pointer in the very next step
       return -1;
     }
-    for (int z = 0; z < nDataVals; z++) {
+    for (z = 0; z < nDataVals; z++) {
       maskVector[z] = 1.0;
     }
     maskVectorAllocated = true;
@@ -703,7 +706,7 @@ int ModelObject::FinalSetupForFitting( )
 
   // Identify currently unmasked data pixels which have non-finite values and 
   // add those pixels to the mask
-  for (int z = 0; z < nDataVals; z++) {
+  for (z = 0; z < nDataVals; z++) {
     if ( (maskVector[z] > 0.0) && (! isfinite(dataVector[z])) ) {
       maskVector[z] = 0.0;
       nNonFinitePixels++;
@@ -714,7 +717,7 @@ int ModelObject::FinalSetupForFitting( )
     if (nNonFinitePixels == 1)
       printf("ModelObject: One pixel with non-finite value found (and masked) in data image\n");
     else
-      printf("ModelObject: %d pixels with non-finite values found (and masked) in data image\n", nNonFinitePixels);
+      printf("ModelObject: %li pixels with non-finite values found (and masked) in data image\n", nNonFinitePixels);
   }
   
   // Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
@@ -738,7 +741,7 @@ int ModelObject::FinalSetupForFitting( )
   //      4. Negative pixels in WEIGHTS_ARE_WEIGHTS case
   // Check only pixels which are still unmasked
   if (externalErrorVectorSupplied) {
-    for (int z = 0; z < nDataVals; z++) {
+    for (z = 0; z < nDataVals; z++) {
       if ( (maskVector[z] > 0.0) && (! isfinite(weightVector[z])) ) {
         maskVector[z] = 0.0;
         weightVector[z] = 0.0;
@@ -750,7 +753,7 @@ int ModelObject::FinalSetupForFitting( )
       if (nNonFiniteErrorPixels == 1)
         printf("ModelObject: One pixel with non-finite value found (and masked) in noise/weight image\n");
       else
-        printf("ModelObject: %d pixels with non-finite values found (and masked) in noise/weight image\n", nNonFiniteErrorPixels);
+        printf("ModelObject: %li pixels with non-finite values found (and masked) in noise/weight image\n", nNonFiniteErrorPixels);
     }
   }
 
@@ -798,7 +801,8 @@ int ModelObject::FinalSetupForFitting( )
 void ModelObject::CreateModelImage( double params[] )
 {
   double  x0, y0, x, y, newValSum;
-  int  i, j, n;
+  long  i, j;
+  int  n;
   int  offset = 0;
   
   // Check parameter values for sanity
@@ -806,8 +810,8 @@ void ModelObject::CreateModelImage( double params[] )
     fprintf(stderr, "** ModelObject::CreateModelImage -- non-finite values detected in parameter vector!\n");
 #ifdef DEBUG
     printf("   Parameter values: %s = %g, ", parameterLabels[0].c_str(), params[0]);
-    for (int z = 1; z < nParamsTot; z++)
-      printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
+    for (int np = 1; np < nParamsTot; np++)
+      printf(", %s = %g", parameterLabels[np].c_str(), params[np]);
     printf("\n");
 #endif
   }
@@ -847,7 +851,7 @@ void ModelObject::CreateModelImage( double params[] )
 //                                                          // (note that nPSFColumns = 0 if not doing PSF convolution)
   // single-loop code which is ~ same in general case as double-loop, and
   // faster for case of small image + many cores (André Luiz de Amorim suggestion)
-  for (int k = 0; k < nModelVals; k++) {
+  for (long k = 0; k < nModelVals; k++) {
     j = k % nModelColumns;
     i = k / nModelColumns;
     y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
@@ -896,9 +900,9 @@ void ModelObject::CreateModelImage( double params[] )
 double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex )
 {
   double  x0, y0, x, y, newVal;
-  int  i, j, n;
   int  offset = 0;
-  int  iDataRow, iDataCol, z, zModel;
+  int  iDataRow, iDataCol;
+  long  i, j, z, zModel;
   
   assert( (functionIndex >= 0) );
   // Check parameter values for sanity
@@ -906,8 +910,8 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
     fprintf(stderr, "** ModelObject::SingleFunctionImage -- non-finite values detected in parameter vector!\n");
 #ifdef DEBUG
     printf("   Parameter values: %s = %g, ", parameterLabels[0].c_str(), params[0]);
-    for (z = 1; z < nParamsTot; z++)
-      printf(", %s = %g", parameterLabels[z].c_str(), params[z]);
+    for (int n = 1; n < nParamsTot; n++)
+      printf(", %s = %g", parameterLabels[n].c_str(), params[n]);
     printf("\n");
 #endif
     fprintf(stderr, "Exiting ...\n\n");
@@ -919,15 +923,15 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   // The first component's parameters start at params[0]; the second's
   // start at params[paramSizes[0]], the third at 
   // params[paramSizes[0] + paramSizes[1]], and so forth...
-  for (n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
+  for (int np = 0; np < nFunctions; np++) {
+    if (fblockStartFlags[np] == true) {
       // start of new function block: extract x0,y0 and then skip over them
       x0 = params[offset];
       y0 = params[offset + 1];
       offset += 2;
     }
-    functionObjects[n]->Setup(params, offset, x0, y0);
-    offset += paramSizes[n];
+    functionObjects[np]->Setup(params, offset, x0, y0);
+    offset += paramSizes[np];
   }
   
   // OK, populate modelVector with the model image
@@ -935,7 +939,7 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   // Note that since we expect this code to be called only occasionally, we have
   // not converted it to the fast-for-small-images, single-loop version used in
   // CreateModelImages()
-#pragma omp parallel private(i,j,n,x,y,newVal)
+#pragma omp parallel private(i,j,x,y,newVal)
   {
   #pragma omp for schedule (static, ompChunkSize)
   for (i = 0; i < nModelRows; i++) {   // step by row number = y
@@ -966,8 +970,8 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
     // pixels output image
     for (z = 0; z < nDataVals; z++) {
       iDataRow = z / nDataColumns;
-      iDataCol = z - iDataRow*nDataColumns;
-      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      iDataCol = z - (long)iDataRow * (long)nDataColumns;
+      zModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
       outputModelVector[z] = modelVector[zModel];
     }
     return outputModelVector;
@@ -985,7 +989,8 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
  */
 void ModelObject::UpdateWeightVector(  )
 {
-  int  iDataRow, iDataCol, z, zModel;
+  int  iDataRow, iDataCol;
+  long  z, zModel;
   double  totalFlux, noise_squared;
 	
   if (doConvolution) {
@@ -995,8 +1000,8 @@ void ModelObject::UpdateWeightVector(  )
         // (don't rely on previous weightVector[z] value, since sometimes model flux
         // might be zero for an unmasked pixel)
         iDataRow = z / nDataColumns;
-        iDataCol = z - iDataRow*nDataColumns;
-        zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        iDataCol = z - (long)iDataRow * (long)nDataColumns;
+        zModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
         totalFlux = modelVector[zModel] + originalSky;
         noise_squared = totalFlux/effectiveGain + nCombined*readNoise_adu_squared;
         // POSSIBLE PROBLEM: if originalSky = model flux = read noise = 0, we'll have /0 error!
@@ -1023,7 +1028,7 @@ void ModelObject::UpdateWeightVector(  )
 
 
 /* ---------------- PRIVATE METHOD: ComputePoissonMLRDeviate ----------- */
-double ModelObject::ComputePoissonMLRDeviate( int i, int i_model )
+double ModelObject::ComputePoissonMLRDeviate( long i, long i_model )
 {
   double   modVal, dataVal, logModel, extraTerms, deviateVal;
   
@@ -1051,12 +1056,13 @@ double ModelObject::ComputePoissonMLRDeviate( int i, int i_model )
  */
 void ModelObject::ComputeDeviates( double yResults[], double params[] )
 {
-  int  iDataRow, iDataCol, z, zModel, b, bModel;
+  int  iDataRow, iDataCol;
+  long  z, zModel, b, bModel;
   
 #ifdef DEBUG
   printf("ComputeDeviates: Input parameters: ");
-  for (int n = 0; n < nParamsTot; n++)
-    printf("p[%d] = %g, ", n, params[n]);
+  for (int np = 0; np < nParamsTot; np++)
+    printf("p[%d] = %g, ", np, params[np]);
   printf("\n");
 #endif
 
@@ -1077,8 +1083,8 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
         iDataRow = b / nDataColumns;
-        iDataCol = b - iDataRow*nDataColumns;
-        bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        iDataCol = b - (long)iDataRow * (long)nDataColumns;
+        bModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
         if (poissonMLR)
           yResults[z] = ComputePoissonMLRDeviate(b, bModel);
         else   // standard chi^2 term
@@ -1088,8 +1094,8 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
     else {
       for (z = 0; z < nDataVals; z++) {
         iDataRow = z / nDataColumns;
-        iDataCol = z - iDataRow*nDataColumns;
-        zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        iDataCol = z - (long)iDataRow * (long)nDataColumns;
+        zModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
         if (poissonMLR)
           yResults[z] = ComputePoissonMLRDeviate(z, zModel);
         else   // standard chi^2 term
@@ -1155,7 +1161,7 @@ int ModelObject::UseModelErrors( )
     fprintf(stderr, "WARNING: ModelImage::UseModelErrors -- weight vector already allocated!\n");
   }
 
-  for (int z = 0; z < nDataVals; z++) {
+  for (long z = 0; z < nDataVals; z++) {
     weightVector[z] = 1.0;
   }
   weightValsSet = true;
@@ -1188,7 +1194,7 @@ int ModelObject::UseCashStatistic( )
     extraCashTermsVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (extraCashTermsVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for extra Cash terms vector!\n");
-      fprintf(stderr, "    (Requested vector size was %d pixels)\n", nDataVals);
+      fprintf(stderr, "    (Requested vector size was %li pixels)\n", nDataVals);
       return -1;
     }
     extraCashTermsVectorAllocated = true;
@@ -1197,7 +1203,7 @@ int ModelObject::UseCashStatistic( )
     fprintf(stderr, "WARNING: ModelImage::UseCashStatistic -- extra-terms vector already allocated!\n");
   }
 
-  for (int z = 0; z < nDataVals; z++) {
+  for (long z = 0; z < nDataVals; z++) {
     weightVector[z] = 1.0;
   }
   weightValsSet = true;
@@ -1268,7 +1274,8 @@ double ModelObject::GetFitStatistic( double params[] )
  */
 double ModelObject::ChiSquared( double params[] )
 {
-  int  iDataRow, iDataCol, z, zModel, b, bModel;
+  int  iDataRow, iDataCol;
+  long  z, zModel, b, bModel;
   double  chi;
   
   if (! deviatesVectorAllocated) {
@@ -1287,15 +1294,15 @@ double ModelObject::ChiSquared( double params[] )
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
         iDataRow = b / nDataColumns;
-        iDataCol = b - iDataRow*nDataColumns;
-        bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        iDataCol = b - (long)iDataRow * (long)nDataColumns;
+        bModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
         deviatesVector[z] = weightVector[b] * (dataVector[b] - modelVector[bModel]);
       }
     } else {
       for (z = 0; z < nDataVals; z++) {
         iDataRow = z / nDataColumns;
-        iDataCol = z - iDataRow*nDataColumns;
-        zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        iDataCol = z - (long)iDataRow * (long)nDataColumns;
+        zModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
         deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[zModel]);
       }
     }
@@ -1334,7 +1341,8 @@ double ModelObject::ChiSquared( double params[] )
 //
 double ModelObject::CashStatistic( double params[] )
 {
-  int  iDataRow, iDataCol, z, zModel, b, bModel;
+  int  iDataRow, iDataCol;
+  long  z, zModel, b, bModel;
   double  modVal, dataVal, logModel, extraTerms;
   double  cashStat = 0.0;
   
@@ -1347,8 +1355,8 @@ double ModelObject::CashStatistic( double params[] )
       for (z = 0; z < nValidDataVals; z++) {
         b = bootstrapIndices[z];
         iDataRow = b / nDataColumns;
-        iDataCol = b - iDataRow*nDataColumns;
-        bModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        iDataCol = b - (long)iDataRow * (long)nDataColumns;
+        bModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
         modVal = effectiveGain*(modelVector[bModel] + originalSky);
         dataVal = effectiveGain*(dataVector[b] + originalSky);
         if (modVal <= 0)
@@ -1361,8 +1369,8 @@ double ModelObject::CashStatistic( double params[] )
     } else {
       for (z = 0; z < nDataVals; z++) {
         iDataRow = z / nDataColumns;
-        iDataCol = z - iDataRow*nDataColumns;
-        zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+        iDataCol = z - (long)iDataRow * (long)nDataColumns;
+        zModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
         // Mi − Di + DilogDi − DilogMi
         modVal = effectiveGain*(modelVector[zModel] + originalSky);
         dataVal = effectiveGain*(dataVector[z] + originalSky);
@@ -1412,7 +1420,7 @@ void ModelObject::PrintDescription( )
 {
   // Don't test for verbose level, since we assume user only calls this method
   // if they *want* printed output
-  printf("Model Object: %d data values (pixels)\n", nDataVals);
+  printf("Model Object: %li data values (pixels)\n", nDataVals);
 }
 
 
@@ -1540,24 +1548,24 @@ int ModelObject::UseBootstrap( )
 /// otherwise returns 0.
 int ModelObject::MakeBootstrapSample( )
 {
-  int  n;
+  long  n;
   bool  badIndex;
   
   if (! bootstrapIndicesAllocated) {
-    bootstrapIndices = (int *) calloc((size_t)nValidDataVals, sizeof(int));
+    bootstrapIndices = (long *) calloc((size_t)nValidDataVals, sizeof(long));
     if (bootstrapIndices == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for bootstrap-resampling pixel indices!\n");
-      fprintf(stderr, "    (Requested vector size was %d pixels)\n", nValidDataVals);
+      fprintf(stderr, "    (Requested vector size was %li pixels)\n", nValidDataVals);
       return -1;
     }
     bootstrapIndicesAllocated = true;
   }
-  for (int i = 0; i < nValidDataVals; i++) {
+  for (long i = 0; i < nValidDataVals; i++) {
     // pick random data point between 0 and nDataVals - 1, inclusive;
     // reject masked pixels
     badIndex = true;
     do {
-      n = (int)floor( genrand_real2()*nDataVals );
+      n = (long)floor( genrand_real2()*nDataVals );
       if (weightVector[n] > 0.0)
         badIndex = false;
     } while (badIndex);
@@ -1579,7 +1587,7 @@ void ModelObject::PrintImage( double *pixelVector, int nColumns, int nRows )
   // row (i.e., what we would normally like to think of as the first row)
   for (int i = 0; i < nRows; i++) {   // step by row number = y
     for (int j = 0; j < nColumns; j++)   // step by column number = x
-      printf(" %f", pixelVector[i*nColumns + j]);
+      printf(" %f", pixelVector[(long)i * (long)nColumns + j]);
     printf("\n");
   }
   printf("\n");
@@ -1689,7 +1697,7 @@ int ModelObject::GetNParams( )
 
 /* ---------------- PUBLIC METHOD: GetNDataValues ---------------------- */
 
-int ModelObject::GetNDataValues( )
+long ModelObject::GetNDataValues( )
 {
   return nDataVals;
 }
@@ -1697,7 +1705,7 @@ int ModelObject::GetNDataValues( )
 
 /* ---------------- PUBLIC METHOD: GetNValidPixels --------------------- */
 
-int ModelObject::GetNValidPixels( )
+long ModelObject::GetNValidPixels( )
 {
   return nValidDataVals;
 }
@@ -1707,7 +1715,8 @@ int ModelObject::GetNValidPixels( )
 
 double * ModelObject::GetModelImageVector( )
 {
-  int  iDataRow, iDataCol, z, zModel;
+  int  iDataRow, iDataCol;
+  long  z, zModel;
 
   if (! modelImageComputed) {
     fprintf(stderr, "* ModelObject::GetModelImageVector -- Model image has not yet been computed!\n\n");
@@ -1728,8 +1737,8 @@ double * ModelObject::GetModelImageVector( )
     // its pixels with corresponding pixels output image
     for (z = 0; z < nDataVals; z++) {
       iDataRow = z / nDataColumns;
-      iDataCol = z - iDataRow*nDataColumns;
-      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      iDataCol = z - (long)iDataRow * (long)nDataColumns;
+      zModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
       outputModelVector[z] = modelVector[zModel];
     }
     return outputModelVector;
@@ -1761,7 +1770,8 @@ double * ModelObject::GetExpandedModelImageVector( )
 /// Returns NULL if memory allocation failed.
 double * ModelObject::GetResidualImageVector( )
 {
-  int  iDataRow, iDataCol, z, zModel;
+  int  iDataRow, iDataCol;
+  long  z, zModel;
 
   if (! modelImageComputed) {
     fprintf(stderr, "* ModelObject::GetResidualImageVector -- Model image has not yet been computed!\n\n");
@@ -1785,8 +1795,8 @@ double * ModelObject::GetResidualImageVector( )
     // pixels in data and weight images
     for (z = 0; z < nDataVals; z++) {
       iDataRow = z / nDataColumns;
-      iDataCol = z - iDataRow*nDataColumns;
-      zModel = nModelColumns*(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
+      iDataCol = z - (long)iDataRow * (long)nDataColumns;
+      zModel = (long)nModelColumns * (long)(nPSFRows + iDataRow) + nPSFColumns + iDataCol;
       residualVector[z] = (dataVector[z] - modelVector[zModel]);
     }
   }
@@ -1817,7 +1827,7 @@ double * ModelObject::GetWeightImageVector( )
     fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
     return NULL;
   }
-  for (int z = 0; z < nDataVals; z++) {
+  for (long z = 0; z < nDataVals; z++) {
     double  w_sqrt = weightVector[z];   // internal weight value (sqrt of formal weight)
   	standardWeightVector[z] = w_sqrt*w_sqrt;
   }
@@ -1933,7 +1943,7 @@ bool ModelObject::VetDataVector( )
   bool  nonFinitePixels = false;
   bool  vectorOK = true;
   
-  for (int z = 0; z < nDataVals; z++) {
+  for (long z = 0; z < nDataVals; z++) {
     if (! isfinite(dataVector[z])) {
       if (maskVector[z] > 0.0)
         nonFinitePixels = true;
@@ -1957,10 +1967,11 @@ bool ModelObject::CheckWeightVector( )
   bool  nonFinitePixels = false;
   bool  negativePixels = false;
   bool  weightVectorOK = true;
+  long  z;
   
   // check individual pixels in weightVector, but only if they aren't masked by maskVector
   if (maskExists) {
-    for (int z = 0; z < nDataVals; z++) {
+    for (z = 0; z < nDataVals; z++) {
       if (maskVector[z] > 0.0) {
         if (! isfinite(weightVector[z]))
           nonFinitePixels = true;
@@ -1970,7 +1981,7 @@ bool ModelObject::CheckWeightVector( )
     }  
   }
   else {
-    for (int z = 0; z < nDataVals; z++) {
+    for (z = 0; z < nDataVals; z++) {
       if (! isfinite(weightVector[z]))
         nonFinitePixels = true;
     }

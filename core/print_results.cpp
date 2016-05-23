@@ -58,8 +58,8 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
 					mp_par *parameterInfo, int fitStatus, SolverResults& solverResults,
 					bool recomputeStatistic )
 {
-  int  nValidPixels = model->GetNValidPixels();
-  int  nDegreesFreedom = nValidPixels - nFreeParameters;
+  long  nValidPixels = model->GetNValidPixels();
+  long  nDegreesFreedom = nValidPixels - nFreeParameters;
   int  whichStat, whichSolver;
   string  mpfitMessage;
   string  fitStatName, reducedStatName;
@@ -84,15 +84,15 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     if ((params == 0) || (mpResult == 0))
       return;
     if (whichStat == FITSTAT_CASH) {
-      printf("  CASH STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  CASH STATISTIC = %f    (%li DOF)\n", mpResult->bestnorm, nDegreesFreedom);
       printf("  INITIAL CASH STATISTIC = %f\n", mpResult->orignorm);
     }
     else if (whichStat == FITSTAT_POISSON_MLR) {
-      printf("  POISSON-MLR STATISTIC = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  POISSON-MLR STATISTIC = %f    (%li DOF)\n", mpResult->bestnorm, nDegreesFreedom);
       printf("  INITIAL POISSON-MLR STATISTIC = %f\n", mpResult->orignorm);
     }
     else {
-      printf("  CHI-SQUARE = %f    (%d DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  CHI-SQUARE = %f    (%li DOF)\n", mpResult->bestnorm, nDegreesFreedom);
       printf("  INITIAL CHI^2 = %f\n", mpResult->orignorm);
     }
     printf("        NPAR = %d\n", mpResult->npar);
@@ -148,8 +148,8 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
 /// (aka "chisquare-only") option
 void PrintFitStatistic( double *params, ModelObject *model, int nFreeParameters )
 {
-  int  nValidPixels = model->GetNValidPixels();
-  int  nDegreesFreedom = nValidPixels - nFreeParameters;
+  long  nValidPixels = model->GetNValidPixels();
+  long  nDegreesFreedom = nValidPixels - nFreeParameters;
   int  whichStat = model->WhichFitStatistic();
   double  fitStatistic = model->GetFitStatistic(params);
   double  aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
@@ -162,7 +162,7 @@ void PrintFitStatistic( double *params, ModelObject *model, int nFreeParameters 
     printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
   }
   else {
-    printf("  CHI-SQUARE = %f    (%d DOF)\n", fitStatistic, nDegreesFreedom);
+    printf("  CHI-SQUARE = %f    (%li DOF)\n", fitStatistic, nDegreesFreedom);
     printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
   }
   printf("AIC = %f, BIC = %f\n\n", aic, bic);
@@ -221,8 +221,8 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   GetSolverSummary(fitStatus, whichSolver, algorithmSummary);
   
   // Get fit-results info
-  int  nValidPixels = model->GetNValidPixels();
-  int  nDegreesFreedom = nValidPixels - nFreeParameters;
+  long  nValidPixels = model->GetNValidPixels();
+  long  nDegreesFreedom = nValidPixels - nFreeParameters;
   double  fitStatistic = model->GetFitStatistic(params);
   double  aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
   double  bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
@@ -248,7 +248,7 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
     }
   }
   
-  for (int i = 0; i < outputHeader.size(); i++)
+  for (int i = 0; i < (int)outputHeader.size(); i++)
     fprintf(file_ptr, "%s\n", outputHeader[i].c_str());
   fprintf(file_ptr, "\n# Results of fit:\n");
   fprintf(file_ptr, "#   %s\n", algorithmSummary.c_str());
@@ -283,7 +283,7 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
 void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
                     vector<string>& outputHeader, const char *prefix )
 {
-  for (int i = 0; i < outputHeader.size(); i++)
+  for (int i = 0; i < (int)outputHeader.size(); i++)
     fprintf(file_ptr, "%s\n", outputHeader[i].c_str());
   fprintf(file_ptr, "%s\n", prefix);
   model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);

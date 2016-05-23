@@ -25,26 +25,28 @@
 
 
 [] Convert total-pixel-number integer variables to long
-	model_object.h: nModelVals, nDataVals, nValidDataVals, nOversampledModelVals
-	model_object.cpp: 
+	[X]model_object.h: nModelVals, nDataVals, nValidDataVals, nOversampledModelVals
+	[X]model_object.cpp: 
 		ModelObject::AddErrorVector( int nDataValues
 		ModelObject::AddMaskVector( int nDataValues
 		ModelObject::AddPSFVector( int nPixels_psf
 		ModelObject::AddOversampledPSFVector( int nPixels
+		theModel->GetNValidPixels() -- should return long
 		int ModelObject::FinalSetupForFitting( ) -- nNonFinitePixels, nNonFiniteErrorPixels
 		Assorted for-loop index variables when looping over pixels
 		bootstrap indices
 			-- also make sure RNG can return long values
 
 	convolver.h: nPixels_image, nPixels_psf, nPixels_padded; nPixels_padded_complex
-		QUESTION: Can FFTW *handle* longs for pixel numbers?
 	convolver.cpp: Convolver::ShiftAndWrapPSF( ) -- pos_in_psf, pos_in_dest;
 	oversampled_region.h: nModelVals
 	oversampled_region.cpp: ---
 	[X]image_io.cpp: 
 		ReadImageAsVector -- nPixelsTot
 	[X]makeimage_main.cpp: 
-	imfit_main.cpp: 
+	[X]imfit_main.cpp: 
+	[X]print_results.cpp
+	[X]statistics.cpp -- aic, bic [nValidPixels]
 
 
 [..] Add "const" specifiers to input parameters of functions, as appropriate

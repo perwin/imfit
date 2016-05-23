@@ -71,14 +71,14 @@ class ModelObject
     int SetupModelImage( int nImageColumns, int nImageRows );
     
 	// 2D only
-    virtual void AddErrorVector( int nDataValues, int nImageColumns, int nImageRows,
+    virtual void AddErrorVector( long nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
     // 1D only
     virtual void AddErrorVector1D( int nDataValues, double *pixelVector, int inputType ) { ; };
 
     // 1D only
-    virtual int AddMaskVector1D( int nDataValues, double *inputVector, int inputType ) { return 0; };
+    virtual int AddMaskVector1D( long nDataValues, double *inputVector, int inputType ) { return 0; };
     
 	// 2D only
     virtual int GenerateErrorVector( );
@@ -87,15 +87,15 @@ class ModelObject
     virtual void GenerateExtraCashTerms( );
 
 	// 2D only
-    virtual int AddMaskVector( int nDataValues, int nImageColumns, int nImageRows,
+    virtual int AddMaskVector( long nDataValues, int nImageColumns, int nImageRows,
                          double *pixelVector, int inputType );
 
 	// 2D only
-    int AddPSFVector( int nPixels_psf, int nColumns_psf, int nRows_psf,
+    int AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels );
 
  	// 2D only
-    int AddOversampledPSFVector( int nPixels, int nColumns_psf, int nRows_psf, 
+    int AddOversampledPSFVector( long nPixels, int nColumns_psf, int nRows_psf, 
     					double *psfPixels_osamp, int oversampleScale, int x1, int x2, 
     					int y1, int y2 );
 
@@ -113,7 +113,7 @@ class ModelObject
     void UpdateWeightVector(  );
 
      // common, not specialized (currently not specialized or used by ModelObject1d)
-    virtual double ComputePoissonMLRDeviate( int i, int i_model );
+    virtual double ComputePoissonMLRDeviate( long i, long i_model );
 
     // Specialized by ModelObject1D
     virtual void ComputeDeviates( double yResults[], double params[] );
@@ -180,10 +180,10 @@ class ModelObject
     int GetNParams( );
 
     // Returns total number of data values
-    int GetNDataValues( );
+    long GetNDataValues( );
 
     // Returns total number of *non-masked* data values
-    int GetNValidPixels( );
+    long GetNValidPixels( );
 
 	// 2D only
     double * GetModelImageVector( );
@@ -230,8 +230,9 @@ class ModelObject
     Convolver  *psfConvolver;
   
   protected:  // same as private, except accessible to derived classes
-    int  nDataVals, nDataColumns, nDataRows, nValidDataVals, nCombined;
-    int  nModelVals, nModelColumns, nModelRows, nPSFColumns, nPSFRows;
+    long  nDataVals, nValidDataVals, nModelVals;
+    int  nDataColumns, nDataRows, nCombined;
+    int  nModelColumns, nModelRows, nPSFColumns, nPSFRows;
 	double  zeroPoint;
 	double  gain, readNoise, exposureTime, originalSky, effectiveGain;
 	double  readNoise_adu_squared;
@@ -261,7 +262,7 @@ class ModelObject
     double  *outputModelVector;
     double  *extraCashTermsVector;
     double  *parameterBounds;
-    int  *bootstrapIndices;
+    long  *bootstrapIndices;
     bool  *fblockStartFlags;
     vector<FunctionObject *> functionObjects;
     vector<int> paramSizes;
@@ -270,7 +271,8 @@ class ModelObject
     // stuff for ovsersampled PSF convolution
     Convolver  *psfConvolver_osamp;
     int  oversamplingScale, nPSFColumns_osamp, nPSFRows_osamp;
-    int  nOversampledModelColumns, nOversampledModelRows, nOversampledModelVals;
+    int  nOversampledModelColumns, nOversampledModelRows;
+    long  nOversampledModelVals;
     bool  oversampledRegionsExist;
     bool  oversampledRegionAllocated;
     OversampledRegion *oversampledRegion;
