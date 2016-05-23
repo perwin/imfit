@@ -1,6 +1,5 @@
 /* FILE: func_edge-on-ring.cpp ----------------------------------------- */
-/* VERSION 0.2
- *
+/* 
  *   Highly experimental class (derived from FunctionObject; function_object.h)
  * which produces a crude edge-on ring model.
  *
@@ -25,7 +24,7 @@
  *     [v0.1]  21 Sept 2010: Created as modification of func_broken-exp2d.cpp.
  */
 
-// Copyright 2010, 2011, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

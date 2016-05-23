@@ -1,6 +1,5 @@
 /*   Class interface definition for func_exp.cpp
- *   VERSION 0.4
- *
+ * 
  *   A class derived from FunctionObject (function_object.h),
  * which produces the luminosity as a function of radius for an elliptical
  * exponential.
@@ -23,7 +22,6 @@
 #include <string>
 using namespace std;
 
-//#define CLASS_SHORT_NAME  "Exponential"
 
 
 /// Class for image function with elliptical isophotes and exponential profile

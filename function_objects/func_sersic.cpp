@@ -59,7 +59,6 @@ using namespace std;
 const int  N_PARAMS = 5;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "n", "I_e", "r_e"};
 const char  FUNCTION_NAME[] = "Sersic function";
-//const char SHORT_FUNCTION_NAME[] = "Sersic";
 const double  DEG2RAD = 0.017453292519943295;
 const double PI = 3.14159265358979;
 const int  SUBSAMPLE_R = 10;
@@ -103,10 +102,6 @@ void Sersic::Setup( double params[], int offsetIndex, double xc, double yc )
   n = params[2 + offsetIndex ];
   I_e = params[3 + offsetIndex ];
   r_e = params[4 + offsetIndex ];
-// #ifdef DEBUG
-//   printf("func_sersic: x0 = %g, y0 = %g, PA = %g, ell = %g, n = %g, r_e = %g, I_e = %g\n",
-//           x0, y0, PA, ell, n, r_e, I_e);
-// #endif
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;

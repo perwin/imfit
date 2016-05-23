@@ -1,6 +1,5 @@
 /* FILE: function_object.cpp ------------------------------------------- */
-/* VERSION 0.25
- *
+/* 
  *   This is the base class for the various function object classes.
  *   It really shouldn't be instantiated by itself.
  *   
@@ -22,7 +21,7 @@
  *   function_object class.
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

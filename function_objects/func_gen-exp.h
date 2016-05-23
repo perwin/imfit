@@ -1,5 +1,4 @@
 /*   Class interface definition for func_gen-exp.cpp
- *   VERSION 0.4
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the luminosity as a function of radius for an elliptical
@@ -22,7 +21,6 @@
 
 #include "function_object.h"
 
-//#define CLASS_SHORT_NAME  "Exponential_GenEllipse"
 
 
 /// \brief Class for image function with generalized-elliptical isophotes and exponential profile

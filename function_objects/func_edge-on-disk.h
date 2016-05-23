@@ -1,5 +1,5 @@
 /*   Class interface definition for func_edge-on-disk.cpp
- *   VERSION 0.3
+ * 
  *
  *   Class derived from FunctionObject (function_object.h/cpp) which produces
  * surface brightnesses for a generalized edge-on exponential disk, using 
@@ -27,7 +27,6 @@
 
 #include "function_object.h"
 
-//#define CLASS_SHORT_NAME  "EdgeOnDisk"
 
 
 /// \brief Class for image function using analytic edge-on exponential disk and

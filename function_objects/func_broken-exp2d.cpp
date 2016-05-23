@@ -1,5 +1,5 @@
 /* FILE: func_broken-exp2d.cpp ----------------------------------------- */
-/* VERSION 0.1
+/* 
  *
  *   Highly experimental class (derived from FunctionObject; function_object.h)
  * which produces an approximate 2D edge-on broken-exponential (with radial
@@ -25,7 +25,7 @@
  *     [v0.1]  16 June 2010: Created as modification of func_broken-exp.cpp.
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -58,7 +58,6 @@ using namespace std;
 const int   N_PARAMS = 7;
 const char  PARAM_LABELS[][20] = {"PA", "I_0", "h1", "h2", "r_break", "alpha", "h_z"};
 const char  FUNCTION_NAME[] = "Broken-Exponential2D function";
-//const char  SHORT_FUNCTION_NAME[] = "BrokenExponential2D";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
@@ -200,7 +199,6 @@ int BrokenExponential2D::CalculateSubsamples( double r )
   }
   return nSamples;
 }
-
 
 
 /* END OF FILE: func_broken-exp2d.cpp ---------------------------------- */

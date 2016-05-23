@@ -1,6 +1,5 @@
 /*   Class interface definition for func_edge-on-ring.cpp
- *   VERSION 0.1
- *
+ * 
  *   Highly experimental class (derived from FunctionObject; function_object.h)
  * which produces a crude edge-on ring model; this version allows for different
  * Gaussian sigma for r < r_ring vs r > r_ring.
@@ -24,7 +23,6 @@
 
 #include "function_object.h"
 
-//#define CLASS_SHORT_NAME  "EdgeOnRing2Side"
 
 
 /// Class for image function with simplistic edge-on asymmetric (2-sided) %Gaussian ring profile

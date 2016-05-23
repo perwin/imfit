@@ -1,6 +1,5 @@
 /* FILE: integrator.cpp ------------------------------------------------ */
-/* VERSION 0.1
- *
+/* 
  * Code for performing a line-of-sight integration using GSL QAGS integration.
  * Everything inside a single function, as local variables, to ensure thread
  * safety (e.g., for use with OpenMP).
@@ -16,7 +15,23 @@
  * Ferrers bar, so not much reason to change them.
  */
  
-//#include <math.h>
+ // Copyright 2011--2016 by Peter Erwin.
+// 
+// This file is part of Imfit.
+// 
+// Imfit is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// Imfit is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with Imfit.  If not, see <http://www.gnu.org/licenses/>.
+
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
 #include "integrator.h"
@@ -33,46 +48,11 @@ double  Integrate( gsl_function F, double s1, double s2 )
   // allocate and free the workspace object here (referencing it with a local
   // variable) to ensure thread safety
   workspace = gsl_integration_workspace_alloc(LIMIT_SIZE);
-//  gsl_integration_qagi(&F, 0, 1e-6, 1000, workspace, &result, &error);
   status = gsl_integration_qags(&F, s1, s2, 0, RELATIVE_TOL, LIMIT_SIZE, workspace, &result, &error);
   gsl_integration_workspace_free(workspace);
   
   return result;
 }
 
-  //  gsl_integration_qags(&F, -integLimit, integLimit, 0, 1e-7, 1000, 
-//  						workspace, &totalIntensity, &error); 
 
-//      double f (double x, void * params) {
-//        double alpha = *(double *) params;
-//        double f = log(alpha*x) / sqrt(x);
-//        return f;
-//      }
-//      
-//      int
-//      main (void)
-//      {
-//        gsl_integration_workspace * w 
-//          = gsl_integration_workspace_alloc (1000);
-//        
-//        double result, error;
-//        double expected = -4.0;
-//        double alpha = 1.0;
-//      
-//        gsl_function F;
-//        F.function = &f;
-//        F.params = &alpha;
-//      
-//        gsl_integration_qags (&F, 0, 1, 0, 1e-7, 1000,
-//                              w, &result, &error); 
-//      
-//        printf ("result          = % .18f\n", result);
-//        printf ("exact result    = % .18f\n", expected);
-//        printf ("estimated error = % .18f\n", error);
-//        printf ("actual error    = % .18f\n", result - expected);
-//        printf ("intervals =  %d\n", w->size);
-//      
-//        gsl_integration_workspace_free (w);
-//      
-//        return 0;
-//      }
+/* END OF FILE: integrator.cpp ----------------------------------------- */

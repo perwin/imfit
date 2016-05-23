@@ -1,6 +1,5 @@
 /* FILE: func_king.cpp ------------------------------------------------- */
-/* VERSION 0.1
- *
+/* 
  *   Function object class for an King-model function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
  *   
@@ -21,7 +20,7 @@
  *     [v0.01]: 29 May 2015: Created as modification of func_exp.cpp
  */
 
-// Copyright 2015 by Peter Erwin.
+// Copyright 2015--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

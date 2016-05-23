@@ -1,5 +1,4 @@
 /*   Class interface definition for function_object.cpp [imfit]
- *   VERSION 0.2
  *
  * This is intended to be an abstract base class for the various
  * function objects (e.g., Sersic function, broken-exponential

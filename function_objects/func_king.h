@@ -1,5 +1,4 @@
 /*   Class interface definition for func_king.cpp
- *   VERSION 0.01
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the luminosity as a function of radius for a modified

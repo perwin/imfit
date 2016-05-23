@@ -1,6 +1,5 @@
 /*   Class interface definition for func_gaussian-ring2side.cpp
- *   VERSION 0.1
- *
+ * 
  *   Highly experimental class (derived from FunctionObject; function_object.h)
  * which produces an elliptical ring with a 2-sided Gaussian profile, which
  * allows for different Gaussian sigma for r < r_ring vs r > r_ring.
@@ -23,7 +22,6 @@
 
 #include "function_object.h"
 
-//#define CLASS_SHORT_NAME  "GaussianRing2Side"
 
 
 /// \brief Class for image function using 2D elliptical ring with asymmetric

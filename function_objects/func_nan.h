@@ -1,5 +1,4 @@
 /*   Class interface definition for func_nan.cpp
- *   VERSION 0.1
  *
  *   A class derived from FunctionObject (function_object.h),
  * which always returns NaN values (for testing purposes).
@@ -11,7 +10,6 @@
 
 #include "function_object.h"
 
-//#define CLASS_SHORT_NAME  "NaNFunc"
 
 
 /// Class for image function generating NaN for all pixels (for testing)

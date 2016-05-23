@@ -1,6 +1,5 @@
 /*   Class interface definition for func_expdisk3d.cpp
- *   VERSION 0.1
- *
+ * 
  *   A class derived from FunctionObject (function_object.h),
  * which produces the integrated intensity of a 3D perfect exponential disk
  * seen at specified inclination.
@@ -17,7 +16,6 @@
 
 using namespace std;
 
-//#define CLASS_SHORT_NAME  "ExponentialDisk3D"
 
 
 /// \brief Class for image function using LOS integration through 3D model with exponential

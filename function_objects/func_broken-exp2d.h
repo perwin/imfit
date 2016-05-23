@@ -1,5 +1,4 @@
 /*   Class interface definition for func_broken-exp2d.cpp
- *   VERSION 0.1
  *
  *   Highly experimental class (derived from FunctionObject; function_object.h)
  * which produces an approximate 2D edge-on broken-exponential (with radial
@@ -22,7 +21,6 @@
 
 #include "function_object.h"
 
-//#define CLASS_SHORT_NAME  "BrokenExponential2D"
 
 
 /// \brief Class for image function for (approximate) edge-on disk with radial

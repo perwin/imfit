@@ -1,6 +1,5 @@
 /* FILE: func_flatsky.cpp ---------------------------------------------- */
-/* VERSION 0.1
- *
+/* 
  *   This is a derived class which provides for a constant ("flat") sky
  * background.  It has only one parameter, and no dependence on pixel
  * position whatsoever.
@@ -9,7 +8,7 @@
  *     [v0.1]: 24 April 2010: Created (as modification of func_gaussian.cpp).
  */
 
-// Copyright 2010, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

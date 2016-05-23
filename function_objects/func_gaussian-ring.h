@@ -1,6 +1,5 @@
 /*   Class interface definition for func_gaussian-ring.cpp
- *   VERSION 0.1
- *
+ * 
  *   Class (derived from FunctionObject; function_object.h) which produces an elliptical 
  * ring with a Gaussian profile.
  *
@@ -21,7 +20,6 @@
 
 #include "function_object.h"
 
-//#define CLASS_SHORT_NAME  "GaussianRing"
 
 
 /// \brief Class for image function using 2D elliptical ring with %Gaussian radial profile

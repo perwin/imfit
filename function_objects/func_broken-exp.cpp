@@ -1,6 +1,5 @@
 /* FILE: func_broken-exp.cpp ------------------------------------------- */
-/* VERSION 0.1
- *
+/*
  *   Function object class for a broken-exponential function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
  *   
@@ -21,7 +20,7 @@
  *     [v0.1]  31 Mar 2010: Created as modification of func_exp.cpp.
  */
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -54,7 +53,6 @@ using namespace std;
 const int   N_PARAMS = 7;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h1", "h2", "r_break", "alpha"};
 const char  FUNCTION_NAME[] = "Broken-Exponential function";
-//const char  SHORT_FUNCTION_NAME[] = "BrokenExponential";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
@@ -198,7 +196,6 @@ int BrokenExponential::CalculateSubsamples( double r )
   }
   return nSamples;
 }
-
 
 
 /* END OF FILE: func_broken-exp.cpp ------------------------------------ */

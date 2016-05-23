@@ -1,6 +1,5 @@
 /* FILE: func_exp.cpp -------------------------------------------------- */
-/* VERSION 0.4
- *
+/* 
  *   Function object class for an exponential function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
  *   

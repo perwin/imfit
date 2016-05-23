@@ -1,6 +1,5 @@
 /* FILE: func_expdisk3d.cpp -------------------------------------------- */
-/* VERSION 0.1
- *
+/* 
  *   Experimental function object class for a 3D exponential disk (luminosity
  * density = radial exponential with scale length h and vertical sech^(2/n) profile
  * with scale heigh h_z), seen at position angle PA and inclination inc.
@@ -24,7 +23,7 @@
  *     [v0.1]: 18--19 Aug 2012: Created (as modification of func_exp.cpp.
  */
 
-// Copyright 2012, 2013 by Peter Erwin.
+// Copyright 2012--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -148,7 +147,6 @@ void ExponentialDisk3D::Setup( double params[], int offsetIndex, double xc, doub
   inc_rad = inclination * DEG2RAD;
   cosInc = cos(inc_rad);
   sinInc = sin(inc_rad);
-  //tanInc = tan(inc_rad);
   
   alpha = 2.0/n;
   scaledZ0 = alpha*z_0;
@@ -197,8 +195,6 @@ double ExponentialDisk3D::GetValue( double x, double y )
   // Setup() call above; for some reason doing it that way makes the whole thing
   // take ~ 4 times longer!)
   integLimit = INTEGRATION_MULTIPLIER * h;
-//  printf("x,y = %f,%f; x_d0,y_d0,z_d0 = %f,%f,%f; cosInc,sinInc = %f,%f\n",
-//  	x,y, x_d0,y_d0,z_d0, cosInc,sinInc);
   totalIntensity = Integrate(F, -integLimit, integLimit);
 
   return totalIntensity;

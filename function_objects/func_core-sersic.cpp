@@ -1,5 +1,5 @@
 /* FILE: func_sersic.cpp ----------------------------------------------- */
-/* VERSION 0.1
+/* 
  *
  *   Function object class for a Sersic function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
@@ -21,7 +21,7 @@
  *     [v0.1]: 21 Sept 2012: Created (as modification of func_sersic.cpp.
  */
 
-// Copyright 2012, 2013 by Peter Erwin.
+// Copyright 2012--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -56,7 +56,6 @@ using namespace std;
 const int  N_PARAMS = 8;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "n", "I_b", "r_e", "r_b", "alpha", "gamma"};
 const char  FUNCTION_NAME[] = "Core-Sersic function";
-//const char SHORT_FUNCTION_NAME[] = "Core-Sersic";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
@@ -107,10 +106,6 @@ void CoreSersic::Setup( double params[], int offsetIndex, double xc, double yc )
   r_b = params[5 + offsetIndex ];
   alpha = params[6 + offsetIndex ];
   gamma = params[7 + offsetIndex ];
-// #ifdef DEBUG
-//   printf("func_sersic: x0 = %g, y0 = %g, PA = %g, ell = %g, n = %g, r_e = %g, I_e = %g\n",
-//           x0, y0, PA, ell, n, r_e, I_e);
-// #endif
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;

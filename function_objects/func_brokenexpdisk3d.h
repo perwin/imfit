@@ -1,5 +1,4 @@
 /*   Class interface definition for func_brokenexpdisk3d.cpp
- *   VERSION 0.2
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the integrated intensity of a 3D disk with a broken-exponential radial
@@ -17,7 +16,6 @@
 
 using namespace std;
 
-//#define CLASS_SHORT_NAME  "BrokenExponentialDisk3D"
 
 
 /// \brief Class for image function using LOS integration through 3D model with broken-exponential

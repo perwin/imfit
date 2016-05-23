@@ -1,5 +1,4 @@
 /*   Class interface definition for func_gaussian.cpp
- *   VERSION 0.4
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the luminosity as a function of radius for a circular
@@ -13,7 +12,6 @@
 #include "function_object.h"
 #include <string>
 
-//#define CLASS_SHORT_NAME  "Gaussian"
 
 
 /// Class for image function with elliptical isophotes and %Gaussian profile

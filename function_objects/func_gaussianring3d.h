@@ -1,5 +1,4 @@
 /*   Class interface definition for func_gaussianring3d.cpp
- *   VERSION 0.1
  *
  *   A class derived from FunctionObject (function_object.h), which produces projected
  * surface intensity for an elliptical 3D ring (luminosity density = Gaussian centered at 
@@ -30,7 +29,6 @@
 
 using namespace std;
 
-//#define CLASS_SHORT_NAME  "GaussianRing3D"
 
 
 /// \brief Class for image function using LOS integration through 3D model

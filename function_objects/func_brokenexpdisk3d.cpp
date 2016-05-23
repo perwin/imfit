@@ -1,5 +1,5 @@
 /* FILE: func_brokenexp3d.cpp ------------------------------------------ */
-/* VERSION 0.2
+/* 
  *
  *   Experimental function object class for a 3D exponential disk (luminosity
  * density = radial broken exponential with scale lengths h1 and h2, break
@@ -25,7 +25,7 @@
  *     [v0.1]: 25 Oct 2012: Created (as modification of func_expdisk3d.cpp).
  */
 
-// Copyright 2012, 2013 by Peter Erwin.
+// Copyright 2012--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -115,7 +115,6 @@ void BrokenExponentialDisk3D::Setup( double params[], int offsetIndex, double xc
   h2 = params[4 + offsetIndex ];
   r_b = params[5 + offsetIndex ];
   alpha = params[6 + offsetIndex ];
-//  h_z = params[7 + offsetIndex ];
   n = params[7 + offsetIndex ];
   z_0 = params[8 + offsetIndex ];
 
@@ -127,7 +126,6 @@ void BrokenExponentialDisk3D::Setup( double params[], int offsetIndex, double xc
   inc_rad = inclination * DEG2RAD;
   cosInc = cos(inc_rad);
   sinInc = sin(inc_rad);
-  //tanInc = tan(inc_rad);
   
   // broken-exponential stuff
   exponent = (1.0/alpha) * (1.0/h1 - 1.0/h2);
@@ -175,7 +173,6 @@ double BrokenExponentialDisk3D::GetValue( double x, double y )
   xyParameters[7] = h2;
   xyParameters[8] = r_b;
   xyParameters[9] = alpha;
-//  xyParameters[10] = h_z;
   xyParameters[10] = J_0_times_S;
   xyParameters[11] = delta_Rb_scaled;
   xyParameters[12] = exponent;
@@ -191,8 +188,6 @@ double BrokenExponentialDisk3D::GetValue( double x, double y )
   // Setup() call above; for some reason doing it that way makes the whole thing
   // take ~ 4 times longer!)
   integLimit = fmax(INTEGRATION_MULTIPLIER * r_b, INTEGRATION_MULTIPLIER * h2);
-//  printf("x,y = %f,%f; x_d0,y_d0,z_d0 = %f,%f,%f; cosInc,sinInc = %f,%f\n",
-//  	x,y, x_d0,y_d0,z_d0, cosInc,sinInc);
   totalIntensity = Integrate(F, -integLimit, integLimit);
 
   return totalIntensity;
@@ -226,7 +221,6 @@ double LuminosityDensityBED( double s, void *params )
   double h2 = paramsVect[7];
   double r_b = paramsVect[8];
   double alpha = paramsVect[9];
-//  double h_z = paramsVect[10];
   double J_0_times_S = paramsVect[10];
   double delta_Rb_scaled = paramsVect[11];
   double exponent = paramsVect[12];

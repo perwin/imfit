@@ -1,6 +1,5 @@
 /* FILE: func_gen-exp.cpp ---------------------------------------------- */
-/* VERSION 0.4
- *
+/* 
  *   Function object class for a generalized exponential function, with constant
  * (generalized) ellipticity and position angle.
  *
@@ -24,6 +23,23 @@
  *     [v0.1]  6 June 2010: Created (as modification of func_exp.cpp).
  */
 
+// Copyright 2010--2016 by Peter Erwin.
+// 
+// This file is part of Imfit.
+// 
+// Imfit is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// Imfit is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with Imfit.  If not, see <http://www.gnu.org/licenses/>.
+
 
 /* ------------------------ Include Files (Header Files )--------------- */
 #include <math.h>
@@ -40,7 +56,6 @@ using namespace std;
 const int  N_PARAMS = 5;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "c0", "I_0", "h"};
 const char FUNCTION_NAME[] = "Generalized-ellipse exponential function";
-//const char SHORT_FUNCTION_NAME[] = "Exponential_GenEllipse";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 

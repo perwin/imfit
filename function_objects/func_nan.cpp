@@ -1,6 +1,5 @@
 /* FILE: func_nan.cpp -------------------------------------------------- */
-/* VERSION 0.1
- *
+/* 
  *   This is a derived class which always returns NaN values.  It has only one (irrelevant) parameter, and no dependence on pixel
  * position whatsoever.
  *

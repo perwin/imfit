@@ -1,5 +1,5 @@
 /*   Class interface definition for func_edge-on-ring.cpp
- *   VERSION 0.1
+ * 
  *
  *   Highly experimental class (derived from FunctionObject; function_object.h)
  * which produces a crude edge-on ring model.
@@ -22,7 +22,6 @@
 
 #include "function_object.h"
 
-//#define CLASS_SHORT_NAME  "EdgeOnRing"
 
 
 /// Class for image function with simplistic edge-on %Gaussian ring profile
