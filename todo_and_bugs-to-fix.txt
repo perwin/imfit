@@ -27,13 +27,23 @@
 [] Convert total-pixel-number integer variables to long
 	model_object.h: nModelVals, nDataVals, nValidDataVals, nOversampledModelVals
 	model_object.cpp: 
+		ModelObject::AddErrorVector( int nDataValues
+		ModelObject::AddMaskVector( int nDataValues
+		ModelObject::AddPSFVector( int nPixels_psf
+		ModelObject::AddOversampledPSFVector( int nPixels
+		int ModelObject::FinalSetupForFitting( ) -- nNonFinitePixels, nNonFiniteErrorPixels
+		Assorted for-loop index variables when looping over pixels
+		bootstrap indices
+			-- also make sure RNG can return long values
+
 	convolver.h: nPixels_image, nPixels_psf, nPixels_padded; nPixels_padded_complex
 		QUESTION: Can FFTW *handle* longs for pixel numbers?
 	convolver.cpp: Convolver::ShiftAndWrapPSF( ) -- pos_in_psf, pos_in_dest;
-	oversampled_region.h: 
-	oversampled_region.cpp: 
+	oversampled_region.h: nModelVals
+	oversampled_region.cpp: ---
 	image_io.h: 
 	image_io.cpp: 
+		ReadImageAsVector -- nPixelsTot
 	makeimage_main.cpp: 
 	imfit_main.cpp: 
 

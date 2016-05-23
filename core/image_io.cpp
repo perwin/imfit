@@ -108,12 +108,6 @@ static void PrintError( int status );
 
 
 
-/* ------------------------ Global Variables --------------------------- */
-
-
-/* ------------------------ Module Variables --------------------------- */
-
-
 
 // Possible FITS file situations:
 // single HDU is valid image -- OK
@@ -258,7 +252,7 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   int  validHDU_flag = 0;
   int  nfound;
   long  naxes[2];
-  int  nPixelsTot;
+  long  nPixelsTot;
   long  firstPixel[2] = {1, 1};
   int  n_rows, n_columns;
   
@@ -287,7 +281,7 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   *nColumns = n_columns;
   n_rows = naxes[1];         // FITS keyword NAXIS2 = # rows
   *nRows = n_rows;
-  nPixelsTot = n_columns * n_rows;      // number of pixels in the image
+  nPixelsTot = (long)n_columns * (long)n_rows;      // number of pixels in the image
   
   // Allocate memory for the image-data vector:
   imageVector = fftw_alloc_real(nPixelsTot);
@@ -330,7 +324,7 @@ int SaveVectorAsImage( double *pixelVector, const std::string filename, const in
   int  status = 0;
   int  problems = 0;
   long  naxes[2];
-  int  nPixels;
+  long  nPixels;
   long  firstPixel[2] = {1, 1};
 
   status = problems = 0;
@@ -343,7 +337,7 @@ int SaveVectorAsImage( double *pixelVector, const std::string filename, const in
   
   naxes[0] = nColumns;
   naxes[1] = nRows;
-  nPixels = nColumns * nRows;
+  nPixels = (long)nColumns * (long)nRows;
   
   /* Create the FITS file: */
   //    NOTE: need to prefix filename with "!" if we want to clobber existing file...
