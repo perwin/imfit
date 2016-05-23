@@ -16,8 +16,10 @@ using namespace std;
 
 /// Utility function for debugging use: print a real-valued image to stdout
 void PrintRealImage( double *image, int nColumns, int nRows );
+
 /// Utility function for debugging use: print a complex-valued image to stdout
 void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nColumns, int nRows );
+
 /// Utility function for debugging use: print absolute value of complex-valued image to stdout
 void PrintComplexImage_Absolute( fftw_complex *image_cmplx, int nColumns, int nRows );
 
@@ -51,7 +53,7 @@ class Convolver
   void ShiftAndWrapPSF( );
   
   // Data members:
-  int  nPixels_image, nPixels_psf, nPixels_padded;
+  long  nPixels_image, nPixels_psf, nPixels_padded;
   int  nRows_psf, nColumns_psf;
   int  nRows_image, nColumns_image;
   int  nRows_padded, nColumns_padded;
@@ -59,7 +61,7 @@ class Convolver
   double  rescaleFactor;
   double  *psfPixels;
   double  *image_in_padded, *psf_in_padded, *convolvedImage_out;
-  int  nPixels_padded_complex;
+  long  nPixels_padded_complex;
   fftw_complex  *image_fft_cmplx;
   fftw_complex  *psf_fft_cmplx;
   fftw_complex  *multiplied_cmplx;

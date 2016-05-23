@@ -37,8 +37,8 @@
 		bootstrap indices
 			-- also make sure RNG can return long values
 
-	convolver.h: nPixels_image, nPixels_psf, nPixels_padded; nPixels_padded_complex
-	convolver.cpp: Convolver::ShiftAndWrapPSF( ) -- pos_in_psf, pos_in_dest;
+	[X]convolver.h: nPixels_image, nPixels_psf, nPixels_padded; nPixels_padded_complex
+	[X]convolver.cpp: Convolver::ShiftAndWrapPSF( ) -- pos_in_psf, pos_in_dest;
 	oversampled_region.h: nModelVals
 	oversampled_region.cpp: ---
 	[X]image_io.cpp: 
