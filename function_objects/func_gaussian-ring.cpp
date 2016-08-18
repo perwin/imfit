@@ -134,7 +134,7 @@ double GaussianRing::GetValue( double x, double y )
   nSubsamples = CalculateSubsamples(r);
   if (nSubsamples > 1) {
     // Do subsampling
-    // start in center of leftmost/bottommost sub-picel
+    // start in center of leftmost/bottommost sub-pixel
     double deltaSubpix = 1.0 / nSubsamples;
     double x_sub_start = x - 0.5 + 0.5*deltaSubpix;
     double y_sub_start = y - 0.5 + 0.5*deltaSubpix;
