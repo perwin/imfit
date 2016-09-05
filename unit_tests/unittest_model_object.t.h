@@ -125,11 +125,8 @@ public:
     // Initialize modelObj3 and add model function & params (FlatSky)
     status = ReadConfigFile(filename3, true, functionList3, parameterList3, 
   								paramLimits3, FunctionBlockIndices3, paramLimitsExist3, userConfigOptions3);
-//   	printf("\nSetup: len(functionList3) = %d, len(parameterList3) = %d, len(FunctionBlockIndices3) = %d\n",
-//   			(int)functionList3.size(), (int)parameterList3.size(), (int)FunctionBlockIndices3.size());
     modelObj3 = new ModelObject();
     status = AddFunctions(modelObj3, functionList3, FunctionBlockIndices3, true, -1);
-//     printf("\nSetup: GetNFunctions = %d\n", modelObj3->GetNFunctions());
 
     // Initialize modelObj4a and add model function & params (FlatSky)
     modelObj4a = new ModelObject();
