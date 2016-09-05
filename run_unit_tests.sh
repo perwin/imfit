@@ -37,42 +37,52 @@ declare -i RESULT=0
 # Unit tests for add_functions
 ./run_unittest_add_functions.sh 2>> temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for command-line parser
 ./run_unittest_cmlineparser.sh 2>> temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for config-file parser
 ./run_unittest_configfileparser.sh 2>> temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for downsample
 ./run_unittest_downsample.sh 2>> temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for standard image-function classes
 ./run_unittest_funcs.sh 2>> ../temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for image_io
 ./run_unittest_imageio.sh 2>> temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for mpfit
 ./run_unittest_mpfit.sh 2>> temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for solver_results
 ./run_unittest_solverresults.sh 2>> temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for utilities
 ./run_unittest_utilities.sh 2>> temperror.log
 RESULT+=$?
+echo $RESULT
 
 # Unit tests for utilities
-./run_unittest_model_object.sh 2>> temperror.log
+./run_unittest_model_object.sh
 RESULT+=$?
+echo $RESULT
 
 
 # NOTE: the following code will correctly set up and run unittest_oversampled_region.t.h;
