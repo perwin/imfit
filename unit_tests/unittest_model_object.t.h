@@ -213,20 +213,19 @@ public:
       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
   }
 
-  // OK, the following currently does *not* work (outputVect is all zeros)
-//   void testGenerateAndRetrieveErrorImage( void )
-//   {
-//     double *outputVect;
-//     double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
-//     int  nDataVals = nSmallDataCols*nSmallDataRows;
-//     
-//     modelObj2b->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-//     modelObj2b->GenerateErrorVector();
-//     outputVect = modelObj2b->GetWeightImageVector();
-// 
-//     for (int i = 0; i < nDataVals; i++)
-//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-//   }
+  void testGenerateAndRetrieveErrorImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2b->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2b->GenerateErrorVector();
+    outputVect = modelObj2b->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
  
   void testStoreAndRetrieveErrorImage( void )
   {

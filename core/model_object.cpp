@@ -146,6 +146,7 @@ ModelObject::ModelObject( )
   nCombined = 1;
   effectiveGain = 1.0;
   readNoise_adu_squared = 0.0;
+  originalSky = 0.0;
   
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
   ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
