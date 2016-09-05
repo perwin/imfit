@@ -6,7 +6,7 @@
 // from lines 235--255 to generate & store a new mp_par structure
 //
 
-// Copyright 2010, 2011, 2012, 2013 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -319,7 +319,6 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   int  i, nInputLines;
   int  possibleBadLineNumber = -1;
   int  k = 0;
-//  bool  functionSectionFound = false;
   
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
@@ -337,8 +336,12 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     }
   }
   inputFileStream.close();
-
   nInputLines = inputLines.size();
+  
+  // Clear the input vectors before we start appending things to them
+  functionNameList.clear();
+  parameterList.clear();
+  fblockStartIndices.clear();
   
   // OK, locate the start of the function block (first line beginning with "X0")
   functionSectionStart = VetConfigFile(inputLines, origLineNumbers, mode2D, &possibleBadLineNumber);
@@ -424,7 +427,6 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   int  i, nInputLines;
   int  possibleBadLineNumber = -1;
   int  k = 0;
-//  bool  functionSectionFound = false;
   int  pLimitFound;
   
   inputFileStream.open(configFileName.c_str());
@@ -442,9 +444,14 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     }
   }
   inputFileStream.close();
-
   nInputLines = inputLines.size();
 
+  // Clear the input vectors before we start appending things to them
+  functionNameList.clear();
+  parameterList.clear();
+  parameterLimits.clear();
+  fblockStartIndices.clear();
+  
   // OK, locate the start of the function block (first line beginning with "X0")
   functionSectionStart = VetConfigFile(inputLines, origLineNumbers, mode2D, &possibleBadLineNumber);
   if (functionSectionStart < 0) {

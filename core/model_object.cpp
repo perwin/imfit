@@ -832,11 +832,10 @@ void ModelObject::CreateModelImage( double params[] )
     offset += paramSizes[n];
   }
   
-  double  tempSum, adjVal, storedError;
-  
   
   // 1. OK, populate modelVector with the model image -- standard pixel scaling
-
+  double  tempSum, adjVal, storedError;
+  
 // Note that we cannot specify modelVector as shared [or private] bcs it is part
 // of a class (not an independent variable); happily, by default all references in
 // an omp-parallel section are shared unless specified otherwise
@@ -1614,7 +1613,7 @@ void ModelObject::PrintModelImage( )
 {
 
   if (! modelImageComputed) {
-    fprintf(stderr, "* ModelObject::PrintMoelImage -- Model image has not yet been computed!\n\n");
+    fprintf(stderr, "* ModelObject::PrintModelImage -- Model image has not yet been computed!\n\n");
     return;
   }
   printf("The model image, row by row:\n");

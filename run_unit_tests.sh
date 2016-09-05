@@ -70,6 +70,10 @@ RESULT+=$?
 ./run_unittest_utilities.sh 2>> temperror.log
 RESULT+=$?
 
+# Unit tests for utilities
+./run_unittest_model_object.sh 2>> temperror.log
+RESULT+=$?
+
 
 # NOTE: the following code will correctly set up and run unittest_oversampled_region.t.h;
 # However, that "unit test" doesn't perform proper tests; instead, it generates test image

@@ -64,6 +64,7 @@ public:
   int nSmallDataCols, nSmallDataRows;
 
 
+  // Note that setUp() gets called prior to *each* individual test function!
   void setUp()
   {
     int  status;
@@ -124,8 +125,11 @@ public:
     // Initialize modelObj3 and add model function & params (FlatSky)
     status = ReadConfigFile(filename3, true, functionList3, parameterList3, 
   								paramLimits3, FunctionBlockIndices3, paramLimitsExist3, userConfigOptions3);
+//   	printf("\nSetup: len(functionList3) = %d, len(parameterList3) = %d, len(FunctionBlockIndices3) = %d\n",
+//   			(int)functionList3.size(), (int)parameterList3.size(), (int)FunctionBlockIndices3.size());
     modelObj3 = new ModelObject();
     status = AddFunctions(modelObj3, functionList3, FunctionBlockIndices3, true, -1);
+//     printf("\nSetup: GetNFunctions = %d\n", modelObj3->GetNFunctions());
 
     // Initialize modelObj4a and add model function & params (FlatSky)
     modelObj4a = new ModelObject();
@@ -164,123 +168,123 @@ public:
 
   }
   
-  void testSetAndGetStatisticType( void )
-  {
-    int  whichStat, status;
-    bool cashStatUsed = false;
-    
-    // default should be chi^2
-    whichStat = modelObj1->WhichFitStatistic();
-    TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE);
-    // special case of verbose output
-    whichStat = modelObj1->WhichFitStatistic(true);
-    TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_DATA);
-    // switch to using model-based chi^2
-    status = modelObj1->UseModelErrors();
-    whichStat = modelObj1->WhichFitStatistic(true);
-    TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_MODEL);
-    
-    modelObj1->UseCashStatistic();
-    whichStat = modelObj1->WhichFitStatistic();
-    TS_ASSERT_EQUALS(whichStat, FITSTAT_CASH);
-    cashStatUsed = modelObj1->UsingCashStatistic();
-    TS_ASSERT_EQUALS(cashStatUsed, true);
-
-    // the following will generate a couple of warnings from within UseCashStatistic,
-    // which is OK
-    modelObj1->UsePoissonMLR();
-    whichStat = modelObj1->WhichFitStatistic();
-    TS_ASSERT_EQUALS(whichStat, FITSTAT_POISSON_MLR);
-    cashStatUsed = modelObj1->UsingCashStatistic();
-    TS_ASSERT_EQUALS(cashStatUsed, true);
-  }
- 
- 
-  void testStoreAndRetrieveDataImage( void )
-  {
-    double *outputVect;
-    double trueVals[4] = {0.25, 0.25, 0.25, 1.0};   // data values
-    int  nDataVals = nSmallDataCols*nSmallDataRows;
-    
-    modelObj2a->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-    outputVect = modelObj2a->GetDataVector();
-
-    for (int i = 0; i < nDataVals; i++)
-      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-  }
-
-  void testGenerateAndRetrieveErrorImage( void )
-  {
-    double *outputVect;
-    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
-    int  nDataVals = nSmallDataCols*nSmallDataRows;
-    
-    modelObj2b->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-    modelObj2b->GenerateErrorVector();
-    outputVect = modelObj2b->GetWeightImageVector();
-
-    for (int i = 0; i < nDataVals; i++)
-      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-  }
- 
-  void testStoreAndRetrieveErrorImage( void )
-  {
-    double *outputVect;
-    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
-    int  nDataVals = nSmallDataCols*nSmallDataRows;
-    
-    modelObj2c->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-    modelObj2c->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallErrorImage, WEIGHTS_ARE_SIGMAS);
-    outputVect = modelObj2c->GetWeightImageVector();
-
-    for (int i = 0; i < nDataVals; i++)
-      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-  }
- 
-  void testStoreAndRetrieveVarianceImage( void )
-  {
-    double *outputVect;
-    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
-    int  nDataVals = nSmallDataCols*nSmallDataRows;
-    
-    modelObj2d->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-    modelObj2d->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallVarianceImage, WEIGHTS_ARE_VARIANCES);
-    outputVect = modelObj2d->GetWeightImageVector();
-
-    for (int i = 0; i < nDataVals; i++)
-      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-  }
- 
-  void testStoreAndRetrieveWeightImage( void )
-  {
-    double *outputVect;
-    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
-    int  nDataVals = nSmallDataCols*nSmallDataRows;
-    
-    modelObj2e->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-    modelObj2e->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
-    outputVect = modelObj2e->GetWeightImageVector();
-
-    for (int i = 0; i < nDataVals; i++)
-      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-  }
-
-  void testStoreAndApplyMaskImage( void )
-  {
-    double *outputVect;
-    double trueVals[4] = {4.0, 0.0, 4.0, 1.0};   // 1/sigma^2, with second pixel masked out
-    int  nDataVals = nSmallDataCols*nSmallDataRows;
-    
-    modelObj2f->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-    modelObj2f->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
-	modelObj2f->AddMaskVector(nDataVals, nSmallDataCols, nSmallDataRows, smallMaskImage, MASK_ZERO_IS_GOOD);
-	modelObj2f->ApplyMask();
-    outputVect = modelObj2f->GetWeightImageVector();
-
-    for (int i = 0; i < nDataVals; i++)
-      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-  }
-
+//   void testSetAndGetStatisticType( void )
+//   {
+//     int  whichStat, status;
+//     bool cashStatUsed = false;
+//     
+//     // default should be chi^2
+//     whichStat = modelObj1->WhichFitStatistic();
+//     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE);
+//     // special case of verbose output
+//     whichStat = modelObj1->WhichFitStatistic(true);
+//     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_DATA);
+//     // switch to using model-based chi^2
+//     status = modelObj1->UseModelErrors();
+//     whichStat = modelObj1->WhichFitStatistic(true);
+//     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_MODEL);
+//     
+//     modelObj1->UseCashStatistic();
+//     whichStat = modelObj1->WhichFitStatistic();
+//     TS_ASSERT_EQUALS(whichStat, FITSTAT_CASH);
+//     cashStatUsed = modelObj1->UsingCashStatistic();
+//     TS_ASSERT_EQUALS(cashStatUsed, true);
+// 
+//     // the following will generate a couple of warnings from within UseCashStatistic,
+//     // which is OK
+//     modelObj1->UsePoissonMLR();
+//     whichStat = modelObj1->WhichFitStatistic();
+//     TS_ASSERT_EQUALS(whichStat, FITSTAT_POISSON_MLR);
+//     cashStatUsed = modelObj1->UsingCashStatistic();
+//     TS_ASSERT_EQUALS(cashStatUsed, true);
+//   }
+//  
+//  
+//   void testStoreAndRetrieveDataImage( void )
+//   {
+//     double *outputVect;
+//     double trueVals[4] = {0.25, 0.25, 0.25, 1.0};   // data values
+//     int  nDataVals = nSmallDataCols*nSmallDataRows;
+//     
+//     modelObj2a->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+//     outputVect = modelObj2a->GetDataVector();
+// 
+//     for (int i = 0; i < nDataVals; i++)
+//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+//   }
+// 
+//   void testGenerateAndRetrieveErrorImage( void )
+//   {
+//     double *outputVect;
+//     double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+//     int  nDataVals = nSmallDataCols*nSmallDataRows;
+//     
+//     modelObj2b->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+//     modelObj2b->GenerateErrorVector();
+//     outputVect = modelObj2b->GetWeightImageVector();
+// 
+//     for (int i = 0; i < nDataVals; i++)
+//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+//   }
+//  
+//   void testStoreAndRetrieveErrorImage( void )
+//   {
+//     double *outputVect;
+//     double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+//     int  nDataVals = nSmallDataCols*nSmallDataRows;
+//     
+//     modelObj2c->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+//     modelObj2c->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallErrorImage, WEIGHTS_ARE_SIGMAS);
+//     outputVect = modelObj2c->GetWeightImageVector();
+// 
+//     for (int i = 0; i < nDataVals; i++)
+//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+//   }
+//  
+//   void testStoreAndRetrieveVarianceImage( void )
+//   {
+//     double *outputVect;
+//     double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+//     int  nDataVals = nSmallDataCols*nSmallDataRows;
+//     
+//     modelObj2d->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+//     modelObj2d->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallVarianceImage, WEIGHTS_ARE_VARIANCES);
+//     outputVect = modelObj2d->GetWeightImageVector();
+// 
+//     for (int i = 0; i < nDataVals; i++)
+//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+//   }
+//  
+//   void testStoreAndRetrieveWeightImage( void )
+//   {
+//     double *outputVect;
+//     double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+//     int  nDataVals = nSmallDataCols*nSmallDataRows;
+//     
+//     modelObj2e->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+//     modelObj2e->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
+//     outputVect = modelObj2e->GetWeightImageVector();
+// 
+//     for (int i = 0; i < nDataVals; i++)
+//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+//   }
+// 
+//   void testStoreAndApplyMaskImage( void )
+//   {
+//     double *outputVect;
+//     double trueVals[4] = {4.0, 0.0, 4.0, 1.0};   // 1/sigma^2, with second pixel masked out
+//     int  nDataVals = nSmallDataCols*nSmallDataRows;
+//     
+//     modelObj2f->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+//     modelObj2f->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
+// 	modelObj2f->AddMaskVector(nDataVals, nSmallDataCols, nSmallDataRows, smallMaskImage, MASK_ZERO_IS_GOOD);
+// 	modelObj2f->ApplyMask();
+//     outputVect = modelObj2f->GetWeightImageVector();
+// 
+//     for (int i = 0; i < nDataVals; i++)
+//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+//   }
+// 
  
  
    void testModelImageGeneration( void )
@@ -300,28 +304,28 @@ public:
   }
  
   // make sure ModelObject complains if we add a PSF *after* we've done the setup
-  void testCatchOutOfOrderPSF( void )
-  {
-    int  nColumns = 10;
-    int  nRows = 10;
-    int  nColumns_psf = 3;
-    int  nRows_psf = 3;
-    int  nPixels_psf = 9;
-    double  smallPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
-    int  status4a, status4b;
-    
-    // This is the correct order
-    // add PSF pixels first
-    status4a = modelObj4a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
-    // final setup for modelObj4a
-    modelObj4a->SetupModelImage(nColumns, nRows);
-    TS_ASSERT_EQUALS(status4a, 0);
-
-	// This is the WRONG order
-    // final setup for modelObj4b *first*
-    modelObj4b->SetupModelImage(nColumns, nRows);
-    // then add PSF pixels = wrong order!
-    status4b = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
-    TS_ASSERT_EQUALS(status4b, -1);
-  }
+//   void testCatchOutOfOrderPSF( void )
+//   {
+//     int  nColumns = 10;
+//     int  nRows = 10;
+//     int  nColumns_psf = 3;
+//     int  nRows_psf = 3;
+//     int  nPixels_psf = 9;
+//     double  smallPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+//     int  status4a, status4b;
+//     
+//     // This is the correct order
+//     // add PSF pixels first
+//     status4a = modelObj4a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
+//     // final setup for modelObj4a
+//     modelObj4a->SetupModelImage(nColumns, nRows);
+//     TS_ASSERT_EQUALS(status4a, 0);
+// 
+// 	// This is the WRONG order
+//     // final setup for modelObj4b *first*
+//     modelObj4b->SetupModelImage(nColumns, nRows);
+//     // then add PSF pixels = wrong order!
+//     status4b = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
+//     TS_ASSERT_EQUALS(status4b, -1);
+//   }
 };
