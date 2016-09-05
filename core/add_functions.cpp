@@ -78,12 +78,20 @@ using namespace std;
 
 // Code to create FunctionObject object factories
 // Abstract base class for FunctionObject factories
+
+// Note that we need to declare and then define a virtual destructor for this
+// class to avoid annoying (Clang) compiler warnings due to the "delete it->second"
+// line in FreeFactories() --
+// "warning: delete called on 'factory' that is abstract but has non-virtual destructor"
+// (see http://stackoverflow.com/questions/10024796/c-virtual-functions-but-no-virtual-destructors)
 class factory
 {
 public:
     virtual FunctionObject* create() = 0;
-
+    virtual ~factory() = 0;
 };
+
+factory::~factory() {};
 
 
 // Template for derived FunctionObject factory classes
