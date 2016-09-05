@@ -165,6 +165,9 @@ public:
 
   }
   
+  // OK, the following sometimes works and sometimes produces malloc error messages
+  // e.g., *** ERROR: Unable to allocate memory for weight vector!
+  //  (Requested image size was 5939772255493178644 pixels)
 //   void testSetAndGetStatisticType( void )
 //   {
 //     int  whichStat, status;
@@ -195,21 +198,22 @@ public:
 //     cashStatUsed = modelObj1->UsingCashStatistic();
 //     TS_ASSERT_EQUALS(cashStatUsed, true);
 //   }
-//  
-//  
-//   void testStoreAndRetrieveDataImage( void )
-//   {
-//     double *outputVect;
-//     double trueVals[4] = {0.25, 0.25, 0.25, 1.0};   // data values
-//     int  nDataVals = nSmallDataCols*nSmallDataRows;
-//     
-//     modelObj2a->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-//     outputVect = modelObj2a->GetDataVector();
-// 
-//     for (int i = 0; i < nDataVals; i++)
-//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-//   }
-// 
+ 
+ 
+  void testStoreAndRetrieveDataImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {0.25, 0.25, 0.25, 1.0};   // data values
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2a->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    outputVect = modelObj2a->GetDataVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+
+  // OK, the following currently does *not* work (outputVect is all zeros)
 //   void testGenerateAndRetrieveErrorImage( void )
 //   {
 //     double *outputVect;
@@ -223,65 +227,65 @@ public:
 //     for (int i = 0; i < nDataVals; i++)
 //       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
 //   }
-//  
-//   void testStoreAndRetrieveErrorImage( void )
-//   {
-//     double *outputVect;
-//     double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
-//     int  nDataVals = nSmallDataCols*nSmallDataRows;
-//     
-//     modelObj2c->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-//     modelObj2c->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallErrorImage, WEIGHTS_ARE_SIGMAS);
-//     outputVect = modelObj2c->GetWeightImageVector();
-// 
-//     for (int i = 0; i < nDataVals; i++)
-//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-//   }
-//  
-//   void testStoreAndRetrieveVarianceImage( void )
-//   {
-//     double *outputVect;
-//     double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
-//     int  nDataVals = nSmallDataCols*nSmallDataRows;
-//     
-//     modelObj2d->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-//     modelObj2d->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallVarianceImage, WEIGHTS_ARE_VARIANCES);
-//     outputVect = modelObj2d->GetWeightImageVector();
-// 
-//     for (int i = 0; i < nDataVals; i++)
-//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-//   }
-//  
-//   void testStoreAndRetrieveWeightImage( void )
-//   {
-//     double *outputVect;
-//     double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
-//     int  nDataVals = nSmallDataCols*nSmallDataRows;
-//     
-//     modelObj2e->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-//     modelObj2e->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
-//     outputVect = modelObj2e->GetWeightImageVector();
-// 
-//     for (int i = 0; i < nDataVals; i++)
-//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-//   }
-// 
-//   void testStoreAndApplyMaskImage( void )
-//   {
-//     double *outputVect;
-//     double trueVals[4] = {4.0, 0.0, 4.0, 1.0};   // 1/sigma^2, with second pixel masked out
-//     int  nDataVals = nSmallDataCols*nSmallDataRows;
-//     
-//     modelObj2f->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
-//     modelObj2f->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
-// 	modelObj2f->AddMaskVector(nDataVals, nSmallDataCols, nSmallDataRows, smallMaskImage, MASK_ZERO_IS_GOOD);
-// 	modelObj2f->ApplyMask();
-//     outputVect = modelObj2f->GetWeightImageVector();
-// 
-//     for (int i = 0; i < nDataVals; i++)
-//       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
-//   }
-// 
+ 
+  void testStoreAndRetrieveErrorImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2c->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2c->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallErrorImage, WEIGHTS_ARE_SIGMAS);
+    outputVect = modelObj2c->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+ 
+  void testStoreAndRetrieveVarianceImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2d->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2d->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallVarianceImage, WEIGHTS_ARE_VARIANCES);
+    outputVect = modelObj2d->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+ 
+  void testStoreAndRetrieveWeightImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 4.0, 4.0, 1.0};   // 1/sigma^2
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2e->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2e->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
+    outputVect = modelObj2e->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+
+  void testStoreAndApplyMaskImage( void )
+  {
+    double *outputVect;
+    double trueVals[4] = {4.0, 0.0, 4.0, 1.0};   // 1/sigma^2, with second pixel masked out
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    
+    modelObj2f->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
+    modelObj2f->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
+	modelObj2f->AddMaskVector(nDataVals, nSmallDataCols, nSmallDataRows, smallMaskImage, MASK_ZERO_IS_GOOD);
+	modelObj2f->ApplyMask();
+    outputVect = modelObj2f->GetWeightImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
+  }
+
  
  
    void testModelImageGeneration( void )
@@ -301,28 +305,28 @@ public:
   }
  
   // make sure ModelObject complains if we add a PSF *after* we've done the setup
-//   void testCatchOutOfOrderPSF( void )
-//   {
-//     int  nColumns = 10;
-//     int  nRows = 10;
-//     int  nColumns_psf = 3;
-//     int  nRows_psf = 3;
-//     int  nPixels_psf = 9;
-//     double  smallPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
-//     int  status4a, status4b;
-//     
-//     // This is the correct order
-//     // add PSF pixels first
-//     status4a = modelObj4a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
-//     // final setup for modelObj4a
-//     modelObj4a->SetupModelImage(nColumns, nRows);
-//     TS_ASSERT_EQUALS(status4a, 0);
-// 
-// 	// This is the WRONG order
-//     // final setup for modelObj4b *first*
-//     modelObj4b->SetupModelImage(nColumns, nRows);
-//     // then add PSF pixels = wrong order!
-//     status4b = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
-//     TS_ASSERT_EQUALS(status4b, -1);
-//   }
+  void testCatchOutOfOrderPSF( void )
+  {
+    int  nColumns = 10;
+    int  nRows = 10;
+    int  nColumns_psf = 3;
+    int  nRows_psf = 3;
+    int  nPixels_psf = 9;
+    double  smallPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    int  status4a, status4b;
+    
+    // This is the correct order
+    // add PSF pixels first
+    status4a = modelObj4a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
+    // final setup for modelObj4a
+    modelObj4a->SetupModelImage(nColumns, nRows);
+    TS_ASSERT_EQUALS(status4a, 0);
+
+	// This is the WRONG order
+    // final setup for modelObj4b *first*
+    modelObj4b->SetupModelImage(nColumns, nRows);
+    // then add PSF pixels = wrong order!
+    status4b = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
+    TS_ASSERT_EQUALS(status4b, -1);
+  }
 };

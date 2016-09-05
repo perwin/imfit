@@ -84,15 +84,15 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     if ((params == 0) || (mpResult == 0))
       return;
     if (whichStat == FITSTAT_CASH) {
-      printf("  CASH STATISTIC = %f    (%li DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  CASH STATISTIC = %f    (%ld DOF)\n", mpResult->bestnorm, nDegreesFreedom);
       printf("  INITIAL CASH STATISTIC = %f\n", mpResult->orignorm);
     }
     else if (whichStat == FITSTAT_POISSON_MLR) {
-      printf("  POISSON-MLR STATISTIC = %f    (%li DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  POISSON-MLR STATISTIC = %f    (%ld DOF)\n", mpResult->bestnorm, nDegreesFreedom);
       printf("  INITIAL POISSON-MLR STATISTIC = %f\n", mpResult->orignorm);
     }
     else {
-      printf("  CHI-SQUARE = %f    (%li DOF)\n", mpResult->bestnorm, nDegreesFreedom);
+      printf("  CHI-SQUARE = %f    (%ld DOF)\n", mpResult->bestnorm, nDegreesFreedom);
       printf("  INITIAL CHI^2 = %f\n", mpResult->orignorm);
     }
     printf("        NPAR = %d\n", mpResult->npar);
@@ -162,7 +162,7 @@ void PrintFitStatistic( double *params, ModelObject *model, int nFreeParameters 
     printf("\nReduced Chi^2 equivalent = %f\n", fitStatistic / nDegreesFreedom);
   }
   else {
-    printf("  CHI-SQUARE = %f    (%li DOF)\n", fitStatistic, nDegreesFreedom);
+    printf("  CHI-SQUARE = %f    (%ld DOF)\n", fitStatistic, nDegreesFreedom);
     printf("\nReduced Chi^2 = %f\n", fitStatistic / nDegreesFreedom);
   }
   printf("AIC = %f, BIC = %f\n\n", aic, bic);

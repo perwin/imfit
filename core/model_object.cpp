@@ -306,7 +306,7 @@ int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
   if (modelVector == NULL) {
     fprintf(stderr, "*** ERROR: Unable to allocate memory for model image!\n");
-    fprintf(stderr, "    (Requested image size was %d x %d = %li pixels)\n", nModelRows,
+    fprintf(stderr, "    (Requested image size was %d x %d = %ld pixels)\n", nModelRows,
     		nModelColumns, nModelVals);
     return -1;
   }
@@ -418,7 +418,7 @@ int ModelObject::GenerateErrorVector( )
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (weightVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for weight image!\n");
-      fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
+      fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
       return -1;
     }
     weightVectorAllocated = true;
@@ -562,7 +562,7 @@ void ModelObject::ApplyMask( )
     }
     if (verboseLevel >= 0) {
       printf("ModelObject: mask vector applied to weight vector. ");
-      printf("(%li valid pixels remain)\n", nValidDataVals);
+      printf("(%ld valid pixels remain)\n", nValidDataVals);
     }
   }
   else {
@@ -692,7 +692,7 @@ int ModelObject::FinalSetupForFitting( )
     maskVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (maskVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for mask image!\n");
-      fprintf(stderr, "    (Requested vector size was %li pixels)\n", nDataVals);
+      fprintf(stderr, "    (Requested vector size was %ld pixels)\n", nDataVals);
       // go ahead and return now, otherwise we'll be trying to access a null
       // pointer in the very next step
       return -1;
@@ -717,7 +717,7 @@ int ModelObject::FinalSetupForFitting( )
     if (nNonFinitePixels == 1)
       printf("ModelObject: One pixel with non-finite value found (and masked) in data image\n");
     else
-      printf("ModelObject: %li pixels with non-finite values found (and masked) in data image\n", nNonFinitePixels);
+      printf("ModelObject: %ld pixels with non-finite values found (and masked) in data image\n", nNonFinitePixels);
   }
   
   // Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
@@ -753,7 +753,7 @@ int ModelObject::FinalSetupForFitting( )
       if (nNonFiniteErrorPixels == 1)
         printf("ModelObject: One pixel with non-finite value found (and masked) in noise/weight image\n");
       else
-        printf("ModelObject: %li pixels with non-finite values found (and masked) in noise/weight image\n", nNonFiniteErrorPixels);
+        printf("ModelObject: %ld pixels with non-finite values found (and masked) in noise/weight image\n", nNonFiniteErrorPixels);
     }
   }
 
@@ -959,7 +959,7 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
       if (outputModelVector == NULL) {
         fprintf(stderr, "*** ERROR: Unable to allocate memory for output model image!\n");
-        fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
+        fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
         return NULL;
       }
       outputModelVectorAllocated = true;
@@ -1151,7 +1151,7 @@ int ModelObject::UseModelErrors( )
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (weightVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for weight vector!\n");
-      fprintf(stderr, "    (Requested image size was %li pixels)\n", nModelVals);
+      fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
       return -1;
     }
     weightVectorAllocated = true;
@@ -1193,7 +1193,7 @@ int ModelObject::UseCashStatistic( )
     extraCashTermsVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (extraCashTermsVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for extra Cash terms vector!\n");
-      fprintf(stderr, "    (Requested vector size was %li pixels)\n", nDataVals);
+      fprintf(stderr, "    (Requested vector size was %ld pixels)\n", nDataVals);
       return -1;
     }
     extraCashTermsVectorAllocated = true;
@@ -1419,7 +1419,7 @@ void ModelObject::PrintDescription( )
 {
   // Don't test for verbose level, since we assume user only calls this method
   // if they *want* printed output
-  printf("Model Object: %li data values (pixels)\n", nDataVals);
+  printf("Model Object: %ld data values (pixels)\n", nDataVals);
 }
 
 
@@ -1554,7 +1554,7 @@ int ModelObject::MakeBootstrapSample( )
     bootstrapIndices = (long *) calloc((size_t)nValidDataVals, sizeof(long));
     if (bootstrapIndices == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for bootstrap-resampling pixel indices!\n");
-      fprintf(stderr, "    (Requested vector size was %li pixels)\n", nValidDataVals);
+      fprintf(stderr, "    (Requested vector size was %ld pixels)\n", nValidDataVals);
       return -1;
     }
     bootstrapIndicesAllocated = true;
@@ -1727,7 +1727,7 @@ double * ModelObject::GetModelImageVector( )
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
       if (outputModelVector == NULL) {
         fprintf(stderr, "*** ERROR: Unable to allocate memory for output model image!\n");
-        fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
+        fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
         return NULL;
       }
       outputModelVectorAllocated = true;
@@ -1783,7 +1783,7 @@ double * ModelObject::GetResidualImageVector( )
     residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
     if (residualVector == NULL) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for output residual image!\n");
-      fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
+      fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
       return NULL;
     }
     residualVectorAllocated = true;
@@ -1823,7 +1823,7 @@ double * ModelObject::GetWeightImageVector( )
   standardWeightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
   if (standardWeightVector == NULL) {
     fprintf(stderr, "*** ERROR: Unable to allocate memory for output weight image!\n");
-    fprintf(stderr, "    (Requested image size was %li pixels)\n", nDataVals);
+    fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
     return NULL;
   }
   for (long z = 0; z < nDataVals; z++) {

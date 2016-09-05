@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
   }
   // Reminder: nColumns = n_pixels_per_row = x-size; nRows = n_pixels_per_column = y-size
   nPixels_tot = (long)nColumns * (long)nRows;
-  printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %li\n", 
+  printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
            nColumns, nRows, nPixels_tot);
   // Determine X0,Y0 pixel offset values if user specified an image section
   DetermineImageOffset(options.imageFileName, &X0_offset, &Y0_offset);
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
       exit(-1);
     }
     nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
-    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %li\n", 
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
            nColumns_psf, nRows_psf, nPixels_psf);
   }
   else
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
       exit(-1);
     }
     nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
-    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %li\n", 
+    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
     // Determine oversampling region; correct for X0,Y0 pixel offset values if user 
     // specified an image section (if not, X0_offset and Y0_offset will be = 0)
