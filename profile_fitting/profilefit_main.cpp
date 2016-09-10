@@ -272,14 +272,15 @@ int main(int argc, char *argv[])
     yWeights = (double *)calloc( (size_t)nStoredDataVals, sizeof(double) );
     for (int i = 0; i < nStoredDataVals; i++)
       yWeights[i] = 1.0;
-  } else {
-    if (weightMode == WEIGHTS_ARE_SIGMAS) {
-      // Construct weights as 1/err
-      printf("Converting errors to weights (w = 1/err)\n");
-      for (int i = 0; i < nStoredDataVals; i++)
-        yWeights[i] = 1.0/yWeights[i];
-    }
-  }
+  } 
+//   else {
+//     if (weightMode == WEIGHTS_ARE_SIGMAS) {
+//       // Construct weights as 1/err
+//       printf("Converting errors to weights (w = 1/err)\n");
+//       for (int i = 0; i < nStoredDataVals; i++)
+//         yWeights[i] = 1.0/yWeights[i];
+//     }
+//   }
 
 
   /* Read in PSF profile, if supplied */
