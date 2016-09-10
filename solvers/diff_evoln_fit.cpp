@@ -52,8 +52,8 @@
 #include "solver_results.h"
 
 // "Population" size should be POP_SIZE_PER_PARAMETER * nParametersTot
-// #define POP_SIZE_PER_PARAMETER  10
 #define POP_SIZE_PER_PARAMETER  10
+//#define POP_SIZE_PER_PARAMETER  8
 #define MAX_DE_GENERATIONS	600
 
 const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;

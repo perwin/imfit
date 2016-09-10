@@ -2,9 +2,12 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.xxx
+## 1.xxx -- 2016-xx-xx
 
 ### Changed:
+
+- Tweaks to the Differential Evolution coefficients now make DE fits about
+xx--xx% faster.
 
 - Imfit's internal PSF normalization (which takes place when PSF images are
 read in during startup) now uses the Kahan summation algorithm, which gives

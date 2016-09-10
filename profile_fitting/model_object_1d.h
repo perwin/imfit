@@ -59,9 +59,9 @@ class ModelObject1d : public ModelObject
 
     int GetModelVector( double *profileVector );
 
-    void UseBootstrap( );
+//     int UseBootstrap( );
     
-    void MakeBootstrapSample( );
+//     int MakeBootstrapSample( );
 
     void PrintVector( double *theVector, int nVals );
     

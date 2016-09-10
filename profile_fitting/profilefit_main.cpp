@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   int  nDegFreedom;
   double  *xVals, *yVals, *yWeights, *maskVals;
   double  *xVals_psf, *yVals_psf;
-  int  weightMode;
+  int  weightMode = WEIGHTS_ARE_SIGMAS;
   FILE  *outputFile_ptr;
   ModelObject  *theModel;
   double  *paramsVect;
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
   vector<string>  functionList;
   vector<double>  parameterList;
   mp_par  *parameterInfo;
-  mp_par  *mpfitParameterConstraints;
+//  mp_par  *mpfitParameterConstraints;
   commandOptions  options;
   configOptions  userConfigOptions;
   SolverResults  resultsFromSolver;
@@ -387,13 +387,13 @@ int main(int argc, char *argv[])
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
   printf("%d free parameters (%d degrees of freedom)\n", nFreeParams, nDegFreedom);
 
-  if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
-    // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
-    printf("No parameter constraints!\n");
-    mpfitParameterConstraints = NULL;
-  } else {
-    mpfitParameterConstraints = parameterInfo;
-  }
+//   if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
+//     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
+//     printf("No parameter constraints!\n");
+//     mpfitParameterConstraints = NULL;
+//   } else {
+//     mpfitParameterConstraints = parameterInfo;
+//   }
   
 
 

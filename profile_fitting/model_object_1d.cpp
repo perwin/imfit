@@ -467,7 +467,7 @@ void ModelObject1d::ComputeDeviates( double yResults[], double params[] )
 
 void ModelObject1d::PrintDescription( )
 {
-  printf("ModelObject(1d): %d data values\n", nDataVals);
+  printf("ModelObject(1d): %ld data values\n", nDataVals);
 }
 
 
@@ -535,32 +535,50 @@ void ModelObject1d::PopulateParameterNames( )
 // Tells ModelObject1d object that from now on we'll operate in bootstrap
 // resampling mode, so that bootstrapIndices vector is used to access the
 // data and model values (and weight values, if any).
-
-void ModelObject1d::UseBootstrap( )
-{
-  doBootstrap = true;
-  MakeBootstrapSample();
-}
+/// Returns the status from MakeBootstrapSample(), which will be -1 if memory
+/// allocation for the bootstrap-indices vector failed.
+// int ModelObject::UseBootstrap( )
+// {
+//   int  status = 0;
+//   
+//   doBootstrap = true;
+//   status = MakeBootstrapSample();
+//   return status;
+// }
 
 
 /* ---------------- PUBLIC METHOD: MakeBootstrapSample ----------------- */
-// Generate a new bootstrap resampling of the data (actually, we generate a
-// bootstrap resampling of the data *indices*)
-
-void ModelObject1d::MakeBootstrapSample( )
-{
-  
-  if (! bootstrapIndicesAllocated) {
-    bootstrapIndices = (int *) calloc((size_t)nDataVals, sizeof(int));
-    bootstrapIndicesAllocated = true;
-  }
-  for (int i = 0; i < nDataVals; i++) {
-    /* pick random data point between 0 and nDataVals - 1, inclusive */
-    //n = round( (random()/MAX_RANDF)*(nDataVals - 1) );
-    int n = (int)floor( genrand_real2()*nDataVals );
-    bootstrapIndices[i] = n;
-  }
-}
+/// Generate a new bootstrap resampling of the data (more precisely, this generate a
+/// bootstrap resampling of the data *indices*)
+/// Returns -1 if memory allocation for the bootstrap indices vector failed,
+/// otherwise returns 0.
+// int ModelObject1d::MakeBootstrapSample( )
+// {
+//   int  n;
+//   bool  badIndex;
+//   
+//   if (! bootstrapIndicesAllocated) {
+//     bootstrapIndices = (int *) calloc((size_t)nDataVals, sizeof(int));
+//     if (bootstrapIndices == NULL) {
+//       fprintf(stderr, "*** ERROR: Unable to allocate memory for bootstrap-resampling pixel indices!\n");
+//       fprintf(stderr, "    (Requested vector size was %ld pixels)\n", nValidDataVals);
+//       return -1;
+//     }
+//     bootstrapIndicesAllocated = true;
+//   }
+//   for (int i = 0; i < nValidDataVals; i++) {
+//     // pick random data point between 0 and nDataVals - 1, inclusive;
+//     // reject masked pixels
+//     badIndex = true;
+//     do {
+//       n = (int)floor( genrand_real2()*nDataVals );
+//       if (weightVector[n] > 0.0)
+//         badIndex = false;
+//     } while (badIndex);
+//     bootstrapIndices[i] = n;
+//   }
+//   return 0;
+// }
 
 
 /* ---------------- PUBLIC METHOD: PrintVector ------------------------ */

@@ -19,6 +19,7 @@
 #include "function_object.h"
 #include "func1d_exp.h"
 #include "func1d_gaussian.h"
+#include "func1d_gaussian_linear.h"
 #include "func1d_gaussian2side.h"
 #include "func1d_moffat.h"
 #include "func1d_sersic.h"
@@ -47,11 +48,20 @@ using namespace std;
 
 // Code to create FunctionObject object factories
 // Abstract base class for FunctionObject factories
+
+// Note that we need to declare and then define a virtual destructor for this
+// class to avoid annoying (Clang) compiler warnings due to the "delete it->second"
+// line in FreeFactories() --
+// "warning: delete called on 'factory' that is abstract but has non-virtual destructor"
+// (see http://stackoverflow.com/questions/10024796/c-virtual-functions-but-no-virtual-destructors)
 class factory
 {
 public:
     virtual FunctionObject* create() = 0;
+    virtual ~factory() = 0;
 };
+
+factory::~factory() {};
 
 
 // Template for derived FunctionObject factory classes
@@ -83,6 +93,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   
   Gaussian1D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<Gaussian1D>();
+  
+  LinearGaussian1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<LinearGaussian1D>();
   
   Gaussian2Side1D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<Gaussian2Side1D>();

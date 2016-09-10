@@ -614,7 +614,7 @@ modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 
 # 1D FunctionObject classes (note that we have to add a separate entry for function_object.cpp,
 # which is in a different subdirectory):
-functionobject1d_obj_string = """func1d_gaussian func1d_exp func1d_sersic 
+functionobject1d_obj_string = """func1d_gaussian func1d_gaussian_linear func1d_exp func1d_sersic 
 		func1d_core-sersic func1d_broken-exp func1d_moffat func1d_delta func1d_sech 
 		func1d_sech2 func1d_vdksech func1d_gaussian2side  func1d_nuker
 		func1d_n1543majmin_circbulge func1d_n1543majmin func1d_n1543majmin2"""
@@ -625,6 +625,7 @@ functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 # Base files for profilefit:
 profilefit_base_obj_string = """core/commandline_parser core/utilities profile_fitting/read_profile 
 		core/config_file_parser core/print_results profile_fitting/add_functions_1d core/convolver 
+		core/mp_enorm core/statistics core/mersenne_twister
 		profile_fitting/convolver1d profile_fitting/model_object_1d 
 		profile_fitting/bootstrap_errors_1d profile_fitting/profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
