@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Regression tests for makeimage
 
 FAILED_TEXT=" ** Test failed. **"
 

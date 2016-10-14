@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Regression tests for imfit
+#
 # How to skip DE and oversampled-PSF tests: run script as
 # $ ./do_imfit_tests
 # Including DE and oversampled-PSF tests: run script as

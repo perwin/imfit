@@ -1,4 +1,6 @@
 # !bin/sh
+#
+# Regression tests for profilefit
 
 FAILED_TEXT=" ** Test failed. **"
 

@@ -34,6 +34,7 @@
 #include <string.h>
 #include <math.h>
 #include <string>
+#include <sys/time.h>
 #include "fftw3.h"
 
 #include "definitions.h"
@@ -411,7 +412,24 @@ int main( int argc, char *argv[] )
     free(fractions);
     printf("\n\n");
   }
-  
+
+
+  /* Estimate image computation time */
+  if (options.timingIterations > 0) {
+    struct timeval  timer_start, timer_end;
+    double  microsecs, time_elapsed, time_per_iteration;
+    gettimeofday(&timer_start, NULL);
+    for (int i = 0; i < options.timingIterations; i++)
+      theModel->CreateModelImage(paramsVect);
+    gettimeofday(&timer_end, NULL);
+    microsecs = timer_end.tv_usec - timer_start.tv_usec;
+    time_elapsed = timer_end.tv_sec - timer_start.tv_sec + microsecs/1e6;
+    time_per_iteration = time_elapsed / options.timingIterations;
+    printf("\nElapsed time: %.6f sec\n", time_elapsed);
+    printf("\tMean time per image computation (from %d iterations) = %.7f sec\n", 
+    		time_per_iteration, options.timingIterations);
+  }
+
   
   printf("Done!\n\n");
 
@@ -466,6 +484,8 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing, or for use with --print-fluxes)");
   optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --timing <int>           Generate image specified number of times and estimate average creation time");
+  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --debug <n>              Set the debugging level (integer)");
@@ -497,6 +517,7 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   optParser->AddOption("zero-point");
   optParser->AddOption("estimation-size");
   optParser->AddOption("output-functions");
+  optParser->AddOption("timing");
   optParser->AddOption("max-threads");
   optParser->AddOption("debug");
 
@@ -636,6 +657,15 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   if (optParser->OptionSet("output-functions")) {
     theOptions->functionRootName = optParser->GetTargetString("output-functions");
     theOptions->saveAllFunctions = true;
+  }
+  if (optParser->OptionSet("timing")) {
+    if (NotANumber(optParser->GetTargetString("timing").c_str(), 0, kPosInt)) {
+      fprintf(stderr, "*** ERROR: timing should be a positive integer!\n\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->timingIterations = atol(optParser->GetTargetString("timing").c_str());
+    theOptions->saveImage = false;
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {

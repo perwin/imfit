@@ -57,6 +57,8 @@ typedef struct {
   bool  printFluxes;
   int  estimationImageSize;
   
+  int  timingIterations;
+  
   bool  maxThreadsSet;
   int  maxThreads;
   
@@ -103,6 +105,7 @@ void SetDefaultMakeimageOptions( makeimageCommandOptions *theOptions )
 
   theOptions->printFluxes = false;
   theOptions->estimationImageSize = DEFAULT_ESTIMATION_IMAGE_SIZE;
+  theOptions->timingIterations = 0;
 
   theOptions->maxThreadsSet = false;
   theOptions->maxThreads = 0;
