@@ -728,6 +728,7 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
   optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --seed <int>             RNG seed (for testing purposes)");
   optParser->AddUsageLine("     --nosubsampling          Turn off pixel subsampling near centers of functions");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
@@ -781,6 +782,7 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
   optParser->AddOption("save-bootstrap");
   optParser->AddOption("config", "c");
   optParser->AddOption("max-threads");
+  optParser->AddOption("seed");
 
   // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
   // to be ignored only, rather than causing program to exit
@@ -1040,6 +1042,15 @@ void ProcessInput( int argc, char *argv[], imfitCommandOptions *theOptions )
     }
     theOptions->maxThreads = atol(optParser->GetTargetString("max-threads").c_str());
     theOptions->maxThreadsSet = true;
+  }
+  if (optParser->OptionSet("seed")) {
+    if (NotANumber(optParser->GetTargetString("seed").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: RNG seed should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->rngSeed = atol(optParser->GetTargetString("seed").c_str());
+    printf("\tRNG seed = %ld\n", theOptions->rngSeed);
   }
 
   delete optParser;

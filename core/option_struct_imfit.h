@@ -79,6 +79,8 @@ typedef struct {
   bool  saveBootstrap;
   std::string  outputBootstrapFileName;
   
+  unsigned long  rngSeed;
+  
   int  maxThreads;
   bool  maxThreadsSet;
   
@@ -153,6 +155,8 @@ void SetDefaultImfitOptions( imfitCommandOptions *theOptions )
   theOptions->saveBootstrap = false;
   theOptions->outputBootstrapFileName = "";
 
+  theOptions->rngSeed = 0;
+  
   theOptions->maxThreads = 0;
   theOptions->maxThreadsSet = false;
 
