@@ -17,7 +17,7 @@
 int DispatchToSolver( int solverID, int nParametersTot, int nFreeParameters, int nPixelsTot,
 					double *parameters, mp_par *parameterInfo, ModelObject *modelObj, double fracTolerance,
 					bool paramLimitsExist, int verboseLevel, SolverResults *solverResults,
-					string& solverName )
+					string& solverName, unsigned long rngSeed )
 {
   int  fitStatus = -100;
   
@@ -30,7 +30,7 @@ int DispatchToSolver( int solverID, int nParametersTot, int nFreeParameters, int
     case DIFF_EVOLN_SOLVER:
       printf("Calling Differential Evolution solver ..\n");
       fitStatus = DiffEvolnFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
-      							verboseLevel, solverResults);
+      							verboseLevel, solverResults, rngSeed);
 
       break;
 #ifndef NO_NLOPT

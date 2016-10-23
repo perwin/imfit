@@ -534,7 +534,8 @@ int main(int argc, char *argv[])
     gettimeofday(&timer_start_fit, NULL);
     fitStatus = DispatchToSolver(options.solver, nParamsTot, nFreeParams, nPixels_tot, 
     							paramsVect, parameterInfo, theModel, options.ftol, paramLimitsExist, 
-    							options.verbose, &resultsFromSolver, options.nloptSolverName);
+    							options.verbose, &resultsFromSolver, options.nloptSolverName,
+    							options.rngSeed);
     gettimeofday(&timer_end_fit, NULL);
     							
     PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);

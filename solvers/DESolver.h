@@ -50,7 +50,8 @@ public:
 	
   /// Setup() must be called before Solve to set min, max, strategy etc.
   void Setup( double min[], double max[], int deStrategy,
-							double diffScale, double crossoverProb, double ftol );
+							double diffScale, double crossoverProb, double ftol,
+							unsigned long rngSeed=0 );
 
   /// CalcTrialSolution is used to determine which strategy to use (added by PE
   /// to replace tricky and non-working use of pointers to member functions in

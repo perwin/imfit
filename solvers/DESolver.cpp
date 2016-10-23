@@ -77,8 +77,8 @@ DESolver::~DESolver( )
 }
 
 
-void DESolver::Setup( double *min, double *max,
-            int deStrategy, double diffScale, double crossoverProb, double ftol )
+void DESolver::Setup( double *min, double *max, int deStrategy, double diffScale, 
+					double crossoverProb, double ftol, unsigned long rngSeed )
 {
   int i;
 
@@ -88,7 +88,10 @@ void DESolver::Setup( double *min, double *max,
   tolerance = ftol;
   
   // PE: seed the (Mersenne Twister) RNG
-  init_genrand((unsigned long)time((time_t *)NULL));
+  if (rngSeed > 0)
+    init_genrand(rngSeed);
+  else
+    init_genrand((unsigned long)time((time_t *)NULL));
   
   CopyVector(minBounds, min);
   CopyVector(maxBounds, max);

@@ -22,7 +22,7 @@
 
 int DiffEvolnFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
 									ModelObject *theModel, const double ftol, const int verbose,
-									SolverResults *solverResults=0 );
+									SolverResults *solverResults=0, unsigned long rngSeed=0 );
 
 
 #endif  // _DIFF_EVOLN_FIT_H_

@@ -18,7 +18,7 @@
 int DispatchToSolver( int solverID, int nParametersTot, int nFreeParameters, int nPixelsTot,
 					double *parameters, mp_par *parameterInfo, ModelObject *modelObj, double fracTolerance,
 					bool paramLimitsExist, int verboseLevel, SolverResults *solverResults,
-					string& solverName );
+					string& solverName, unsigned long rngSeed=0 );
 
 
 #endif /* _DISPATCH_SOLVER_H_ */
