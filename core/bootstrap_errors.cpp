@@ -60,7 +60,7 @@ const int MIN_ITERATIONS_FOR_STATISTICS = 3;
 int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
-					double **outputParamArray, FILE *outputFile_ptr );
+					double **outputParamArray, FILE *outputFile_ptr, unsigned long rngSeed=0 );
 
 
 
@@ -75,7 +75,7 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
 int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
-					FILE *outputFile_ptr )
+					FILE *outputFile_ptr, unsigned long rngSeed )
 {
   double  *paramSigmas;
   double **outputParamArray;
@@ -97,7 +97,7 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
   // do the bootstrap iterations (saving to file if user requested it)
   nSuccessfulIterations = BootstrapErrorsBase(bestfitParams, parameterLimits, paramLimitsExist, 
 					theModel, ftol, nIterations, nFreeParams, whichStatistic, 
-					outputParamArray, outputFile_ptr);
+					outputParamArray, outputFile_ptr, rngSeed);
   
   
   if (nSuccessfulIterations < MIN_ITERATIONS_FOR_STATISTICS) {
@@ -154,7 +154,7 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
 int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
-					double **outputParamArray )
+					double **outputParamArray, unsigned long rngSeed )
 {
   int  i, nSuccessfulIterations;
   int  nParams = theModel->GetNParams();
@@ -167,7 +167,7 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimi
   // do the bootstrap iterations
   nSuccessfulIterations = BootstrapErrorsBase(bestfitParams, parameterLimits, paramLimitsExist, 
 					theModel, ftol, nIterations, nFreeParams, whichStatistic, 
-					outputParamArray, NULL);
+					outputParamArray, NULL, rngSeed);
   
   return nSuccessfulIterations;
 }
@@ -183,7 +183,7 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimi
 int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
-					double **outputParamArray, FILE *outputFile_ptr )
+					double **outputParamArray, FILE *outputFile_ptr, unsigned long rngSeed )
 {
   double  *paramsVect;
   int  i, status, nIter, nSuccessfulIters;
@@ -196,7 +196,11 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
     saveToFile = true;
   
   /* seed random number generators with current time */
-  init_genrand((unsigned long)time((time_t *)NULL));
+  if (rngSeed > 0)
+    init_genrand(rngSeed);
+  else
+    init_genrand((unsigned long)time((time_t *)NULL));
+//  init_genrand((unsigned long)time((time_t *)NULL));
 
   paramsVect = (double *) malloc(nParams * sizeof(double));
 

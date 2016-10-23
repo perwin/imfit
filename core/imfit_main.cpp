@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
     nSucessfulIterations = BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, 
     									theModel, options.ftol, options.bootstrapIterations, 
     									nFreeParams, theModel->WhichFitStatistic(), 
-    									bootstrapSaveFile_ptr);
+    									bootstrapSaveFile_ptr, options.rngSeed);
     gettimeofday(&timer_end_bootstrap, NULL);
     if (options.saveBootstrap) {
       if (nSucessfulIterations > 0)

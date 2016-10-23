@@ -23,7 +23,7 @@
 int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits, 
 				const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 				const int nIterations, const int nFreeParams, const int whichStatistic, 
-				FILE *outputFile_ptr );
+				FILE *outputFile_ptr, unsigned long rngSeed=0 );
 
 /*! \brief Alternate wrapper: returns array of best-fit parameters in outputParamArray;
            doesn't print any summary statistics (e.g., sigmas, confidence intervals). 
@@ -33,7 +33,7 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
 int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
-					double **outputParamArray );
+					double **outputParamArray, unsigned long rngSeed=0 );
 
 
 #endif  // _BOOTSTRAP_ERRORS_H_

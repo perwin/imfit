@@ -8,6 +8,12 @@
 - Makeimage now has a new option "`--timing <N>`", which tells the program to
 generate the model image *N* times and compute the mean time taken per image. (No images are saved.)
 
+- Imfit now has a new option "`--seed <N>`", which allows the user to specify a particular
+seed (positive integer) for the random number generator. This is mainly useful if you
+want to test the Differential Evolution solver or bootstrap resampling by forcing them
+to use the same sequence of pseudo-random numbers. (The default behavior is to
+initialize the RNG with the current system time.)
+
 
 ### Changed:
 
