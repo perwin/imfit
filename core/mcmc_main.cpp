@@ -47,7 +47,6 @@
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
 //#include "solver_results.h"
-//#include "bootstrap_errors.h"
 #include "option_struct_mcmc.h"
 
 #include "commandline_parser.h"
@@ -135,20 +134,16 @@ int main(int argc, char *argv[])
   bool  parameterInfo_allocated = false;
   mp_par  *parameterInfo;
   int  status, fitStatus, nSucessfulIterations;
-//  SolverResults  resultsFromSolver;
   vector<string>  imageCommentsList;
   mcmcCommandOptions  options;
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
-  string  progNameVersion = "imfit ";
+  string  progNameVersion = "imfit-mcmc ";
   vector<string> programHeader;
-  FILE  *bootstrapSaveFile_ptr = NULL;
-  bool  didBootstrap = false;
   // timing-related
   struct timeval  timer_start_all, timer_end_all;
   struct timeval  timer_start_fit, timer_end_fit;
-  struct timeval  timer_start_bootstrap, timer_end_bootstrap;
 
 
   gettimeofday(&timer_start_all, NULL);
@@ -334,10 +329,7 @@ int main(int argc, char *argv[])
   long  estimatedMemory;
   double  nGBytes;
   bool  usingLevMar, usingCashTerms;
-  if (options.solver == MPFIT_SOLVER)
-    usingLevMar = true;
-  else
-    usingLevMar = false;
+  usingLevMar = false;
   if ((options.useCashStatistic) || (options.usePoissonMLR))
     usingCashTerms = true;
   else
@@ -386,8 +378,6 @@ int main(int argc, char *argv[])
   theModel->AddImageCharacteristics(options.gain, options.readNoise, options.expTime, options.nCombined,
   							options.originalSky);
   theModel->PrintDescription();
-  if (options.printImages)
-    theModel->PrintInputImage();
 
   // Add oversampled PSF image vector and corresponding info, if present
   // (this operates on a sub-region of the main image, so ModelObject does not need
@@ -416,10 +406,6 @@ int main(int argc, char *argv[])
   // it exists and we're using chi^2; also catch special case of standard Cash
   // statistic + L-M minimizer
   if (options.useCashStatistic) {
-    if ((options.solver == MPFIT_SOLVER) && (! options.printFitStatisticOnly)) {
-      fprintf(stderr, "*** ERROR -- Cash statistic cannot be used with L-M solver!\n\n");
-      return -1;
-    }
     status = theModel->UseCashStatistic();
     if (status < 0) {
       fprintf(stderr, "*** ERROR: Failure in ModelObject::UseCashStatistic!\n\n");
@@ -513,14 +499,6 @@ int main(int argc, char *argv[])
   printf("\nStart of MCMC processing -- NOT YET IMPLEMENTED!\n");
   gettimeofday(&timer_start_fit, NULL);
   gettimeofday(&timer_end_fit, NULL);
-    							
-//    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
-
-
-  // Handle assorted output requests
-  // Note that from this point on, we handle failures reported by SaveVectorAsImage as
-  // "warnings" and don't immediately exit, since we're close to the end of the program
-  // anyway, and the user might just have given us a bad path for one of the output images
 
   // Free up memory
   fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()
@@ -540,24 +518,10 @@ int main(int argc, char *argv[])
   // Elapsed time reports
   if (options.verbose >= 0) {
     gettimeofday(&timer_end_all, NULL);
-    double  microsecs, time_elapsed_all, time_elapsed_fit, time_elapsed_bootstrap;
+    double  microsecs, time_elapsed_all, time_elapsed_fit;
     microsecs = timer_end_all.tv_usec - timer_start_all.tv_usec;
     time_elapsed_all = timer_end_all.tv_sec - timer_start_all.tv_sec + microsecs/1e6;
-    if (options.printFitStatisticOnly)
-      printf("\n(Elapsed time: %.6f sec)\n", time_elapsed_all);
-    else {
-      microsecs = timer_end_fit.tv_usec - timer_start_fit.tv_usec;
-      time_elapsed_fit = timer_end_fit.tv_sec - timer_start_fit.tv_sec + microsecs/1e6;
-      if (didBootstrap) {
-        microsecs = timer_end_bootstrap.tv_usec - timer_start_bootstrap.tv_usec;
-        time_elapsed_bootstrap = timer_end_bootstrap.tv_sec - timer_start_bootstrap.tv_sec + microsecs/1e6;
-        printf("\n(Elapsed time: %.6f sec for fit, %.6f for bootstrap, %.6f sec total)\n", 
-        		time_elapsed_fit, time_elapsed_bootstrap, time_elapsed_all);
-      }
-      else
-        printf("\n(Elapsed time: %.6f sec for fit, %.6f sec total)\n", time_elapsed_fit, 
-        		time_elapsed_all);
-    }
+    printf("\n(Elapsed time: %.6f sec)\n", time_elapsed_all);
   }
   
   printf("Done!\n\n");
@@ -575,7 +539,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
 
   /* SET THE USAGE/HELP   */
   optParser->AddUsageLine("Usage: ");
-  optParser->AddUsageLine("   imfit [options] <imagefile.fits>");
+  optParser->AddUsageLine("   imfit-mcmc [options] <imagefile.fits>");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
   optParser->AddUsageLine(" -v  --version                Prints version number");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
@@ -593,11 +557,6 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("     --overpsf_scale <n>       Oversampling scale (integer)");
   optParser->AddUsageLine("     --overpsf_region <x1:x2,y1:y2>       Section of image to convolve with oversampled PSF");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --save-params <output-file>          Specify filename for best-fit parameters output [default = bestfit_parameters_imfit.dat]");
-  optParser->AddUsageLine("     --save-model <outputname.fits>       Save best-fit model image");
-  optParser->AddUsageLine("     --save-residual <outputname.fits>    Save residual (data - best-fit model) image");
-  optParser->AddUsageLine("     --save-weights <outputname.fits>     Save weight image");
-  optParser->AddUsageLine("");
   optParser->AddUsageLine("     --sky <sky-level>        Original sky background (ADUs) which was subtracted from image");
   optParser->AddUsageLine("     --gain <value>           Image A/D gain (e-/ADU)");
   optParser->AddUsageLine("     --readnoise <value>      Image read noise (e-)");
@@ -612,6 +571,14 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("     --cashstat               Use Cash statistic instead of chi^2");
   optParser->AddUsageLine("     --poisson-mlr            Use Poisson maximum-likelihood-ratio statistic instead of chi^2");
   optParser->AddUsageLine("     --mlr                    Same as --poisson-mlr");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine(" -o  --output <output-root>   root name for output MCMC chain files [default = mcmc_out]");
+  optParser->AddUsageLine("     --append                 load state from output files and append XXX");
+  optParser->AddUsageLine("     --nchains <int>          Number of separate MCMC chains [default = nFreeParameters])");
+  optParser->AddUsageLine("     --max-evals <int>        Maximum number of likelihood evaluations [default = 100000])");
+  optParser->AddUsageLine("     --nburnin <int>          Number of burn-in evaluations [default = 10000])");
+  optParser->AddUsageLine("     --max-gelman-evals <int>   Maximum number of Gelman-Rubin convergence evaluations [default = 1000])");
+  optParser->AddUsageLine("     --mcmc-noise <float>     MCMC noise term [default = 0.01]");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
@@ -651,16 +618,19 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddOption("overpsf");
   optParser->AddOption("overpsf_scale");
   optParser->AddOption("overpsf_region");
-  optParser->AddOption("save-params");
-  optParser->AddOption("save-model");
-  optParser->AddOption("save-residual");
-  optParser->AddOption("save-weights");
   optParser->AddOption("sky");
   optParser->AddOption("gain");
   optParser->AddOption("readnoise");
   optParser->AddOption("exptime");
   optParser->AddOption("ncombined");
   optParser->AddOption("config", "c");
+  optParser->AddOption("output", "o");
+  optParser->AddFlag("append");
+  optParser->AddOption("nchains");
+  optParser->AddOption("max-evals");
+  optParser->AddOption("nburnin");
+  optParser->AddOption("max-gelman-evals");
+  optParser->AddOption("mcmc-noise");
   optParser->AddOption("max-threads");
   optParser->AddOption("seed");
 
@@ -692,7 +662,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
     exit(1);
   }
   if ( optParser->FlagSet("version") ) {
-    printf("imfit version %s\n\n", VERSION_STRING);
+    printf("imfit-mcmc version %s\n\n", VERSION_STRING);
     delete optParser;
     exit(1);
   }
@@ -786,26 +756,6 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
     theOptions->maskImagePresent = true;
     printf("\tmask image = %s\n", theOptions->maskFileName.c_str());
   }
-  if (optParser->OptionSet("save-model")) {
-    theOptions->outputModelFileName = optParser->GetTargetString("save-model");
-    theOptions->saveModel = true;
-    printf("\toutput best-fit model image = %s\n", theOptions->outputModelFileName.c_str());
-  }
-  if (optParser->OptionSet("save-residual")) {
-    theOptions->outputResidualFileName = optParser->GetTargetString("save-residual");
-    theOptions->saveResidualImage = true;
-    printf("\toutput residual (data - best-fit model) image = %s\n", theOptions->outputResidualFileName.c_str());
-  }
-  if (optParser->OptionSet("save-weights")) {
-    theOptions->outputWeightFileName = optParser->GetTargetString("save-weights");
-    theOptions->saveWeightImage = true;
-    printf("\toutput weight image = %s\n", theOptions->outputWeightFileName.c_str());
-  }
-  if (optParser->OptionSet("save-params")) {
-    theOptions->outputParameterFileName = optParser->GetTargetString("save-params");
-    theOptions->saveBestFitParams = true;
-    printf("\toutput best-fit parameter file = %s\n", theOptions->outputParameterFileName.c_str());
-  }
   if (optParser->OptionSet("sky")) {
     if (NotANumber(optParser->GetTargetString("sky").c_str(), 0, kAnyReal)) {
       fprintf(stderr, "*** ERROR: sky should be a real number!\n");
@@ -855,6 +805,58 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
     theOptions->nCombined = atoi(optParser->GetTargetString("ncombined").c_str());
     theOptions->nCombinedSet = true;
     printf("\tn_combined = %d\n", theOptions->nCombined);
+  }
+  if (optParser->OptionSet("output")) {
+    theOptions->outputFileRoot = optParser->GetTargetString("output");
+  }
+  if (optParser->FlagSet("append")) {
+    printf("\t Current state will be loaded from output files; extended chains will be appended\n");
+    theOptions->appendToOutput = true;
+  }
+  if (optParser->OptionSet("nchains")) {
+    if (NotANumber(optParser->GetTargetString("nchains").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: number of chains should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->nChains = atol(optParser->GetTargetString("nchains").c_str());
+    printf("\tNumber of chains = %d\n", theOptions->nChains);
+  }
+  if (optParser->OptionSet("max-evals")) {
+    if (NotANumber(optParser->GetTargetString("max-evals").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: maximum number of evaluations should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->maxEvals = atol(optParser->GetTargetString("max-evals").c_str());
+    printf("\tMaximum number of likelihood evaluations = %d\n", theOptions->maxEvals);
+  }
+  if (optParser->OptionSet("nburnin")) {
+    if (NotANumber(optParser->GetTargetString("nburnin").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: number of burn-in evaluations should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->nBurnIn = atol(optParser->GetTargetString("nburnin").c_str());
+    printf("\tBurn-in evaluations = %d\n", theOptions->nBurnIn);
+  }
+  if (optParser->OptionSet("max-gelman-evals")) {
+    if (NotANumber(optParser->GetTargetString("max-gelman-evals").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: maximum number of Gelman-Rubin evaluations should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->nGelmanEvals = atol(optParser->GetTargetString("max-gelman-evals").c_str());
+    printf("\tMaximum number of Gelman-Rubin evaluations = %d\n", theOptions->nGelmanEvals);
+  }
+  if (optParser->OptionSet("mcmc-noise")) {
+    if (NotANumber(optParser->GetTargetString("mcmc-noise").c_str(), 0, kPosReal)) {
+      printf("*** WARNING: MCMC noise parameter should be a positive real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->mcmcNoise = atof(optParser->GetTargetString("mcmc-noise").c_str());
+    printf("\tMCMC noise parameter = %f\n", theOptions->mcmcNoise);
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {

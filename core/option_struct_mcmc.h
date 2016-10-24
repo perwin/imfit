@@ -39,14 +39,10 @@ typedef struct {
   
   bool  subsamplingFlag;
   
+  // NOTE: the following are necessary as inputs for EstimateMemoryUse(), even
+  // though we don't use them otherwise
   bool  saveModel;
-  std::string  outputModelFileName;   // []
   bool  saveResidualImage;
-  std::string  outputResidualFileName;   // []
-  bool  saveWeightImage;
-  std::string  outputWeightFileName;    // []
-  bool  saveBestFitParams;
-  std::string  outputParameterFileName;
   
   bool  gainSet;
   double  gain;
@@ -63,22 +59,17 @@ typedef struct {
   bool  useCashStatistic;
   bool  usePoissonMLR;
 
-  bool printFitStatisticOnly;
   bool  noParamLimits;
-  bool  ftolSet;
-  double  ftol;
-  int  solver;
-  std::string  nloptSolverName;
   
-  double  magZeroPoint;
-  
-  bool  printImages;
-  
-  bool  doBootstrap;
-  int  bootstrapIterations;
-  bool  saveBootstrap;
-  std::string  outputBootstrapFileName;
-  
+  // MCMC-related stuff
+  bool  appendToOutput;
+  std::string  outputFileRoot;
+  int  nChains;
+  int  maxEvals;
+  int  nBurnIn;
+  int  nGelmanEvals;
+  double  mcmcNoise;
+
   unsigned long  rngSeed;
   
   int  maxThreads;
@@ -116,13 +107,7 @@ void SetDefaultMCMCOptions( mcmcCommandOptions *theOptions )
   theOptions->subsamplingFlag = true;
   
   theOptions->saveModel = false;
-  theOptions->outputModelFileName = "";
   theOptions->saveResidualImage = false;
-  theOptions->outputResidualFileName = "";
-  theOptions->saveWeightImage = false;
-  theOptions->outputWeightFileName = "";
-  theOptions->saveBestFitParams = true;
-  theOptions->outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
 
   theOptions->gainSet = false;
   theOptions->gain = 1.0;
@@ -139,21 +124,15 @@ void SetDefaultMCMCOptions( mcmcCommandOptions *theOptions )
   theOptions->useCashStatistic = false;
   theOptions->usePoissonMLR = false;
 
-  theOptions->printFitStatisticOnly = false;
   theOptions->noParamLimits = true;
-  theOptions->ftolSet = false;
-  theOptions->ftol = DEFAULT_FTOL;
-  theOptions->solver = MPFIT_SOLVER;
-  theOptions->nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
 
-  theOptions->magZeroPoint = NO_MAGNITUDES;
-  
-  theOptions->printImages = false;
-
-  theOptions->doBootstrap = false;
-  theOptions->bootstrapIterations = 0;
-  theOptions->saveBootstrap = false;
-  theOptions->outputBootstrapFileName = "";
+  theOptions->appendToOutput = false;
+  theOptions->outputFileRoot = "mcmc_out";
+  theOptions->nChains = -1;
+  theOptions->maxEvals = 100000;
+  theOptions->nBurnIn = 10000;
+  theOptions->nGelmanEvals = 1000;
+  theOptions->mcmcNoise = 0.01;
 
   theOptions->rngSeed = 0;
   

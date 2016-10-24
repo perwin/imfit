@@ -4,18 +4,38 @@
 
 ** NEAR-TERM FUTURE TODO:
 [ ] MCMC program: "imfit-mcmc"
-	[ ] Create mcmc main.cpp as copy of makeimage_main.cpp
-		[ ] Make copy
-		[ ] Change internal strings describing name
+	[ ] Create mcmc main.cpp as copy of imfit_main.cpp
+		[x] Make copy
+		[x] Change internal strings describing name
+		
+		[x] Remove command-line code specifying fit algorithm
+		[x] Remove command-line code specifying fit parameters (e.g., tolerance)
+		[x] Remove code in main() which calls fitting algorithm
+		[x] Remove bootstrap-related code in main()
 	
-	[ ] Create target in SConstruct file for mcmc program
-		[ ] Copy existing makeimage code
-		[ ] Modify code to use new program name
-		[ ] Modify code to use new/different 
+	[x] Create target in SConstruct file for mcmc program
+		[x] Copy existing makeimage code
+		[x] Modify code to use new program name
 	
+	[ ] Link/copy/add cdream code
+		[x] 1. create symlink to cdream code
+		[ ] 2. create new subdirectory holding cdream code (and add code to repo)
+	
+
 	[ ] Options struct for mcmc program
+		[ ] Add CDREAM-related elements from profilefit_mcmc
+		[ ] Add command-line processing code to fill in CDREAM-related elements
 	
-	[ ] Command-line options for mcmc program
+	[ ] Add cdream-related stuff to main
+		[ ] Add declaration and setup of dream_pars struct
+		[ ] Add code passing command-line options to dream_pars
+		
+	[x] Command-line options for mcmc program
+	
+	[x] Locate image, model used for bootstrap demo in Erwin 2015
+	/Users/erwin/Documents/Working/Papers-Finished/Paper-imfit/image_tests/sersictest_lowsn200.fits
+	~/coding/imfit/imfit -c config_imfit_sersic1.dat sersictest_lowsn200.fits --mlr --bootstrap 500 --save-bootstrap bootstrap_out_lowsn200_modcash.dat
+	Both files copied to ~/coding/imfit
 	
 	[ ] Command-line option to do N rounds of image generation to estimate time/model?
 		--estimate-time = flag to do time estimate (including, by default, 1 round of
