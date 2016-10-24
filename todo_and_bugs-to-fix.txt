@@ -3,14 +3,52 @@
 
 
 ** NEAR-TERM FUTURE TODO:
-
+[ ] MCMC program: "imfit-mcmc"
+	[ ] Create mcmc main.cpp as copy of makeimage_main.cpp
+		[ ] Make copy
+		[ ] Change internal strings describing name
+	
+	[ ] Create target in SConstruct file for mcmc program
+		[ ] Copy existing makeimage code
+		[ ] Modify code to use new program name
+		[ ] Modify code to use new/different 
+	
+	[ ] Options struct for mcmc program
+	
+	[ ] Command-line options for mcmc program
+	
+	[ ] Command-line option to do N rounds of image generation to estimate time/model?
+		--estimate-time = flag to do time estimate (including, by default, 1 round of
+			model-image-generation)
+		--timing <N> = optional command specifying number of model-image-generation
+			rounds to do (as in makeimage)
+		
+		-- Print summary of estimated run time
+			minimum time = t_model * nBurnin * numChains
+			maximum time = t_model * maxEvals * numChains
+		Note that main loop in dream.cpp is
+		for (int t = prevLines + 1; t < p->maxEvals; ++t) {
+		which is guaranteed to run until
+		t >= burnInStart + p->burnIn
+			where burnInStart is 0 by default (and only gets reset if the algorithm
+			re-enters burn-in, so we can safely assume that the *minimum*
+	
+	[ ] Python script to convert user-specified line in MCMC output file to
+	makeimage/imfit config file
+		-- Also a version to do same with bootstrap output?
+		-- Internal code to hold functions+parameters in form similar to Andres' code??
+	
+	
+[ ] Separate code for doing model-image-generation timing into separate file
+	(so it can be used by both makeimage and imfit-mcmc)
+	
 [-] Implement Kahan summation in ModelObject::FindTotalFluxes
 	-- http://stackoverflow.com/questions/18013345/openmp-parallel-for-reduction-delivers-wrong-results
 	[x] Compute some current flux outputs (e.g., including correct total flux for Exponential)
 	[x] Implement Kahan summation
 	[x] Compare results with/without Kahan summation
 	
-	RESUT: for case of simple Gaussian model, Kahan summation took 2--3 times as long
+	RESULT: for case of simple Gaussian model, Kahan summation took 2--3 times as long
 	and produced *no* difference in calculated flux (at 10^-5 level), even for a
 	very extended Gaussian.
 
