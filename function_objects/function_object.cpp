@@ -44,6 +44,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <map>
 #include <string>
 
 #include "function_object.h"
@@ -68,6 +69,14 @@ FunctionObject::FunctionObject( )
 void FunctionObject::SetSubsampling( bool subsampleFlag )
 {
   doSubsampling = subsampleFlag;
+}
+
+
+/* ---------------- PUBLIC METHOD: SetExtraParams ---------------------- */
+/// Used to specify a magnitude zero point (for *1D* functions).
+int FunctionObject::SetExtraParams( map<string, string> )
+{
+  ;
 }
 
 

@@ -31,6 +31,8 @@
 #include "func1d_vdksech.h"
 #include "func1d_nuker.h"
 
+#include "func1d_spline.h"
+
 #include "func1d_n1543majmin_circbulge.h"
 #include "func1d_n1543majmin.h"
 #include "func1d_n1543majmin2.h"
@@ -126,6 +128,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   
   vdKSech1D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<vdKSech1D>();
+
+  Spline1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Spline1D>();
 
   n1543MajMinCircBulge1D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<n1543MajMinCircBulge1D>();

@@ -30,6 +30,9 @@
 		[ ] Add declaration and setup of dream_pars struct
 		[ ] Add code passing command-line options to dream_pars
 		
+	[ ] Cleanup of main
+		[ ] Remove parameterInfo-related code
+		
 	[x] Command-line options for mcmc program
 	
 	[x] Locate image, model used for bootstrap demo in Erwin 2015
@@ -115,6 +118,47 @@
 	[] When negative pixel values are encountered during vetting of input data image,
 	mention possibility of missing sky parameter
 	
+
+[] Possible optional parameters for image functions in config file
+	-- ways to specify optional settings, or even input parameter files that
+	function can read when first starting up
+	-- optional keywords after FUNCTION but before parameters?
+		e.g.
+		FUNCTION blah
+		OPTIONAL_PARAMS_START
+		xxx
+		OPTIONAL_PARAMS_END
+	Read and stored as something like dict of string: string pairs. If this exists
+	for a given function, then it is passed to function object just after initialization
+	(e.g., just after calling AddFunction)
+	Function object has extra method for handling input dict (defaults to a do-nothing)
+		-- e.g., it knows which values to convert to ints or doubles, how to
+		interpret different keywords, etc.
+		
+		[] Add input method to FunctionObject
+			[] Write unit tests to check input and processing of simple case
+			[] Write code to pass unit tests
+		[] Add input method to ModelObject
+			[] Write unit test to check input and processing of 1 or more input dicts
+			[] Write code to pass unit tests
+		[] Add processing code to config_file_parser.cpp
+			[] Write sample config file with optional parameters
+			[] Write unit test to check input and processing of 1 optional parameter
+			[] Write unit test to check input and processing of multiple optional parameters
+			[] Write unit test to check input and processing of multiple optional parameters
+				for multiple functions
+			[] Write code to pass unit tests
+
+		[] Add optional-parameter processing code to func1d_spline.cpp
+			-- additive constant
+			[] Write unit test to check input and processing
+			[] Write code to pass test
+			[] Generate and check output
+				[] config file without optional parameter
+				[] config file with optional parameter
+				[] config file with optional parameter (different value)
+
+
 
 [] Modify handling of oversampled PSF to catch case where user wants entire
 image oversampled

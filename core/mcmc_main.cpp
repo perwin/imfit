@@ -87,6 +87,9 @@ bool RequestedFilesPresent( mcmcCommandOptions &theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								mcmcCommandOptions *mainOptions );
 
+double LikelihoodFuncForDREAM( int chain, int gen, const double* state, 
+								const void* extraData, bool recalc );
+
 
 /* ------------------------ Global Variables --------------------------- */
 
@@ -494,10 +497,79 @@ int main(int argc, char *argv[])
   }
   
   
+
+  // Stuff for dream_pars
+  string *paramNames = new string[nParamsTot];
+  int lockFlags[nParamsTot];
+  double lowVals[nParamsTot];
+  double highVals[nParamsTot];
+  
+  printf("Setting up MCMC-related arrays ...\n");
+  for (int i = 0; i < nParamsTot; i++) {
+    printf("i = %d: \n", i);
+    if (paramLimits[i].fixed == 1) {
+      printf("Fixed parameter detected (i = %d)\n", i);
+      lockFlags[i] = 1;
+    }
+    else
+      lockFlags[i] = 0;
+    lowVals[i] = paramLimits[i].limits[0];
+    highVals[i] = paramLimits[i].limits[1];
+    paramNames[i] = theModel->GetParameterName(i);
+  }
+
+  // Default is nChains = N_free_params (dimensionality of parameter space)
+  if (options.nChains <= 0) {
+    printf("Setting nChains = %d (nFreeParams)\n", nFreeParams);
+    options.nChains = nFreeParams;
+  }
+
+  dream_pars dreamPars;
+  SetupDreamParams(&dreamPars, nParamsTot, paramsVect, paramNames, lockFlags, lowVals,
+  					highVals);
+
+  // Set up various things in dream_pars struct
+  dreamPars.outputRootname = options.outputFileRoot;
+  if (options.appendToOutput)
+    dreamPars.appendFile = 1;
+  dreamPars.numChains = options.nChains;
+  printf("main: dreamPars.numChains = %d\n", dreamPars.numChains);
+  dreamPars.maxEvals = options.maxEvals;
+  dreamPars.burnIn = options.nBurnIn;
+  dreamPars.gelmanEvals = options.nGelmanEvals;
+  dreamPars.noise = options.mcmcNoise;
+  dreamPars.verboseLevel = options.verbose;
+  for (int i = 0; i < nParamsTot; i++)
+    dreamPars.parameterNames.push_back(paramNames[i]);
+
+  // Construct header using parameter names, etc.
+  string  headerString("#");
+  vector<string> headerLine;
+  for (int i = 0; i < nParamsTot; i++)
+    headerString += PrintToString("%12s        ", paramNames[i].c_str());
+  headerString += "  likelihood  burn-in gen     ";
+  for (int i = 0; i < dreamPars.nCR - 1; i++)
+    headerString += PrintToString("CR%d               ", i + 1);
+  headerString += PrintToString("CR%d        ", dreamPars.nCR);
+  headerString += "accept\n";
+  headerLine.push_back(headerString);
+  SetHeaderDreamParams(&dreamPars, headerLine);
+  
+  dreamPars.fun = &LikelihoodFuncForDREAM;
+  // Assign extra ""data that will be passed to likelihood function
+  dreamPars.extraData = theModel;
+
+  rng::GSLStream rng;
+  if (options.rngSeed > 0)
+    rng.alloc(options.rngSeed);
+  else
+    rng.alloc();   // void alloc(unsigned long seed = time(NULL))
+
   // OK, now we execute the MCMC process
   // DO THE MCMC!
   printf("\nStart of MCMC processing -- NOT YET IMPLEMENTED!\n");
   gettimeofday(&timer_start_fit, NULL);
+  dream(&dreamPars, &rng);
   gettimeofday(&timer_end_fit, NULL);
 
   // Free up memory
@@ -514,7 +586,10 @@ int main(int argc, char *argv[])
   if (parameterInfo_allocated)
     free(parameterInfo);
   delete theModel;
-  
+
+  FreeVarsDreamParams(&dreamPars);
+  delete[] paramNames;
+
   // Elapsed time reports
   if (options.verbose >= 0) {
     gettimeofday(&timer_end_all, NULL);
@@ -1012,6 +1087,29 @@ void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
   GetPixelStartCoords(fullImageName, &xStart, &yStart);
   *x_offset = xStart - 1;
   *y_offset = yStart - 1;
+}
+
+
+
+
+/* ---------------- LikelihoodFuncForDREAM ----------------------------- */
+
+// Function which returns log likelihood given a set of parameters in the
+// input parameter state.
+// Assumes that extraData is pointer to an instance of ModelObject.
+double LikelihoodFuncForDREAM( int chain, int gen, const double* state, 
+								const void* extraData, bool recalc )
+{
+  // following is a necessary kludge bcs theModel->GetFitStatistic() won't accept const double*
+  double  *params = (double *)state;
+  ModelObject *theModel = (ModelObject *)extraData;
+  double  chi2;
+  
+  chi2 = theModel->GetFitStatistic(params);
+  if (gen < 0)   // print actual chi^2 value for very first evaulations
+	  printf(" [chi^2 = %f] ", chi2);
+
+  return -chi2/2.0;
 }
 
 

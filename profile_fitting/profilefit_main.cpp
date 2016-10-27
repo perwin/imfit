@@ -524,7 +524,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" -h  --help                   Prints this help");
   optParser->AddUsageLine(" -v  --version                Prints version number");
   optParser->AddUsageLine("     --list-functions         Prints list of available functions (components)");
-  optParser->AddUsageLine("     --list-parameters        [NOT YET WORKING!] Prints list of parameter names for each available function");
+  optParser->AddUsageLine("     --list-parameters        Prints list of parameter names for each available function");
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" --useerrors                  Use errors from data file (3rd column)");
   optParser->AddUsageLine(" --usemask                    Use mask from data file (4th column)");

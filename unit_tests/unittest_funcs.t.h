@@ -15,6 +15,7 @@ using namespace std;
 
 #include "function_objects/function_object.h"
 // FUNCTION-SPECIFIC:
+#include "function_objects_1d/func_exp_test.h"
 #include "function_objects/func_flatsky.h"
 #include "function_objects/func_exp.h"
 #include "function_objects/func_gaussian.h"
@@ -31,6 +32,47 @@ const double  DELTA_e9 = 1.0e-9;
 const double  DELTA_e7 = 1.0e-7;
 
 const double PI = 3.14159265358979;
+
+
+class TestExp1DTest : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc;
+
+public:
+  void setUp()
+  {
+    bool  subsampleFlag = false;
+    thisFunc = new Exponential1D_test();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 4;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("ell");
+    correctParamNames.push_back("I_0");
+    correctParamNames.push_back("h");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames ); 
+  }
+
+};
+
 
 
 class TestExponential : public CxxTest::TestSuite 
@@ -71,8 +113,7 @@ public:
 
     // check that we get correct set of parameter names
     thisFunc->GetParameterNames(paramNames);
-    TS_ASSERT( paramNames == correctParamNames );
-    
+    TS_ASSERT( paramNames == correctParamNames ); 
   }
   
   void testCalculations( void )

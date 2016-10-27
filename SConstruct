@@ -341,13 +341,18 @@ if useGSL:   # default is to do this
 	if useStaticLibs:
 		if (os_type == "Darwin"):
 			lib_list.append(STATIC_GSL_LIBRARY_FILE_MACOSX)
+			lib_list_1d.append(STATIC_GSL_LIBRARY_FILE_MACOSX)
 		else:
 			# assuming we're on a Linux system
 			lib_list.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
 			lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
+			lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
+			lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 	else:
 		lib_list.append("gsl")
 		lib_list.append("gslcblas")		
+		lib_list_1d.append("gsl")
+		lib_list_1d.append("gslcblas")		
 else:
 	extra_defines.append("NO_GSL")
 
@@ -638,7 +643,7 @@ modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 # which is in a different subdirectory):
 functionobject1d_obj_string = """func1d_gaussian func1d_gaussian_linear func1d_exp func1d_sersic 
 		func1d_core-sersic func1d_broken-exp func1d_moffat func1d_delta func1d_sech 
-		func1d_sech2 func1d_vdksech func1d_gaussian2side  func1d_nuker
+		func1d_sech2 func1d_vdksech func1d_gaussian2side  func1d_nuker func1d_spline
 		func1d_n1543majmin_circbulge func1d_n1543majmin func1d_n1543majmin2"""
 functionobject1d_objs = [ FUNCTION_1D_SUBDIR + name for name in functionobject1d_obj_string.split() ]
 functionobject1d_objs.append(FUNCTION_SUBDIR + "function_object")
