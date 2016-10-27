@@ -76,7 +76,7 @@ void FunctionObject::SetSubsampling( bool subsampleFlag )
 /// Used to specify a magnitude zero point (for *1D* functions).
 int FunctionObject::SetExtraParams( map<string, string> )
 {
-  ;
+  return 1;
 }
 
 

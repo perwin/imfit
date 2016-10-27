@@ -15,7 +15,7 @@ using namespace std;
 
 #include "function_objects/function_object.h"
 // FUNCTION-SPECIFIC:
-#include "function_objects_1d/func_exp_test.h"
+#include "function_objects_1d/func1d_exp_test.h"
 #include "function_objects/func_flatsky.h"
 #include "function_objects/func_exp.h"
 #include "function_objects/func_gaussian.h"
@@ -57,10 +57,8 @@ public:
     vector<string>  paramNames;
     vector<string>  correctParamNames;
     // FUNCTION-SPECIFIC:
-    int  correctNParams = 4;
-    correctParamNames.push_back("PA");
-    correctParamNames.push_back("ell");
-    correctParamNames.push_back("I_0");
+    int  correctNParams = 2;
+    correctParamNames.push_back("mu_0");
     correctParamNames.push_back("h");
 
     // check that we get right number of parameters
@@ -69,6 +67,17 @@ public:
     // check that we get correct set of parameter names
     thisFunc->GetParameterNames(paramNames);
     TS_ASSERT( paramNames == correctParamNames ); 
+  }
+  
+  void testSetExtraParams( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "interp";
+    string  value = "cspline";
+    theMap[keyword] = value;
+    
+    int  returnVal = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( returnVal, 0 );
   }
 
 };
