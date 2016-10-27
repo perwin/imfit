@@ -69,15 +69,46 @@ public:
     TS_ASSERT( paramNames == correctParamNames ); 
   }
   
-  void testSetExtraParams( void )
+  void testSetExtraParams1_GoodNameAndValue( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "floor";
+    string  value = "100";
+    theMap[keyword] = value;
+    
+    int  returnVal = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( returnVal, 1 );
+  }
+
+  void testSetExtraParams1_EmptyMap( void )
+  {
+    map<string, string> theMap;
+
+    int  returnVal = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( returnVal, -1 );
+  }
+
+  void testSetExtraParams1_BadName( void )
   {
     map<string, string> theMap;
     string  keyword = "interp";
-    string  value = "cspline";
+    string  value = "100";
     theMap[keyword] = value;
     
     int  returnVal = thisFunc->SetExtraParams(theMap);
     TS_ASSERT_EQUALS( returnVal, 0 );
+  }
+
+  // non-numeric value for parameter expecting a number
+  void testSetExtraParams1_BadValue( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "floor";
+    string  value = "bob";
+    theMap[keyword] = value;
+    
+    int  returnVal = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( returnVal, -3 );
   }
 
 };

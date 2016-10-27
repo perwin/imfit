@@ -135,8 +135,8 @@
 		-- e.g., it knows which values to convert to ints or doubles, how to
 		interpret different keywords, etc.
 		
-		[] Add input method to FunctionObject
-			[] Write unit tests to check input and processing of simple case
+		[x] Add input method to FunctionObject
+			[..] Write unit tests to check input and processing of simple case
 			[] Write code to pass unit tests
 		[] Add input method to ModelObject
 			[] Write unit test to check input and processing of 1 or more input dicts
