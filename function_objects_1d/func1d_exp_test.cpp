@@ -1,8 +1,7 @@
 /* FILE: func1d_exp_test.cpp ------------------------------------------- */
 /* VERSION 0.1
  *
- *   Function object class for a 1-D exponential function (output in magnitudes
- * per sq.arcsec).
+ *   Function object class for a 1-D exponential function (output in counts/pixel)
  *   
  *   BASIC IDEA:
  *      Setup() is called as the first part of invoking the function;
@@ -29,7 +28,7 @@ using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
 const int  N_PARAMS = 2;
-const char  PARAM_LABELS[][20] = {"mu_0", "h"};
+const char  PARAM_LABELS[][20] = {"I_0", "h"};
 const char FUNCTION_NAME[] = "Exponential-1D function (testing)";
 #define CLASS_SHORT_NAME  "Exponential-1D_test"
 
@@ -51,6 +50,17 @@ Exponential1D_test::Exponential1D_test( )
     paramName = PARAM_LABELS[i];
     parameterLabels.push_back(paramName);
   }
+  
+  // Default values for extra params:
+  floorValue = 0.0;
+}
+
+
+/* ---------------- PUBLIC METHOD: HasExtraParams ---------------------- */
+
+bool Exponential1D_test::HasExtraParams( )
+{
+  return true;
 }
 
 
@@ -69,6 +79,7 @@ int Exponential1D_test::SetExtraParams( map<string,string> inputMap )
     if (iter->first == "floor") {
       if (IsNumeric(iter->second.c_str())) {
         floorValue = atof(iter->second.c_str());
+        printf("   Exponential1D_test::SetExtraParams -- setting floor = %f\n", floorValue);
         return 1;
       } else
         return -3;
@@ -83,14 +94,15 @@ int Exponential1D_test::SetExtraParams( map<string,string> inputMap )
 void Exponential1D_test::Setup( double params[], int offsetIndex, double xc )
 {
   x0 = xc;
-  mu_0 = params[0 + offsetIndex ];
+//  mu_0 = params[0 + offsetIndex ];
+  I_0 = params[0 + offsetIndex ];
   h = params[1 + offsetIndex ];
 //  printf("func_exp: x0 = %g, y0 = %g, PA = %g, ell = %g, I_0 = %g, h = %g\n",
 //          x0, y0, PA, ell, I_0, h);
   
   // pre-compute useful things for this round of invoking the function
 //  I_0 = pow(10.0, -0.4*mu_0);
-  I_0 = pow(10.0, 0.4*(ZP - mu_0));
+//  I_0 = pow(10.0, 0.4*(ZP - mu_0));
 //  printf("Exponential1D::Setup: mu_0 = %g, h = %g, I_0 = %g\n", mu_0, h, I_0);
 }
 
@@ -101,7 +113,7 @@ double Exponential1D_test::GetValue( double x )
 //  printf("In GetValue: x = %g, I_0 = %g, h = %g\n", x, I_0, h);
 //  double  mu = -2.5 * log10(I);
   double  r = fabs(x - x0);
-  return (I_0 * exp(-r/h));
+  return (I_0 * exp(-r/h) + floorValue);
 }
 
 

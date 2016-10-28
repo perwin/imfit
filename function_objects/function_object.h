@@ -26,7 +26,10 @@ class FunctionObject
     // Constructors:
     FunctionObject( );
 
-    virtual int SetExtraParams( map<string, string> );
+    // override in derived classes only if said class *does* have user-settable
+    // extra parameters
+    virtual bool HasExtraParams( ) { return(false); }
+    virtual int SetExtraParams( map<string, string> )  { return -1; }
     
     // probably no need to modify this:
     virtual void SetSubsampling( bool subsampleFlag );

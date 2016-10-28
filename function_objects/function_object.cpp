@@ -72,14 +72,6 @@ void FunctionObject::SetSubsampling( bool subsampleFlag )
 }
 
 
-/* ---------------- PUBLIC METHOD: SetExtraParams ---------------------- */
-/// Used to specify a magnitude zero point (for *1D* functions).
-int FunctionObject::SetExtraParams( map<string, string> )
-{
-  return 1;
-}
-
-
 /* ---------------- PUBLIC METHOD: SetZeroPoint ------------------------ */
 /// Used to specify a magnitude zero point (for *1D* functions).
 void FunctionObject::SetZeroPoint( double zeroPoint )

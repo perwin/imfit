@@ -13,8 +13,10 @@
 #include <vector>
 using namespace std;
 
+// test stuff (not official image functions)
 #include "function_objects/function_object.h"
-// FUNCTION-SPECIFIC:
+#include "function_objects/func_gauss_extraparams.h"
+// official image functions
 #include "function_objects_1d/func1d_exp_test.h"
 #include "function_objects/func_flatsky.h"
 #include "function_objects/func_exp.h"
@@ -34,21 +36,31 @@ const double  DELTA_e7 = 1.0e-7;
 const double PI = 3.14159265358979;
 
 
+// Testing temporary 1D function (exponential with linear input and output,
+// plus SetExtraParams testing)
 class TestExp1DTest : public CxxTest::TestSuite 
 {
   FunctionObject  *thisFunc;
+  FunctionObject  *thisFunc2;
+  FunctionObject  *thisFunc3;
 
 public:
   void setUp()
   {
     bool  subsampleFlag = false;
-    thisFunc = new Exponential1D_test();
+    thisFunc = new Exponential1D_test();  // general testing (no numerical output)
     thisFunc->SetSubsampling(subsampleFlag);
+    thisFunc2 = new Exponential1D_test();
+    thisFunc2->SetSubsampling(subsampleFlag);
+    thisFunc3 = new Exponential1D_test();   // for testing numerical output
+    thisFunc3->SetSubsampling(subsampleFlag);
   }
   
   void tearDown()
   {
     delete thisFunc;
+    delete thisFunc2;
+    delete thisFunc3;
   }
 
   // and now the actual tests
@@ -58,7 +70,7 @@ public:
     vector<string>  correctParamNames;
     // FUNCTION-SPECIFIC:
     int  correctNParams = 2;
-    correctParamNames.push_back("mu_0");
+    correctParamNames.push_back("I_0");
     correctParamNames.push_back("h");
 
     // check that we get right number of parameters
@@ -69,11 +81,17 @@ public:
     TS_ASSERT( paramNames == correctParamNames ); 
   }
   
+  void testHasExtraParams( void )
+  {
+    bool  returnVal = thisFunc->HasExtraParams();
+    TS_ASSERT_EQUALS( returnVal, true );
+  }
+  
   void testSetExtraParams1_GoodNameAndValue( void )
   {
     map<string, string> theMap;
     string  keyword = "floor";
-    string  value = "100";
+    string  value = "0";
     theMap[keyword] = value;
     
     int  returnVal = thisFunc->SetExtraParams(theMap);
@@ -111,6 +129,65 @@ public:
     TS_ASSERT_EQUALS( returnVal, -3 );
   }
 
+  // testing basic numerical output without ExtraParams complications
+  void testCalculations( void )
+  {
+    // centered at x0 = 0
+    double  x0 = 0.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: exponential with I_0 = 1, h = 10,
+    double  params[2] = {1.0, 10.0};
+    
+    thisFunc2->Setup(params, 0, x0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(0.0), 1.0, DELTA );
+    // r = 1 value
+    double  rEqualsOneValue = 1.0*exp(-1.0/10.0);
+    TS_ASSERT_DELTA( thisFunc2->GetValue(1.0), rEqualsOneValue, DELTA );
+  }
+
+  // testing numerical output when we set ExtraParams
+  void testCalculations_with_extra_params( void )
+  {
+    // centered at x0 = 0
+    int  returnVal;
+    double  x0 = 0.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: exponential with I_0 = 1, h = 10,
+    double  params[2] = {1.0, 10.0};
+    map<string, string> theMap;
+    string  keyword = "floor";
+//     string  value = "0";
+//     theMap[keyword] = value;
+
+    double  rEqualsOneValue = 1.0*exp(-1.0/10.0);
+    
+    thisFunc3->Setup(params, 0, x0);
+    
+    // Pre-ExtraParams:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc3->GetValue(0.0), 1.0, DELTA );
+    // r = 1 value
+    TS_ASSERT_DELTA( thisFunc3->GetValue(1.0), rEqualsOneValue, DELTA );
+
+    // Set ExtraParams = 0
+    theMap[keyword] = string("0");
+    returnVal = thisFunc3->SetExtraParams(theMap);
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc3->GetValue(0.0), 1.0, DELTA );
+    // r = 1 value
+    TS_ASSERT_DELTA( thisFunc3->GetValue(1.0), rEqualsOneValue, DELTA );
+
+    // Set ExtraParams = 100
+    theMap[keyword] = string("100");
+    returnVal = thisFunc3->SetExtraParams(theMap);
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc3->GetValue(0.0), 101.0, DELTA );
+    // r = 1 value
+    TS_ASSERT_DELTA( thisFunc3->GetValue(1.0), 100.0 + rEqualsOneValue, DELTA );
+  }
 };
 
 
@@ -445,6 +522,217 @@ public:
     thisFunc->Setup(params2, 0, x0, y0);
     double  correctEllFlux = (1 - ell2) * correctCircFlux;
     TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctEllFlux, DELTA );
+  }
+};
+
+
+class TestGaussianExtraParams : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  FunctionObject  *thisFunc2, *thisFunc3;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new GaussianExtraParams();
+    thisFunc->SetSubsampling(subsampleFlag);
+    thisFunc2 = new GaussianExtraParams();
+    thisFunc2->SetSubsampling(subsampleFlag);
+    thisFunc3 = new GaussianExtraParams();
+    thisFunc3->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+    delete thisFunc2;
+    delete thisFunc3;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 4;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("ell");
+    correctParamNames.push_back("I_0");
+    correctParamNames.push_back("sigma");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+    
+  }
+  
+  void testCalculations( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular Gaussian with I_e = 1, sigma = 10,
+    double  params[4] = {90.0, 0.0, 1.0, 10.0};
+    
+    
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 10.0), 1.0, DELTA );
+    // r = 1 value
+    double  rEqualsOneValue = 1.0*exp(-1.0/(2*10.0*10.0));
+    TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+    // r = sigma value
+    double  rEqualsSigmaValue = 1.0*exp(-(10.0*10.0)/(2*10.0*10.0));
+    TS_ASSERT_DELTA( thisFunc->GetValue(20.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 20.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
+
+  }
+  
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, true);
+  }
+
+  void testTotalFlux_calcs( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular or elliptical Gaussian with I_0 = 1, sigma = 10,
+    double  I0 = 1.0;
+    double  sigma = 10.0;
+    double  ell1 = 0.0;
+    double  ell2 = 0.25;
+    double  params1[4] = {90.0, ell1, I0, sigma};
+    double  params2[4] = {90.0, ell2, I0, sigma};
+
+
+    // FUNCTION-SPECIFIC:
+    thisFunc->Setup(params1, 0, x0, y0);
+    double  correctCircFlux = 2.0*PI*I0*sigma*sigma;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctCircFlux, DELTA );
+    
+    thisFunc->Setup(params2, 0, x0, y0);
+    double  correctEllFlux = (1 - ell2) * correctCircFlux;
+    TS_ASSERT_DELTA( thisFunc->TotalFlux(), correctEllFlux, DELTA );
+  }
+  
+
+  // ExtraParams tests
+  void testHasExtraParams( void )
+  {
+    bool  returnVal = thisFunc->HasExtraParams();
+    TS_ASSERT_EQUALS( returnVal, true );
+  }
+  
+  void testSetExtraParams1_GoodNameAndValue( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "floor";
+    string  value = "0";
+    theMap[keyword] = value;
+    
+    int  returnVal = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( returnVal, 1 );
+  }
+
+  void testSetExtraParams1_EmptyMap( void )
+  {
+    map<string, string> theMap;
+
+    int  returnVal = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( returnVal, -1 );
+  }
+
+  void testSetExtraParams1_BadName( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "interp";
+    string  value = "100";
+    theMap[keyword] = value;
+    
+    int  returnVal = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( returnVal, 0 );
+  }
+
+  // non-numeric value for parameter expecting a number
+  void testSetExtraParams1_BadValue( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "floor";
+    string  value = "bob";
+    theMap[keyword] = value;
+    
+    int  returnVal = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( returnVal, -3 );
+  }
+  // testing numerical output when we set ExtraParams
+  void testCalculations_with_extra_params( void )
+  {
+    // centered at x0,y0 = 10,10
+    double  x0 = 10.0;
+    double  y0 = 10.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular Gaussian with I_e = 1, sigma = 10,
+    double  params[4] = {90.0, 0.0, 1.0, 10.0};
+    map<string, string> theMap;
+    string  keyword = "floor";
+    int  returnVal;
+
+    double  rEqualsOneValue = 1.0*exp(-1.0/(2*10.0*10.0));
+    double  rEqualsSigmaValue = 1.0*exp(-(10.0*10.0)/(2*10.0*10.0));
+    
+    thisFunc2->Setup(params, 0, x0, y0);
+    
+    // Pre-ExtraParams:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(10.0, 10.0), 1.0, DELTA );
+    // r = 1 value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc2->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    // r = sigma value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(20.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc2->GetValue(10.0, 20.0), rEqualsSigmaValue, DELTA );
+
+    // Set ExtraParams = 0
+    theMap[keyword] = string("0");
+    returnVal = thisFunc2->SetExtraParams(theMap);
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(10.0, 10.0), 1.0, DELTA );
+    // r = 1 value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc2->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
+    // r = sigma value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(20.0, 10.0), rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc2->GetValue(10.0, 20.0), rEqualsSigmaValue, DELTA );
+
+    // Set ExtraParams = 100
+    theMap[keyword] = string("100");
+    returnVal = thisFunc2->SetExtraParams(theMap);
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(10.0, 10.0), 101.0, DELTA );
+    // r = 1 value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(11.0, 10.0), 100 + rEqualsOneValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc2->GetValue(9.0, 10.0), 100 + rEqualsOneValue, DELTA );
+    // r = sigma value
+    TS_ASSERT_DELTA( thisFunc2->GetValue(20.0, 10.0), 100 + rEqualsSigmaValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc2->GetValue(10.0, 20.0), 100 + rEqualsSigmaValue, DELTA );
   }
 };
 

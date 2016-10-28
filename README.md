@@ -20,6 +20,11 @@ A basic [tutorial](http://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html) 
 The paper describing Imfit can be found here: 
 [Erwin 2015](http://adsabs.harvard.edu/abs/2015ApJ...799..226E).
 
+<!-- 
+ArXiv version:
+[![arxiv](http://img.shields.io/badge/arXiv-1408.1097-orange.svg?style=flat)](http://arxiv.org/abs/1408.1097)
+ -->
+
 DOI for current release (v1.3.1), archived at Zenodo:
 
 [![DOI](https://zenodo.org/badge/20940/perwin/imfit.svg)](https://zenodo.org/badge/latestdoi/20940/perwin/imfit)
@@ -28,6 +33,8 @@ DOI for current release (v1.3.1), archived at Zenodo:
 ## About the code at this Github site
 
 [![Build Status](https://travis-ci.org/perwin/imfit.svg?branch=master)](https://travis-ci.org/perwin/imfit)
+
+
 
 This repository hosts the complete codebase, including regression
 and unit tests, miscellaneous extra tests and notes, and assorted

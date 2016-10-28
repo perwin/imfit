@@ -146,7 +146,6 @@ int main(int argc, char *argv[])
   vector<string> programHeader;
   // timing-related
   struct timeval  timer_start_all, timer_end_all;
-  struct timeval  timer_start_fit, timer_end_fit;
 
 
   gettimeofday(&timer_start_all, NULL);
@@ -567,10 +566,9 @@ int main(int argc, char *argv[])
 
   // OK, now we execute the MCMC process
   // DO THE MCMC!
-  printf("\nStart of MCMC processing -- NOT YET IMPLEMENTED!\n");
-  gettimeofday(&timer_start_fit, NULL);
+  printf("\nStart of MCMC processing...\n");
   dream(&dreamPars, &rng);
-  gettimeofday(&timer_end_fit, NULL);
+  printf("Finished -- MCMC chains written to output files %s.*.txt", options.outputFileRoot.c_str());
 
   // Free up memory
   fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()
@@ -599,7 +597,7 @@ int main(int argc, char *argv[])
     printf("\n(Elapsed time: %.6f sec)\n", time_elapsed_all);
   }
   
-  printf("Done!\n\n");
+  printf("\nDone!\n\n");
   
   return 0;
 }

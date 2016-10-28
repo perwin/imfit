@@ -30,6 +30,7 @@ class Exponential1D_test : public FunctionObject
     // Constructors:
     Exponential1D_test( );
     // redefined method/member functions:
+    bool HasExtraParams( );
     int  SetExtraParams( map<string, string> inputMap );
     void  Setup( double params[], int offsetIndex, double xc );
     double  GetValue( double x );

@@ -11,7 +11,9 @@ function_objects/func_exp.cpp function_objects/func_flatsky.cpp \
 function_objects/func_gaussian.cpp function_objects/func_moffat.cpp \
 function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects/func_king2.cpp \
 function_objects/func_broken-exp.cpp function_objects/func_broken-exp2d.cpp \
-function_objects/func_edge-on-disk.cpp function_objects_1d/func1d_exp_test.cpp \
+function_objects/func_edge-on-disk.cpp \
+function_objects/func_gauss_extraparams.cpp \
+function_objects_1d/func1d_exp_test.cpp \
 core/utilities.cpp \
 -I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -Ifunction_objects -lm -lgsl -lgslcblas
 if [ $? -eq 0 ]
