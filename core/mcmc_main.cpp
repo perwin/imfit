@@ -352,8 +352,10 @@ int main(int argc, char *argv[])
   nGBytes = (1.0*estimatedMemory) / GIGABYTE;
   if (nGBytes >= 1.0)
     printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);
-  else
+  else if (nGBytes >= 1.0e-3)
     printf("Estimated memory use: %ld bytes (%.1f MB)\n", estimatedMemory, nGBytes*1024.0);
+  else
+    printf("Estimated memory use: %ld bytes (%.1f KB)\n", estimatedMemory, nGBytes*1024.0*1024.0);
   if (estimatedMemory > MEMORY_WARNING_LIMT) {
     fprintf(stderr, "WARNING: Estimated memory needed by internal images =");
     fprintf(stderr, " %ld bytes (%g gigabytes)\n", estimatedMemory, nGBytes);
@@ -537,6 +539,7 @@ int main(int argc, char *argv[])
   dreamPars.burnIn = options.nBurnIn;
   dreamPars.gelmanEvals = options.nGelmanEvals;
   dreamPars.noise = options.mcmcNoise;
+  dreamPars.bstar_zero = options.mcmc_bstar;
   dreamPars.verboseLevel = options.verbose;
   for (int i = 0; i < nParamsTot; i++)
     dreamPars.parameterNames.push_back(paramNames[i]);
@@ -646,12 +649,13 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("     --mlr                    Same as --poisson-mlr");
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -o  --output <output-root>   root name for output MCMC chain files [default = mcmc_out]");
-  optParser->AddUsageLine("     --append                 load state from output files and append XXX");
+  optParser->AddUsageLine("     --append                 load state from output files and continue from there");
   optParser->AddUsageLine("     --nchains <int>          Number of separate MCMC chains [default = nFreeParameters])");
   optParser->AddUsageLine("     --max-evals <int>        Maximum number of likelihood evaluations [default = 100000])");
   optParser->AddUsageLine("     --nburnin <int>          Number of burn-in evaluations [default = 10000])");
   optParser->AddUsageLine("     --max-gelman-evals <int>   Maximum number of Gelman-Rubin convergence evaluations [default = 1000])");
   optParser->AddUsageLine("     --mcmc-noise <float>     MCMC noise term [default = 0.01]");
+  optParser->AddUsageLine("     --bstar <float>          MCMC b^star term [default = 1.0e-3]");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
@@ -704,6 +708,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddOption("nburnin");
   optParser->AddOption("max-gelman-evals");
   optParser->AddOption("mcmc-noise");
+  optParser->AddOption("bstar");
   optParser->AddOption("max-threads");
   optParser->AddOption("seed");
 
@@ -930,6 +935,15 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
     }
     theOptions->mcmcNoise = atof(optParser->GetTargetString("mcmc-noise").c_str());
     printf("\tMCMC noise parameter = %f\n", theOptions->mcmcNoise);
+  }
+  if (optParser->OptionSet("bstar")) {
+    if (NotANumber(optParser->GetTargetString("bstar").c_str(), 0, kPosReal)) {
+      printf("*** WARNING: MCMC b^star parameter should be a positive real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->mcmc_bstar = atof(optParser->GetTargetString("bstar").c_str());
+    printf("\tMCMC b^star parameter = %f\n", theOptions->mcmc_bstar);
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {

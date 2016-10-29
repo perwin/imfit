@@ -7,7 +7,7 @@ Reading mask image ("tests/mask_for_onezero.fits") ...
 * No PSF image supplied -- no image convolution will be done!
 Function: FlatSky
 3 total parameters
-Estimated memory use: 720 bytes (0.0 MB)
+Estimated memory use: 720 bytes (0.7 KB)
 Model Object: 9 data values (pixels)
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
 * No noise image supplied ... will generate noise image from input data image.
@@ -37,6 +37,6 @@ I_sky		      1 # +/- 0.353553
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.000523 sec for fit, 0.001792 sec total)
+(Elapsed time: 0.000451 sec for fit, 0.002466 sec total)
 Done!
 

@@ -69,6 +69,7 @@ typedef struct {
   int  nBurnIn;
   int  nGelmanEvals;
   double  mcmcNoise;
+  double  mcmc_bstar;
 
   unsigned long  rngSeed;
   
@@ -128,12 +129,12 @@ void SetDefaultMCMCOptions( mcmcCommandOptions *theOptions )
 
   theOptions->appendToOutput = false;
   theOptions->outputFileRoot = "mcmc_out";
-  theOptions->nChains = -1;
+  theOptions->nChains = -1;          // -1 = use default, which is nChains = nFreeParams
   theOptions->maxEvals = 100000;
-  theOptions->nBurnIn = 10000;
+  theOptions->nBurnIn = 5000;
   theOptions->nGelmanEvals = 1000;
-  theOptions->mcmcNoise = 0.01;
-
+  theOptions->mcmcNoise = 0.01;      // b parameter in DREAM (uniform scaling w/in 1 +/- b)
+  theOptions->mcmc_bstar = 1.0e-6;   // b^star parameter in DREAM (sigma for epsilon)
   theOptions->rngSeed = 0;
   
   theOptions->maxThreads = 0;

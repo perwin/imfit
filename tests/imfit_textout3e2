@@ -10,7 +10,7 @@ Reading noise image ("tests/ic3478rss_64x64_variance.fits") ...
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 7 total parameters
-Estimated memory use: 458752 bytes (0.4 MB)
+Estimated memory use: 458752 bytes (448.0 KB)
 Model Object: 4096 data values (pixels)
 ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
 Setting up parameter information array ...
@@ -50,6 +50,6 @@ r_e		60.7483 # +/- 0.247142
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.031610 sec for fit, 0.035379 sec total)
+(Elapsed time: 0.029958 sec for fit, 0.033300 sec total)
 Done!
 

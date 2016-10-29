@@ -5,14 +5,23 @@
 ## 1.4.0 -- 2016-xx-xx
 ### Added:
 
+- Imfit (the package) now includes a preliminary version of a new program for doing
+Markov chain Monte Carlo (MCMC) analysis of Imfit models: "imfit-mcmc".
+Rather than fitting the model to the data, this estimates the
+posterior-probability (i.e., the likelihood, equivalent to chi^2 in the
+default case) distribution for the model given the data. This uses the
+"DREAM" (DiffeRential Evolution Adaptive Metropolis) algorithm of Vrugt
+et al., an efficient multiple-ensemble approach.
+
 - Makeimage now has a new option "`--timing <N>`", which tells the program to
 generate the model image *N* times and compute the mean time taken per image. (No images are saved.)
 
-- Imfit now has a new option "`--seed <N>`", which allows the user to specify a particular
-seed (positive integer) for the random number generator. This is mainly useful if you
-want to test the Differential Evolution solver or bootstrap resampling by forcing them
-to use the same sequence of pseudo-random numbers. (The default behavior is to
-initialize the RNG with the current system time.)
+- Imfit now has a new option "`--seed <N>`", which allows the user to
+specify a particular seed (positive integer) for the random number
+generator. This is mainly useful if you want to test the Differential
+Evolution solver, bootstrap resampling, or the MCMC program by forcing
+them to use the same sequence of pseudo-random numbers. (The default
+behavior is to always initialize the RNG with the current system time.)
 
 
 ### Changed:
@@ -34,6 +43,10 @@ some cases, the resulting fluxes are different from the previous
 approach, but only at levels <~ 10^-4 (i.e., about 0.0001 mag). Affected
 functions: Gaussian, Exponential, Sersic (the latter only if
 makeimage was compiled with the GNU Scientific Library).
+
+- Memory-use estimation now prints values < 1 MB as KB. (Which is pretty
+unnecessary, except that "0.0 MB" looked kind of silly as an output when
+the estimated memory use was < 100 KB.)
 
 
 

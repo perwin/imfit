@@ -362,8 +362,10 @@ int main(int argc, char *argv[])
   nGBytes = (1.0*estimatedMemory) / GIGABYTE;
   if (nGBytes >= 1.0)
     printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);
-  else
+  else if (nGBytes >= 1.0e-3)
     printf("Estimated memory use: %ld bytes (%.1f MB)\n", estimatedMemory, nGBytes*1024.0);
+  else
+    printf("Estimated memory use: %ld bytes (%.1f KB)\n", estimatedMemory, nGBytes*1024.0*1024.0);
   if (estimatedMemory > MEMORY_WARNING_LIMT) {
     fprintf(stderr, "WARNING: Estimated memory needed by internal images =");
     fprintf(stderr, " %ld bytes (%g gigabytes)\n", estimatedMemory, nGBytes);

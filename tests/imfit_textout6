@@ -14,7 +14,7 @@ Reading mask image ("tests/totalmask_64x64.fits") ...
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 7 total parameters
-Estimated memory use: 458752 bytes (0.4 MB)
+Estimated memory use: 458752 bytes (448.0 KB)
 Model Object: 4096 data values (pixels)
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
 * No noise image supplied ... will generate noise image from input data image.

@@ -5,7 +5,7 @@ naxis1 [# pixels/row] = 3, naxis2 [# pixels/col] = 3; nPixels_tot = 9
 * No PSF image supplied -- no image convolution will be done!
 Function: FlatSky
 3 total parameters
-Estimated memory use: 720 bytes (0.0 MB)
+Estimated memory use: 720 bytes (0.7 KB)
 Model Object: 9 data values (pixels)
 * No noise image supplied ... will generate noise image from input data image.
 ModelObject: One pixel with non-finite value found (and masked) in data image
@@ -37,6 +37,6 @@ I_sky		    1.5 # +/- 0.433013
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.002642 sec for fit, 0.169978 sec total)
+(Elapsed time: 0.001072 sec for fit, 0.003442 sec total)
 Done!
 

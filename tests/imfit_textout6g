@@ -6,7 +6,7 @@ naxis1 [# pixels/row] = 10, naxis2 [# pixels/col] = 10; nPixels_tot = 100
 * No PSF image supplied -- no image convolution will be done!
 Function: Gaussian
 6 total parameters
-Estimated memory use: 10400 bytes (0.0 MB)
+Estimated memory use: 10400 bytes (10.2 KB)
 Model Object: 100 data values (pixels)
 * No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (100 valid pixels remain)
@@ -42,6 +42,6 @@ sigma		2.50411 # +/- 0.0211561
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.003891 sec for fit, 0.015639 sec total)
+(Elapsed time: 0.003163 sec for fit, 0.005198 sec total)
 Done!
 

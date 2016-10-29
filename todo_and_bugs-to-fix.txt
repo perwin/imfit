@@ -4,7 +4,7 @@
 
 ** NEAR-TERM FUTURE TODO:
 [ ] MCMC program: "imfit-mcmc"
-	[ ] Create mcmc main.cpp as copy of imfit_main.cpp
+	[x] Create mcmc main.cpp as copy of imfit_main.cpp
 		[x] Make copy
 		[x] Change internal strings describing name
 		
@@ -17,21 +17,33 @@
 		[x] Copy existing makeimage code
 		[x] Modify code to use new program name
 	
+	[ ] Create simple regression test for mcmc program
+		[ ] Identify small test image (e.g., exponential, very small image)
+		[ ] Do test run of MCMC code to ensure output look sensible
+		[ ] Set up run of MCMC code using fixed RNG seed
+		[ ] Set up do_mcmc_test.sh
+		[ ] Test run of do_mcmc_test.sh
+		
 	[ ] Link/copy/add cdream code
 		[x] 1. create symlink to cdream code
 		[ ] 2. create new subdirectory holding cdream code (and add code to repo)
 	
 
-	[ ] Options struct for mcmc program
-		[ ] Add CDREAM-related elements from profilefit_mcmc
-		[ ] Add command-line processing code to fill in CDREAM-related elements
+	[x] Options struct for mcmc program
+		[x] Add CDREAM-related elements from profilefit_mcmc
+		[x] Add command-line processing code to fill in CDREAM-related elements
 	
-	[ ] Add cdream-related stuff to main
-		[ ] Add declaration and setup of dream_pars struct
-		[ ] Add code passing command-line options to dream_pars
+	[x] Add cdream-related stuff to main
+		[x] Add declaration and setup of dream_pars struct
+		[x] Add code passing command-line options to dream_pars
 		
 	[ ] Cleanup of main
 		[ ] Remove parameterInfo-related code
+	
+	[ ] Feedback from dream()
+		[ ] Detect failed opening of output files, complain and exit
+		[ ] Detect failed write to output files, complain and exit?
+		[ ] Record and report cumulative number of likelihood evaluations
 		
 	[x] Command-line options for mcmc program
 	
@@ -56,11 +68,32 @@
 			where burnInStart is 0 by default (and only gets reset if the algorithm
 			re-enters burn-in, so we can safely assume that the *minimum*
 	
-	[ ] Python script to convert user-specified line in MCMC output file to
+	[ ] Python script to convert user-specified line in an MCMC output file to
 	makeimage/imfit config file
 		-- Also a version to do same with bootstrap output?
 		-- Internal code to hold functions+parameters in form similar to Andres' code??
 	
+	[ ] Modify dream.cpp: Experiment with converting every-5th-generation code in dream.cpp (roughly,
+	lines 205--225) to be more like what Vrugt et al. do
+		-- Vrugt et al. seem to recommend setting gamma = 1.0 every 5th generation
+		-- Code in dream.cpp 
+			[] remove lines ~ 205--225 ("if (gammaGeneration++ == 5) { ... }")
+			[] modify line ~ 269 ("gamma = 2.38/sqrt(2.0*updateDim[i]*delta);") 
+			to set gamma = 1.0 if t % 5 == 0
+	
+	[ ] Modify dream.cpp: Add beta_0 parameter from Vrugt 2016?
+		-- beta_0 is an optional scaling of the normal gamma: gamma' = beta_0 * gamma
+		By default, beta_0 = 1.0; Vrugt 2016 suggests beta_0 between 0.25 and 0.5 can
+		be useful for complicated, multi-dimensional posteriors
+			[] Add beta_0 parameter to parameter struct
+			[] modify line ~ 269 ("gamma = 2.38/sqrt(2.0*updateDim[i]*delta);") 
+			to be something like "gamma = beta_0 * 2.38/sqrt(2.0*updateDim[i]*delta);"
+			[] Test beta_0 = 0.25 and 0.5 to see if it helps or hinders us
+
+	[ ] Modify dream.cpp: Add proper handling of parameter bounds ??
+		-- currently, dream.cpp uses parameter bound by setting likelihood = -INFINITY
+		if proposal variable value is outside bounds (thus rejecting the proposal)
+		-- see p.269 of Vrugt 2016 for options on handling parameter bounds
 	
 [ ] Separate code for doing model-image-generation timing into separate file
 	(so it can be used by both makeimage and imfit-mcmc)

@@ -7,7 +7,7 @@ Reading noise image ("tests/testimage_3x3_nan.fits") ...
 * No PSF image supplied -- no image convolution will be done!
 Function: FlatSky
 3 total parameters
-Estimated memory use: 720 bytes (0.0 MB)
+Estimated memory use: 720 bytes (0.7 KB)
 Model Object: 9 data values (pixels)
 ModelObject: One pixel with non-finite value found (and masked) in noise/weight image
 ModelObject: mask vector applied to weight vector. (8 valid pixels remain)
@@ -36,6 +36,6 @@ I_sky		      1 # +/- 0.53033
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.000516 sec for fit, 0.001888 sec total)
+(Elapsed time: 0.000485 sec for fit, 0.001870 sec total)
 Done!
 
