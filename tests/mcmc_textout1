@@ -1,0 +1,58 @@
+	Image file = tests/faintstar.fits
+	configuration file = tests/config_imfit_faintstar.dat
+	RNG seed = 3
+Value from config file: gain = 4.720000 e-/ADU
+Value from config file: read noise = 1.150000 e-
+Value from config file: original sky = 124.940000
+Reading data image ("tests/faintstar.fits") ...
+naxis1 [# pixels/row] = 10, naxis2 [# pixels/col] = 10; nPixels_tot = 100
+* No PSF image supplied -- no image convolution will be done!
+* Pixel subsampling has been turned OFF.
+Function: Gaussian
+6 total parameters
+Estimated memory use: 3200 bytes (3.1 KB)
+Model Object: 100 data values (pixels)
+* No noise image supplied ... will generate noise image from input data image.
+ModelObject: mask vector applied to weight vector. (100 valid pixels remain)
+Setting up parameter information array ...
+6 free parameters (94 degrees of freedom)
+Setting up MCMC-related arrays ...
+i = 0: 
+i = 1: 
+i = 2: 
+i = 3: 
+i = 4: 
+i = 5: 
+Setting nChains = 6 (nFreeParams)
+main: dreamPars.numChains = 6
+
+Start of MCMC processing...
+Beginning DREAM:
+              X0 = [     3,     8]
+              Y0 = [     3,     8]
+              PA = [   140,   170]
+             ell = [     0,   0.3]
+             I_0 = [   220,   320]
+           sigma = [   0.1,   1.5]
+Collapse outliers: 1
+opening output file 0...done.
+opening output file 1...done.
+opening output file 2...done.
+opening output file 3...done.
+opening output file 4...done.
+opening output file 5...done.
+Latin hypercube sampling...
+  shuffling (6,6)...done.
+Chain 0 likelihood =  [chi^2 = 14006.942704] -7003.47
+Chain 1 likelihood =  [chi^2 = 3985.206516] -1992.6
+Chain 2 likelihood =  [chi^2 = 6203.285460] -3101.64
+Chain 3 likelihood =  [chi^2 = 3433.382199] -1716.69
+Chain 4 likelihood =  [chi^2 = 5766.339786] -2883.17
+Chain 5 likelihood =  [chi^2 = 3179.188673] -1589.59
+[5000] exiting burn in.
+[15010] performing convergence diagnostics: GR (it 15010): [0]1.00109 [1]1.00242 [2]1.00297 [3]1.00186 [4]1.00495 [5]1.00442 
+Finished -- MCMC chains written to output files temptest/mcmc_test.*.txt
+(Elapsed time: 8.279214 sec)
+
+Done!
+

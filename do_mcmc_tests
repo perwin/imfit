@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# Regression tests for imfit-mcmc
+#
+
+FAILED_TEXT=" ** Test failed. **"
+
+STATUS=0
+
+# create output directory for test_dump*, etc. files (will do nothing if
+# directory already exists)
+mkdir -p temptest
+
+
+echo ""
+echo "Running tests for imfit-mcmc..."
+# simple tests using small images
+./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --nosubsampling --seed=3 -o temptest/mcmc_test &> temptest/test_dump_mcmc1
+
+echo ""
+
+
+# Note that we diff only the first n lines to avoid irrelevant variations in the
+# elapsed-time output (reported at the end of the file).
+
+printf "*** Diff comparison with archives: first test... "
+./python/diff_printouts.py tests/mcmc_textout1 temptest/test_dump_mcmc1 --skip-last=4
+
+printf "    Comparing first output chain file... "
+if (diff --brief temptest/mcmc_test.0.txt tests/mcmc_ref1.0.txt)
+then
+  printf " OK\n"
+else
+  echo "Output MCMC chain file temptest/mcmc_test.0.txt differs from reference file tests/mcmc_ref1.0.txt"
+  STATUS=1
+fi
+
+
+echo ""
+echo "Done."
+echo ""
+
+exit $STATUS
