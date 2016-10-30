@@ -59,7 +59,7 @@ void SetupDreamParams( dream_pars* p, size_t n, const double* init, const string
                     	const int* lock, const double* lo, const double* hi );
 
 // created by PE
-void SetHeaderDreamParams( dream_pars* p, const vector<string>& headerLine );
+void SetHeaderDreamParams( dream_pars* p, const vector<string>& newHeaderLines );
 
 // created by PE
 void FreeVarsDreamParams( dream_pars* p );

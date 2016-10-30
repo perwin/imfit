@@ -2,6 +2,7 @@
 
 binary_only_files = """
 imfit
+imfit-mcmc
 makeimage
 """
 
@@ -16,18 +17,6 @@ DISCLAIMER
 README.txt
 CHANGELOG.md
 """
-
-# header files in top-level directory
-# source_header_files_top = """
-# definitions
-# mersenne_twister
-# mp_enorm
-# option_struct_imfit
-# option_struct_makeimage
-# param_struct
-# sample_configs
-# statistics
-# """
 
 # header files in core/
 source_header_files_core = """
@@ -45,6 +34,7 @@ model_object
 mp_enorm
 option_struct_imfit
 option_struct_makeimage
+option_struct_mcmc
 oversampled_region
 param_struct
 print_results
@@ -53,13 +43,19 @@ statistics
 utilities_pub
 """
 
-# C files in c_code/
-#source_files_c = """
-#mersenne_twister
-#mp_enorm
-#statistics
-#"""
-
+# header files in cdream/
+source_header_files_mcmc = """
+array
+dream
+dream_params
+include/rng/GSLRng
+include/rng/GSLStream
+include/rng/MKLRng
+include/rng/MKLStream
+include/rng/Rng
+include/rng/RngStream
+"""
+                      
 
 # the following are C++ files
 
@@ -74,6 +70,7 @@ estimate_memory
 image_io 
 imfit_main
 makeimage_main
+mcmc_main
 mersenne_twister
 model_object
 mp_enorm
@@ -92,6 +89,16 @@ nmsimplex_fit
 nlopt_fit
 dispatch_solver
 solver_results
+"""
+
+source_files_mcmc ="""
+check_outliers
+dream
+dream_initialize
+dream_pars
+gelman_rubin
+gen_CR
+restore_state
 """
 
 source_files_funcobj = """
@@ -134,6 +141,7 @@ README_examples.txt
 
 testing_scripts = """
 do_imfit_tests
+do_mcmc_tests
 do_makeimage_tests
 """
 
@@ -167,6 +175,7 @@ config_imfit_sersictest512_badlimits2.dat
 config_imfit_sersictest512_badlimits3.dat
 config_imfit_sersictest512_badlimits4.dat
 config_imfit_badparamline.dat
+config_imfit_faintstar.dat
 uniform_image32.fits
 testimage_expdisk32.fits
 testimage_poisson_lowsn20.fits
@@ -180,6 +189,7 @@ n3073rss_small_cps.fits
 n3073rss_small_mask.fits
 pgc35772_continuum.fits
 pgc35772_mask.fits
+faintstar.fits
 totalmask_64x64.fits
 biggertest_orig.fits
 gensersictest_orig.fits
@@ -255,4 +265,6 @@ makeimage_textout12
 makeimage_textout13
 makeimage_textout14
 makeimage_textout15
+mcmc_textout1
+mcmc_ref1.0.txt_skip2
 """

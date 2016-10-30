@@ -24,10 +24,13 @@ echo ""
 # elapsed-time output (reported at the end of the file).
 
 printf "*** Diff comparison with archives: first test... "
+# skip last 4 lines to avoid trying to compare elapsed times
 ./python/diff_printouts.py tests/mcmc_textout1 temptest/test_dump_mcmc1 --skip-last=4
 
 printf "    Comparing first output chain file... "
-if (diff --brief temptest/mcmc_test.0.txt tests/mcmc_ref1.0.txt)
+# skip first two lines of output file to avoid comparing timestamps
+tail -n +3 temptest/mcmc_test.0.txt > temptest/mcmc_test.0.txt_skip2
+if (diff --brief temptest/mcmc_test.0.txt_skip2 tests/mcmc_ref1.0.txt_skip2)
 then
   printf " OK\n"
 else

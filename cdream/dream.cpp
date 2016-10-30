@@ -112,15 +112,16 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
     oout.resize(p->numChains, &cout);
     if (p->outputRootname != "" && p->outputRootname != "-") {
       for (int i = 0; i < p->numChains; ++i) {
-        cerr << "opening output file " << i << "...";
+        //cerr << "opening output file " << i << "...";
         chainFilename.str("");
         chainFilename << p->outputRootname << "." << i << ".txt";
         oout[i] = new ofstream(chainFilename.str().c_str(), fmode);
         oout[i]->setf(ios::scientific, ios::floatfield);
         oout[i]->precision(12);
-        cerr << "done." << endl;
+        //cerr << "done." << endl;
         // PE note: don't need "<< endl" for header lines because they already have "\n"
-        *oout[i] << p->outputHeaderLines[0];
+        for (int n = 0; n < p->outputHeaderLines.size(); n++)
+          *oout[i] << p->outputHeaderLines[n];
         if (p->appendFile)
           *oout[i] << "# --- Resuming DREAM ---" << endl;
       }

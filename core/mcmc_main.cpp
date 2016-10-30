@@ -72,9 +72,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.3.1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.4.0a (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.3.1"
+#define VERSION_STRING      "1.4.0a"
 #endif
 
 
@@ -89,6 +89,8 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
 
 double LikelihoodFuncForDREAM( int chain, int gen, const double* state, 
 								const void* extraData, bool recalc );
+void MakeMCMCOutputHeader( vector<string> *headerLines, const string& programName, 
+						const int argc, char *argv[] );
 
 
 /* ------------------------ Global Variables --------------------------- */
@@ -151,7 +153,7 @@ int main(int argc, char *argv[])
   gettimeofday(&timer_start_all, NULL);
 
   progNameVersion += VERSION_STRING;
-  MakeOutputHeader(&programHeader, progNameVersion, argc, argv);
+  MakeMCMCOutputHeader(&programHeader, progNameVersion, argc, argv);
 
  
   /* Define default options, then process the command line */
@@ -507,7 +509,6 @@ int main(int argc, char *argv[])
   
   printf("Setting up MCMC-related arrays ...\n");
   for (int i = 0; i < nParamsTot; i++) {
-    printf("i = %d: \n", i);
     if (paramLimits[i].fixed == 1) {
       printf("Fixed parameter detected (i = %d)\n", i);
       lockFlags[i] = 1;
@@ -534,7 +535,6 @@ int main(int argc, char *argv[])
   if (options.appendToOutput)
     dreamPars.appendFile = 1;
   dreamPars.numChains = options.nChains;
-  printf("main: dreamPars.numChains = %d\n", dreamPars.numChains);
   dreamPars.maxEvals = options.maxEvals;
   dreamPars.burnIn = options.nBurnIn;
   dreamPars.gelmanEvals = options.nGelmanEvals;
@@ -545,20 +545,18 @@ int main(int argc, char *argv[])
     dreamPars.parameterNames.push_back(paramNames[i]);
 
   // Construct header using parameter names, etc.
-  string  headerString("#");
-  vector<string> headerLine;
-  for (int i = 0; i < nParamsTot; i++)
-    headerString += PrintToString("%12s        ", paramNames[i].c_str());
+  programHeader.push_back("#\n# Column Headers\n");
+  string headerString = theModel->GetParamHeader();
   headerString += "  likelihood  burn-in gen     ";
   for (int i = 0; i < dreamPars.nCR - 1; i++)
     headerString += PrintToString("CR%d               ", i + 1);
   headerString += PrintToString("CR%d        ", dreamPars.nCR);
   headerString += "accept\n";
-  headerLine.push_back(headerString);
-  SetHeaderDreamParams(&dreamPars, headerLine);
+  programHeader.push_back(headerString);
+  SetHeaderDreamParams(&dreamPars, programHeader);
   
   dreamPars.fun = &LikelihoodFuncForDREAM;
-  // Assign extra ""data that will be passed to likelihood function
+  // Assign extra "data" that will be passed to likelihood function
   dreamPars.extraData = theModel;
 
   rng::GSLStream rng;
@@ -571,7 +569,7 @@ int main(int argc, char *argv[])
   // DO THE MCMC!
   printf("\nStart of MCMC processing...\n");
   dream(&dreamPars, &rng);
-  printf("Finished -- MCMC chains written to output files %s.*.txt", options.outputFileRoot.c_str());
+  printf("\nFinished -- MCMC chains written to output files %s.*.txt", options.outputFileRoot.c_str());
 
   // Free up memory
   fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()
@@ -1104,7 +1102,7 @@ void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 
 
 
-/* ---------------- LikelihoodFuncForDREAM ----------------------------- */
+/* ---------------- LikelihoodFuncForDREAM ------------------------------- */
 
 // Function which returns log likelihood given a set of parameters in the
 // input parameter state.
@@ -1122,6 +1120,29 @@ double LikelihoodFuncForDREAM( int chain, int gen, const double* state,
 	  printf(" [chi^2 = %f] ", chi2);
 
   return -chi2/2.0;
+}
+
+
+
+
+/* ---------------- FUNCTION: MakeMCMCOutputHeader() --------------------- */
+
+void MakeMCMCOutputHeader( vector<string> *headerLines, const string& programName, 
+						const int argc, char *argv[] )
+{  
+  char  *timeStamp = TimeStamp();
+  string  tempString;
+
+  tempString = PrintToString("# Markov chain Monte Carlo output from %s\n", programName.c_str());
+  headerLines->push_back(tempString);
+  tempString = PrintToString("# Generated on %s by the following command:", 
+          timeStamp);
+  headerLines->push_back(tempString + "\n");
+  tempString = "#   ";
+  for (int i = 0; i < argc; i++) {
+    tempString += PrintToString(" %s", argv[i]);
+  }
+  headerLines->push_back(tempString + "\n");
 }
 
 

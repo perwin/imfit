@@ -49,12 +49,12 @@ void SetupDreamParams( dream_pars* p, size_t n, const double* init, const string
 
 // ---------------------------------------------------------------------------
 
-void SetHeaderDreamParams( dream_pars* p, const vector<string>& headerLine )
+void SetHeaderDreamParams( dream_pars* p, const vector<string>& newHeaderLines )
 {
   p->outputHeaderLines.clear();
-  int  nLines = (int)headerLine.size();
+  int  nLines = (int)newHeaderLines.size();
   for (int i = 0; i < nLines; i++)
-    p->outputHeaderLines.push_back(headerLine[i]);
+    p->outputHeaderLines.push_back(newHeaderLines[i]);
 }
 
 

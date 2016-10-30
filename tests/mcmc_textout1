@@ -17,14 +17,7 @@ ModelObject: mask vector applied to weight vector. (100 valid pixels remain)
 Setting up parameter information array ...
 6 free parameters (94 degrees of freedom)
 Setting up MCMC-related arrays ...
-i = 0: 
-i = 1: 
-i = 2: 
-i = 3: 
-i = 4: 
-i = 5: 
 Setting nChains = 6 (nFreeParams)
-main: dreamPars.numChains = 6
 
 Start of MCMC processing...
 Beginning DREAM:
@@ -35,12 +28,6 @@ Beginning DREAM:
              I_0 = [   220,   320]
            sigma = [   0.1,   1.5]
 Collapse outliers: 1
-opening output file 0...done.
-opening output file 1...done.
-opening output file 2...done.
-opening output file 3...done.
-opening output file 4...done.
-opening output file 5...done.
 Latin hypercube sampling...
   shuffling (6,6)...done.
 Chain 0 likelihood =  [chi^2 = 14006.942704] -7003.47
@@ -51,8 +38,9 @@ Chain 4 likelihood =  [chi^2 = 5766.339786] -2883.17
 Chain 5 likelihood =  [chi^2 = 3179.188673] -1589.59
 [5000] exiting burn in.
 [15010] performing convergence diagnostics: GR (it 15010): [0]1.00109 [1]1.00242 [2]1.00297 [3]1.00186 [4]1.00495 [5]1.00442 
+
 Finished -- MCMC chains written to output files temptest/mcmc_test.*.txt
-(Elapsed time: 8.279214 sec)
+(Elapsed time: 8.233481 sec)
 
 Done!
 
