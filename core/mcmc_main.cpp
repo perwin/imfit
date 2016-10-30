@@ -46,17 +46,15 @@
 #include "model_object.h"
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
-//#include "solver_results.h"
 #include "option_struct_mcmc.h"
 
 #include "commandline_parser.h"
 #include "config_file_parser.h"
-//#include "print_results.h"
 #include "estimate_memory.h"
 #include "sample_configs.h"
 
-#include "cdream/dream_params.h"
-#include "cdream/dream.h"
+#include "dream_params.h"
+#include "dream.h"
 #include "rng/GSLStream.h"
 
 
@@ -136,8 +134,6 @@ int main(int argc, char *argv[])
   vector<mp_par>  paramLimits;
   vector<int>  FunctionBlockIndices;
   bool  paramLimitsExist = false;
-  bool  parameterInfo_allocated = false;
-  mp_par  *parameterInfo;
   int  status, fitStatus, nSucessfulIterations;
   vector<string>  imageCommentsList;
   mcmcCommandOptions  options;
@@ -156,7 +152,7 @@ int main(int argc, char *argv[])
   MakeMCMCOutputHeader(&programHeader, progNameVersion, argc, argv);
 
  
-  /* Define default options, then process the command line */
+  // Define default options, then process the command line
   SetDefaultMCMCOptions(&options);
   ProcessInput(argc, argv, &options);
 
@@ -169,7 +165,7 @@ int main(int argc, char *argv[])
   }
 
 
-  /* Read configuration file, parse & process user-supplied (non-function-related) values */
+  // Read configuration file, parse & process user-supplied (non-function-related) values
   status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
   							paramLimits, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
@@ -184,7 +180,7 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  /* Get image data and sizes */
+  // Get image data and sizes
   printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
   allPixels = ReadImageAsVector(options.imageFileName, &nColumns, &nRows);
   if (allPixels == NULL) {
@@ -199,7 +195,7 @@ int main(int argc, char *argv[])
   // Determine X0,Y0 pixel offset values if user specified an image section
   DetermineImageOffset(options.imageFileName, &X0_offset, &Y0_offset);
 
-  /* Get and check mask image */
+  // Get and check mask image
   if (options.maskImagePresent) {
     printf("Reading mask image (\"%s\") ...\n", options.maskFileName.c_str());
     allMaskPixels = ReadImageAsVector(options.maskFileName, &nMaskColumns, &nMaskRows);
@@ -218,7 +214,7 @@ int main(int argc, char *argv[])
     maskAllocated = true;
   }
            
-  /* Get and check error image, if supplied */
+  // Get and check error image, if supplied
   if (options.noiseImagePresent) {
     printf("Reading noise image (\"%s\") ...\n", options.noiseFileName.c_str());
     allErrorPixels = ReadImageAsVector(options.noiseFileName, &nErrColumns, &nErrRows);
@@ -237,7 +233,7 @@ int main(int argc, char *argv[])
     }
   }
   
-  /* Read in PSF image, if supplied */
+  // Read in PSF image, if supplied
   if (options.psfImagePresent) {
     printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
     psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
@@ -253,7 +249,7 @@ int main(int argc, char *argv[])
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
-  /* Read in oversampled PSF image, if supplied */
+  // Read in oversampled PSF image, if supplied
   if (options.psfOversampledImagePresent) {
     if (options.psfOversamplingScale < 1) {
       fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n");
@@ -302,67 +298,20 @@ int main(int argc, char *argv[])
     printf("* Pixel subsampling has been turned OFF.\n");
 
 
-  /* Create the model object */
+  // Create the model object
   theModel = new ModelObject();
   
   // Put limits on number of FFTW and OpenMP threads, if requested by user
   if (options.maxThreadsSet)
     theModel->SetMaxThreads(options.maxThreads);
 
-  /* Add functions to the model object */
+  // Add functions to the model object
   status = AddFunctions(theModel, functionList, FunctionBlockIndices, 
   						options.subsamplingFlag, options.verbose);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
  }
-  
-  // Set up parameter vector(s), now that we know total # parameters
-  nParamsTot = nFreeParams = theModel->GetNParams();
-  printf("%d total parameters\n", nParamsTot);
-  if (nParamsTot != (int)parameterList.size()) {
-  	fprintf(stderr, "*** ERROR: number of input parameters (%d) does not equal", 
-  	       (int)parameterList.size());
-  	fprintf(stderr, " required number of parameters for specified functions (%d)!\n\n",
-  	       nParamsTot);
-  	exit(-1);
-  }
-  
-  // Get estimate of memory use (do this *after* we know number of free parameters); 
-  // warn if it will be large
-  long  estimatedMemory;
-  double  nGBytes;
-  bool  usingLevMar, usingCashTerms;
-  usingLevMar = false;
-  if ((options.useCashStatistic) || (options.usePoissonMLR))
-    usingCashTerms = true;
-  else
-    usingCashTerms = false;
-  if (options.psfOversampledImagePresent) {
-    int  deltaX_oversampled = x2_oversample - x1_oversample + 1;
-    int  deltaY_oversampled = y2_oversample - y1_oversample + 1;
-    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  										usingLevMar, usingCashTerms, options.saveResidualImage, 
-  										options.saveModel, nColumns_psf_oversampled, nRows_psf_oversampled,
-  										deltaX_oversampled, deltaY_oversampled, 
-  										options.psfOversamplingScale);
-  }
-  else
-    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  										usingLevMar, usingCashTerms, options.saveResidualImage, 
-  										options.saveModel);
-  nGBytes = (1.0*estimatedMemory) / GIGABYTE;
-  if (nGBytes >= 1.0)
-    printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);
-  else if (nGBytes >= 1.0e-3)
-    printf("Estimated memory use: %ld bytes (%.1f MB)\n", estimatedMemory, nGBytes*1024.0);
-  else
-    printf("Estimated memory use: %ld bytes (%.1f KB)\n", estimatedMemory, nGBytes*1024.0*1024.0);
-  if (estimatedMemory > MEMORY_WARNING_LIMT) {
-    fprintf(stderr, "WARNING: Estimated memory needed by internal images =");
-    fprintf(stderr, " %ld bytes (%g gigabytes)\n", estimatedMemory, nGBytes);
-  }
-
   
   // Add PSF image vector, if present (needs to be added prior to image data, so that
   // ModelObject can figure out proper internal model-image size
@@ -435,10 +384,8 @@ int main(int argc, char *argv[])
           exit(-1);
         }
       }
-      else {
-        // default mode
+      else    // default mode
         printf("* No noise image supplied ... will generate noise image from input data image.\n");
-      }
     }
   }
   
@@ -450,45 +397,62 @@ int main(int argc, char *argv[])
     fprintf(stderr, "*** ERROR: Failure in ModelObject::FinalSetupForFitting!\n\n");
     exit(-1);
   }
-    
-
-
   
-  /* START OF MINIMIZATION-ROUTINE-RELATED CODE */
-  // Parameter limits and other info:
-  // First we create a C-style array of mp_par structures, containing parameter constraints
-  // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
-  // by DiffEvolnFit (if called) and by PrintResults.  We also decrement nFreeParams for
-  // each *fixed* parameter.
-  printf("Setting up parameter information array ...\n");
-  parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
-  parameterInfo_allocated = true;
+  
+  // Determine nParamsTot, nFreeParams and nDegFreedom
+  nParamsTot = nFreeParams = theModel->GetNParams();
+  printf("%d total parameters\n", nParamsTot);
+  if (nParamsTot != (int)parameterList.size()) {
+  	fprintf(stderr, "*** ERROR: number of input parameters (%d) does not equal", 
+  	       (int)parameterList.size());
+  	fprintf(stderr, " required number of parameters for specified functions (%d)!\n\n",
+  	       nParamsTot);
+  	exit(-1);
+  }
   for (int i = 0; i < nParamsTot; i++) {
-    parameterInfo[i].fixed = paramLimits[i].fixed;
-    if (parameterInfo[i].fixed == 1) {
+    if (paramLimits[i].fixed == 1)
       nFreeParams--;
-    }
-    parameterInfo[i].limited[0] = paramLimits[i].limited[0];
-    parameterInfo[i].limited[1] = paramLimits[i].limited[1];
-    parameterInfo[i].limits[0] = paramLimits[i].limits[0];
-    parameterInfo[i].limits[1] = paramLimits[i].limits[1];
-    // specify different offsets if using image subsection, and apply them to
-    // user-specified X0,Y0 limits
-    if (theModel->GetParameterName(i) == X0_string) {
-      parameterInfo[i].offset = X0_offset;
-      parameterInfo[i].limits[0] -= X0_offset;
-      parameterInfo[i].limits[1] -= X0_offset;
-    } else if (theModel->GetParameterName(i) == Y0_string) {
-      parameterInfo[i].offset = Y0_offset;
-      parameterInfo[i].limits[0] -= Y0_offset;
-      parameterInfo[i].limits[1] -= Y0_offset;
-    }
   }
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
   printf("%d free parameters (%ld degrees of freedom)\n", nFreeParams, nDegFreedom);
+
+  // Get estimate of memory use (do this *after* we know number of free parameters); 
+  // warn if it will be large
+  long  estimatedMemory;
+  double  nGBytes;
+  bool  usingLevMar, usingCashTerms;
+  usingLevMar = false;
+  if ((options.useCashStatistic) || (options.usePoissonMLR))
+    usingCashTerms = true;
+  else
+    usingCashTerms = false;
+  if (options.psfOversampledImagePresent) {
+    int  deltaX_oversampled = x2_oversample - x1_oversample + 1;
+    int  deltaY_oversampled = y2_oversample - y1_oversample + 1;
+    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+  										usingLevMar, usingCashTerms, options.saveResidualImage, 
+  										options.saveModel, nColumns_psf_oversampled, nRows_psf_oversampled,
+  										deltaX_oversampled, deltaY_oversampled, 
+  										options.psfOversamplingScale);
+  }
+  else
+    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+  										usingLevMar, usingCashTerms, options.saveResidualImage, 
+  										options.saveModel);
+  nGBytes = (1.0*estimatedMemory) / GIGABYTE;
+  if (nGBytes >= 1.0)
+    printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);
+  else if (nGBytes >= 1.0e-3)
+    printf("Estimated memory use: %ld bytes (%.1f MB)\n", estimatedMemory, nGBytes*1024.0);
+  else
+    printf("Estimated memory use: %ld bytes (%.1f KB)\n", estimatedMemory, nGBytes*1024.0*1024.0);
+  if (estimatedMemory > MEMORY_WARNING_LIMT) {
+    fprintf(stderr, "WARNING: Estimated memory needed by internal images =");
+    fprintf(stderr, " %ld bytes (%g gigabytes)\n", estimatedMemory, nGBytes);
+  }
+
   
-  
-  /* Copy initial parameter values into C array, correcting for X0,Y0 offsets */
+  // Copy initial parameter values into C array, correcting for X0,Y0 offsets
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));
   for (int i = 0; i < nParamsTot; i++) {
     if (theModel->GetParameterName(i) == X0_string) {
@@ -500,14 +464,13 @@ int main(int argc, char *argv[])
   }
   
   
-
   // Stuff for dream_pars
   string *paramNames = new string[nParamsTot];
+  
+  printf("Setting up MCMC-related arrays ...\n");
   int lockFlags[nParamsTot];
   double lowVals[nParamsTot];
   double highVals[nParamsTot];
-  
-  printf("Setting up MCMC-related arrays ...\n");
   for (int i = 0; i < nParamsTot; i++) {
     if (paramLimits[i].fixed == 1) {
       printf("Fixed parameter detected (i = %d)\n", i);
@@ -582,8 +545,6 @@ int main(int argc, char *argv[])
   if (maskAllocated)
     fftw_free(allMaskPixels);           // allocated externally, in ReadImageAsVector()
   free(paramsVect);
-  if (parameterInfo_allocated)
-    free(parameterInfo);
   delete theModel;
 
   FreeVarsDreamParams(&dreamPars);
@@ -611,7 +572,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   CLineParser *optParser = new CLineParser();
   string  tempString = "";
 
-  /* SET THE USAGE/HELP   */
+  // SET THE USAGE/HELP
   optParser->AddUsageLine("Usage: ");
   optParser->AddUsageLine("   imfit-mcmc [options] <imagefile.fits>");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
@@ -647,13 +608,13 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("     --mlr                    Same as --poisson-mlr");
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -o  --output <output-root>   root name for output MCMC chain files [default = mcmc_out]");
-  optParser->AddUsageLine("     --append                 load state from output files and continue from there");
+  optParser->AddUsageLine("     --append                 load state from existing output files and continue from there");
   optParser->AddUsageLine("     --nchains <int>          Number of separate MCMC chains [default = nFreeParameters])");
   optParser->AddUsageLine("     --max-evals <int>        Maximum number of likelihood evaluations [default = 100000])");
-  optParser->AddUsageLine("     --nburnin <int>          Number of burn-in evaluations [default = 10000])");
+  optParser->AddUsageLine("     --nburnin <int>          Number of burn-in evaluations [default = 5000])");
   optParser->AddUsageLine("     --max-gelman-evals <int>   Maximum number of Gelman-Rubin convergence evaluations [default = 1000])");
   optParser->AddUsageLine("     --mcmc-noise <float>     MCMC noise term [default = 0.01]");
-  optParser->AddUsageLine("     --bstar <float>          MCMC b^star term [default = 1.0e-3]");
+  optParser->AddUsageLine("     --bstar <float>          MCMC b^star term [sigma for Gaussian offset; default = 1.0e-6]");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
@@ -670,7 +631,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("");
 
 
-  /* by default all options are checked on the command line and from option/resource file */
+  // by default all options are checked on the command line and from option/resource file
   optParser->AddFlag("help", "h");
   optParser->AddFlag("version", "v");
   optParser->AddFlag("list-functions");
@@ -714,7 +675,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   // to be ignored only, rather than causing program to exit
   optParser->UnrecognizedAreErrors();
   
-  /* parse the command line:  */
+  // parse the command line:
   int status = optParser->ParseCommandLine( argc, argv );
   if (status < 0) {
     printf("\nError on command line... quitting...\n\n");
@@ -723,15 +684,15 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   }
 
 
-  /* Process the results: actual arguments, if any: */
+  // Process the results: actual arguments, if any:
   if (optParser->nArguments() > 0) {
     theOptions->imageFileName = optParser->GetArgument(0);
     theOptions->noImage = false;
     printf("\tImage file = %s\n", theOptions->imageFileName.c_str());
   }
 
-  /* Process the results: options */
-  // First four are options which print useful info and then exit the program
+  // Process the results: options
+  // First five are options which print useful info and then exit the program
   if ( optParser->FlagSet("help") || optParser->CommandLineEmpty() ) {
     optParser->PrintUsage();
     delete optParser;

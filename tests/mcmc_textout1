@@ -9,13 +9,12 @@ naxis1 [# pixels/row] = 10, naxis2 [# pixels/col] = 10; nPixels_tot = 100
 * No PSF image supplied -- no image convolution will be done!
 * Pixel subsampling has been turned OFF.
 Function: Gaussian
-6 total parameters
-Estimated memory use: 3200 bytes (3.1 KB)
 Model Object: 100 data values (pixels)
 * No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (100 valid pixels remain)
-Setting up parameter information array ...
+6 total parameters
 6 free parameters (94 degrees of freedom)
+Estimated memory use: 3200 bytes (3.1 KB)
 Setting up MCMC-related arrays ...
 Setting nChains = 6 (nFreeParams)
 
@@ -40,7 +39,7 @@ Chain 5 likelihood =  [chi^2 = 3179.188673] -1589.59
 [15010] performing convergence diagnostics: GR (it 15010): [0]1.00109 [1]1.00242 [2]1.00297 [3]1.00186 [4]1.00495 [5]1.00442 
 
 Finished -- MCMC chains written to output files temptest/mcmc_test.*.txt
-(Elapsed time: 8.233481 sec)
+(Elapsed time: 8.251862 sec)
 
 Done!
 

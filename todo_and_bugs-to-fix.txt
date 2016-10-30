@@ -29,8 +29,8 @@
 		[x] 2. create new subdirectory holding cdream code (and add code to repo)
 	
 	[ ] Better headers for MCMC output
-		[ ] Look for code that defines bootstrap output header
-		[ ] Adapt code for bootstrap output header to MCMC output
+		[x] Look for code that defines bootstrap output header
+		[x] Adapt code for bootstrap output header to MCMC output
 		[ ] Add printing of input parameter file to header
 
 	[x] Options struct for mcmc program
