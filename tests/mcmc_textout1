@@ -20,12 +20,12 @@ Setting nChains = 6 (nFreeParams)
 
 Start of MCMC processing...
 Beginning DREAM:
-              X0 = [     3,     8]
-              Y0 = [     3,     8]
-              PA = [   140,   170]
-             ell = [     0,   0.3]
-             I_0 = [   220,   320]
-           sigma = [   0.1,   1.5]
+              X0 = [     3.0,      8.0]
+              Y0 = [     3.0,      8.0]
+              PA = [   140.0,    170.0]
+             ell = [     0.0,      0.3]
+             I_0 = [   220.0,    320.0]
+           sigma = [     0.1,      1.5]
 Collapse outliers: 1
 Latin hypercube sampling...
   shuffling (6,6)...done.
@@ -39,7 +39,7 @@ Chain 5 likelihood =  [chi^2 = 3179.188673] -1589.59
 [15010] performing convergence diagnostics: GR (it 15010): [0]1.00109 [1]1.00242 [2]1.00297 [3]1.00186 [4]1.00495 [5]1.00442 
 
 Finished -- MCMC chains written to output files temptest/mcmc_test.*.txt
-(Elapsed time: 8.251862 sec)
+(Elapsed time: 8.318841 sec)
 
 Done!
 

@@ -57,7 +57,12 @@
 	/Users/erwin/Documents/Working/Papers-Finished/Paper-imfit/image_tests/sersictest_lowsn200.fits
 	~/coding/imfit/imfit -c config_imfit_sersic1.dat sersictest_lowsn200.fits --mlr --bootstrap 500 --save-bootstrap bootstrap_out_lowsn200_modcash.dat
 	Both files copied to ~/coding/imfit
-	
+
+		./imfit -c config_imfit_sersic1.dat sersictest_lowsn200.fits --mlr --bootstrap 500 --save-bootstrap bootstrap_out_lowsn200_500.dat
+		t = 20.0 sec
+		./imfit-mcmc -c config_imfit_sersic1.dat sersictest_lowsn200.fits --mlr -o mcmc_out_lowsn200
+		t = 353 sec
+
 	[ ] Clean up/rationalize output chain files
 		[ ] "gen" is currently useless cycling of 0,...9,
 		[ ] replace C++ streams with stdio?

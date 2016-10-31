@@ -72,16 +72,15 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
 
   // opening message
   if (p->verboseLevel > 0) {
-    cerr << "Beginning DREAM:" << endl;
+    printf("Beginning DREAM:\n");
     for (int i = 0; i < p->nvar; ++i) {
-      cerr << setw(16) << p->parameterNames[i] << " = [" 
-           << setw(6) << p->varLo[i] << "," 
-           << setw(6) << p->varHi[i] << "]";
-      if (p->varLock[i]) cerr << " *";
-      cerr << endl;
+      printf("%16s = [%8.1f, %8.1f]", p->parameterNames[i].c_str(), p->varLo[i], p->varHi[i]);
+      if (p->varLock[i]) 
+        printf(" -- FIXED");
+      printf("\n");
     }
 
-    cerr << "Collapse outliers: " << p->collapseOutliers << endl;
+    printf("Collapse outliers: %d\n", p->collapseOutliers);
   }
   
   if (mpi_rank == 0) {
@@ -112,14 +111,11 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
     oout.resize(p->numChains, &cout);
     if (p->outputRootname != "" && p->outputRootname != "-") {
       for (int i = 0; i < p->numChains; ++i) {
-        //cerr << "opening output file " << i << "...";
         chainFilename.str("");
         chainFilename << p->outputRootname << "." << i << ".txt";
         oout[i] = new ofstream(chainFilename.str().c_str(), fmode);
         oout[i]->setf(ios::scientific, ios::floatfield);
         oout[i]->precision(12);
-        //cerr << "done." << endl;
-        // PE note: don't need "<< endl" for header lines because they already have "\n"
         for (int n = 0; n < p->outputHeaderLines.size(); n++)
           *oout[i] << p->outputHeaderLines[n];
         if (p->appendFile)

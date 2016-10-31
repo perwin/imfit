@@ -475,11 +475,16 @@ int main(int argc, char *argv[])
     if (paramLimits[i].fixed == 1) {
       printf("Fixed parameter detected (i = %d)\n", i);
       lockFlags[i] = 1;
+      // cdream stores parameter value for fixed params in lowVals; we'll also
+      // store it in highVals, just for consistency
+      lowVals[i] = paramsVect[i];
+      highVals[i] = paramsVect[i];
     }
-    else
+    else {
       lockFlags[i] = 0;
-    lowVals[i] = paramLimits[i].limits[0];
-    highVals[i] = paramLimits[i].limits[1];
+      lowVals[i] = paramLimits[i].limits[0];
+      highVals[i] = paramLimits[i].limits[1];
+    }
     paramNames[i] = theModel->GetParameterName(i);
   }
 
