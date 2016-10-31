@@ -8,11 +8,11 @@ Reading noise image ("tests/uniform_image32.fits") ...
 * Pixel subsampling has been turned OFF.
 Function: Exponential
 6 total parameters
-Estimated memory use: 106496 bytes (104.0 KB)
 Model Object: 1024 data values (pixels)
 ModelObject: mask vector applied to weight vector. (1024 valid pixels remain)
 Setting up parameter information array ...
 6 free parameters (1018 degrees of freedom)
+Estimated memory use: 106496 bytes (104.0 KB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
@@ -45,6 +45,6 @@ h		     20 # +/- 0.0727724
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.005072 sec for fit, 0.017840 sec total)
+(Elapsed time: 0.004713 sec for fit, 0.018310 sec total)
 Done!
 

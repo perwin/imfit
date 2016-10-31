@@ -8,7 +8,7 @@
  * NAXIS2 = naxes[1] = nRows = sizeY.
 */
 
-// Copyright 2010--2015 by Peter Erwin.
+// Copyright 2010--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -59,9 +59,9 @@ static string  kNRows = "NROWS";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.3.1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.4.0 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.3.1"
+#define VERSION_STRING      "1.4.0"
 #endif
 
 

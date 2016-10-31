@@ -11,7 +11,7 @@
  *    10 Nov--2 Dec 2009: Early stages of development
 */
 
-// Copyright 2009--2015 by Peter Erwin.
+// Copyright 2009--2016 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -77,9 +77,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.3.1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.4.0 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.3.1"
+#define VERSION_STRING      "1.4.0"
 #endif
 
 
@@ -333,45 +333,6 @@ int main(int argc, char *argv[])
   	exit(-1);
   }
   
-  // Get estimate of memory use (do this *after* we know number of free parameters); 
-  // warn if it will be large
-  long  estimatedMemory;
-  double  nGBytes;
-  bool  usingLevMar, usingCashTerms;
-  if (options.solver == MPFIT_SOLVER)
-    usingLevMar = true;
-  else
-    usingLevMar = false;
-  if ((options.useCashStatistic) || (options.usePoissonMLR))
-    usingCashTerms = true;
-  else
-    usingCashTerms = false;
-  if (options.psfOversampledImagePresent) {
-    int  deltaX_oversampled = x2_oversample - x1_oversample + 1;
-    int  deltaY_oversampled = y2_oversample - y1_oversample + 1;
-    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  										usingLevMar, usingCashTerms, options.saveResidualImage, 
-  										options.saveModel, nColumns_psf_oversampled, nRows_psf_oversampled,
-  										deltaX_oversampled, deltaY_oversampled, 
-  										options.psfOversamplingScale);
-  }
-  else
-    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  										usingLevMar, usingCashTerms, options.saveResidualImage, 
-  										options.saveModel);
-  nGBytes = (1.0*estimatedMemory) / GIGABYTE;
-  if (nGBytes >= 1.0)
-    printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);
-  else if (nGBytes >= 1.0e-3)
-    printf("Estimated memory use: %ld bytes (%.1f MB)\n", estimatedMemory, nGBytes*1024.0);
-  else
-    printf("Estimated memory use: %ld bytes (%.1f KB)\n", estimatedMemory, nGBytes*1024.0*1024.0);
-  if (estimatedMemory > MEMORY_WARNING_LIMT) {
-    fprintf(stderr, "WARNING: Estimated memory needed by internal images =");
-    fprintf(stderr, " %ld bytes (%g gigabytes)\n", estimatedMemory, nGBytes);
-  }
-
-  
   // Add PSF image vector, if present (needs to be added prior to image data, so that
   // ModelObject can figure out proper internal model-image size
   if (options.psfImagePresent) {
@@ -500,7 +461,46 @@ int main(int argc, char *argv[])
   }
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
   printf("%d free parameters (%ld degrees of freedom)\n", nFreeParams, nDegFreedom);
-  
+
+
+  // Now that we know all about the model (including nFreeParams), estimate the
+  // memory usage and warn if it will be large
+  long  estimatedMemory;
+  double  nGBytes;
+  bool  usingLevMar, usingCashTerms;
+  if (options.solver == MPFIT_SOLVER)
+    usingLevMar = true;
+  else
+    usingLevMar = false;
+  if ((options.useCashStatistic) || (options.usePoissonMLR))
+    usingCashTerms = true;
+  else
+    usingCashTerms = false;
+  if (options.psfOversampledImagePresent) {
+    int  deltaX_oversampled = x2_oversample - x1_oversample + 1;
+    int  deltaY_oversampled = y2_oversample - y1_oversample + 1;
+    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+  										usingLevMar, usingCashTerms, options.saveResidualImage, 
+  										options.saveModel, nColumns_psf_oversampled, nRows_psf_oversampled,
+  										deltaX_oversampled, deltaY_oversampled, 
+  										options.psfOversamplingScale);
+  }
+  else
+    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+  										usingLevMar, usingCashTerms, options.saveResidualImage, 
+  										options.saveModel);
+  nGBytes = (1.0*estimatedMemory) / GIGABYTE;
+  if (nGBytes >= 1.0)
+    printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);
+  else if (nGBytes >= 1.0e-3)
+    printf("Estimated memory use: %ld bytes (%.1f MB)\n", estimatedMemory, nGBytes*1024.0);
+  else
+    printf("Estimated memory use: %ld bytes (%.1f KB)\n", estimatedMemory, nGBytes*1024.0*1024.0);
+  if (estimatedMemory > MEMORY_WARNING_LIMT) {
+    fprintf(stderr, "WARNING: Estimated memory needed by internal images =");
+    fprintf(stderr, " %ld bytes (%g gigabytes)\n", estimatedMemory, nGBytes);
+  }
+
   
   /* Copy initial parameter values into C array, correcting for X0,Y0 offsets */
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));

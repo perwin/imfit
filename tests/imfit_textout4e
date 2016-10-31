@@ -16,11 +16,11 @@ naxis1 [# pixels/row] = 105, naxis2 [# pixels/col] = 105; nPixels_tot = 11025
 	Region to be oversampled within image: [100:110,100:110]
 Function: Gaussian
 6 total parameters
-Estimated memory use: 13112762 bytes (12.5 MB)
 Model Object: 40000 data values (pixels)
 ModelObject: mask vector applied to weight vector. (40000 valid pixels remain)
 Setting up parameter information array ...
 4 free parameters (39996 degrees of freedom)
+Estimated memory use: 13112762 bytes (12.5 MB)
 
 Performing fit by minimizing Poisson MLR statistic:
 Calling Nelder-Mead Simplex solver ..
@@ -56,6 +56,6 @@ sigma		1.20062
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 3.996253 sec for fit, 4.109330 sec total)
+(Elapsed time: 2.877634 sec for fit, 2.933213 sec total)
 Done!
 

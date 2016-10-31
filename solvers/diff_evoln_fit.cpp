@@ -52,8 +52,8 @@
 #include "solver_results.h"
 
 // "Population" size should be POP_SIZE_PER_PARAMETER * nParametersTot
-#define POP_SIZE_PER_PARAMETER  10
-//#define POP_SIZE_PER_PARAMETER  8
+//#define POP_SIZE_PER_PARAMETER  10
+#define POP_SIZE_PER_PARAMETER  8
 #define MAX_DE_GENERATIONS	600
 
 const int  REPORT_STEPS_PER_VERBOSE_OUTPUT = 5;
@@ -154,7 +154,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   deStrategy = stRandToBest1Exp;
 //   F = 0.85;
 //   CR = 1.0;
-  F = 0.85;
+  F = 0.8;
   CR = 1.0;
   maxGenerations = MAX_DE_GENERATIONS;
   // Instantiate and set up the DE solver:

@@ -1,20 +1,13 @@
-# This is a sample configuration file for imfit (it will also work with makeimage).
-# Comments are introduced with the "#" character; anything following this character
-# on the same line is ignored by imfit. Blank lines are also ignored.
-# Note that to use this file with makeimage, the desired dimensions of the output
-# model image will also need to be supplied.
+# Imfit configuration file for fitting a Gaussian to a faint star extracted from
+# an SDSS DR7 r-band image (faintstar.fits).
 
-# Optional image-description parameters for imfit and their default values;
-# uncomment and edit if needed
 GAIN            4.72   # A/D gain in e-/ADU
 READNOISE       1.15   # read noise in electrons
 ORIGINAL_SKY    124.94   # original background value (ADU/pixel) previously subtracted
 
 
-# A single function block, containing a single image function;
-# examples of optional lower and upper limits for each parameter value are in the 3rd column
-X0   5.0    3,8     # pixel x-coordinate of function center
-Y0   6.0    3,8     # pixel y-coordinate of function center
+X0   5.0    3,8
+Y0   6.0    3,8
 FUNCTION Gaussian
 PA		155		140,170
 ell		0.1		0,0.3

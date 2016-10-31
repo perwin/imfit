@@ -60,6 +60,7 @@ testFileDict = {"dir": "tests", "file_list": dm.test_files.split()}
 binary_only_file_list = dm.binary_only_files.split()
 misc_required_files_list = dm.misc_required_files.split()
 testing_scripts_list = dm.testing_scripts.split()
+aux_files_for_binary_dist_list = dm.aux_files_for_binary_dist.split()
 
 documentation_file_list = [ documentationFileDict["dir"] + "/" + fname for fname in documentationFileDict["file_list"] ]
 
@@ -179,6 +180,8 @@ def MakeBinaries( mode=None ):
 		subprocess.check_output(scons_string + " imfit", shell=True)
 		print("   Calling SCons to generate makeimage binary...")
 		subprocess.check_output(scons_string + " makeimage", shell=True)
+		print("   Calling SCons to generate imfit-mcmc binary...")
+		subprocess.check_output(scons_string + " imfit-mcmc", shell=True)
 	else:
 		# Mac OS 10.6 or 10.7
 		#MakeFatBinaries()
@@ -187,7 +190,8 @@ def MakeBinaries( mode=None ):
 
 def MakeBinaryDist( mode=None ):
 	distDir = "imfit-%s/" % VERSION_STRING
-	final_file_list = binary_only_file_list + misc_required_files_list + documentation_file_list + example_file_list
+	final_file_list = binary_only_file_list + misc_required_files_list + \
+						aux_files_for_binary_dist_list + documentation_file_list + example_file_list
 	
 	if (mode is None):
 		# Mac OS 10.8 or newer, or Linux

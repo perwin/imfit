@@ -46,7 +46,9 @@ makeimage was compiled with the GNU Scientific Library).
 
 - Memory-use estimation now prints values < 1 MB as KB. (Which is pretty
 unnecessary, except that "0.0 MB" looked kind of silly as an output when
-the estimated memory use was < 100 KB.)
+the estimated memory use was < 100 KB.) Memory estimation is also slightly
+more accurate now if one or more parameters are held fixed and L-M minimization
+is being used.
 
 
 

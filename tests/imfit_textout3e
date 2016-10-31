@@ -10,11 +10,11 @@ Reading noise image ("tests/ic3478rss_64x64_sigma.fits") ...
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 7 total parameters
-Estimated memory use: 458752 bytes (448.0 KB)
 Model Object: 4096 data values (pixels)
 ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
 Setting up parameter information array ...
 6 free parameters (4090 degrees of freedom)
+Estimated memory use: 425984 bytes (416.0 KB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
@@ -50,6 +50,6 @@ r_e		60.7483 # +/- 0.247142
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.030716 sec for fit, 0.033795 sec total)
+(Elapsed time: 0.030446 sec for fit, 0.033833 sec total)
 Done!
 

@@ -15,18 +15,18 @@ naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
 Function: Sersic
 Function: Exponential
 11 total parameters
-Estimated memory use: 8987785 bytes (8.6 MB)
 Model Object: 30000 data values (pixels)
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
 ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
 Setting up parameter information array ...
 11 free parameters (28743 degrees of freedom)
+Estimated memory use: 8987785 bytes (8.6 MB)
 
   CASH STATISTIC = -305659765.743167
 AIC = -305659743.733982, BIC = -305659652.811314
 
 
 
-(Elapsed time: 0.018103 sec)
+(Elapsed time: 0.014634 sec)
 Done!
 

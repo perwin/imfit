@@ -58,6 +58,7 @@
 \newcommand{\imfit}{\textbf{Imfit}}
 \newcommand{\Imfit}{\textbf{Imfit}}
 \newcommand{\imfitprog}{\texttt{imfit}}
+\newcommand{\imfitmcmc}{\texttt{imfit-mcmc}}
 \newcommand{\makeimage}{\texttt{makeimage}}
 \newcommand{\Makeimage}{\texttt{Makeimage}}
 
@@ -69,7 +70,7 @@
 
 \newcommand{\pmlr}{PMLR}
 
-\newcommand{\versionnum}{1.3.1}
+\newcommand{\versionnum}{1.4.0}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -133,33 +134,39 @@ references to the new function, and re-compiling the program.
 under the \textsc{gnu} Public License (\textsc{gpl}).
 
 
-\textbf{A note on names:} The \imfit{} package consists of two programs:
-the main program, called \imfitprog{}, and an auxiliary program called
-\makeimage{}, built from the same codebase, which can be used to
+\bigskip
+
+\textbf{A note on names:} The \imfit{} package consists of three programs:
+\begin{itemize}
+\item \imfitprog{} -- the main image-fitting program; \\
+\item \imfitmcmc{} -- a program to do Markov chain Monte Carlo (MCMC) analysis; \\
+\item \makeimage{} -- an auxiliary program which can be used to
 generate artificial galaxy images (using the same input/output
-parameter-file format that \imfitprog{} uses). In this document, I use
-\imfit{} (in boldface) to refer to the whole package and \imfitprog to
-specific use of the actual fitting program, although I'm not entirely
-consistent about this; in most cases this
-distinction should be meaningless. (I.e., in most cases you're using
-the \imfitprog{} binary to fit images.)
+parameter-file format that \imfitprog{} uses). \\
+\end{itemize}
+In this document, I use \imfit{} (in boldface) to refer to the whole
+package and \imfitprog to specific use of the actual fitting program,
+although I'm not entirely consistent about this; in most cases this
+distinction should be meaningless. (I.e., in most cases you're using the
+\imfitprog{} binary to fit images.)
 
 
 \bigskip
 
 \textbf{System Requirements:} \Imfit{} has been built and tested on
-Intel-based MacOS X 10.6--10.10 (Snow Leopard, Lion, Mountain Lion, 
-Mavericks, and Yosemite)
-and Linux (Ubuntu) systems. It uses standard C++ and should work on most
-Unix-style systems with a modern C++ compiler and the Standard Template
-Library (e.g., \textsc{gcc} v4 or higher\footnote{\textsc{gcc} v4.2 or
-higher is necessary to take advantage of OpenMP-related speedups.}). It
-relies on two external, open-source libraries: version 3 of the
-\textsc{cfitsio} library\footnote{\url{http://heasarc.nasa.gov/fitsio/}}
-for \textsc{fits} image I/O and version 3 of the \textsc{fftw} (Fastest
+Intel-based MacOS X 10.6--10.10 (Snow Leopard, Lion, Mountain Lion,
+Mavericks, and Yosemite) and Linux (Ubuntu) systems. It uses standard
+C++ and should work on most Unix-style systems with a modern C++
+compiler and the Standard Template Library (e.g., \textsc{gcc} v4 or
+higher\footnote{\textsc{gcc} v4.2 or higher is necessary to take
+advantage of OpenMP-related speedups.}). It relies on two external,
+open-source libraries: version 3 of the \textsc{cfitsio}
+library\footnote{\url{http://heasarc.nasa.gov/fitsio/}} for
+\textsc{fits} image I/O and version 3 of the \textsc{fftw} (Fastest
 Fourier Transform in the West)
 library\footnote{\url{http://www.fftw.org/}} for PSF convolution. Some
-optional components require the \textsc{gnu} Scientific Library
+optional components -- as well as the \imfitmcmc{} program -- require
+the \textsc{gnu} Scientific Library
 (\textsc{gsl}),\footnote{\url{http://www.gnu.org/s/gsl/}} and the NLopt
 library\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}},
 but the program can also be built without these.
@@ -168,9 +175,11 @@ but the program can also be built without these.
 
 \Imfit{} also includes modified versions of Craig Markwardt's
 \texttt{mpfit} code (an enhanced version of the \textsc{minpack-1}
-Levenberg-Marquardt least-squares fitting code) and the Differential
+Levenberg-Marquardt least-squares fitting code); the Differential
 Evolution fitting code of Rainer Storn and Kenneth Price (more
-specifically, a C++ wrapper written by Lester E. Godwin).
+specifically, a C++ wrapper written by Lester E. Godwin); and
+an implementation of the MCMC DREAM algorithm in C++ by Gabriel 
+Leventhal.\footnote{\url{https://github.com/gaberoo/cdream}}
 
 
 
@@ -212,7 +221,8 @@ algorithm. \Imfit{} can be built without this, if for some reason
 you don't have access to the NLopt library.
 
 \item (Optional) Install the \textsc{gnu} Scientific Library
-(\textsc{gsl}) --- this is only necessary if you wish to use image
+(\textsc{gsl}) --- this is necessary if you want to use the MCMC program
+\imfitmcmc. It is also necessary if you wish to use certain image
 functions that rely on \textsc{gsl}.  Currently, the only such functions
 are the EdgeOnDisk component and the sample 3D line-of-sight integration
 functions (e.g., ExponentialDisk3D). \Imfit{} can be built without these
@@ -220,9 +230,10 @@ components, if for some reason you don't have access to the \textsc{gsl}.
 
 \item Install SCons (if needed; see below).
 
-\item Build \imfitprog{} and \makeimage.
+\item Build \imfitprog, \imfitmcmc, and \makeimage.
 
-\item (Optional) Run test scripts \texttt{do\_imfit\_tests} and \texttt{do\_makeimage\_tests}.
+\item (Optional) Run test scripts \texttt{do\_imfit\_tests}, \texttt{do\_mcmc\_tests},
+and \texttt{do\_makeimage\_tests}.
 
 \end{enumerate}
 
@@ -245,23 +256,25 @@ If things are simple, you should be able to build \imfit{} and the companion
 program \makeimage{} with the following commands:
 \begin{quote}
 \texttt{\$ scons imfit} \\
+\texttt{\$ scons imfit-mcmc} \\
 \texttt{\$ scons makeimage}
 \end{quote}
-This will produce two binary executable files: \imfitprog{} and \makeimage{}. Copy
+This will produce three binary executable files: \imfitprog, \imfit-mcmc, and \makeimage{}. Copy
 these to some convenient place on your path.
 
-If you do not have \textsc{gsl} installed, you will get compilation errors; use the following
-commands instead:
-\begin{quote}
-\verb+$ scons --no-gsl imfit+ \\
-\verb+$ scons --no-gsl makeimage+
-\end{quote}
-
-Similarly, you will get compilation errors if you do not have the NLopt library installed;
+If you do not have the NLopt library installed, you will get compilation errors;
 this can be dealt with by using:
 \begin{quote}
 \verb+$ scons --no-nlopt imfit+ \\
+\verb+$ scons --no-nlopt imfit-mcmc+ \\
 \verb+$ scons --no-nlopt makeimage+
+\end{quote}
+
+Similarly, if you do not have \textsc{gsl} installed, you will get compilation errors; use the following
+commands instead (note that you cannot build \imfitmcmc{} without \textsc{gsl}):
+\begin{quote}
+\verb+$ scons --no-gsl imfit+ \\
+\verb+$ scons --no-gsl makeimage+
 \end{quote}
 
 Various other compilation options may be useful, particularly for telling SCons where
@@ -289,15 +302,15 @@ line).
 
 \subsubsection{Tests}
 
-Finally, there are two shell scripts --- \texttt{do\_imfit\_tests} and
-\texttt{do\_makeimage\_tests} --- which can be run to do some very
-simple sanity checks (e.g., do the programs fit some simple images
-correctly, are common config-file errors caught, etc.). They make use of
-files and data in the \texttt{tests/} subdirectory. Possible differences
-in output at the level of the least significant digit may occur; these
-should not be considered problems. (This sort of thing depends on
-subtle differences in how different compilers and libraries handle
-floating-point computations and rounding.)
+Finally, there are three shell scripts --- \texttt{do\_imfit\_tests},
+\texttt{do\_mcmc\_tests}, and \texttt{do\_makeimage\_tests} --- which
+can be run to do some very simple sanity checks (e.g., do the programs
+fit some simple images correctly, are common config-file errors caught,
+etc.). They make use of files and data in the \texttt{tests/}
+subdirectory. Possible differences in output at the level of the least
+significant digit may occur; these should not be considered problems.
+(This sort of thing depends on subtle differences in how different
+compilers and libraries handle floating-point computations and rounding.)
 
 For the full set of tests to run,
 you should have Python version 2.6 or 2.7 installed, along with the
@@ -366,8 +379,7 @@ does not support OpenMP --- or you want, for whatever reason, a version
 that does not include OpenMP support, you can disable it by compiling
 with the following commands:
 \begin{quote}
-\texttt{\$ scons --no-openmp imfit} \\
-\texttt{\$ scons --no-openmp makeimage}
+\texttt{\$ scons --no-openmp ...}
 \end{quote}
 
 
@@ -393,13 +405,14 @@ OpenMP, though this is just speculation at the moment.)
 
 \subsubsection{Options: Compiling Without FFT Multithreading}
 
-By default, \imfitprog{} and \makeimage{} are compiled to take advantage of multi-core CPUs (and other
+By default, the \Imfit{} binaries are compiled to take advantage of multi-core CPUs (and other
 shared-memory multiple-processor systems) when performing PSF convolutions by using the 
 multithreaded version of the
 \textsc{fftw} library. If you do not have (or cannot build) the multithreaded \textsc{fftw} library,
 you can remove multithreaded FFT computation by compiling with the following commands:
 \begin{quote}
 \texttt{\$ scons --no-threading imfit} \\
+\texttt{\$ scons --no-threading imfit-mcmc} \\
 \texttt{\$ scons --no-threading makeimage}
 \end{quote}
 
@@ -1807,6 +1820,42 @@ unless you also specify the \texttt{--nosave} option.
 
 
 
+\chapter{Markov Chain Monte Carlos Analysis with Imfit-mcmc}
+
+DREAM (DiffeRential Evolution Adaptive Metropolis) algorithm of \citet{vrugt09},
+which is based on an earlier adaptation of DE to MCMC by \citet{ter-braak08}.
+More details of the algorithm and its uses can be found in \citet{vrugt16}.
+
+
+TBD.
+
+\section{Using \imfitmcmc{}}
+
+TBD.
+
+The following \imfit{} options are \textit{not} available:
+\begin{itemize}
+\item Minimizer selection and control: \texttt{--nm}, \texttt{--nlopt}, \texttt{--de},
+\texttt{--ftol}
+\item ``Best-fit'' output: \texttt{--save-params}, \texttt{--save-model},
+\texttt{--save-residual}, \texttt{--save-weights}
+\item Bootstrap-related: \texttt{--boostrap}, \texttt{--save-bootstrap}
+\item \texttt{--chisquare-only}, \texttt{--fitstat-only}
+\end{itemize}
+
+\section{Configuration Files for \imfitmcmc{}}
+
+Configuration files for \imfitmcmc{} are identical to those for \imfit{}, with
+the restriction that parameter limits \textit{must} be supplied for all non-fixed
+function parameters. (This is similar to how \imfit{} works with the Differential
+Evolution miminizer.)
+
+TBD.
+
+
+
+
+
 \chapter{Rolling Your Own Functions}
 
 \section{Basic Requirements}
@@ -1826,7 +1875,7 @@ exact pixel $(x,y)$ values.
 \item GetValue() --- this is used by the calling program to obtain the surface
 brightness for a given pixel location $(x,y)$. In existing FunctionObject classes,
 this method often calls other (private) methods to handle details of the calculation.
-\item GetClassShortName() --- this is a class function which is used to obtain
+\item GetClassShortName() --- this is a class function which returns
 the short version of the class name as a string.
 
 \end{itemize}
@@ -1835,7 +1884,7 @@ The new class should also redefine the following internal class constants:
 \begin{itemize}
 \item \texttt{N\_PARAMS} --- the number of input parameters (\textit{excluding} the
 central pixel coordinates);
-\item \texttt{PARAM\_LABELS} --- an array of string labels for the input parameters;
+\item \texttt{PARAM\_LABELS} --- a vector of string labels for the input parameters;
 \item \texttt{FUNCTION\_NAME} --- a short string describing the function;
 \item \texttt{className} --- a string (no spaces allowed) giving the official name
 of the function.
@@ -2038,8 +2087,8 @@ function-factory map. Inside the function PopulateFactoryMap, add the following 
 \subsubsection{Edit the SConstruct File}
 
 In the SConstruct file, locate the place where the variable
-``functionobject\_obj\_string'' is defined (currently somewhere near line 280,
-though this may change in the future). This is a string containing a
+``functionobject\_obj\_string'' is defined (e.g., search for the string
+"functionobject\_obj\_string ="). This variable is bound to a string containing a
 compact list of all the filenames containing function-object code. Insert our
 new function's name (``func\_new-moffat'') into the list.
 
@@ -2499,7 +2548,7 @@ sigma_z
 
 \section{3D Functions}
 
-The following are experimental image functions which use line-of-sight
+The following are image functions which use line-of-sight
 integration through a 3D luminosity-density model to create a projected 2D
 image.
 
@@ -2634,8 +2683,8 @@ Saglia for urging me to implement the Core-S{\'e}rsic function, and to
 Maximilian Fabricius for suggesting improvements to the documentation.
 Additional bug reports and suggestions from Andr{\'e} Luiz de Amorim,
 Giulia Savorgnan, David Streich, Guillermo Barro, Sergio Pascual, Lee
-Kelvin, Colleen Gilhuly, Semyeong Oh, Benne Holwerde, and David Wilman
-are gratefully appreciated.
+Kelvin, Colleen Gilhuly, Semyeong Oh, Benne Holwerde, David Wilman, and
+Iskren Georgiev are gratefully appreciated.
 
 
 \section{Data Sources}
@@ -2688,15 +2737,15 @@ Static Analyzer.\footnote{\url{http://clang-analyzer.llvm.org}}
 Data Release of the Sloan Digital Sky Survey'', \textit{Astrophys.J. Supplement} \textbf{182}: 182.
 
 \bibitem[Athanassoula et al.(1990)]{athanassoula90} Athanassoula, E., Morin, S., Wozniak, H.,
-Puy, D., Pierce, M. J., Lombard, J., \& Bosma, A. 1990, \textit{Monthly Notices of the Royal
+Puy, D., Pierce, M. J., Lombard, J., and Bosma, A. 1990, \textit{Monthly Notices of the Royal
 Astronomical Society} \textbf{245}: 130.
 
-\bibitem[Ciotti \& Bertin(1999)]{ciotti99} Ciotti, L., \& Bertin, G. 1999,
+\bibitem[Ciotti \& Bertin(1999)]{ciotti99} Ciotti, L., and Bertin, G. 1999,
 ''Analytical properties of the R$^{1/m}$ law'', \textit{Astron.\ Astrophys.}
 \textbf{352}: 447.
 
 \bibitem[de Souza, Gadotti, \& dos Anjos(2004)]{desouza04} de Souza, R. E.,
-Gadotti, D. A., \& dos Anjos, S. 2004, ``BUDDA: A New Two-dimensional Bulge/Disk
+Gadotti, D. A., and dos Anjos, S. 2004, ``BUDDA: A New Two-dimensional Bulge/Disk
 Decomposition Code for Detailed Structural Analysis of Galaxies'',
 \textit{Astrophys.J. Supplement} \textbf{153}: 411.
 
@@ -2706,7 +2755,7 @@ C. Mart{\'{\i}}nez Roger, I. Perez Fourn{\'o}n, and F. S{\'a}nchez, eds.,
 (Cambridge: Cambridge U. Press), 209.
 
 \bibitem[Erwin, Pohlen, \& Beckman(2008)]{erwin08} Erwin, P.,
-Pohlen, B., \& Beckman, J. E. 2008, ``The Outer Disks of Early-Type Galaxies. I. 
+Pohlen, B., and Beckman, J. E. 2008, ``The Outer Disks of Early-Type Galaxies. I. 
 Surface-Brightness Profiles of Barred Galaxies'', \textit{Astron.J.} \textbf{135}: 20.
 
 \bibitem[Erwin(2015)]{erwin15} Erwin, P. 2015, ``Imfit: A Fast, Flexible
@@ -2716,13 +2765,13 @@ New Program for Astronomical Image Fitting'', \textit{Astrophys.J.} \textbf{799:
 decomposition of barred galaxies and AGN hosts'', \textit{Monthly
 Notices of the Royal Astronomical Society} \textbf{384}: 420.
 
-\bibitem[Graham et al.(2003)]{graham03} Graham, A., Erwin, P., Trujillo, I., \&
+\bibitem[Graham et al.(2003)]{graham03} Graham, A., Erwin, P., Trujillo, I., and
 Asensio Ramos, A. 2003 ``A New Empirical Model for the Structural Analysis of
 Early-Type Galaxies, and A Critical Review of the Nuker Model'',
 \textit{Astron.J.} \textbf{125}: 2951.
 
 \bibitem[Humphrey, Liu, \& Buote(2009)]{humphrey09} Humphrey, P.~J.,
-Liu, W., \& Buote, D.~A. 2009, ``{$\chi$}$^{2}$ and Poissonian Data:
+Liu, W., and Buote, D.~A. 2009, ``{$\chi$}$^{2}$ and Poissonian Data:
 Biases Even in the High-Count Regime and How to Avoid Them'',
 \textit{Astrophys.J.} \textbf{693}: 822.
 
@@ -2736,7 +2785,7 @@ Shaw, H.E. Payne, and J.J.E. Hayes, eds., \textit{ASP Conference Series}
 \textbf{77}: 349.
 
 \bibitem[MacArthur, Courteau, \& Holtzman(2003)]{macarthur03} MacArthur, L. A.,
-Courteau, S., \& Holtzman, J. A. 2003, ``Structure of Disk-dominated Galaxies.
+Courteau, S., and Holtzman, J. A. 2003, ``Structure of Disk-dominated Galaxies.
 I. Bulge/Disk Parameters, Simulations, and Secular Evolution'',
 \textit{Astrophys.J.} \textbf{582}: 689.
 
@@ -2745,31 +2794,35 @@ Levenberg-Marquardt algorithm: Implementation and theory'', in
 \textit{Numerical Analysis}, G.A. Watson, ed., \textit{Lecture Notes in
 Mathematics} \textbf{630}: 105.
 
-\bibitem[Peng et al.(2002)]{peng02} Peng, C. Y., Ho, L. C., Impey, C. D., \&
+\bibitem[Peng et al.(2002)]{peng02} Peng, C. Y., Ho, L. C., Impey, C. D., and
 Rix, H. W. 2002, ``Detailed Structural Decomposition of Galaxy Images'',
 \textit{Astron.J.} \textbf{124}: 266.
 
-\bibitem[Peng et al.(2010)]{peng10} Peng, C. Y., Ho, L. C., Impey, C. D., \&
+\bibitem[Peng et al.(2010)]{peng10} Peng, C. Y., Ho, L. C., Impey, C. D., and
 Rix, H. W. 2010, ``Detailed Decomposition of Galaxy Images. II. Beyond
 Axisymmetric Models'', \textit{Astron.J.} \textbf{139}: 2097.
 
 \bibitem[S{\'e}rsic(1968)]{sersic68} S{\'e}rsic, J.-L. 1968, \textit{Atlas de 
 Galaxias Australes} (Cordoba: Obs.\ Astron.).
 
-\bibitem[Storn \& Price(1997)]{de} Storn, R. and Price, K. 1997, ``Differential
+\bibitem[Storn \& Price(1997)]{de} Storn, R., and Price, K. 1997, ``Differential
 Evolution --- A Simple and Efficient Heuristic for Global Optimization Over
 Continuous Spaces'', \textit{Journal of Global Optimization} \textbf{11}: 314.
 
+\bibitem[ter Braak \& Vrugt(2008)]{ter-braak08} ter Braak, C., and J.
+Vrugt (2008). ``Differential Evolution Markov Chain with snooker updater
+and fewer chains'', \textit{Statistics and Computing} \textbf{18} (4): 435--446.
+
 \bibitem[Trujillo et al.(2001)]{trujillo01} Trujillo, I., Aguerri, J. A. L.,
-Cepa, J., \& Guti{\'e}rrez, C. M. 2001, ``The effects of seeing on S{\'e}rsic
+Cepa, J., and Guti{\'e}rrez, C. M. 2001, ``The effects of seeing on S{\'e}rsic
 profiles --- II. The Moffat PSF'', \textit{Monthly Notices of the Royal
 Astronomical Society} \textbf{328}: 977.
 
 \bibitem[Trujillo et al.(2004)]{trujillo04} Trujillo, I., Erwin, P., Asensio
-Ramos, A., \& Graham, A. 2004, ``Evidence for a New Elliptical-Galaxy Paradigm:
+Ramos, A., and Graham, A. 2004, ``Evidence for a New Elliptical-Galaxy Paradigm:
 S{\'e}rsic and Core Galaxies'', \textit{Astron.J.} \textbf{127}: 1917.
 
-\bibitem[van der Kruit \& Searle(1981)]{vdk81} van der Kruit, P. C., \&
+\bibitem[van der Kruit \& Searle(1981)]{vdk81} van der Kruit, P. C., and
 Searle, L. 1981, ``Surface Photometry of Edge-on Spiral Galaxies: I. A
 Model for the Three-dimensional Distribution of Light in Galactic
 Disks'', \textit{Astron.\ Astrophys.} \textbf{95}: 105.
@@ -2778,7 +2831,19 @@ Disks'', \textit{Astron.\ Astrophys.} \textbf{95}: 105.
 Three-dimensional Distribution of Light and Mass in Disks of Spiral
 Galaxies'', \textit{Astron.\ Astrophys.} \textbf{192}: 117.
 
-\bibitem[Yoachim \& Dalcanton(2006)]{yoachim06} Yoachim, P., \& Dalconton, J. J.
+\bibitem[Vrugt et al.(2009)]{vrugt09} Vrugt, J. A., ter Braak, C. J. F.,
+Diks, C. G. H., Robinson, B. A., Hyman, J. M., and Higdon, D. 2009.
+``Accelerating Markov chain Monte Carlo simulation by differential
+evolution with self-adaptive randomized subspace sampling'',
+\textit{International Journal of Nonlinear Sciences and Numerical
+Simulation} \textbf{10} (3): 273--290.
+
+\bibitem[Vrugt(2016)]{vrugt16} Vrugt, J. A. 2016. ``Markov chain Monte
+Carlo simulation using the DREAM software package: Theory, concepts, and
+MATLAB implementation'', \textit{Environmental Modelling and Software}
+\textbf{75}: 273--316.
+
+\bibitem[Yoachim \& Dalcanton(2006)]{yoachim06} Yoachim, P., and Dalconton, J. J.
 2006, ``Structural Parameters of Thin and Thick Disks in Edge-On Disk
 Galaxies'', \textit{Astron.J.} \textbf{131}: 226.
 

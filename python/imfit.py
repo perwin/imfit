@@ -1,5 +1,7 @@
 # Code for reading in and analyzing output of imfit
 
+import numpy as np
+
 import imfit_funcs as imfuncs
 
 
@@ -113,5 +115,173 @@ def ReadImfitConfigFile( fileName, minorAxis=False, pix=1.0, getNames=False, X0=
 		return (funcNameList, funcList, trimmedParamList)
 	else:
 		return (funcList, trimmedParamList)
+
+
+
+
+# Code for reading output of bootstrap resampling and MCMC chains
+
+def GetBootstrapOutput( filename ):
+	"""Reads imfit's bootstrap-resampling output when saved using the
+	--save-bootstrap command-line option.
+
+	Parameters
+	----------
+	filename : str
+		name of file with bootstrap-resampling output
+	
+	Returns
+	-------
+	(column_names, data_array) : tuple of (list, np.ndarray)
+		column_names = list of column names (strings)
+		data_array = numpy array of parameter values 
+			with shape = (n_iterations, n_parameters)
+	"""
+	
+	# get first 100 lines
+	# FIXME: file *could* be shorter than 100 lines; really complicated
+	# model could have > 100 lines of header...
+	with open(filename) as theFile:
+		firstLines = [next(theFile) for x in range(100)]
+
+	# find header line with column names and extract column names
+	for i in range(len(firstLines)):
+		if firstLines[i].find("# Bootstrap resampling output") >= 0:
+			columnNamesIndex = i + 1
+			break
+	columnNames = firstLines[columnNamesIndex][1:].split()
+	for i in range(len(columnNames)):
+		if columnNames[i] == "likelihood":
+			nParamColumns = i
+			break
+	
+	# get the data
+	d = np.loadtxt(filename)
+	
+	return (columnNames, d)
+
+
+def GetSingleChain( filename, getAllColumns=False ):
+	"""Reads a single MCMC chain output file and returns a tuple of column names
+	and a numpy array with the data.
+	
+	Parameters
+	----------
+	filename : str
+		name of file with MCMC output chain
+	
+	getAllColumns: bool, optional
+		if False [default], only model parameter-value columns are retrieved;
+		if True, all output columns (including MCMC diagnostics) are retrieved
+	
+	Returns
+	-------
+	(column_names, data_array) : tuple of (list, np.ndarray)
+		column_names = list of column names (strings)
+		data_array = numpy array of parameter values 
+			with shape = (n_iterations, n_parameters)
+	"""
+	
+	# get first 100 lines
+	# FIXME: file *could* be shorter than 100 lines; really complicated
+	# model could have > 100 lines of header...
+	with open(filename) as theFile:
+		firstLines = [next(theFile) for x in range(100)]
+
+	# find header line with column names and extract column names
+	for i in range(len(firstLines)):
+		if firstLines[i].find("# Column Headers") >= 0:
+			columnNamesIndex = i + 1
+			break
+	columnNames = firstLines[columnNamesIndex][1:].split()
+	for i in range(len(columnNames)):
+		if columnNames[i] == "likelihood":
+			nParamColumns = i
+			break
+	
+	# get data for all columns, or just the model parameters?
+	whichCols = None
+	if not getAllColumns:
+		whichCols = list(range(nParamColumns))
+		outputColumnNames = columnNames[:nParamColumns]
+	else:
+		whichCols = None
+		outputColumnNames = columnNames
+	
+	# get the data
+	d = np.loadtxt(filename, usecols=whichCols)
+	
+	return (outputColumnNames, d)
+
+
+def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, last=None  ):
+	"""
+	Reads and merges all MCMC output chains with filenames = fname_root.*.txt,
+	using data from t=start onwards.
+	
+		maxChains = only read the first N chain files
+		getAllColumns = If False [default], then only parameter-value columns are
+			returned
+		start = extract samples from time=start to end of each chain
+		last = extract last N samples from each chain [overrides "start"]
+
+	Parameters
+	----------
+	fname_root : str
+		root name of output chain files (e.g., "mcmc_out")
+	
+	maxChains : int or None, optional
+		maximum number of chain files to read [default = None = read all files]
+	
+	getAllColumns : bool, optional
+		if False [default], only model parameter-value columns are retrieved;
+		if True, all output columns (including MCMC diagnostics) are retrieved
+
+	start : int, optional
+		extract samples from each chain starting with time = start
+		ignored if "last" is not None
+
+	last : int or None, optional
+		extract last N samples from each chain
+		
+	Returns
+	-------
+	(column_names, data_array) : tuple of (list, np.ndarray)
+		column_names = list of column names (strings)
+		data_array = numpy array of parameter values 
+			with shape = (n_iterations, n_parameters)
+	"""
+	
+	# construct list of filenames
+	if maxChains is None:
+		globPattern = "{0}.*.txt".format(fname_root)
+		filenames = glob.glob(globPattern)
+	else:
+		filenames = ["{0}.{1}.txt".format(fname_root, n) for n in range(maxChains)]
+	nFiles = len(filenames)
+	
+	# figure out what part of full chain to extract
+	if last is not None:
+		startTime = -last
+	else:
+		startTime = start
+	
+	# get first chain and column names; figure out if we get all columns or just
+	# model parameters
+	(colNames, dd) = GetSingleChain(filenames[0], getAllColumns=getAllColumns)
+	dd_final = dd[startTime:,:]
+	if getAllColumns is False:
+		nParamColumns = len(colNames)
+		whichCols = list(range(nParamColumns))
+	else:
+		whichCols = None
+
+	# get and append rest of chains if more than 1 chain-file was requested
+	if nFiles > 1:
+		for i in range(1, nFiles):
+			dd_next = np.loadtxt(filenames[i], usecols=whichCols)
+			dd_final = np.concatenate((dd_final, dd_next[startTime:,:]))
+
+	return (colNames, dd_final)
 
 

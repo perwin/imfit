@@ -4,6 +4,18 @@
 
 ** NEAR-TERM FUTURE TODO:
 [ ] MCMC program: "imfit-mcmc"
+	
+	[ ] Feedback from dream()
+		[ ] Detect failed opening of output files, complain and exit
+		[ ] Detect failed write to output files, complain and exit?
+		[ ] Record and report cumulative number of likelihood evaluations
+		[ ] Print (and maybe report) total number of iterations
+
+	[ ] Better headers for MCMC output
+		[x] Look for code that defines bootstrap output header
+		[x] Adapt code for bootstrap output header to MCMC output
+		[ ] Add printing of input parameter file to header
+
 	[x] Create mcmc main.cpp as copy of imfit_main.cpp
 		[x] Make copy
 		[x] Change internal strings describing name
@@ -28,11 +40,6 @@
 		[x] 1. create symlink to cdream code
 		[x] 2. create new subdirectory holding cdream code (and add code to repo)
 	
-	[ ] Better headers for MCMC output
-		[x] Look for code that defines bootstrap output header
-		[x] Adapt code for bootstrap output header to MCMC output
-		[ ] Add printing of input parameter file to header
-
 	[x] Options struct for mcmc program
 		[x] Add CDREAM-related elements from profilefit_mcmc
 		[x] Add command-line processing code to fill in CDREAM-related elements
@@ -41,13 +48,8 @@
 		[x] Add declaration and setup of dream_pars struct
 		[x] Add code passing command-line options to dream_pars
 		
-	[ ] Cleanup of main
-		[ ] Remove parameterInfo-related code
-	
-	[ ] Feedback from dream()
-		[ ] Detect failed opening of output files, complain and exit
-		[ ] Detect failed write to output files, complain and exit?
-		[ ] Record and report cumulative number of likelihood evaluations
+	[x] Cleanup of main
+		[x] Remove parameterInfo-related code
 		
 	[x] Command-line options for mcmc program
 	
@@ -56,6 +58,10 @@
 	~/coding/imfit/imfit -c config_imfit_sersic1.dat sersictest_lowsn200.fits --mlr --bootstrap 500 --save-bootstrap bootstrap_out_lowsn200_modcash.dat
 	Both files copied to ~/coding/imfit
 	
+	[ ] Clean up/rationalize output chain files
+		[ ] "gen" is currently useless cycling of 0,...9,
+		[ ] replace C++ streams with stdio?
+
 	[ ] Command-line option to do N rounds of image generation to estimate time/model?
 		--estimate-time = flag to do time estimate (including, by default, 1 round of
 			model-image-generation)

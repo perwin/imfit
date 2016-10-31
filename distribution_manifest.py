@@ -18,6 +18,11 @@ README.txt
 CHANGELOG.md
 """
 
+python_files_for_binary_dist = """
+python/imfit.py
+python/imfit_funcs.py
+"""
+
 # header files in core/
 source_header_files_core = """
 add_functions

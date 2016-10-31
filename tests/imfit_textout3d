@@ -8,12 +8,12 @@ naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 7 total parameters
-Estimated memory use: 458752 bytes (448.0 KB)
 Model Object: 4096 data values (pixels)
 * No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
 Setting up parameter information array ...
 7 free parameters (4089 degrees of freedom)
+Estimated memory use: 458752 bytes (448.0 KB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
@@ -149,6 +149,6 @@ r_e		60.7612 # +/- 0.860637
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.050776 sec for fit, 0.052678 sec total)
+(Elapsed time: 0.051183 sec for fit, 0.053070 sec total)
 Done!
 
