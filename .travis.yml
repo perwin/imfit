@@ -61,4 +61,5 @@ script:
 after_success:
   - ./do_makeimage_tests
   - ./do_imfit_tests
+  - ./do_mcmc_tests
 

@@ -14,10 +14,10 @@
 		[ ] Record and report cumulative number of likelihood evaluations
 		[ ] Print (and maybe report) total number of iterations
 
-	[ ] Better headers for MCMC output
+	[x] Better headers for MCMC output
 		[x] Look for code that defines bootstrap output header
 		[x] Adapt code for bootstrap output header to MCMC output
-		[ ] Add printing of input parameter file to header
+		[x] Add printing of input parameter file to header
 
 	[x] Create mcmc main.cpp as copy of imfit_main.cpp
 		[x] Make copy
