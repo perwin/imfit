@@ -52,6 +52,7 @@ script:
   - ./run_unit_tests.sh
   - scons makeimage
   - scons imfit
+  - scons imfit-mcmc
 
 # Note that running do_imfit_tests tends to produce the usual Linux-vs-OSX output mismatches
 # in the final decimal places for some of the outputs (probably due to subtle
