@@ -513,6 +513,9 @@ int main(int argc, char *argv[])
     dreamPars.parameterNames.push_back(paramNames[i]);
 
   // Construct header using parameter names, etc.
+  programHeader.push_back("#\n# Model definition:\n");
+  theModel->PrintModelParamsToStrings(programHeader, paramsVect, paramLimits, NULL,
+  									"#", true);
   programHeader.push_back("#\n# Column Headers\n");
   string headerString = theModel->GetParamHeader();
   headerString += "  likelihood  burn-in gen     ";

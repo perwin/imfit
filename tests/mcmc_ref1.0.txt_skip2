@@ -1,5 +1,14 @@
 #    ./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --nosubsampling --seed=3 -o temptest/mcmc_test
 #
+# Model definition:
+#X0		5.0000		3,8
+#Y0		6.0000		3,8
+#FUNCTION Gaussian
+#PA		    155		140,170
+#ell		    0.1		0,0.3
+#I_0		    250		220,320
+#sigma		      1		0.1,1.5
+#
 # Column Headers
 # X0_1		Y0_1		PA_1	ell_1	I_0_1	sigma_1	  likelihood  burn-in gen     CR1               CR2               CR3        accept
 4.483167275243e+00 3.369197730712e+00 1.546660136431e+02 2.708673864952e-01 3.002493165170e+02 1.428441446406e+00 -7.003471351768e+03 1 0 3.333333333333e-01 3.333333333333e-01 3.333333333333e-01 1

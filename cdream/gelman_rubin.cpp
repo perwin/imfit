@@ -1,3 +1,5 @@
+// Code for doing convergence tests following Gelman & Rubin (xxx)
+
 #include "dream.h"
 
 void gelman_rubin( Array3D<double>& state,  vector<double>& scaleReduction,

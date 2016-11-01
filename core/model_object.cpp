@@ -76,12 +76,14 @@ const int  FFTW_SIZE = 16;
 const int  DOUBLE_SIZE = 8;
 
 // output formatting for printing parameters
-#define X0_FORMAT_WITH_ERRS "%sX0\t\t%.4f # +/- %.4f\n"
-#define Y0_FORMAT_WITH_ERRS "%sY0\t\t%.4f # +/- %.4f\n"
-#define X0_FORMAT "%sX0\t\t%.4f\n"
-#define Y0_FORMAT "%sY0\t\t%.4f\n"
+#define XY_FORMAT_WITH_ERRS "%s%s\t\t%.4f # +/- %.4f\n"
+#define XY_FORMAT "%s%s\t\t%.4f\n"
+#define XY_FORMAT_WITH_LIMITS "%s%s\t\t%.4f\t\t%g,%g\n"
+#define XY_FORMAT_WITH_FIXED "%s%s\t\t%.4f\t\tfixed\n"
 #define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%7g # +/- %7g\n"
 #define PARAM_FORMAT "%s%s\t\t%7g\n"
+#define PARAM_FORMAT_WITH_LIMITS "%s%s\t\t%7g\t\t%g,%g\n"
+#define PARAM_FORMAT_WITH_FIXED "%s%s\t\t%7g\t\tfixed\n"
 
 // very small value for Cash statistic calculations (replaces log(m) if m <= 0)
 // Based on http://cxc.harvard.edu/sherpa/ahelp/cstat.html
@@ -97,9 +99,7 @@ const int  DOUBLE_SIZE = 8;
 ModelObject::ModelObject( )
 {
   dataValsSet = weightValsSet = false;
-  parameterBoundsSet = false;
   
-  parameterBounds = NULL;
   modelVector = NULL;
   residualVector = NULL;
   outputModelVector = NULL;
@@ -1465,11 +1465,11 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[],
       }
       if (errs != NULL) {
         fprintf(output_ptr, "\n");
-        fprintf(output_ptr, X0_FORMAT_WITH_ERRS, prefix, x0, errs[k]);
-        fprintf(output_ptr, Y0_FORMAT_WITH_ERRS, prefix, y0, errs[k + 1]);
+        fprintf(output_ptr, XY_FORMAT_WITH_ERRS, prefix, "X0", x0, errs[k]);
+        fprintf(output_ptr, XY_FORMAT_WITH_ERRS, prefix, "Y0", y0, errs[k + 1]);
       } else {
-        fprintf(output_ptr, X0_FORMAT, prefix, x0);
-        fprintf(output_ptr, Y0_FORMAT, prefix, y0);
+        fprintf(output_ptr, XY_FORMAT, prefix, "X0", x0);
+        fprintf(output_ptr, XY_FORMAT, prefix, "Y0", y0);
       }
       indexOffset += 2;
     }
@@ -1489,6 +1489,100 @@ void ModelObject::PrintModelParams( FILE *output_ptr, double params[],
     }
     indexOffset += paramSizes[n];
   }
+}
+
+
+/* ---------------- PUBLIC METHOD: PrintModelParamsToStrings ---------- */
+/// Like PrintModelParams, but appends lines of output as strings to the input
+/// vector of string. 
+/// Optionally, the lower and upper limits defined in parameterInfo are also printed, 
+/// OR associated lower and upper error bounds in errs can be printed.
+///
+/// Note that paramerInfo can be empty *only* if there are no X0,Y0 offsets.
+///
+/// If errs != NULL, then +/- errors are printed as well (only if printLimits is false)
+///
+/// If prefix != NULL, then the specified character (e.g., '#') is prepended to
+/// each output line.
+///
+/// If printLimits == true, then lower and upper parameter limits will be printed
+/// for each parameter (or else "fixed" for fixed parameters)
+int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
+									vector<mp_par> parameterInfo, double errs[], 
+									const char *prefix, bool printLimits )
+{
+  double  x0, y0, paramVal;
+  int nParamsThisFunc, k;
+  int  indexOffset = 0;
+  string  funcName, paramName, newLine;
+
+  if ((printLimits) && (parameterInfo.size() == 0)) {
+    fprintf(stderr, "** ERROR: ModelObject::PrintModelParamsToStrings -- printing of parameter limits\n");
+    fprintf(stderr, "was requested, but parameterInfo vector is empty!\n");
+    return -1;
+  }
+
+  for (int n = 0; n < nFunctions; n++) {
+    if (fblockStartFlags[n] == true) {
+      // start of new function block: extract x0,y0 and then skip over them
+      k = indexOffset;
+      x0 = params[k];
+      y0 = params[k + 1];
+      if (parameterInfo.size() > 0) {
+        x0 += parameterInfo[k].offset;
+        y0 += parameterInfo[k + 1].offset;
+      }
+      if (printLimits) {
+        if (parameterInfo[k].fixed == 1)
+          newLine = PrintToString(XY_FORMAT_WITH_FIXED, prefix, "X0", x0);
+        else
+          newLine = PrintToString(XY_FORMAT_WITH_LIMITS, prefix, "X0", x0, 
+        				parameterInfo[k].limits[0], parameterInfo[k].limits[1]);
+        stringVector.push_back(newLine);
+        if (parameterInfo[k + 1].fixed == 1)
+          newLine = PrintToString(XY_FORMAT_WITH_FIXED, prefix, "Y0", y0);
+        else
+          newLine = PrintToString(XY_FORMAT_WITH_LIMITS, prefix, "Y0", y0, 
+        				parameterInfo[k + 1].limits[0], parameterInfo[k + 1].limits[1]);
+        stringVector.push_back(newLine);
+      } else {
+        if (errs != NULL) {
+          stringVector.push_back(PrintToString(XY_FORMAT_WITH_ERRS, prefix, "X0", x0, errs[k]));
+          stringVector.push_back(PrintToString(XY_FORMAT_WITH_ERRS, prefix, "Y0", y0, errs[k + 1]));
+        } else {
+          stringVector.push_back(PrintToString(XY_FORMAT, prefix, "X0", x0));
+          stringVector.push_back(PrintToString(XY_FORMAT, prefix, "Y0", y0));
+        }
+      }
+      indexOffset += 2;
+    }
+    
+    // Now print the function and its parameters
+    nParamsThisFunc = paramSizes[n];
+    funcName = functionObjects[n]->GetShortName();
+    stringVector.push_back(PrintToString("%sFUNCTION %s\n", prefix, funcName.c_str()));
+    for (int i = 0; i < nParamsThisFunc; i++) {
+      paramName = GetParameterName(indexOffset + i);
+      paramVal = params[indexOffset + i];
+      if (printLimits)
+        if (parameterInfo[indexOffset + i].fixed == 1)
+          newLine = PrintToString(PARAM_FORMAT_WITH_FIXED, prefix, paramName.c_str(), 
+        						paramVal);
+        else
+          newLine = PrintToString(PARAM_FORMAT_WITH_LIMITS, prefix, paramName.c_str(), 
+        						paramVal, parameterInfo[indexOffset + i].limits[0], 
+        						parameterInfo[indexOffset + i].limits[1]);
+      else if (errs != NULL)
+        newLine = PrintToString(PARAM_FORMAT_WITH_ERRS, prefix, paramName.c_str(), 
+        						paramVal, errs[indexOffset + i]);
+      else
+        newLine = PrintToString(PARAM_FORMAT, prefix, paramName.c_str(), paramVal);
+      stringVector.push_back(newLine);
+    }
+    indexOffset += paramSizes[n];
+  }
+  
+  return 0;
 }
 
 

@@ -22,15 +22,17 @@ typedef struct t_dream_pars {
 
   // DREAM variables
   int collapseOutliers;
-  int gelmanEvals;
+  int gelmanEvals;            // after burn-in, do Gelman-Rubin convergence test every gelmanEvals interations
   int loopSteps;
   int deltaMax;
   int pCR_update;
   int nCR;
 
-  double noise;               // = b in original paper
-  double bstar_zero;          // = b^* in original paper
-  double scaleReductionCrit;
+  double noise;               // = b in original paper: scaling of gamma = 1 + U(-b,b)
+                              // where U(x1,x2) = uniform sampling from specified interval
+  double bstar_zero;          // = b^* in original paper: additive offsets = N(0, b^*)
+  double scaleReductionCrit;  // declare convergence when Gelman-Rubin scaleReduction
+                              // is < scaleReductionCrit for all free variables
   double reenterBurnin;
 
 //               rng->uniform(1, &drand);

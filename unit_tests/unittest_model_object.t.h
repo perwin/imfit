@@ -48,6 +48,7 @@ public:
   ModelObject *modelObj3;
   ModelObject *modelObj4a;
   ModelObject *modelObj4b;
+  ModelObject *modelObj4c;
   vector<string>  functionList1, functionList3;
   vector<double>  parameterList1, parameterList3;
   vector<mp_par>  paramLimits1, paramLimits3;
@@ -134,6 +135,9 @@ public:
     // Initialize modelObj4b and add model function & params (FlatSky)
     modelObj4b = new ModelObject();
     status = AddFunctions(modelObj4b, functionList3, FunctionBlockIndices3, true, -1);
+    // Initialize modelObj4c and add model function & params (Exp + FlatSky)
+    modelObj4c = new ModelObject();
+    status = AddFunctions(modelObj4c, functionList1, FunctionBlockIndices1, true, -1);
     
   }
 
@@ -154,6 +158,7 @@ public:
     delete modelObj3;
     delete modelObj4a;
     delete modelObj4b;
+    delete modelObj4c;
   }
   
   
@@ -162,7 +167,6 @@ public:
     std::string  headerLine;
     headerLine = modelObj1->GetParamHeader();
     TS_ASSERT_EQUALS(headerLine, headerLine_correct);
-
   }
   
   // OK, the following sometimes works and sometimes produces malloc error messages
@@ -327,5 +331,79 @@ public:
     // then add PSF pixels = wrong order!
     status4b = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
     TS_ASSERT_EQUALS(status4b, -1);
+  }
+  
+  
+  void testPrintParamsToString( void )
+  {
+    int nParamsTot = 7;
+    double params[7] = {21.0, 22.0, 0.0, 0.5, 50.0, 10.0, 100.0};   // X0, Y0, PA, ell, I_0, h, I_sky
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    int  retVal;
+    vector<string> outputVect;
+  
+    vector<string> correctStrings1, correctStrings2;
+    correctStrings1.push_back("#X0\t\t21.0000\n");
+    correctStrings1.push_back("#Y0\t\t22.0000\n");
+    correctStrings1.push_back("#FUNCTION Exponential\n");
+    correctStrings1.push_back("#PA\t\t      0\n");
+    correctStrings1.push_back("#ell\t\t    0.5\n");
+    correctStrings1.push_back("#I_0\t\t     50\n");
+    correctStrings1.push_back("#h\t\t     10\n");
+    correctStrings1.push_back("#FUNCTION FlatSky\n");
+    correctStrings1.push_back("#I_sky\t\t    100\n");
+    correctStrings2.push_back("#X0\t\t21.0000\t\t0,200\n");
+    correctStrings2.push_back("#Y0\t\t22.0000\t\tfixed\n");
+    correctStrings2.push_back("#FUNCTION Exponential\n");
+    correctStrings2.push_back("#PA\t\t      0\t\t2,202\n");
+    correctStrings2.push_back("#ell\t\t    0.5\t\t3,203\n");
+    correctStrings2.push_back("#I_0\t\t     50\t\t4,204\n");
+    correctStrings2.push_back("#h\t\t     10\t\tfixed\n");
+    correctStrings2.push_back("#FUNCTION FlatSky\n");
+    correctStrings2.push_back("#I_sky\t\t    100\t\t6,206\n");
+
+    string prefix = "#";
+    vector<mp_par> parameterInfo;
+    
+    // Check that we correctly catch empty parameterInfo when we request printing
+    // of parameter limits
+    printf("size of parameterInfo = %d\n", (int)parameterInfo.size());
+    retVal = modelObj4c->PrintModelParamsToStrings(outputVect, params, parameterInfo, NULL, 
+    												prefix.c_str(), true);
+    TS_ASSERT_EQUALS(retVal, -1);
+    
+    // OK, now kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 1;
+      currentParameterInfo.limited[1] = 1;
+      currentParameterInfo.limits[0] = 0.0 + i;
+      currentParameterInfo.limits[1] = 200.0 + i;
+      currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+    // specify that Y0 and Exponential h are fixed
+    parameterInfo[1].fixed = 1;
+    parameterInfo[5].fixed = 1;
+
+    modelObj4c->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    
+    // output without parameter limits
+    retVal = modelObj4c->PrintModelParamsToStrings(outputVect, params, parameterInfo, NULL, 
+    												prefix.c_str(), false);
+    TS_ASSERT_EQUALS(retVal, 0);
+    for (int i = 0; i < 9; i++) {
+      TS_ASSERT_EQUALS(outputVect[i], correctStrings1[i]);
+    }
+
+    // output *with* parameter limits
+    outputVect.clear();
+    retVal = modelObj4c->PrintModelParamsToStrings(outputVect, params, parameterInfo, 
+    												NULL, prefix.c_str(), true);
+    TS_ASSERT_EQUALS(retVal, 0);
+    for (int i = 0; i < 9; i++) {
+      TS_ASSERT_EQUALS(outputVect[i], correctStrings2[i]);
+    }
   }
 };

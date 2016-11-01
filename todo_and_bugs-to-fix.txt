@@ -5,6 +5,9 @@
 ** NEAR-TERM FUTURE TODO:
 [ ] MCMC program: "imfit-mcmc"
 	
+	[ ] Solved fixed-parameters problem
+		-- when a parameter is fixed, the value is not passed to dream()
+		
 	[ ] Feedback from dream()
 		[ ] Detect failed opening of output files, complain and exit
 		[ ] Detect failed write to output files, complain and exit?
@@ -62,6 +65,8 @@
 		t = 20.0 sec
 		./imfit-mcmc -c config_imfit_sersic1.dat sersictest_lowsn200.fits --mlr -o mcmc_out_lowsn200
 		t = 353 sec
+		
+		colnames, d_mcmc_lowsn200 = MergeChains('mcmc_out_lowsn200', last=5000)
 
 	[ ] Clean up/rationalize output chain files
 		[ ] "gen" is currently useless cycling of 0,...9,
@@ -165,7 +170,18 @@
 [] Possible improved error reporting
 	[] When negative pixel values are encountered during vetting of input data image,
 	mention possibility of missing sky parameter
-	
+
+
+[] Spline-interpolation image function
+	-- radial SB profile (usually exponential, Sersic, etc.) is spline interpolation
+	using a small set of r, I values. The I values are free parameters of the fit;
+	possibly the r values could be also.
+	-- function has the usual PA, ellipticity parameters to define r_scaled;
+	optionally c_0 as well for boxy/disky isophotes
+	-- possible way to handle changing radii for interpolation points:
+	when parameter vector is passed to image function in Setup(),
+	*sort* the parameters by radius, then do interpolation with the sorted
+	vector of r,I
 
 [] Possible optional parameters for image functions in config file
 	-- ways to specify optional settings, or even input parameter files that
@@ -176,6 +192,12 @@
 		OPTIONAL_PARAMS_START
 		xxx
 		OPTIONAL_PARAMS_END
+		
+		or even just
+		FUNCTION blah
+		xxx
+		OPTIONAL_PARAMS_END
+
 	Read and stored as something like dict of string: string pairs. If this exists
 	for a given function, then it is passed to function object just after initialization
 	(e.g., just after calling AddFunction)

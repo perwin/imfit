@@ -151,6 +151,9 @@ class ModelObject
     								mp_par *parameterInfo, double errs[], 
     								const char *prefix="" );
 
+    virtual int PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
+									vector<mp_par> parameterInfo, double errs[], 
+									const char *prefix="", bool printLimits=false );
 
     // 2D only; NOT USED ANYWHERE!
     void PrintImage( double *pixelVector, int nColumns, int nRows );
@@ -238,7 +241,7 @@ class ModelObject
 	double  readNoise_adu_squared;
     int  debugLevel, verboseLevel;
     int  maxRequestedThreads, ompChunkSize;
-    bool  dataValsSet, parameterBoundsSet;
+    bool  dataValsSet;
     bool  modelVectorAllocated, weightVectorAllocated, maskVectorAllocated;
     bool  standardWeightVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;
@@ -261,7 +264,6 @@ class ModelObject
     double  *residualVector;
     double  *outputModelVector;
     double  *extraCashTermsVector;
-    double  *parameterBounds;
     long  *bootstrapIndices;
     bool  *fblockStartFlags;
     vector<FunctionObject *> functionObjects;
