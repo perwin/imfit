@@ -69,6 +69,7 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
   int inBurnIn = (p->burnIn > 0);
   int burnInStart = 0;
   int genNumber = 0;
+  int nLikelihoodEvals = 0;
 
   // opening message
   if (p->verboseLevel > 0) {
@@ -294,9 +295,11 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
           }
           if (p->recalcLik + inBurnIn > 0) {
             lik(t - 1,i) = p->fun(i, t - 1, state.pt(t - 1, i), p->extraData, true);
+            nLikelihoodEvals++;
           }
           if (do_calc) {
             lik(t,i) = p->fun(i, t, proposal(i), p->extraData, false);
+            nLikelihoodEvals++;
             // if (p->vflag) cout << ". Likelihood = " << lik(t,i) << endl;
           } else 
             lik(t,i) = -INFINITY;
@@ -305,6 +308,7 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
             proposal(i,j) = state(t - 1,i,j);
           if (p->recalcLik + inBurnIn > 0) {
             lik(t,i) = p->fun(i, t, proposal(i), p->extraData, true);
+            nLikelihoodEvals++;
           } else {
             lik(t,i) = lik(t - 1,i);
           }
@@ -474,6 +478,7 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
   MPI::Finalize();
 #endif
 
+  printf("%d function calls (likelihood evaluations)\n", nLikelihoodEvals);
   return EXIT_SUCCESS;
 }
 

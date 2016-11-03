@@ -20,6 +20,12 @@
 
 import math
 import numpy as np
+try:
+	from mpmath import besselk as BesselK
+	from mpmath import gamma as Gamma
+except ImportError:
+	from scipy.special import kv as BesselK
+	from scipy.special import gamma as Gamma
 import mpmath
 #import gamma_funcs
 
@@ -343,6 +349,35 @@ def Gauss( x, params, mag=True, magOutput=True ):
 
 
 
+def GaussRing( x, params, mag=True, magOutput=True ):
+	"""Compute surface brightness for a profile consisting of a Gaussian,
+	given input parameters in vector params:
+		params[0] = ignored.
+		params[1] = A_gauss_mag [= magnitudes/sq.arcsec if mag=True]
+		params[2] = x-value of Gaussian center (i.e., ring radius)
+		params[3] = sigma
+		
+	This is the Gaussian for a *ring* with ring (major-axis) radius = params[2]
+	"""
+	
+	x0 = params[2]
+	if mag is True:
+		A_gauss_mag = params[1]
+		A = 10.0**(-0.4*A_gauss_mag)
+	else:
+		A = params[1]
+	sigma = params[3]
+
+	scaledX = np.abs(x - x0)
+	I_gauss = A * np.exp(-(scaledX*scaledX)/(2.0*sigma*sigma))
+	if (mag is True) and (magOutput is True):
+		mu_gauss = -2.5 * np.log10(I_gauss)
+		return mu_gauss
+	else:
+		return I_gauss
+
+
+
 def Gauss2Side( x, params, mag=True, magOutput=True ):
 	"""Compute surface brightness for a profile consisting of an asymmetric
 	Gaussian, given input parameters in vector params:
@@ -360,6 +395,54 @@ def Gauss2Side( x, params, mag=True, magOutput=True ):
 		A = params[1]
 	sigma_left = params[2]
 	sigma_right = params[3]
+
+	X = x - x0
+	if type(X) is np.ndarray:
+		nPts = X.size
+		I_gauss = []
+		for i in range(nPts):
+			if X[i] < 0:
+				sigma = sigma_left
+			else:
+				sigma = sigma_right
+			I_gauss.append( A * np.exp(-(X[i]*X[i])/(2.0*sigma*sigma)) )
+		I_gauss = np.array(I_gauss)
+	else:
+		if (X < 0):
+			sigma = sigma_left
+		else:
+			sigma = sigma_right
+		I_gauss = A * np.exp(-(X*X)/(2.0*sigma*sigma))
+
+	if (mag is True) and (magOutput is True):
+		mu_gauss = -2.5 * np.log10(I_gauss)
+		return mu_gauss
+	else:
+		return I_gauss
+
+
+
+def GaussRing2Side( x, params, mag=True, magOutput=True ):
+	"""Compute surface brightness for a profile consisting of an asymmetric
+	Gaussian, given input parameters in vector params:
+		params[0] = ignored.
+		params[1] = A_gauss_mag [= magnitudes/sq.arcsec if mag=True]
+		params[2] = x-value of Gaussian center (i.e., ring radius)
+		params[3] = sigma_left
+		params[4] = sigma_right
+	
+	This is the 2-sided Gaussian for a *ring* with ring (major-axis) radius =
+	params[2]
+	"""
+	
+	x0 = params[2]
+	if mag:
+		A_gauss_mag = params[1]
+		A = 10.0**(-0.4*A_gauss_mag)
+	else:
+		A = params[1]
+	sigma_left = params[3]
+	sigma_right = params[4]
 
 	X = x - x0
 	if type(X) is np.ndarray:
@@ -411,7 +494,9 @@ def vdKBessel( r, mu00, h ):
 	if r == 0:
 		return mu00
 	else:
-		return mu00 * (r/h) * mpmath.besselk(1, r/h)
+#		return mu00 * (r/h) * mpmath.besselk(1, r/h)
+		return mu00 * (r/h) * BesselK(1, r/h)
+		
 	
 def EdgeOnDisk(rr, p):
 	
@@ -456,7 +541,8 @@ def TotalMagSersic( params, zeroPoint=0, magOut=True, ell=0.0 ):
 	bn = b_n_exact(n)
 	bn2n = bn**(2*n)
 	totalFlux = 2 * math.pi * n * math.exp(bn) * I_e * (r_e*r_e) * (1.0 - ell)
-	totalFlux = totalFlux * mpmath.gamma(2*n) / bn2n
+#	totalFlux = totalFlux * mpmath.gamma(2*n) / bn2n
+	totalFlux = totalFlux * Gamma(2*n) / bn2n
 	if magOut:
 		return (zeroPoint - 2.5 * math.log10(totalFlux))
 	else:

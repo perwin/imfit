@@ -1085,8 +1085,8 @@ double LikelihoodFuncForDREAM( int chain, int gen, const double* state,
   double  chi2;
   
   chi2 = theModel->GetFitStatistic(params);
-  if (gen < 0)   // print actual chi^2 value for very first evaulations
-	  printf(" [chi^2 = %f] ", chi2);
+//   if (gen < 0)   // print actual chi^2 value for very first evaulations
+// 	  printf(" [chi^2 = %f] ", chi2);
 
   return -chi2/2.0;
 }

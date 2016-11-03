@@ -7,14 +7,17 @@ import imfit_funcs as imfuncs
 
 # dictionary mapping imfit function short names (as found in the config/parameter file) to
 # corresponding 1-D Python functions in imfit_funcs.py, along with some useful information:
-# "function" = corresponding imfit_funcs.py function, "nSkip" = the number of 2D-related 
-# parameters to skip (e.g., PA, ellipticity), "ell" = index for ellipticity parameter, 
-# if it exists, "a" = index or indices for semi-major-axis parameters (r_e, h, sigma, etc.)
+#    "function" = corresponding imfit_funcs.py function, if one exists
+#    "nSkip" = the number of 2D-related  parameters to skip (e.g., PA, ellipticity), 
+#    "ell" = index for ellipticity parameter, if it exists, 
+#    "a" = index or indices for semi-major-axis parameters (r_e, h, sigma, etc.)
 imfitFunctionMap = {"Exponential": {"function": imfuncs.Exponential, "nSkip": 2, "ell": 1, "a": [3]}, 
 				"Exponential_GenEllipse": {"function": imfuncs.Exponential, "nSkip": 3, "ell": 1, "a": [4]},
 				"Sersic":  {"function": imfuncs.Sersic, "nSkip": 2, "ell": 1, "a": [4]},
 				"Sersic_GenEllipse":  {"function": imfuncs.Sersic, "nSkip": 3, "ell": 1, "a": [5]}, 
 				"Gaussian":  {"function": imfuncs.Gauss, "nSkip": 2, "ell": 1, "a": [3]},
+				"GaussianRing":  {"function": imfuncs.GaussRing, "nSkip": 2, "ell": 1, "a": [3,4]},
+				"GaussianRing2Side":  {"function": imfuncs.GaussRing2Side, "nSkip": 2, "ell": 1, "a": [3,4,5]},
 				"Moffat": {"function": imfuncs.Moffat, "nSkip": 2, "ell": 1, "a": [3]},
 				"BrokenExponential":  {"function": imfuncs.BrokenExp, "nSkip": 2, "ell": 1, "a": [3,4,5]}}
 
@@ -238,7 +241,7 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 		if True, all output columns (including MCMC diagnostics) are retrieved
 
 	start : int, optional
-		extract samples from each chain starting with time = start
+		extract samples from each chain beginning with time = start
 		ignored if "last" is not None
 
 	last : int or None, optional
@@ -249,7 +252,7 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 	(column_names, data_array) : tuple of (list, np.ndarray)
 		column_names = list of column names (strings)
 		data_array = numpy array of parameter values 
-			with shape = (n_iterations, n_parameters)
+			with shape = (n_samples, n_parameters)
 	"""
 	
 	# construct list of filenames
@@ -283,5 +286,4 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 			dd_final = np.concatenate((dd_final, dd_next[startTime:,:]))
 
 	return (colNames, dd_final)
-
 

@@ -9,21 +9,20 @@ using namespace std;
 void dream_initialize( const dream_pars* p, rng::RngStream* rng, 
 						Array2DView<double>& state, ArrayView<double>& lik) 
 {
-  cerr << "Latin hypercube sampling..." << endl;
+  printf("Latin hypercube sampling...\n");
   
   Array2D<int> samples(p->nvar, p->numChains);
   samples.set_all(0);
 
-  if (p->verboseLevel > 0) {
-    cerr << "  shuffling (" << p->nvar << "," << p->numChains << ")..." << flush;
-  }
+  if (p->verboseLevel > 0)
+    printf("  shuffling (%d, %d)...", p->nvar, p->numChains);
   for (int j = 0; j < p->nvar; ++j) {
     for (int i = 0; i < p->numChains; ++i) 
       samples(j,i) = i;
     rng->shuffle(samples(j), p->numChains);
   }
   if (p->verboseLevel > 0)
-    cerr << "done." << endl;
+    printf("done.\n");
 
   double rand;
   double randPos;
@@ -45,7 +44,7 @@ void dream_initialize( const dream_pars* p, rng::RngStream* rng,
         randPos = p->varHi[j];
       state(i,j) = randPos;
       if (p->verboseLevel > 1) 
-        fprintf(stderr, "(%d,%d) = %f\n", i, j, state(i,j));
+        printf("(%d,%d) = %f\n", i, j, state(i,j));
     }
   }
 
@@ -61,11 +60,12 @@ void dream_initialize( const dream_pars* p, rng::RngStream* rng,
       }
     }
     if (do_calc) {
-      if (p->verboseLevel > 0)
-        cout << "Chain " << i << " likelihood = " << flush;
       lik[i] = p->fun(i, -1, state.col_pt(i), p->extraData, false);
       if (p->verboseLevel > 0)
-        cout << lik[i] << endl;
+        printf("Chain %d: likelihood = %.2f\n", i, lik[i]);
+//        cout << "Chain " << i << " likelihood = " << flush;
+//      if (p->verboseLevel > 0)
+//        cout << lik[i] << endl;
     } else 
       lik[i] = -INFINITY;
   }
@@ -73,7 +73,7 @@ void dream_initialize( const dream_pars* p, rng::RngStream* rng,
   // replace chains with infinite likelihood with random samples
   for (int i = 0; i < p->numChains; ++i) {
     while (lik[i] == -INFINITY || lik[i] != lik[i]) { // TODO: ?????
-      cerr << "Likelihood of chain = INF. Resampling intial parameters..." << endl;
+      printf("Likelihood of chain = INF. Resampling intial parameters...\n");
       // choose random parameters
       for (int j = 0; j < p->nvar; ++j) {
         if (p->varLock[j]) 
@@ -90,7 +90,7 @@ void dream_initialize( const dream_pars* p, rng::RngStream* rng,
       }
       // if (fixedRatio >= 0.0) state(0,i,1) = state(0,i,2)*(1./fixedRatio-1.);
       lik[i] = p->fun(i, -1, state.col_pt(i), p->extraData, false);
-      cerr << "New likelihood = " << lik[i] << endl;
+      printf("New likelihood = %f\n", lik[i]);
     }
   }
 }

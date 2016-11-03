@@ -13,8 +13,13 @@ default case) distribution for the model given the data. This uses the
 "DREAM" (DiffeRential Evolution Adaptive Metropolis) algorithm of Vrugt
 et al., an efficient multiple-ensemble approach.
 
+- There are now some very simple Python functions in python/imfit.py which can read
+in output from bootstrap resampling (imfit.GetBootstrapOutput) and from MCMC chains
+(imfit.GetSingleChain, imfit.MergeChains).
+
 - Makeimage now has a new option "`--timing <N>`", which tells the program to
-generate the model image *N* times and compute the mean time taken per image. (No images are saved.)
+generate the model image *N* times and compute the mean time taken per image. 
+(No images are saved.)
 
 - Imfit now has a new option "`--seed <N>`", which allows the user to
 specify a particular seed (positive integer) for the random number
