@@ -506,6 +506,7 @@ int main(int argc, char *argv[])
   dreamPars.maxEvals = options.maxEvals;
   dreamPars.burnIn = options.nBurnIn;
   dreamPars.gelmanEvals = options.nGelmanEvals;
+  dreamPars.scaleReductionCrit = options.GRScaleReductionLimit;
   dreamPars.noise = options.mcmcNoise;
   dreamPars.bstar_zero = options.mcmc_bstar;
   dreamPars.verboseLevel = options.verbose;
@@ -617,12 +618,13 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -o  --output <output-root>   root name for output MCMC chain files [default = mcmc_out]");
   optParser->AddUsageLine("     --append                 load state from existing output files and continue from there");
-  optParser->AddUsageLine("     --nchains <int>          Number of separate MCMC chains [default = nFreeParameters])");
+  optParser->AddUsageLine("     --nchains <int>          Number of separate MCMC chains [default = # free parameters in model])");
   optParser->AddUsageLine("     --max-evals <int>        Maximum number of likelihood evaluations [default = 100000])");
   optParser->AddUsageLine("     --nburnin <int>          Number of burn-in evaluations [default = 5000])");
   optParser->AddUsageLine("     --max-gelman-evals <int>   Maximum number of Gelman-Rubin convergence evaluations [default = 1000])");
-  optParser->AddUsageLine("     --mcmc-noise <float>     MCMC noise term [default = 0.01]");
-  optParser->AddUsageLine("     --bstar <float>          MCMC b^star term [sigma for Gaussian offset; default = 1.0e-6]");
+  optParser->AddUsageLine("     --gelman-rubin-limit <float>   Gelman-Rubin scale reduction factor limit [default = 1.01])");
+  optParser->AddUsageLine("     --mcmc-noise <float>     MCMC noise term [boundary for uniform offsets of scaling; default = 0.01]");
+  optParser->AddUsageLine("     --bstar <float>          MCMC b^star term [sigma for absolute Gaussian offsets; default = 1.0e-6]");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
@@ -634,7 +636,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("     --nosubsampling          Turn off pixel subsampling near centers of functions");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
-  optParser->AddUsageLine("   imfit-mcmc -c model_config_n100a.dat ngc100.fits");
+  optParser->AddUsageLine("   imfit-mcmc -c model_config_n100a.dat ngc100.fits -o n100a_mcmc_chain");
   optParser->AddUsageLine("   imfit-mcmc -c model_config_n100b.dat ngc100.fits[405:700,844:1060] --mask ngc100_mask.fits[405:700,844:1060] --gain 4.5 --readnoise 0.7");
   optParser->AddUsageLine("");
 
@@ -674,6 +676,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddOption("max-evals");
   optParser->AddOption("nburnin");
   optParser->AddOption("max-gelman-evals");
+  optParser->AddOption("gelman-rubin-limit");
   optParser->AddOption("mcmc-noise");
   optParser->AddOption("bstar");
   optParser->AddOption("max-threads");
@@ -893,6 +896,15 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
     }
     theOptions->nGelmanEvals = atol(optParser->GetTargetString("max-gelman-evals").c_str());
     printf("\tMaximum number of Gelman-Rubin evaluations = %d\n", theOptions->nGelmanEvals);
+  }
+  if (optParser->OptionSet("gelman-rubin-limit")) {
+    if (NotANumber(optParser->GetTargetString("gelman-rubin-limit").c_str(), 0, kPosReal)) {
+      printf("*** WARNING: Gelman-Rubin scale reduction limit should be a positive real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->GRScaleReductionLimit = atof(optParser->GetTargetString("gelman-rubin-limit").c_str());
+    printf("\tGelman-Rubin scale reduction limit = %f\n", theOptions->GRScaleReductionLimit);
   }
   if (optParser->OptionSet("mcmc-noise")) {
     if (NotANumber(optParser->GetTargetString("mcmc-noise").c_str(), 0, kPosReal)) {

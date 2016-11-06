@@ -1,6 +1,6 @@
 	Image file = tests/faintstar.fits
 	configuration file = tests/config_imfit_faintstar.dat
-	RNG seed = 3
+	RNG seed = 7
 Value from config file: gain = 4.720000 e-/ADU
 Value from config file: read noise = 1.150000 e-
 Value from config file: original sky = 124.940000
@@ -29,18 +29,18 @@ Beginning DREAM:
 Collapse outliers: 1
 Latin hypercube sampling...
   shuffling (6, 6)...done.
-Chain 0: likelihood = -7003.47
-Chain 1: likelihood = -1992.60
-Chain 2: likelihood = -3101.64
-Chain 3: likelihood = -1716.69
-Chain 4: likelihood = -2883.17
-Chain 5: likelihood = -1589.59
+Chain 0: likelihood = -2616.01
+Chain 1: likelihood = -3352.15
+Chain 2: likelihood = -733.27
+Chain 3: likelihood = -2479.22
+Chain 4: likelihood = -2279.15
+Chain 5: likelihood = -2074.15
 [5000] exiting burn in.
-[15010] performing convergence diagnostics: GR (it 15010): [0]1.00109 [1]1.00242 [2]1.00297 [3]1.00186 [4]1.00495 [5]1.00442 
-102454 function calls (likelihood evaluations)
+[15010] performing convergence diagnostics: GR (it 15010): [0]1.00125 [1]1.00203 [2]1.00461 [3]1.0069 [4]1.00439 [5]1.00673 
+101446 function calls (likelihood evaluations)
 
 Finished -- MCMC chains written to output files temptest/mcmc_test.*.txt
-(Elapsed time: 8.216506 sec)
+(Elapsed time: 8.163845 sec)
 
 Done!
 

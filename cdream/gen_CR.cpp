@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "dream.h"
 
 void gen_CR( rng::RngStream* rng, const vector<double>& pCR, Array2D<int>& CRm, 
@@ -7,7 +9,7 @@ void gen_CR( rng::RngStream* rng, const vector<double>& pCR, Array2D<int>& CRm,
   size_t loopSteps(CRm.n_y());
   size_t size(numChains*loopSteps);
   if (L.size() < pCR.size()) {
-    cerr << "Bad array size." << endl;
+    fprintf(stderr, "genCR: Bad array size.\n");
     return;
   }
   // pick candidates for each crossover value

@@ -68,6 +68,7 @@ typedef struct {
   int  maxEvals;
   int  nBurnIn;
   int  nGelmanEvals;
+  double  GRScaleReductionLimit;
   double  mcmcNoise;
   double  mcmc_bstar;
 
@@ -133,9 +134,12 @@ void SetDefaultMCMCOptions( mcmcCommandOptions *theOptions )
   theOptions->maxEvals = 100000;
   theOptions->nBurnIn = 5000;
   theOptions->nGelmanEvals = 1000;
+  theOptions->GRScaleReductionLimit = 1.01;
   theOptions->mcmcNoise = 0.01;      // b parameter in DREAM (uniform scaling w/in 1 +/- b)
+                                     // 0.01 seems to work well for (small) image fits
   theOptions->mcmc_bstar = 1.0e-6;   // b^star parameter in DREAM (sigma for epsilon)
-  theOptions->rngSeed = 0;
+                                     // 1.0e-6 to 1.0e-3 seem to work ~ equally well; 0.01 is worse
+  theOptions->rngSeed = 0;           // 0 = get seed value from system clock
   
   theOptions->maxThreads = 0;
   theOptions->maxThreadsSet = false;

@@ -182,7 +182,7 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
     double delta_sum(0.0);
     double pCR_sum(0.0);
 
-    for (int t = prevLines + 1; t < p->maxEvals; ++t) {
+    for (int t = prevLines + 1; t < p->maxEvals; ++t) {   // loop over time/generations
 
       // beginning of loop, generate crossover probabilities
       if (genNumber == 0) { 
@@ -190,7 +190,7 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
         numAccepted = 0;
       }
 
-      for (int i = 0; i < p->numChains; ++i) {
+      for (int i = 0; i < p->numChains; ++i) {   // loop over individual chains
         if (p->deltaMax > 1) 
           rng->uniform_int(1, &delta, 1, p->deltaMax + 1);
         else 
@@ -200,85 +200,90 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
         // PE: i = chain index, j = variable index
         for (int j = 0; j < p->nvar; ++j) 
           proposal(i,j) = state(t - 1,i,j);
-        if (gammaGeneration++ == 5) {
-          // PE: every 5 steps, we make a large proposal jump (gamma = 1.0)
-          // PE: (here, we seem to be doing a simplified version of Vrugt et al.,
-          // which sets gamma = 1 but otherwise does the full proposal generation)
-          for (int j = 0; j < p->nvar; ++j) {
-            if (p->varLock[j]) 
-              continue;
-            gammaGeneration = 0;
-            do {
-              rng->uniform_int(1, &r1, 0, p->numChains - 1);
-              rng->uniform_int(1, &r2, 0, p->numChains - 1);
-              if (r1 >= i) 
-                ++r1;
-              if (r2 >= i) 
-                ++r2;
-            } while (r1 == r2 && p->numChains > 2);
-            step[j] = state(t - 1, r1, j) - state(t - 1, r2, j);
-            proposal(i, j) = state(t - 1, i, j) + step[j];
-          }
-          // (TODO) if step == 0 ==> use Cholskey decomposition!!
-        } else {
-          // PE: Standard proposal generation
-          // pick pairs
-          vector<int> r1(delta, 0);
-          vector<int> r2(delta, 0);
-          for (int a(0); a < delta; ++a) {
-            rng->uniform_int(1, &r1[a], 0, p->numChains - 1);
-            rng->uniform_int(1, &r2[a], 0, p->numChains - 1);
-            if (r1[a] >= i) 
-              ++r1[a];
-            if (p->numChains > 2) {
-              while (r2[a] == r1[a] || r2[a] == i) 
-                ++r2[a] %= p->numChains;
-            }
-          }
-          // PE: updateDim keeps track of how many variables will be replaced
-          // (nFree - # variables which crossover events set equal to current state value)
-          updateDim[i] = p->nfree;
-          for (int j = 0; j < p->nvar; ++j) {
-            if (! p->varLock[j]) {
-              updatePar[j] = true;
-              // calculate random values
-              rng->uniform(1, &drand);
-              e[j] = p->noise*(2.0*drand - 1.0);
-              rng->gaussian(1, &epsilon[j], 0.0, bstar[j]);
-              // compute pairwise comparisons
-              pairDiff[j] = 0.0;
-              for (int a(0); a < delta; ++a) {
-                if (r1[a] != r2[a]) 
-                  pairDiff[j] += state(t - 1, r1[a], j) - state(t - 1, r2[a], j);
-              }
-              // check for crossover events
-              crossRate = 1.0*CRm(i, genNumber) / p->nCR;
-              if (crossRate < 1.0) {
-                rng->uniform(1, &drand);
-                if (drand < 1.0 - crossRate) {
-                  step[j] = 0.0;
-                  updatePar[j] = false;
-                  --updateDim[i];
-                }
-              }
-            }
-          }
-          if (updateDim[i] > 0) {
-            gamma = 2.38/sqrt(2.0*updateDim[i]*delta);
-            for (int j = 0; j < p->nvar; ++j) {
-              if (updatePar[j]) {
-                // calculate step for this dimension
-                step[j] = (1 + e[j])*gamma*pairDiff[j] + epsilon[j];
-                // update proposal
-                proposal(i,j) = state(t - 1,i,j) + step[j];
-              } else {
-                proposal(i,j) = state(t - 1,i,j);
-              }
-            }
-          } else {   // PE: entire proposal is actually identical to current state
-            for (int j = 0; j < p->nvar; ++j) proposal(i,j) = state(t - 1,i,j);
+//         if (gammaGeneration++ == 5) {
+//           // PE: every 5 steps, we make a large proposal jump (gamma = 1.0)
+//           // PE: (here, we seem to be doing a simplified version of Vrugt et al.,
+//           // which sets gamma = 1 but otherwise does the full proposal generation)
+//           for (int j = 0; j < p->nvar; ++j) {
+//             if (p->varLock[j]) 
+//               continue;
+//             gammaGeneration = 0;
+//             do {
+//               rng->uniform_int(1, &r1, 0, p->numChains - 1);
+//               rng->uniform_int(1, &r2, 0, p->numChains - 1);
+//               if (r1 >= i) 
+//                 ++r1;
+//               if (r2 >= i) 
+//                 ++r2;
+//             } while (r1 == r2 && p->numChains > 2);
+//             step[j] = state(t - 1, r1, j) - state(t - 1, r2, j);
+//             proposal(i, j) = state(t - 1, i, j) + step[j];
+//           }
+//           // (TODO) if step == 0 ==> use Cholskey decomposition!!
+//        } else {
+        // PE: Standard proposal generation
+        // pick pairs
+        vector<int> r1(delta, 0);
+        vector<int> r2(delta, 0);
+        for (int a(0); a < delta; ++a) {
+          rng->uniform_int(1, &r1[a], 0, p->numChains - 1);
+          rng->uniform_int(1, &r2[a], 0, p->numChains - 1);
+          if (r1[a] >= i) 
+            ++r1[a];
+          if (p->numChains > 2) {
+            while (r2[a] == r1[a] || r2[a] == i) 
+              ++r2[a] %= p->numChains;
           }
         }
+        // PE: updateDim keeps track of how many variables will be replaced;
+        // differs for each chain in each generation
+        // (nFree - # variables which crossover events set equal to current state value)
+        updateDim[i] = p->nfree;
+        for (int j = 0; j < p->nvar; ++j) {
+          if (! p->varLock[j]) {
+            updatePar[j] = true;
+            // calculate random values
+            rng->uniform(1, &drand);
+            e[j] = p->noise*(2.0*drand - 1.0);
+            rng->gaussian(1, &epsilon[j], 0.0, bstar[j]);
+            // compute pairwise comparisons
+            pairDiff[j] = 0.0;
+            for (int a(0); a < delta; ++a) {
+              if (r1[a] != r2[a]) 
+                pairDiff[j] += state(t - 1, r1[a], j) - state(t - 1, r2[a], j);
+            }
+            // check for crossover events
+            crossRate = 1.0*CRm(i, genNumber) / p->nCR;
+            if (crossRate < 1.0) {
+              rng->uniform(1, &drand);
+              if (drand < 1.0 - crossRate) {
+                step[j] = 0.0;
+                updatePar[j] = false;
+                --updateDim[i];
+              }
+            }
+          }
+        }
+        if (updateDim[i] > 0) {
+          // every 5 generations, set gamma = 1.0 to promote long jumps outside local mode
+          if ((t > 1) && ((t % 5) == 0))
+            gamma = 1.0;
+          else
+            gamma = 2.38/sqrt(2.0*updateDim[i]*delta);
+          for (int j = 0; j < p->nvar; ++j) {
+            if (updatePar[j]) {
+              // calculate step for this dimension
+              step[j] = (1 + e[j])*gamma*pairDiff[j] + epsilon[j];
+              // update proposal
+              proposal(i,j) = state(t - 1,i,j) + step[j];
+            } else {
+              proposal(i,j) = state(t - 1,i,j);
+            }
+          }
+        } else {   // PE: entire proposal is actually identical to current state
+          for (int j = 0; j < p->nvar; ++j) proposal(i,j) = state(t - 1,i,j);
+        }
+//        }
       }
 
       // calculate likelihood and acceptance probability
@@ -404,8 +409,10 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
               for (int j = 0; j < p->nvar; ++j) 
                 state(t,i,j) = state(t,best_chain,j);
               if (! inBurnIn && p->burnIn > 0) {
-                cerr << "[" << t << "] Outlier chain detected [" << i << "] outside of burn in."
-                     << " Moving to chain " << best_chain << " and re-entering burn in." << endl;
+                printf("[%d] Outlier chain detected [%d] outside of burn in.", t, i);
+                printf(" Moving to best chain [%d] and re-entering burn in.\n", best_chain);
+//                 cerr << "[" << t << "] Outlier chain detected [" << i << "] outside of burn in."
+//                      << " Moving to chain " << best_chain << " and re-entering burn in." << endl;
                 burnInStart = t;
                 curRun = 0;
                 inBurnIn = 1;

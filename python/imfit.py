@@ -1,5 +1,6 @@
 # Code for reading in and analyzing output of imfit
 
+import glob
 import numpy as np
 
 import imfit_funcs as imfuncs
@@ -272,6 +273,13 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 	# get first chain and column names; figure out if we get all columns or just
 	# model parameters
 	(colNames, dd) = GetSingleChain(filenames[0], getAllColumns=getAllColumns)
+	nGenerations = dd.shape[0]
+	if (startTime >= nGenerations):
+		txt = "WARNING: # generations in MCMC chain file {0} ({1:d}) is <= ".format(filenames[0],
+				nGenerations)
+		txt += "requested start time ({0:d})!\n".format(startTime)
+		print(txt)
+		return None
 	dd_final = dd[startTime:,:]
 	if getAllColumns is False:
 		nParamColumns = len(colNames)

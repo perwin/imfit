@@ -5,7 +5,7 @@
 ** NEAR-TERM FUTURE TODO:
 [ ] MCMC program: "imfit-mcmc"
 	
-	[ ] Solved fixed-parameters problem
+	[x] Solved fixed-parameters problem
 		-- when a parameter is fixed, the value is not passed to dream()
 		
 	[ ] Feedback from dream()
@@ -70,7 +70,13 @@
 
 	[ ] Clean up/rationalize output chain files
 		[ ] "gen" is currently useless cycling of 0,...9,
-		[ ] replace C++ streams with stdio?
+	
+	[ ] replace C++ streams with stdio?
+		[x] replace C++ streams with stdio in dream_initialize.cpp
+		[x] replace C++ streams with stdio in dream_pars.cpp
+		[ ] replace C++ streams with stdio in dream.cpp
+		[x] replace C++ streams with stdio in gelman_rubin.cpp
+		[x] replace C++ streams with stdio in gen_CR.cpp
 
 	[ ] Command-line option to do N rounds of image generation to estimate time/model?
 		--estimate-time = flag to do time estimate (including, by default, 1 round of
