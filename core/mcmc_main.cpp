@@ -70,9 +70,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.4.0b1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.4.0b2 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.4.0b1"
+#define VERSION_STRING      "1.4.0b2"
 #endif
 
 
@@ -619,15 +619,15 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("     --poisson-mlr            Use Poisson maximum-likelihood-ratio statistic instead of chi^2");
   optParser->AddUsageLine("     --mlr                    Same as --poisson-mlr");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine(" -o  --output <output-root>   root name for output MCMC chain files [default = mcmc_out]");
-  optParser->AddUsageLine("     --append                 load state from existing output files and continue from there");
-  optParser->AddUsageLine("     --nchains <int>          Number of separate MCMC chains [default = # free parameters in model]");
-  optParser->AddUsageLine("     --max-evals <int>        Maximum number of likelihood evaluations per chain [default = 100000]");
-  optParser->AddUsageLine("     --nburnin <int>          Number of burn-in evaluations [default = 5000]");
-  optParser->AddUsageLine("     --gelman-evals <int>     Perform Gelman-Rubin convergence check every N generations [default = 5000]");
-  optParser->AddUsageLine("     --gelman-rubin-limit <float>   Gelman-Rubin scale reduction factor limit [default = 1.01])");
-  optParser->AddUsageLine("     --mcmc-noise <float>     MCMC noise term [boundary for uniform offsets of scaling; default = 0.01]");
-  optParser->AddUsageLine("     --bstar <float>          MCMC b^star term [sigma for absolute Gaussian offsets; default = 1.0e-6]");
+  optParser->AddUsageLine(" -o  --output <output-root>       root name for output MCMC chain files [default = mcmc_out]");
+  optParser->AddUsageLine("     --append                     load state from existing output files and continue from there");
+  optParser->AddUsageLine("     --nchains <int>              Number of separate MCMC chains [default = # free parameters in model]");
+  optParser->AddUsageLine("     --max-chain-length <int>     Maximum number of likelihood evaluations per chain [default = 100000]");
+  optParser->AddUsageLine("     --burnin-length <int>        Number of generations in burn-in phase [default = 5000]");
+  optParser->AddUsageLine("     --gelman-evals <int>         Perform Gelman-Rubin convergence check every N generations [default = 5000]");
+  optParser->AddUsageLine("     --gelman-rubin-limit <float> Gelman-Rubin scale reduction factor limit [default = 1.01])");
+  optParser->AddUsageLine("     --uniform-offset <float>     MCMC uniform-offset term [boundary for uniform offsets of scaling; default = 0.01]");
+  optParser->AddUsageLine("     --gaussian-offset <float>    MCMC b^star term [sigma for absolute Gaussian offsets; default = 1.0e-6]");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --quiet                  Turn off printing of updates during the fit");
   optParser->AddUsageLine("     --silent                 Turn off ALL printouts (except fatal errors)");
@@ -676,12 +676,12 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddOption("output", "o");
   optParser->AddFlag("append");
   optParser->AddOption("nchains");
-  optParser->AddOption("max-evals");
-  optParser->AddOption("nburnin");
+  optParser->AddOption("max-chain-length");
+  optParser->AddOption("burnin-length");
   optParser->AddOption("gelman-evals");
   optParser->AddOption("gelman-rubin-limit");
-  optParser->AddOption("mcmc-noise");
-  optParser->AddOption("bstar");
+  optParser->AddOption("uniform-offset");
+  optParser->AddOption("gaussian-offset");
   optParser->AddOption("max-threads");
   optParser->AddOption("seed");
 
@@ -873,22 +873,22 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
     theOptions->nChains = atol(optParser->GetTargetString("nchains").c_str());
     printf("\tNumber of chains = %d\n", theOptions->nChains);
   }
-  if (optParser->OptionSet("max-evals")) {
-    if (NotANumber(optParser->GetTargetString("max-evals").c_str(), 0, kPosInt)) {
-      printf("*** WARNING: maximum number of evaluations should be a positive integer!\n");
+  if (optParser->OptionSet("max-chain-length")) {
+    if (NotANumber(optParser->GetTargetString("max-chain-length").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: maximum number of evaluations per chain should be a positive integer!\n");
       delete optParser;
       exit(1);
     }
-    theOptions->maxEvals = atol(optParser->GetTargetString("max-evals").c_str());
-    printf("\tMaximum number of likelihood evaluations = %d\n", theOptions->maxEvals);
+    theOptions->maxEvals = atol(optParser->GetTargetString("max-chain-length").c_str());
+    printf("\tMaximum number of likelihood evaluations per chain = %d\n", theOptions->maxEvals);
   }
-  if (optParser->OptionSet("nburnin")) {
-    if (NotANumber(optParser->GetTargetString("nburnin").c_str(), 0, kPosInt)) {
+  if (optParser->OptionSet("burnin-length")) {
+    if (NotANumber(optParser->GetTargetString("burnin-length").c_str(), 0, kPosInt)) {
       printf("*** WARNING: number of burn-in evaluations should be a positive integer!\n");
       delete optParser;
       exit(1);
     }
-    theOptions->nBurnIn = atol(optParser->GetTargetString("nburnin").c_str());
+    theOptions->nBurnIn = atol(optParser->GetTargetString("burnin-length").c_str());
     printf("\tBurn-in evaluations = %d\n", theOptions->nBurnIn);
   }
   if (optParser->OptionSet("gelman-evals")) {
@@ -909,23 +909,23 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
     theOptions->GRScaleReductionLimit = atof(optParser->GetTargetString("gelman-rubin-limit").c_str());
     printf("\tGelman-Rubin scale reduction limit = %f\n", theOptions->GRScaleReductionLimit);
   }
-  if (optParser->OptionSet("mcmc-noise")) {
-    if (NotANumber(optParser->GetTargetString("mcmc-noise").c_str(), 0, kPosReal)) {
-      printf("*** WARNING: MCMC noise parameter should be a positive real number!\n");
+  if (optParser->OptionSet("uniform-offset")) {
+    if (NotANumber(optParser->GetTargetString("uniform-offset").c_str(), 0, kPosReal)) {
+      printf("*** WARNING: MCMC uniform-offset scale parameter should be a positive real number!\n");
       delete optParser;
       exit(1);
     }
-    theOptions->mcmcNoise = atof(optParser->GetTargetString("mcmc-noise").c_str());
-    printf("\tMCMC noise parameter = %f\n", theOptions->mcmcNoise);
+    theOptions->mcmcNoise = atof(optParser->GetTargetString("uniform-offset").c_str());
+    printf("\tMCMC uniform-offset parameter = %f\n", theOptions->mcmcNoise);
   }
-  if (optParser->OptionSet("bstar")) {
-    if (NotANumber(optParser->GetTargetString("bstar").c_str(), 0, kPosReal)) {
-      printf("*** WARNING: MCMC b^star parameter should be a positive real number!\n");
+  if (optParser->OptionSet("gaussian-offset")) {
+    if (NotANumber(optParser->GetTargetString("gaussian-offset").c_str(), 0, kPosReal)) {
+      printf("*** WARNING: MCMC Gaussian-offset sigma should be a positive real number!\n");
       delete optParser;
       exit(1);
     }
-    theOptions->mcmc_bstar = atof(optParser->GetTargetString("bstar").c_str());
-    printf("\tMCMC b^star parameter = %f\n", theOptions->mcmc_bstar);
+    theOptions->mcmc_bstar = atof(optParser->GetTargetString("gaussian-offset").c_str());
+    printf("\tMCMC Gaussian-offset sigma = %f\n", theOptions->mcmc_bstar);
   }
   if (optParser->OptionSet("max-threads")) {
     if (NotANumber(optParser->GetTargetString("max-threads").c_str(), 0, kPosInt)) {

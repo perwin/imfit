@@ -671,6 +671,12 @@ statistic is evaluated instead.)
 during computation (the default is to use \textit{all} available CPU cores); has no
 effect if \imfit{} was compiled without OpenMP or \textsc{fftw} multithreading support.
 
+\item \texttt{--seed} \textit{N} --- specifies a specific integer seed to use with
+random number generation; applies to DE fits and also to bootstrap resampling. This is
+mainly for testing purposes, to ensure that the same sequence of pseudo-random
+numbers is generated. (By default, the current system time is used as a seed,
+ensuring that no two runs have the same random seed.)
+
 \bigskip
 
 \item \texttt{--sample-config} --- generates and saves a simple example
@@ -1828,7 +1834,7 @@ This uses the exact same surface-brightness models, statistical options,
 and input configuration files as \imfitprog, but instead of solving for the
 ``best-fitting'' model, it produces an estimate of the posterior-probability (i.e.,
 likelihood) distribution. Although it \textit{can} be used to ``fit''
-models to data -- \textit{if} the user is willing to adopt some
+models to data -- if the user is willing to adopt some
 approach for identifying ``best-fit'' values from the posterior
 distribution\footnote{E.g., using mean or median value from the marginal distribution
 of each parameter.} -- it is probably more useful as a way of determining
@@ -1838,8 +1844,8 @@ The inputs for \imfitmcmc{} are the same as for \imfitprog: data image,
 model configuration file, optional PSF image(s), statistical model (\chisquare{}
 based on data, model, or input error map; Poisson MLR statistic), etc.
 The outputs are different: instead of a best-fitting parameter file (and optional
-outputs such s best-fit model image), \imfitmcmc{} saves multiple output text
-files consisting of calculated Markov chains. These are meant to be analyzed
+outputs such as best-fit model image), \imfitmcmc{} saves multiple output text
+files, each containing one of the Markov chains. These are meant to be analyzed
 subsequently by the user. (Some simple Python code to help with this is provided.)
 
 In essence, you can use the same data and configuration file to do a standard
@@ -1850,27 +1856,59 @@ between parameters, etc.
 
 It is important to understand that MCMC analysis takes \textit{much}
 longer than a simple fit, even a fit done using the Differential
-Evolution (DE) minimizer. For example, the sample single-S{\'e}rsic fit
-to the $256 \times 256$-pixel SDSS $r$-band image of IC 3478 in the
-\texttt{examples/} subdirectory takes approximately 115 model-image
-computations and about 0.3 seconds to finish (on a MacBook Pro 2012 with
-2.7 GHz Intel i7 quad-core CPU) using the default Levenberg-Marquardt
-minimizer. Using DE, the fit takes $\sim$11,000 model-image computations
-and about 20 seconds. An MCMC analysis of the same model requires
-\textit{several hundred thousand} model-image computations and
-approximately \textit{ten minutes} to reach convergence.
+Evolution (DE) minimizer. For example, the \texttt{examples/} subdirectory
+contains a $256 \times 256$-pixel SDSS $r$-band image of IC 3478 and a
+configuration file for a single-S{\'e}rsic fit to this image. The fit
+takes approximately 115 model-image computations and about 0.3 seconds
+to finish\footnote{On a MacBook Pro 2012 with 2.7 GHz Intel i7 quad-core CPU.}
+using the default Levenberg-Marquardt minimizer. Using DE, the fit takes
+$\sim$11,000 model-image computations and about 20 seconds. An MCMC
+analysis of the same model requires \textit{several hundred thousand}
+model-image computations and approximately ten minutes to reach
+convergence.
 
-The specific MCMC approach that \imfitmcmc{} uses is the DREAM
+The MCMC approach that \imfitmcmc{} uses is the DREAM
 (DiffeRential Evolution Adaptive Metropolis) algorithm of
 \citet{vrugt09}, which is based on earlier adaptations of DE to MCMC by
 \citet{ter-braak06} and \citet{ter-braak08}. More details can be found
-in \citet{vrugt16}. The algorithm uses multiple separate Markov chains
-(by default, one per free parameter in the model) and a DE-based scheme
-for generating new proposals for each chain using differences between
-the current states of other (randomly chosen) chains. A version of the
-Gelman-Rubin convergence diagnostic is used to estimate when convergence
-is reached; if this is never achieved, then the algorithm terminates
-after a user-specified maximum number of iterations.
+in \citet{vrugt16}. The specific implementation used by \imfitmcmc{} is
+based on C++ code published by Gabriel
+Rosenthal.\footnote{\url{https://github.com/gaberoo/cdream}} The
+algorithm uses multiple separate Markov chains (by default, a number
+equal to the number of free parameters in the model) and a DE-based
+scheme for generating new proposals for each chain using differences
+between the current states of other (randomly chosen) chains. A version
+of the Gelman-Rubin convergence diagnostic is used to estimate when
+convergence is reached; if this is never achieved, then the algorithm
+terminates after a user-specified maximum number of iterations.
+
+In simplified terms, the generation of a new proposal involves scaled
+offsets from the current state of a chain (parameter values $x_{i}$,
+with $i = 1, .., N_{\textrm{params}}$), with the base offsets
+$\Delta_{i}$ taken from the difference in parameter values between the
+current states of two (or more) \textit{other} chains. A random subset
+of the parameter values in the current state are updated, with the
+remaining parameters left unchanged.\footnote{The proposal can thus be
+seen as a ``crossover'' between a parameter vector with completely
+all-new values and the current parameter vector; this is part of the
+general DE algorithm.} For each parameter that is updated, the
+new value $z_{i}$ is
+\begin{equation}
+z_{i} = x_{i} + (1 + U) \: \gamma \: \Delta_{i} + N(0,s) ,
+\end{equation}
+where $U$ is a uniformly sampled random number between $\pm u$ and $N(0,s)$ is a random
+sample from a Gaussian
+with mean of 0 and dispersion $s$. Both $u$ and $s$ can be specified by the user,
+though their default values (0.01 and $10^{-6}$, respectively), are probably good
+starting points.
+The scale parameter $\gamma$ is
+\begin{equation}
+\gamma = 2.38 / \sqrt{2 \delta d^{\prime}},
+\end{equation}
+where $\delta$ is the number of pairs used to determine the base offset ($\delta = 1$, 2, or 3)
+and $d^{\prime}$ is the number of parameters being updated for the current proposal.
+Every five generations $\gamma$ is set $= 1$, to encourage occasional longer
+jumps outside the current location in parameter space.
 
 
 TBD.
@@ -1903,29 +1941,29 @@ output MCMC chain files. The actual output files will be named <\textit{root-nam
 calculate (must be at least 3). This defaults to $N = $ number of free parameters
 in the model, which is the recommended value.
 
-\item \texttt{--append} -- specifies that pre-existing MCMC chain files should be
+\item \texttt{--append} --- specifies that pre-existing MCMC chain files should be
 read in and the MCMC process continued from their final states.
 
-\item \texttt{--max-evals} \textit{N} -- the maximum number of generations (with
+\item \texttt{--max-chain-length} \textit{N} --- the maximum number of generations (with
 one likelihood evaluation per generation) per chain. The program will quit if
 if reaches this value. The default value is 100,000 (which means a total number
-of likelihood evaluations -- i.e., model-image computations -- of 100,000 $\times$
-(number of chains).
+of likelihood evaluations -- i.e., model-image computations -- of 100,000 $\times N_{\mathrm{chains}}$).
 
-\item \texttt{--nburnin} \textit{N} -- the number of generations of the initial ``burn-in''
+\item \texttt{--burnin-length} \textit{N} --- the number of generations of the initial ``burn-in''
 phase, where larger jumps are taken to ensure adequate exploration of the posterior
-landscape. Default value: 5,000.
+landscape. If outlier chains are subsequently discovered, burn-in will be re-entered
+for the same number of generations. Default value: 5,000.
 
-\item \texttt{--gelman-evals} \textit{N} -- Gelman-Rubin convergence tests will be
+\item \texttt{--gelman-evals} \textit{N} --- Gelman-Rubin convergence tests will be
 done every \textit{N} generations. Default value: 5,000.
 
-\item \texttt{--nburnin} \textit{N} -- the number of generations of the initial ``burn-in''
-phase, where larger jumps are taken to ensure adequate exploration of the posterior
-landscape. Default value: 5,000.
+\item \texttt{--uniform-offset} \textit{u} --- the limit on variations in the multiplicative
+scaling applied to proposed parameter offsets, such that offsets are multiplied
+by uniformly sampled numbers in the interval $1 \pm u$. Default value: 0.01.
 
-\item \texttt{--nburnin} \textit{N} -- the number of generations of the initial ``burn-in''
-phase, where larger jumps are taken to ensure adequate exploration of the posterior
-landscape. Default value: 5,000.
+\item \texttt{--gaussian-offset} \textit{s} --- Gaussian $\sigma$ value for additive
+variations applied to proposed parameter offsets, such that $N(0,s)$ is added to
+each offset (i.e., a Gaussian with mean $= 0$ and dispersion $= s$). Default value: $10^{-6}$.
 
 \end{itemize}
 

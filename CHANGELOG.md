@@ -2,16 +2,16 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.4.0 -- 2016-xx-xx
+## 1.4.0 -- 2016-11-xx
 ### Added:
 
-- Imfit (the package) now includes a preliminary version of a new program for doing
-Markov chain Monte Carlo (MCMC) analysis of Imfit models: "imfit-mcmc".
-Rather than fitting the model to the data, this estimates the
-posterior-probability (i.e., the likelihood, equivalent to chi^2 in the
-default case) distribution for the model given the data. This uses the
-"DREAM" (DiffeRential Evolution Adaptive Metropolis) algorithm of Vrugt
-et al., an efficient multiple-ensemble approach. See Chapter 13 of the
+- Imfit (the package) now includes a new program for doing Markov chain
+Monte Carlo (MCMC) analysis of Imfit models: "imfit-mcmc". Rather than
+fitting the model to the data, this estimates the posterior-probability
+(i.e., the likelihood, equivalent to chi^2 in the default case)
+distribution for the model given the data. This uses the "DREAM"
+(DiffeRential Evolution Adaptive Metropolis) algorithm of Vrugt et al.,
+an efficient multiple-ensemble approach. See Chapter 13 of the
 documentation for more details.
 
 - There are now some very simple Python functions in python/imfit.py which can read
@@ -20,7 +20,8 @@ in output from bootstrap resampling (imfit.GetBootstrapOutput) and from MCMC cha
 
 - Makeimage now has a new option "`--timing <N>`", which tells the program to
 generate the model image *N* times and compute the mean time taken per image. 
-(No images are saved.)
+(No images are saved.) This is potentially useful if you want an approximate
+idea of how long a fit (or MCMC run) might take.
 
 - Imfit now has a new option "`--seed <N>`", which allows the user to
 specify a particular seed (positive integer) for the random number

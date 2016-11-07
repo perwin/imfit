@@ -25,7 +25,7 @@ echo ""
 
 printf "*** Diff comparison with archives: first test... "
 # skip last 4 lines to avoid trying to compare elapsed times
-./python/diff_printouts.py tests/mcmc_textout1 temptest/test_dump_mcmc1 --skip-last=4
+./python/diff_printouts.py temptest/test_dump_mcmc1 tests/mcmc_textout1 --skip-last=4
 
 printf "    Comparing first output chain file... "
 # skip first two lines of output file to avoid comparing timestamps
