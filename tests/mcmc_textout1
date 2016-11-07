@@ -35,12 +35,14 @@ Chain 2: likelihood = -733.27
 Chain 3: likelihood = -2479.22
 Chain 4: likelihood = -2279.15
 Chain 5: likelihood = -2074.15
-[5000] exiting burn in.
-[15010] performing convergence diagnostics: GR (it 15010): [0]1.00125 [1]1.00203 [2]1.00461 [3]1.0069 [4]1.00439 [5]1.00673 
-101446 function calls (likelihood evaluations)
+[5000] exiting burn-in.
+[10000] performing convergence diagnostics: GR (it 10000): [0]1.00827 [1]1.00378 [2]1.01004 [3]1.00106 [4]1.00429 [5]1.00318 
+[15000] performing convergence diagnostics: GR (it 15000): [0]1.00129 [1]1.00196 [2]1.00465 [3]1.00690 [4]1.00460 [5]1.00663 
+Convergence detected!
+101410 likelihood function calls
 
-Finished -- MCMC chains written to output files temptest/mcmc_test.*.txt
-(Elapsed time: 8.163845 sec)
+MCMC chains written to output files temptest/mcmc_test.0.txt through temptest/mcmc_test.5.txt
+(Elapsed time: 8.337991 sec)
 
 Done!
 

@@ -70,9 +70,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.4.0a (OpenMP-enabled)"
+#define VERSION_STRING      "1.4.0b1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.4.0a"
+#define VERSION_STRING      "1.4.0b1"
 #endif
 
 
@@ -505,7 +505,9 @@ int main(int argc, char *argv[])
   dreamPars.numChains = options.nChains;
   dreamPars.maxEvals = options.maxEvals;
   dreamPars.burnIn = options.nBurnIn;
-  dreamPars.gelmanEvals = options.nGelmanEvals;
+  // the following is tricky, since cdream actually runs a Gelman-Rubin convergence
+  // test every dreamPars.loopSteps * dreamPars.gelmanEvals generations
+  dreamPars.gelmanEvals = (int)(options.nGelmanEvals / 10);
   dreamPars.scaleReductionCrit = options.GRScaleReductionLimit;
   dreamPars.noise = options.mcmcNoise;
   dreamPars.bstar_zero = options.mcmc_bstar;
@@ -541,7 +543,8 @@ int main(int argc, char *argv[])
   // DO THE MCMC!
   printf("\nStart of MCMC processing...\n");
   dream(&dreamPars, &rng);
-  printf("\nFinished -- MCMC chains written to output files %s.*.txt", options.outputFileRoot.c_str());
+  printf("\nMCMC chains written to output files %s.0.txt through %s.%d.txt", 
+  		options.outputFileRoot.c_str(), options.outputFileRoot.c_str(), options.nChains - 1);
 
   // Free up memory
   fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()
@@ -618,10 +621,10 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine(" -o  --output <output-root>   root name for output MCMC chain files [default = mcmc_out]");
   optParser->AddUsageLine("     --append                 load state from existing output files and continue from there");
-  optParser->AddUsageLine("     --nchains <int>          Number of separate MCMC chains [default = # free parameters in model])");
-  optParser->AddUsageLine("     --max-evals <int>        Maximum number of likelihood evaluations [default = 100000])");
-  optParser->AddUsageLine("     --nburnin <int>          Number of burn-in evaluations [default = 5000])");
-  optParser->AddUsageLine("     --max-gelman-evals <int>   Maximum number of Gelman-Rubin convergence evaluations [default = 1000])");
+  optParser->AddUsageLine("     --nchains <int>          Number of separate MCMC chains [default = # free parameters in model]");
+  optParser->AddUsageLine("     --max-evals <int>        Maximum number of likelihood evaluations per chain [default = 100000]");
+  optParser->AddUsageLine("     --nburnin <int>          Number of burn-in evaluations [default = 5000]");
+  optParser->AddUsageLine("     --gelman-evals <int>     Perform Gelman-Rubin convergence check every N generations [default = 5000]");
   optParser->AddUsageLine("     --gelman-rubin-limit <float>   Gelman-Rubin scale reduction factor limit [default = 1.01])");
   optParser->AddUsageLine("     --mcmc-noise <float>     MCMC noise term [boundary for uniform offsets of scaling; default = 0.01]");
   optParser->AddUsageLine("     --bstar <float>          MCMC b^star term [sigma for absolute Gaussian offsets; default = 1.0e-6]");
@@ -675,7 +678,7 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
   optParser->AddOption("nchains");
   optParser->AddOption("max-evals");
   optParser->AddOption("nburnin");
-  optParser->AddOption("max-gelman-evals");
+  optParser->AddOption("gelman-evals");
   optParser->AddOption("gelman-rubin-limit");
   optParser->AddOption("mcmc-noise");
   optParser->AddOption("bstar");
@@ -888,14 +891,14 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
     theOptions->nBurnIn = atol(optParser->GetTargetString("nburnin").c_str());
     printf("\tBurn-in evaluations = %d\n", theOptions->nBurnIn);
   }
-  if (optParser->OptionSet("max-gelman-evals")) {
-    if (NotANumber(optParser->GetTargetString("max-gelman-evals").c_str(), 0, kPosInt)) {
-      printf("*** WARNING: maximum number of Gelman-Rubin evaluations should be a positive integer!\n");
+  if (optParser->OptionSet("gelman-evals")) {
+    if (NotANumber(optParser->GetTargetString("gelman-evals").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: Gelman-Rubin generation timing should be a positive integer!\n");
       delete optParser;
       exit(1);
     }
-    theOptions->nGelmanEvals = atol(optParser->GetTargetString("max-gelman-evals").c_str());
-    printf("\tMaximum number of Gelman-Rubin evaluations = %d\n", theOptions->nGelmanEvals);
+    theOptions->nGelmanEvals = atol(optParser->GetTargetString("gelman-evals").c_str());
+    printf("\tGelman-Rubin convergence evaluations every %d generations\n", theOptions->nGelmanEvals);
   }
   if (optParser->OptionSet("gelman-rubin-limit")) {
     if (NotANumber(optParser->GetTargetString("gelman-rubin-limit").c_str(), 0, kPosReal)) {

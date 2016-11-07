@@ -259,7 +259,7 @@ program \makeimage{} with the following commands:
 \texttt{\$ scons imfit-mcmc} \\
 \texttt{\$ scons makeimage}
 \end{quote}
-This will produce three binary executable files: \imfitprog, \imfit-mcmc, and \makeimage{}. Copy
+This will produce three binary executable files: \imfitprog, \imfitmcmc, and \makeimage{}. Copy
 these to some convenient place on your path.
 
 If you do not have the NLopt library installed, you will get compilation errors;
@@ -486,7 +486,7 @@ file \\
 
 
 
-\chapter{Using \Imfit{}}\label{sec:using-imfit}
+\chapter{Using \Imfit{}}\label{sec:using-imfit}\label{chap:using-imfit}
 
 Basic use of \imfit{} from the command line looks like this:
 \begin{quote}
@@ -1820,20 +1820,69 @@ unless you also specify the \texttt{--nosave} option.
 
 
 
-\chapter{Markov Chain Monte Carlos Analysis with Imfit-mcmc}
+\chapter{Markov Chain Monte Carlos Analysis with \imfitmcmc}
 
-DREAM (DiffeRential Evolution Adaptive Metropolis) algorithm of \citet{vrugt09},
-which is based on earlier adaptations of DE to MCMC by \citet{ter-braak07} and \citet{ter-braak08}.
-More details of the algorithm and its uses can be found in \citet{vrugt16}.
+As of version 1.4, \Imfit{} now includes a separate program for doing
+Markov chain Monte Carlo (MCMC) analysis of galaxy image models: \imfitmcmc.
+This uses the exact same surface-brightness models, statistical options,
+and input configuration files as \imfitprog, but instead of solving for the
+``best-fitting'' model, it produces an estimate of the posterior-probability (i.e.,
+likelihood) distribution. Although it \textit{can} be used to ``fit''
+models to data -- \textit{if} the user is willing to adopt some
+approach for identifying ``best-fit'' values from the posterior
+distribution\footnote{E.g., using mean or median value from the marginal distribution
+of each parameter.} -- it is probably more useful as a way of determining
+uncertainty ranges for, and correlations between, model parameters.
+
+The inputs for \imfitmcmc{} are the same as for \imfitprog: data image,
+model configuration file, optional PSF image(s), statistical model (\chisquare{}
+based on data, model, or input error map; Poisson MLR statistic), etc.
+The outputs are different: instead of a best-fitting parameter file (and optional
+outputs such s best-fit model image), \imfitmcmc{} saves multiple output text
+files consisting of calculated Markov chains. These are meant to be analyzed
+subsequently by the user. (Some simple Python code to help with this is provided.)
+
+In essence, you can use the same data and configuration file to do a standard
+fit with \imfitprog{} and to do MCMC analysis of the model, which can then be
+combined with the best-fit results to determine confidence intervals, look
+for multiple modes in the posterior distribution, identify correlations
+between parameters, etc.
+
+It is important to understand that MCMC analysis takes \textit{much}
+longer than a simple fit, even a fit done using the Differential
+Evolution (DE) minimizer. For example, the sample single-S{\'e}rsic fit
+to the $256 \times 256$-pixel SDSS $r$-band image of IC 3478 in the
+\texttt{examples/} subdirectory takes approximately 115 model-image
+computations and about 0.3 seconds to finish (on a MacBook Pro 2012 with
+2.7 GHz Intel i7 quad-core CPU) using the default Levenberg-Marquardt
+minimizer. Using DE, the fit takes $\sim$11,000 model-image computations
+and about 20 seconds. An MCMC analysis of the same model requires
+\textit{several hundred thousand} model-image computations and
+approximately \textit{ten minutes} to reach convergence.
+
+The specific MCMC approach that \imfitmcmc{} uses is the DREAM
+(DiffeRential Evolution Adaptive Metropolis) algorithm of
+\citet{vrugt09}, which is based on earlier adaptations of DE to MCMC by
+\citet{ter-braak06} and \citet{ter-braak08}. More details can be found
+in \citet{vrugt16}. The algorithm uses multiple separate Markov chains
+(by default, one per free parameter in the model) and a DE-based scheme
+for generating new proposals for each chain using differences between
+the current states of other (randomly chosen) chains. A version of the
+Gelman-Rubin convergence diagnostic is used to estimate when convergence
+is reached; if this is never achieved, then the algorithm terminates
+after a user-specified maximum number of iterations.
 
 
 TBD.
 
 \section{Using \imfitmcmc{}}
 
-TBD.
+Use of \imfitmcmc{} on the command line is almost identical to use of \imfitprog{}
+(Chapter~\ref{chap:using-imfit}). The main difference is the optional use of \texttt{-o/--output}
+to specify the root name for the Markov-chain output files (the program defaults to
+using \texttt{mcmc\_out} as the root name if \texttt{-o} is not used).
 
-The following \imfit{} options are \textit{not} available:
+The following \imfitprog{} options are \textit{not} available:
 \begin{itemize}
 \item Minimizer selection and control: \texttt{--nm}, \texttt{--nlopt}, \texttt{--de},
 \texttt{--ftol}
@@ -1842,6 +1891,55 @@ The following \imfit{} options are \textit{not} available:
 \item Bootstrap-related: \texttt{--boostrap}, \texttt{--save-bootstrap}
 \item \texttt{--chisquare-only}, \texttt{--fitstat-only}
 \end{itemize}
+
+\subsection{Extra options for \imfitmcmc}
+
+\begin{itemize}
+\item \texttt{-o, --output} \textit{root-name} --- the root name for
+output MCMC chain files. The actual output files will be named <\textit{root-name}>\texttt{.0.txt},
+<\textit{root-name}>\texttt{.1.txt}, etc. The default root name is ``mcmc\_out''.
+
+\item \texttt{--nchains} \textit{N} --- specifies the number of MCMC chains to
+calculate (must be at least 3). This defaults to $N = $ number of free parameters
+in the model, which is the recommended value.
+
+\item \texttt{--append} -- specifies that pre-existing MCMC chain files should be
+read in and the MCMC process continued from their final states.
+
+\item \texttt{--max-evals} \textit{N} -- the maximum number of generations (with
+one likelihood evaluation per generation) per chain. The program will quit if
+if reaches this value. The default value is 100,000 (which means a total number
+of likelihood evaluations -- i.e., model-image computations -- of 100,000 $\times$
+(number of chains).
+
+\item \texttt{--nburnin} \textit{N} -- the number of generations of the initial ``burn-in''
+phase, where larger jumps are taken to ensure adequate exploration of the posterior
+landscape. Default value: 5,000.
+
+\item \texttt{--gelman-evals} \textit{N} -- Gelman-Rubin convergence tests will be
+done every \textit{N} generations. Default value: 5,000.
+
+\item \texttt{--nburnin} \textit{N} -- the number of generations of the initial ``burn-in''
+phase, where larger jumps are taken to ensure adequate exploration of the posterior
+landscape. Default value: 5,000.
+
+\item \texttt{--nburnin} \textit{N} -- the number of generations of the initial ``burn-in''
+phase, where larger jumps are taken to ensure adequate exploration of the posterior
+landscape. Default value: 5,000.
+
+\end{itemize}
+
+
+% -o  --output <output-root>   root name for output MCMC chain files [default = mcmc_out]
+%     --append                 load state from existing output files and continue from there
+%     --nchains <int>          Number of separate MCMC chains [default = # free parameters in model])
+%     --max-evals <int>        Maximum number of likelihood evaluations [default = 100000])
+%     --nburnin <int>          Number of burn-in evaluations [default = 5000])
+%     --max-gelman-evals <int>   Maximum number of Gelman-Rubin convergence evaluations [default = 1000])
+%     --gelman-rubin-limit <float>   Gelman-Rubin scale reduction factor limit [default = 1.01])
+%     --mcmc-noise <float>     MCMC noise term [boundary for uniform offsets of scaling; default = 0.01]
+%     --bstar <float>          MCMC b^star term [sigma for absolute Gaussian offsets; default = 1.0e-6]
+%
 
 \section{Configuration Files for \imfitmcmc{}}
 
@@ -2808,10 +2906,6 @@ Galaxias Australes} (Cordoba: Obs.\ Astron.).
 \bibitem[Storn \& Price(1997)]{de} Storn, R., and Price, K. 1997, ``Differential
 Evolution --- A Simple and Efficient Heuristic for Global Optimization Over
 Continuous Spaces'', \textit{Journal of Global Optimization} \textbf{11}: 314.
-
-Ter Braak CJF (2006) A Markov chain Monte Carlo version of the genetic
-algorithm differential evolution: easy Bayesian computing for real
-parameter spaces. Stat Comp 16:239-249.
 
 \bibitem[ter Braak(2006)]{ter-braak06} ter Braak, C.J.F. 2006.
 ``A Markov chain Monte Carlo version of the genetic

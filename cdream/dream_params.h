@@ -22,8 +22,8 @@ typedef struct t_dream_pars {
 
   // DREAM variables
   int collapseOutliers;
-  int gelmanEvals;            // after burn-in, do Gelman-Rubin convergence test every gelmanEvals interations
-  int loopSteps;
+  int gelmanEvals;            // after burn-in, do Gelman-Rubin convergence test every loopSteps*gelmanEvals interations
+  int loopSteps;              // every loopSteps generations, do assorted checks (including convergence)
   int deltaMax;
   int pCR_update;
   int nCR;

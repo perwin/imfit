@@ -11,7 +11,8 @@ Rather than fitting the model to the data, this estimates the
 posterior-probability (i.e., the likelihood, equivalent to chi^2 in the
 default case) distribution for the model given the data. This uses the
 "DREAM" (DiffeRential Evolution Adaptive Metropolis) algorithm of Vrugt
-et al., an efficient multiple-ensemble approach.
+et al., an efficient multiple-ensemble approach. See Chapter 13 of the
+documentation for more details.
 
 - There are now some very simple Python functions in python/imfit.py which can read
 in output from bootstrap resampling (imfit.GetBootstrapOutput) and from MCMC chains

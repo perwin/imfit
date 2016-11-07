@@ -133,7 +133,7 @@ void SetDefaultMCMCOptions( mcmcCommandOptions *theOptions )
   theOptions->nChains = -1;          // -1 = use default, which is nChains = nFreeParams
   theOptions->maxEvals = 100000;
   theOptions->nBurnIn = 5000;
-  theOptions->nGelmanEvals = 1000;
+  theOptions->nGelmanEvals = 5000;
   theOptions->GRScaleReductionLimit = 1.01;
   theOptions->mcmcNoise = 0.01;      // b parameter in DREAM (uniform scaling w/in 1 +/- b)
                                      // 0.01 seems to work well for (small) image fits
