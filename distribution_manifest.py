@@ -16,6 +16,7 @@ COPYING.txt
 DISCLAIMER
 README.txt
 CHANGELOG.md
+cdream/LICENSE_cdream.txt
 """
 
 python_files_for_binary_dist = """
@@ -155,6 +156,8 @@ py_startup_test.py
 compare_fits_files.py
 compare_imfit_printouts.py
 diff_printouts.py
+imfit.py
+imfit_funcs.py
 """
 
 
@@ -167,6 +170,7 @@ imfit_config_n3073.dat
 config_imfit_pgc35772.dat
 config_imfit_poisson.dat
 config_imfit_flatsky.dat
+config_imfit_small-gaussian.dat
 config_3x3_flatsky.dat
 config_imfit_gauss-oversample-test2.dat
 config_makeimage_gauss-oversample.dat
@@ -206,9 +210,9 @@ testimage_3x3_onezero.fits
 testimage_3x3_ones.fits
 mask_for_onezero.fits
 oversamp_test4.fits
-oversampled_orig.fits
 test_emptyhdu.fits
-test_multiextension_hdu1empty.fits
+test_multiextension_hdu0empty.fits
+test_table.fits
 psf_standard.fits
 psf_oversamp.fits
 imfit_textout1
@@ -235,6 +239,9 @@ imfit_textout6b
 imfit_textout6c
 imfit_textout6d
 imfit_textout6e
+imfit_textout6f
+imfit_textout6g
+imfit_textout6h
 imfit_textout7a
 imfit_textout7b
 imfit_textout7c
@@ -272,4 +279,6 @@ makeimage_textout14
 makeimage_textout15
 mcmc_textout1
 mcmc_ref1.0.txt_skip2
+osx/oversampled_orig.fits
+linux/oversampled_orig.fits
 """

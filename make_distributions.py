@@ -60,7 +60,7 @@ testFileDict = {"dir": "tests", "file_list": dm.test_files.split()}
 binary_only_file_list = dm.binary_only_files.split()
 misc_required_files_list = dm.misc_required_files.split()
 testing_scripts_list = dm.testing_scripts.split()
-aux_files_for_binary_dist_list = dm.aux_files_for_binary_dist.split()
+python_files_for_binary_dist_list = dm.python_files_for_binary_dist.split()
 
 documentation_file_list = [ documentationFileDict["dir"] + "/" + fname for fname in documentationFileDict["file_list"] ]
 
@@ -72,8 +72,8 @@ solvers_file_list_cpp = [ solversFileDict["dir"] + "/" + fname + ".cpp" for fnam
 solvers_file_list_h = [ solversFileDict["dir"] + "/" + fname + ".h" for fname in solversFileDict["file_list"] ]
 solvers_file_list = solvers_file_list_h + solvers_file_list_cpp
 
-mcmc_file_list_cpp = [ coreFileDict["dir"] + "/" + fname + ".cpp" for fname in coreFileDict["file_list"] ]
-mcmc_file_list_h = [ coreFileDict["dir"] + "/" + fname + ".h" for fname in dm.source_header_files_mcmc.split() ]
+mcmc_file_list_cpp = [ mcmcFileDict["dir"] + "/" + fname + ".cpp" for fname in mcmcFileDict["file_list"] ]
+mcmc_file_list_h = [ mcmcFileDict["dir"] + "/" + fname + ".h" for fname in dm.source_header_files_mcmc.split() ]
 mcmc_file_list = mcmc_file_list_h + mcmc_file_list_cpp
 
 core_file_list_cpp = [ coreFileDict["dir"] + "/" + fname + ".cpp" for fname in coreFileDict["file_list"] ]
@@ -91,8 +91,8 @@ allFileLists = [binary_only_file_list, misc_required_files_list, documentation_f
 allFileLists_source = [misc_required_files_list, documentation_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
 				mcmc_file_list, core_file_list, funcobj_file_list]
-subdirs_list = ["docs", "examples", "python", "tests", "function_objects", "solvers", "cdream",
-				"core"]
+subdirs_list = ["docs", "examples", "python", "tests", "tests/osx", "tests/linux", 
+				"function_objects", "solvers", "cdream", "cdream/include", "cdream/include/rng", "core"]
 
 
 
@@ -191,7 +191,7 @@ def MakeBinaries( mode=None ):
 def MakeBinaryDist( mode=None ):
 	distDir = "imfit-%s/" % VERSION_STRING
 	final_file_list = binary_only_file_list + misc_required_files_list + \
-						aux_files_for_binary_dist_list + documentation_file_list + example_file_list
+						python_files_for_binary_dist_list + documentation_file_list + example_file_list
 	
 	if (mode is None):
 		# Mac OS 10.8 or newer, or Linux
