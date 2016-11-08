@@ -2,14 +2,14 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.4.0 -- 2016-11-xx
+## 1.4.0 -- 2016-11-10
 ### Added:
 
 - Imfit (the package) now includes a new program for doing Markov chain
 Monte Carlo (MCMC) analysis of Imfit models: "imfit-mcmc". Rather than
 fitting the model to the data, this estimates the posterior-probability
 (i.e., the likelihood, equivalent to chi^2 in the default case)
-distribution for the model given the data. This uses the "DREAM"
+distribution for the model given the data. This uses the DREAM
 (DiffeRential Evolution Adaptive Metropolis) algorithm of Vrugt et al.,
 an efficient multiple-ensemble approach. See Chapter 13 of the
 documentation for more details.
@@ -34,7 +34,7 @@ behavior is to always initialize the RNG with the current system time.)
 ### Changed:
 
 - Tweaks to the Differential Evolution coefficients now make DE fits about
-xx--xx% faster.
+30--80% faster.
 
 - Imfit's internal PSF normalization (which takes place when PSF images are
 read in during startup) now uses the Kahan summation algorithm, which gives
@@ -56,6 +56,13 @@ unnecessary, except that "0.0 MB" looked kind of silly as an output when
 the estimated memory use was < 100 KB.) Memory estimation is also slightly
 more accurate now if one or more parameters are held fixed and L-M minimization
 is being used.
+
+- The SConstruct file no longer checks to see if there is a version of
+Xcode earlier than 5 installed on a Mac (in which case it would try to
+use llvm-g++-4.2 as the compiler), since that's increasingly
+ancient. The choices for compiling on a Mac are now basically: 1) Use
+GCC installed via a package manager (e.g., Homebrew, Fink, MacPorts); or
+2) Use Apple's version of clang without OpenMP support.
 
 
 

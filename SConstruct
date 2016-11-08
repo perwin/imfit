@@ -130,34 +130,34 @@ link_flags = []
 
 
 # newer version, should work on MacOS X 10.9 (and also earlier versions)
-def CheckForXcode5( ):
-	# code to check whether installed version of XCode is 5.0 or later, in which case
-	# we should specify llvm-g++-4.2 explicitly instead of relying on SCons to use g++
-	# [which for XCode 5 is Apple's llvm-based version *without* OpenMP support]
-	
-	macOSVersion = int(platform.mac_ver()[0].split(".")[1])
-	
-	if macOSVersion <= 7:
-		# XCode 5 cannot run on Lion or earlier
-		return False
-	if macOSVersion >= 9:  # Mavericks or later[?]
-		checkCommand = "pkgutil --pkg-info=com.apple.pkg.CLTools_Executables"
-	else:  # older OS versions (Mountain Lion or earlier)
-		checkCommand = "pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"
-	
-	output = subprocess.check_output([checkCommand],shell=True)
-	lines = output.splitlines()
-	for line in lines:
-		if line.find("version:") >= 0:
-			versionString = line.split()[1]
-			# version "number" is something like "5.0.1.0.1.1377666378", which can't
-			# be converted directly to a floating-point number; but we only need the
-			# major version, which is the very first part...
-			pp = versionString.split(".")
-			majorVersion = int(pp[0])
-			if (majorVersion >= 5):
-				return True
-	return False
+# def CheckForXcode5( ):
+# 	# code to check whether installed version of XCode is 5.0 or later, in which case
+# 	# we should specify llvm-g++-4.2 explicitly instead of relying on SCons to use g++
+# 	# [which for XCode 5 is Apple's llvm-based version *without* OpenMP support]
+# 	
+# 	macOSVersion = int(platform.mac_ver()[0].split(".")[1])
+# 	
+# 	if macOSVersion <= 7:
+# 		# XCode 5 cannot run on Lion or earlier
+# 		return False
+# 	if macOSVersion >= 9:  # Mavericks or later[?]
+# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.CLTools_Executables"
+# 	else:  # older OS versions (Mountain Lion or earlier)
+# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"
+# 	
+# 	output = subprocess.check_output([checkCommand],shell=True)
+# 	lines = output.splitlines()
+# 	for line in lines:
+# 		if line.find("version:") >= 0:
+# 			versionString = line.split()[1]
+# 			# version "number" is something like "5.0.1.0.1.1377666378", which can't
+# 			# be converted directly to a floating-point number; but we only need the
+# 			# major version, which is the very first part...
+# 			pp = versionString.split(".")
+# 			majorVersion = int(pp[0])
+# 			if (majorVersion >= 5):
+# 				return True
+# 	return False
 
 
 # find out what the default compilers (according to SCons) are
@@ -180,13 +180,13 @@ if (os_type == "Darwin") and (getpass.getuser() == "erwin"):
 
 
 # *** System-specific setup
-xcode5 = False
+#xcode5 = False
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
 	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
 	# are 32-bit, use the following
 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
-	xcode5 = CheckForXcode5()
+#	xcode5 = CheckForXcode5()
 if (os_type == "Linux"):
 	# change the following path definitions as needed
 	include_path.append("/usr/include")
@@ -436,13 +436,13 @@ defines_opt = defines_opt + extra_defines
 # "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling
 
-if xcode5 is True:
-	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
-	# to ensure we can use OpenMP.
-	if not c_compiler_changed:
-		CC_COMPILER = "llvm-gcc-4.2"
-	if not cpp_compiler_changed:
-		CPP_COMPILER = "llvm-g++-4.2"
+# if xcode5 is True:
+# 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
+# 	# to ensure we can use OpenMP.
+# 	if not c_compiler_changed:
+# 		CC_COMPILER = "llvm-gcc-4.2"
+# 	if not cpp_compiler_changed:
+# 		CPP_COMPILER = "llvm-g++-4.2"
 
 env_opt = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
 					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )

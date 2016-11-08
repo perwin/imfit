@@ -154,7 +154,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   deStrategy = stRandToBest1Exp;
 //   F = 0.85;
 //   CR = 1.0;
-  F = 0.8;
+  F = 0.70;
   CR = 1.0;
   maxGenerations = MAX_DE_GENERATIONS;
   // Instantiate and set up the DE solver:

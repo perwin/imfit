@@ -80,7 +80,7 @@
 
 % Definition of title page:
 \title{
-  Notes for Using ``Imfit'' \\
+  Notes for Using Imfit \\
   (Version \versionnum{})
 }
 \author{
@@ -94,6 +94,8 @@
 
 \tableofcontents
 
+
+\newpage
 
 \chapter{What Is It?}
 
@@ -154,10 +156,10 @@ distinction should be meaningless. (I.e., in most cases you're using the
 \bigskip
 
 \textbf{System Requirements:} \Imfit{} has been built and tested on
-Intel-based MacOS X 10.6--10.10 (Snow Leopard, Lion, Mountain Lion,
-Mavericks, and Yosemite) and Linux (Ubuntu) systems. It uses standard
-C++ and should work on most Unix-style systems with a modern C++
-compiler and the Standard Template Library (e.g., \textsc{gcc} v4 or
+Intel-based MacOS X 10.6--10.11 (Snow Leopard, Lion, Mountain Lion,
+Mavericks, Yosemite, and El Capitan) and Linux (Ubuntu) systems. It uses
+standard C++ and should work on most Unix-style systems with a modern
+C++ compiler and the Standard Template Library (e.g., \textsc{gcc} v4 or
 higher\footnote{\textsc{gcc} v4.2 or higher is necessary to take
 advantage of OpenMP-related speedups.}). It relies on two external,
 open-source libraries: version 3 of the \textsc{cfitsio}
@@ -182,6 +184,8 @@ an implementation of the MCMC DREAM algorithm in C++ by Gabriel
 Leventhal.\footnote{\url{https://github.com/gaberoo/cdream}}
 
 
+
+\newpage
 
 \chapter{Getting and Installing \Imfit{}}
 
@@ -388,14 +392,14 @@ with the following commands:
 The standard compiler tools for Mac OS~X are those which come with
 Apple's Xcode. Prior to version 5, Xcode included
 \textsc{gcc} 4.2 (or an LLVM-based equivalent called ``llvm-gcc'').
-Unfortunately, the command-line compilers which come with Xcode 5 and 6 are
+Unfortunately, the command-line compilers which come with Xcode 5 and later are
 based on Clang instead of \textsc{gcc} and so do \textit{not} support
 OpenMP. 
 
 In order to compile \imfit{} with OpenMP, you will need either a
 previous version of Xcode (e.g., from a prior installation) or a
-separate installation of \textsc{gcc} 4.2 or later (such as those
-available via package managers such as Fink, MacPorts, or Homebrew).
+separate installation of \textsc{gcc} 4.2 or later, such as those
+available via package managers such as Fink, MacPorts, or Homebrew.
 
 (Current work on LLVM and Clang includes adding support for OpenMP, so
 future versions of Xcode \textit{might} hopefully restore support for
@@ -424,6 +428,8 @@ you can remove multithreaded FFT computation by compiling with the following com
 
 
 
+
+\newpage
 
 \chapter{Trying It Out}
 
@@ -485,6 +491,8 @@ file \\
 
 
 
+
+\newpage
 
 \chapter{Using \Imfit{}}\label{sec:using-imfit}\label{chap:using-imfit}
 
@@ -692,6 +700,8 @@ of this command to help construct a configuration file.
 
 
 
+
+\newpage
 
 \chapter{The Configuration File}\label{sec:configfile}
 
@@ -919,6 +929,8 @@ always overrides whatever value is  in the configuration file.}
 
 
 
+\newpage
+
 \chapter{Standard Image Functions}
 
 \Imfit{} comes with the following 2D image functions, each of
@@ -995,6 +1007,8 @@ obtained by running \imfitprog{} with the ``\texttt{--list-parameters}'' option:
 
 
 
+
+\newpage
 
 \chapter{Images}
 
@@ -1081,6 +1095,8 @@ URLs which point directly to accessible \textsc{fits} files; you cannot
 \textit{save} files to URLs, however.
 
 
+
+\newpage
 
 \chapter{Extras for Fitting Images}
 
@@ -1252,7 +1268,8 @@ with the oversampled PSF applied to the model.
 \end{itemize}
 For example, 
 \begin{quote}
-\texttt{\$ imfit --overpsf psf5.fits --overpsf\_scale 5 --overpsf\_region 490:500,620:630}
+\texttt{\$ imfit --overpsf psf5.fits --overpsf\_scale 5 \textbackslash \\
+         --overpsf\_region 490:500,620:630}
 \end{quote}
 tells \imfit{} that you want the region [490:500,620:630] within the image to use
 oversampled PSF convolution, that the oversampled PSF is contained in the file \texttt{psf5.fits},
@@ -1260,6 +1277,8 @@ and that the oversampling scale is a factor of 5 (i.e., one normal pixel in the 
 corresponds to $5 \times 5$ pixels in the oversampled model and the PSF).
 
 
+
+\newpage
 
 \chapter{What Gets Minimized During a Fit, and How to Minimize It}
 
@@ -1448,6 +1467,8 @@ parameters).
 
 
 
+\newpage
+
 \chapter{Outputs}
 
 \section{Main Outputs}
@@ -1595,7 +1616,13 @@ Using the \texttt{--save-bootstrap} command, one can provide a filename
 for saving the best-fitting parameters from all the individual resampled
 fits; these are written as one line per fit.
 
+The python module \texttt{imfit.py} (in the \texttt{python} subdirectory)
+contains a function (GetBootstrapOutput) which reads in a bootstrap save
+file and returns a list of the parameter names and a Numpy array with
+the saved bootstrap fits.
 
+
+\newpage
 
 \chapter{Miscellaneous Notes}
 
@@ -1658,6 +1685,8 @@ of memory with a particular fit.
 
 
 
+
+\newpage
 
 \chapter{Makeimage}
 
@@ -1825,10 +1854,11 @@ unless you also specify the \texttt{--nosave} option.
 
 
 
+\newpage
 
 \chapter{Markov Chain Monte Carlos Analysis with \imfitmcmc}
 
-As of version 1.4, \Imfit{} now includes a separate program for doing
+As of version 1.4, \Imfit{} includes a separate program for doing
 Markov chain Monte Carlo (MCMC) analysis of galaxy image models: \imfitmcmc.
 This uses the exact same surface-brightness models, statistical options,
 and input configuration files as \imfitprog, but instead of solving for the
@@ -1923,7 +1953,7 @@ the Markov-chain output files (the program defaults to using
 \texttt{mcmc\_out} as the root name if \texttt{-o} is not used), and
 some extra options for tweaking the MCMC algorithm.
 
-The following \imfitprog{} options are \textit{not} available:
+The following \imfitprog{} options are \textit{not} available with \imfitmcmc:
 \begin{itemize}
 \item Minimizer selection and control: \texttt{--nm}, \texttt{--nlopt}, \texttt{--de},
 \texttt{--ftol}
@@ -2044,6 +2074,8 @@ $>>>$ corner.corner(allchains, labels=columnNames)
 
 
 
+
+\newpage
 
 \chapter{Rolling Your Own Functions}
 
@@ -2288,6 +2320,8 @@ That's it! You should now be able to recompile \imfit{} and \makeimage{}
 the new function. (Assuming there aren't any bugs in your new code\ldots.)
 
 
+
+\newpage
 
 \chapter{Acknowledging Use of \Imfit}
 
