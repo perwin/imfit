@@ -124,7 +124,8 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
     for (int i = 0; i < p->numChains; ++i) {
       for (int j = 0; j < p->nvar; ++j) 
         *oout[i] << state(0,i,j) << " ";
-      *oout[i]  << lik(0,i) << " " << inBurnIn << " " << 0 << " ";
+//      *oout[i]  << lik(0,i) << " " << inBurnIn << " " << 0 << " ";
+      *oout[i]  << lik(0,i) << " " << inBurnIn << " " << " ";
       for (int j = 0; j < p->nCR; ++j) 
         *oout[i] << pCR[j] << " ";
       *oout[i] << 1 << endl;
@@ -436,7 +437,8 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
       for (int i = 0; i < p->numChains; ++i) {
         for (int j = 0; j < p->nvar; ++j) 
           *oout[i] << state(t,i,j) << " ";
-        *oout[i] << lik(t,i) << " " << (t < burnInStart + p->burnIn) << " " << genNumber << " ";
+//        *oout[i] << lik(t,i) << " " << (t < burnInStart + p->burnIn) << " " << genNumber << " ";
+        *oout[i] << lik(t,i) << " " << (t < burnInStart + p->burnIn) << " " << " ";
         for (int j(0); j < p->nCR; ++j) 
           *oout[i] << pCR[j] << " ";
         *oout[i] << acceptStep[i] << endl;

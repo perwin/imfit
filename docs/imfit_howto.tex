@@ -145,7 +145,7 @@ generate artificial galaxy images (using the same input/output
 parameter-file format that \imfitprog{} uses). \\
 \end{itemize}
 In this document, I use \imfit{} (in boldface) to refer to the whole
-package and \imfitprog to specific use of the actual fitting program,
+package and \imfitprog{} to specific use of the actual fitting program,
 although I'm not entirely consistent about this; in most cases this
 distinction should be meaningless. (I.e., in most cases you're using the
 \imfitprog{} binary to fit images.)
@@ -1848,10 +1848,10 @@ outputs such as best-fit model image), \imfitmcmc{} saves multiple output text
 files, each containing one of the Markov chains. These are meant to be analyzed
 subsequently by the user. (Some simple Python code to help with this is provided.)
 
-In essence, you can use the same data and configuration file to do a standard
-fit with \imfitprog{} and to do MCMC analysis of the model, which can then be
-combined with the best-fit results to determine confidence intervals, look
-for multiple modes in the posterior distribution, identify correlations
+In essence, you can use the same data and configuration file to do a
+standard fit with \imfitprog{} and to do MCMC analysis of the model; the
+latter can then be used to determine confidence intervals, look for
+multiple modes in the posterior distribution, identify correlations
 between parameters, etc.
 
 It is important to understand that MCMC analysis takes \textit{much}
@@ -1867,23 +1867,24 @@ analysis of the same model requires \textit{several hundred thousand}
 model-image computations and approximately ten minutes to reach
 convergence.
 
-The MCMC approach that \imfitmcmc{} uses is the DREAM
-(DiffeRential Evolution Adaptive Metropolis) algorithm of
-\citet{vrugt09}, which is based on earlier adaptations of DE to MCMC by
-\citet{ter-braak06} and \citet{ter-braak08}. More details can be found
-in \citet{vrugt16}. The specific implementation used by \imfitmcmc{} is
-based on C++ code published by Gabriel
+The MCMC approach that \imfitmcmc{} uses is the DREAM (DiffeRential
+Evolution Adaptive Metropolis) algorithm of \citet{vrugt09}, which is
+based on earlier adaptations of DE to MCMC by \citet{ter-braak06} and
+\citet{ter-braak08}. More details can be found in \citet{vrugt16}. The
+specific implementation used by \imfitmcmc{} is based on C++ code
+published by Gabriel
 Rosenthal.\footnote{\url{https://github.com/gaberoo/cdream}} The
 algorithm uses multiple separate Markov chains (by default, a number
 equal to the number of free parameters in the model) and a DE-based
 scheme for generating new proposals for each chain using differences
 between the current states of other (randomly chosen) chains. A version
-of the Gelman-Rubin convergence diagnostic is used to estimate when
-convergence is reached; if this is never achieved, then the algorithm
-terminates after a user-specified maximum number of iterations.
+of the Gelman-Rubin convergence diagnostic \citep{gelman-rubin} is used to
+estimate when convergence is reached; if this is never achieved, then
+the algorithm terminates after a user-specified maximum number of
+iterations.
 
-In simplified terms, the generation of a new proposal involves scaled
-offsets from the current state of a chain (parameter values $x_{i}$,
+In simplified terms, the generation of a new proposal in a chain involves scaled
+offsets from the current state of the chain (parameter values $x_{i}$,
 with $i = 1, .., N_{\textrm{params}}$), with the base offsets
 $\Delta_{i}$ taken from the difference in parameter values between the
 current states of two (or more) \textit{other} chains. A random subset
@@ -1915,10 +1916,12 @@ TBD.
 
 \section{Using \imfitmcmc{}}
 
-Use of \imfitmcmc{} on the command line is almost identical to use of \imfitprog{}
-(Chapter~\ref{chap:using-imfit}). The main difference is the optional use of \texttt{-o/--output}
-to specify the root name for the Markov-chain output files (the program defaults to
-using \texttt{mcmc\_out} as the root name if \texttt{-o} is not used).
+Use of \imfitmcmc{} on the command line is almost identical to use of
+\imfitprog{} (Chapter~\ref{chap:using-imfit}). The main difference is
+the optional use of \texttt{-o/--output} to specify the root name for
+the Markov-chain output files (the program defaults to using
+\texttt{mcmc\_out} as the root name if \texttt{-o} is not used), and
+some extra options for tweaking the MCMC algorithm.
 
 The following \imfitprog{} options are \textit{not} available:
 \begin{itemize}
@@ -1944,10 +1947,12 @@ in the model, which is the recommended value.
 \item \texttt{--append} --- specifies that pre-existing MCMC chain files should be
 read in and the MCMC process continued from their final states.
 
-\item \texttt{--max-chain-length} \textit{N} --- the maximum number of generations (with
-one likelihood evaluation per generation) per chain. The program will quit if
-if reaches this value. The default value is 100,000 (which means a total number
-of likelihood evaluations -- i.e., model-image computations -- of 100,000 $\times N_{\mathrm{chains}}$).
+\item \texttt{--max-chain-length} \textit{N} --- the maximum number of
+generations (with one likelihood evaluation per generation) per chain.
+The program will quit if if reaches this value. The default value is
+100,000 (which means the total number of likelihood evaluations -- i.e.,
+model-image computations -- will be 100,000 $\times
+N_{\mathrm{chains}}$).
 
 \item \texttt{--burnin-length} \textit{N} --- the number of generations of the initial ``burn-in''
 phase, where larger jumps are taken to ensure adequate exploration of the posterior
@@ -1959,7 +1964,7 @@ done every \textit{N} generations. Default value: 5,000.
 
 \item \texttt{--uniform-offset} \textit{u} --- the limit on variations in the multiplicative
 scaling applied to proposed parameter offsets, such that offsets are multiplied
-by uniformly sampled numbers in the interval $1 \pm u$. Default value: 0.01.
+by uniformly sampled numbers in the interval $[1 - u, 1 + u]$. Default value: 0.01.
 
 \item \texttt{--gaussian-offset} \textit{s} --- Gaussian $\sigma$ value for additive
 variations applied to proposed parameter offsets, such that $N(0,s)$ is added to
@@ -1968,16 +1973,6 @@ each offset (i.e., a Gaussian with mean $= 0$ and dispersion $= s$). Default val
 \end{itemize}
 
 
-% -o  --output <output-root>   root name for output MCMC chain files [default = mcmc_out]
-%     --append                 load state from existing output files and continue from there
-%     --nchains <int>          Number of separate MCMC chains [default = # free parameters in model])
-%     --max-evals <int>        Maximum number of likelihood evaluations [default = 100000])
-%     --nburnin <int>          Number of burn-in evaluations [default = 5000])
-%     --max-gelman-evals <int>   Maximum number of Gelman-Rubin convergence evaluations [default = 1000])
-%     --gelman-rubin-limit <float>   Gelman-Rubin scale reduction factor limit [default = 1.01])
-%     --mcmc-noise <float>     MCMC noise term [boundary for uniform offsets of scaling; default = 0.01]
-%     --bstar <float>          MCMC b^star term [sigma for absolute Gaussian offsets; default = 1.0e-6]
-%
 
 \section{Configuration Files for \imfitmcmc{}}
 
@@ -1987,6 +1982,64 @@ function parameters. (This is similar to how \imfit{} works with the Differentia
 Evolution miminizer.)
 
 TBD.
+
+
+
+\section{Analysis of \imfitmcmc{} output}
+
+The result of running \imfitmcmc{} is a set of output text files, each
+of which contains one of the $N_{\textrm{chains}}$ Markov chains. The
+files contain one column for each of the model parameters (plus several
+additional columns with diagnostics of the MCMC process: the likelihood
+value for a given set of parameters, whether the chain was in the
+burn-in phase, etc.), and one row for each generation in the chain.
+
+Each individual file can be inspected to see how the MCMC process
+evolved, to check for lack of convergence, etc. To get a proper
+evaluation of the estimated posterior/likelihood landscape, all the
+chains should be combined, excluding the burn-in phase(s). Since the
+Gelman-Rubin convergence test checks the last half of each chain, you
+could plausibly use the last half of all the output chains, assuming that
+\imfitmcmc{} terminated because convergence was detected.
+
+Some simple Python code for reading in the MCMC output is included
+in the \texttt{python/} subdirectory of the distribution, in the file
+\texttt{imfit.py}. There are two functions of interest: 
+\begin{itemize}
+\item \texttt{GetSingleChain}, which reads in a single output file; 
+\item \texttt{MergeChains}, which reads in \textit{all} the output files and 
+concatenates them into a single composite chain, with user-specified limits 
+(e.g., merge only generations $n$ or later, or merge only the last $n$ generations).
+\end{itemize}
+Some basic examples follow.
+
+Assuming that \imfitmcmc{} has run and produced converged output files 
+named mcmc\_out.0.txt, mcmc\_out.1.txt, etc., the following Python code will read in the
+first of these files:
+\begin{quote}
+$>>>$ import imfit \\
+$>>>$ columnNames, chain0 = imfit.GetSingleChain("mcmc\_out.0.txt")
+\end{quote}
+
+The result is a list of the parameter names (columnNames) and a Numpy
+array (chain0) with shape $= (n_{\textrm{rows}}$, $n_{\textrm{cols}})$,
+where each row is one generation from the chain. The parameter names
+map to the columns in the Numpy array.
+
+The following bit of Python code reads in the last 5,000 generations
+from each chain and merges them together, returning a list and a Numpy
+array with the same form as for \texttt{GetSingleChain}. It then uses
+the \texttt{corner}
+package\footnote{\url{http://corner.readthedocs.io/en/latest/}}
+\citep{corner} to make a scatterplot matrix (a.k.a.\ ``corner plot'') of the
+different parameter distributions:
+
+\begin{quote}
+$>>>$ import imfit, corner \\
+$>>>$ columnNames, allchains = imfit.MergeChains("mcmc\_out", last=5000) \\
+$>>>$ corner.corner(allchains, labels=columnNames)
+\end{quote}
+
 
 
 
@@ -2897,12 +2950,20 @@ Surface-Brightness Profiles of Barred Galaxies'', \textit{Astron.J.} \textbf{135
 \bibitem[Erwin(2015)]{erwin15} Erwin, P. 2015, ``Imfit: A Fast, Flexible
 New Program for Astronomical Image Fitting'', \textit{Astrophys.J.} \textbf{799:} 226.
 
+\bibitem[Foreman-Mackey(2016)]{corner} Foreman-Mackey, D. 2016,
+``corner.py: Scatterplot matrices in Python', \textit{The Journal of Open Source Software}
+\textbf{1:} 24.
+
 \bibitem[Gadotti(2008)]{gadotti08} Gadotti, D. A. 2008, ``Image
 decomposition of barred galaxies and AGN hosts'', \textit{Monthly
 Notices of the Royal Astronomical Society} \textbf{384}: 420.
 
+\bibitem[Gelman \& Rubin(1992)]{gelman-rubin} Gelman, A., and Rubin,
+D.~B. 1992, ``Inference from iterative simulation using multiple
+sequences'', \textit{Statistical Science} \textbf{7}: 457.
+
 \bibitem[Graham et al.(2003)]{graham03} Graham, A., Erwin, P., Trujillo, I., and
-Asensio Ramos, A. 2003 ``A New Empirical Model for the Structural Analysis of
+Asensio Ramos, A. 2003, ``A New Empirical Model for the Structural Analysis of
 Early-Type Galaxies, and A Critical Review of the Nuker Model'',
 \textit{Astron.J.} \textbf{125}: 2951.
 

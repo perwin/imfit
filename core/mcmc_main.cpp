@@ -70,9 +70,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.4.0b2 (OpenMP-enabled)"
+#define VERSION_STRING      "1.4.0 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.4.0b2"
+#define VERSION_STRING      "1.4.0"
 #endif
 
 
@@ -521,7 +521,7 @@ int main(int argc, char *argv[])
   									"#", true);
   programHeader.push_back("#\n# Column Headers\n");
   string headerString = theModel->GetParamHeader();
-  headerString += "  likelihood  burn-in gen     ";
+  headerString += "  likelihood  burn-in    ";
   for (int i = 0; i < dreamPars.nCR - 1; i++)
     headerString += PrintToString("CR%d               ", i + 1);
   headerString += PrintToString("CR%d        ", dreamPars.nCR);

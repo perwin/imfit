@@ -218,16 +218,13 @@ def GetSingleChain( filename, getAllColumns=False ):
 	return (outputColumnNames, d)
 
 
-def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, last=None  ):
+def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, last=None,
+				secondHalf=False  ):
 	"""
-	Reads and merges all MCMC output chains with filenames = fname_root.*.txt,
-	using data from t=start onwards.
+	Reads and concatenates all MCMC output chains with filenames = fname_root.*.txt,
+	using data from t=start onwards. By default, all generations from each chain
+	are extracted; this can be modified with the start, last, or secondHalf keywords.
 	
-		maxChains = only read the first N chain files
-		getAllColumns = If False [default], then only parameter-value columns are
-			returned
-		start = extract samples from time=start to end of each chain
-		last = extract last N samples from each chain [overrides "start"]
 
 	Parameters
 	----------
@@ -243,10 +240,15 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 
 	start : int, optional
 		extract samples from each chain beginning with time = start
-		ignored if "last" is not None
+		ignored if "secondHalf" is True or if "last" is not None
 
 	last : int or None, optional
 		extract last N samples from each chain
+		ignored if "secondHalf" is True
+	
+	secondHalf : bool, optional
+		if True, only the second half of each chain is extracted
+		if False [default], 
 		
 	Returns
 	-------
@@ -264,16 +266,20 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 		filenames = ["{0}.{1}.txt".format(fname_root, n) for n in range(maxChains)]
 	nFiles = len(filenames)
 	
+	# get the first chain so we can tell how long the chains are
+	(colNames, dd) = GetSingleChain(filenames[0], getAllColumns=getAllColumns)
+	nGenerations = dd.shape[0]
+
 	# figure out what part of full chain to extract
-	if last is not None:
+	if secondHalf is True:
+		startTime = int(floor(nGenerations / 2))
+	elif last is not None:
 		startTime = -last
 	else:
 		startTime = start
 	
 	# get first chain and column names; figure out if we get all columns or just
 	# model parameters
-	(colNames, dd) = GetSingleChain(filenames[0], getAllColumns=getAllColumns)
-	nGenerations = dd.shape[0]
 	if (startTime >= nGenerations):
 		txt = "WARNING: # generations in MCMC chain file {0} ({1:d}) is <= ".format(filenames[0],
 				nGenerations)
