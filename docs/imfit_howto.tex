@@ -1858,25 +1858,27 @@ unless you also specify the \texttt{--nosave} option.
 
 \chapter{Markov Chain Monte Carlos Analysis with \imfitmcmc}
 
-As of version 1.4, \Imfit{} includes a separate program for doing
-Markov chain Monte Carlo (MCMC) analysis of galaxy image models: \imfitmcmc.
+As of version 1.4, \Imfit{} includes a separate program for doing Markov
+chain Monte Carlo (MCMC) analysis of galaxy image models: \imfitmcmc.
 This uses the exact same surface-brightness models, statistical options,
-and input configuration files as \imfitprog, but instead of solving for the
-``best-fitting'' model, it produces an estimate of the posterior-probability (i.e.,
-likelihood) distribution. Although it \textit{can} be used to ``fit''
-models to data -- if the user is willing to adopt some
-approach for identifying ``best-fit'' values from the posterior
-distribution\footnote{E.g., using mean or median value from the marginal distribution
-of each parameter.} -- it is probably more useful as a way of determining
-uncertainty ranges for, and correlations between, model parameters.
+and input configuration files as \imfitprog, but instead of solving for
+the ``best-fitting'' model, it produces an estimate of the
+posterior-probability (i.e., likelihood) distribution. Although it
+\textit{can} be used to ``fit'' models to data -- if the user is willing
+to adopt some approach for identifying ``best-fit'' values from the
+posterior distribution\footnote{E.g., using mean or median value from
+the marginal distribution of each parameter.} -- it is probably more
+useful as a way of determining uncertainty ranges for, and correlations
+between, model parameters.
 
 The inputs for \imfitmcmc{} are the same as for \imfitprog: data image,
-model configuration file, optional PSF image(s), statistical model (\chisquare{}
-based on data, model, or input error map; Poisson MLR statistic), etc.
-The outputs are different: instead of a best-fitting parameter file (and optional
-outputs such as best-fit model image), \imfitmcmc{} saves multiple output text
-files, each containing one of the Markov chains. These are meant to be analyzed
-subsequently by the user. (Some simple Python code to help with this is provided.)
+model configuration file, optional PSF image(s), statistical model
+(\chisquare{} based on data, model, or input error map; Poisson MLR
+statistic), etc. The outputs are different: instead of a best-fitting
+parameter file (and optional outputs such as best-fit model image),
+\imfitmcmc{} saves multiple output text files, each containing one of
+the Markov chains. These are meant to be analyzed subsequently by the
+user. (Some simple Python code to help with this is provided.)
 
 In essence, you can use the same data and configuration file to do a
 standard fit with \imfitprog{} and to do MCMC analysis of the model; the
@@ -1941,6 +1943,10 @@ and $d^{\prime}$ is the number of parameters being updated for the current propo
 Every five generations $\gamma$ is set $= 1$, to encourage occasional longer
 jumps outside the current location in parameter space.
 
+The posterior-probability distribution is proportional to `the
+likelihood of the data given the model, multiplied by an assumed prior
+probability which is constant between the parameter limits specified in the
+configuration file and zero outside those limits.
 
 TBD.
 
