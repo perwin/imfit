@@ -68,8 +68,8 @@
 		
 		colnames, d_mcmc_lowsn200 = MergeChains('mcmc_out_lowsn200', last=5000)
 
-	[ ] Clean up/rationalize output chain files
-		[ ] "gen" is currently useless cycling of 0,...9,
+	[x] Clean up/rationalize output chain files
+		[x] "gen" is currently useless cycling of 0,...9,
 	
 	[ ] replace C++ streams with stdio?
 		[x] replace C++ streams with stdio in dream_initialize.cpp
@@ -99,12 +99,12 @@
 		-- Also a version to do same with bootstrap output?
 		-- Internal code to hold functions+parameters in form similar to Andres' code??
 	
-	[ ] Modify dream.cpp: Experiment with converting every-5th-generation code in dream.cpp (roughly,
+	[x] Modify dream.cpp: Experiment with converting every-5th-generation code in dream.cpp (roughly,
 	lines 205--225) to be more like what Vrugt et al. do
 		-- Vrugt et al. seem to recommend setting gamma = 1.0 every 5th generation
 		-- Code in dream.cpp 
-			[] remove lines ~ 205--225 ("if (gammaGeneration++ == 5) { ... }")
-			[] modify line ~ 269 ("gamma = 2.38/sqrt(2.0*updateDim[i]*delta);") 
+			[x] remove lines ~ 205--225 ("if (gammaGeneration++ == 5) { ... }")
+			[x] modify line ~ 269 ("gamma = 2.38/sqrt(2.0*updateDim[i]*delta);") 
 			to set gamma = 1.0 if t % 5 == 0
 	
 	[ ] Modify dream.cpp: Add beta_0 parameter from Vrugt 2016?
@@ -121,7 +121,58 @@
 		if proposal variable value is outside bounds (thus rejecting the proposal)
 		-- see p.269 of Vrugt 2016 for options on handling parameter bounds
 	
-[ ] Separate code for doing model-image-generation timing into separate file
+	
+[] Possible optional parameters for image functions in config file
+	-- ways to specify optional settings, or even input parameter files that
+	function can read when first starting up
+	-- optional keywords after FUNCTION but before parameters?
+		e.g.
+		FUNCTION blah
+		OPTIONAL_PARAMS_START
+		xxx
+		OPTIONAL_PARAMS_END
+		
+		or even just
+		FUNCTION blah
+		xxx
+		OPTIONAL_PARAMS_END
+
+	Read and stored as something like dict of string: string pairs. If this exists
+	for a given function, then it is passed to function object just after initialization
+	(e.g., just after calling AddFunction)
+	Function object has extra method for handling input dict (defaults to a do-nothing)
+		-- e.g., it knows which values to convert to ints or doubles, how to
+		interpret different keywords, etc.
+		
+		[x] Add input method to FunctionObject
+			[x] Write unit tests to check input and processing of simple case
+			[x] Write code to pass unit tests
+		[x] Add input method to 2D FunctionObject subclass
+			[x] Write unit tests to check input and processing of 2D FunctionObject subclass
+			[x] Write code to pass unit tests
+		[] Add input method to ModelObject
+			[] Write unit test to check input and processing of 1 or more input dicts
+			[] Write code to pass unit tests
+		[] Add processing code to config_file_parser.cpp
+			[] Write sample config file with optional parameters
+			[] Write unit test to check input and processing of 1 optional parameter
+			[] Write unit test to check input and processing of multiple optional parameters
+			[] Write unit test to check input and processing of multiple optional parameters
+				for multiple functions
+			[] Write code to pass unit tests
+
+		[] Add optional-parameter processing code to func1d_spline.cpp
+			-- additive constant
+			[] Write unit test to check input and processing
+			[] Write code to pass test
+			[] Generate and check output
+				[] config file without optional parameter
+				[] config file with optional parameter
+				[] config file with optional parameter (different value)
+
+
+
+[ ] Separate the code which does doing model-image-generation timing into separate file
 	(so it can be used by both makeimage and imfit-mcmc)
 	
 [-] Implement Kahan summation in ModelObject::FindTotalFluxes
@@ -188,56 +239,6 @@
 	when parameter vector is passed to image function in Setup(),
 	*sort* the parameters by radius, then do interpolation with the sorted
 	vector of r,I
-
-[] Possible optional parameters for image functions in config file
-	-- ways to specify optional settings, or even input parameter files that
-	function can read when first starting up
-	-- optional keywords after FUNCTION but before parameters?
-		e.g.
-		FUNCTION blah
-		OPTIONAL_PARAMS_START
-		xxx
-		OPTIONAL_PARAMS_END
-		
-		or even just
-		FUNCTION blah
-		xxx
-		OPTIONAL_PARAMS_END
-
-	Read and stored as something like dict of string: string pairs. If this exists
-	for a given function, then it is passed to function object just after initialization
-	(e.g., just after calling AddFunction)
-	Function object has extra method for handling input dict (defaults to a do-nothing)
-		-- e.g., it knows which values to convert to ints or doubles, how to
-		interpret different keywords, etc.
-		
-		[x] Add input method to FunctionObject
-			[x] Write unit tests to check input and processing of simple case
-			[x] Write code to pass unit tests
-		[x] Add input method to 2D FunctionObject subclass
-			[x] Write unit tests to check input and processing of 2D FunctionObject subclass
-			[x] Write code to pass unit tests
-		[] Add input method to ModelObject
-			[] Write unit test to check input and processing of 1 or more input dicts
-			[] Write code to pass unit tests
-		[] Add processing code to config_file_parser.cpp
-			[] Write sample config file with optional parameters
-			[] Write unit test to check input and processing of 1 optional parameter
-			[] Write unit test to check input and processing of multiple optional parameters
-			[] Write unit test to check input and processing of multiple optional parameters
-				for multiple functions
-			[] Write code to pass unit tests
-
-		[] Add optional-parameter processing code to func1d_spline.cpp
-			-- additive constant
-			[] Write unit test to check input and processing
-			[] Write code to pass test
-			[] Generate and check output
-				[] config file without optional parameter
-				[] config file with optional parameter
-				[] config file with optional parameter (different value)
-
-
 
 [] Modify handling of oversampled PSF to catch case where user wants entire
 image oversampled
