@@ -27,8 +27,11 @@ ArXiv version:
 
 DOI for current release (v1.4), archived at Zenodo:
 
-[![DOI](https://zenodo.org/badge/20940/perwin/imfit.svg)](https://zenodo.org/badge/latestdoi/20940/perwin/imfit)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.165856.svg)](https://doi.org/10.5281/zenodo.165856)
 
+<!--
+[![DOI](https://zenodo.org/badge/20940/perwin/imfit.svg)](https://zenodo.org/badge/latestdoi/20940/perwin/imfit)
+-->
 
 ## About the code at this Github site
 

@@ -10,6 +10,7 @@
 6. [Better Fits: Trying Different Models](#betterfits-models)
 7. [More Correct Fits: PSF Convolution](#psf)
 8. [Chi-Squared and All That: Using Different Fit Statistics](#fitstats)
+9. [Parameter Uncertainties and Correlations: Bootstrap and MCMC](#uncertainties)
 
 ---
 
@@ -31,6 +32,8 @@ another directory and work there.
 If you want to download just the examples directory and its files, you
 can find it [here](../../../resources/imfit/imfit_examples.tar.gz).
 
+<br>
+
 
 ## <a name="fittingfirst"></a>Fitting Your First Image
 
@@ -43,7 +46,7 @@ So to start off, we'll try fitting the image file ic3478rss\_256.fits
 (a 256 x 256-pixel cutout from a DR7 SDSS *r*-band image of the
 dwarf elliptical galaxy IC 3478) with a simple exponential model, which is
 described in the configuration file config_sersic\_ic3478\_256.dat. To
-do the fit, just type:
+do the fit, just type (all on one line):
 
 	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat 
 	  --sky=130.14
@@ -86,6 +89,7 @@ option.)
 
 Congratulations; you've fit your first image!
 
+<br>
 
 ## <a name="inspecting"></a>Inspecting the Fit: Model Images and Residuals
 
@@ -138,6 +142,8 @@ default, this saves the model image using the filename "model.fits"; you
 can use the `-o` commandline parameter to specify your own name for the
 outer file.
 
+<br>
+
 
 ## <a name="betterfits-truth"></a>Better Fits: Telling Imfit the Truth About the Image
 
@@ -145,7 +151,7 @@ Leaving aside the question of mismatches between an exponential model
 and the actual galaxy, this isn't the best possible fit yet for our
 model.  (You may have noticed that imfit reported a reduced &chi;<sup>2</sup> value
 of ~ 0.45, which is a sign something odd is going on.) For one thing, we've
-deceived imfit about the nature of the data. The default &chi;<sup>2</sup> fitting
+deceived imfit about the nature of the data. The default &chi;<sup>2</sup> minimization
 process that imfit uses is based on the Gaussian approximation to
 Poisson statistics, and assumes that the pixel values in the image are
 detected photoelectrons (or N-body particles, or something else that
@@ -186,6 +192,8 @@ least statistically plausible!
 	I_0		316.313 # +/- 0.619616
 	h		 20.522 # +/- 0.0346742
 
+
+<br>
 
 
 ## <a name="betterfits-masking"></a>Better Fits: Masking
@@ -230,7 +238,10 @@ by radially stretching the exponential).
 	h		20.0684 # +/- 0.034584
 
 
-## <a name="betterfits-models"></a>Better Fits: Trying different models
+<br>
+
+
+## <a name="betterfits-models"></a>Better Fits: Trying Different Models
 
 As noted above, it looks like the exponential model is not a good match to the galaxy.
 You can see the available model components ("image functions") by calling imfit with the 
@@ -281,6 +292,9 @@ residuals are much improved over the residuals for the exponential model
 
 This is clearly a *much* better fit!
  
+
+<br>
+
 
 ## <a name="psf"></a>More Correct Fits: PSF Convolution
 
@@ -337,6 +351,8 @@ that a S&eacute;rsic + exponential model is a better fit for this galaxy
 than just a S&eacute;rsic function by itself.)
 
 
+<br>
+
 
 ### Makeimage and PSF images
 
@@ -355,6 +371,9 @@ option isn't necessary in this case). A model PSF image
 can be constructed using any combination of the image functions that imfit
 and makeimage know about -- Gaussian, Moffat, the *sum* of Gaussians and
 Moffats, etc.
+
+
+<br>
 
 
 
@@ -439,6 +458,158 @@ pure-Poisson approach being the most unbiased.)
 (See [Erwin
 2015](http://adsabs.harvard.edu/abs/2015ApJ...799..226E) for more on the
 statistical background and the corresponding biases.)
+
+
+<br>
+
+
+
+## <a name="uncertainties"></a>Parameter Uncertainties and Correlations: Bootstrap and MCMC
+
+As you probably noticed, part of the output of imfit is a set of 1-sigma
+parameter uncertainties for each fitted parameter in the model. These
+are automatically generated when using the default (Levenberg-Marquardt)
+minimizer. They're not usually all that accurate, they assume
+the uncertainties are all symmetric, and they don't provide any information
+about possible correlations or anti-correlations between different
+parameter values.
+
+If you a better picture of what the parameter uncertainties and possible correlations
+are like, there are two options one fast but noisy and the other slow but detailed:
+
+1. **Boootstrap resampling**: This involves generating a new version of
+the data image by sampling from the original image with replacement
+(ignoring masked pixels) and re-running the fit. Do this several hundred
+(or ideally several thousand) times, and you get a distribution of
+parameter values that can approximate the likelihood (e.g., the
+&chi;<sup>2</sup>).
+
+2. **Markov chain Monte Carlo (MCMC) analysis**: This involves computing
+Markov chains consisting of sequences of sets of parameter values. After
+an initial "burn-in" period, the distribution of points in parameter
+space represented by a chain should converge to something proportional to the
+likelihood. (The particular algorithm used by Imfit actually runs multiple
+chains in parallel.)
+
+
+### Bootstrap Resampling Example
+
+To save time, we'll use the model *without* PSF convolution (you can of course
+use PSF convolution with bootstrap resampling; it will just take longer):
+
+	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
+	  --mask ic3478rss_256_mask.fits --gain=4.725 --readnoise=4.3 
+	  --sky=130.14 --bootstrap 500 --save-bootstrap=bootstrap_output.dat
+
+This will do the fit as before, print the result, and then start doing
+500 rounds of bootstrap resampling and fits to the resampled data. When
+it's done (this takes about 30 seconds on a 2012 MacBook Pro with a quad-core
+CPU) it will print out a summary of the best-fit parameter values
+and their uncertainties; it will also save all 500 sets of parameter
+values in the file bootstrap\_output.dat.
+
+This file has one column per parameter; the column names are the parameters with
+numbers appended (e.g., `X0_1`, `n_1`) to make it possible to distinguish different
+parameters when multiple versions of the same function, or just multiple functions
+that have the same parameter names, are used in the model. (E.g.,
+all parameters for the first function will have `_1` appended, all parameters
+from the second will have `_2` appended, etc.)
+
+In the `python/` subdirectory of the main Imfit package there are a couple of
+Python modules: imfit\_funcs.py and imfit.py. The latter has a simple function
+to read in the bootstrap-resampling output file (`imfit.GetBootstrapOutput`), which
+will return a list of parameter names and a 2D Numpy array with the full set of
+parameter values.
+
+There are many possible ways of analyzing the bootstrap-resampling
+output. One thing you can do, if the model is not *too* complicated, is
+make a scatterplot matrix (a.k.a. corner plot) of the parameters. The
+Python package [corner.py](https://orner.readthedocs.io/en/latest/) can be used for this;
+here's a quick-and-dirty example that also uses the `imfit.GetBootstrapOutput`
+function:
+
+	>>> import imfit, corner
+	
+	>>> columnNames, bootstrapResults = imfit.GetBootstrapOutput("bootstrap_output.dat")
+	>>> corner.corner(bootstrapResults, labels=columnNames)
+
+The result is shown below.
+
+<a name="fig4"></a>
+<!--
+<img src="../../../resources/images/fig4_for_tutorial.png" alt="Scatterplot matrix for MCMC output" style="width:700px;"/>
+-->
+<!-- local, non-RapidWeaver path  -->
+<img src="fig4_for_tutorial.png" alt="Scatterplot matrix for MCMC output" style="width:750px;"/>
+
+<p>
+
+<b>Figure 4:</b> Scatterplot matrix of parameter values from 500 rounds of bootstrap resampling
+fits to the IC 3478 *r*-band image (S&eacute;rsic model, no PSF convolution).
+Note the clear correlations between the S&eacute;rsic model parameters (n, r\_e,
+I\_e).
+
+
+### MCMC Example
+
+MCMC analysis uses a separate program called `imfit-mcmc`. You can run it
+with the following command (note that it's identical to the regular `imfit`
+command, except for the option that specifies the root name for output files):
+
+	imfit-mcmc ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
+	  --mask ic3478rss_256_mask.fits --gain=4.725 --readnoise=4.3 
+	  --sky=130.14 --output=mcmc_ic3478r
+
+**Warning:** this will take several minutes! (On my 2012 MacBook Pro with a quad-core
+Intel i7 CPU, it takes about eight or ten minutes.)
+
+Various updates will be printed as the program runs. Once a trial "burn-in" phase
+is over, `imfit-mcmc` will test for possible convergence of the chains every 5,000
+generations by looking at the last half of each chain. If convergence is detected,
+the program will quit; otherwise, it will quit when it reaches 100,000 generations. (These
+values can be changed with command-line options.)
+
+When it's done, you will have *seven* output text files, named
+mcmc\_ic3478r.0.txt, mcmc\_ic3478r.1.txt, etc., one for each of the
+individual chains. (By default, the total number of chains is = the number
+of free parameters in the model.) Each is similar to the bootstrap-resampling output
+file in format, with one column for each parameter in the model (plus
+some extra bookkeeping columns that you can ignore unless you're
+interested in details of the MCMC process), and one row for each
+generation in the chain; each chain will have several tens of
+thousands of generations. 
+
+The ideal thing to do is probably to take the last half of each chain and combine
+them all into one gigantic set of parameter values. There's a Python
+function for that in python/imfit.py, which returns the same kinds of output
+as imfit.GetBootstrap (i.e., a list of parameter names and a 2D Numpy array).
+Here's an example of using that, and then making a scatterplot matrix with
+the corner.py module, just as we did for the bootstrap output:
+
+	>>> import imfit, corner
+	
+	>>> columnNames, allchains = imfit.MergeChains("mcmc_ic3478r", secondHalf=True)
+	>>> corner.corner(allchains, labels=columnNames)
+
+The result is shown below.
+
+<a name="fig5"></a>
+<!--
+<img src="../../../resources/images/fig5_for_tutorial.png" alt="Scatterplot matrix for MCMC output" style="width:700px;"/>
+-->
+<!-- local, non-RapidWeaver path  -->
+<img src="fig5_for_tutorial.png" alt="Scatterplot matrix for MCMC output" style="width:750px;"/>
+
+<p>
+
+<b>Figure 5:</b> Scatterplot matrix of parameter values from Markov
+chain Monte Carlo analysis of the IC 3478 *r*-band image (S&eacute;rsic
+model, no PSF convolution). Note the strong correlations between the
+S&eacute;rsic model parameters (n, r\_e, I\_e), and the weaker correlation
+between r\_e and ellipticity and between X0 and Y0. Since this plot is based on about 300,000
+samples, it is considerably less noisy than the version based on 500
+rounds of bootstrap resampling in [Figure 4](#fig4).
+
 
 <!--
 # Bits of Advice
