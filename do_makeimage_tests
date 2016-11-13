@@ -63,9 +63,12 @@ echo "Running tests for makeimage..."
 
 # testing that bad reference files are caught (redirect stderr to temptest/test_dump* files):
 ./makeimage tests/config_makeimage_sersic+exp512_nosize.dat --refimage=tests/config_makeimage_gensersic512.dat &> temptest/test_dump12
-# testing that bad PSF files (non-FITS or nonexistent) are caught (redirect stderr to temptest/test_dump* files):
+# testing that bad PSF files (non-FITS, FITS w/ NaN, nonexistent) are caught 
+# (redirect stderr to temptest/test_dump* files):
 ./makeimage tests/config_makeimage_sersic+exp512.dat --psf=tests/config_makeimage_gensersic512.dat  &> temptest/test_dump13
+./makeimage tests/config_makeimage_sersic+exp512.dat --psf=tests/testimage_3x3_nan.fits  &> temptest/test_dump13b
 ./makeimage tests/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> temptest/test_dump14
+
 ./makeimage tests/config_imfit_badparamline.dat  &> temptest/test_dump15
 
 
@@ -248,6 +251,16 @@ then
 else
   echo "Diff output:"
   diff temptest/test_dump13 tests/makeimage_textout13
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: PSF-image file with NaN values... "
+if (diff --brief temptest/test_dump13b tests/makeimage_textout13b)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump13b tests/makeimage_textout13b
   STATUS=1
 fi
 

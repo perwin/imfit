@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
+#include <math.h>
 using namespace std;
 #include "definitions.h"
 #include "function_objects/function_object.h"
@@ -49,6 +50,8 @@ public:
   ModelObject *modelObj4a;
   ModelObject *modelObj4b;
   ModelObject *modelObj4c;
+  ModelObject *modelObj5a;
+  ModelObject *modelObj5b;
   vector<string>  functionList1, functionList3;
   vector<double>  parameterList1, parameterList3;
   vector<mp_par>  paramLimits1, paramLimits3;
@@ -138,6 +141,12 @@ public:
     // Initialize modelObj4c and add model function & params (Exp + FlatSky)
     modelObj4c = new ModelObject();
     status = AddFunctions(modelObj4c, functionList1, FunctionBlockIndices1, true, -1);
+
+    // Initialize modelObj5a,b and add model function & params (Exp + FlatSky)
+    modelObj5a = new ModelObject();
+    status = AddFunctions(modelObj5a, functionList1, FunctionBlockIndices1, true, -1);
+    modelObj5b = new ModelObject();
+    status = AddFunctions(modelObj5b, functionList1, FunctionBlockIndices1, true, -1);
     
   }
 
@@ -159,6 +168,8 @@ public:
     delete modelObj4a;
     delete modelObj4b;
     delete modelObj4c;
+    delete modelObj5a;
+    delete modelObj5b;
   }
   
   
@@ -169,40 +180,6 @@ public:
     TS_ASSERT_EQUALS(headerLine, headerLine_correct);
   }
   
-  // OK, the following sometimes works and sometimes produces malloc error messages
-  // e.g., *** ERROR: Unable to allocate memory for weight vector!
-  //  (Requested image size was 5939772255493178644 pixels)
-//   void testSetAndGetStatisticType( void )
-//   {
-//     int  whichStat, status;
-//     bool cashStatUsed = false;
-//     
-//     // default should be chi^2
-//     whichStat = modelObj1->WhichFitStatistic();
-//     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE);
-//     // special case of verbose output
-//     whichStat = modelObj1->WhichFitStatistic(true);
-//     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_DATA);
-//     // switch to using model-based chi^2
-//     status = modelObj1->UseModelErrors();
-//     whichStat = modelObj1->WhichFitStatistic(true);
-//     TS_ASSERT_EQUALS(whichStat, FITSTAT_CHISQUARE_MODEL);
-//     
-//     modelObj1->UseCashStatistic();
-//     whichStat = modelObj1->WhichFitStatistic();
-//     TS_ASSERT_EQUALS(whichStat, FITSTAT_CASH);
-//     cashStatUsed = modelObj1->UsingCashStatistic();
-//     TS_ASSERT_EQUALS(cashStatUsed, true);
-// 
-//     // the following will generate a couple of warnings from within UseCashStatistic,
-//     // which is OK
-//     modelObj1->UsePoissonMLR();
-//     whichStat = modelObj1->WhichFitStatistic();
-//     TS_ASSERT_EQUALS(whichStat, FITSTAT_POISSON_MLR);
-//     cashStatUsed = modelObj1->UsingCashStatistic();
-//     TS_ASSERT_EQUALS(cashStatUsed, true);
-//   }
- 
  
   void testStoreAndRetrieveDataImage( void )
   {
@@ -331,6 +308,48 @@ public:
     // then add PSF pixels = wrong order!
     status4b = modelObj4b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, smallPSFImage);
     TS_ASSERT_EQUALS(status4b, -1);
+  }
+
+  // make sure ModelObject complains if we add a PSF with NaN pixel values
+  void testCatchBadPSF( void )
+  {
+    int  nColumns = 10;
+    int  nRows = 10;
+    int  nColumns_psf = 3;
+    int  nRows_psf = 3;
+    int  nPixels_psf = 9;
+    double  badPSFImage[9] = {sqrt(-1.0), 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    int  status;
+    
+    // This is the correct order
+    // add PSF pixels first
+    status = modelObj5a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, badPSFImage);
+    TS_ASSERT_EQUALS(status, -1);
+  }
+
+  // make sure ModelObject complains if we add oversampled PSF with NaN pixel values
+  void testCatchBadOversampledPSF( void )
+  {
+    int  nColumns = 10;
+    int  nRows = 10;
+    int  nColumns_psf = 3;
+    int  nRows_psf = 3;
+    int  nPixels_psf = 9;
+    double  goodPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    double  badPSFImage[9] = {sqrt(-1.0), 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    int  status;
+    
+    // This is the correct order
+    // add PSF pixels first
+    status = modelObj5b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, goodPSFImage);
+    TS_ASSERT_EQUALS(status, 0);
+    // final setup for modelObj5b
+    modelObj5b->SetupModelImage(nColumns, nRows);
+    
+    // now add the bad PSF as an oversampled PSF
+    status = modelObj5b->AddOversampledPSFVector(nPixels_psf, nColumns_psf, nRows_psf, 
+    					badPSFImage, 1, 1,2, 1,2);
+    TS_ASSERT_EQUALS(status, -1);
   }
   
   

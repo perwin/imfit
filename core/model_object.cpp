@@ -588,6 +588,14 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
   
   assert( (nPixels_psf >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
   
+  // check for bad values
+  for (long i = 0; i < nPixels_psf; i++) {
+    if (! isfinite(psfPixels[i])) {
+      fprintf(stderr, "** ERROR: PSF image has one or more non-finite values!\n");
+      return -1;
+    }
+  }
+  
   nPSFColumns = nColumns_psf;
   nPSFRows = nRows_psf;
   psfConvolver = new Convolver();
@@ -626,6 +634,14 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
   assert( (oversampleScale >= 1) );
   // assertion to check that nModelColumns and nModelRows *have* been set to good values
   assert( (nModelColumns > 0) && (nModelRows > 0) );
+
+  // check for bad values
+  for (long i = 0; i < nPixels; i++) {
+    if (! isfinite(psfPixels_osamp[i])) {
+      fprintf(stderr, "** ERROR: Oversampled PSF image has one or more non-finite values!\n");
+      return -1;
+    }
+  }
 
   // restrict region to be oversampled (in data or output image) to lie within image bounds
   if (x1 < 1)
