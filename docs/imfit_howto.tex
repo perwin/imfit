@@ -1864,91 +1864,99 @@ This uses the exact same surface-brightness models, statistical options,
 and input configuration files as \imfitprog, but instead of solving for
 the ``best-fitting'' model, it produces an estimate of the
 posterior-probability (i.e., likelihood) distribution. Although it
-\textit{can} be used to ``fit'' models to data -- if the user is willing
-to adopt some approach for identifying ``best-fit'' values from the
-posterior distribution\footnote{E.g., using mean or median value from
-the marginal distribution of each parameter.} -- it is probably more
-useful as a way of determining uncertainty ranges for, and correlations
-between, model parameters.
+certainly \textit{can} be used to ``fit'' models to data -- if the user
+is willing to adopt some approach for identifying ``best-fit'' values
+from the posterior distribution\footnote{E.g., using mean, median, or
+mode from the marginal distribution of each parameter.} -- it is
+probably more useful as a way of determining uncertainty ranges for, and
+correlations between, model parameters.
 
 The inputs for \imfitmcmc{} are the same as for \imfitprog: data image,
 model configuration file, optional PSF image(s), statistical model
 (\chisquare{} based on data, model, or input error map; Poisson MLR
 statistic), etc. The outputs are different: instead of a best-fitting
-parameter file (and optional outputs such as best-fit model image),
+parameter file and optional outputs such as best-fit model image,
 \imfitmcmc{} saves multiple output text files, each containing one of
 the Markov chains. These are meant to be analyzed subsequently by the
 user. (Some simple Python code to help with this is provided.)
 
-In essence, you can use the same data and configuration file to do a
-standard fit with \imfitprog{} and to do MCMC analysis of the model; the
+In essence, you can use the same data and configuration file to do both a
+standard fit with \imfitprog{} and MCMC analysis of the model; the
 latter can then be used to determine confidence intervals, look for
 multiple modes in the posterior distribution, identify correlations
 between parameters, etc.
 
 It is important to understand that MCMC analysis takes \textit{much}
 longer than a simple fit, even a fit done using the Differential
-Evolution (DE) minimizer. For example, the \texttt{examples/} subdirectory
-contains a $256 \times 256$-pixel SDSS $r$-band image of IC 3478 and a
-configuration file for a single-S{\'e}rsic fit to this image. The fit
-takes approximately 115 model-image computations and about 0.3 seconds
-to finish\footnote{On a MacBook Pro 2012 with 2.7 GHz Intel i7 quad-core CPU.}
-using the default Levenberg-Marquardt minimizer. Using DE, the fit takes
-$\sim$11,000 model-image computations and about 20 seconds. An MCMC
-analysis of the same model requires \textit{several hundred thousand}
-model-image computations and approximately ten minutes to reach
-convergence.
+Evolution (DE) minimizer. For example, the \texttt{examples/}
+subdirectory contains a $256 \times 256$-pixel SDSS $r$-band image of IC
+3478 and a configuration file for a single-S{\'e}rsic fit to this image.
+The basic fit (without PSF convolution) takes approximately 115 model-image
+computations and about 0.3 seconds to finish\footnote{On a MacBook Pro
+2012 with a 2.7 GHz Intel i7 quad-core CPU.} using the default
+Levenberg-Marquardt minimizer. Using DE, the fit takes $\sim$11,000
+model-image computations and about 20 seconds. An MCMC analysis of the
+same model requires \textit{several hundred thousand} model-image
+computations and approximately ten minutes to reach convergence.
 
 The MCMC approach that \imfitmcmc{} uses is the DREAM (DiffeRential
 Evolution Adaptive Metropolis) algorithm of \citet{vrugt09}, which is
-based on earlier adaptations of DE to MCMC by \citet{ter-braak06} and
-\citet{ter-braak08}. More details can be found in \citet{vrugt16}. The
-specific implementation used by \imfitmcmc{} is based on C++ code
-published by Gabriel
-Rosenthal.\footnote{\url{https://github.com/gaberoo/cdream}} The
+based on the earlier adaptation of DE to MCMC by \citet{ter-braak06};
+more details can be found in \citet{vrugt16}. The specific
+implementation used by \imfitmcmc{} is based on C++ code published by
+Gabriel Rosenthal.\footnote{\url{https://github.com/gaberoo/cdream}} The
 algorithm uses multiple separate Markov chains (by default, a number
 equal to the number of free parameters in the model) and a DE-based
 scheme for generating new proposals for each chain using differences
 between the current states of other (randomly chosen) chains. A version
-of the Gelman-Rubin convergence diagnostic \citep{gelman-rubin} is used to
-estimate when convergence is reached; if this is never achieved, then
-the algorithm terminates after a user-specified maximum number of
-iterations.
+of the Gelman-Rubin convergence diagnostic \citep{gelman-rubin} is used
+to estimate when convergence is reached, by examining the most recent
+50\% of each chain; the algorithm terminates after a user-specified
+maximum number of generations if convergence is not achieved before then.
 
-In simplified terms, the generation of a new proposal in a chain involves scaled
-offsets from the current state of the chain (parameter values $x_{i}$,
-with $i = 1, .., N_{\textrm{params}}$), with the base offsets
-$\Delta_{i}$ taken from the difference in parameter values between the
-current states of two (or more) \textit{other} chains. A random subset
-of the parameter values in the current state are updated, with the
-remaining parameters left unchanged.\footnote{The proposal can thus be
-seen as a ``crossover'' between a parameter vector with completely
-all-new values and the current parameter vector; this is part of the
-general DE algorithm.} For each parameter that is updated, the
+In simplified terms, creating a new proposal for a chain involves scaled
+offsets from the current state of the chain (i.e., the set of parameter
+values $x_{i}$, with $i = 1, .., N_{\textrm{params}}$), with the base
+offsets $\Delta_{i}$ taken from the difference in parameter values
+between the current states of two (or more) \textit{other} chains. A
+random subset of the parameter values in the current state are updated,
+with the remaining parameters left unchanged.\footnote{The proposal can
+thus be seen as a ``crossover'' between a parameter vector with
+completely all-new values and the current parameter vector; this is part
+of the general DE algorithm.} For each parameter that is updated, the
 new value $z_{i}$ is
 \begin{equation}
 z_{i} = x_{i} + (1 + U) \: \gamma \: \Delta_{i} + N(0,s) ,
 \end{equation}
-where $U$ is a uniformly sampled random number between $\pm u$ and $N(0,s)$ is a random
-sample from a Gaussian
-with mean of 0 and dispersion $s$. Both $u$ and $s$ can be specified by the user,
-though their default values (0.01 and $10^{-6}$, respectively), are probably good
-starting points.
-The scale parameter $\gamma$ is
+where $U$ is a uniformly sampled random number between $\pm u$ and
+$N(0,s)$ is a random sample from a Gaussian with mean of 0 and
+dispersion $s$. Both $u$ and $s$ can be specified by the user, though
+their default values (0.01 and $10^{-6}$, respectively) are probably
+good starting points. The scale parameter $\gamma$ is
 \begin{equation}
 \gamma = 2.38 / \sqrt{2 \delta d^{\prime}},
 \end{equation}
-where $\delta$ is the number of pairs used to determine the base offset ($\delta = 1$, 2, or 3)
-and $d^{\prime}$ is the number of parameters being updated for the current proposal.
-Every five generations $\gamma$ is set $= 1$, to encourage occasional longer
-jumps outside the current location in parameter space.
+where $\delta$ is the number of pairs used to determine the base offset
+($\delta = 1$, 2, or 3; the actual value used is randomly permuted by
+the algorithm) and $d^{\prime}$ is the number of parameters being
+updated for the current proposal. Every five generations $\gamma$ is set
+$= 1$, to encourage occasional longer jumps outside the current location
+in parameter space.
 
-The posterior-probability distribution is proportional to `the
-likelihood of the data given the model, multiplied by an assumed prior
-probability which is constant between the parameter limits specified in the
-configuration file and zero outside those limits.
+The stationary posterior-probability distribution (after convergence) is
+proportional to the likelihood of the data given the model, multiplied
+by an assumed prior probability which is constant between the parameter
+limits specified in the configuration file and zero outside those limits.
 
-TBD.
+The usual caveats about ``convergence'' of MCMC chains apply: the convergence
+test is not guaranteed to identify true convergence, and it is always possible
+that if run long enough, the composite chain will discover new modes in the
+posterior distribution. However, since most uses of MCMC for galaxy image fitting
+will probably be for purposes of identifying the distribution of parameter
+values in the vicinity of the overall ``best-fit'' state, it's probably not
+worth worrying too much about outlying low-probability alternate modes.
+
+
 
 \section{Using \imfitmcmc{}}
 
@@ -1974,11 +1982,11 @@ The following \imfitprog{} options are \textit{not} available with \imfitmcmc:
 \begin{itemize}
 \item \texttt{-o, --output} \textit{root-name} --- the root name for
 output MCMC chain files. The actual output files will be named <\textit{root-name}>\texttt{.0.txt},
-<\textit{root-name}>\texttt{.1.txt}, etc. The default root name is ``mcmc\_out''.
+<\textit{root-name}>\texttt{.1.txt}, etc. The default is ``mcmc\_out''.
 
-\item \texttt{--nchains} \textit{N} --- specifies the number of MCMC chains to
-calculate (must be at least 3). This defaults to $N = $ number of free parameters
-in the model, which is the recommended value.
+\item \texttt{--nchains} $N_{\textrm{chains}}$ --- specifies the number
+of MCMC chains to calculate (must be at least 3). This defaults to the
+number of free parameters in the model, which is the recommended value.
 
 \item \texttt{--append} --- specifies that pre-existing MCMC chain files should be
 read in and the MCMC process continued from their final states.
@@ -1995,8 +2003,9 @@ phase, where larger jumps are taken to ensure adequate exploration of the poster
 landscape. If outlier chains are subsequently discovered, burn-in will be re-entered
 for the same number of generations. Default value: 5,000.
 
-\item \texttt{--gelman-evals} \textit{N} --- Gelman-Rubin convergence tests will be
-done every \textit{N} generations. Default value: 5,000.
+\item \texttt{--gelman-evals} \textit{N} --- Gelman-Rubin convergence
+tests will be done every \textit{N} generations (after the burn-in phase
+has finished). Default value: 5,000.
 
 \item \texttt{--uniform-offset} \textit{u} --- the limit on variations in the multiplicative
 scaling applied to proposed parameter offsets, such that offsets are multiplied
@@ -2023,8 +2032,8 @@ TBD.
 
 \section{Analysis of \imfitmcmc{} output}
 
-The result of running \imfitmcmc{} is a set of output text files, each
-of which contains one of the $N_{\textrm{chains}}$ Markov chains. The
+The result of running \imfitmcmc{} is a set of $N_{\textrm{chains}}$
+output text files, each of which contains one of the Markov chains. The
 files contain one column for each of the model parameters (plus several
 additional columns with diagnostics of the MCMC process: the likelihood
 value for a given set of parameters, whether the chain was in the
@@ -2035,12 +2044,17 @@ evolved, to check for lack of convergence, etc. To get a proper
 evaluation of the estimated posterior/likelihood landscape, all the
 chains should be combined, excluding the burn-in phase(s). Since the
 Gelman-Rubin convergence test checks the last half of each chain, you
-could plausibly use the last half of all the output chains, assuming that
-\imfitmcmc{} terminated because convergence was detected.
+could plausibly use the last half of all the output chains, assuming
+that \imfitmcmc{} terminated because convergence was detected. For some
+analyses, this may be overkill, and using the last few thousand
+generations from each chain may suffice.
 
-Some simple Python code for reading in the MCMC output is included
-in the \texttt{python/} subdirectory of the distribution, in the file
-\texttt{imfit.py}. There are two functions of interest: 
+Some simple Python code for reading in the MCMC output is included in
+the \texttt{python/} subdirectory of the distribution, in the file
+\texttt{imfit.py}. (This file in turn depends on the file
+\texttt{imfit\_funcs.py} and the Scipy package, but the MCMC-related
+functions themselves do not, and can be extracted into a separate module
+if that makes things easier.) There are two functions of interest: 
 \begin{itemize}
 \item \texttt{GetSingleChain}, which reads in a single output file; 
 \item \texttt{MergeChains}, which reads in \textit{all} the output files and 

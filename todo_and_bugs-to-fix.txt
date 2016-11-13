@@ -14,6 +14,18 @@
 		[ ] Record and report cumulative number of likelihood evaluations
 		[ ] Print (and maybe report) total number of iterations
 
+	[ ] Possible speedup for dream(): delay writing of output until end
+		of process
+		-- currently, dream() writes output once per generation for each chain.
+		Possibly there is some cleverness in the streams output where things are
+		buffered until later, but if not, we might gain some speedup (esp. on 
+		machines with traditional hard disks) if we delay writing the chains
+		until the end.
+		
+	[ ] No-convergence-test mode
+		-- flag which tells dream() to ignore results of convergence tests and just
+		keep on going until p->maxEvals is reached.
+		
 	[x] Better headers for MCMC output
 		[x] Look for code that defines bootstrap output header
 		[x] Adapt code for bootstrap output header to MCMC output
@@ -229,7 +241,7 @@
 	mention possibility of missing sky parameter
 
 
-[] Spline-interpolation image function
+[ ] Spline-interpolation image function
 	-- radial SB profile (usually exponential, Sersic, etc.) is spline interpolation
 	using a small set of r, I values. The I values are free parameters of the fit;
 	possibly the r values could be also.
@@ -349,6 +361,8 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 
 ** MINOR BUGS TO FIX/IMPROVEMENTS TO MAKE:
+
+[ ] Check for NaN values in PSF (and oversampled-PSF) images; complain and quit if found
 
 
 

@@ -45,7 +45,7 @@ Imfit requires, as a minimum, two things:
 So to start off, we'll try fitting the image file ic3478rss\_256.fits
 (a 256 x 256-pixel cutout from a DR7 SDSS *r*-band image of the
 dwarf elliptical galaxy IC 3478) with a simple exponential model, which is
-described in the configuration file config_sersic\_ic3478\_256.dat. To
+described in the configuration file config\_exponential\_ic3478\_256.dat. To
 do the fit, just type (all on one line):
 
 	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat 
@@ -213,7 +213,7 @@ pixel values = 0 for all the "good" pixels and >= 1 for all the "bad" pixels
 The file ic3478rss\_256\_mask.fits in the examples directory is a mask image. You can
 use it in the fit with the "`--mask`" option:
 
-	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
+	imfit ic3478rss_256.fits -c config_exponential_ic3478_256.dat 
 	  --mask ic3478rss_256_mask.fits --sky=130.14 --gain=4.725 
 	  --readnoise=4.3
 
@@ -536,11 +536,10 @@ function:
 The result is shown below.
 
 <a name="fig4"></a>
-<!--
 <img src="../../../resources/images/fig4_for_tutorial.png" alt="Scatterplot matrix for MCMC output" style="width:700px;"/>
--->
-<!-- local, non-RapidWeaver path  -->
+<!-- local, non-RapidWeaver path
 <img src="fig4_for_tutorial.png" alt="Scatterplot matrix for MCMC output" style="width:750px;"/>
+-->
 
 <p>
 
@@ -594,11 +593,11 @@ the corner.py module, just as we did for the bootstrap output:
 The result is shown below.
 
 <a name="fig5"></a>
-<!--
 <img src="../../../resources/images/fig5_for_tutorial.png" alt="Scatterplot matrix for MCMC output" style="width:700px;"/>
--->
-<!-- local, non-RapidWeaver path  -->
+
+<!-- local, non-RapidWeaver path 
 <img src="fig5_for_tutorial.png" alt="Scatterplot matrix for MCMC output" style="width:750px;"/>
+-->
 
 <p>
 
