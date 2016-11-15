@@ -120,7 +120,10 @@ int main( int argc, char *argv[] )
   
   
   /* Process command line and parse config file: */
+  // Use a pointer to OptionsBase so we can use it in calls to SetupModelImage
   commandOpts = new MakeimageOptions();
+  // Use a pointer to MakeimageOptions so we can access all the extra, makeimage-specific
+  // data members
   options = (MakeimageOptions *)commandOpts;
   
 //   SetDefaultMakeimageOptions(&options);

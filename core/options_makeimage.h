@@ -45,7 +45,6 @@ class MakeimageOptions : public OptionsBase
       psfOversamplingScale = 0;
       oversampleRegionSet = false;
       nOversampleRegions = 0;
-      std::vector<std::string>  psfOversampleRegions;
   
       magZeroPoint = NO_MAGNITUDES;
 
