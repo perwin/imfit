@@ -206,15 +206,6 @@
 	very extended Gaussian.
 
 
-[X] Test for possible memory-allocation failures
-	[x] Reading in large images -- effectively already caught by cfitsio
-	[x] Allocating memory for model images
-	[x] Allocating memory for internally-generated error image
-	[x] Allocating memory for weight image
-	[x] Allocating FFTW arrays in Convolver
-	[x] Test using makeimage and very large --nrows,--ncols ?
-
-
 [] Convert total-pixel-number integer variables to long
 	[X]model_object.h: nModelVals, nDataVals, nValidDataVals, nOversampledModelVals
 	[X]model_object.cpp: 
@@ -370,7 +361,31 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 ** MINOR BUGS TO FIX/IMPROVEMENTS TO MAKE:
 
-[X] Check for NaN values in PSF (and oversampled-PSF) images; complain and quit if found
+[ ] In imfit and imfit-mcmc, oversampled-convolution regions are referenced by
+a string: options.psfOversampleRegion
+
+	The x1,x2,y1,y2 boundaries of the oversampled region are extracted from this string:
+    if (! options.oversampleRegionSet) {
+		GetAllCoordsFromBracket(options.psfOversampleRegion, &x1_oversample, ...)
+		
+	In makeimage, oversampled-convolution regions are referenced by a *vector*
+of string: options.psfOversampleRegions
+	the x1,x2,y1,y2 boundaries are extracted from the vector; effectively, only the
+	*last* string in the vector is actually used (since we loop over the vector, but
+	keep assigning the output to the same int variables):
+	
+    if (! options.oversampleRegionSet) {
+    ...
+    for (int ii = 0; ii < options->nOversampleRegions; ii++)
+      GetAllCoordsFromBracket2(options->psfOversampleRegions[ii], x1_oversample, x2_oversample, 
+    						y1_oversample, y2_oversample);
+
+	SO:
+		imfit,imfit-mcmc assume a single oversampled region, stored in options.psfOversampleRegion
+		makeimage assumes *multiple* oversampled regions, stored in options.psfOversampleRegions
+		BUT: the rest of makeimage assumes there's only one oversampled region (and only
+		one oversampled PSF).
+
 
 
 
@@ -451,6 +466,16 @@ OK, here is the problem:
 
 
 * IMPROVEMENTS APPLIED
+
+[X] Check for NaN values in PSF (and oversampled-PSF) images; complain and quit if found
+
+[X] Test for possible memory-allocation failures
+	[x] Reading in large images -- effectively already caught by cfitsio
+	[x] Allocating memory for model images
+	[x] Allocating memory for internally-generated error image
+	[x] Allocating memory for weight image
+	[x] Allocating FFTW arrays in Convolver
+	[x] Test using makeimage and very large --nrows,--ncols ?
 
 [X] Implement Kahan summation in PSF normalization
 	Convolver::DoFullSetup

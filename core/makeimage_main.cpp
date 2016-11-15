@@ -72,9 +72,12 @@ static string  kNRows = "NROWS";
 /* External functions: */
 
 /* Local Functions: */
-void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions );
+//void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions );
+// void HandleConfigFileOptions( configOptions *configFileOptions, 
+// 								makeimageCommandOptions *mainOptions );
+void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
-								makeimageCommandOptions *mainOptions );
+								MakeimageOptions *mainOptions );
 
 
 /* ------------------------ Global Variables --------------------------- */
@@ -109,53 +112,54 @@ int main( int argc, char *argv[] )
   vector<int>  functionBlockIndices;
   vector<string>  imageCommentsList;
   double  *singleFunctionImage;
-  makeimageCommandOptions  options;
+//  makeimageCommandOptions  options;
   OptionsBase *commandOpts;
-  MakeimageOptions *makeimageOpts;
+  MakeimageOptions *options;
   configOptions  userConfigOptions;
   bool  printFluxesOnly = false;
   
   
   /* Process command line and parse config file: */
   commandOpts = new MakeimageOptions();
-  makeimageOpts = (MakeimageOptions *)commandOpts;
+  options = (MakeimageOptions *)commandOpts;
   
-  SetDefaultMakeimageOptions(&options);
-  ProcessInput(argc, argv, &options);
+//   SetDefaultMakeimageOptions(&options);
+//   ProcessInput(argc, argv, &options);
+  ProcessInput(argc, argv, options);
   
   
-  if ((options.printFluxes) && (! options.saveImage) && (! options.printImages))
+  if ((options->printFluxes) && (! options->saveImage) && (! options->printImages))
     printFluxesOnly = true;
 
 
   /* Read configuration file */
-  if (! FileExists(options.configFileName.c_str())) {
+  if (! FileExists(options->configFileName.c_str())) {
     fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n\n", 
-           options.configFileName.c_str());
+           options->configFileName.c_str());
     return -1;
   }
-  status = ReadConfigFile(options.configFileName, true, functionList, parameterList,
+  status = ReadConfigFile(options->configFileName, true, functionList, parameterList,
   							functionBlockIndices, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file \"%s\"!\n\n", 
-    			options.configFileName.c_str());
+    			options->configFileName.c_str());
     return -1;
   }
 
   // Parse and process user-supplied (non-function) values from config file, if any
-  HandleConfigFileOptions(&userConfigOptions, &options);
+  HandleConfigFileOptions(&userConfigOptions, options);
 
 
-  if (! options.saveImage) {
+  if (! options->saveImage) {
     printf("\nUser requested that no images be saved!\n\n");
   }
   
   
   // Determine size of model image
-  if ((options.nColumns > 0) && (options.nRows > 0))
-    options.noImageDimensions = false;
-  if ( (options.noRefImage) && (options.noImageDimensions)) {
-    if (options.saveImage) {
+  if ((options->nColumns > 0) && (options->nRows > 0))
+    options->noImageDimensions = false;
+  if ( (options->noRefImage) && (options->noImageDimensions)) {
+    if (options->saveImage) {
       fprintf(stderr, "\n*** ERROR: Insufficient image dimensions (or no reference image) supplied!\n");
       fprintf(stderr, "           (Use --nrows and --ncols, or else --refimage)\n\n");
       return -1;
@@ -163,16 +167,16 @@ int main( int argc, char *argv[] )
     else {
       // minimal image size for the case where we don't actually generate an image
       // (except for --print-fluxes purposes)
-      options.nColumns = 2;
-      options.nRows = 2;
+      options->nColumns = 2;
+      options->nRows = 2;
     }
   }
   // Get image size from reference image, if necessary
-  if ((! printFluxesOnly) && (options.noImageDimensions)) {
-    status = GetImageSize(options.referenceImageName, &nColumns, &nRows);
+  if ((! printFluxesOnly) && (options->noImageDimensions)) {
+    status = GetImageSize(options->referenceImageName, &nColumns, &nRows);
     if (status != 0) {
       fprintf(stderr,  "\n*** ERROR: Failure determining size of image file \"%s\"!\n\n", 
-      			options.referenceImageName.c_str());
+      			options->referenceImageName.c_str());
       exit(-1);
     }
     // Reminder: nColumns = n_pixels_per_row
@@ -181,18 +185,18 @@ int main( int argc, char *argv[] )
            nRows, nColumns);
   }
   else {
-    nColumns = options.nColumns;
-    nRows = options.nRows;
+    nColumns = options->nColumns;
+    nRows = options->nRows;
   }
   
 
   // Read in PSF image, if supplied
-  if (options.psfImagePresent) {
-    printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
-    psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
+  if (options->psfImagePresent) {
+    printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
+    psfPixels = ReadImageAsVector(options->psfFileName, &nColumns_psf, &nRows_psf);
     if (psfPixels == NULL) {
       fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
-      			options.psfFileName.c_str());
+      			options->psfFileName.c_str());
       exit(-1);
     }
     nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
@@ -203,36 +207,36 @@ int main( int argc, char *argv[] )
     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
   // Read in oversampled PSF image, if supplied
-  if (options.psfOversampledImagePresent) {
-    if (options.psfOversamplingScale < 1) {
+  if (options->psfOversampledImagePresent) {
+    if (options->psfOversamplingScale < 1) {
       fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n");
       fprintf(stderr, "           (use --overpsf_scale to specify the scale)\n\n");
       exit(-1);
     }
-    if (! options.oversampleRegionSet) {
+    if (! options->oversampleRegionSet) {
       fprintf(stderr, "\n*** ERROR: the oversampling region within the main image was not defined!\n");
       fprintf(stderr, "           (use --overpsf_region to specify the region)\n\n");
       exit(-1);
     }
-    printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());
-    psfOversampledPixels = ReadImageAsVector(options.psfOversampledFileName, 
+    printf("Reading oversampled PSF image (\"%s\") ...\n", options->psfOversampledFileName.c_str());
+    psfOversampledPixels = ReadImageAsVector(options->psfOversampledFileName, 
     							&nColumns_psf_oversampled, &nRows_psf_oversampled);
     if (psfOversampledPixels == NULL) {
       fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
-    			options.psfOversampledFileName.c_str());
+    			options->psfOversampledFileName.c_str());
       exit(-1);
     }
     nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
     // Determine oversampling regions
-    for (int ii = 0; ii < options.nOversampleRegions; ii++)
-      GetAllCoordsFromBracket2(options.psfOversampleRegions[ii], x1_oversample, x2_oversample, 
+    for (int ii = 0; ii < options->nOversampleRegions; ii++)
+      GetAllCoordsFromBracket2(options->psfOversampleRegions[ii], x1_oversample, x2_oversample, 
     						y1_oversample, y2_oversample);
   }
 
 
-  if (! options.subsamplingFlag)
+  if (! options->subsamplingFlag)
     printf("* Pixel subsampling has been turned OFF.\n");
 
 
@@ -240,13 +244,13 @@ int main( int argc, char *argv[] )
   /* Set up the model object */
   theModel = new ModelObject();
   // Put limits on number of FFTW and OpenMP threads, if user requested it
-  if (options.maxThreadsSet)
-    theModel->SetMaxThreads(options.maxThreads);
+  if (options->maxThreadsSet)
+    theModel->SetMaxThreads(options->maxThreads);
 
   
   /* Add functions to the model object; also tells model object where function
      sets start */
-  status = AddFunctions(theModel, functionList, functionBlockIndices, options.subsamplingFlag);
+  status = AddFunctions(theModel, functionList, functionBlockIndices, options->subsamplingFlag);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
@@ -255,7 +259,7 @@ int main( int argc, char *argv[] )
   
   // Add PSF image vector, if present (needs to be added prior to image data, so that
   // ModelObject can figure out proper internal model-image size
-  if (options.psfImagePresent) {
+  if (options->psfImagePresent) {
     status = theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
     if (status < 0) {
       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
@@ -271,10 +275,10 @@ int main( int argc, char *argv[] )
   }
   
   // Add oversampled PSF image vector and corresponding info, if present
-  if (options.psfOversampledImagePresent) {
+  if (options->psfOversampledImagePresent) {
     int ii = 0;
     status = theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
-    			nRows_psf_oversampled, psfOversampledPixels, options.psfOversamplingScale,
+    			nRows_psf_oversampled, psfOversampledPixels, options->psfOversamplingScale,
     			x1_oversample[ii], x2_oversample[ii], y1_oversample[ii], y2_oversample[ii]);
     if (status < 0) {
       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
@@ -283,7 +287,7 @@ int main( int argc, char *argv[] )
   }
   
   theModel->PrintDescription();
-  theModel->SetDebugLevel(options.debugLevel);
+  theModel->SetDebugLevel(options->debugLevel);
 
 
   // Set up parameter vector(s), now that we know how many total parameters
@@ -308,25 +312,25 @@ int main( int argc, char *argv[] )
     theModel->CreateModelImage(paramsVect);
   
     // TESTING (remove later)
-    if (options.printImages)
+    if (options->printImages)
       theModel->PrintModelImage();
 
     /* Save model image: */
-    if (options.saveImage) {
+    if (options->saveImage) {
       string  progName = "makeimage ";
       progName += VERSION_STRING;
-      PrepareImageComments(&imageCommentsList, progName, options.configFileName,
-    					options.psfImagePresent, options.psfFileName);
-      printf("\nSaving output model image (\"%s\") ...\n", options.outputImageName.c_str());
-      status = SaveVectorAsImage(theModel->GetModelImageVector(), options.outputImageName, 
+      PrepareImageComments(&imageCommentsList, progName, options->configFileName,
+    					options->psfImagePresent, options->psfFileName);
+      printf("\nSaving output model image (\"%s\") ...\n", options->outputImageName.c_str());
+      status = SaveVectorAsImage(theModel->GetModelImageVector(), options->outputImageName, 
                         nColumns, nRows, imageCommentsList);
       if (status != 0) {
         fprintf(stderr,  "\n*** WARNING: Unable to save output image file \"%s\"!\n\n", 
-        			options.outputImageName.c_str());
+        			options->outputImageName.c_str());
       }
       // code for checking PSF convolution fixes [May 2012]
-      if (options.saveExpandedImage) {
-        string  tempName = "expanded_" + options.outputImageName;
+      if (options->saveExpandedImage) {
+        string  tempName = "expanded_" + options->outputImageName;
         printf("\nSaving full (expanded) output model image (\"%s\") ...\n", tempName.c_str());
         status = SaveVectorAsImage(theModel->GetExpandedModelImageVector(), tempName, 
                           nColumns + 2*nColumns_psf, nRows + 2*nRows_psf, imageCommentsList);
@@ -338,7 +342,7 @@ int main( int argc, char *argv[] )
     }
   
     /* Save individual-function images, if requested */
-    if ((options.saveImage) && (options.saveAllFunctions)) {
+    if ((options->saveImage) && (options->saveAllFunctions)) {
       string  currentFilename;
       vector<string> functionNames;
       char  numstring[21];   // large enough to hold any 64-bit integer
@@ -354,7 +358,7 @@ int main( int argc, char *argv[] )
           fprintf(stderr, "\n*** ERROR: Unable to generate single-function image #%d!\n\n", i);
           exit(-1);
         }
-        currentFilename = options.functionRootName;
+        currentFilename = options->functionRootName;
         sprintf(numstring, "%d", i + 1);
         currentFilename += numstring;
         currentFilename += "_";
@@ -378,7 +382,7 @@ int main( int argc, char *argv[] )
   
   
   /* Estimate component fluxes, if requested */
-  if (options.printFluxes) {
+  if (options->printFluxes) {
     int  nComponents = theModel->GetNFunctions();
     double *fluxes = (double *) calloc(nComponents, sizeof(double));
     double *fractions = (double *) calloc(nComponents, sizeof(double));
@@ -387,21 +391,21 @@ int main( int argc, char *argv[] )
     
     theModel->GetFunctionNames(functionNames);
     
-    printf("\nEstimating fluxes on %d x %d image", options.estimationImageSize,
-    				options.estimationImageSize);
-    if (options.magZeroPoint != NO_MAGNITUDES)
-      printf(" (using zero point = %g)", options.magZeroPoint);
+    printf("\nEstimating fluxes on %d x %d image", options->estimationImageSize,
+    				options->estimationImageSize);
+    if (options->magZeroPoint != NO_MAGNITUDES)
+      printf(" (using zero point = %g)", options->magZeroPoint);
     printf("...\n\n");
     
-    totalFlux = theModel->FindTotalFluxes(paramsVect, options.estimationImageSize,
-    												options.estimationImageSize, fluxes);
+    totalFlux = theModel->FindTotalFluxes(paramsVect, options->estimationImageSize,
+    												options->estimationImageSize, fluxes);
     printf("Component                 Flux        Magnitude  Fraction\n");
     for (int n = 0; n < nComponents; n++) {
       fraction = fluxes[n] / totalFlux;
       fractions[n] = fraction;
       printf("%-25s %10.4e", functionNames[n].c_str(), fluxes[n]);
-      if (options.magZeroPoint != NO_MAGNITUDES) {
-        magnitude = options.magZeroPoint - 2.5*log10(fluxes[n]);
+      if (options->magZeroPoint != NO_MAGNITUDES) {
+        magnitude = options->magZeroPoint - 2.5*log10(fluxes[n]);
         printf("   %6.4f", magnitude);
       }
       else
@@ -410,8 +414,8 @@ int main( int argc, char *argv[] )
     }
 
     printf("\nTotal                     %10.4e", totalFlux);
-    if (options.magZeroPoint != NO_MAGNITUDES) {
-      magnitude = options.magZeroPoint - 2.5*log10(totalFlux);
+    if (options->magZeroPoint != NO_MAGNITUDES) {
+      magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
       printf("   %6.4f", magnitude);
     }
 
@@ -422,19 +426,19 @@ int main( int argc, char *argv[] )
 
 
   /* Estimate image computation time */
-  if (options.timingIterations > 0) {
+  if (options->timingIterations > 0) {
     struct timeval  timer_start, timer_end;
     double  microsecs, time_elapsed, time_per_iteration;
     gettimeofday(&timer_start, NULL);
-    for (int i = 0; i < options.timingIterations; i++)
+    for (int i = 0; i < options->timingIterations; i++)
       theModel->CreateModelImage(paramsVect);
     gettimeofday(&timer_end, NULL);
     microsecs = timer_end.tv_usec - timer_start.tv_usec;
     time_elapsed = timer_end.tv_sec - timer_start.tv_sec + microsecs/1e6;
-    time_per_iteration = time_elapsed / options.timingIterations;
+    time_per_iteration = time_elapsed / options->timingIterations;
     printf("\nElapsed time: %.6f sec\n", time_elapsed);
     printf("\tMean time per image computation (from %d iterations) = %.7f sec\n", 
-    		time_per_iteration, options.timingIterations);
+    		time_per_iteration, options->timingIterations);
   }
 
   
@@ -442,19 +446,21 @@ int main( int argc, char *argv[] )
 
 
   // Free up memory
-  if (options.psfImagePresent)
+  if (options->psfImagePresent)
     fftw_free(psfPixels);       // allocated in ReadImageAsVector()
-  if (options.psfOversampledImagePresent)
+  if (options->psfOversampledImagePresent)
     fftw_free(psfOversampledPixels);       // allocated in ReadImageAsVector()
   free(paramsVect);
   delete theModel;
+  delete options;
   
   return 0;
 }
 
 
 
-void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
+//void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
+void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
 {
 
   CLineParser *optParser = new CLineParser();
@@ -594,7 +600,7 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
   }
   if (optParser->OptionSet("output")) {
     theOptions->outputImageName = optParser->GetTargetString("output");
-    theOptions->noImageName = false;
+    theOptions->noOutputImageName = false;
   }
   if (optParser->OptionSet("refimage")) {
     theOptions->referenceImageName = optParser->GetTargetString("refimage");
@@ -702,7 +708,8 @@ void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
 
 // Note that we only use options from the config file if they have *not* already been set
 // by the command line (i.e., command-line options override config-file values).
-void HandleConfigFileOptions( configOptions *configFileOptions, makeimageCommandOptions *mainOptions )
+//void HandleConfigFileOptions( configOptions *configFileOptions, makeimageCommandOptions *mainOptions )
+void HandleConfigFileOptions( configOptions *configFileOptions, MakeimageOptions *mainOptions )
 {
 	int  newIntVal;
 	
