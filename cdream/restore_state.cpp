@@ -30,7 +30,7 @@ int dream_restore_state( const dream_pars* p, Array3D<double>& state, Array2D<do
 //        prevLines = 0;
         prevLines = -1;
 //        cerr << "files don't exists: " << chainFilename.str() << endl;
-        fprintf(stderr, "   pre-existing MCMC output file \"%s\" not found!", chainFilename.str());
+        fprintf(stderr, "   pre-existing MCMC output file \"%s\" not found!", chainFilename.str().c_str());
         break;
       } else {
         string input;
