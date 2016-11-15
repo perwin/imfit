@@ -3,6 +3,13 @@
 
 
 ** NEAR-TERM FUTURE TODO:
+
+[ ] New function(s) to assign image data, etc. to ModelObject instance
+	-- i.e., something to collect all the "assign data, assign PSF, assign
+	mask, assign image-params" stuff which could be called from imfit_main.cpp
+	and also from mcmc_main.cpp [and maybe from multimfit, too]
+	
+	
 [ ] MCMC program: "imfit-mcmc"
 	
 	[x] Solved fixed-parameters problem
@@ -11,6 +18,7 @@
 	[ ] Feedback from dream()
 		[ ] Detect failed opening of output files, complain and exit
 		[ ] Detect failed write to output files, complain and exit?
+		[x] Return values indicating: convergence vs max-iterations
 		[ ] Record and report cumulative number of likelihood evaluations
 		[ ] Print (and maybe report) total number of iterations
 
@@ -362,7 +370,7 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 ** MINOR BUGS TO FIX/IMPROVEMENTS TO MAKE:
 
-[ ] Check for NaN values in PSF (and oversampled-PSF) images; complain and quit if found
+[X] Check for NaN values in PSF (and oversampled-PSF) images; complain and quit if found
 
 
 

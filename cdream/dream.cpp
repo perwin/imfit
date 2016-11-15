@@ -87,7 +87,10 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
   // read previous state
 
   int prevLines = dream_restore_state(p, state, lik, pCR, inBurnIn);
-
+  if (prevLines < 0) {
+    fprintf(stderr, "DREAM: previous MCMC output files not found!\n");
+    return DREAM_EXIT_NO_OUTPUT_FILES;
+  }
   // =========================================================================
   // open output file
 
@@ -455,9 +458,12 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
   }
 
 
-  if (! converged)
-    printf("Maximum number of iterations reached.\n");
   printf("%d likelihood function calls\n", nLikelihoodEvals);
-  return EXIT_SUCCESS;
+  if (! converged) {
+    printf("Maximum number of iterations reached.\n");
+    return DREAM_EXIT_MAX_ITERATIONS;
+  }
+  else
+    return DREAM_EXIT_CONVERGENCE;
 }
 

@@ -67,5 +67,3 @@ class OversampledRegion
 
 
 #endif  // _OVERSAMPLED_REGION_H_
-
-

@@ -52,7 +52,6 @@ class FunctionObject
 
     // override in derived classes only if said class *can* calcluate total flux
     virtual bool CanCalculateTotalFlux(  ) { return(false); }
-
     // override in derived classes only if said class *can* calcluate total flux
     virtual double TotalFlux( ) { return -1.0; }
 

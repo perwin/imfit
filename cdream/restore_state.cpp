@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <stdio.h>
+
 using namespace std;
 
 #include "dream.h"
@@ -11,21 +13,24 @@ int dream_restore_state( const dream_pars* p, Array3D<double>& state, Array2D<do
     					vector<double>& pCR, int& inBurnIn )
 {
   int prevLines = 0;
-  int genNumber = 0;
+//  int genNumber = 0;
   if (p->appendFile && (p->outputRootname != "" || p->outputRootname != "-")) {
     if (p->verboseLevel > 0)
-      cerr << "Restoring previous state... ";
+      printf("Restoring previous state... ");
     prevLines = p->maxEvals;
     for (int i = 0; i < p->numChains; ++i) {
       if (p->verboseLevel > 0)
-        cerr << i << " ";
-      int line(0);
+//        cerr << i << " ";
+        printf("%d ", i);
+      int line = 0;
       ostringstream chainFilename("");
       chainFilename << p->outputRootname << "." << i << ".txt";
       ifstream ifile(chainFilename.str().c_str());
       if (! ifile) {
-        prevLines = 0;
-        cerr << "files don't exists: " << chainFilename.str() << endl;
+//        prevLines = 0;
+        prevLines = -1;
+//        cerr << "files don't exists: " << chainFilename.str() << endl;
+        fprintf(stderr, "   pre-existing MCMC output file \"%s\" not found!", chainFilename.str());
         break;
       } else {
         string input;
@@ -39,19 +44,20 @@ int dream_restore_state( const dream_pars* p, Array3D<double>& state, Array2D<do
           istringstream istr(input);
           for (int j = 0; j < p->nvar; ++j) 
             istr >> state(line,i,j); 
-          istr >> lik(line,i) >> inBurnIn >> genNumber;
+//          istr >> lik(line,i) >> inBurnIn >> genNumber;
+          istr >> lik(line,i) >> inBurnIn;
           for (int j(0); j < p->nCR; ++j) 
             istr >> pCR[j];
           ++line;
         }
         ifile.close();
         if (prevLines > line) 
-          prevLines = line-1;
+          prevLines = line - 1;
       }
-      for (int j(0); j < p->nCR; ++j) 
-        cerr << pCR[j] << " ";
-      if (p->verboseLevel > 0)
-        cerr << endl;
+//       for (int j(0); j < p->nCR; ++j) 
+//         cerr << pCR[j] << " ";
+//       if (p->verboseLevel > 0)
+//         cerr << endl;
     }
   }
   return prevLines;

@@ -44,9 +44,11 @@
 #include "commandline_parser.h"
 #include "config_file_parser.h"
 #include "utilities_pub.h"
-#include "option_struct_makeimage.h"
 #include "sample_configs.h"
 
+#include "option_struct_makeimage.h"
+#include "options_base.h"
+#include "options_makeimage.h"
 
 /* ---------------- Definitions ---------------------------------------- */
 #define EST_SIZE_HELP_STRING "     --estimation-size <int>  Size of square image to use for estimating fluxes [default = 5000]"
@@ -108,11 +110,16 @@ int main( int argc, char *argv[] )
   vector<string>  imageCommentsList;
   double  *singleFunctionImage;
   makeimageCommandOptions  options;
+  OptionsBase *commandOpts;
+  MakeimageOptions *makeimageOpts;
   configOptions  userConfigOptions;
   bool  printFluxesOnly = false;
   
   
   /* Process command line and parse config file: */
+  commandOpts = new MakeimageOptions();
+  makeimageOpts = (MakeimageOptions *)commandOpts;
+  
   SetDefaultMakeimageOptions(&options);
   ProcessInput(argc, argv, &options);
   
