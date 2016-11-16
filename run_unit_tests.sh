@@ -85,7 +85,7 @@ RESULT+=$?
 echo $RESULT
 
 # Unit tests for options classes
-./run_unittest_model_options.sh
+./run_unittest_options.sh
 RESULT+=$?
 echo $RESULT
 
