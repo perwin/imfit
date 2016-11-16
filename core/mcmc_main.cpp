@@ -46,7 +46,9 @@
 #include "model_object.h"
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
-#include "option_struct_mcmc.h"
+//#include "option_struct_mcmc.h"
+#include "options_base.h"
+#include "options_mcmc.h"
 
 #include "commandline_parser.h"
 #include "config_file_parser.h"
@@ -80,10 +82,10 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 /* ------------------- Function Prototypes ----------------------------- */
 void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 					double *y_offset);
-void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions );
-bool RequestedFilesPresent( mcmcCommandOptions &theOptions );
+void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions );
+bool RequestedFilesPresent( MCMCOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
-								mcmcCommandOptions *mainOptions );
+								MCMCOptions *mainOptions );
 
 double LikelihoodFuncForDREAM( int chain, int gen, const double* state, 
 								const void* extraData, bool recalc );
@@ -136,7 +138,9 @@ int main(int argc, char *argv[])
   bool  paramLimitsExist = false;
   int  status, fitStatus, nSucessfulIterations;
   vector<string>  imageCommentsList;
-  mcmcCommandOptions  options;
+//  mcmcCommandOptions  options;
+  OptionsBase *commandOpts;
+  MCMCOptions *options;
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
@@ -153,8 +157,14 @@ int main(int argc, char *argv[])
 
  
   // Define default options, then process the command line
-  SetDefaultMCMCOptions(&options);
-  ProcessInput(argc, argv, &options);
+  // Use a pointer to OptionsBase so we can use it in calls to SetupModelImage
+  commandOpts = new MCMCOptions();
+  // Use a pointer to MakeimageOptions so we can access all the extra, makeimage-specific
+  // data members
+  options = (MCMCOptions *)commandOpts;
+
+//  SetDefaultMCMCOptions(&options);
+  ProcessInput(argc, argv, options);
 
   // Check for presence of user-requested files; if any are missing, quit.
   // (Appropriate error messages regarding which files are missing will be printed
@@ -166,26 +176,26 @@ int main(int argc, char *argv[])
 
 
   // Read configuration file, parse & process user-supplied (non-function-related) values
-  status = ReadConfigFile(options.configFileName, true, functionList, parameterList, 
+  status = ReadConfigFile(options->configFileName, true, functionList, parameterList, 
   							paramLimits, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
   }
-  HandleConfigFileOptions(&userConfigOptions, &options);
+  HandleConfigFileOptions(&userConfigOptions, options);
 
   
-  if (options.noImage) {
+  if (options->noImage) {
     fprintf(stderr, "*** ERROR: No image to fit!\n\n");
     return -1;
   }
 
   // Get image data and sizes
-  printf("Reading data image (\"%s\") ...\n", options.imageFileName.c_str());
-  allPixels = ReadImageAsVector(options.imageFileName, &nColumns, &nRows);
+  printf("Reading data image (\"%s\") ...\n", options->imageFileName.c_str());
+  allPixels = ReadImageAsVector(options->imageFileName, &nColumns, &nRows);
   if (allPixels == NULL) {
     fprintf(stderr,  "\n*** ERROR: Unable to read image file \"%s\"!\n\n", 
-    			options.imageFileName.c_str());
+    			options->imageFileName.c_str());
     exit(-1);
   }
   // Reminder: nColumns = n_pixels_per_row = x-size; nRows = n_pixels_per_column = y-size
@@ -193,34 +203,34 @@ int main(int argc, char *argv[])
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
            nColumns, nRows, nPixels_tot);
   // Determine X0,Y0 pixel offset values if user specified an image section
-  DetermineImageOffset(options.imageFileName, &X0_offset, &Y0_offset);
+  DetermineImageOffset(options->imageFileName, &X0_offset, &Y0_offset);
 
   // Get and check mask image
-  if (options.maskImagePresent) {
-    printf("Reading mask image (\"%s\") ...\n", options.maskFileName.c_str());
-    allMaskPixels = ReadImageAsVector(options.maskFileName, &nMaskColumns, &nMaskRows);
+  if (options->maskImagePresent) {
+    printf("Reading mask image (\"%s\") ...\n", options->maskFileName.c_str());
+    allMaskPixels = ReadImageAsVector(options->maskFileName, &nMaskColumns, &nMaskRows);
     if (allMaskPixels == NULL) {
       fprintf(stderr,  "\n*** ERROR: Unable to read mask file \"%s\"!\n\n", 
-    			options.maskFileName.c_str());
+    			options->maskFileName.c_str());
       exit(-1);
     }
     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
       fprintf(stderr, "\n*** ERROR: Dimensions of mask image (%s: %d columns, %d rows)\n",
-             options.maskFileName.c_str(), nMaskColumns, nMaskRows);
+             options->maskFileName.c_str(), nMaskColumns, nMaskRows);
       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-             options.imageFileName.c_str(), nColumns, nRows);
+             options->imageFileName.c_str(), nColumns, nRows);
       exit(-1);
     }
     maskAllocated = true;
   }
            
   // Get and check error image, if supplied
-  if (options.noiseImagePresent) {
-    printf("Reading noise image (\"%s\") ...\n", options.noiseFileName.c_str());
-    allErrorPixels = ReadImageAsVector(options.noiseFileName, &nErrColumns, &nErrRows);
+  if (options->noiseImagePresent) {
+    printf("Reading noise image (\"%s\") ...\n", options->noiseFileName.c_str());
+    allErrorPixels = ReadImageAsVector(options->noiseFileName, &nErrColumns, &nErrRows);
     if (allErrorPixels == NULL) {
       fprintf(stderr,  "\n*** ERROR: Unable to read noise-image file \"%s\"!\n\n", 
-    			options.noiseFileName.c_str());
+    			options->noiseFileName.c_str());
       exit(-1);
     }
     errorPixels_allocated = true;
@@ -228,18 +238,18 @@ int main(int argc, char *argv[])
       fprintf(stderr, "\n*** ERROR: Dimensions of error image (%s: %d columns, %d rows)\n",
              noiseImage.c_str(), nErrColumns, nErrRows);
       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-             options.imageFileName.c_str(), nColumns, nRows);
+             options->imageFileName.c_str(), nColumns, nRows);
       exit(-1);
     }
   }
   
   // Read in PSF image, if supplied
-  if (options.psfImagePresent) {
-    printf("Reading PSF image (\"%s\") ...\n", options.psfFileName.c_str());
-    psfPixels = ReadImageAsVector(options.psfFileName, &nColumns_psf, &nRows_psf);
+  if (options->psfImagePresent) {
+    printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
+    psfPixels = ReadImageAsVector(options->psfFileName, &nColumns_psf, &nRows_psf);
     if (psfPixels == NULL) {
       fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
-    			options.psfFileName.c_str());
+    			options->psfFileName.c_str());
       exit(-1);
     }
     nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
@@ -250,23 +260,23 @@ int main(int argc, char *argv[])
     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
   // Read in oversampled PSF image, if supplied
-  if (options.psfOversampledImagePresent) {
-    if (options.psfOversamplingScale < 1) {
+  if (options->psfOversampledImagePresent) {
+    if (options->psfOversamplingScale < 1) {
       fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n");
       fprintf(stderr, "           (use --overpsf_scale to specify the scale)\n\n");
       exit(-1);
     }
-    if (! options.oversampleRegionSet) {
+    if (! options->oversampleRegionSet) {
       fprintf(stderr, "\n*** ERROR: the oversampling region was not defined!\n");
       fprintf(stderr, "           (use --overpsf_region to specify the region)\n\n");
       exit(-1);
     }
-    printf("Reading oversampled PSF image (\"%s\") ...\n", options.psfOversampledFileName.c_str());
-    psfOversampledPixels = ReadImageAsVector(options.psfOversampledFileName, 
+    printf("Reading oversampled PSF image (\"%s\") ...\n", options->psfOversampledFileName.c_str());
+    psfOversampledPixels = ReadImageAsVector(options->psfOversampledFileName, 
     							&nColumns_psf_oversampled, &nRows_psf_oversampled);
     if (psfOversampledPixels == NULL) {
       fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
-    			options.psfOversampledFileName.c_str());
+    			options->psfOversampledFileName.c_str());
       exit(-1);
     }
     nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
@@ -274,7 +284,7 @@ int main(int argc, char *argv[])
            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
     // Determine oversampling region; correct for X0,Y0 pixel offset values if user 
     // specified an image section (if not, X0_offset and Y0_offset will be = 0)
-    GetAllCoordsFromBracket(options.psfOversampleRegion, &x1_oversample, &x2_oversample, 
+    GetAllCoordsFromBracket(options->psfOversampleRegion, &x1_oversample, &x2_oversample, 
     						&y1_oversample, &y2_oversample);
     x1_oversample -= (int)X0_offset;
     x2_oversample -= (int)X0_offset;
@@ -294,7 +304,7 @@ int main(int argc, char *argv[])
     		y1_oversample,y2_oversample);
   }
 
-  if (! options.subsamplingFlag)
+  if (! options->subsamplingFlag)
     printf("* Pixel subsampling has been turned OFF.\n");
 
 
@@ -302,12 +312,12 @@ int main(int argc, char *argv[])
   theModel = new ModelObject();
   
   // Put limits on number of FFTW and OpenMP threads, if requested by user
-  if (options.maxThreadsSet)
-    theModel->SetMaxThreads(options.maxThreads);
+  if (options->maxThreadsSet)
+    theModel->SetMaxThreads(options->maxThreads);
 
   // Add functions to the model object
   status = AddFunctions(theModel, functionList, FunctionBlockIndices, 
-  						options.subsamplingFlag, options.verbose);
+  						options->subsamplingFlag, options->verbose);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
@@ -315,7 +325,7 @@ int main(int argc, char *argv[])
   
   // Add PSF image vector, if present (needs to be added prior to image data, so that
   // ModelObject can figure out proper internal model-image size
-  if (options.psfImagePresent) {
+  if (options->psfImagePresent) {
     status = theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
     if (status < 0) {
       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
@@ -330,16 +340,16 @@ int main(int argc, char *argv[])
     fprintf(stderr, "*** ERROR: Failure in ModelObject::AddImageDataVector!\n\n");
     exit(-1);
   }
-  theModel->AddImageCharacteristics(options.gain, options.readNoise, options.expTime, options.nCombined,
-  							options.originalSky);
+  theModel->AddImageCharacteristics(options->gain, options->readNoise, options->expTime, options->nCombined,
+  							options->originalSky);
   theModel->PrintDescription();
 
   // Add oversampled PSF image vector and corresponding info, if present
   // (this operates on a sub-region of the main image, so ModelObject does not need
   // to know about this prior to the image data)
-  if (options.psfOversampledImagePresent) {
+  if (options->psfOversampledImagePresent) {
     status = theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
-    			nRows_psf_oversampled, psfOversampledPixels, options.psfOversamplingScale,
+    			nRows_psf_oversampled, psfOversampledPixels, options->psfOversamplingScale,
     			x1_oversample, x2_oversample, y1_oversample, y2_oversample);
     if (status < 0) {
       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
@@ -350,7 +360,7 @@ int main(int argc, char *argv[])
   // If user supplied a mask image, add it and apply it to the internal weight image
   if (maskAllocated) {
     status = theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
-                             options.maskFormat);
+                             options->maskFormat);
     if (status < 0) {
       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddMaskVector!\n\n");
   	  exit(-1);
@@ -360,23 +370,23 @@ int main(int argc, char *argv[])
   // Specify which fit statistic we'll use, and add user-supplied error image if
   // it exists and we're using chi^2; also catch special case of standard Cash
   // statistic + L-M minimizer
-  if (options.useCashStatistic) {
+  if (options->useCashStatistic) {
     status = theModel->UseCashStatistic();
     if (status < 0) {
       fprintf(stderr, "*** ERROR: Failure in ModelObject::UseCashStatistic!\n\n");
       exit(-1);
     }
   } 
-  else if (options.usePoissonMLR) {
+  else if (options->usePoissonMLR) {
     theModel->UsePoissonMLR();
   }
   else {
     // normal chi^2 statistics, so we either add error/noise image, or calculate it
-    if (options.noiseImagePresent)
+    if (options->noiseImagePresent)
       theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
-                               options.errorType);
+                               options->errorType);
     else {
-      if (options.useModelForErrors) {
+      if (options->useModelForErrors) {
         printf("* No noise image supplied ... will generate noise image from model image.\n");
         status = theModel->UseModelErrors();
         if (status < 0) {
@@ -422,23 +432,23 @@ int main(int argc, char *argv[])
   double  nGBytes;
   bool  usingLevMar, usingCashTerms;
   usingLevMar = false;
-  if ((options.useCashStatistic) || (options.usePoissonMLR))
+  if ((options->useCashStatistic) || (options->usePoissonMLR))
     usingCashTerms = true;
   else
     usingCashTerms = false;
-  if (options.psfOversampledImagePresent) {
+  if (options->psfOversampledImagePresent) {
     int  deltaX_oversampled = x2_oversample - x1_oversample + 1;
     int  deltaY_oversampled = y2_oversample - y1_oversample + 1;
     estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  										usingLevMar, usingCashTerms, options.saveResidualImage, 
-  										options.saveModel, nColumns_psf_oversampled, nRows_psf_oversampled,
+  										usingLevMar, usingCashTerms, options->saveResidualImage, 
+  										options->saveModel, nColumns_psf_oversampled, nRows_psf_oversampled,
   										deltaX_oversampled, deltaY_oversampled, 
-  										options.psfOversamplingScale);
+  										options->psfOversamplingScale);
   }
   else
     estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  										usingLevMar, usingCashTerms, options.saveResidualImage, 
-  										options.saveModel);
+  										usingLevMar, usingCashTerms, options->saveResidualImage, 
+  										options->saveModel);
   nGBytes = (1.0*estimatedMemory) / GIGABYTE;
   if (nGBytes >= 1.0)
     printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);
@@ -489,9 +499,9 @@ int main(int argc, char *argv[])
   }
 
   // Default is nChains = N_free_params (dimensionality of parameter space)
-  if (options.nChains <= 0) {
+  if (options->nChains <= 0) {
     printf("Setting nChains = %d (nFreeParams)\n", nFreeParams);
-    options.nChains = nFreeParams;
+    options->nChains = nFreeParams;
   }
 
   dream_pars dreamPars;
@@ -499,19 +509,19 @@ int main(int argc, char *argv[])
   					highVals);
 
   // Set up various things in dream_pars struct
-  dreamPars.outputRootname = options.outputFileRoot;
-  if (options.appendToOutput)
+  dreamPars.outputRootname = options->outputFileRoot;
+  if (options->appendToOutput)
     dreamPars.appendFile = 1;
-  dreamPars.numChains = options.nChains;
-  dreamPars.maxEvals = options.maxEvals;
-  dreamPars.burnIn = options.nBurnIn;
+  dreamPars.numChains = options->nChains;
+  dreamPars.maxEvals = options->maxEvals;
+  dreamPars.burnIn = options->nBurnIn;
   // the following is tricky, since cdream actually runs a Gelman-Rubin convergence
   // test every dreamPars.loopSteps * dreamPars.gelmanEvals generations
-  dreamPars.gelmanEvals = (int)(options.nGelmanEvals / 10);
-  dreamPars.scaleReductionCrit = options.GRScaleReductionLimit;
-  dreamPars.noise = options.mcmcNoise;
-  dreamPars.bstar_zero = options.mcmc_bstar;
-  dreamPars.verboseLevel = options.verbose;
+  dreamPars.gelmanEvals = (int)(options->nGelmanEvals / 10);
+  dreamPars.scaleReductionCrit = options->GRScaleReductionLimit;
+  dreamPars.noise = options->mcmcNoise;
+  dreamPars.bstar_zero = options->mcmc_bstar;
+  dreamPars.verboseLevel = options->verbose;
   for (int i = 0; i < nParamsTot; i++)
     dreamPars.parameterNames.push_back(paramNames[i]);
 
@@ -534,8 +544,8 @@ int main(int argc, char *argv[])
   dreamPars.extraData = theModel;
 
   rng::GSLStream rng;
-  if (options.rngSeed > 0)
-    rng.alloc(options.rngSeed);
+  if (options->rngSeed > 0)
+    rng.alloc(options->rngSeed);
   else
     rng.alloc();   // void alloc(unsigned long seed = time(NULL))
 
@@ -544,15 +554,15 @@ int main(int argc, char *argv[])
   printf("\nStart of MCMC processing...\n");
   dream(&dreamPars, &rng);
   printf("\nMCMC chains written to output files %s.0.txt through %s.%d.txt", 
-  		options.outputFileRoot.c_str(), options.outputFileRoot.c_str(), options.nChains - 1);
+  		options->outputFileRoot.c_str(), options->outputFileRoot.c_str(), options->nChains - 1);
 
   // Free up memory
   fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()
   if (errorPixels_allocated)
     fftw_free(allErrorPixels);          // allocated externally, in ReadImageAsVector()
-  if (options.psfImagePresent)
+  if (options->psfImagePresent)
     fftw_free(psfPixels);               // allocated externally, in ReadImageAsVector()
-  if (options.psfOversampledImagePresent)
+  if (options->psfOversampledImagePresent)
     fftw_free(psfOversampledPixels);    // allocated externally, in ReadImageAsVector()
   if (maskAllocated)
     fftw_free(allMaskPixels);           // allocated externally, in ReadImageAsVector()
@@ -563,7 +573,7 @@ int main(int argc, char *argv[])
   delete[] paramNames;
 
   // Elapsed time reports
-  if (options.verbose >= 0) {
+  if (options->verbose >= 0) {
     gettimeofday(&timer_end_all, NULL);
     double  microsecs, time_elapsed_all, time_elapsed_fit;
     microsecs = timer_end_all.tv_usec - timer_start_all.tv_usec;
@@ -578,7 +588,7 @@ int main(int argc, char *argv[])
 
 
 
-void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
+void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
 {
 
   CLineParser *optParser = new CLineParser();
@@ -961,33 +971,33 @@ void ProcessInput( int argc, char *argv[], mcmcCommandOptions *theOptions )
 ///    mask image (options.maskFileName)
 ///    noise image (options.noiseFileName)
 ///    PSF image (options.psfFileName)
-bool RequestedFilesPresent( mcmcCommandOptions &theOptions )
+bool RequestedFilesPresent( MCMCOptions *theOptions )
 {
   bool  allFilesPresent = true;
   
-  if (! FileExists(theOptions.configFileName.c_str())) {
+  if (! FileExists(theOptions->configFileName.c_str())) {
     fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n", 
-           theOptions.configFileName.c_str());
+           theOptions->configFileName.c_str());
     allFilesPresent = false;
   }
-  if (! ImageFileExists(theOptions.imageFileName.c_str())) {
+  if (! ImageFileExists(theOptions->imageFileName.c_str())) {
     fprintf(stderr, "\n*** ERROR: Unable to find image file \"%s\"!\n", 
-           theOptions.imageFileName.c_str());
+           theOptions->imageFileName.c_str());
     allFilesPresent = false;
   }
-  if ( (theOptions.maskImagePresent) && (! ImageFileExists(theOptions.maskFileName.c_str())) ) {
+  if ( (theOptions->maskImagePresent) && (! ImageFileExists(theOptions->maskFileName.c_str())) ) {
     fprintf(stderr, "\n*** ERROR: Unable to find mask file \"%s\"!\n", 
-           theOptions.maskFileName.c_str());
+           theOptions->maskFileName.c_str());
     allFilesPresent = false;
   }
-  if ( (theOptions.noiseImagePresent) && (! ImageFileExists(theOptions.noiseFileName.c_str())) ) {
+  if ( (theOptions->noiseImagePresent) && (! ImageFileExists(theOptions->noiseFileName.c_str())) ) {
     fprintf(stderr, "\n*** ERROR: Unable to find noise-image file \"%s\"!\n", 
-           theOptions.noiseFileName.c_str());
+           theOptions->noiseFileName.c_str());
     allFilesPresent = false;
   }
-  if ( (theOptions.psfImagePresent) && (! ImageFileExists(theOptions.psfFileName.c_str())) ) {
+  if ( (theOptions->psfImagePresent) && (! ImageFileExists(theOptions->psfFileName.c_str())) ) {
     fprintf(stderr, "\n*** ERROR: Unable to find PSF image file \"%s\"!\n", 
-           theOptions.psfFileName.c_str());
+           theOptions->psfFileName.c_str());
     allFilesPresent = false;
   }
 
@@ -999,7 +1009,7 @@ bool RequestedFilesPresent( mcmcCommandOptions &theOptions )
 // Note that we only use options from the config file if they have *not*
 // already been set by the command line (i.e., command-line options override
 // config-file values).
-void HandleConfigFileOptions( configOptions *configFileOptions, mcmcCommandOptions *mainOptions )
+void HandleConfigFileOptions( configOptions *configFileOptions, MCMCOptions *mainOptions )
 {
 	double  newDblVal;
 	int  newIntVal;

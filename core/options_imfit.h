@@ -1,10 +1,9 @@
 /** @file
-    \brief Base class for program options; meant to be subclassed by imfit,
-    imfit-mcmc, and makeimage
+    \brief Subclass of OptionsBase class for imfit-specific program options.
  *
  */
-#ifndef _OPTIONS_MAKEIMAGE_H_
-#define _OPTIONS_MAKEIMAGE_H_
+#ifndef _OPTIONS_IMFIT_H_
+#define _OPTIONS_IMFIT_H_
 
 #include <string>
 #include <vector>
@@ -13,38 +12,18 @@
 #include "options_base.h"
 
 
-//! Derived class for holding various options for makeimage (set by command-line flags & options)
+//! Derived class for holding various options for imfit (set by command-line flags & options)
 class ImfitOptions : public OptionsBase
 {
 
   public:
-    // Constructors:
+    // Constructor:
     ImfitOptions( )
     {
       configFileName = DEFAULT_IMFIT_CONFIG_FILE;
   
       noImage = true;
       imageFileName = "";
-  
-      psfImagePresent = false;
-      psfFileName = "";
-  
-      psfOversampledImagePresent = false;
-      psfOversampledFileName = "";
-      psfOversamplingScale = 0;
-      oversampleRegionSet = false;
-      nOversampleRegions = 0;
-      psfOversampleRegion = "";
-  
-      noiseImagePresent = false;
-      noiseFileName = "";
-      errorType = WEIGHTS_ARE_SIGMAS;
-  
-      maskImagePresent = false;
-      maskFileName = "";
-      maskFormat = MASK_ZERO_IS_GOOD;
-  
-      subsamplingFlag = true;
   
       saveModel = false;
       outputModelFileName = "";
@@ -55,23 +34,13 @@ class ImfitOptions : public OptionsBase
       saveBestFitParams = true;
       outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
 
-      gainSet = false;
-      gain = 1.0;
-      readNoiseSet = false;
-      readNoise = 0.0;
-      expTimeSet = false;
-      expTime = 1.0;
-      nCombinedSet = false;
-      nCombined = 1;
-      originalSkySet = false;
-      originalSky = 0.0;
-
       useModelForErrors = false;
       useCashStatistic = false;
       usePoissonMLR = false;
 
-      printFitStatisticOnly = false;
       noParamLimits = true;
+
+      printFitStatisticOnly = false;
       ftolSet = false;
       ftol = DEFAULT_FTOL;
       solver = MPFIT_SOLVER;
@@ -85,27 +54,20 @@ class ImfitOptions : public OptionsBase
       bootstrapIterations = 0;
       saveBootstrap = false;
       outputBootstrapFileName = "";
-
-      rngSeed = 0;
-  
-      maxThreads = 0;
-      maxThreadsSet = false;
-
-      verbose = 1;
     };
 
     // Extra data members (in addition to those in options_base.h):  
     bool  noImage;
-    std::string  imageFileName;   // [] = assign default value in main?
+    std::string  imageFileName;
   
-    std::string  psfOversampleRegion;     // []
+    std::string  psfOversampleRegion;
   
     bool  saveModel;
-    std::string  outputModelFileName;   // []
+    std::string  outputModelFileName;
     bool  saveResidualImage;
-    std::string  outputResidualFileName;   // []
+    std::string  outputResidualFileName;
     bool  saveWeightImage;
-    std::string  outputWeightFileName;    // []
+    std::string  outputWeightFileName;
     bool  saveBestFitParams;
     std::string  outputParameterFileName;
   
@@ -124,10 +86,8 @@ class ImfitOptions : public OptionsBase
     int  bootstrapIterations;
     bool  saveBootstrap;
     std::string  outputBootstrapFileName;
-  
-    unsigned long  rngSeed;
-  
+    
 };
 
 
-#endif  // _OPTIONS_MAKEIMAGE_H_
+#endif  // _OPTIONS_IMFIT_H_

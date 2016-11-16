@@ -5,16 +5,25 @@
 ** NEAR-TERM FUTURE TODO:
 
 [ ] New function(s) to assign image data, etc. to ModelObject instance
+	SetupModelObject
 	-- i.e., something to collect all the "assign data, assign PSF, assign
 	mask, assign image-params" stuff which could be called from imfit_main.cpp
 	and also from mcmc_main.cpp [and maybe from multimfit, too]
+	-- could be called repeatedly to generate multiple ModelObject instances for
+	multimfit?
+	
+	[X] Collect program options into new classes
+		[x] base options class
+		[x] options class for makeimage
+		[x] options class for imfit
+		[x] options class for imfit-mcmc
+		
+	[ ] Draft SetupModelObject
+		[ ] Simple unit tests for SetupModelObject
 	
 	
 [ ] MCMC program: "imfit-mcmc"
 	
-	[x] Solved fixed-parameters problem
-		-- when a parameter is fixed, the value is not passed to dream()
-		
 	[ ] Feedback from dream()
 		[ ] Detect failed opening of output files, complain and exit
 		[ ] Detect failed write to output files, complain and exit?
@@ -33,6 +42,7 @@
 	[ ] No-convergence-test mode
 		-- flag which tells dream() to ignore results of convergence tests and just
 		keep on going until p->maxEvals is reached.
+		-- "--ignore-convergence" ?
 		
 	[x] Better headers for MCMC output
 		[x] Look for code that defines bootstrap output header
@@ -141,7 +151,8 @@
 		if proposal variable value is outside bounds (thus rejecting the proposal)
 		-- see p.269 of Vrugt 2016 for options on handling parameter bounds
 	
-	
+
+
 [] Possible optional parameters for image functions in config file
 	-- ways to specify optional settings, or even input parameter files that
 	function can read when first starting up
@@ -251,6 +262,7 @@
 	*sort* the parameters by radius, then do interpolation with the sorted
 	vector of r,I
 
+
 [] Modify handling of oversampled PSF to catch case where user wants entire
 image oversampled
 	-- e.g., if total number of pixels in main + oversampled region (model images,
@@ -325,32 +337,14 @@ image oversampled
 	-- possibly alternate command-line flag to specify this instead of the
 	current, "bare-bones" version
 
+
 [] User annotations for functions in config file
 	-- i.e., allow user to add names to individual functions, e.g.
 	FUNCTION Sersic   # NGC 100: bulge
+	or:
+	FUNCTION Sersic   LABEL = NGC 100: bulge
 	-- these would be stored and written to output files
 
-
-[] Add option for MCMC
-	-- Start with Metropolis-Hastings, just to make sure we get the overall
-	machinery working
-		-- Then try DE-MCMC (ter Braak; 
-			-- C++ code for "DREAM" here: http://people.sc.fsu.edu/~jburkardt/cpp_src/dream/dream.html
-			(this is really C code with some minmimal C++ idioms, like std::string)
-	-- Option to use config file for initial conditions
-	-- Run L-M first to generate initial conditions and parameter sigmas
-		-- alternate: run L-M separately, then use results as initial conditions
-		with different/expanded parameter limits just for MCMC
-	-- possibly user-supplied scale factor: multiply L-M sigmas by this
-	to get Gaussian sigmas for proposal/jump functions
-	-- "prior probability" is flat, with possible parameter-limit cutoffs
-	-- may need to enforce universal parameter-limit cutoffs (don't want to sample
-	from unbounded distributions; problems with PA sampling; may need to
-	enforce 0--1 bounds for ellipticity, etc. even if user didn't originally
-	worry about them for fitting process.
-	-- "posterior-probability" function is our usual chi^2 or PMLR, plus
-	parameter-limit cutoffs
-	
 
 [] Compiling parts of program(s) into a library, which is then linked when
 compiling imfit and makeimage (and other things, like timing). Idea is to set

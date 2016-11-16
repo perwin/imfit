@@ -1,6 +1,5 @@
 /** @file
-    \brief Base class for program options; meant to be subclassed by imfit,
-    imfit-mcmc, and makeimage
+    \brief Subclass of OptionsBase blass for makeimage-specific program options.
  *
  */
 #ifndef _OPTIONS_MAKEIMAGE_H_
@@ -18,7 +17,7 @@ class MakeimageOptions : public OptionsBase
 {
 
   public:
-    // Constructors:
+    // Constructor:
     MakeimageOptions( )
     {
       noConfigFile = true;
@@ -65,11 +64,11 @@ class MakeimageOptions : public OptionsBase
 
     // Extra data members (in addition to those in options_base.h):
     bool  noOutputImageName;
-    std::string  outputImageName;   // [] = assign default value in main?
+    std::string  outputImageName;
 
-    std::string  functionRootName;   // root name for individual-image functions  []
+    std::string  functionRootName;
     bool  noRefImage;
-    std::string  referenceImageName;   // []
+    std::string  referenceImageName;
 
     bool  noImageDimensions;
     bool  nColumnsSet;

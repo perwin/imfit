@@ -84,6 +84,11 @@ echo $RESULT
 RESULT+=$?
 echo $RESULT
 
+# Unit tests for options classes
+./run_unittest_model_options.sh
+RESULT+=$?
+echo $RESULT
+
 
 # NOTE: the following code will correctly set up and run unittest_oversampled_region.t.h;
 # However, that "unit test" doesn't perform proper tests; instead, it generates test image
