@@ -110,7 +110,7 @@ class ModelObject
     virtual void CreateModelImage( double params[] );
     
     // 2D only
-    void UpdateWeightVector(  );
+    void UpdateWeightVector( );
 
      // common, not specialized (currently not specialized or used by ModelObject1d)
     virtual double ComputePoissonMLRDeviate( long i, long i_model );
@@ -187,6 +187,10 @@ class ModelObject
 
     // Returns total number of *non-masked* data values
     long GetNValidPixels( );
+
+	// 2D only
+    bool HasPSF( );
+    bool HasOversampledPSF( );
 
 	// 2D only
     double * GetModelImageVector( );

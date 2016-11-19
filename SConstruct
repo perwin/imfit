@@ -504,7 +504,8 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 # C++ code
 
 # ModelObject and related classes/files:
-modelobject_obj_string = """model_object convolver oversampled_region downsample"""
+modelobject_obj_string = """model_object convolver oversampled_region downsample
+		setup_model_object"""
 modelobject_objs = [ CORE_SUBDIR + name for name in modelobject_obj_string.split() ]
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 

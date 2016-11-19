@@ -1821,6 +1821,21 @@ long ModelObject::GetNValidPixels( )
 }
 
 
+/* ---------------- PUBLIC METHOD: HasPSF ------------------------------ */
+
+bool ModelObject::HasPSF( )
+{
+  return doConvolution;
+}
+
+/* ---------------- PUBLIC METHOD: HasOversampledPSF ------------------- */
+
+bool ModelObject::HasOversampledPSF( )
+{
+  return oversampledRegionsExist;
+}
+
+
 /* ---------------- PUBLIC METHOD: GetModelImageVector ----------------- */
 
 double * ModelObject::GetModelImageVector( )

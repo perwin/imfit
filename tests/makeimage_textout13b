@@ -6,5 +6,3 @@ Value from config file: nColumns = 512
 Value from config file: nRows = 512
 Reading PSF image ("tests/testimage_3x3_nan.fits") ...
 naxis1 [# pixels/row] = 3, naxis2 [# pixels/col] = 3; nPixels_tot = 9
-Function: Sersic
-Function: Exponential

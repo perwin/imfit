@@ -41,14 +41,14 @@
 #include "image_io.h"
 #include "model_object.h"
 #include "add_functions.h"
+#include "options_base.h"
+#include "options_makeimage.h"
 #include "commandline_parser.h"
 #include "config_file_parser.h"
 #include "utilities_pub.h"
 #include "sample_configs.h"
+#include "setup_model_object.h"
 
-#include "option_struct_makeimage.h"
-#include "options_base.h"
-#include "options_makeimage.h"
 
 /* ---------------- Definitions ---------------------------------------- */
 #define EST_SIZE_HELP_STRING "     --estimation-size <int>  Size of square image to use for estimating fluxes [default = 5000]"
@@ -72,9 +72,6 @@ static string  kNRows = "NROWS";
 /* External functions: */
 
 /* Local Functions: */
-//void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions );
-// void HandleConfigFileOptions( configOptions *configFileOptions, 
-// 								makeimageCommandOptions *mainOptions );
 void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								MakeimageOptions *mainOptions );
@@ -93,18 +90,19 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
 int main( int argc, char *argv[] )
 {
   int  nColumns, nRows;
-  int  nRows_psf, nColumns_psf;
+  int  nColumns_psf, nRows_psf;
   long  nPixels_psf;
   int  nParamsTot;
   int  status;
-  double  *psfPixels;
-  double  *psfOversampledPixels;
+  double  *psfPixels = NULL;
+  double  *psfOversampledPixels = NULL;
   int  nColumns_psf_oversampled, nRows_psf_oversampled;
   long  nPixels_psf_oversampled;
   vector<int>  x1_oversample;
   vector<int>  x2_oversample;
   vector<int>  y1_oversample;
   vector<int>  y2_oversample;
+  vector<int> xyOsamplePos;
   double  *paramsVect;
   ModelObject  *theModel;
   vector<string>  functionList;
@@ -112,20 +110,13 @@ int main( int argc, char *argv[] )
   vector<int>  functionBlockIndices;
   vector<string>  imageCommentsList;
   double  *singleFunctionImage;
-//  makeimageCommandOptions  options;
-  OptionsBase *commandOpts;
   MakeimageOptions *options;
   configOptions  userConfigOptions;
   bool  printFluxesOnly = false;
   
   
   /* Process command line and parse config file: */
-  // Use a pointer to OptionsBase so we can use it in calls to SetupModelImage
-  commandOpts = new MakeimageOptions();
-  options = (MakeimageOptions *)commandOpts;
-  
-//   SetDefaultMakeimageOptions(&options);
-//   ProcessInput(argc, argv, &options);
+  options = new MakeimageOptions();    
   ProcessInput(argc, argv, options);
   
   
@@ -133,7 +124,7 @@ int main( int argc, char *argv[] )
     printFluxesOnly = true;
 
 
-  /* Read configuration file */
+  // Read configuration file
   if (! FileExists(options->configFileName.c_str())) {
     fprintf(stderr, "\n*** ERROR: Unable to find configuration file \"%s\"!\n\n", 
            options->configFileName.c_str());
@@ -156,7 +147,9 @@ int main( int argc, char *argv[] )
   }
   
   
-  // Determine size of model image
+  // Figure out size of model image
+  // First, figure out if we have enough information, given what user wants us to do
+  // (e.g., if user wants image saved, we need nColumns and nRows, or else a reference image)
   if ((options->nColumns > 0) && (options->nRows > 0))
     options->noImageDimensions = false;
   if ( (options->noRefImage) && (options->noImageDimensions)) {
@@ -234,6 +227,11 @@ int main( int argc, char *argv[] )
     for (int ii = 0; ii < options->nOversampleRegions; ii++)
       GetAllCoordsFromBracket2(options->psfOversampleRegions[ii], x1_oversample, x2_oversample, 
     						y1_oversample, y2_oversample);
+    // for now, we're still assuming only one oversampling region
+    xyOsamplePos.push_back(x1_oversample[0]);
+    xyOsamplePos.push_back(x2_oversample[0]);
+    xyOsamplePos.push_back(y1_oversample[0]);
+    xyOsamplePos.push_back(y2_oversample[0]);
   }
 
 
@@ -242,57 +240,65 @@ int main( int argc, char *argv[] )
 
 
   
-  /* Set up the model object */
-  theModel = new ModelObject();
-  // Put limits on number of FFTW and OpenMP threads, if user requested it
-  if (options->maxThreadsSet)
-    theModel->SetMaxThreads(options->maxThreads);
+  // Set up the model object
+  // Populate the column-and-row-numbers vector
+  vector<int> nColumnsRowsVect;
+  nColumnsRowsVect.push_back(nColumns);
+  nColumnsRowsVect.push_back(nRows);
+  nColumnsRowsVect.push_back(nColumns_psf);
+  nColumnsRowsVect.push_back(nRows_psf);
+  nColumnsRowsVect.push_back(nColumns_psf_oversampled);
+  nColumnsRowsVect.push_back(nRows_psf_oversampled);
 
-  
-  /* Add functions to the model object; also tells model object where function
-     sets start */
+  theModel = SetupModelObject(options, nColumnsRowsVect, NULL, psfPixels, NULL,
+  						NULL, psfOversampledPixels, xyOsamplePos);
+
+//   theModel = new ModelObject();
+//   // Put limits on number of FFTW and OpenMP threads, if user requested it
+//   if (options->maxThreadsSet)
+//     theModel->SetMaxThreads(options->maxThreads);
+// 
+//   
+//   // Add PSF image vector, if present (needs to be added prior to image data, so that
+//   // ModelObject can figure out proper internal model-image size
+//   if (options->psfImagePresent) {
+//     status = theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+//     if (status < 0) {
+//       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
+//   	  exit(-1);
+//     }
+//   }
+// 
+//   /* Define the size of the requested model image */
+//   status = theModel->SetupModelImage(nColumns, nRows);
+//   if (status < 0) {
+//     fprintf(stderr, "*** ERROR: Failure in ModelObject::SetupModelImage!\n\n");
+//     exit(-1);
+//   }
+//   
+//   // Add oversampled PSF image vector and corresponding info, if present
+//   if (options->psfOversampledImagePresent) {
+//     int ii = 0;
+//     status = theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
+//     			nRows_psf_oversampled, psfOversampledPixels, options->psfOversamplingScale,
+//     			x1_oversample[ii], x2_oversample[ii], y1_oversample[ii], y2_oversample[ii]);
+//     if (status < 0) {
+//       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
+//   	  exit(-1);
+//     }
+//   }
+
+  // Add functions to the model object; also tells model object where function sets start
   status = AddFunctions(theModel, functionList, functionBlockIndices, options->subsamplingFlag);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
   }
 
-  
-  // Add PSF image vector, if present (needs to be added prior to image data, so that
-  // ModelObject can figure out proper internal model-image size
-  if (options->psfImagePresent) {
-    status = theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
-    if (status < 0) {
-      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
-  	  exit(-1);
-    }
-  }
-
-  /* Define the size of the requested model image */
-  status = theModel->SetupModelImage(nColumns, nRows);
-  if (status < 0) {
-    fprintf(stderr, "*** ERROR: Failure in ModelObject::SetupModelImage!\n\n");
-    exit(-1);
-  }
-  
-  // Add oversampled PSF image vector and corresponding info, if present
-  if (options->psfOversampledImagePresent) {
-    int ii = 0;
-    status = theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
-    			nRows_psf_oversampled, psfOversampledPixels, options->psfOversamplingScale,
-    			x1_oversample[ii], x2_oversample[ii], y1_oversample[ii], y2_oversample[ii]);
-    if (status < 0) {
-      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
-  	  exit(-1);
-    }
-  }
-  
   theModel->PrintDescription();
-  theModel->SetDebugLevel(options->debugLevel);
 
 
-  // Set up parameter vector(s), now that we know how many total parameters
-  // there will be
+  // Set up parameter vector(s), now that we know how many total parameters there are
   nParamsTot = theModel->GetNParams();
   printf("%d total parameters\n", nParamsTot);
   if (nParamsTot != (int)parameterList.size()) {
@@ -303,7 +309,7 @@ int main( int argc, char *argv[] )
   	exit(-1);
  }
     
-  /* Copy parameters into C array and generate the model image */
+  // Copy parameters into C array and generate the model image
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));
   for (int i = 0; i < nParamsTot; i++)
     paramsVect[i] = parameterList[i];
@@ -342,7 +348,7 @@ int main( int argc, char *argv[] )
       }
     }
   
-    /* Save individual-function images, if requested */
+    // Save individual-function images, if requested
     if ((options->saveImage) && (options->saveAllFunctions)) {
       string  currentFilename;
       vector<string> functionNames;
@@ -382,7 +388,7 @@ int main( int argc, char *argv[] )
   }
   
   
-  /* Estimate component fluxes, if requested */
+  // Estimate component fluxes, if requested
   if (options->printFluxes) {
     int  nComponents = theModel->GetNFunctions();
     double *fluxes = (double *) calloc(nComponents, sizeof(double));
@@ -399,7 +405,7 @@ int main( int argc, char *argv[] )
     printf("...\n\n");
     
     totalFlux = theModel->FindTotalFluxes(paramsVect, options->estimationImageSize,
-    												options->estimationImageSize, fluxes);
+    										options->estimationImageSize, fluxes);
     printf("Component                 Flux        Magnitude  Fraction\n");
     for (int n = 0; n < nComponents; n++) {
       fraction = fluxes[n] / totalFlux;
@@ -426,7 +432,7 @@ int main( int argc, char *argv[] )
   }
 
 
-  /* Estimate image computation time */
+  // Estimate image computation time
   if (options->timingIterations > 0) {
     struct timeval  timer_start, timer_end;
     double  microsecs, time_elapsed, time_per_iteration;
@@ -460,7 +466,6 @@ int main( int argc, char *argv[] )
 
 
 
-//void ProcessInput( int argc, char *argv[], makeimageCommandOptions *theOptions )
 void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
 {
 
