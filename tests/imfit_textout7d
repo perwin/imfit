@@ -9,7 +9,7 @@
 Reading data image ("tests/testimage_3x3_onezero.fits") ...
 naxis1 [# pixels/row] = 3, naxis2 [# pixels/col] = 3; nPixels_tot = 9
 * No PSF image supplied -- no image convolution will be done!
+* No noise image supplied ... will generate noise image from input data image.
 Function: FlatSky
 3 total parameters
 Model Object: 9 data values (pixels)
-* No noise image supplied ... will generate noise image from input data image.

@@ -5,11 +5,11 @@ Reading data image ("tests/testimage_3x3_ones.fits") ...
 naxis1 [# pixels/row] = 3, naxis2 [# pixels/col] = 3; nPixels_tot = 9
 Reading mask image ("tests/testimage_3x3_mask-with-nan.fits") ...
 * No PSF image supplied -- no image convolution will be done!
+ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
+* No noise image supplied ... will generate noise image from input data image.
 Function: FlatSky
 3 total parameters
 Model Object: 9 data values (pixels)
-ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
-* No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (8 valid pixels remain)
 Setting up parameter information array ...
 3 free parameters (5 degrees of freedom)
@@ -37,6 +37,6 @@ I_sky		      1 # +/- 0.353553
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.000545 sec for fit, 0.003493 sec total)
+(Elapsed time: 0.000450 sec for fit, 0.003489 sec total)
 Done!
 

@@ -4,10 +4,10 @@ Value from config file: original sky = 100.000000
 Reading data image ("tests/test_multiextension_hdu0empty.fits[1][1:8,1:8]") ...
 naxis1 [# pixels/row] = 8, naxis2 [# pixels/col] = 8; nPixels_tot = 64
 * No PSF image supplied -- no image convolution will be done!
+* No noise image supplied ... will generate noise image from input data image.
 Function: Gaussian
 6 total parameters
 Model Object: 64 data values (pixels)
-* No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (64 valid pixels remain)
 Setting up parameter information array ...
 4 free parameters (60 degrees of freedom)
@@ -43,6 +43,6 @@ sigma		 2.4924 # +/- 0.0285509
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.004065 sec for fit, 0.005827 sec total)
+(Elapsed time: 0.004095 sec for fit, 0.005707 sec total)
 Done!
 

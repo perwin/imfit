@@ -12,12 +12,12 @@ naxis1 [# pixels/row] = 150, naxis2 [# pixels/col] = 200; nPixels_tot = 30000
 Reading mask image ("tests/n3073rss_small_mask.fits") ...
 Reading PSF image ("tests/psf_moffat_35.fits") ...
 naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
+ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
+* No noise image supplied ... will generate noise image from input data image.
 Function: Sersic
 Function: Exponential
 11 total parameters
 Model Object: 30000 data values (pixels)
-ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
-* No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
 Setting up parameter information array ...
 11 free parameters (28743 degrees of freedom)
@@ -66,6 +66,6 @@ h		53.6064 # +/- 1.16482
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.902851 sec for fit, 0.917064 sec total)
+(Elapsed time: 0.873971 sec for fit, 0.890110 sec total)
 Done!
 

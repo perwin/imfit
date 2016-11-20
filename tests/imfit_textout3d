@@ -6,10 +6,10 @@ Value from config file: original sky = 130.100000
 Reading data image ("tests/ic3478rss_64x64.fits") ...
 naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
 * No PSF image supplied -- no image convolution will be done!
+* No noise image supplied ... will generate noise image from input data image.
 Function: Sersic
 7 total parameters
 Model Object: 4096 data values (pixels)
-* No noise image supplied ... will generate noise image from input data image.
 ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
 Setting up parameter information array ...
 7 free parameters (4089 degrees of freedom)
@@ -149,6 +149,6 @@ r_e		60.7612 # +/- 0.860637
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.051183 sec for fit, 0.053070 sec total)
+(Elapsed time: 0.049962 sec for fit, 0.051822 sec total)
 Done!
 
