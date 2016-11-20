@@ -386,8 +386,10 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
             for (int j = 0; j < p->nvar; ++j) 
               state(t,i,j) = state(t,best_chain,j);
             if (! inBurnIn && p->burnIn > 0) {
-              printf("[%d] Outlier chain detected [%d] outside of burn-in.", t, i);
-              printf(" Moving to best chain [%d] and re-entering burn-in.\n", best_chain);
+              if (p->verboseLevel > 0) {
+                printf("[%d] Outlier chain detected [%d] outside of burn-in.", t, i);
+                printf(" Moving to best chain [%d] and re-entering burn-in.\n", best_chain);
+              }
               burnInStart = t;
               curRun = 0;
               inBurnIn = 1;
@@ -400,24 +402,29 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
       if (! inBurnIn) {
         // calculate Gelman-Rubin convergence
         if (++curRun >= p->gelmanEvals) {
-          printf("[%d] performing convergence diagnostics:", t);
+          if (p->verboseLevel > 0)
+            printf("[%d] performing convergence diagnostics:", t);
           gelman_rubin(state, scaleReduction, p->varLock, burnInStart + p->burnIn, t);
           // estimate variance
           int exitLoop(p->nvar);
-          printf(" GR (it %d): ", t);
+          if (p->verboseLevel > 0)
+            printf(" GR (it %d): ", t);
           for (int j(0); j < p->nvar; ++j) {
             if (! p->varLock[j]) {
               // scale reduction factor
               if (scaleReduction[j] < p->scaleReductionCrit)
                 --exitLoop;
-              printf("[%d]%.5f ", j, scaleReduction[j]);
+              if (p->verboseLevel > 0)
+                printf("[%d]%.5f ", j, scaleReduction[j]);
             } else 
               --exitLoop;
           }
-          printf("\n");
+          if (p->verboseLevel > 0)
+            printf("\n");
           // check for convergence
           if (exitLoop <= 0) {
-            printf("Convergence detected!\n");
+            if (p->verboseLevel > 0)
+              printf("Convergence detected!\n");
             converged = true;
             break;
           }
@@ -428,7 +435,8 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
         // check if burn-in is finished
         if (t >= burnInStart + p->burnIn) {
           inBurnIn = 0;
-          printf("[%d] exiting burn-in.\n", t);
+          if (p->verboseLevel > 0)
+            printf("[%d] exiting burn-in.\n", t);
         }
       }
     }  // end of "if (++genNumber >= p->loopSteps)"
@@ -457,10 +465,11 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
       delete oout[i];
   }
 
-
-  printf("%d likelihood function calls\n", nLikelihoodEvals);
+  if (p->verboseLevel > 0)
+    printf("%d likelihood function calls\n", nLikelihoodEvals);
   if (! converged) {
-    printf("Maximum number of iterations reached.\n");
+    if (p->verboseLevel > 0)
+      printf("Maximum number of iterations reached.\n");
     return DREAM_EXIT_MAX_ITERATIONS;
   }
   else

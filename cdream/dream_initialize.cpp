@@ -9,7 +9,8 @@ using namespace std;
 void dream_initialize( const dream_pars* p, rng::RngStream* rng, 
 						Array2DView<double>& state, ArrayView<double>& lik) 
 {
-  printf("Latin hypercube sampling...\n");
+  if (p->verboseLevel > 0)
+    printf("Latin hypercube sampling...\n");
   
   Array2D<int> samples(p->nvar, p->numChains);
   samples.set_all(0);
