@@ -58,8 +58,6 @@ class MakeimageOptions : public OptionsBase
 
       maxThreadsSet = false;
       maxThreads = 0;
-
-      debugLevel = 0;
     };
 
     // Extra data members (in addition to those in options_base.h):

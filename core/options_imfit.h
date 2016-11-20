@@ -40,10 +40,8 @@ class ImfitOptions : public OptionsBase
 
       noParamLimits = true;
 
-      printFitStatisticOnly = false;
       ftolSet = false;
       ftol = DEFAULT_FTOL;
-      solver = MPFIT_SOLVER;
       nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
 
       magZeroPoint = NO_MAGNITUDES;
@@ -71,11 +69,9 @@ class ImfitOptions : public OptionsBase
     bool  saveBestFitParams;
     std::string  outputParameterFileName;
   
-    bool printFitStatisticOnly;
     bool  noParamLimits;
     bool  ftolSet;
     double  ftol;
-    int  solver;
     std::string  nloptSolverName;
   
     double  magZeroPoint;

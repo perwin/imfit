@@ -191,6 +191,7 @@ class ModelObject
 	// 2D only
     bool HasPSF( );
     bool HasOversampledPSF( );
+    bool HasMask( );
 
 	// 2D only
     double * GetModelImageVector( );

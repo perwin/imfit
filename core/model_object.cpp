@@ -1836,6 +1836,14 @@ bool ModelObject::HasOversampledPSF( )
 }
 
 
+/* ---------------- PUBLIC METHOD: HasMask ----------------------------- */
+
+bool ModelObject::HasMask( )
+{
+  return maskExists;
+}
+
+
 /* ---------------- PUBLIC METHOD: GetModelImageVector ----------------- */
 
 double * ModelObject::GetModelImageVector( )

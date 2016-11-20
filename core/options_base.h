@@ -58,6 +58,9 @@ class OptionsBase
       originalSkySet = false;
       originalSky = 0.0;
 
+      printFitStatisticOnly = false;
+      solver = MPFIT_SOLVER;
+
       subsamplingFlag = true;
 
       rngSeed = 0;           // 0 = get seed value from system clock
@@ -66,6 +69,7 @@ class OptionsBase
       maxThreadsSet = false;
 
       verbose = 1;
+      debugLevel = 0;
     };
 
     // Data members:
@@ -104,6 +108,8 @@ class OptionsBase
     bool  originalSkySet;
     double  originalSky;
 
+    bool printFitStatisticOnly;
+    int  solver;
     bool  useModelForErrors;
     bool  useCashStatistic;
     bool  usePoissonMLR;
