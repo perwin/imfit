@@ -37,6 +37,7 @@ using namespace std;
 #include "options_base.h"
 #include "options_makeimage.h"
 #include "options_imfit.h"
+#include "options_mcmc.h"
 
 
 #define SIMPLE_CONFIG_FILE "tests/config_imfit_flatsky.dat"
@@ -359,5 +360,157 @@ public:
     delete theModel;
   }
 
- 
+
+  void testSetupMCMC_simple( void )
+  {
+    ModelObject *theModel = nullptr;
+    OptionsBase *optionsPtr;
+    vector<int> nColumnsRowsVect;
+  
+    optionsPtr = new MCMCOptions();
+    nColumnsRowsVect.push_back(nSmallDataCols);
+    nColumnsRowsVect.push_back(nSmallDataRows);
+  
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage);
+  
+    long nDataVals_true = 4;
+    long nDataVals = theModel->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+    bool psfPresent = theModel->HasPSF();
+    bool oversampledPSFPresent = theModel->HasOversampledPSF();
+    bool maskPresent = theModel->HasMask();
+    TS_ASSERT_EQUALS(psfPresent, false);
+    TS_ASSERT_EQUALS(oversampledPSFPresent, false);
+    TS_ASSERT_EQUALS(maskPresent, false);
+	
+    delete optionsPtr;
+    delete theModel;
+  }
+
+  void testSetupMCMC_withPSF( void )
+  {
+    ModelObject *theModel = nullptr;
+    OptionsBase *optionsPtr;
+    vector<int> nColumnsRowsVect;
+  
+    optionsPtr = new MCMCOptions();
+    optionsPtr->psfImagePresent = true;
+    nColumnsRowsVect.push_back(nSmallDataCols);
+    nColumnsRowsVect.push_back(nSmallDataRows);
+    nColumnsRowsVect.push_back(nSmallPSFCols);
+    nColumnsRowsVect.push_back(nSmallPSFRows);
+  
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage,
+    			smallPSFImage);
+  
+    long nDataVals_true = 4;
+    long nDataVals = theModel->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+    bool psfPresent = theModel->HasPSF();
+    bool oversampledPSFPresent = theModel->HasOversampledPSF();
+    bool maskPresent = theModel->HasMask();
+    TS_ASSERT_EQUALS(psfPresent, true);
+    TS_ASSERT_EQUALS(oversampledPSFPresent, false);
+    TS_ASSERT_EQUALS(maskPresent, false);
+
+    delete optionsPtr;
+    delete theModel;
+  }
+
+  void testSetupMCMC_withOversampledPSF( void )
+  {
+    ModelObject *theModel = nullptr;
+    OptionsBase *optionsPtr;
+    vector<int> nColumnsRowsVect;
+    vector<int> xyOsamplePos;
+
+    optionsPtr = new MCMCOptions();
+    optionsPtr->psfImagePresent = true;
+    optionsPtr->psfOversampledImagePresent = true;
+    optionsPtr->psfOversamplingScale = 2;
+
+    nColumnsRowsVect.push_back(nSmallDataCols);
+    nColumnsRowsVect.push_back(nSmallDataRows);
+    nColumnsRowsVect.push_back(nSmallPSFCols);
+    nColumnsRowsVect.push_back(nSmallPSFRows);
+    nColumnsRowsVect.push_back(nOsampPSFCols);
+    nColumnsRowsVect.push_back(nOsampPSFRows);
+    xyOsamplePos.push_back(1);
+    xyOsamplePos.push_back(2);
+    xyOsamplePos.push_back(1);
+    xyOsamplePos.push_back(2);
+  
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
+    					NULL, NULL, oversampledPSFImage, xyOsamplePos);
+  
+    long nDataVals_true = 4;
+    long nDataVals = theModel->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+    bool psfPresent = theModel->HasPSF();
+    bool oversampledPSFPresent = theModel->HasOversampledPSF();
+    bool maskPresent = theModel->HasMask();
+    TS_ASSERT_EQUALS(psfPresent, true);
+    TS_ASSERT_EQUALS(oversampledPSFPresent, true);
+    TS_ASSERT_EQUALS(maskPresent, false);
+
+    delete optionsPtr;
+    delete theModel;
+  }
+
+  void testSetupMCMC_withMask( void )
+  {
+    ModelObject *theModel = nullptr;
+    OptionsBase *optionsPtr;
+    vector<int> nColumnsRowsVect;
+  
+    optionsPtr = new MCMCOptions();
+    optionsPtr->maskImagePresent = true;
+    nColumnsRowsVect.push_back(nSmallDataCols);
+    nColumnsRowsVect.push_back(nSmallDataRows);
+  
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage,
+    			NULL, smallMaskImage);
+  
+    long nDataVals_true = 4;
+    long nDataVals = theModel->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+    bool psfPresent = theModel->HasPSF();
+    bool oversampledPSFPresent = theModel->HasOversampledPSF();
+    bool maskPresent = theModel->HasMask();
+    TS_ASSERT_EQUALS(psfPresent, false);
+    TS_ASSERT_EQUALS(oversampledPSFPresent, false);
+    TS_ASSERT_EQUALS(maskPresent, true);
+
+    delete optionsPtr;
+    delete theModel;
+  }
+
+  void testSetupMCMC_withError( void )
+  {
+    ModelObject *theModel = nullptr;
+    OptionsBase *optionsPtr;
+    vector<int> nColumnsRowsVect;
+  
+    optionsPtr = new MCMCOptions();
+    optionsPtr->noiseImagePresent = true;
+    nColumnsRowsVect.push_back(nSmallDataCols);
+    nColumnsRowsVect.push_back(nSmallDataRows);
+  
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage,
+    			NULL, NULL, smallErrorImage);
+  
+    long nDataVals_true = 4;
+    long nDataVals = theModel->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+    bool psfPresent = theModel->HasPSF();
+    bool oversampledPSFPresent = theModel->HasOversampledPSF();
+    bool maskPresent = theModel->HasMask();
+    TS_ASSERT_EQUALS(psfPresent, false);
+    TS_ASSERT_EQUALS(oversampledPSFPresent, false);
+    TS_ASSERT_EQUALS(maskPresent, false);
+
+    delete optionsPtr;
+    delete theModel;
+  }
+
 };

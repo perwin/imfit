@@ -24,7 +24,7 @@ ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVec
 {
   ModelObject *newModelObj;
   int  status;
-  bool  doingFit = false;
+  bool  doingFit_or_MCMC = false;
   int  nColumns, nRows;
   int  nColumns_psf, nRows_psf, nColumns_psf_oversampled, nRows_psf_oversampled;
   long  nPixels_data, nPixels_psf, nPixels_psf_oversampled;
@@ -61,8 +61,8 @@ ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVec
       exit(-1);
     }
   } else {
-    // data image exists, so we're in imfit or imfit-MCMC mode
-    doingFit = true;
+    // data image exists, so we're in imfit or imfit-mcmc mode
+    doingFit_or_MCMC = true;
     status = newModelObj->AddImageDataVector(dataPixels, nColumns, nRows);
     if (status < 0) {
       // Possible failure if attempt to allocate memory for model image fails
@@ -98,7 +98,7 @@ ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVec
   }
   
   
-  if (doingFit) {
+  if (doingFit_or_MCMC) {
     // Specify which fit statistic we'll use, and add user-supplied error image if
     // it exists and we're using chi^2; also catch special case of standard Cash
     // statistic + L-M minimizer

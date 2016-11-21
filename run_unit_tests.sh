@@ -89,6 +89,11 @@ echo $RESULT
 RESULT+=$?
 echo $RESULT
 
+# Unit tests for setup_model_object
+./run_unittest_setup_model_object.sh
+RESULT+=$?
+echo $RESULT
+
 
 # NOTE: the following code will correctly set up and run unittest_oversampled_region.t.h;
 # However, that "unit test" doesn't perform proper tests; instead, it generates test image

@@ -8,12 +8,12 @@ Reading data image ("tests/faintstar.fits") ...
 naxis1 [# pixels/row] = 10, naxis2 [# pixels/col] = 10; nPixels_tot = 100
 * No PSF image supplied -- no image convolution will be done!
 * Pixel subsampling has been turned OFF.
-Function: Gaussian
-Model Object: 100 data values (pixels)
 * No noise image supplied ... will generate noise image from input data image.
-ModelObject: mask vector applied to weight vector. (100 valid pixels remain)
+Function: Gaussian
 6 total parameters
 6 free parameters (94 degrees of freedom)
+Model Object: 100 data values (pixels)
+ModelObject: mask vector applied to weight vector. (100 valid pixels remain)
 Estimated memory use: 3200 bytes (3.1 KB)
 Setting up MCMC-related arrays ...
 Setting nChains = 6 (nFreeParams)
@@ -42,7 +42,7 @@ Convergence detected!
 101410 likelihood function calls
 
 MCMC chains written to output files temptest/mcmc_test.0.txt through temptest/mcmc_test.5.txt
-(Elapsed time: 8.337991 sec)
+(Elapsed time: 8.164373 sec)
 
 Done!
 

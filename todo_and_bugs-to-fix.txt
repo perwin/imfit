@@ -19,7 +19,10 @@
 		[x] options class for imfit-mcmc
 		
 	[ ] Draft SetupModelObject
-		[ ] Simple unit tests for SetupModelObject
+		[x] Simple unit tests for SetupModelObject
+		[x] Unit tests for makeimage-mode; change makeimage_main.cpp
+		[x] Unit tests for imfit-mode; change imfit_main.cpp
+		[ ] Unit tests for mcmc-mode; change mcmc_main.cpp
 	
 	
 [ ] MCMC program: "imfit-mcmc"

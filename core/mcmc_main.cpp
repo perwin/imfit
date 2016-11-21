@@ -138,7 +138,6 @@ int main(int argc, char *argv[])
   bool  paramLimitsExist = false;
   int  status, fitStatus, nSucessfulIterations;
   vector<string>  imageCommentsList;
-//  mcmcCommandOptions  options;
   OptionsBase *commandOpts;
   MCMCOptions *options;
   configOptions  userConfigOptions;
@@ -163,7 +162,6 @@ int main(int argc, char *argv[])
   // data members
   options = (MCMCOptions *)commandOpts;
 
-//  SetDefaultMCMCOptions(&options);
   ProcessInput(argc, argv, options);
 
   // Check for presence of user-requested files; if any are missing, quit.
@@ -315,14 +313,6 @@ int main(int argc, char *argv[])
   if (options->maxThreadsSet)
     theModel->SetMaxThreads(options->maxThreads);
 
-  // Add functions to the model object
-  status = AddFunctions(theModel, functionList, FunctionBlockIndices, 
-  						options->subsamplingFlag, options->verbose);
-  if (status < 0) {
-  	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
-  	exit(-1);
- }
-  
   // Add PSF image vector, if present (needs to be added prior to image data, so that
   // ModelObject can figure out proper internal model-image size
   if (options->psfImagePresent) {
@@ -342,7 +332,6 @@ int main(int argc, char *argv[])
   }
   theModel->AddImageCharacteristics(options->gain, options->readNoise, options->expTime, options->nCombined,
   							options->originalSky);
-  theModel->PrintDescription();
 
   // Add oversampled PSF image vector and corresponding info, if present
   // (this operates on a sub-region of the main image, so ModelObject does not need
@@ -398,16 +387,15 @@ int main(int argc, char *argv[])
         printf("* No noise image supplied ... will generate noise image from input data image.\n");
     }
   }
-  
-  // Final fitting-oriented setup for ModelObject instance (generates data-based error
-  // vector if needed, created final weight vector from mask and optionally from
-  // error vector)
-  status = theModel->FinalSetupForFitting();
+
+
+  // Add functions to the model object
+  status = AddFunctions(theModel, functionList, FunctionBlockIndices, 
+  						options->subsamplingFlag, options->verbose);
   if (status < 0) {
-    fprintf(stderr, "*** ERROR: Failure in ModelObject::FinalSetupForFitting!\n\n");
-    exit(-1);
+  	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
+  	exit(-1);
   }
-  
   
   // Determine nParamsTot, nFreeParams and nDegFreedom
   nParamsTot = nFreeParams = theModel->GetNParams();
@@ -426,6 +414,18 @@ int main(int argc, char *argv[])
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
   printf("%d free parameters (%ld degrees of freedom)\n", nFreeParams, nDegFreedom);
 
+  theModel->PrintDescription();
+
+  // Final fitting-oriented setup for ModelObject instance (generates data-based error
+  // vector if needed, created final weight vector from mask and optionally from
+  // error vector)
+  status = theModel->FinalSetupForFitting();
+  if (status < 0) {
+    fprintf(stderr, "*** ERROR: Failure in ModelObject::FinalSetupForFitting!\n\n");
+    exit(-1);
+  }
+  
+ 
   // Get estimate of memory use (do this *after* we know number of free parameters); 
   // warn if it will be large
   long  estimatedMemory;
@@ -549,12 +549,14 @@ int main(int argc, char *argv[])
   else
     rng.alloc();   // void alloc(unsigned long seed = time(NULL))
 
+
   // OK, now we execute the MCMC process
   // DO THE MCMC!
   printf("\nStart of MCMC processing...\n");
   dream(&dreamPars, &rng);
   printf("\nMCMC chains written to output files %s.0.txt through %s.%d.txt", 
   		options->outputFileRoot.c_str(), options->outputFileRoot.c_str(), options->nChains - 1);
+
 
   // Free up memory
   fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()
