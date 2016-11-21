@@ -118,7 +118,7 @@ public:
   
   void testSetupMakeimage_simple( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   
@@ -142,7 +142,7 @@ public:
 
   void testSetupMakeimage_withPSF( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
 
@@ -171,7 +171,7 @@ public:
 
   void testSetupMakeimage_withOversampledPSF( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
     vector<int> xyOsamplePos;
@@ -212,7 +212,7 @@ public:
  
   void testSetupImfit_simple( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   
@@ -236,7 +236,7 @@ public:
 
   void testSetupImfit_withPSF( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   
@@ -266,7 +266,7 @@ public:
 
   void testSetupImfit_withOversampledPSF( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
     vector<int> xyOsamplePos;
@@ -306,7 +306,7 @@ public:
 
   void testSetupImfit_withMask( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   
@@ -334,7 +334,7 @@ public:
 
   void testSetupImfit_withError( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   
@@ -363,7 +363,7 @@ public:
 
   void testSetupMCMC_simple( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   
@@ -389,7 +389,7 @@ public:
 
   void testSetupMCMC_withPSF( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   
@@ -419,7 +419,7 @@ public:
 
   void testSetupMCMC_withOversampledPSF( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
     vector<int> xyOsamplePos;
@@ -459,7 +459,7 @@ public:
 
   void testSetupMCMC_withMask( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   
@@ -487,7 +487,7 @@ public:
 
   void testSetupMCMC_withError( void )
   {
-    ModelObject *theModel = nullptr;
+    ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
   

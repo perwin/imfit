@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);
- }
+  }
 
   // Set up parameter vector(s), now that we know total # parameters
   nParamsTot = nFreeParams = theModel->GetNParams();
