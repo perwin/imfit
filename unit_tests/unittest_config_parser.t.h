@@ -44,9 +44,9 @@ const string  TEST_CONFIGFILE_BAD4("./tests/config_imfit_badparamline.dat");  //
 const string  TEST_CONFIGFILE_BADLIMIT4("./tests/config_imfit_sersictest512_badlimits4.dat");  // parameter line with only one limit
 
 // new stuff
-const string TEST_CONFIGFILE_OPTIONAL0("config_makeimage-optional_params0.dat");
-const string TEST_CONFIGFILE_OPTIONAL1("config_makeimage-optional_params1.dat");
-const string TEST_CONFIGFILE_OPTIONAL_BAD("config_makeimage-optional_params_bad1.dat");
+const string TEST_CONFIGFILE_OPTIONAL0("./tests/config_makeimage-optional_params0.dat");
+const string TEST_CONFIGFILE_OPTIONAL1("./tests/config_makeimage-optional_params1.dat");
+const string TEST_CONFIGFILE_OPTIONAL_BAD("./tests/config_makeimage-optional_params_bad1.dat");
 
 
 class NewTestSuite : public CxxTest::TestSuite 

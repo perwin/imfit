@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
     if (paramLimits[i].fixed == 1)
       nFreeParams--;
   }
-  nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
+  nDegFreedom = (long)(theModel->GetNValidPixels() - nFreeParams);
   printf("%d free parameters (%ld degrees of freedom)\n", nFreeParams, nDegFreedom);
 
   theModel->PrintDescription();

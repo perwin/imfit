@@ -14,8 +14,27 @@ mkdir -p temptest
 
 echo ""
 echo "Running tests for imfit-mcmc..."
+
 # simple tests using small images; seed=7 to ensure repeatable pseudo-random numbers
+echo -n "   (now running MCMC chain ...)"
 ./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --nosubsampling --seed=7 -o temptest/mcmc_test &> temptest/test_dump_mcmc1
+echo ""
+
+# Testing to see if we catch input-image problems: all pixels masked, mismatched image sizes,
+# 2a: testing that we catch error: case of all pixels masked:
+./imfit-mcmc tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --mask tests/totalmask_64x64.fits  &> temptest/test_dump2a
+# 2b: testing that we catch error: case of mismatched image sizes:
+./imfit-mcmc tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump2b
+
+./imfit-mcmc -c tests/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
+./imfit-mcmc -c tests/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
+./imfit-mcmc -c tests/config_makeimage_sersictest512_bad3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad3
+./imfit-mcmc -c tests/config_makeimage_sersictest512_bad4.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad4
+./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad5
+./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad6
+./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
+./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
+./imfit-mcmc -c tests/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
 
 echo ""
 
@@ -35,6 +54,96 @@ then
   printf " OK\n"
 else
   echo "Output MCMC chain file temptest/mcmc_test.0.txt differs from reference file tests/mcmc_ref1.0.txt"
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: catching the case of all data pixels masked... "
+./python/diff_printouts.py tests/test_dump_mcmc2a temptest/test_dump2a
+
+echo -n "*** Diff comparison with archives: catching the case of mismatch in data and mask sizes... "
+./python/diff_printouts.py tests/test_dump_mcmc2b temptest/test_dump2b
+
+
+# Note that for the following, we can compare with the imfit reference files,
+# because the output should be the same
+
+echo -n "*** Diff comparison with archives: bad config file 1... "
+if (diff --brief temptest/test_dump_bad1 tests/imfit_textout_bad1)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump_bad1 tests/imfit_textout_bad1
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 2... "
+if (diff --brief temptest/test_dump_bad2 tests/imfit_textout_bad2)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump_bad2 tests/imfit_textout_bad2
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 3... "
+if (diff --brief temptest/test_dump_bad3 tests/imfit_textout_bad3)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump_bad3 tests/imfit_textout_bad3
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 4... "
+if (diff --brief temptest/test_dump_bad4 tests/imfit_textout_bad4)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump_bad4 tests/imfit_textout_bad4
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 5... "
+if (diff --brief temptest/test_dump_bad5 tests/imfit_textout_bad5)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump_bad5 tests/imfit_textout_bad5
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 6... "
+if (diff --brief temptest/test_dump_bad6 tests/imfit_textout_bad6)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump_bad6 tests/imfit_textout_bad6
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: bad config file 7... "
+if (diff --brief temptest/test_dump_bad7 tests/imfit_textout_bad7)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump_bad7 tests/imfit_textout_bad7
+  STATUS=1
+fi
+
+echo -n "*** Diff comparison with archives: bad parameter specification... "
+if (diff --brief temptest/test_dump_bad8 tests/imfit_textout_bad8)
+then
+  echo " OK"
+else
+  echo "Diff output:"
+  diff temptest/test_dump_bad7 tests/imfit_textout_bad7
   STATUS=1
 fi
 
