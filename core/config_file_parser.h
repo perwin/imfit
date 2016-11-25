@@ -38,7 +38,7 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
 //
 /// (This is only used inside VetConfigFile, but is exposed in the header file so
 /// we can do unit tests on it)
-bool ValidParameterLine( string& currentLine );
+bool ValidParameterLine( string& currentLine, bool optionalParams=false );
 
 /// Function for use by makeimage
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,

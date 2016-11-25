@@ -4,27 +4,6 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-[ ] New function(s) to assign image data, etc. to ModelObject instance
-	SetupModelObject
-	-- i.e., something to collect all the "assign data, assign PSF, assign
-	mask, assign image-params" stuff which could be called from imfit_main.cpp
-	and also from mcmc_main.cpp [and maybe from multimfit, too]
-	-- could be called repeatedly to generate multiple ModelObject instances for
-	multimfit?
-	
-	[X] Collect program options into new classes
-		[x] base options class
-		[x] options class for makeimage
-		[x] options class for imfit
-		[x] options class for imfit-mcmc
-		
-	[ ] Draft SetupModelObject
-		[x] Simple unit tests for SetupModelObject
-		[x] Unit tests for makeimage-mode; change makeimage_main.cpp
-		[x] Unit tests for imfit-mode; change imfit_main.cpp
-		[ ] Unit tests for mcmc-mode; change mcmc_main.cpp
-	
-	
 [ ] MCMC program: "imfit-mcmc"
 	
 	[ ] Feedback from dream()
@@ -71,6 +50,9 @@
 		[x] Set up run of MCMC code using fixed RNG seed
 		[x] Set up do_mcmc_test.sh
 		[x] Test run of do_mcmc_test.sh
+	
+	[ ] Add to regression tests for imfit-mcmc
+		[ ] Add some error-detecting regression tests
 		
 	[x] Link/copy/add cdream code
 		[x] 1. create symlink to cdream code
@@ -170,29 +152,56 @@
 		FUNCTION blah
 		xxx
 		OPTIONAL_PARAMS_END
+		
+		The following should be acceptable (and interpreted as "no optional params supplied")
+		FUNCTION blah
+		OPTIONAL_PARAMS_START
+		OPTIONAL_PARAMS_END
 
 	Read and stored as something like dict of string: string pairs. If this exists
 	for a given function, then it is passed to function object just after initialization
 	(e.g., just after calling AddFunction)
+	
 	Function object has extra method for handling input dict (defaults to a do-nothing)
 		-- e.g., it knows which values to convert to ints or doubles, how to
 		interpret different keywords, etc.
+
+    virtual int SetExtraParams( map<string, string> )
 		
+  vector<map<string, string>> optionalParamsVect;
+  # one map per function; most or all such maps probably will be empty
+  
+  for (n = 0; n < nFunctions; n++) {
+    if (fblockStartFlags[n] == true) {
+      // start of new function block: skip over existing x0,y0 values
+      offset += 2;
+    }
+    functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
+    functionObjects[n]->Setup(params, offset, x0_all, y0_all);
+    offset += paramSizes[n];
+  }
+  
+  OR
+    if (functionObjects[n]->HasExtraParams())
+      functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
+  
+  HasExtraParams
+
 		[x] Add input method to FunctionObject
 			[x] Write unit tests to check input and processing of simple case
 			[x] Write code to pass unit tests
 		[x] Add input method to 2D FunctionObject subclass
 			[x] Write unit tests to check input and processing of 2D FunctionObject subclass
 			[x] Write code to pass unit tests
-		[] Add input method to ModelObject
-			[] Write unit test to check input and processing of 1 or more input dicts
-			[] Write code to pass unit tests
 		[] Add processing code to config_file_parser.cpp
-			[] Write sample config file with optional parameters
+			[x] Write sample config file with optional parameters
 			[] Write unit test to check input and processing of 1 optional parameter
 			[] Write unit test to check input and processing of multiple optional parameters
 			[] Write unit test to check input and processing of multiple optional parameters
 				for multiple functions
+			[] Write code to pass unit tests
+		[] Add input method to ModelObject
+			[] Write unit test to check input and processing of 1 or more input dicts
 			[] Write code to pass unit tests
 
 		[] Add optional-parameter processing code to func1d_spline.cpp
@@ -463,6 +472,28 @@ OK, here is the problem:
 
 
 * IMPROVEMENTS APPLIED
+
+[x] New function(s) to assign image data, etc. to ModelObject instance
+	SetupModelObject
+	-- i.e., something to collect all the "assign data, assign PSF, assign
+	mask, assign image-params" stuff which could be called from imfit_main.cpp
+	and also from mcmc_main.cpp [and maybe from multimfit, too]
+	-- could be called repeatedly to generate multiple ModelObject instances for
+	multimfit?
+	
+	[X] Collect program options into new classes
+		[x] base options class
+		[x] options class for makeimage
+		[x] options class for imfit
+		[x] options class for imfit-mcmc
+		
+	[x] Draft SetupModelObject
+		[x] Simple unit tests for SetupModelObject
+		[x] Unit tests for makeimage-mode; change makeimage_main.cpp
+		[x] Unit tests for imfit-mode; change imfit_main.cpp
+		[x] Unit tests for mcmc-mode; change mcmc_main.cpp
+	
+	
 
 [X] Check for NaN values in PSF (and oversampled-PSF) images; complain and quit if found
 

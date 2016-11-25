@@ -57,10 +57,11 @@ static string  fixedIndicatorString = "fixed";
 
 
 /* ---------------- FUNCTION: ValidParameterLine ----------------------- */
-// Checks to see that a line has at least two tokens, that the second one
-// is a number, and that if there is a third token, it consists of two
-// comma-separated numbers.
-bool ValidParameterLine( string& currentLine ) 
+// Checks to see that a line has at least two tokens. In addition, if we're
+// in standard parameter-line mode (as opposed checking a parameter line in 
+// optional-params mode) we also check that that the second token is a number
+// and that if there is a third token, it consists of two comma-separated numbers.
+bool ValidParameterLine( string& currentLine, bool optionalParams ) 
 {
   vector<string>  stringPieces, stringPieces2;
   string  token2, token3;
@@ -71,6 +72,10 @@ bool ValidParameterLine( string& currentLine )
   nPieces = stringPieces.size();
   
   if (nPieces >= 2) {   // must have at least paramName + initial-value
+    // if we're in optional-params mode, then all we needed was to find 2+ tokens
+    if (optionalParams)
+      return true;
+    // if we reach here, we're in regular parameter-line mode, so we do the full test
     token2 = stringPieces[1];
     if (! IsNumeric(token2.c_str()))
       return false;
@@ -237,6 +242,7 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
     }
   }
 
+  bool inOptionalParams = false;
   // Check to make sure that non-FUNCTION lines (i.e., parameter lines)
   // have at least parameter name and a value
   if (functionsExist) {
@@ -244,7 +250,15 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
     for (i = functionSectionStart; i < nInputLines; i++) {
       if (inputLines[i].find("FUNCTION", 0) == string::npos) {
         // test for valid line
-        if (! ValidParameterLine(inputLines[i])) {
+        if (inputLines[i].find("OPTIONAL_PARAMS_START", 0) != string::npos) {
+          inOptionalParams = true;
+          continue;
+        }
+        if (inputLines[i].find("OPTIONAL_PARAMS_END", 0) != string::npos) {
+          inOptionalParams = false;
+          continue;
+        }
+        if (! ValidParameterLine(inputLines[i], inOptionalParams)) {
           allOK = false;
           *badLineNumber = origLineNumbers[i];
           break;
