@@ -29,7 +29,7 @@ class GaussianExtraParams : public FunctionObject
     // redefined method/member function:
     void Setup( double params[], int offsetIndex, double xc, double yc );
     bool HasExtraParams( );
-    int SetExtraParams( map<string, string> inputMap );
+    int SetExtraParams( map<string, string>& inputMap );
     double GetValue( double x, double y );
     bool CanCalculateTotalFlux(  );
     double TotalFlux( );

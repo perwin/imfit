@@ -61,6 +61,7 @@ FunctionObject::FunctionObject( )
 {
   functionName = "Base (undefined) function";
   shortFunctionName = "BaseFunction";
+  extraParamsSet = false;
 }
 
 

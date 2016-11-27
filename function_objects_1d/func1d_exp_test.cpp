@@ -66,7 +66,7 @@ bool Exponential1D_test::HasExtraParams( )
 
 /* ---------------- PUBLIC METHOD: SetExtraParams ---------------------- */
 
-int Exponential1D_test::SetExtraParams( map<string,string> inputMap )
+int Exponential1D_test::SetExtraParams( map<string,string>& inputMap )
 {
   // check for empty map
   if (inputMap.empty()) {
@@ -80,6 +80,7 @@ int Exponential1D_test::SetExtraParams( map<string,string> inputMap )
       if (IsNumeric(iter->second.c_str())) {
         floorValue = atof(iter->second.c_str());
         printf("   Exponential1D_test::SetExtraParams -- setting floor = %f\n", floorValue);
+        extraParamsSet = true;
         return 1;
       } else
         return -3;

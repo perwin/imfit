@@ -30,6 +30,7 @@ using namespace std;
 
 #define SIMPLE_CONFIG_FILE "tests/config_imfit_flatsky.dat"
 #define CONFIG_FILE "tests/config_imfit_poisson.dat"
+#define CONFIG_FILE3b "tests/config_imfit_gauss-extra-params.dat"
 
 
 // Reference things
@@ -46,20 +47,22 @@ public:
   ModelObject *modelObj2d;
   ModelObject *modelObj2e;
   ModelObject *modelObj2f;
-  ModelObject *modelObj3;
+  ModelObject *modelObj3a;
+  ModelObject *modelObj3b;
+  ModelObject *modelObj3c;
   ModelObject *modelObj4a;
   ModelObject *modelObj4b;
   ModelObject *modelObj4c;
   ModelObject *modelObj5a;
   ModelObject *modelObj5b;
-  vector<string>  functionList1, functionList3;
-  vector<double>  parameterList1, parameterList3;
-  vector<mp_par>  paramLimits1, paramLimits3;
-  vector<int>  FunctionBlockIndices1, FunctionBlockIndices3;
-  bool  paramLimitsExist1, paramLimitsExist3;
+  vector<string>  functionList1, functionList3, functionList3b;
+  vector<double>  parameterList1, parameterList3, parameterList3b;
+  vector<mp_par>  paramLimits1, paramLimits3, paramLimits3b;
+  vector<int>  FunctionBlockIndices1, FunctionBlockIndices3, FunctionBlockIndices3b;
+  bool  paramLimitsExist1, paramLimitsExist3, paramLimitsExist3b;
   mp_par  *parameterInfo;
   int  status;
-  configOptions  userConfigOptions1, userConfigOptions3;
+  configOptions  userConfigOptions1, userConfigOptions3, userConfigOptions3b;
   double  *smallDataImage;
   double  *smallErrorImage;
   double  *smallVarianceImage;
@@ -74,6 +77,7 @@ public:
     int  status;
     string  filename1 = CONFIG_FILE;
     string  filename3 = SIMPLE_CONFIG_FILE;
+    string  filename3b = CONFIG_FILE3b;
     
     nSmallDataCols = nSmallDataRows = 2;
     
@@ -126,11 +130,17 @@ public:
     modelObj2f = new ModelObject();
     
     
-    // Initialize modelObj3 and add model function & params (FlatSky)
+    // Initialize modelObj3a and add model function & params (FlatSky)
     status = ReadConfigFile(filename3, true, functionList3, parameterList3, 
   								paramLimits3, FunctionBlockIndices3, paramLimitsExist3, userConfigOptions3);
-    modelObj3 = new ModelObject();
-    status = AddFunctions(modelObj3, functionList3, FunctionBlockIndices3, true, -1);
+    modelObj3a = new ModelObject();
+    status = AddFunctions(modelObj3a, functionList3, FunctionBlockIndices3, true, -1);
+    // Initialize modelObj3b and add model function & params (GaussianExtraParams)
+    // turn off subsampling to make things quicker and calculations simpler
+    status = ReadConfigFile(filename3b, true, functionList3b, parameterList3b, 
+  								paramLimits3b, FunctionBlockIndices3b, paramLimitsExist3b, userConfigOptions3b);
+    modelObj3b = new ModelObject();
+    status = AddFunctions(modelObj3b, functionList3b, FunctionBlockIndices3b, false, -1);
 
     // Initialize modelObj4a and add model function & params (FlatSky)
     modelObj4a = new ModelObject();
@@ -164,7 +174,8 @@ public:
     delete modelObj2d;
     delete modelObj2e;
     delete modelObj2f;
-    delete modelObj3;
+    delete modelObj3a;
+    delete modelObj3b;
     delete modelObj4a;
     delete modelObj4b;
     delete modelObj4c;
@@ -276,13 +287,68 @@ public:
     double trueVals[4] = {100.0, 100.0, 100.0, 100.0};
     int  nDataVals = nSmallDataCols*nSmallDataRows;
   
-    modelObj3->SetupModelImage(nSmallDataCols, nSmallDataRows);
-    modelObj3->CreateModelImage(params);
-    outputModelVect = modelObj3->GetModelImageVector();
+    modelObj3a->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj3a->CreateModelImage(params);
+    outputModelVect = modelObj3a->GetModelImageVector();
 
     for (int i = 0; i < nDataVals; i++)
       TS_ASSERT_EQUALS(outputModelVect[i], trueVals[i]);
   }
+ 
+ 
+ void testSetExtraParams( void )
+ {
+   // model image: 4x4 pixels, GaussianExtraParams function with center at (x,y) = (1,1)
+    ModelObject *modelObj;
+    double *outputModelVect;
+    double params[6] = {1.0, 1.0, 0.0, 0.0, 100.0, 1.0};   // X0, Y0, PA, ell, I_0, sigma
+    double r1val = 60.653065971263345;
+    double r2val = 36.787944117144235;
+    double trueVals[4] = {100.0, r1val, r1val, r2val};
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    int  status;
+ 
+    // sanity check: do we generate proper model when optional parameter
+    // floor = 0?
+    modelObj3b->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj3b->CreateModelImage(params);
+    outputModelVect = modelObj3b->GetModelImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_DELTA(outputModelVect[i], trueVals[i], 1e-7);
+    
+
+    // test with floor = 100.0 [added to each output pixel]
+    vector< map<string, string> > optionalParamsVect;
+    map<string, string> optionalParamsMap;
+    string  keyword = "floor";
+    string  value = "100";
+    double  floorVal = 100.0;
+    optionalParamsMap[keyword] = value;
+    optionalParamsVect.push_back(optionalParamsMap);
+
+    vector<string> funcList;
+    vector<double> paramList;
+    vector<mp_par> paramLimits;
+    vector<int> funcBlockIndices;
+    bool paramLimitsExist;
+    configOptions userConfigOptions;
+    status = ReadConfigFile(CONFIG_FILE3b, true, funcList, paramList, paramLimits, 
+    							funcBlockIndices, paramLimitsExist, userConfigOptions);
+
+    modelObj = new ModelObject();
+    status = AddFunctions(modelObj, funcList, funcBlockIndices, false, -1,
+    						optionalParamsVect);
+    modelObj->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj->CreateModelImage(params);
+    outputModelVect = modelObj->GetModelImageVector();
+
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_DELTA(outputModelVect[i], trueVals[i] + floorVal, 1e-7);
+  delete modelObj;
+ }
+ 
+ 
  
   // make sure ModelObject complains if we add a PSF *after* we've done the setup
   void testCatchOutOfOrderPSF( void )

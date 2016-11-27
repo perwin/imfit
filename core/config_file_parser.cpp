@@ -322,7 +322,8 @@ void ReportConfigError( const int errorCode, const int origLineNumber )
 //                   which functions mark start of new function block
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                      vector<double>& parameterList, vector<int>& fblockStartIndices,
-                     configOptions& configFileOptions )
+                     configOptions& configFileOptions,
+                    vector< map<string, string> >& optionalParamsVect )
 {
   ifstream  inputFileStream;
   string  inputLine;
@@ -430,7 +431,8 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
                     vector<int>& fblockStartIndices, bool& parameterLimitsFound,
-                    configOptions& configFileOptions )
+                    configOptions& configFileOptions, 
+                    vector< map<string, string> >& optionalParamsVect )
 {
   ifstream  inputFileStream;
   string  inputLine;

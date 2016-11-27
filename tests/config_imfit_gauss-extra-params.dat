@@ -1,0 +1,7 @@
+X0	1	0,2
+Y0	1	0,2
+FUNCTION GaussianExtraParams
+PA		0		0,180
+ell		0		0,0.9
+I_0		100		1,200
+sigma	1		0,50

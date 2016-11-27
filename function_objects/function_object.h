@@ -29,7 +29,8 @@ class FunctionObject
     // override in derived classes only if said class *does* have user-settable
     // extra parameters
     virtual bool HasExtraParams( ) { return(false); }
-    virtual int SetExtraParams( map<string, string> )  { return -1; }
+    virtual int SetExtraParams( map<string, string>& )  { return -1; }
+    virtual bool ExtraParamsSet( ) { return(extraParamsSet); }
     
     // probably no need to modify this:
     virtual void SetSubsampling( bool subsampleFlag );
@@ -76,6 +77,7 @@ class FunctionObject
   protected:  // same as private, except accessible to derived classes
     int  nParams;
     bool  doSubsampling;
+    bool  extraParamsSet;
     vector<string>  parameterLabels;
     string  functionName, shortFunctionName;
     double  ZP;

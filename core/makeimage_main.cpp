@@ -108,6 +108,7 @@ int main( int argc, char *argv[] )
   vector<string>  functionList;
   vector<double>  parameterList;
   vector<int>  functionBlockIndices;
+  vector< map<string, string> > optionalParamsMap;
   vector<string>  imageCommentsList;
   double  *singleFunctionImage;
   MakeimageOptions *options;
@@ -289,7 +290,8 @@ int main( int argc, char *argv[] )
 //   }
 
   // Add functions to the model object; also tells model object where function sets start
-  status = AddFunctions(theModel, functionList, functionBlockIndices, options->subsamplingFlag);
+  status = AddFunctions(theModel, functionList, functionBlockIndices, 
+  						options->subsamplingFlag, 0, optionalParamsMap);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);

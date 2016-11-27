@@ -11,6 +11,10 @@
 #include <string>
 using namespace std;
 #include "add_functions.h"
+#include "model_object.h"
+#include "config_file_parser.h"
+
+#define SIMPLE_CONFIG_FILE "tests/config_imfit_flatsky.dat"
 
 
 class NewTestSuite : public CxxTest::TestSuite 
@@ -87,5 +91,75 @@ public:
     for (int i = 0; i < nFunctionNames_ref; i++)
       TS_ASSERT_EQUALS(fnameList[i], referenceFunctionNameList[i]);
   }
-};
 
+
+
+  void testAddFunctionsToModel( void )
+  {
+    ModelObject *modelObj;
+    vector<string>  fnameList;
+    vector<int> funcBlockIndices;
+    vector<double> parameterList;
+    vector<mp_par>  paramLimits;
+    bool  paramLimitsExist;
+    configOptions  userConfigOptions;
+    string filename = SIMPLE_CONFIG_FILE;
+    int  status, nInputFuncs, nOutputFuncs;
+
+    status = ReadConfigFile(filename, true, fnameList, parameterList, paramLimits,
+  							funcBlockIndices, paramLimitsExist, userConfigOptions);
+
+    modelObj = new ModelObject();
+    status = AddFunctions(modelObj, fnameList, funcBlockIndices, false, -1);
+    TS_ASSERT_EQUALS(status, 0);
+
+    vector<string> outputFuncNames;
+    modelObj->GetFunctionNames(outputFuncNames);
+    nInputFuncs = fnameList.size();
+    nOutputFuncs = outputFuncNames.size();
+    TS_ASSERT_EQUALS(nOutputFuncs, nInputFuncs);
+    if ((nInputFuncs > 0) && (nInputFuncs == nOutputFuncs)) {
+      for (int i = 0; i < nInputFuncs; i++)
+        TS_ASSERT_EQUALS(fnameList[i], outputFuncNames[i]);
+    }
+  }
+  
+    void testAddFunctionsToModel_optionalParams( void )
+  {
+    ModelObject *modelObj;
+    vector<string>  fnameList;
+    vector<int> funcBlockIndices;
+    vector<double> parameterList;
+    vector<mp_par>  paramLimits;
+    bool  paramLimitsExist;
+    configOptions  userConfigOptions;
+    string filename = SIMPLE_CONFIG_FILE;
+    int  status, nInputFuncs, nOutputFuncs;
+
+    vector< map<string, string> > optionalParamsVect;
+    map<string, string> optionalParamsMap;
+    string  keyword = "floor";
+    string  value = "100";
+    double  floorVal = 100.0;
+    optionalParamsMap[keyword] = value;
+    optionalParamsVect.push_back(optionalParamsMap);
+
+    status = ReadConfigFile(filename, true, fnameList, parameterList, paramLimits,
+  							funcBlockIndices, paramLimitsExist, userConfigOptions);
+
+    modelObj = new ModelObject();
+    status = AddFunctions(modelObj, fnameList, funcBlockIndices, false, -1, optionalParamsVect);
+    TS_ASSERT_EQUALS(status, 0);
+
+    vector<string> outputFuncNames;
+    modelObj->GetFunctionNames(outputFuncNames);
+    nInputFuncs = fnameList.size();
+    nOutputFuncs = outputFuncNames.size();
+    TS_ASSERT_EQUALS(nOutputFuncs, nInputFuncs);
+    if ((nInputFuncs > 0) && (nInputFuncs == nOutputFuncs)) {
+      for (int i = 0; i < nInputFuncs; i++)
+        TS_ASSERT_EQUALS(fnameList[i], outputFuncNames[i]);
+    }
+  }
+
+};

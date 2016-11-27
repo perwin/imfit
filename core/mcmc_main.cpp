@@ -136,6 +136,7 @@ int main(int argc, char *argv[])
   vector<double>  parameterList;
   vector<mp_par>  paramLimits;
   vector<int>  FunctionBlockIndices;
+  vector< map<string, string> > optionalParamsMap;
   bool  paramLimitsExist = false;
   int  status, fitStatus, nSucessfulIterations;
   vector<string>  imageCommentsList;
@@ -409,7 +410,7 @@ int main(int argc, char *argv[])
 
   // Add functions to the model object
   status = AddFunctions(theModel, functionList, FunctionBlockIndices, 
-  						options->subsamplingFlag, options->verbose);
+  						options->subsamplingFlag, options->verbose, optionalParamsMap);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);

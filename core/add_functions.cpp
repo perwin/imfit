@@ -72,6 +72,11 @@
 #include "func_expdisk3d_trunc.h"
 #endif
 
+// extra functions useful for e.g. unit tests
+#ifdef USE_TEST_FUNCS
+#include "func_gauss_extraparams.h"
+#endif
+
 using namespace std;
 
 
@@ -184,7 +189,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 // extra functions
 #ifdef USE_EXTRA_FUNCS
-
   BrokenExponentialBar::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponentialBar>();
 
@@ -209,24 +213,33 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   NaNFunc::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<NaNFunc>();
-
 #endif
-}
 
+#ifdef USE_TEST_FUNCS
+  GaussianExtraParams::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GaussianExtraParams>();
+#endif
+
+}
 
 
 
 int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
                   vector<int> &functionBlockIndices, const bool subsamplingFlag, 
-                  const int verboseLevel )
+                  const int verboseLevel, vector< map<string, string> > &extraParams )
 {
   int  nFunctions = functionNameList.size();
+  int  status;
   string  currentName;
+  bool  extraParamsExist = false;
   FunctionObject  *thisFunctionObj;
   map<string, factory*>  factory_map;
 
   PopulateFactoryMap(factory_map);
 
+  if (extraParams.size() > 0)
+    extraParamsExist = true;
+  
   for (int i = 0; i < nFunctions; i++) {
     currentName = functionNameList[i];
     if (verboseLevel >= 0)
@@ -238,6 +251,14 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
     else {
       thisFunctionObj = factory_map[currentName]->create();
       thisFunctionObj->SetSubsampling(subsamplingFlag);
+      if (extraParamsExist) {
+        if (verboseLevel >= 0)
+          printf("   Setting optional parameter(s) for %s...\n", currentName.c_str());
+        status = thisFunctionObj->SetExtraParams(extraParams[i]);
+        if (status < 0)
+          fprintf(stderr, "Error attempting to set extra/optional parameters for ");
+          fprintf(stderr, "function \"%s\"\n", thisFunctionObj->GetShortName().c_str());
+      }
       theModel->AddFunction(thisFunctionObj);
     }
   }

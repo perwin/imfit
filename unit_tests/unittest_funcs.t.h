@@ -40,7 +40,8 @@ const double PI = 3.14159265358979;
 // plus SetExtraParams testing)
 class TestExp1DTest : public CxxTest::TestSuite 
 {
-  FunctionObject  *thisFunc;
+  FunctionObject  *thisFunc1a;
+  FunctionObject  *thisFunc1b;
   FunctionObject  *thisFunc2;
   FunctionObject  *thisFunc3;
 
@@ -48,8 +49,10 @@ public:
   void setUp()
   {
     bool  subsampleFlag = false;
-    thisFunc = new Exponential1D_test();  // general testing (no numerical output)
-    thisFunc->SetSubsampling(subsampleFlag);
+    thisFunc1a = new Exponential1D_test();  // general testing (no numerical output)
+    thisFunc1a->SetSubsampling(subsampleFlag);
+    thisFunc1b = new Exponential1D_test();  // general testing (case without good extra params)
+    thisFunc1b->SetSubsampling(subsampleFlag);
     thisFunc2 = new Exponential1D_test();
     thisFunc2->SetSubsampling(subsampleFlag);
     thisFunc3 = new Exponential1D_test();   // for testing numerical output
@@ -58,7 +61,8 @@ public:
   
   void tearDown()
   {
-    delete thisFunc;
+    delete thisFunc1a;
+    delete thisFunc1b;
     delete thisFunc2;
     delete thisFunc3;
   }
@@ -74,16 +78,16 @@ public:
     correctParamNames.push_back("h");
 
     // check that we get right number of parameters
-    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+    TS_ASSERT_EQUALS( thisFunc1a->GetNParams(), correctNParams );
 
     // check that we get correct set of parameter names
-    thisFunc->GetParameterNames(paramNames);
+    thisFunc1a->GetParameterNames(paramNames);
     TS_ASSERT( paramNames == correctParamNames ); 
   }
   
   void testHasExtraParams( void )
   {
-    bool  returnVal = thisFunc->HasExtraParams();
+    bool  returnVal = thisFunc1a->HasExtraParams();
     TS_ASSERT_EQUALS( returnVal, true );
   }
   
@@ -94,16 +98,22 @@ public:
     string  value = "0";
     theMap[keyword] = value;
     
-    int  returnVal = thisFunc->SetExtraParams(theMap);
-    TS_ASSERT_EQUALS( returnVal, 1 );
+    int  status = thisFunc1a->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, 1 );
+
+    bool  returnVal = thisFunc1a->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, true );
   }
 
   void testSetExtraParams1_EmptyMap( void )
   {
     map<string, string> theMap;
 
-    int  returnVal = thisFunc->SetExtraParams(theMap);
-    TS_ASSERT_EQUALS( returnVal, -1 );
+    int  status = thisFunc1b->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, -1 );
+
+    bool  returnVal = thisFunc1b->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, false );
   }
 
   void testSetExtraParams1_BadName( void )
@@ -113,8 +123,11 @@ public:
     string  value = "100";
     theMap[keyword] = value;
     
-    int  returnVal = thisFunc->SetExtraParams(theMap);
-    TS_ASSERT_EQUALS( returnVal, 0 );
+    int  status = thisFunc1b->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, 0 );
+
+    bool  returnVal = thisFunc1b->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, false );
   }
 
   // non-numeric value for parameter expecting a number
@@ -125,8 +138,11 @@ public:
     string  value = "bob";
     theMap[keyword] = value;
     
-    int  returnVal = thisFunc->SetExtraParams(theMap);
-    TS_ASSERT_EQUALS( returnVal, -3 );
+    int  status = thisFunc1b->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, -3 );
+
+    bool  returnVal = thisFunc1b->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, false );
   }
 
   // testing basic numerical output without ExtraParams complications
@@ -152,15 +168,13 @@ public:
   void testCalculations_with_extra_params( void )
   {
     // centered at x0 = 0
-    int  returnVal;
+    int  status;
     double  x0 = 0.0;
     // FUNCTION-SPECIFIC:
     // test setup: exponential with I_0 = 1, h = 10,
     double  params[2] = {1.0, 10.0};
     map<string, string> theMap;
     string  keyword = "floor";
-//     string  value = "0";
-//     theMap[keyword] = value;
 
     double  rEqualsOneValue = 1.0*exp(-1.0/10.0);
     
@@ -174,7 +188,7 @@ public:
 
     // Set ExtraParams = 0
     theMap[keyword] = string("0");
-    returnVal = thisFunc3->SetExtraParams(theMap);
+    status = thisFunc3->SetExtraParams(theMap);
     // r = 0 value
     TS_ASSERT_DELTA( thisFunc3->GetValue(0.0), 1.0, DELTA );
     // r = 1 value
@@ -182,7 +196,7 @@ public:
 
     // Set ExtraParams = 100
     theMap[keyword] = string("100");
-    returnVal = thisFunc3->SetExtraParams(theMap);
+    status = thisFunc3->SetExtraParams(theMap);
     // r = 0 value
     TS_ASSERT_DELTA( thisFunc3->GetValue(0.0), 101.0, DELTA );
     // r = 1 value
@@ -648,16 +662,19 @@ public:
     string  value = "0";
     theMap[keyword] = value;
     
-    int  returnVal = thisFunc->SetExtraParams(theMap);
-    TS_ASSERT_EQUALS( returnVal, 1 );
+    int  status = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, 1 );
+
+    bool  returnVal = thisFunc->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, true );
   }
 
   void testSetExtraParams1_EmptyMap( void )
   {
     map<string, string> theMap;
 
-    int  returnVal = thisFunc->SetExtraParams(theMap);
-    TS_ASSERT_EQUALS( returnVal, -1 );
+    int  status = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, -1 );
   }
 
   void testSetExtraParams1_BadName( void )
@@ -667,8 +684,8 @@ public:
     string  value = "100";
     theMap[keyword] = value;
     
-    int  returnVal = thisFunc->SetExtraParams(theMap);
-    TS_ASSERT_EQUALS( returnVal, 0 );
+    int  status = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, 0 );
   }
 
   // non-numeric value for parameter expecting a number
@@ -679,8 +696,8 @@ public:
     string  value = "bob";
     theMap[keyword] = value;
     
-    int  returnVal = thisFunc->SetExtraParams(theMap);
-    TS_ASSERT_EQUALS( returnVal, -3 );
+    int  status = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, -3 );
   }
   // testing numerical output when we set ExtraParams
   void testCalculations_with_extra_params( void )
@@ -693,7 +710,7 @@ public:
     double  params[4] = {90.0, 0.0, 1.0, 10.0};
     map<string, string> theMap;
     string  keyword = "floor";
-    int  returnVal;
+    int  status;
 
     double  rEqualsOneValue = 1.0*exp(-1.0/(2*10.0*10.0));
     double  rEqualsSigmaValue = 1.0*exp(-(10.0*10.0)/(2*10.0*10.0));
@@ -712,7 +729,7 @@ public:
 
     // Set ExtraParams = 0
     theMap[keyword] = string("0");
-    returnVal = thisFunc2->SetExtraParams(theMap);
+    status = thisFunc2->SetExtraParams(theMap);
     // r = 0 value
     TS_ASSERT_DELTA( thisFunc2->GetValue(10.0, 10.0), 1.0, DELTA );
     // r = 1 value
@@ -724,7 +741,7 @@ public:
 
     // Set ExtraParams = 100
     theMap[keyword] = string("100");
-    returnVal = thisFunc2->SetExtraParams(theMap);
+    status = thisFunc2->SetExtraParams(theMap);
     // r = 0 value
     TS_ASSERT_DELTA( thisFunc2->GetValue(10.0, 10.0), 101.0, DELTA );
     // r = 1 value

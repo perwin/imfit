@@ -109,8 +109,10 @@ bool GaussianExtraParams::HasExtraParams( )
 
 
 /* ---------------- PUBLIC METHOD: SetExtraParams ---------------------- */
-
-int GaussianExtraParams::SetExtraParams( map<string,string> inputMap )
+// Returns -1 if map is empty, 0 if map is not empty but no valid parameter
+// name is found. If map has valid parameter name, returns 1 if parameter
+// value is OK, -3 if not.
+int GaussianExtraParams::SetExtraParams( map<string,string>& inputMap )
 {
   // check for empty map
   if (inputMap.empty()) {
@@ -124,6 +126,7 @@ int GaussianExtraParams::SetExtraParams( map<string,string> inputMap )
       if (IsNumeric(iter->second.c_str())) {
         floorValue = atof(iter->second.c_str());
         printf("   GaussianExtraParams::SetExtraParams -- setting floor = %f\n", floorValue);
+        extraParamsSet = true;
         return 1;
       } else
         return -3;
