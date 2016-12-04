@@ -530,7 +530,8 @@ function:
 
 	>>> import imfit, corner
 	
-	>>> columnNames, bootstrapResults = imfit.GetBootstrapOutput("bootstrap_output.dat")
+	>>> columnNames, bootstrapResults = 
+	    imfit.GetBootstrapOutput("bootstrap_output.dat")
 	>>> corner.corner(bootstrapResults, labels=columnNames)
 
 The result is shown below.
@@ -587,7 +588,8 @@ the corner.py module, just as we did for the bootstrap output:
 
 	>>> import imfit, corner
 	
-	>>> columnNames, allchains = imfit.MergeChains("mcmc_ic3478r", secondHalf=True)
+	>>> columnNames, allchains = imfit.MergeChains("mcmc_ic3478r", 
+	    secondHalf=True)
 	>>> corner.corner(allchains, labels=columnNames)
 
 The result is shown below.

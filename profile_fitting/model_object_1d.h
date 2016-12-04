@@ -87,10 +87,12 @@ class ModelObject1d : public ModelObject
 //     bool  weightValsSet;
 //     int  nFunctions, nParamsTot;
 // 	double  *dataVector;
+      bool  parameterBoundsSet;
 	  double  *dataXValues, *modelXValues;
 	  bool  dataAreMagnitudes;
 	// things useful for PSF convolution
 	  int  dataStartOffset, nPSFVals;
+	  double  *parameterBounds;
 // 	double  *weightVector;
 // 	double  *modelVector;
 // 	double  *parameterBounds;
