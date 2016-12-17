@@ -139,6 +139,7 @@
 
 
 [] Possible optional parameters for image functions in config file
+	"params"? "settings?"
 	-- ways to specify optional settings, or even input parameter files that
 	function can read when first starting up
 	-- optional keywords after FUNCTION but before parameters?
@@ -238,13 +239,14 @@
 		[] Modify code in _main.cpp to set up optional-params vector for calls to
 		ReadConfigFile and then pass it into call to AddFunction
 			[] makeimage_main.cpp
+				[x] add code
 				[] add regression test to see that we correctly use GaussianExtraParams
 					-- i.e., config file w/ and w/o extra-parameter specification
 					-- compare output images against reference images
 					-- Problem: this only works if we compile makeimage with GaussianExtraParams,
 					but that is currently only included if we use -DUSE_TEST_FUNCS
-			[] imfit_main.cpp
-			[] mcmc_main.cpp
+			[x] imfit_main.cpp
+			[x] mcmc_main.cpp
 
 		[] Add printout code to FunctionObject
 			-- to be used in e.g. ModelObject::PrintModelParams and also in

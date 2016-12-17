@@ -46,11 +46,15 @@ using namespace std;
 void AddParameter( string& currentLine, vector<double>& parameterList );
 int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
 							vector<mp_par>& parameterLimits, int origLineNumber );
+void AddOptionalParameter( string& currentLine, vector< map<string, string> >& optionalParamsVect );
 void AddFunctionName( string& currentLine, vector<string>& functionNameList );
 void ReportConfigError( const int errorCode, const int origLineNumber );
 
 
 /* ------------------------ Global Variables --------------------------- */
+
+#define OPTIONAL_PARAMS_START = "OPTIONAL_PARAMS_START"
+#define OPTIONAL_PARAMS_END = "OPTIONAL_PARAMS_NED"
 
 static string  fixedIndicatorString = "fixed";
 
@@ -108,8 +112,10 @@ void AddParameter( string& currentLine, vector<double>& parameterList ) {
   stringPieces.clear();
   SplitString(currentLine, stringPieces);
   // first piece is parameter name, which we ignore; second piece is initial value
+  printf("      strtod on stringPieces[1] = %s\n", stringPieces[1].c_str());
   paramVal = strtod(stringPieces[1].c_str(), NULL);
   parameterList.push_back(paramVal);
+  printf("      done.\n");
 }
 
 
@@ -176,6 +182,24 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
   parameterLimits.push_back(newParamLimit);
   
   return paramLimitsFound;
+}
+
+
+/* ---------------- FUNCTION: AddOptionalParameter --------------------- */
+// Parses a line, extracting the second element as a floating-point value and
+// storing it in the parameterList vector.
+void AddOptionalParameter( string& currentLine, vector< map<string, string> >& optionalParamsVect );
+{
+  string  paramName, paramVal;
+  vector<string>  stringPieces;
+  
+  ChopComment(currentLine);
+  stringPieces.clear();
+  SplitString(currentLine, stringPieces);
+  // first piece is parameter name; second piece is initial value
+  paramName = stringPieces[0];
+  paramVal = stringPieces[1];
+  optionalParamsVect[paramName] = paramVal;
 }
 
 
@@ -250,11 +274,11 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
     for (i = functionSectionStart; i < nInputLines; i++) {
       if (inputLines[i].find("FUNCTION", 0) == string::npos) {
         // test for valid line
-        if (inputLines[i].find("OPTIONAL_PARAMS_START", 0) != string::npos) {
+        if (inputLines[i].find(OPTIONAL_PARAMS_START, 0) != string::npos) {
           inOptionalParams = true;
           continue;
         }
-        if (inputLines[i].find("OPTIONAL_PARAMS_END", 0) != string::npos) {
+        if (inputLines[i].find(OPTIONAL_PARAMS_END, 0) != string::npos) {
           inOptionalParams = false;
           continue;
         }
@@ -335,6 +359,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   int  possibleBadLineNumber = -1;
   int  k = 0;
   
+  printf("opening file ...\n");
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
      cerr << "Error opening input stream for file " << configFileName.c_str() << endl;
@@ -353,11 +378,14 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   inputFileStream.close();
   nInputLines = inputLines.size();
   
+  printf("clearing input vectors ...\n");
   // Clear the input vectors before we start appending things to them
   functionNameList.clear();
   parameterList.clear();
   fblockStartIndices.clear();
+  optionalParamsVect.clear();
   
+  printf("looking for start of function block ...\n");
   // OK, locate the start of the function block (first line beginning with "X0")
   functionSectionStart = VetConfigFile(inputLines, origLineNumbers, mode2D, &possibleBadLineNumber);
   if (functionSectionStart < 0) {
@@ -365,6 +393,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     return -1;
   }
 
+  printf("parsing first non-function-related block ...\n");
   // Parse the first (non-function-related) section here
   // We assume that each of lines has the form "CAPITAL_KEYWORD some_value"
   configFileOptions.nOptions = 0;
@@ -380,13 +409,16 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     }
   }
   
+  printf("parsing first function section ...\n");
   // OK, now parse the function section
   i = functionSectionStart;
   functionNumber = 0;
   while (i < nInputLines) {
     if (inputLines[i].find("X0", 0) != string::npos) {
       fblockStartIndices.push_back(functionNumber);
+      printf("   AddParameter with inputLines[i=%d] = %s\n", i, inputLines[i].c_str());
       AddParameter(inputLines[i], parameterList);
+      printf("   Done.\n");
       i++;
       if (mode2D) {
         // X0 line should always be followed by Y0 line in 2D mode
@@ -396,8 +428,10 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
           				origLineNumbers[i] - 1);
           return -1;
         }
+        printf("   AddParameter with inputLines[i=%d] = %s\n", i, inputLines[i].c_str());
         AddParameter(inputLines[i], parameterList);
         i++;
+        printf("   Done.\n");
       }
       continue;
     }
@@ -407,9 +441,29 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
       i++;
       continue;
     }
-    // OK, we only reach here if it's a regular (non-positional) parameter line
-    AddParameter(inputLines[i], parameterList);
-    i++;
+    // OK, we only reach here if we're inside an individual function specification,
+    // so it's a regular (non-positional) parameter line *or* optional-parameter specification
+    if (inputLines[i].find(OPTIONAL_PARAMS_START, 0) != string::npos) {
+      inOptionalParams = true;
+      i++;
+      continue;
+    }
+    if (inputLines[i].find(OPTIONAL_PARAMS_END, 0) != string::npos) {
+      inOptionalParams = false;
+      i++;
+      continue;
+    }
+    if (inOptionalParams) {
+      printf("   AddOptionalParameter with inputLines[i=%d] = %s\n", i, inputLines[i].c_str());
+      AddOptionalParameter(inputLines[i], optionalParamsVect);
+      i++;
+    } else {
+      // regular (non-positional) parameter line
+      printf("   AddParameter with inputLines[i=%d] = %s\n", i, inputLines[i].c_str());
+      AddParameter(inputLines[i], parameterList);
+      i++;
+      printf("   Done.\n");
+    }
   }
   
   return 0;
