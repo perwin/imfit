@@ -272,7 +272,7 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 
 	# figure out what part of full chain to extract
 	if secondHalf is True:
-		startTime = int(floor(nGenerations / 2))
+		startTime = int(np.floor(nGenerations / 2))
 	elif last is not None:
 		startTime = -last
 	else:
