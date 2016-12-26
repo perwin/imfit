@@ -484,129 +484,129 @@ public:
 
 
   // Tests for ReadConfigFile() -- imfit version
-//   void testReadConfigFile_imfit( void )
-//   {
-//     vector<string>  functionList1;
-//     vector<double>  parameterList1;
-//     vector<mp_par>  paramLimits1;
-//     vector<int>  FunctionBlockIndices1;
-//     configOptions  userConfigOptions1;
-//     bool  paramLimitsExist1;
-// 	bool  status;
-// 	
-//     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
-//   								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, 
-//   								userConfigOptions1);
-//   
-//     TS_ASSERT_EQUALS(status, 0);
-//     
-//     TS_ASSERT_EQUALS((int)functionList1.size(), 1);
-//     TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
-//     
-//     int nParams = 8;
-//     double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
-//     
-//     TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
-//     for (int i = 0; i < nParams; i++) {
-//       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
-//     }
-//     
-//     TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-//     TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
-//     TS_ASSERT_EQUALS(paramLimitsExist1, false);
-//     
-//     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
-// 
-//     // do it again, to make sure the input/output vectors are cleared, then appended
-//     // to, rather than just appended to without being cleared first
-//     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
-//   								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, 
-//   								userConfigOptions1);
-//   
-//     TS_ASSERT_EQUALS(status, 0);
-//     
-//     TS_ASSERT_EQUALS((int)functionList1.size(), 1);
-//     TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
-//     
-//     TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
-//     for (int i = 0; i < nParams; i++) {
-//       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
-//     }
-//     
-//     TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-//     TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
-//     TS_ASSERT_EQUALS(paramLimitsExist1, false);
-//     
-//     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
-// 
-//   }
+  void testReadConfigFile_imfit( void )
+  {
+    vector<string>  functionList1;
+    vector<double>  parameterList1;
+    vector<mp_par>  paramLimits1;
+    vector<int>  FunctionBlockIndices1;
+    configOptions  userConfigOptions1;
+    bool  paramLimitsExist1;
+	bool  status;
+	
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
+  								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, 
+  								userConfigOptions1);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+    int nParams = 8;
+    double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++) {
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    }
+    
+    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS(paramLimitsExist1, false);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+
+    // do it again, to make sure the input/output vectors are cleared, then appended
+    // to, rather than just appended to without being cleared first
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
+  								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, 
+  								userConfigOptions1);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++) {
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    }
+    
+    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS(paramLimitsExist1, false);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+
+  }
 
   // Tests for ReadConfigFile() -- makeimage version
-//   void testReadConfigFile_makeimage( void )
-//   {
-//     vector<string>  functionList1;
-//     vector<double>  parameterList1;
-//     vector<int>  FunctionBlockIndices1;
-//     configOptions  userConfigOptions1;
-// 	bool  status;
-// 	
-//     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
-//   							FunctionBlockIndices1, userConfigOptions1);
-//   
-//     TS_ASSERT_EQUALS(status, 0);
-//     
-//     TS_ASSERT_EQUALS((int)functionList1.size(), 1);
-//     TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
-//     
-//     int nParams = 8;
-//     double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
-//     
-//     TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
-//     for (int i = 0; i < nParams; i++) {
-//       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
-//     }
-//     
-//     TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-//     TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
-//     
-//     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
-// 
-//     // do it again, to make sure the input/output vectors are cleared, then appended
-//     // to, rather than just appended to without being cleared first
-//     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
-//   							FunctionBlockIndices1, userConfigOptions1);
-//   
-//     TS_ASSERT_EQUALS(status, 0);
-//     
-//     TS_ASSERT_EQUALS((int)functionList1.size(), 1);
-//     TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
-//     
-//     TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
-//     for (int i = 0; i < nParams; i++)
-//       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
-//     
-//     TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-//     TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
-//     
-//     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
-//     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
-// 
-//   }
+  void testReadConfigFile_makeimage( void )
+  {
+    vector<string>  functionList1;
+    vector<double>  parameterList1;
+    vector<int>  FunctionBlockIndices1;
+    configOptions  userConfigOptions1;
+	bool  status;
+	
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
+  							FunctionBlockIndices1, userConfigOptions1);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+    int nParams = 8;
+    double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++) {
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    }
+    
+    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+
+    // do it again, to make sure the input/output vectors are cleared, then appended
+    // to, rather than just appended to without being cleared first
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
+  							FunctionBlockIndices1, userConfigOptions1);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++)
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    
+    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+
+  }
 
   void testReadConfigFile_makeimage_OptionalParams( void )
   {
@@ -625,29 +625,36 @@ public:
     status = ReadConfigFile(TEST_CONFIGFILE_OPTIONAL1, true, functionList1, parameterList1, 
   							FunctionBlockIndices1, userConfigOptions1, optionalParamsVect);
   
-//     TS_ASSERT_EQUALS(status, 0);
-//     
-//     TS_ASSERT_EQUALS((int)functionList1.size(), 1);
-//     if (functionList1.size() >= 1) {
-//       TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
-//     
-//       int nParams = 8;
-//       double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
-//     
-//       TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
-//       for (int i = 0; i < nParams; i++) {
-//         TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
-//       }
-//     
-//       TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-//       TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
-//     
-//       TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
-//       TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
-//       TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
-//       TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
-//       TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
-//    }
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    if (functionList1.size() >= 1) {
+      TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+      int nParams = 8;
+      double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
+    
+      TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+      for (int i = 0; i < nParams; i++) {
+        TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+      }
+    
+      TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+      TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    
+      TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+      TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+    }
+   
+    TS_ASSERT_EQUALS((int)optionalParamsVect.size(), 1);
+    if (optionalParamsVect.size() >= 1) {
+      map<string, string> firstMap = optionalParamsVect[0];
+      string resultString = firstMap["mode"];
+      TS_ASSERT_EQUALS(resultString, "alpha");
+    }
     
   }
 
