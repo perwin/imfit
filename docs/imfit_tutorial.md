@@ -475,7 +475,7 @@ about possible correlations or anti-correlations between different
 parameter values.
 
 If you a better picture of what the parameter uncertainties and possible correlations
-are like, there are two options one fast but noisy and the other slow but detailed:
+are like, there are two options: one fast but noisy and the other slow but detailed:
 
 1. **Boootstrap resampling**: This involves generating a new version of
 the data image by sampling from the original image with replacement

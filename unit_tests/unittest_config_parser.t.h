@@ -649,7 +649,14 @@ public:
       TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
     }
    
+    // check that we have a vector with at least on element
     TS_ASSERT_EQUALS((int)optionalParamsVect.size(), 1);
+    // extract the first (and only) map in the vector, check that it has a key named "mode"
+    map<string, string> firstMap = optionalParamsVect[0];
+    map<string, string>::iterator key_iterator;
+    key_iterator = optionalParamsVect[0].find("mode");
+    TS_ASSERT_DIFFERS(key_iterator, firstMap.end());
+    // check that the value indexed by "mode" is "alpha"
     if (optionalParamsVect.size() >= 1) {
       map<string, string> firstMap = optionalParamsVect[0];
       string resultString = firstMap["mode"];
