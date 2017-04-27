@@ -35,7 +35,7 @@ DOI for current release (v1.4), archived at Zenodo:
 
 ## About the code at this Github site
 
-[![Build Status](https://travis-ci.org/perwin/imfit.svg?branch=master)](https://travis-ci.org/perwin/imfit)
+Travis CI: [![Build Status](https://travis-ci.org/perwin/imfit.svg?branch=master)](https://travis-ci.org/perwin/imfit)
 
 
 

@@ -164,7 +164,7 @@ ideal in three ways:
 
 To fix this, we can tell imfit three things:
 
-1. The original background level (which we're already doing, via the --sky option);
+1. The original background level (which we're already doing, via the `--sky` option);
 2. The A/D gain in electrons/count, via the `--gain` option;
 3. The read noise value (in electrons), via the `--readnoise` option
 
@@ -255,7 +255,7 @@ option:
 	imfit --list-parameters
 
 A model fit to an image can consist of multiple image functions (and multiple
-copies of each image function), but for now let's just try a S&eacute;rsic function with
+instances of each image function), but for now let's just try a S&eacute;rsic function with
 elliptical isophotes. This is encoded in the "config\_sersic\_ic3478\_256.dat" file.
 
 	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 

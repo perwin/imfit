@@ -11,7 +11,7 @@
  */
 
 
-// CLASS ModelObject1d [base class]:
+// CLASS ModelObject1d [derived class]:
 
 #ifndef _MODEL_OBJ_1D_H_
 #define _MODEL_OBJ_1D_H_

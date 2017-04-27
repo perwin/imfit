@@ -1122,6 +1122,11 @@ void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
 // Function which returns log likelihood given a set of parameters in the
 // input parameter state.
 // Assumes that extraData is pointer to an instance of ModelObject.
+//    chain = which chain this is being called for (ignored)
+//    gen = current generation of the chain (ignored)
+//    state = current parameter vector
+//    extraData = pointer to ModelObject instance
+//    recalc -- ignored
 double LikelihoodFuncForDREAM( int chain, int gen, const double* state, 
 								const void* extraData, bool recalc )
 {

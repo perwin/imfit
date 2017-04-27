@@ -68,7 +68,10 @@ class FunctionObject
     // no need to modify this:
     virtual int GetNParams( );
 
-    // Destructor (doesn't have to be modified):
+    // Destructor (doesn't have to be modified, but MUST be declared
+    // virtual in order for this to be a sensible base object
+    // [see e.g. Scott Meyers, Effective C++]; otherwise behavior is 
+    // undefined when a derived class is deleted)
     virtual ~FunctionObject();
 
 

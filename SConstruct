@@ -578,7 +578,7 @@ imfit_sources = imfit_base_sources + modelobject_sources + functionobject_source
 makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs
 makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources
 
-# makeimage: put all the object and source-code lists together
+# imfit-mcmc: put all the object and source-code lists together
 mcmc_objs = mcmc_base_objs + modelobject_objs + functionobject_objs
 mcmc_sources = mcmc_base_sources + modelobject_sources + functionobject_sources
 
