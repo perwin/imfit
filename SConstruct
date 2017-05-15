@@ -111,8 +111,10 @@ os_type = os.uname()[0]
 
 # *** Set up compiler flags, library lists, include paths
 
-cflags_opt = ["-O3", "-g0", "-msse2"]
-cflags_db = ["-Wall", "-g3"]
+# cflags_opt = ["-O3", "-g0", "-msse2"]
+# cflags_db = ["-Wall", "-g3"]
+cflags_opt = ["-O3", "-g0", "-msse2", "-std=c++11"]
+cflags_db = ["-Wall", "-g3", "-std=c++11", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith"]
 
 base_defines = ["ANSI", "USING_SCONS"]
 
@@ -180,25 +182,19 @@ if (os_type == "Darwin") and (getpass.getuser() == "erwin"):
 
 
 # *** System-specific setup
-#xcode5 = False
-if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
-	# Note: if for some reason you need to compile to 32-bit -- e.g., because
-	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
-	# are 32-bit, use the following
-	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
-#	xcode5 = CheckForXcode5()
+# if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
+# 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
+# 	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
+# 	# are 32-bit, use the following
+# 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 if (os_type == "Linux"):
 	# change the following path definitions as needed
 	include_path.append("/usr/include")
 	if os.getlogin() == "erwin":
 		include_path.append("/home/erwin/include")
 		lib_path.append("/home/erwin/lib")
-	# When compiled under Linux, -O3 causes mysterious "invalid pointer" error at end of run
-	cflags_opt = ["-O3", "-g0"]
-	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 	# silly Linux doesn't have OpenBSD string routines built in, so we'll have to include them
 	base_defines = base_defines + ["LINUX"]
-#	lib_list.append("gslcblas")
 defines_opt = base_defines
 #defines_db = base_defines + ["DEBUG"]
 defines_db = base_defines
@@ -706,8 +702,9 @@ env_1d.Program("psfconvolve1d", psfconvolve1d_dbg_objlist)
 
 # timing: variation on makeimage designed to time image-generation and convolution
 # Base files for timing:
-timing_base_obj_string = """core/commandline_parser core/utilities core/image_io core/config_file_parser 
-			core/add_functions extra/timing_main"""
+timing_base_obj_string = """core/commandline_parser core/utilities core/image_io 
+			core/config_file_parser core/add_functions core/mp_enorm core/mersenne_twister
+			extra/timing_main"""
 timing_base_objs = timing_base_obj_string.split()
 timing_base_sources = [name + ".cpp" for name in timing_base_objs]
 

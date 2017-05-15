@@ -447,7 +447,7 @@ int main( int argc, char *argv[] )
     time_per_iteration = time_elapsed / options->timingIterations;
     printf("\nElapsed time: %.6f sec\n", time_elapsed);
     printf("\tMean time per image computation (from %d iterations) = %.7f sec\n", 
-    		time_per_iteration, options->timingIterations);
+    		options->timingIterations, time_per_iteration);
   }
 
   

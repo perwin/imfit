@@ -66,11 +66,14 @@ NaNFunc::NaNFunc( )
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
+// Since all this function does is return NaN values, we don't need to
+// store any of the input values
 void NaNFunc::Setup( double params[], int offsetIndex, double xc, double yc )
 {
-  x0 = xc;
-  y0 = yc;
-  double  ignored = params[0 + offsetIndex ];
+  ;
+//   x0 = xc;
+//   y0 = yc;
+//  double  ignored = params[0 + offsetIndex ];
 }
 
 
