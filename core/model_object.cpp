@@ -232,7 +232,10 @@ void ModelObject::DefineFunctionBlocks( vector<int>& functionStartIndices )
   
   // total number of parameters = number of parameters for individual functions
   // plus x0/y0 pair for each function block
-  nParamsTot = nFunctionParams + 2*nFunctionBlocks;
+  // (add computed number to pre-existing value of nParamsTot [= 0 normally]
+  // for special case of multimfit, etc., where additional image-description
+  // parameters may have been counted)
+  nParamsTot += nFunctionParams + 2*nFunctionBlocks;
 }
 
 

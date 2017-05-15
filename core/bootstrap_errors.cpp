@@ -133,12 +133,12 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
                     bestfitParams[i]);
       }
     }
+    free(paramSigmas);
   }
 
   for (i = 0; i < nParams; i++)
     free(outputParamArray[i]);
   free(outputParamArray);
-  free(paramSigmas);
 
   return nSuccessfulIterations;
 }
@@ -200,13 +200,13 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
     init_genrand(rngSeed);
   else
     init_genrand((unsigned long)time((time_t *)NULL));
-//  init_genrand((unsigned long)time((time_t *)NULL));
 
   paramsVect = (double *) malloc(nParams * sizeof(double));
 
   status = theModel->UseBootstrap();
   if (status < 0) {
     fprintf(stderr, "Error encountered during bootstrap setup!\n");
+    free(paramsVect);
     return -1;
   }
 
