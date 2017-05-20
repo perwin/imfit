@@ -2,6 +2,21 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.5.0 -- 2017-mm-dd
+### Added:
+
+### Changed:
+
+- Binaries for MacOS X (or "macOS") are now compiled with GCC 6 instead of GCC 5.
+
+- I have started (very slowly) updating some of the code to make use of
+C++-11 features. This should have no visible effects, but might start to be
+relevant for people hacking around with the code. It also means that future
+versions of Imfit will require compilers that support C++-11 (e.g., GCC
+versions newer than 4.7).
+
+
+
 ## 1.4.0 -- 2016-11-10
 ### Added:
 

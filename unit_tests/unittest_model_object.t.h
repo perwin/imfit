@@ -191,7 +191,29 @@ public:
     TS_ASSERT_EQUALS(headerLine, headerLine_correct);
   }
   
- 
+
+  void testGetNFunctions( void )
+  {
+    int  nFuncs_true = 2;   // Exponential,FlatSky
+    int  nFuncs = modelObj1->GetNFunctions();
+    TS_ASSERT_EQUALS(nFuncs, nFuncs_true);
+    
+    nFuncs_true = 1;   // GaussianExtraParams
+    nFuncs = modelObj3b->GetNFunctions();
+    TS_ASSERT_EQUALS(nFuncs, nFuncs_true);
+  }
+  
+  void testGetNParams( void )
+  {
+    int  nParams_true = 7;   // X0,Y0,Exponential,FlatSky
+    int  nParams = modelObj1->GetNParams();
+    TS_ASSERT_EQUALS(nParams, nParams_true);
+    
+    nParams_true = 6;   // GaussianExtraParams
+    nParams = modelObj3b->GetNParams();
+    TS_ASSERT_EQUALS(nParams, nParams_true);
+  }
+  
   void testStoreAndRetrieveDataImage( void )
   {
     double *outputVect;
@@ -201,6 +223,9 @@ public:
     modelObj2a->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
     outputVect = modelObj2a->GetDataVector();
 
+    int nData = modelObj2a->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nData);
+    
     for (int i = 0; i < nDataVals; i++)
       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
   }

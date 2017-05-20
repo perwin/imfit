@@ -26,7 +26,7 @@
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
 #    $ scons --cc=gcc-4.9 --cpp=g++-4.9 <target-name>
-# shorthand for using GCC 5.1
+# shorthand for using GCC 6
 #    $ scons --use-gcc <target-name>
 #
 #
@@ -171,12 +171,12 @@ CPP_COMPILER = cpp_default
 c_compiler_changed = False
 cpp_compiler_changed = False
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v5 is installed and
-# callable via gcc-5 and g++-5)
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v6 is installed and
+# callable via gcc-6 and g++-6)
 # Comment this out otherwise!
 if (os_type == "Darwin") and (getpass.getuser() == "erwin"): 
-	CC_COMPILER = "gcc-5"
-	CPP_COMPILER = "g++-5"
+	CC_COMPILER = "gcc-6"
+	CPP_COMPILER = "g++-6"
 	c_compiler_changed = True
 	cpp_compiler_changed = True
 
@@ -241,7 +241,7 @@ AddOption("--cc", dest="cc_compiler", type="string", action="store", default=Non
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v5.1 compilers")
+	default=False, help="use gcc and g++ v6 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 
@@ -291,8 +291,8 @@ if GetOption("cpp_compiler") is not None:
 	print "using %s for C++ compiler" % CPP_COMPILER
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
-	CC_COMPILER = "gcc-5"
-	CPP_COMPILER = "g++-5"
+	CC_COMPILER = "gcc-6"
+	CPP_COMPILER = "g++-6"
 	print "using %s for C compiler" % CC_COMPILER
 	print "using %s for C++ compiler" % CPP_COMPILER
 	c_compiler_changed = True
