@@ -50,11 +50,13 @@ public:
   ModelObject *modelObj3a;
   ModelObject *modelObj3b;
   ModelObject *modelObj3c;
+  ModelObject *modelObj3d;
   ModelObject *modelObj4a;
   ModelObject *modelObj4b;
   ModelObject *modelObj4c;
   ModelObject *modelObj5a;
   ModelObject *modelObj5b;
+  ModelObject *modelObj5c;
   vector<string>  functionList1, functionList3, functionList3b;
   vector<double>  parameterList1, parameterList3, parameterList3b;
   vector<mp_par>  paramLimits1, paramLimits3, paramLimits3b;
@@ -141,6 +143,8 @@ public:
   								paramLimits3b, FunctionBlockIndices3b, paramLimitsExist3b, userConfigOptions3b);
     modelObj3b = new ModelObject();
     status = AddFunctions(modelObj3b, functionList3b, FunctionBlockIndices3b, false, -1);
+    modelObj3c = new ModelObject();
+    status = AddFunctions(modelObj3c, functionList3, FunctionBlockIndices3, true, -1);
 
     // Initialize modelObj4a and add model function & params (FlatSky)
     modelObj4a = new ModelObject();
@@ -152,12 +156,13 @@ public:
     modelObj4c = new ModelObject();
     status = AddFunctions(modelObj4c, functionList1, FunctionBlockIndices1, true, -1);
 
-    // Initialize modelObj5a,b and add model function & params (Exp + FlatSky)
+    // Initialize modelObj5a,b,c and add model function & params (Exp + FlatSky)
     modelObj5a = new ModelObject();
     status = AddFunctions(modelObj5a, functionList1, FunctionBlockIndices1, true, -1);
     modelObj5b = new ModelObject();
     status = AddFunctions(modelObj5b, functionList1, FunctionBlockIndices1, true, -1);
-    
+    modelObj5c = new ModelObject();
+    status = AddFunctions(modelObj5c, functionList1, FunctionBlockIndices1, true, -1);
   }
 
   void tearDown()
@@ -176,11 +181,13 @@ public:
     delete modelObj2f;
     delete modelObj3a;
     delete modelObj3b;
+    delete modelObj3c;
     delete modelObj4a;
     delete modelObj4b;
     delete modelObj4c;
     delete modelObj5a;
     delete modelObj5b;
+    delete modelObj5c;
   }
   
   
@@ -294,10 +301,23 @@ public:
     
     modelObj2f->AddImageDataVector(smallDataImage, nSmallDataCols, nSmallDataRows);
     modelObj2f->AddErrorVector(nDataVals, nSmallDataCols, nSmallDataRows, smallWeightImage, WEIGHTS_ARE_WEIGHTS);
+
+    bool maskPresent = modelObj2f->HasMask();
+    TS_ASSERT_EQUALS(maskPresent, false);
 	modelObj2f->AddMaskVector(nDataVals, nSmallDataCols, nSmallDataRows, smallMaskImage, MASK_ZERO_IS_GOOD);
+    maskPresent = modelObj2f->HasMask();
+    TS_ASSERT_EQUALS(maskPresent, true);
+
 	modelObj2f->ApplyMask();
     outputVect = modelObj2f->GetWeightImageVector();
 
+    int  n = modelObj2f->GetNDataValues();
+    TS_ASSERT_EQUALS(n, nDataVals);
+    
+    int  nValidPix_true = nDataVals - 1;
+    n = modelObj2f->GetNValidPixels();
+    TS_ASSERT_EQUALS(n, nValidPix_true);
+    
     for (int i = 0; i < nDataVals; i++)
       TS_ASSERT_EQUALS(outputVect[i], trueVals[i]);
   }
@@ -318,6 +338,31 @@ public:
 
     for (int i = 0; i < nDataVals; i++)
       TS_ASSERT_EQUALS(outputModelVect[i], trueVals[i]);
+  }
+
+
+   void testResidualImageGeneration( void )
+  {
+    // Simple model image: 4x4 pixels, FlatSky function with I_sky = 100.0
+    double *outputModelVect;
+    double params[3] = {26.0, 26.0, 100.0};   // X0, Y0, I_sky
+    double trueVals[4] = {100.0, 100.0, 100.0, 100.0};
+    double dataVals[4] = {101.0, 99.0, 100.1, 100.0};
+    double trueResidualVals[4] = {101.0 - 100.0, 99.0 - 100.0, 100.1 - 100.0, 100.0 - 100.0};
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+  
+    int status = modelObj3c->AddImageDataVector(dataVals, nSmallDataCols, nSmallDataRows);
+    TS_ASSERT_EQUALS(status, 0);
+    
+    modelObj3c->CreateModelImage(params);
+
+    outputModelVect = modelObj3c->GetModelImageVector();
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputModelVect[i], trueVals[i]);
+
+    outputModelVect = modelObj3c->GetResidualImageVector();
+    for (int i = 0; i < nDataVals; i++)
+      TS_ASSERT_EQUALS(outputModelVect[i], trueResidualVals[i]);
   }
  
  
@@ -392,6 +437,9 @@ public:
     // final setup for modelObj4a
     modelObj4a->SetupModelImage(nColumns, nRows);
     TS_ASSERT_EQUALS(status4a, 0);
+    
+    bool  psfPresent = modelObj4a->HasPSF();
+    TS_ASSERT_EQUALS(psfPresent, true);
 
 	// This is the WRONG order
     // final setup for modelObj4b *first*
@@ -436,11 +484,41 @@ public:
     TS_ASSERT_EQUALS(status, 0);
     // final setup for modelObj5b
     modelObj5b->SetupModelImage(nColumns, nRows);
+
+    bool  overPsfPresent = modelObj5b->HasOversampledPSF();
+    TS_ASSERT_EQUALS(overPsfPresent, false);
     
     // now add the bad PSF as an oversampled PSF
     status = modelObj5b->AddOversampledPSFVector(nPixels_psf, nColumns_psf, nRows_psf, 
     					badPSFImage, 1, 1,2, 1,2);
     TS_ASSERT_EQUALS(status, -1);
+  }
+  
+  
+  void testOversampledPSF( void )
+  {
+    int  nColumns = 10;
+    int  nRows = 10;
+    int  nColumns_psf = 3;
+    int  nRows_psf = 3;
+    int  nPixels_psf = 9;
+    double  goodPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    double  overPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    int  status;
+  
+    // This is the correct order
+    // add PSF pixels first
+    status = modelObj5c->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, goodPSFImage);
+    TS_ASSERT_EQUALS(status, 0);
+    // final setup for modelObj5c
+    modelObj5c->SetupModelImage(nColumns, nRows);
+
+    status = modelObj5c->AddOversampledPSFVector(nPixels_psf, nColumns_psf, nRows_psf, 
+    					overPSFImage, 1, 1,2, 1,2);
+    TS_ASSERT_EQUALS(status, 0);
+
+    int  overPsfPresent = modelObj5c->HasOversampledPSF();
+    TS_ASSERT_EQUALS(overPsfPresent, true);
   }
   
   
