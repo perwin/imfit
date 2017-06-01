@@ -138,7 +138,7 @@
 	
 
 
-[] Possible optional parameters for image functions in config file
+[..] Possible optional parameters for image functions in config file
 	"params"? "settings?"
 	-- ways to specify optional settings, or even input parameter files that
 	function can read when first starting up
@@ -322,7 +322,7 @@
 	mention possibility of missing sky parameter
 
 
-[ ] Spline-interpolation image function
+[..] Spline-interpolation image function
 	-- radial SB profile (usually exponential, Sersic, etc.) is spline interpolation
 	using a small set of r, I values. The I values are free parameters of the fit;
 	possibly the r values could be also.
@@ -425,6 +425,12 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 
 ** MINOR BUGS TO FIX/IMPROVEMENTS TO MAKE:
+
+[ ] When imfit saves bootstrap output, X0,Y0 values are *not* corrected for
+cfitsio offset values
+	E.g., for X0,Y0 = 125,604 in image.fits[100:300,500:800], the saved
+	X0,Y0 vaalues are 25,104
+
 
 [ ] In imfit and imfit-mcmc, oversampled-convolution regions are referenced by
 a string: options.psfOversampleRegion

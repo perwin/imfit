@@ -252,6 +252,7 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
       thisFunctionObj = factory_map[currentName]->create();
       thisFunctionObj->SetSubsampling(subsamplingFlag);
       if (extraParamsExist) {
+        // specialize the function as requested by user (via config file)
         if (verboseLevel >= 0)
           printf("   Setting optional parameter(s) for %s...\n", currentName.c_str());
         status = thisFunctionObj->SetExtraParams(extraParams[i]);

@@ -262,6 +262,7 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
 {
   vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
   const string star = string("*");
+  string  copyBracketString;
 
   // default values indicating errors:
   *x1 = 0;
@@ -269,7 +270,12 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
   *y1 = 0;
   *y2 = 0;
   
-  SplitString(bracketString, sectionPieces, ",");
+  // Trim away "[" at start, "]" at end if user accidentally included them
+  string::size_type  startIndex = bracketString.find_first_not_of("[");
+  string::size_type  endIndex = bracketString.find_last_not_of("]");
+  copyBracketString = bracketString.substr(startIndex, (endIndex - startIndex + 1) );
+
+  SplitString(copyBracketString, sectionPieces, ",");
   // handle the x part of the section specification
   if (sectionPieces[0] == star)
     *x1 = 1;
@@ -277,7 +283,7 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
     SplitString(sectionPieces[0], subsectionPieces_x, ":");
     if (subsectionPieces_x.size() != 2) {
       fprintf(stderr, "\nWARNING1: Incorrect image section format!\n");
-      fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
+      fprintf(stderr, "\t\"%s\"\n", copyBracketString.c_str());
       return;
     }
     *x1 = atoi(subsectionPieces_x[0].c_str());
@@ -290,7 +296,7 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
     SplitString(sectionPieces[1], subsectionPieces_y, ":");
     if (subsectionPieces_y.size() != 2) {
       fprintf(stderr, "\nWARNING2: Incorrect image section format!\n");
-      fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
+      fprintf(stderr, "\t\"%s\"\n", copyBracketString.c_str());
       return;
     }
     *y1 = atoi(subsectionPieces_y[0].c_str());
