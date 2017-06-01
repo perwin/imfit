@@ -11,8 +11,8 @@
 using namespace std;
 
 ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVector, 
-					double *dataPixels, double *psfPixels=nullptr, double *maskPixels=nullptr, 
-					double *errorPixels=nullptr, double *psfOversampledPixels=nullptr, 
+					double *dataPixels, double *psfPixels=NULL, double *maskPixels=NULL, 
+					double *errorPixels=NULL, double *psfOversampledPixels=NULL, 
 					vector<int> xyOversamplePos=vector<int>() );
 
 
