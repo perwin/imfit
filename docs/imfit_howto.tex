@@ -857,6 +857,13 @@ convention: the center of first pixel in the image (the lower left pixel
 in a standard display) is at $(1.0,1.0)$, with the lower-left corner of that
 pixel having the coordinates $(0.5,0.5)$.
 
+Note that these positions are in the coordinate system of the entire
+image. That is, if you specify a subsection of the image to be fit
+(e.g., ``image.fits[150:350,425:700]''), the X0 and Y0 values must still
+be absolute positions referring to the original image, \textit{not} relative
+positions with the subsection.
+
+
 \bigskip
 
 \textbf{General Parameter Values for Functions}: The meaning of the individual
@@ -1052,11 +1059,12 @@ image sections in \textsc{iraf}). An example:
 \begin{quote}
 ic3478rss\_256.fits[45:150,200:310]
 \end{quote}
-This will fit columns 45--150 and rows 200--310 of the image (column and row
-numbering starts at~1). Pixel coordinates in the configuration (and output)
-files refer to locations within the \textit{full} image. Note that this works
-as-is when running \Imfit{} from within the Bash shell; for the C shell, you may 
-need to enclose the image name + specification in quotation marks.
+This will fit columns 45--150 and rows 200--310 of the image (column and
+row numbering starts at~1). Pixel coordinates in the configuration (and
+output) files refer to locations within the \textit{full} image, not
+relative positions within the subsection. Note that this works as-is
+when running \Imfit{} from within the Bash shell; for the C shell, you
+may need to enclose the image name + specification in quotation marks.
 
 The only kind of image section specification that's allowed is a simple
 [x1:x2,y1:y2] format, though you can specify all of a particular dimension using
@@ -1271,10 +1279,15 @@ For example,
 \texttt{\$ imfit --overpsf psf5.fits --overpsf\_scale 5 \textbackslash \\
          --overpsf\_region 490:500,620:630}
 \end{quote}
-tells \imfit{} that you want the region [490:500,620:630] within the image to use
-oversampled PSF convolution, that the oversampled PSF is contained in the file \texttt{psf5.fits},
-and that the oversampling scale is a factor of 5 (i.e., one normal pixel in the image
-corresponds to $5 \times 5$ pixels in the oversampled model and the PSF).
+tells \imfit{} that you want the region [490:500,620:630] within the
+image to use oversampled PSF convolution, that the oversampled PSF is
+contained in the file \texttt{psf5.fits}, and that the oversampling
+scale is a factor of 5 (i.e., one normal pixel in the image corresponds
+to $5 \times 5$ pixels in the oversampled model and the PSF).
+
+As is true for the X0 and Y0 parameter values, the oversampled-region
+specification refers to the coordinate system of the entire input image,
+\textit{not} relative coordinates within a subsection.
 
 
 

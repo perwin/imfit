@@ -46,7 +46,12 @@ class DESolver
 {
 public:
   DESolver( int dim, int popSize );
-  ~DESolver( );
+
+  // Destructor (doesn't have to be modified, but MUST be declared
+  // virtual in order for this to be a sensible base object
+  // [see e.g. Scott Meyers, Effective C++]; otherwise behavior is 
+  // undefined when a derived class is deleted)
+  virtual ~DESolver( );
 	
   /// Setup() must be called before Solve to set min, max, strategy etc.
   void Setup( double min[], double max[], int deStrategy,

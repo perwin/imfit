@@ -15,6 +15,14 @@ relevant for people hacking around with the code. It also means that future
 versions of Imfit will require compilers that support C++-11 (e.g., GCC
 versions newer than 4.7).
 
+### Fixed:
+
+- In describing the PSF oversampling options, the documentation
+(erroneously) gave an example of `--overpsf_region [x1:x2,y1:y2]`, when
+the correct format was `--overpsf_region x1:x2,y1:y2`. The documentation
+has been updated to recommend the latter format; however, the code has
+also been changed so that *both* formats are now acceptable.
+
 
 
 ## 1.4.0 -- 2016-11-10

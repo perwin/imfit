@@ -1,6 +1,14 @@
 
 ** BUGS TO FIX:
 
+[ ] Bootstrap output:
+	X0,Y0 values are *not* corrected to full-image coordinates if input image used
+	image subsections (e.g., for "imfit data.fits[200:400,100:300] ...", the saved
+	X0,Y0 values in the bootstrap output file will be subsection-relative, although
+	the "best-fit" values in the header will be correctly full-image relative.
+
+
+
 
 ** NEAR-TERM FUTURE TODO:
 
