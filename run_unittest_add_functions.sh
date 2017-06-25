@@ -19,8 +19,8 @@ function_objects/func_gaussian-ring2side.cpp function_objects/func_edge-on-disk_
 function_objects/func_edge-on-disk_n4762v2.cpp function_objects/func_edge-on-ring.cpp \
 function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.cpp \
 function_objects/integrator.cpp function_objects/func_expdisk3d.cpp function_objects/func_brokenexpdisk3d.cpp \
-function_objects/func_gaussianring3d.cpp function_objects/func_king.cpp \
-function_objects/func_king2.cpp \
+function_objects/func_gaussianring3d.cpp function_objects/func_ferrersbar3d.cpp \
+function_objects/func_king.cpp function_objects/func_king2.cpp \
 core/mersenne_twister.cpp core/mp_enorm.cpp \
 -I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lgslcblas -lm
 if [ $? -eq 0 ]
