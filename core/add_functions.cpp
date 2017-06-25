@@ -58,6 +58,7 @@
 #include "func_expdisk3d.h"
 #include "func_brokenexpdisk3d.h"
 #include "func_gaussianring3d.h"
+#include "func_ferrersbar3d.h"
 #endif
 
 // extra functions
@@ -185,6 +186,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   GaussianRing3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRing3D>();
+
+  FerrersBar3D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FerrersBar3D>();
 #endif
 
 // extra functions

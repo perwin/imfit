@@ -518,6 +518,7 @@ if useGSL:
 	functionobject_obj_string += " func_expdisk3d"  # requires integrator
 	functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
 	functionobject_obj_string += " func_gaussianring3d"  # requires integrator
+	functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
 if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
