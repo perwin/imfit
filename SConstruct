@@ -217,6 +217,7 @@ buildFatBinary = False
 build32bit = False
 buildForOldMacOS = False
 scanBuild = False
+addressSanitize = False
 
 # Define some user options
 AddOption("--lib-path", dest="libraryPath", type="string", action="store", default=None,
@@ -244,6 +245,8 @@ AddOption("--use-gcc", dest="useGCC", action="store_true",
 	default=False, help="use gcc and g++ v6 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
+AddOption("--address-sanitize", dest="useAddressSanitize", action="store_true", 
+	default=False, help="set this to generate binaries with -fsanitize-address")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -300,6 +303,10 @@ if GetOption("useGCC") is True:
 
 if GetOption("doingScanBuild") is True:
 	scanBuild = True
+	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
+
+if GetOption("useAddressSanitize") is True:
+	addressSanitize = True
 	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
 
 if GetOption("useStaticLibs") is True:
@@ -397,6 +404,15 @@ if doExtraChecks:   # default is to NOT do this; user must specify with "--extra
 for key, value in ARGLIST:
 	if key == 'define':
 		extra_defines.append(value)
+
+
+if addressSanitize is True:
+	cflags_opt.append("-fsanitize=address")
+	cflags_opt.append("-fno-omit-frame-pointer")
+	cflags_db.append("-fsanitize=address")
+	cflags_db.append("-fno-omit-frame-pointer")
+	link_flags.append("-fsanitize=address")
+	link_flags.append("-fno-omit-frame-pointer")
 
 
 # *** Special distribution-building options

@@ -5,6 +5,8 @@
 ## 1.5.0 -- 2017-mm-dd
 ### Added:
 
+- New image function: FerrersBar3D. XXX
+
 ### Changed:
 
 - Binaries for MacOS X (or "macOS") are now compiled with GCC 6 instead of GCC 5.

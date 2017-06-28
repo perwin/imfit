@@ -637,7 +637,7 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
     theOptions->psfOversampleRegions.push_back(optParser->GetTargetString("overpsf_region"));
     theOptions->oversampleRegionSet = true;
     theOptions->nOversampleRegions += 1;
-    int ii = theOptions->nOversampleRegions;
+    int ii = theOptions->nOversampleRegions - 1;
     printf("\tPSF oversampling region = %s\n", theOptions->psfOversampleRegions[ii].c_str());
   }
   if (optParser->OptionSet("ncols")) {

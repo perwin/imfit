@@ -86,6 +86,12 @@ void ConfidenceInterval( double *vector, int nVals, double *lower, double *upper
   
   lower_ind = round(ONESIGMA_LOWER * nVals) - 1;
   upper_ind = round(ONESIGMA_UPPER * nVals);
+  // guard against lower_ind = 0 - 1 = -1 (when nVals < 4)
+  if (lower_ind < 0)  
+    lower_ind = 0;
+  // guard against upper_ind >= nVals (when nVals < 4)
+  if (upper_ind >= nVals)
+    upper_ind = nVals - 1;
   
   /* Sort the vector into increasing order: */
   qsort((void*)vector, (size_t)nVals, sizeof(vector[0]), SortComp);
