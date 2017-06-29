@@ -260,9 +260,10 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
         if (verboseLevel >= 0)
           printf("   Setting optional parameter(s) for %s...\n", currentName.c_str());
         status = thisFunctionObj->SetExtraParams(extraParams[i]);
-        if (status < 0)
+        if (status < 0) {
           fprintf(stderr, "Error attempting to set extra/optional parameters for ");
           fprintf(stderr, "function \"%s\"\n", thisFunctionObj->GetShortName().c_str());
+        }
       }
       theModel->AddFunction(thisFunctionObj);
     }

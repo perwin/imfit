@@ -114,7 +114,7 @@ os_type = os.uname()[0]
 # cflags_opt = ["-O3", "-g0", "-msse2"]
 # cflags_db = ["-Wall", "-g3"]
 cflags_opt = ["-O3", "-g0", "-msse2", "-std=c++11"]
-cflags_db = ["-Wall", "-g3", "-std=c++11", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith"]
+cflags_db = ["-Wall", "-g3", "-O0", "-std=c++11", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith"]
 
 base_defines = ["ANSI", "USING_SCONS"]
 
@@ -218,6 +218,7 @@ build32bit = False
 buildForOldMacOS = False
 scanBuild = False
 addressSanitize = False
+setOptToDebug = False
 
 # Define some user options
 AddOption("--lib-path", dest="libraryPath", type="string", action="store", default=None,
@@ -308,6 +309,7 @@ if GetOption("doingScanBuild") is True:
 if GetOption("useAddressSanitize") is True:
 	addressSanitize = True
 	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
+	setOptToDebug = True
 
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
@@ -323,6 +325,10 @@ if GetOption("buildForOldMac") is True:
 
 
 # *** Setup for various options (either default, or user-altered)
+
+if setOptToDebug:
+	print("** Turning off optimizations!")
+	cflags_opt = cflags_db
 
 if useStaticLibs:
 	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
