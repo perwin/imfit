@@ -137,6 +137,7 @@ ModelObject::ModelObject( )
   nFunctionBlocks = 0;
   nFunctionParams = 0;
   nParamsTot = 0;
+  nOversampledRegions = 0;
   debugLevel = 0;
   verboseLevel = 0;
   
@@ -157,6 +158,55 @@ ModelObject::ModelObject( )
 }
 
 
+/* ---------------- DESTRUCTOR ----------------------------------------- */
+
+ModelObject::~ModelObject()
+{
+  if (modelVectorAllocated)
+    free(modelVector);
+  if (weightVectorAllocated)
+    free(weightVector);
+  if (standardWeightVectorAllocated)
+    free(standardWeightVector);
+  if (maskVectorAllocated)   // only true if we construct mask vector internally
+    free(maskVector);
+  if (deviatesVectorAllocated)
+    free(deviatesVector);
+  if (residualVectorAllocated)
+    free(residualVector);
+  if (outputModelVectorAllocated)
+    free(outputModelVector);
+  if (extraCashTermsVectorAllocated)
+    free(extraCashTermsVector);
+  
+  if (nFunctions > 0)
+    for (int i = 0; i < nFunctions; i++)
+      delete functionObjects[i];
+  
+  if (fblockStartFlags_allocated)
+    free(fblockStartFlags);
+  
+  if (doConvolution)
+    delete psfConvolver;
+  if (oversampledRegionsExist) {
+    // since these were originally created with "new", we have to deallocate with "delete"
+    for (int i = 0; i < nOversampledRegions; i++)
+      delete oversampledRegionsVect[i];
+    oversampledRegionsVect.clear();
+    nOversampledRegions = 0;
+    oversampledRegionsExist = false;
+    oversampledRegionAllocated = false;
+//    delete oversampledRegion;
+  }
+  
+  if (bootstrapIndicesAllocated) {
+    free(bootstrapIndices);
+    bootstrapIndicesAllocated = false;
+  }
+}
+
+
+
 /* ---------------- PUBLIC METHOD: SetDebugLevel ----------------------- */
 
 void ModelObject::SetDebugLevel( int debuggingLevel )
@@ -169,7 +219,8 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
     debugLevel = debuggingLevel;
 
   if (oversampledRegionAllocated)
-    oversampledRegion->SetDebugLevel(debugLevel);
+    for (int i = 0; i < nOversampledRegions; i++)
+      oversampledRegionsVect[i]->SetDebugLevel(debugLevel);
 }
 
 
@@ -673,7 +724,7 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
   nOversampledModelVals = (long)nOversampledModelColumns * (long)nOversampledModelRows;
 
   // Allocate OversampledRegion object and give it necessary info
-  oversampledRegion = new OversampledRegion();
+  OversampledRegion *oversampledRegion = new OversampledRegion();
   oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
   oversampledRegionAllocated = true;
   status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
@@ -682,6 +733,8 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
     fprintf(stderr, "*** ERROR: AddOversampledPSFVector: Call to oversampledRegion->SetupModelImage failed!n");
     return -1;
   }
+  oversampledRegionsVect.push_back(oversampledRegion);
+  nOversampledRegions++;
   
   return 0;
 }
@@ -899,7 +952,8 @@ void ModelObject::CreateModelImage( double params[] )
   
   // 3. Optional generation of oversampled sub-image and convolution with oversampled PSF
   if (oversampledRegionsExist)
-    oversampledRegion->ComputeRegionAndDownsample(modelVector, functionObjects, nFunctions);
+    for (n = 0; n < nOversampledRegions; n++)
+      oversampledRegionsVect[n]->ComputeRegionAndDownsample(modelVector, functionObjects, nFunctions);
   
   // [4. Possible location for charge-diffusion and other post-pixelization processing]
   
@@ -2139,48 +2193,6 @@ bool ModelObject::CheckWeightVector( )
     weightVectorOK = false;
   }
   return weightVectorOK;
-}
-
-
-
-
-/* ---------------- DESTRUCTOR ----------------------------------------- */
-
-ModelObject::~ModelObject()
-{
-  if (modelVectorAllocated)
-    free(modelVector);
-  if (weightVectorAllocated)
-    free(weightVector);
-  if (standardWeightVectorAllocated)
-    free(standardWeightVector);
-  if (maskVectorAllocated)   // only true if we construct mask vector internally
-    free(maskVector);
-  if (deviatesVectorAllocated)
-    free(deviatesVector);
-  if (residualVectorAllocated)
-    free(residualVector);
-  if (outputModelVectorAllocated)
-    free(outputModelVector);
-  if (extraCashTermsVectorAllocated)
-    free(extraCashTermsVector);
-  
-  if (nFunctions > 0)
-    for (int i = 0; i < nFunctions; i++)
-      delete functionObjects[i];
-  
-  if (fblockStartFlags_allocated)
-    free(fblockStartFlags);
-  
-  if (doConvolution)
-    delete psfConvolver;
-  if (oversampledRegionsExist)
-    delete oversampledRegion;
-
-  if (bootstrapIndicesAllocated) {
-    free(bootstrapIndices);
-    bootstrapIndicesAllocated = false;
-  }
 }
 
 

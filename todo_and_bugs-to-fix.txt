@@ -1,6 +1,26 @@
 
 ** BUGS TO FIX:
 
+[ ] PSF oversampling:
+	Small deviations in output image are present when generated using current working
+	version of makeimage with internal OversampledRegion vector vs when generated with
+	v1.4 of makeimage. (Also present when generated using makemultimages.)
+	
+	[ ] See if we can generate discrepancies with very small (e.g. 4x4 or even 2x2) images.
+		Start w/ 3x3 image using do_makeimage_tests.sh 
+		The following works (and even reproduces the pixel values):
+		makeimage config_makeimage_gauss-oversample_3x3.dat -o oversampled_3x3_v1.4.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region=1:3,1:3
+		./makeimage config_makeimage_gauss-oversample_3x3.dat -o oversampled_3x3_v1.t.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region=1:3,1:3
+
+			[ ] Generate cutout of reference image
+			[ ] Generate output image using v1.4 makeimage
+			[ ] Generate output image using new makeimage
+			
+	[ ] Add output of pre-computed data (e.g., FFT of oversampled PSF image) to
+	Convolver
+	[ ] Add output of intermediate calculations and images to Convolver
+	
+	
 [ ] Bootstrap output:
 	X0,Y0 values are *not* corrected to full-image coordinates if input image used
 	image subsections (e.g., for "imfit data.fits[200:400,100:300] ...", the saved
@@ -391,11 +411,11 @@ image oversampled
 	-- probably simpler to require that each sub-region have its own PSF; user must
 	repeatedly specify the same PSF file if they want all sub-regions to share a PSF
 	
-	[] Code up user interface (vector of sub-region and PSF specifications in main)
+	[x] Code up user interface (vector of sub-region and PSF specifications in main)
 	
-	[] Code up array of sub-region convolutions in ModelObject
-		[] New data members: nSubregions
-		[] Start with 1-element array (i.e., have all the looping, etc., but just one sub-region)
+	[..] Code up array of sub-region convolutions in ModelObject
+		[x] New data members: nSubregions
+		[x] Start with 1-element array (i.e., have all the looping, etc., but just one sub-region)
 		[] Add in code to set up multiple sub-regions
 
 

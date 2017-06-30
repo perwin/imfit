@@ -282,7 +282,8 @@ class ModelObject
     long  nOversampledModelVals;
     bool  oversampledRegionsExist;
     bool  oversampledRegionAllocated;
-    OversampledRegion *oversampledRegion;
+    int  nOversampledRegions;
+    vector<OversampledRegion *>oversampledRegionsVect;
 
   
 };
