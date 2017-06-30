@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 #include "definitions.h"
 
 
@@ -74,24 +76,26 @@ class OptionsBase
 
     // Data members:
     bool  noConfigFile;
-    std::string  configFileName;   // []
+    string  configFileName;   // []
 
     bool  psfImagePresent;
-    std::string  psfFileName;     // []
+    string  psfFileName;     // []
   
     bool  psfOversampledImagePresent;
-    std::string  psfOversampledFileName;     // []
+    string  psfOversampledFileName;     // []
+    vector<string>  psfOversampledFileNames;     // []
     int  psfOversamplingScale;
+    vector<int>  psfOversamplingScales;
     bool  oversampleRegionSet;
     int  nOversampleRegions;
-    std::string  psfOversampleRegion;     // []
-    std::vector<std::string>  psfOversampleRegions;     // []
+    string  psfOversampleRegion;     // []
+    vector<string>  psfOversampleRegions;     // []
   
     bool  noiseImagePresent;
-    std::string  noiseFileName;   // []
+    string  noiseFileName;   // []
     int  errorType;
   
-    std::string  maskFileName;   //  []
+    string  maskFileName;   //  []
     bool  maskImagePresent;
     int  maskFormat;
   

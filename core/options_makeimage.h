@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 #include "definitions.h"
 #include "options_base.h"
 
@@ -62,11 +64,11 @@ class MakeimageOptions : public OptionsBase
 
     // Extra data members (in addition to those in options_base.h):
     bool  noOutputImageName;
-    std::string  outputImageName;
+    string  outputImageName;
 
-    std::string  functionRootName;
+    string  functionRootName;
     bool  noRefImage;
-    std::string  referenceImageName;
+    string  referenceImageName;
 
     bool  noImageDimensions;
     bool  nColumnsSet;

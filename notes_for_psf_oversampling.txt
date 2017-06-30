@@ -141,8 +141,10 @@ repeatedly passing each one the main modelimage vector and vector of FunctionObj
 				2. Do entire image with oversampled PSF
 					-- This requires *skipping* the normal image creation!
 						
-			-- Possible later option: allow user to specify multiple oversampling regions,
+			-- Possible *later* option: allow user to specify multiple oversampling regions,
 			*as long as they are all the same size & shape* (e.g., 10x10 or 25x25)
+				("later" because we want to get basic system working before we try to make
+				it more efficient...)
 				-- this allows us to re-use the same Convolver component (oversampled PSF +
 				specific size for oversampled sub-image) with different oversampled
 				subimage model vectors

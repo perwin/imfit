@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 #include "definitions.h"
 #include "options_base.h"
 
@@ -80,9 +82,9 @@ class MCMCOptions : public OptionsBase
 
     // Extra data members (in addition to those in options_base.h):  
     bool  noImage;
-    std::string  imageFileName;
+    string  imageFileName;
   
-    std::string  psfOversampleRegion;
+    string  psfOversampleRegion;
   
     // NOTE: the following are necessary as inputs for EstimateMemoryUse(), even
     // though we don't use them otherwise
@@ -93,7 +95,7 @@ class MCMCOptions : public OptionsBase
   
     // MCMC-related stuff
     bool  appendToOutput;
-    std::string  outputFileRoot;
+    string  outputFileRoot;
     int  nChains;
     int  maxEvals;
     int  nBurnIn;

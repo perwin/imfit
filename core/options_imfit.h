@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 #include "definitions.h"
 #include "options_base.h"
 
@@ -56,23 +58,23 @@ class ImfitOptions : public OptionsBase
 
     // Extra data members (in addition to those in options_base.h):  
     bool  noImage;
-    std::string  imageFileName;
+    string  imageFileName;
   
-    std::string  psfOversampleRegion;
+    string  psfOversampleRegion;
   
     bool  saveModel;
-    std::string  outputModelFileName;
+    string  outputModelFileName;
     bool  saveResidualImage;
-    std::string  outputResidualFileName;
+    string  outputResidualFileName;
     bool  saveWeightImage;
-    std::string  outputWeightFileName;
+    string  outputWeightFileName;
     bool  saveBestFitParams;
-    std::string  outputParameterFileName;
+    string  outputParameterFileName;
   
     bool  noParamLimits;
     bool  ftolSet;
     double  ftol;
-    std::string  nloptSolverName;
+    string  nloptSolverName;
   
     double  magZeroPoint;
   
@@ -81,7 +83,7 @@ class ImfitOptions : public OptionsBase
     bool  doBootstrap;
     int  bootstrapIterations;
     bool  saveBootstrap;
-    std::string  outputBootstrapFileName;
+    string  outputBootstrapFileName;
     
 };
 

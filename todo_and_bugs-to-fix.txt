@@ -388,7 +388,7 @@ image oversampled
 [] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
 	-- multiple sub-regions, all with same PSF
 	-- multiple sub-regions, each with its own PSF
-	-- probably simpler to require that each sub-region have its own PSF; use must
+	-- probably simpler to require that each sub-region have its own PSF; user must
 	repeatedly specify the same PSF file if they want all sub-regions to share a PSF
 	
 	[] Code up user interface (vector of sub-region and PSF specifications in main)
