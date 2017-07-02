@@ -1,26 +1,6 @@
 
 ** BUGS TO FIX:
 
-[ ] PSF oversampling:
-	Small deviations in output image are present when generated using current working
-	version of makeimage with internal OversampledRegion vector vs when generated with
-	v1.4 of makeimage. (Also present when generated using makemultimages.)
-	
-	[ ] See if we can generate discrepancies with very small (e.g. 4x4 or even 2x2) images.
-		Start w/ 3x3 image using do_makeimage_tests.sh 
-		The following works (and even reproduces the pixel values):
-		makeimage config_makeimage_gauss-oversample_3x3.dat -o oversampled_3x3_v1.4.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region=1:3,1:3
-		./makeimage config_makeimage_gauss-oversample_3x3.dat -o oversampled_3x3_v1.t.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region=1:3,1:3
-
-			[ ] Generate cutout of reference image
-			[ ] Generate output image using v1.4 makeimage
-			[ ] Generate output image using new makeimage
-			
-	[ ] Add output of pre-computed data (e.g., FFT of oversampled PSF image) to
-	Convolver
-	[ ] Add output of intermediate calculations and images to Convolver
-	
-	
 [ ] Bootstrap output:
 	X0,Y0 values are *not* corrected to full-image coordinates if input image used
 	image subsections (e.g., for "imfit data.fits[200:400,100:300] ...", the saved
@@ -31,6 +11,55 @@
 
 
 ** NEAR-TERM FUTURE TODO:
+
+[..] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
+	-- multiple sub-regions, all with same PSF
+	-- multiple sub-regions, each with its own PSF
+	-- probably simpler to require that each sub-region have its own PSF; user must
+	repeatedly specify the same PSF file if they want all sub-regions to share a PSF
+	
+	[x] Code up makeimage user interface (vector of sub-region and PSF specifications in main)
+	
+	[..] PsfOversamplingInfo class
+		[x] Write code for class
+		[..] Rewrite code to make it one instance per oversampled region
+		[ ] Write unit tests for class
+			[x] Create unit test file and run_unittest_xxx script
+			[x] Write some unit tests
+			[ ] Rewrite tests for updated version
+			[ ] Get unit tests to pass
+			[ ] Add unit test to run_unit_tests.sh
+		[x] Add files to repo [class files, unit tests and script]
+	
+	[ ] Modify SetupModelObject to check for and handle multiple oversampling regions
+		[ ] Basic check using 2 regions w/ 1 PSF and scale
+		[ ] Check using 2 regions w/ 2 PSFs and 2 scale
+		[ ] Check using 3 regions w/ 3 PSFs and 3 scales (at least one different set)
+
+	[ ] Update SetupModelObject unit tests to account for altered interface
+		[ ] Update tests to handle simple case of 1 oversampled region
+		[ ] Update tests to include multiple oversampled regions
+	
+	[ ] Add use of PsfOversamplingInfo to makeimage_main.cpp
+		[ ] Add initial use
+		[ ] Modify to agree with updated version (post-integration into SetupModelObject)
+	
+	[ ] Add regression test to do_makeimage_tests.sh to do simple test of multiple regions
+	
+	[..] Code up array of sub-region convolutions in ModelObject
+		[x] New data members: nSubregions
+		[x] Start with 1-element array (i.e., have all the looping, etc., but just one sub-region)
+		[] Add in code to set up multiple sub-regions
+
+	[ ] Modify imfit_main.cpp to handle multiple oversampling regions
+		[ ] Modify ProcessInput to include & handle options (as in makeimage)
+		[ ] Modify main() to handle multiple regions (as in makeimage)
+		
+	[ ] Add regression test to do_imfit_tests.sh to do simple test of multiple regions
+	
+	[ ] LATER: Comment out or remove GetAllCoordsFromBracket2 from utilities, since we no longer
+	need it?
+
 
 [ ] MCMC program: "imfit-mcmc"
 	
@@ -405,20 +434,6 @@ image oversampled
 	territory, even if SCons isn't necessarily afflicted with the same problems]
 
 
-[] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
-	-- multiple sub-regions, all with same PSF
-	-- multiple sub-regions, each with its own PSF
-	-- probably simpler to require that each sub-region have its own PSF; user must
-	repeatedly specify the same PSF file if they want all sub-regions to share a PSF
-	
-	[x] Code up user interface (vector of sub-region and PSF specifications in main)
-	
-	[..] Code up array of sub-region convolutions in ModelObject
-		[x] New data members: nSubregions
-		[x] Start with 1-element array (i.e., have all the looping, etc., but just one sub-region)
-		[] Add in code to set up multiple sub-regions
-
-
 [] Refactor print_results.cpp to be simpler and less mangled-from-mpfit
 
 
@@ -489,6 +504,21 @@ of string: options.psfOversampleRegions
 
 
 * BUGS FIXED
+
+[X] PSF oversampling:
+	Small deviations in output image were present when generated using current working
+	version of makeimage (pre-1.5) with internal OversampledRegion vector vs when generated with
+	v1.4 of makeimage. (Also present when generated using makemultimages.)
+	
+	FIXED: Problem was that oversampling was *not being done*, because the ModelObject
+	instance wasn't getting told in SetupModelObject() about the oversamplng, because we 
+	weren't setting the correct variables in the MakeimageOptions object in main 
+	(i.e., psfOversamplingScale and oversampleRegionSet [which are in base class] --
+	note that the former is distinct from the vector version psfOversamplingScales).
+	Fixed by explicitly setting options->oversampleRegionSet and
+	options->psfOversamplingScale before calling SetupModelObject().
+	
+	
 
 [X] Convolution of an image with substantial region of negative pixels produces
 weird ringing and positive pixels in negative region.

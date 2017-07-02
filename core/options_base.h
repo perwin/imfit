@@ -34,6 +34,7 @@ class OptionsBase
       
       psfImagePresent = false;
       psfFileName = "";
+      psfOversampling = false;
       psfOversampledImagePresent = false;
       psfOversampledFileName = "";
       psfOversamplingScale = 0;
@@ -81,6 +82,7 @@ class OptionsBase
     bool  psfImagePresent;
     string  psfFileName;     // []
   
+    bool  psfOversampling;
     bool  psfOversampledImagePresent;
     string  psfOversampledFileName;     // []
     vector<string>  psfOversampledFileNames;     // []

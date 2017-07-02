@@ -60,6 +60,7 @@
 #include "function_objects/function_object.h"
 #include "model_object.h"
 #include "oversampled_region.h"
+#include "psf_oversampling_info.h"
 #include "mp_enorm.h"
 #include "param_struct.h"
 #include "utilities_pub.h"
@@ -707,11 +708,11 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
   if (y2 > nDataRows)
     y2 = nDataRows;
   // size of oversampling region
-  oversamplingScale = oversampleScale;
+  //oversamplingScale = oversampleScale;
   deltaX = x2 - x1 + 1;
   deltaY = y2 - y1 + 1;
-  nCols_osamp = oversamplingScale * deltaX;
-  nRows_osamp = oversamplingScale * deltaY;
+  nCols_osamp = oversampleScale * deltaX;
+  nRows_osamp = oversampleScale * deltaY;
   
   // oversampled PSF and corresponding Convolver object
   nPSFColumns_osamp = nColumns_psf;
@@ -728,7 +729,81 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
   oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
   oversampledRegionAllocated = true;
   status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
-  									nPSFColumns, nPSFRows, oversamplingScale);
+  									nPSFColumns, nPSFRows, oversampleScale);
+  if (status < 0) {
+    fprintf(stderr, "*** ERROR: AddOversampledPSFVector: Call to oversampledRegion->SetupModelImage failed!n");
+    return -1;
+  }
+  oversampledRegionsVect.push_back(oversampledRegion);
+  nOversampledRegions++;
+  
+  return 0;
+}
+
+
+
+/* ---------------- PUBLIC METHOD: AddOversampledPsfInfo --------------- */
+int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo )
+{
+  long  nPixels;
+  int  nColumns_psf, nRows_psf, oversampleScale;
+  int  x1, x2, y1, y2;
+  double  *psfPixels_osamp;
+  int  deltaX, deltaY, nCols_osamp, nRows_osamp;
+  int  status = 0;
+  
+  nColumns_psf = oversampledPsfInfo->GetNColumns();
+  nRows_psf = oversampledPsfInfo->GetNRows();
+  nPixels = (long)nColumns_psf * (long)nRows_psf;
+  oversampleScale = oversampledPsfInfo->GetOversamplingScale();
+  GetAllCoordsFromBracket(oversampledPsfInfo->GetRegionString(), &x1, &x2, &y1, &y2);
+  psfPixels_osamp = oversampledPsfInfo->GetPsfPixels();
+  
+  assert( (nPixels >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
+  assert( (oversampleScale >= 1) );
+  // assertion to check that nModelColumns and nModelRows *have* been set to good values
+  assert( (nModelColumns > 0) && (nModelRows > 0) );
+
+  // check for bad values
+  for (long i = 0; i < nPixels; i++) {
+    if (! isfinite(psfPixels_osamp[i])) {
+      fprintf(stderr, "** ERROR: Oversampled PSF image has one or more non-finite values!\n");
+      return -1;
+    }
+  }
+
+  // restrict region to be oversampled (in data or output image) to lie within image bounds
+  if (x1 < 1)
+    x1 = 1;
+  if (y1 < 1)
+    y1 = 1;
+  if (x2 > nDataColumns)
+    x2 = nDataColumns;
+  if (y2 > nDataRows)
+    y2 = nDataRows;
+  // size of oversampling region
+  //oversamplingScale = oversampleScale;
+  deltaX = x2 - x1 + 1;
+  deltaY = y2 - y1 + 1;
+  nCols_osamp = oversampleScale * deltaX;
+  nRows_osamp = oversampleScale * deltaY;
+  
+  // oversampled PSF and corresponding Convolver object
+  nPSFColumns_osamp = nColumns_psf;
+  nPSFRows_osamp = nRows_psf;
+  oversampledRegionsExist = true;
+
+  // Size of actual oversampled model sub-image (including padding for PSF conv.)
+  nOversampledModelColumns = nCols_osamp + 2*nPSFColumns_osamp;
+  nOversampledModelRows = nRows_osamp + 2*nPSFRows_osamp;
+  nOversampledModelVals = (long)nOversampledModelColumns * (long)nOversampledModelRows;
+
+  // Allocate OversampledRegion object and give it necessary info
+  OversampledRegion *oversampledRegion = new OversampledRegion();
+  oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
+  oversampledRegionAllocated = true;
+  status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
+  									nPSFColumns, nPSFRows, oversampleScale);
   if (status < 0) {
     fprintf(stderr, "*** ERROR: AddOversampledPSFVector: Call to oversampledRegion->SetupModelImage failed!n");
     return -1;

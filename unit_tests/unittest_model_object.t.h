@@ -57,6 +57,7 @@ public:
   ModelObject *modelObj5a;
   ModelObject *modelObj5b;
   ModelObject *modelObj5c;
+  ModelObject *modelObj5d;
   vector<string>  functionList1, functionList3, functionList3b;
   vector<double>  parameterList1, parameterList3, parameterList3b;
   vector<mp_par>  paramLimits1, paramLimits3, paramLimits3b;
@@ -163,6 +164,8 @@ public:
     status = AddFunctions(modelObj5b, functionList1, FunctionBlockIndices1, true, -1);
     modelObj5c = new ModelObject();
     status = AddFunctions(modelObj5c, functionList1, FunctionBlockIndices1, true, -1);
+    modelObj5d = new ModelObject();
+    status = AddFunctions(modelObj5d, functionList1, FunctionBlockIndices1, true, -1);
   }
 
   void tearDown()
@@ -188,6 +191,7 @@ public:
     delete modelObj5a;
     delete modelObj5b;
     delete modelObj5c;
+    delete modelObj5d;
   }
   
   
@@ -519,6 +523,40 @@ public:
 
     int  overPsfPresent = modelObj5c->HasOversampledPSF();
     TS_ASSERT_EQUALS(overPsfPresent, true);
+  }
+  
+  
+  void testOversampledPSF_newMethod( void )
+  {
+    int  nColumns = 10;
+    int  nRows = 10;
+    int  nColumns_psf = 3;
+    int  nRows_psf = 3;
+    int  nPixels_psf = 9;
+    double  goodPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    double  overPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    PsfOversamplingInfo *osampleInfo_ptr;
+    string  oversampleRegion = "1:2,1:2";
+    int  status;
+  
+    // This is the correct order
+    // add PSF pixels first
+    status = modelObj5d->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, goodPSFImage);
+    TS_ASSERT_EQUALS(status, 0);
+    // final setup for modelObj5d
+    modelObj5d->SetupModelImage(nColumns, nRows);
+
+    osampleInfo_ptr = new PsfOversamplingInfo(overPSFImage, nColumns_psf, nRows_psf, 1,
+    										oversampleRegion);
+    
+//    int AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo );
+    status = modelObj5d->AddOversampledPsfInfo(osampleInfo_ptr);
+    TS_ASSERT_EQUALS(status, 0);
+
+    int  overPsfPresent = modelObj5d->HasOversampledPSF();
+    TS_ASSERT_EQUALS(overPsfPresent, true);
+    
+    delete osampleInfo_ptr;
   }
   
   

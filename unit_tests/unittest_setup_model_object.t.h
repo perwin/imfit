@@ -32,6 +32,7 @@ using namespace std;
 //#include "function_objects/function_object.h"
 #include "setup_model_object.h"
 #include "model_object.h"
+#include "psf_oversampling_info.h"
 //#include "add_functions.h"
 #include "config_file_parser.h"
 #include "options_base.h"
@@ -174,29 +175,26 @@ public:
     ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
-    vector<int> xyOsamplePos;
+    PsfOversamplingInfo *psfOsampleInfo;
+    vector<PsfOversamplingInfo *> psfOsampleInfoVect;
 
     long nDataVals_true = 4;
     long nDataVals;
   
     optionsPtr = new MakeimageOptions();
     optionsPtr->psfImagePresent = true;
-    optionsPtr->psfOversampledImagePresent = true;
-    optionsPtr->psfOversamplingScale = 2;
+    optionsPtr->psfOversampling = true;
 
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
     nColumnsRowsVect.push_back(nSmallPSFCols);
     nColumnsRowsVect.push_back(nSmallPSFRows);
-    nColumnsRowsVect.push_back(nOsampPSFCols);
-    nColumnsRowsVect.push_back(nOsampPSFRows);
-    xyOsamplePos.push_back(1);
-    xyOsamplePos.push_back(2);
-    xyOsamplePos.push_back(1);
-    xyOsamplePos.push_back(2);
-  
+    
+    psfOsampleInfo = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, "1:2,1:2");
+    psfOsampleInfoVect.push_back(psfOsampleInfo);
+
     theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, NULL, smallPSFImage,
-    					NULL, NULL, oversampledPSFImage, xyOsamplePos);
+    							NULL, NULL, psfOsampleInfoVect);
   
     nDataVals = theModel->GetNDataValues();
     TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
@@ -207,6 +205,7 @@ public:
 
     delete optionsPtr;
     delete theModel;
+    delete psfOsampleInfo;
   }
  
  
@@ -269,26 +268,23 @@ public:
     ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
-    vector<int> xyOsamplePos;
+    PsfOversamplingInfo *psfOsampleInfo;
+    vector<PsfOversamplingInfo *> psfOsampleInfoVect;
 
     optionsPtr = new ImfitOptions();
     optionsPtr->psfImagePresent = true;
-    optionsPtr->psfOversampledImagePresent = true;
-    optionsPtr->psfOversamplingScale = 2;
+    optionsPtr->psfOversampling = true;
 
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
     nColumnsRowsVect.push_back(nSmallPSFCols);
     nColumnsRowsVect.push_back(nSmallPSFRows);
-    nColumnsRowsVect.push_back(nOsampPSFCols);
-    nColumnsRowsVect.push_back(nOsampPSFRows);
-    xyOsamplePos.push_back(1);
-    xyOsamplePos.push_back(2);
-    xyOsamplePos.push_back(1);
-    xyOsamplePos.push_back(2);
-  
+
+    psfOsampleInfo = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, "1:2,1:2");
+    psfOsampleInfoVect.push_back(psfOsampleInfo);
+
     theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
-    					NULL, NULL, oversampledPSFImage, xyOsamplePos);
+    					NULL, NULL, psfOsampleInfoVect);
   
     long nDataVals_true = 4;
     long nDataVals = theModel->GetNDataValues();
@@ -422,26 +418,23 @@ public:
     ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
-    vector<int> xyOsamplePos;
+    PsfOversamplingInfo *psfOsampleInfo;
+    vector<PsfOversamplingInfo *> psfOsampleInfoVect;
 
     optionsPtr = new MCMCOptions();
     optionsPtr->psfImagePresent = true;
-    optionsPtr->psfOversampledImagePresent = true;
-    optionsPtr->psfOversamplingScale = 2;
+    optionsPtr->psfOversampling = true;
 
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
     nColumnsRowsVect.push_back(nSmallPSFCols);
     nColumnsRowsVect.push_back(nSmallPSFRows);
-    nColumnsRowsVect.push_back(nOsampPSFCols);
-    nColumnsRowsVect.push_back(nOsampPSFRows);
-    xyOsamplePos.push_back(1);
-    xyOsamplePos.push_back(2);
-    xyOsamplePos.push_back(1);
-    xyOsamplePos.push_back(2);
+    
+    psfOsampleInfo = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, "1:2,1:2");
+    psfOsampleInfoVect.push_back(psfOsampleInfo);
   
     theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
-    					NULL, NULL, oversampledPSFImage, xyOsamplePos);
+		    					NULL, NULL, psfOsampleInfoVect);
   
     long nDataVals_true = 4;
     long nDataVals = theModel->GetNDataValues();
@@ -455,6 +448,7 @@ public:
 
     delete optionsPtr;
     delete theModel;
+    delete psfOsampleInfo;
   }
 
   void testSetupMCMC_withMask( void )

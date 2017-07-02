@@ -19,15 +19,13 @@ using namespace std;
 
 ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVector, 
 					double *dataPixels, double *psfPixels, double *maskPixels, 
-					double *errorPixels, double *psfOversampledPixels, 
-					vector<int> xyOversamplePos )
+					double *errorPixels, vector<PsfOversamplingInfo *> psfOversampleInfoVect )
 {
   ModelObject *newModelObj;
   int  status;
   bool  doingFit_or_MCMC = false;
-  int  nColumns, nRows;
-  int  nColumns_psf, nRows_psf, nColumns_psf_oversampled, nRows_psf_oversampled;
-  long  nPixels_data, nPixels_psf, nPixels_psf_oversampled;
+  int  nColumns, nRows, nColumns_psf, nRows_psf;
+  long  nPixels_data, nPixels_psf;
   
   newModelObj = new ModelObject();
 
@@ -73,17 +71,14 @@ ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVec
     						options->nCombined, options->originalSky);
   }
 
-  // Add oversampled PSF image vector and corresponding info, if present
-  if (options->psfOversampledImagePresent) {
-    nColumns_psf_oversampled = nColumnsRowsVector[4];
-    nRows_psf_oversampled = nColumnsRowsVector[5];
-    nPixels_psf_oversampled = nColumns_psf_oversampled * nRows_psf_oversampled;
-    status = newModelObj->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
-    			nRows_psf_oversampled, psfOversampledPixels, options->psfOversamplingScale,
-    			xyOversamplePos[0], xyOversamplePos[1], xyOversamplePos[2], xyOversamplePos[3]);
-    if (status < 0) {
-      fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
-  	  exit(-1);
+  // Add oversampled PSF image vector(s) and corresponding info, if present
+  if (options->psfOversampling) {
+    for (int i = 0; i < (int)psfOversampleInfoVect.size(); i++) {
+      status = newModelObj->AddOversampledPsfInfo(psfOversampleInfoVect[i]);
+      if (status < 0) {
+        fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
+  	    exit(-1);
+      }
     }
   }
 

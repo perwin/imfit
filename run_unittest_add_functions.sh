@@ -8,7 +8,7 @@ echo "Generating and compiling unit tests for add_functions..."
 $CXXTESTGEN --error-printer -o test_runner_add_functions.cpp unit_tests/unittest_add_functions.t.h
 $CPP -o test_runner_add_functions test_runner_add_functions.cpp core/add_functions.cpp \
 core/model_object.cpp core/utilities.cpp core/convolver.cpp core/config_file_parser.cpp  \
-core/oversampled_region.cpp core/downsample.cpp core/image_io.cpp \
+core/oversampled_region.cpp core/downsample.cpp core/image_io.cpp core/psf_oversampling_info.cpp \
 function_objects/function_object.cpp function_objects/func_gaussian.cpp \
 function_objects/func_exp.cpp function_objects/func_gen-exp.cpp \
 function_objects/func_sersic.cpp function_objects/func_gen-sersic.cpp \

@@ -20,6 +20,7 @@
 #include "function_objects/function_object.h"
 #include "convolver.h"
 #include "oversampled_region.h"
+#include "psf_oversampling_info.h"
 #include "param_struct.h"
 
 using namespace std;
@@ -94,10 +95,13 @@ class ModelObject
     int AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels );
 
- 	// 2D only
+ 	// 2D only [to be deprecated]
     int AddOversampledPSFVector( long nPixels, int nColumns_psf, int nRows_psf, 
     					double *psfPixels_osamp, int oversampleScale, int x1, int x2, 
     					int y1, int y2 );
+
+ 	// 2D only [this will eventually replace AddOversampledPSFVector]
+    int AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo );
 
     // 1D only
     virtual int AddPSFVector1D( int nPixels_psf, double *xValVector, double *yValVector ) { return 0; };
@@ -277,7 +281,7 @@ class ModelObject
     
     // stuff for ovsersampled PSF convolution
     Convolver  *psfConvolver_osamp;
-    int  oversamplingScale, nPSFColumns_osamp, nPSFRows_osamp;
+    int  nPSFColumns_osamp, nPSFRows_osamp;
     int  nOversampledModelColumns, nOversampledModelRows;
     long  nOversampledModelVals;
     bool  oversampledRegionsExist;

@@ -15,7 +15,7 @@
 C++-11 features. This should have no visible effects, but might start to be
 relevant for people hacking around with the code. It also means that future
 versions of Imfit will require compilers that support C++-11 (e.g., GCC
-versions newer than 4.7).
+versions 4.8 or newer).
 
 ### Fixed:
 
