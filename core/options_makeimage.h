@@ -22,7 +22,6 @@ class MakeimageOptions : public OptionsBase
     // Constructor:
     MakeimageOptions( )
     {
-//      noConfigFile = true;
       configFileName = "";
 
       noOutputImageName = true;
@@ -31,21 +30,11 @@ class MakeimageOptions : public OptionsBase
       noRefImage = true;
       referenceImageName = "";
   
-//      subsamplingFlag = true;
-  
       noImageDimensions = true;
       nColumnsSet = false;
       nRowsSet = false;
       nColumns = 0;
       nRows = 0;
-  
-//       psfImagePresent = false;
-//       psfFileName = "";
-//       psfOversampledImagePresent = false;
-//       psfOversampledFileName = "";
-//       psfOversamplingScale = 0;
-//       oversampleRegionSet = false;
-//       nOversampleRegions = 0;
   
       magZeroPoint = NO_MAGNITUDES;
 
@@ -57,9 +46,6 @@ class MakeimageOptions : public OptionsBase
       printFluxes = false;
       estimationImageSize = DEFAULT_ESTIMATION_IMAGE_SIZE;
       timingIterations = 0;
-
-//       maxThreadsSet = false;
-//       maxThreads = 0;
     };
 
     // Extra data members (in addition to those in options_base.h):

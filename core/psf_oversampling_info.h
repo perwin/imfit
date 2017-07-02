@@ -14,21 +14,25 @@ class PsfOversamplingInfo
   public:
     PsfOversamplingInfo();
     PsfOversamplingInfo( double *inputPixels, int nCols, int nRows, int scale,
-    					string inputRegionString );
+    					string inputRegionString, int xOffset=0, int yOffset=0 );
     ~PsfOversamplingInfo();
   
     void AddPsfPixels( double *inputPixels, int nCols, int nRows );
     void AddRegionString( string inputRegionString );
     void AddOversamplingScale( int scale );
+    void AddImageOffset( int X0, int Y0 );
   
     int GetNColumns( );
     int GetNRows( );
     double * GetPsfPixels( );
     string GetRegionString( );
     int GetOversamplingScale( );
+    void GetImageOffset( int &x0, int &y0 );
+    void GetCorrectedRegionCoords( int &x1, int &x2, int &y1, int &y2 );
 
   private:
     int  nColumns_psf, nRows_psf;
+    int  X0_offset, Y0_offset;   // offset for starting coords within main image
     string  regionString;
     double *  psfPixels;
     int  oversamplingScale;

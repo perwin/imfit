@@ -80,8 +80,8 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 /* ------------------- Function Prototypes ----------------------------- */
-void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
-					double *y_offset);
+// void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
+// 					double *y_offset);
 void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions );
 bool RequestedFilesPresent( MCMCOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
@@ -1100,19 +1100,20 @@ void HandleConfigFileOptions( configOptions *configFileOptions, MCMCOptions *mai
 
 
 
+// NOTE: moved to utilities.cpp -- delete this later
 /// Takes user-supplied image filename and determines what, if any, x0 and y0
 /// pixel offsets are implied by any section specification in the filename
 /// (e.g. "somefile.fits[100:250,400:400]").
 /// Note that offsets are always >= 0.
-void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
-					double *y_offset)
-{
-  int  xStart, yStart;
-
-  GetPixelStartCoords(fullImageName, &xStart, &yStart);
-  *x_offset = xStart - 1;
-  *y_offset = yStart - 1;
-}
+// void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
+// 					double *y_offset)
+// {
+//   int  xStart, yStart;
+// 
+//   GetPixelStartCoords(fullImageName, &xStart, &yStart);
+//   *x_offset = xStart - 1;
+//   *y_offset = yStart - 1;
+// }
 
 
 

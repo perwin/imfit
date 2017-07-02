@@ -82,13 +82,16 @@ void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
 ///        accounting for any image section provided
 void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart );
 
+/// \brief Takes user-supplied image filename and determines what, if any, x0 and y0
+/// pixel offsets are implied by any section specification in the filename
+void DetermineImageOffset( const std::string &fullImageName, int *x_offset, int *y_offset );
 
 /// \brief Checks to see if image (FITS) file exists (ignores any image-section specification;
 ///        filenames beginning "ftp:" or "http:" are assumed to exist.
-bool ImageFileExists(const char * filename);
+bool ImageFileExists( const char * filename );
 
 /// Checks to see if (local) file exists
-bool FileExists(const char * filename);
+bool FileExists( const char * filename );
 
 
 /// Returns string with current date-and-time (Dow Mon dd hh:mm:ss yyy)

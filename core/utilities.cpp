@@ -485,6 +485,22 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
 }
 
 
+/* ---------------- FUNCTION: DetermineImageOffset() --------------- */
+/// Takes user-supplied image filename and determines what, if any, x0 and y0
+/// pixel offsets are implied by any section specification in the filename
+/// (e.g. "somefile.fits[100:250,400:400]").
+/// Note that offsets are always >= 0.
+
+void DetermineImageOffset( const std::string &fullImageName, int *x_offset, int *y_offset )
+{
+  int  xStart, yStart;
+
+  GetPixelStartCoords(fullImageName, &xStart, &yStart);
+  *x_offset = xStart - 1;
+  *y_offset = yStart - 1;
+}
+
+
 
 /* ---------------- FUNCTION: ImageFileExists() -------------------- */
 /// Function which tests for the existence of an image file, with the following

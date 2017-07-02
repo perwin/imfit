@@ -756,7 +756,7 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   nRows_psf = oversampledPsfInfo->GetNRows();
   nPixels = (long)nColumns_psf * (long)nRows_psf;
   oversampleScale = oversampledPsfInfo->GetOversamplingScale();
-  GetAllCoordsFromBracket(oversampledPsfInfo->GetRegionString(), &x1, &x2, &y1, &y2);
+  oversampledPsfInfo->GetCorrectedRegionCoords(x1, x2, y1, y2);
   psfPixels_osamp = oversampledPsfInfo->GetPsfPixels();
   
   assert( (nPixels >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );

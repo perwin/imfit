@@ -547,6 +547,42 @@ public:
 
 
 
+
+  // Tests for DetermineImageOffset
+// void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
+// 					double *y_offset );
+  void testDetermineImageOffset( void )
+  {
+    string  s1("image.fits[51:200,41:190]");
+    string  s1_region("100:110,100:110");
+    int  X0_offset, Y0_offset;
+    int  x1, y1, x2, y2;
+    int  x1_oversample, y1_oversample, x2_oversample, y2_oversample;
+    int  correct_xoff = 51;
+    int  correct_yoff = 41;
+    int  correct_x1_oversamp = 50;
+    int  correct_x2_oversamp = 60;
+    int  correct_y1_oversamp = 60;
+    int  correct_y2_oversamp = 70;
+
+    GetPixelStartCoords(s1, &x1, &y1);
+    TS_ASSERT( x1 == correct_xoff );
+    TS_ASSERT( y1 == correct_yoff );
+    
+    DetermineImageOffset(s1, &X0_offset, &Y0_offset);
+    GetAllCoordsFromBracket(s1_region, &x1_oversample, &x2_oversample, 
+    						&y1_oversample, &y2_oversample);
+    x1_oversample -= X0_offset;
+    x2_oversample -= X0_offset;
+    y1_oversample -= Y0_offset;
+    y2_oversample -= Y0_offset;
+    TS_ASSERT_EQUALS(x1_oversample, correct_x1_oversamp);
+    TS_ASSERT_EQUALS(x2_oversample, correct_x2_oversamp);
+    TS_ASSERT_EQUALS(y1_oversample, correct_y1_oversamp);
+    TS_ASSERT_EQUALS(y2_oversample, correct_y2_oversamp);
+  }
+
+
   
   // Tests for NotANumber()
   void testNotANumberWithInts( void )

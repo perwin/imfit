@@ -29,6 +29,7 @@
 using namespace std;
 
 #include "psf_oversampling_info.h"
+#include "utilities_pub.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
@@ -40,19 +41,23 @@ using namespace std;
 PsfOversamplingInfo::PsfOversamplingInfo( )
 {
   nColumns_psf = nRows_psf = 0;
+  X0_offset = Y0_offset = 0;
 }
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
 PsfOversamplingInfo::PsfOversamplingInfo( double *inputPixels, int nCols, int nRows, 
-										int scale, string inputRegionString )
+										int scale, string inputRegionString,
+										int xOffset, int yOffset )
 {
   psfPixels = inputPixels;
   nColumns_psf = nCols;
   nRows_psf = nRows;
   oversamplingScale = scale;
   regionString = inputRegionString;
+  X0_offset = xOffset;
+  Y0_offset = yOffset;
 }
 
 
@@ -88,6 +93,14 @@ void PsfOversamplingInfo::AddOversamplingScale( int scale )
 }
 
 
+/* ---------------- AddImageOffset ------------------------------------- */
+void PsfOversamplingInfo::AddImageOffset( int X0, int Y0 )
+{
+  X0_offset = X0;
+  Y0_offset = Y0;
+}
+
+
 /* ---------------- GetNColumns ---------------------------------------- */
 int PsfOversamplingInfo::GetNColumns( )
 {
@@ -120,6 +133,26 @@ string PsfOversamplingInfo::GetRegionString( )
 int PsfOversamplingInfo::GetOversamplingScale( )
 {
   return oversamplingScale;
+}
+
+
+/* ---------------- GetImageOffset ------------------------------------- */
+void PsfOversamplingInfo::GetImageOffset( int &x0, int &y0 )
+{
+  x0 = X0_offset;
+  y0 = Y0_offset;
+}
+
+
+/* ---------------- GetCorrectedRegionCoords --------------------------- */
+void PsfOversamplingInfo::GetCorrectedRegionCoords( int &x1, int &x2, int &y1, int &y2 )
+{
+  int  x1_region, x2_region, y1_region, y2_region;
+  GetAllCoordsFromBracket(regionString, &x1_region, &x2_region, &y1_region, &y2_region);
+  x1 = x1_region - X0_offset;
+  x2 = x2_region - X0_offset;
+  y1 = y1_region - Y0_offset;
+  y2 = y2_region - Y0_offset;
 }
 
 
