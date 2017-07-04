@@ -5,6 +5,18 @@
 ## 1.5.0 -- 2017-mm-dd
 ### Added:
 
+- Multiple oversampling regions: Imfit can now
+optionally convolve multiple subsections of the model image with oversampled PSFs,
+instead of just one subsection as in previous versions. (This applies to all
+the individual programs: imfit, imfit-mcmc, and makeimage.)
+
+By adding multiple invocations of `--overpsf_region x1:x2,y1:y2`, each
+region will be convolved with the same oversampled PSF (specified by
+`--overpsf <fits-filename>` and `overpsf-scale <int>`). Alternately, you
+can also add multiple invocations of `--overpsf <fits-filename>` and
+`overpsf-scale <int>` to specify that each oversampled region should be
+convolved with its own, separate PSF image.
+
 - New image function: FerrersBar3D. XXX
 
 ### Changed:

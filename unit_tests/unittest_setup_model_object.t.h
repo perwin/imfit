@@ -48,6 +48,12 @@ using namespace std;
 // Reference things
 const string  headerLine_correct = "# X0_1		Y0_1		PA_1	ell_1	I_0_1	h_1	I_sky_2	";
 
+double psfPixels0[9] = {0.1, 0.1, 0.1, 0.1, 0.5, 0.1, 0.1, 0.1, 0.1};
+double psfPixels1[9] = {0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1};
+const int nColsPsf0 = 3;
+const int nRowsPsf0 = 3;
+const int nPixelsPsf0 = 9;
+
 
 class NewTestSuite : public CxxTest::TestSuite 
 {
@@ -300,6 +306,56 @@ public:
     delete theModel;
   }
 
+  void testSetupImfit_withMultipleOversampledPSF( void )
+  {
+    ModelObject *theModel = NULL;
+    OptionsBase *optionsPtr;
+    vector<int> nColumnsRowsVect;
+    PsfOversamplingInfo *psfOsampleInfo;
+    vector<PsfOversamplingInfo *> psfOsampleInfoVect;
+
+    optionsPtr = new ImfitOptions();
+    optionsPtr->psfImagePresent = true;
+    optionsPtr->psfOversampling = true;
+
+    nColumnsRowsVect.push_back(nSmallDataCols);
+    nColumnsRowsVect.push_back(nSmallDataRows);
+    nColumnsRowsVect.push_back(nSmallPSFCols);
+    nColumnsRowsVect.push_back(nSmallPSFRows);
+
+    psfOsampleInfo = new PsfOversamplingInfo(psfPixels0, 2, 2, 2, "1:2,1:2");
+    psfOsampleInfoVect.push_back(psfOsampleInfo);
+    psfOsampleInfoVect.push_back(psfOsampleInfo);
+//     printf("start...\n");
+//     for (int i = 0; i < 2; i++) {
+//       PsfOversamplingInfo *ptr;
+//       double *pixels;
+//       ptr = psfOsampleInfoVect[i];
+//       pixels = ptr->GetPsfPixels();
+//       printf("i = %d: pixel values = ", i);
+//       for (int j = 0; j < nPixelsPsf0; j++)
+//         printf("%.3f  ", pixels[j]);
+//       printf("\n");
+//     }
+//     printf("done.\n");
+
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
+    					NULL, NULL, psfOsampleInfoVect);
+  
+    long nDataVals_true = 4;
+    long nDataVals = theModel->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+    bool psfPresent = theModel->HasPSF();
+    bool oversampledPSFPresent = theModel->HasOversampledPSF();
+    bool maskPresent = theModel->HasMask();
+    TS_ASSERT_EQUALS(psfPresent, true);
+    TS_ASSERT_EQUALS(oversampledPSFPresent, true);
+    TS_ASSERT_EQUALS(maskPresent, false);
+
+    delete optionsPtr;
+    delete theModel;
+  }
+
   void testSetupImfit_withMask( void )
   {
     ModelObject *theModel = NULL;
@@ -413,43 +469,49 @@ public:
     delete theModel;
   }
 
-  void testSetupMCMC_withOversampledPSF( void )
-  {
-    ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
-    vector<int> nColumnsRowsVect;
-    PsfOversamplingInfo *psfOsampleInfo;
-    vector<PsfOversamplingInfo *> psfOsampleInfoVect;
-
-    optionsPtr = new MCMCOptions();
-    optionsPtr->psfImagePresent = true;
-    optionsPtr->psfOversampling = true;
-
-    nColumnsRowsVect.push_back(nSmallDataCols);
-    nColumnsRowsVect.push_back(nSmallDataRows);
-    nColumnsRowsVect.push_back(nSmallPSFCols);
-    nColumnsRowsVect.push_back(nSmallPSFRows);
-    
-    psfOsampleInfo = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, "1:2,1:2");
-    psfOsampleInfoVect.push_back(psfOsampleInfo);
-  
-    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
-		    					NULL, NULL, psfOsampleInfoVect);
-  
-    long nDataVals_true = 4;
-    long nDataVals = theModel->GetNDataValues();
-    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
-    bool psfPresent = theModel->HasPSF();
-    bool oversampledPSFPresent = theModel->HasOversampledPSF();
-    bool maskPresent = theModel->HasMask();
-    TS_ASSERT_EQUALS(psfPresent, true);
-    TS_ASSERT_EQUALS(oversampledPSFPresent, true);
-    TS_ASSERT_EQUALS(maskPresent, false);
-
-    delete optionsPtr;
-    delete theModel;
-    delete psfOsampleInfo;
-  }
+//   void testSetupMCMC_withOversampledPSF( void )
+//   {
+//     ModelObject *theModel = NULL;
+//     OptionsBase *optionsPtr;
+//     vector<int> nColumnsRowsVect;
+//     PsfOversamplingInfo *psfOsampleInfo;
+//     vector<PsfOversamplingInfo *> psfOsampleInfoVect;
+// 
+//     optionsPtr = new MCMCOptions();
+//     optionsPtr->psfImagePresent = true;
+//     optionsPtr->psfOversampling = true;
+// 
+//     nColumnsRowsVect.push_back(nSmallDataCols);
+//     nColumnsRowsVect.push_back(nSmallDataRows);
+//     nColumnsRowsVect.push_back(nSmallPSFCols);
+//     nColumnsRowsVect.push_back(nSmallPSFRows);
+//     
+//     for (int i = 0; i < 2; i++) {
+//       psfOsampleInfo = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, "1:2,1:2");
+//       psfOsampleInfoVect.push_back(psfOsampleInfo);
+//     }
+//   
+//     theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
+// 		    					NULL, NULL, psfOsampleInfoVect);
+//   
+//     long nDataVals_true = 4;
+//     long nDataVals = theModel->GetNDataValues();
+//     TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+//     bool psfPresent = theModel->HasPSF();
+//     bool oversampledPSFPresent = theModel->HasOversampledPSF();
+//     bool maskPresent = theModel->HasMask();
+//     TS_ASSERT_EQUALS(psfPresent, true);
+//     TS_ASSERT_EQUALS(oversampledPSFPresent, true);
+//     TS_ASSERT_EQUALS(maskPresent, false);
+// 
+//     delete optionsPtr;
+//     delete theModel;
+//     for (int i = 0; i < 2; i++) {
+//       psfOsampleInfo = psfOsampleInfoVect[i];
+//       delete psfOsampleInfo;
+//     }
+//     delete psfOsampleInfo;
+//   }
 
   void testSetupMCMC_withMask( void )
   {

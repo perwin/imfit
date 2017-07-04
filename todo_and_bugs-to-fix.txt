@@ -33,6 +33,22 @@
 		[x] New functions: Add/GetImageOffset, GetCorrectedRegionCoords
 			[x] Add unit test for AddImageOffset
 			[x] Write code to pass tests
+		
+		LATER:
+		[ ] Experiment with converting pointers used for oversampled PSFs to
+		C++-11 shared_ptr. A given PSF vector is then shared among:
+			* shared_ptr in PsfOversamplingInfo instance (shared_ptrs in
+			multiple PsfOversamplingInfo instances could all point to a
+			single pixel array)
+			* shared_ptr in ModelObject::AddOversampledPsfInfo (psfPixels_osamp)
+			* shared_ptr in OversampledRegion::AddPSFVector ?
+			* shared_ptr in Convolver instance (psfPixels)
+		TRICKY POINT: shared_ptrs by default call "delete" to de-allocate the
+		memory. Memory that's been allocated via malloc/calloc instead of via "new"
+		should have a "custom deleter" that calls "free"; this can be set up
+		via
+			std::shared_ptr<T> ptr(static_cast<T*>(malloc(sizeof(T))), free);
+		See, e.g., https://stackoverflow.com/questions/12264701/shared-ptr-with-malloc-and-free			
 	
 	[x] Modify SetupModelObject to check for and handle multiple oversampling regions
 		[x] Basic check using 2 regions w/ 1 PSF and scale
@@ -45,8 +61,23 @@
 		[x] Add initial use
 		[x] Modify to agree with updated version (post-integration into SetupModelObject)
 	
-	[ ] Add regression test to do_makeimage_tests.sh to do simple test of multiple regions
+	[x] Add regression test to do_makeimage_tests.sh to do simple test of multiple regions
+		[see planning_for_mult-oversampling_tests.txt for possible starting points]
 	
+	[..] Modify ProcessInput in makeimage to handle multiple --overpsf* instances
+		-- currently, when we specify multiple instances of e.g. --overpsf_region, only
+		the last one gets recorded in the OptionParser object
+		[ ] Modify commandline_parser to handle multi-instance options
+			[x] Plan out possible interface
+			[ ] Add unit tests to unittest_commandline_parser.t.h
+			[ ] Write code to make tests pass
+			?[ ] Consider rewriting commandline_parser to make all OptionParser objects
+			the same (with internal vector), with behavior (singleton or vector)
+			depending on how constructor is called
+		
+		[x] Update ProcessInput in makeimage to use multi-instance options
+		[x] Update ProcessInput in imfit to use multi-instance options
+		
 	[x] Code up array of sub-region convolutions in ModelObject
 		[x] New data members: nSubregions
 		[x] Start with 1-element array (i.e., have all the looping, etc., but just one sub-region)
@@ -56,6 +87,11 @@
 		[x] Modify ProcessInput to include & handle options (as in makeimage)
 		[x] Modify main() to handle multiple regions (as in makeimage)
 		[x] Add code to pass in image offsets (X0_offset, Y0_offset) to psfOveramplingInfo objects
+	
+	[..] Modify mcmc_main.cpp to handle multiple oversampling regions
+		[x] Modify ProcessInput to include & handle options (as in imfit)
+		[ ] Update ProcessInput in imfit-mcmc to use multi-instance options
+		[ ] Modify main() to handle multiple regions (as in imfit)
 	
 	[x] Check that both PSF-oversampling tests in do_imfit_tests.sh work
 	

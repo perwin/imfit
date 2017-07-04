@@ -10,22 +10,23 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <queue>
 
 using namespace std;
 
 
-//! Utility function: removes leading dashes from a string
+/// \brief Utility function: removes leading dashes from a string
 void StripLeadingDashes( string& stringToModify );
 
 
 
-//! Class holding info about an individual command-line option/flag
+/// \brief Class holding info about an individual command-line option/flag
 class OptionObject
 {
   public:
     // Constructors and Destructors:
     OptionObject( );
-    ~OptionObject( );
+    virtual ~OptionObject( );
     
     // Public member functions:
     void DefineAsFlag( );   // specify that this is a "flag" options
@@ -34,21 +35,44 @@ class OptionObject
     bool FlagSet( );   // has flag been set?
     void StoreTarget( const char targString[] );   // e.g., store filename pointed to by option
     bool TargetSet( );   // has target been set (if option is not flag)?
-    string& GetTargetString( );
+    string& GetTargetString( int n=0 );
+    bool IsQueue( );
+    virtual int NTargetsStored( );
+
+  protected:
+    // Private member functions:
+    
+    // Data members:
+    bool  isFlag, flagSet, targetSet, isQueue;
+    vector<string>  targetStrings;
+};
+
+
+
+/// \brief Derived class holding info about an individual command-line option/flag,
+/// which can handle multiple instances, storing target strings in a vector.
+class QueueOptionObject : public OptionObject
+{
+  public:
+    // Constructors and Destructors:
+    QueueOptionObject( );
+    ~QueueOptionObject( );
+    
+    // Overridden public member functions:
+    int NTargetsStored( );
 
   private:
     // Private member functions:
     
-    // Data members:
-    bool  isFlag, flagSet, targetSet;
-    string  targetString;
+    // New data members:
+    int  nStrings;
 };
 
 
 
 
 
-/// Class for parsing command line
+/// \brief Class for parsing command line
 class CLineParser
 {
   public:
@@ -63,12 +87,15 @@ class CLineParser
     void AddFlag( const string shortFlagString, const string longFlagString );
     void AddOption( const string shortOptString );
     void AddOption( const string shortOptString, const string longOptString );
+    void AddQueueOption( const string shortOptString );
+    void AddQueueOption( const string shortOptString, const string longOptString );
     void AddUsageLine( const string usageLine );
     int ParseCommandLine( int argc, char *argv[] );
     bool CommandLineEmpty( );
     bool FlagSet( const string flagName );
     bool OptionSet( const string optName );
-    string& GetTargetString( const string optName );
+    int GetNTargets( const string optName );
+    string& GetTargetString( const string optName, int n=0 );
     int nArguments( );
     string& GetArgument( const int n );
 

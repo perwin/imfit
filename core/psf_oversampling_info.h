@@ -17,13 +17,14 @@ class PsfOversamplingInfo
     					string inputRegionString, int xOffset=0, int yOffset=0 );
     ~PsfOversamplingInfo();
   
-    void AddPsfPixels( double *inputPixels, int nCols, int nRows );
+    void AddPsfPixels( double *inputPixels, int nCols, int nRows, bool isUnique );
     void AddRegionString( string inputRegionString );
     void AddOversamplingScale( int scale );
     void AddImageOffset( int X0, int Y0 );
   
     int GetNColumns( );
     int GetNRows( );
+    bool PixelsArrayIsUnique( );
     double * GetPsfPixels( );
     string GetRegionString( );
     int GetOversamplingScale( );
@@ -34,6 +35,7 @@ class PsfOversamplingInfo
     int  nColumns_psf, nRows_psf;
     int  X0_offset, Y0_offset;   // offset for starting coords within main image
     string  regionString;
+    bool  pixelsArrayIsUnique;
     double *  psfPixels;
     int  oversamplingScale;
 };

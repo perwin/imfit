@@ -6,7 +6,7 @@
  *
  */
 
-// Copyright 2011--2015 by Peter Erwin.
+// Copyright 2011--2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -34,7 +34,6 @@
 
 using namespace std;
 
-//const char  *equalsSign = "=";
 
 
 /* UTILITY FUNCTIONS */
@@ -56,6 +55,8 @@ void StripLeadingDashes( string& stringToModify )
 }
 
 
+
+
 /* *** DEFINITIONS FOR OPTIONOBJECT CLASS *** */
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -65,7 +66,7 @@ OptionObject::OptionObject( )
   isFlag = false;
   flagSet = false;
   targetSet = false;
-  targetString = "";
+  isQueue = false;
 }
 
 
@@ -74,7 +75,6 @@ OptionObject::OptionObject( )
 OptionObject::~OptionObject( )
 {
   ;
-//  printf("OptionObject being destroyed!\n");
 }
 
 
@@ -106,10 +106,17 @@ bool OptionObject::FlagSet(  )
 }
 
 
+/* ---------------- IsQueue -------------------------------------------- */
+bool OptionObject::IsQueue(  )
+{
+  return isQueue;
+}
+
+
 /* ---------------- StoreTarget ---------------------------------------- */
 void OptionObject::StoreTarget( const char targString[] )
 {
-  targetString = targString;
+  targetStrings.push_back(targString);
   targetSet = true;
 }
 
@@ -121,11 +128,45 @@ bool OptionObject::TargetSet(  )
 }
 
 
-/* ---------------- GetTarget ------------------------------------------ */
-string& OptionObject::GetTargetString(  )
+/* ---------------- GetTargetString ------------------------------------ */
+string& OptionObject::GetTargetString( int n )
 {
-  return targetString;
+  return targetStrings[n];
 }
+
+
+/* ---------------- NTargetsStored ------------------------------------- */
+int OptionObject::NTargetsStored(  )
+{
+  if (targetSet)
+    return 1;
+  else
+    return 0;
+}
+
+
+
+
+/* *** DEFINITIONS FOR QUEUOPTIONOBJECT CLASS *** */
+
+/* ---------------- CONSTRUCTOR ---------------------------------------- */
+QueueOptionObject::QueueOptionObject( )
+{
+  isQueue = true;
+}
+
+QueueOptionObject::~QueueOptionObject( )
+{
+  ;  // everything we need handled is done in parent class's destructor
+}
+
+
+/* ---------------- NTargetsStored ------------------------------------- */
+int QueueOptionObject::NTargetsStored(  )
+{
+  return (int)targetStrings.size();
+}
+
 
 
 
@@ -208,7 +249,7 @@ void CLineParser::AddFlag( const string shortFlagString, const string longFlagSt
 }
 
 
-/// Add a possible options (single-character only) to the set of command-line flags/options
+/// Add a possible option (single-character only) to the set of command-line flags/options
 void CLineParser::AddOption( const string shortOptString )
 {
   OptionObject *newOptionObj = new OptionObject;
@@ -221,6 +262,25 @@ void CLineParser::AddOption( const string shortOptString )
 void CLineParser::AddOption( const string shortOptString, const string longOptString )
 {
   OptionObject *newOptionObj = new OptionObject;
+  optObjPointers.push_back(newOptionObj);
+  optMap[shortOptString] = newOptionObj;
+  optMap[longOptString] = newOptionObj;
+}
+
+
+/// Add a possible queue option (single-character only) to the set of command-line flags/options
+void CLineParser::AddQueueOption( const string shortOptString )
+{
+  OptionObject *newOptionObj = new QueueOptionObject;
+  optObjPointers.push_back(newOptionObj);
+  optMap[shortOptString] = newOptionObj;
+}
+
+
+/// Add a possible queue option (with both short and long versions) to the set of command-line options
+void CLineParser::AddQueueOption( const string shortOptString, const string longOptString )
+{
+  OptionObject *newOptionObj = new QueueOptionObject;
   optObjPointers.push_back(newOptionObj);
   optMap[shortOptString] = newOptionObj;
   optMap[longOptString] = newOptionObj;
@@ -346,11 +406,18 @@ bool CLineParser::OptionSet( const string optName )
 }
 
 
+/// Returns the number of stored target strings for the associated option
+int CLineParser::GetNTargets( const string optName )
+{
+  return optMap[optName]->NTargetsStored();
+}
+
+
 /// Returns the stored target string for the associated option
-string& CLineParser::GetTargetString( const string optName )
+string& CLineParser::GetTargetString( const string optName, int n )
 {
   if (optMap.count(optName) > 0)
-    return optMap[optName]->GetTargetString();
+    return optMap[optName]->GetTargetString(n);
   else {
     fprintf(stderr, "\nERROR: \"%s\" is not an assigned option!\n", optName.c_str());
     return errorString1;

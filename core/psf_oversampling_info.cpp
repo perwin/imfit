@@ -28,6 +28,7 @@
 
 using namespace std;
 
+#include "fftw3.h"  // so we can call fftw_free()
 #include "psf_oversampling_info.h"
 #include "utilities_pub.h"
 
@@ -62,10 +63,13 @@ PsfOversamplingInfo::PsfOversamplingInfo( double *inputPixels, int nCols, int nR
 
 
 /* ---------------- DESTRUCTOR ----------------------------------------- */
+// Free the pixel-data array if we're an instance pointing to a unique
+// array (or if we're the first instance pointing to a shared array)
 
 PsfOversamplingInfo::~PsfOversamplingInfo( )
 {
-  ;
+  if (pixelsArrayIsUnique)
+    fftw_free(psfPixels);
 }
 
 
@@ -78,11 +82,13 @@ void PsfOversamplingInfo::AddRegionString( string inputRegionString )
 
 
 /* ---------------- AddPsfPixels --------------------------------------- */
-void PsfOversamplingInfo::AddPsfPixels( double *inputPixels, int nCols, int nRows )
+void PsfOversamplingInfo::AddPsfPixels( double *inputPixels, int nCols, int nRows,
+										bool isUnique )
 {
   psfPixels = inputPixels;
   nColumns_psf = nCols;
   nRows_psf = nRows;
+  pixelsArrayIsUnique = isUnique;
 }
 
 
@@ -114,6 +120,15 @@ int PsfOversamplingInfo::GetNRows( )
   return nRows_psf;
 }
 
+
+/* ---------------- pixelsArrayIsUnique -------------------------------- */
+bool PsfOversamplingInfo::PixelsArrayIsUnique( )
+{
+  return pixelsArrayIsUnique;
+}
+
+
+    bool pixelsArrayIsUnique( );
 
 /* ---------------- GetPsfPixels --------------------------------------- */
 double * PsfOversamplingInfo::GetPsfPixels( )

@@ -810,6 +810,7 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   }
   oversampledRegionsVect.push_back(oversampledRegion);
   nOversampledRegions++;
+  printf("   ModelObject::AddOversampledPsfInfo: oversampling %d:%d,%d,%d\n", x1,x2,y1,y2);
   
   return 0;
 }

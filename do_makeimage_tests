@@ -50,8 +50,13 @@ echo "Running tests for makeimage..."
 ./makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > temptest/test_dump5
 # tests of --output-functions with PSF convolution:
 ./makeimage tests/config_makeimage_sersic+exp512.dat -o temptest/sersic+exp_conv.fits --output-functions temptest/singleImage_conv --psf tests/psf_moffat_35.fits > temptest/test_dump_null
-# tests of PSF oversampling
+
+# tests of PSF oversampling: one region
 ./makeimage tests/config_makeimage_gauss-oversample.dat -o temptest/oversampled.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110  > temptest/test_dump_null
+# tests of PSF oversampling: two regions, same PSF
+./makeimage tests/config_makeimage_gauss-oversample2.dat -o temptest/oversampled2both.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --overpsf_region 20:30,20:30  > temptest/test_dump_null
+# tests of PSF oversampling: two regions, two PSFs
+./makeimage tests/config_makeimage_gauss-oversample2.dat -o temptest/oversampled2both_2psf.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 20:30,20:30  > temptest/test_dump_null
 
 # testing that bad config files are caught (redirect stderr to temptest/test_dump* files):
 ./makeimage tests/config_makeimage_sersictest512_bad1.dat &> temptest/test_dump6
@@ -155,14 +160,30 @@ then
   ./python/compare_fits_files.py --compare-sum temptest/singleImage_conv1_Sersic.fits temptest/singleImage_conv2_Exponential.fits temptest/sersic+exp_conv.fits
 fi
 
+
 # Note that we chose an OS-specific path for the reference file (image output is
 # marginally different for Linux vs OS X)
 if [ $do_fits_tests = "1" ]
-  echo -n "*** Testing that convolution with oversampled PSF works... "
+  echo -n "*** Testing that convolution with oversampled PSF works (single region)... "
   echo ""
 then
   ./python/compare_fits_files.py temptest/oversampled.fits tests/${osname}/oversampled_orig.fits
 fi
+
+if [ $do_fits_tests = "1" ]
+  echo -n "*** Testing that convolution with oversampled PSF works (two regions, same PSF)... "
+  echo ""
+then
+  ./python/compare_fits_files.py temptest/oversampled2both.fits tests/${osname}/oversampled2both_orig.fits
+fi
+
+if [ $do_fits_tests = "1" ]
+  echo -n "*** Testing that convolution with oversampled PSF works (two regions, 2 PSFs)... "
+  echo ""
+then
+  ./python/compare_fits_files.py temptest/oversampled2both_2psf.fits tests/${osname}/oversampled2both_orig.fits
+fi
+
 
 echo -n "*** Diff comparison with archives: print-fluxes mode... "
 if (diff --brief temptest/test_dump5 tests/makeimage_textout5)

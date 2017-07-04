@@ -24,7 +24,7 @@ const int argc1 = 2;
 
 
 
-class NewTestSuite : public CxxTest::TestSuite 
+class TestStripLeadingDashes : public CxxTest::TestSuite 
 {
 public:
 
@@ -38,38 +38,43 @@ public:
     inputStr1 = "-b";
     correctStr1 = "b";
     StripLeadingDashes(inputStr1);
-    TS_ASSERT( inputStr1 == correctStr1 );
+    TS_ASSERT_EQUALS( inputStr1, correctStr1 );
 
     // correctly strip double leading dash
     inputStr1 = "--bob";
     correctStr1 = "bob";
     StripLeadingDashes(inputStr1);
-    TS_ASSERT( inputStr1 == correctStr1 );
+    TS_ASSERT_EQUALS( inputStr1, correctStr1 );
 
     // correctly handle a non-leading-dash string
     inputStr1 = "alpha-one";
     correctStr1 = "alpha-one";
     StripLeadingDashes(inputStr1);
-    TS_ASSERT( inputStr1 == correctStr1 );
+    TS_ASSERT_EQUALS( inputStr1, correctStr1 );
     
     // correctly handle strings consisting only of dashes
     inputStr1 = "-";
     correctStr1 = "";
     StripLeadingDashes(inputStr1);
-    TS_ASSERT( inputStr1 == correctStr1 );
+    TS_ASSERT_EQUALS( inputStr1, correctStr1 );
     inputStr1 = "--";
     correctStr1 = "";
     StripLeadingDashes(inputStr1);
-    TS_ASSERT( inputStr1 == correctStr1 );
+    TS_ASSERT_EQUALS( inputStr1, correctStr1 );
 
     // correctly handle empty string
     inputStr1 = "";
     correctStr1 = "";
     StripLeadingDashes(inputStr1);
-    TS_ASSERT( inputStr1 == correctStr1 );
+    TS_ASSERT_EQUALS( inputStr1, correctStr1 );
   }
+};
   
-  
+
+
+class TestOptionObject : public CxxTest::TestSuite 
+{
+public:
 
   // Tests for OptionObject class
   
@@ -77,21 +82,21 @@ public:
   {
     OptionObject *testOptionObj;
     
-    testOptionObj = new OptionObject;
+    testOptionObj = new OptionObject();
     
     // default object is *not* a flag to start with
-    TS_ASSERT( testOptionObj->IsFlag() == false );
+    TS_ASSERT_EQUALS( testOptionObj->IsFlag(), false );
     
     testOptionObj->DefineAsFlag();
     // should be a flag now
-    TS_ASSERT( testOptionObj->IsFlag() == true );
+    TS_ASSERT_EQUALS( testOptionObj->IsFlag(), true );
 
     // flag should not initially be set
-    TS_ASSERT( testOptionObj->FlagSet() == false );
+    TS_ASSERT_EQUALS( testOptionObj->FlagSet(), false );
     
     // set the flag and test that it has been set
     testOptionObj->SetFlag();
-    TS_ASSERT( testOptionObj->FlagSet() == true );
+    TS_ASSERT_EQUALS( testOptionObj->FlagSet(), true );
   }
 
 
@@ -101,26 +106,74 @@ public:
     string  testTargetString = "test_target";
     string  targetRecipient;
     
-    testOptionObj = new OptionObject;
+    testOptionObj = new OptionObject();
     
     // default object is *not* a flag
-    TS_ASSERT( testOptionObj->IsFlag() == false );
+    TS_ASSERT_EQUALS( testOptionObj->IsFlag(), false );
     
     // target should initiallly *not* be set
-    TS_ASSERT( testOptionObj->TargetSet() == false );
+    TS_ASSERT_EQUALS( testOptionObj->TargetSet(), false );
 
     // set the target string, then test for it
     testOptionObj->StoreTarget( testTargetString.c_str() );
-    TS_ASSERT( testOptionObj->TargetSet() == true );
+    TS_ASSERT_EQUALS( testOptionObj->TargetSet(), true );
     
     // test to see if we stored the target string correctly
-    TS_ASSERT( testOptionObj->TargetSet() == true );
+    TS_ASSERT_EQUALS( testOptionObj->TargetSet(), true );
     targetRecipient = testOptionObj->GetTargetString();
-    TS_ASSERT( targetRecipient == testTargetString );
+    TS_ASSERT_EQUALS( targetRecipient, testTargetString );
   }
+};
 
 
 
+
+class TestQeueOptionObject : public CxxTest::TestSuite 
+{
+public:
+
+  void testQueuOptionObject( void )
+  {
+    OptionObject *testOptionObj;
+    string  testTargetString1 = "test_target1";
+    string  testTargetString2 = "test_target2";
+    string  targetRecipient;
+    
+    testOptionObj = new QueueOptionObject();
+
+    TS_ASSERT_EQUALS( testOptionObj->IsQueue(), true );
+
+    // default object is *not* a flag
+    TS_ASSERT_EQUALS( testOptionObj->IsFlag(), false );
+    
+    // target should initiallly *not* be set
+    TS_ASSERT_EQUALS( testOptionObj->TargetSet(), false );
+    TS_ASSERT_EQUALS( testOptionObj->NTargetsStored(), 0 );
+
+    // set the target string, then test for it
+    testOptionObj->StoreTarget( testTargetString1.c_str() );
+    TS_ASSERT_EQUALS( testOptionObj->TargetSet(), true );
+    TS_ASSERT_EQUALS( testOptionObj->NTargetsStored(), 1 );
+    
+    // store another instance
+    testOptionObj->StoreTarget( testTargetString2.c_str() );
+    TS_ASSERT_EQUALS( testOptionObj->NTargetsStored(), 2 );
+
+    // test to see if we stored the target strings correctly, and if
+    // retrieving them decrements the count
+    targetRecipient = testOptionObj->GetTargetString(0);
+    TS_ASSERT_EQUALS( targetRecipient, testTargetString1 );
+    targetRecipient = testOptionObj->GetTargetString(1);
+    TS_ASSERT_EQUALS( targetRecipient, testTargetString2 );
+  }
+};
+
+
+
+
+class TestCLineParser : public CxxTest::TestSuite 
+{
+public:
 
   // Tests for CLineParser class
   
@@ -130,7 +183,7 @@ public:
     
     testParser = new CLineParser();
 
-    TS_ASSERT( testParser->CommandLineEmpty() == true );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), true );
   }
 
 
@@ -138,15 +191,14 @@ public:
   void testCLineParser_CreateFlags( void )
   {
     CLineParser *testParser;
-    OptionObject *optionObj;
     
     testParser = new CLineParser();
 
     testParser->AddFlag("b");
-    TS_ASSERT( testParser->FlagSet("b") == false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
     testParser->AddFlag("z", "zeta");
-    TS_ASSERT( testParser->FlagSet("z") == false );
-    TS_ASSERT( testParser->FlagSet("zeta") == false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("z"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("zeta"), false );
   }
 
 
@@ -154,15 +206,29 @@ public:
   void testCLineParser_CreateOptions( void )
   {
     CLineParser *testParser;
-    OptionObject *optionObj;
     
     testParser = new CLineParser();
 
     testParser->AddOption("x");
-    TS_ASSERT( testParser->OptionSet("x") == false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
     testParser->AddOption("c", "config");
-    TS_ASSERT( testParser->OptionSet("c") == false );
-    TS_ASSERT( testParser->OptionSet("config") == false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("c"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("config"), false );
+  }
+
+
+  // Test that we create single and double-string multi-instance ("queue") options correctly
+  void testCLineParser_CreateQueueOptions( void )
+  {
+    CLineParser *testParser;
+    
+    testParser = new CLineParser();
+
+    testParser->AddQueueOption("x");
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
+    testParser->AddQueueOption("c", "config");
+    TS_ASSERT_EQUALS( testParser->OptionSet("c"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("config"), false );
   }
 
 
@@ -170,14 +236,13 @@ public:
   void testCLineParser_CheckBadNames( void )
   {
     CLineParser *testParser;
-    OptionObject *optionObj;
     
     testParser = new CLineParser();
 
     testParser->AddFlag("x");
-    TS_ASSERT( testParser->FlagSet("x") == false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("x"), false );
     // OK, now try it with an incorrect name
-    TS_ASSERT( testParser->FlagSet("qq") == false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("qq"), false );
     
 
   }
@@ -196,8 +261,8 @@ public:
     testParser->AddOption("x");
 
     status = testParser->ParseCommandLine(argc, argv);
-    TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->CommandLineEmpty() == true );
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), true );
   }
 
 
@@ -218,10 +283,10 @@ public:
     testParser->AddOption("x");   // this means that "-x" requires a target
 
     status = testParser->ParseCommandLine(argc1, argv1);
-    TS_ASSERT( status == -1 );
+    TS_ASSERT_EQUALS( status, -1 );
 
     status = testParser->ParseCommandLine(argc2, argv2);
-    TS_ASSERT( status == -1 );
+    TS_ASSERT_EQUALS( status, -1 );
   }
 
 
@@ -238,15 +303,15 @@ public:
     testParser->AddFlag("b");
     testParser->AddOption("x");
 
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == false );
-    TS_ASSERT( testParser->OptionSet("x") == false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
     status = testParser->ParseCommandLine(argc, argv);
-    TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->CommandLineEmpty() == false );
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == true );
-    TS_ASSERT( testParser->OptionSet("x") == false );
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
   }
 
 
@@ -264,18 +329,18 @@ public:
     testParser->AddFlag("b");
     testParser->AddOption("x");
 
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == false );
-    TS_ASSERT( testParser->OptionSet("x") == false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
     status = testParser->ParseCommandLine(argc, argv);
-    TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->CommandLineEmpty() == false );
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == false );
-    TS_ASSERT( testParser->OptionSet("x") == true );
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), true );
     // check that we correctly stored the target
     targetString = testParser->GetTargetString("x");
-    TS_ASSERT( targetString == "target_for_x" );
+    TS_ASSERT_EQUALS( targetString, "target_for_x" );
   }
 
 
@@ -293,19 +358,168 @@ public:
     testParser->AddFlag("b");
     testParser->AddOption("x");
 
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == false );
-    TS_ASSERT( testParser->OptionSet("x") == false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
     status = testParser->ParseCommandLine(argc, argv);
-    TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->CommandLineEmpty() == false );
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == false );
-    TS_ASSERT( testParser->OptionSet("x") == true );
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), true );
     // check that we correctly stored the target
     targetString = testParser->GetTargetString("x");
-    TS_ASSERT( targetString == "target_for_x" );
+    TS_ASSERT_EQUALS( targetString, "target_for_x" );
   }
+
+
+  // Test that we correctly process a command line with one queue option
+  // and multiple invocations thereof
+  void testCLineParser_ParseQueueOption( void )
+  {
+    int  argc = 5;
+    char  *argv[] = {"progName", "-x", "target_for_x_1", "-x", "target_for_x_2"};
+    int  status, nTargets;
+    string  targetString;
+    CLineParser  *testParser;
+    
+    testParser = new CLineParser();
+    testParser->AddFlag("a");
+    testParser->AddFlag("b");
+    testParser->AddQueueOption("x");
+
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
+    status = testParser->ParseCommandLine(argc, argv);
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), true );
+    
+    // check that we correctly stored the targets
+    nTargets = testParser->GetNTargets("x");
+    targetString = testParser->GetTargetString("x", 0);
+    TS_ASSERT_EQUALS( targetString, "target_for_x_1" );
+    targetString = testParser->GetTargetString("x", 1);
+    TS_ASSERT_EQUALS( targetString, "target_for_x_2" );
+  }
+
+
+  // Test that we correctly process a command line with one queue option
+  // and multiple invocations thereof
+  void testCLineParser_ParseQueueOption_complex( void )
+  {
+    int  argc = 15;
+    char  *argv[] = {"progName", "-x", "target_for_x_1", "-x", "target_for_x_2",
+    				"-y", "target_for_y_1", "-y", "target_for_y_2",
+    				"-z", "target_for_z_1", "-z", "target_for_z_2", "-z", "target_for_z_3"};
+    int  status, nTargets;
+    string  targetString;
+    CLineParser  *testParser;
+    
+    testParser = new CLineParser();
+    testParser->AddFlag("a");
+    testParser->AddFlag("b");
+    testParser->AddQueueOption("x");
+    testParser->AddQueueOption("y");
+    testParser->AddQueueOption("z");
+
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("y"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("z"), false );
+    status = testParser->ParseCommandLine(argc, argv);
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("y"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("z"), true );
+    
+    // check that we correctly stored the targets
+    nTargets = testParser->GetNTargets("x");
+    TS_ASSERT_EQUALS( nTargets, 2 );
+    targetString = testParser->GetTargetString("x", 0);
+    TS_ASSERT_EQUALS( targetString, "target_for_x_1" );
+    targetString = testParser->GetTargetString("x", 1);
+    TS_ASSERT_EQUALS( targetString, "target_for_x_2" );
+
+    nTargets = testParser->GetNTargets("y");
+    TS_ASSERT_EQUALS( nTargets, 2 );
+    targetString = testParser->GetTargetString("y", 0);
+    TS_ASSERT_EQUALS( targetString, "target_for_y_1" );
+    targetString = testParser->GetTargetString("y", 1);
+    TS_ASSERT_EQUALS( targetString, "target_for_y_2" );
+
+    nTargets = testParser->GetNTargets("z");
+    TS_ASSERT_EQUALS( nTargets, 3 );
+    targetString = testParser->GetTargetString("z", 0);
+    TS_ASSERT_EQUALS( targetString, "target_for_z_1" );
+    targetString = testParser->GetTargetString("z", 1);
+    TS_ASSERT_EQUALS( targetString, "target_for_z_2" );
+    targetString = testParser->GetTargetString("z", 2);
+    TS_ASSERT_EQUALS( targetString, "target_for_z_3" );
+  }
+
+
+  // Test that we correctly process a command line with one queue option
+  // and multiple invocations thereof
+
+
+
+  void testCLineParser_ParseQueueOption_complex2( void )
+  {
+    int  argc = 12;
+    char  *argv[] = {"./makeimage", "tests/config_makeimage_gauss-oversample.dat",
+    				 "-o", "temptest/oversampled.fits", "--psf", "tests/psf_standard.fits",
+    				 "--overpsf", "tests/psf_oversamp.fits", "--overpsf_scale", "3",
+    				"--overpsf_region", "100:110,100:110"};
+    int  status;
+    string  targetString;
+    CLineParser  *testParser;
+    
+    testParser = new CLineParser();
+    testParser->AddOption("o");
+    testParser->AddOption("psf");
+    testParser->AddQueueOption("overpsf");
+    testParser->AddQueueOption("overpsf_scale");
+    testParser->AddQueueOption("overpsf_region");
+
+    TS_ASSERT_EQUALS( testParser->OptionSet("o"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("psf"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("overpsf"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("overpsf_scale"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("overpsf_region"), false );
+    status = testParser->ParseCommandLine(argc, argv);
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("o"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("psf"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("overpsf"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("overpsf_scale"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("overpsf_region"), true );
+    
+    // check that we correctly stored the targets
+    targetString = testParser->GetTargetString("o");
+    TS_ASSERT_EQUALS( targetString, "temptest/oversampled.fits" );
+
+    targetString = testParser->GetTargetString("psf");
+    TS_ASSERT_EQUALS( targetString, "tests/psf_standard.fits" );
+
+    targetString = testParser->GetTargetString("overpsf");
+    TS_ASSERT_EQUALS( targetString, "tests/psf_oversamp.fits" );
+
+    targetString = testParser->GetTargetString("overpsf_scale");
+    TS_ASSERT_EQUALS( targetString, "3" );
+
+    targetString = testParser->GetTargetString("overpsf_region");
+    TS_ASSERT_EQUALS( targetString, "100:110,100:110" );
+  }
+
 
 
   // Test that we correctly process a more complex command line
@@ -322,18 +536,18 @@ public:
     testParser->AddFlag("b");
     testParser->AddOption("x");
 
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == false );
-    TS_ASSERT( testParser->OptionSet("x") == false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), false );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), false );
     status = testParser->ParseCommandLine(argc, argv);
-    TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->CommandLineEmpty() == false );
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == true );
-    TS_ASSERT( testParser->OptionSet("x") == true );
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->CommandLineEmpty(), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), true );
     // check that we correctly stored the target
     targetString = testParser->GetTargetString("x");
-    TS_ASSERT( targetString == "target_for_x" );
+    TS_ASSERT_EQUALS( targetString, "target_for_x" );
   }
 
 
@@ -355,16 +569,16 @@ public:
 
     // parse a commmand line with no arguments
     status = testParser->ParseCommandLine(argc1, argv1);
-    TS_ASSERT( status == 0 );
-    TS_ASSERT( testParser->nArguments() == 0 );
+    TS_ASSERT_EQUALS( status, 0 );
+    TS_ASSERT_EQUALS( testParser->nArguments(), 0 );
     
     // now check to see if we extract arguments
     status = testParser->ParseCommandLine(argc2, argv2);
-    TS_ASSERT( status == 0 );
+    TS_ASSERT_EQUALS( status, 0 );
     // check that arguments were caught
-    TS_ASSERT( testParser->nArguments() == 2 );
-    TS_ASSERT( testParser->GetArgument(0) == "alpha" );
-    TS_ASSERT( testParser->GetArgument(1) == "beta" );
+    TS_ASSERT_EQUALS( testParser->nArguments(), 2 );
+    TS_ASSERT_EQUALS( testParser->GetArgument(0), "alpha" );
+    TS_ASSERT_EQUALS( testParser->GetArgument(1), "beta" );
   }
 
 
@@ -383,18 +597,18 @@ public:
     testParser->AddOption("x");
 
     status = testParser->ParseCommandLine(argc, argv);
-    TS_ASSERT( status == 0 );
+    TS_ASSERT_EQUALS( status, 0 );
     // check that flags and options were caught
-    TS_ASSERT( testParser->FlagSet("a") == false );
-    TS_ASSERT( testParser->FlagSet("b") == true );
-    TS_ASSERT( testParser->OptionSet("x") == true );
+    TS_ASSERT_EQUALS( testParser->FlagSet("a"), false );
+    TS_ASSERT_EQUALS( testParser->FlagSet("b"), true );
+    TS_ASSERT_EQUALS( testParser->OptionSet("x"), true );
     // check that we correctly stored the target
     targetString = testParser->GetTargetString("x");
-    TS_ASSERT( targetString == "target_for_x" );
+    TS_ASSERT_EQUALS( targetString, "target_for_x" );
     // check that arguments were caught
-    TS_ASSERT( testParser->nArguments() == 2 );
-    TS_ASSERT( testParser->GetArgument(0) == "alpha" );
-    TS_ASSERT( testParser->GetArgument(1) == "beta" );
+    TS_ASSERT_EQUALS( testParser->nArguments(), 2 );
+    TS_ASSERT_EQUALS( testParser->GetArgument(0), "alpha" );
+    TS_ASSERT_EQUALS( testParser->GetArgument(1), "beta" );
   }
 
 };
