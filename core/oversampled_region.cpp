@@ -174,6 +174,8 @@ int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nB
 {
   int  result = 0;
 
+//   printf("   OversampledRegion::SetupModelImage: nBaseColumns, nBaseRows, oversampScale =");
+//   printf(" %d, %d, %d\n", nBaseColumns, nBaseRows, oversampScale);
   assert( (nBaseColumns >= 1) && (nBaseRows >= 1) && (oversampScale >= 1) );
   assert( (nColumnsMain >= 1) && (nRowsMain >= 1) );
   assert( (nColumnsPSF_main >= 0) && (nRowsPSF_main >= 0) );

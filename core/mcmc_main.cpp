@@ -81,8 +81,6 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 /* ------------------- Function Prototypes ----------------------------- */
-// void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
-// 					double *y_offset);
 void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions );
 bool RequestedFilesPresent( MCMCOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
@@ -322,95 +320,10 @@ int main(int argc, char *argv[])
   nColumnsRowsVect.push_back(nRows);
   nColumnsRowsVect.push_back(nColumns_psf);
   nColumnsRowsVect.push_back(nRows_psf);
-//   nColumnsRowsVect.push_back(nColumns_psf_oversampled);
-//   nColumnsRowsVect.push_back(nRows_psf_oversampled);
 
   theModel = SetupModelObject(options, nColumnsRowsVect, allPixels, psfPixels, allMaskPixels,
   								allErrorPixels, psfOversamplingInfoVect);
-//   theModel = SetupModelObject(options, nColumnsRowsVect, allPixels, psfPixels, allMaskPixels,
-//   								allErrorPixels, psfOversampledPixels, xyOsamplePos);
 
-//   Create the model object
-//   theModel = new ModelObject();
-//   
-//   Put limits on number of FFTW and OpenMP threads, if requested by user
-//   if (options->maxThreadsSet)
-//     theModel->SetMaxThreads(options->maxThreads);
-// 
-//   Add PSF image vector, if present (needs to be added prior to image data, so that
-//   ModelObject can figure out proper internal model-image size
-//   if (options->psfImagePresent) {
-//     status = theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
-//     if (status < 0) {
-//       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
-//   	  exit(-1);
-//     }
-//   }
-// 
-//   Add image data and useful information about image (gain, read noise, t_exp, etc.)
-//   status = theModel->AddImageDataVector(allPixels, nColumns, nRows);
-//   if (status < 0) {
-//     Possible failure if attempt to allocate memory for model image fails
-//     fprintf(stderr, "*** ERROR: Failure in ModelObject::AddImageDataVector!\n\n");
-//     exit(-1);
-//   }
-//   theModel->AddImageCharacteristics(options->gain, options->readNoise, options->expTime, options->nCombined,
-//   							options->originalSky);
-// 
-//   Add oversampled PSF image vector and corresponding info, if present
-//   (this operates on a sub-region of the main image, so ModelObject does not need
-//   to know about this prior to the image data)
-//   if (options->psfOversampledImagePresent) {
-//     status = theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
-//     			nRows_psf_oversampled, psfOversampledPixels, options->psfOversamplingScale,
-//     			x1_oversample, x2_oversample, y1_oversample, y2_oversample);
-//     if (status < 0) {
-//       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
-//   	  exit(-1);
-//     }
-//   }
-// 
-//   If user supplied a mask image, add it and apply it to the internal weight image
-//   if (maskAllocated) {
-//     status = theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
-//                              options->maskFormat);
-//     if (status < 0) {
-//       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddMaskVector!\n\n");
-//   	  exit(-1);
-//     }
-//   }
-//   
-//   Specify which fit statistic we'll use, and add user-supplied error image if
-//   it exists and we're using chi^2; also catch special case of standard Cash
-//   statistic + L-M minimizer
-//   if (options->useCashStatistic) {
-//     status = theModel->UseCashStatistic();
-//     if (status < 0) {
-//       fprintf(stderr, "*** ERROR: Failure in ModelObject::UseCashStatistic!\n\n");
-//       exit(-1);
-//     }
-//   } 
-//   else if (options->usePoissonMLR) {
-//     theModel->UsePoissonMLR();
-//   }
-//   else {
-//     normal chi^2 statistics, so we either add error/noise image, or calculate it
-//     if (options->noiseImagePresent)
-//       theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
-//                                options->errorType);
-//     else {
-//       if (options->useModelForErrors) {
-//         printf("* No noise image supplied ... will generate noise image from model image.\n");
-//         status = theModel->UseModelErrors();
-//         if (status < 0) {
-//           fprintf(stderr, "*** ERROR: Failure in ModelObject::UseModelErrors!\n\n");
-//           exit(-1);
-//         }
-//       }
-//       else    // default mode
-//         printf("* No noise image supplied ... will generate noise image from input data image.\n");
-//     }
-//   }
 
 
   // Add functions to the model object
@@ -460,19 +373,13 @@ int main(int argc, char *argv[])
     usingCashTerms = true;
   else
     usingCashTerms = false;
-  if (options->psfOversampledImagePresent) {
-    int  deltaX_oversampled = x2_oversample - x1_oversample + 1;
-    int  deltaY_oversampled = y2_oversample - y1_oversample + 1;
-    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  										usingLevMar, usingCashTerms, options->saveResidualImage, 
-  										options->saveModel, nColumns_psf_oversampled, nRows_psf_oversampled,
-  										deltaX_oversampled, deltaY_oversampled, 
-  										options->psfOversamplingScale);
-  }
-  else
-    estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
-  										usingLevMar, usingCashTerms, options->saveResidualImage, 
+
+  estimatedMemory = EstimateMemoryUse(nColumns, nRows, nColumns_psf, nRows_psf, nFreeParams,
+										usingLevMar, usingCashTerms, options->saveResidualImage, 
   										options->saveModel);
+  if (options->psfOversampledImagePresent)
+    estimatedMemory += EstimatePsfOversamplingMemoryUse(psfOversamplingInfoVect);
+
   nGBytes = (1.0*estimatedMemory) / GIGABYTE;
   if (nGBytes >= 1.0)
     printf("Estimated memory use: %ld bytes (%.1f GB)\n", estimatedMemory, nGBytes);

@@ -68,6 +68,7 @@ public:
   double  *smallPSFImage;
   double  *oversampledPSFImage;
   int nSmallDataCols, nSmallDataRows;
+  int nBigDataCols, nBigDataRows;
   int nSmallPSFCols, nSmallPSFRows;
   int nOsampPSFCols, nOsampPSFRows;
 
@@ -80,6 +81,7 @@ public:
     string  filename3 = SIMPLE_CONFIG_FILE;
     
     nSmallDataCols = nSmallDataRows = 2;
+    nBigDataCols = nBigDataRows = 10;  // useful for oversampling cases
     nSmallPSFCols = nSmallPSFRows = 2;
     nOsampPSFCols = nOsampPSFRows = 4;
     
@@ -107,9 +109,6 @@ public:
     smallPSFImage[1] = 1.0;
     smallPSFImage[2] = 0.0;
     smallPSFImage[3] = 0.0;
-    
-    // just use a zero-filled image to keep things simple
-    oversampledPSFImage = (double *)calloc(nOsampPSFCols*nOsampPSFRows, sizeof(double));
   }
 
   void tearDown()
@@ -119,7 +118,6 @@ public:
     free(smallWeightImage);
     free(smallMaskImage);
     free(smallPSFImage);
-    free(oversampledPSFImage);
   }
   
   
@@ -184,15 +182,23 @@ public:
     PsfOversamplingInfo *psfOsampleInfo;
     vector<PsfOversamplingInfo *> psfOsampleInfoVect;
 
-    long nDataVals_true = 4;
+    oversampledPSFImage = (double *)calloc(nOsampPSFCols*nOsampPSFRows, sizeof(double));
+    oversampledPSFImage[0] = 0.0;
+    oversampledPSFImage[1] = 1.0;
+    oversampledPSFImage[2] = 0.0;
+    oversampledPSFImage[3] = 0.0;
+
+    long nDataVals_true = 100;
     long nDataVals;
   
     optionsPtr = new MakeimageOptions();
     optionsPtr->psfImagePresent = true;
     optionsPtr->psfOversampling = true;
 
-    nColumnsRowsVect.push_back(nSmallDataCols);
-    nColumnsRowsVect.push_back(nSmallDataRows);
+    // use "big" data-image dimensions to make sure PSF oversampling
+    // regions can be accommodated
+    nColumnsRowsVect.push_back(nBigDataCols);
+    nColumnsRowsVect.push_back(nBigDataRows);
     nColumnsRowsVect.push_back(nSmallPSFCols);
     nColumnsRowsVect.push_back(nSmallPSFRows);
     
@@ -213,7 +219,59 @@ public:
     delete theModel;
     delete psfOsampleInfo;
   }
- 
+
+  void testSetupMakeimage_withMultiOversampledPSF( void )
+  {
+    ModelObject *theModel = NULL;
+    OptionsBase *optionsPtr;
+    vector<int> nColumnsRowsVect;
+    PsfOversamplingInfo *psfOsampleInfo1;
+    PsfOversamplingInfo *psfOsampleInfo2;
+    vector<PsfOversamplingInfo *> psfOsampleInfoVect;
+
+    oversampledPSFImage = (double *)calloc(nOsampPSFCols*nOsampPSFRows, sizeof(double));
+    oversampledPSFImage[0] = 0.0;
+    oversampledPSFImage[1] = 1.0;
+    oversampledPSFImage[2] = 0.0;
+    oversampledPSFImage[3] = 0.0;
+
+    long nDataVals_true = 100;
+    long nDataVals;
+  
+    optionsPtr = new MakeimageOptions();
+    optionsPtr->psfImagePresent = true;
+    optionsPtr->psfOversampling = true;
+
+    // use "big" data-image dimensions to make sure PSF oversampling
+    // regions can be accommodated
+    nColumnsRowsVect.push_back(nBigDataCols);
+    nColumnsRowsVect.push_back(nBigDataRows);
+    nColumnsRowsVect.push_back(nSmallPSFCols);
+    nColumnsRowsVect.push_back(nSmallPSFRows);
+    
+    string regionStr = "1:2,1:2";
+    psfOsampleInfo1 = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, regionStr, 0,0, true);
+    psfOsampleInfoVect.push_back(psfOsampleInfo1);
+    regionStr = "3:4,3:4";
+    psfOsampleInfo2 = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, regionStr, 0,0, false);
+    psfOsampleInfoVect.push_back(psfOsampleInfo2);
+
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, NULL, smallPSFImage,
+    							NULL, NULL, psfOsampleInfoVect);
+  
+    nDataVals = theModel->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+    bool psfPresent = theModel->HasPSF();
+    bool oversampledPSFPresent = theModel->HasOversampledPSF();
+    TS_ASSERT_EQUALS(psfPresent, true);
+    TS_ASSERT_EQUALS(oversampledPSFPresent, true);
+
+    delete optionsPtr;
+    delete theModel;
+    delete psfOsampleInfo1;
+    delete psfOsampleInfo2;
+  }
+
  
   void testSetupImfit_simple( void )
   {
@@ -277,6 +335,12 @@ public:
     PsfOversamplingInfo *psfOsampleInfo;
     vector<PsfOversamplingInfo *> psfOsampleInfoVect;
 
+    oversampledPSFImage = (double *)calloc(nOsampPSFCols*nOsampPSFRows, sizeof(double));
+    oversampledPSFImage[0] = 0.0;
+    oversampledPSFImage[1] = 1.0;
+    oversampledPSFImage[2] = 0.0;
+    oversampledPSFImage[3] = 0.0;
+
     optionsPtr = new ImfitOptions();
     optionsPtr->psfImagePresent = true;
     optionsPtr->psfOversampling = true;
@@ -304,6 +368,7 @@ public:
 
     delete optionsPtr;
     delete theModel;
+    delete psfOsampleInfo;
   }
 
   void testSetupImfit_withMultipleOversampledPSF( void )
@@ -311,38 +376,40 @@ public:
     ModelObject *theModel = NULL;
     OptionsBase *optionsPtr;
     vector<int> nColumnsRowsVect;
-    PsfOversamplingInfo *psfOsampleInfo;
+    PsfOversamplingInfo *psfOsampleInfo1;
+    PsfOversamplingInfo *psfOsampleInfo2;
     vector<PsfOversamplingInfo *> psfOsampleInfoVect;
+
+    double *bigDataImage = (double *)calloc(nBigDataCols*nBigDataRows, sizeof(double));
+    
+    oversampledPSFImage = (double *)calloc(nOsampPSFCols*nOsampPSFRows, sizeof(double));
+    oversampledPSFImage[0] = 0.0;
+    oversampledPSFImage[1] = 1.0;
+    oversampledPSFImage[2] = 0.0;
+    oversampledPSFImage[3] = 0.0;
 
     optionsPtr = new ImfitOptions();
     optionsPtr->psfImagePresent = true;
     optionsPtr->psfOversampling = true;
 
-    nColumnsRowsVect.push_back(nSmallDataCols);
-    nColumnsRowsVect.push_back(nSmallDataRows);
+    // use "big" data-image dimensions to make sure PSF oversampling
+    // regions can be accommodated
+    nColumnsRowsVect.push_back(nBigDataCols);
+    nColumnsRowsVect.push_back(nBigDataRows);
     nColumnsRowsVect.push_back(nSmallPSFCols);
     nColumnsRowsVect.push_back(nSmallPSFRows);
 
-    psfOsampleInfo = new PsfOversamplingInfo(psfPixels0, 2, 2, 2, "1:2,1:2");
-    psfOsampleInfoVect.push_back(psfOsampleInfo);
-    psfOsampleInfoVect.push_back(psfOsampleInfo);
-//     printf("start...\n");
-//     for (int i = 0; i < 2; i++) {
-//       PsfOversamplingInfo *ptr;
-//       double *pixels;
-//       ptr = psfOsampleInfoVect[i];
-//       pixels = ptr->GetPsfPixels();
-//       printf("i = %d: pixel values = ", i);
-//       for (int j = 0; j < nPixelsPsf0; j++)
-//         printf("%.3f  ", pixels[j]);
-//       printf("\n");
-//     }
-//     printf("done.\n");
+    string regionStr = "1:2,1:2";
+    psfOsampleInfo1 = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, regionStr, 0,0, true);
+    psfOsampleInfoVect.push_back(psfOsampleInfo1);
+    regionStr = "3:4,3:4";
+    psfOsampleInfo2 = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, regionStr, 0,0, false);
+    psfOsampleInfoVect.push_back(psfOsampleInfo2);
 
-    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, bigDataImage, smallPSFImage,
     					NULL, NULL, psfOsampleInfoVect);
   
-    long nDataVals_true = 4;
+    long nDataVals_true = 100;
     long nDataVals = theModel->GetNDataValues();
     TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
     bool psfPresent = theModel->HasPSF();
@@ -354,6 +421,9 @@ public:
 
     delete optionsPtr;
     delete theModel;
+    delete psfOsampleInfo1;
+    delete psfOsampleInfo2;
+    free(bigDataImage);
   }
 
   void testSetupImfit_withMask( void )
@@ -469,49 +539,58 @@ public:
     delete theModel;
   }
 
-//   void testSetupMCMC_withOversampledPSF( void )
-//   {
-//     ModelObject *theModel = NULL;
-//     OptionsBase *optionsPtr;
-//     vector<int> nColumnsRowsVect;
-//     PsfOversamplingInfo *psfOsampleInfo;
-//     vector<PsfOversamplingInfo *> psfOsampleInfoVect;
-// 
-//     optionsPtr = new MCMCOptions();
-//     optionsPtr->psfImagePresent = true;
-//     optionsPtr->psfOversampling = true;
-// 
-//     nColumnsRowsVect.push_back(nSmallDataCols);
-//     nColumnsRowsVect.push_back(nSmallDataRows);
-//     nColumnsRowsVect.push_back(nSmallPSFCols);
-//     nColumnsRowsVect.push_back(nSmallPSFRows);
-//     
-//     for (int i = 0; i < 2; i++) {
-//       psfOsampleInfo = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, "1:2,1:2");
-//       psfOsampleInfoVect.push_back(psfOsampleInfo);
-//     }
-//   
-//     theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
-// 		    					NULL, NULL, psfOsampleInfoVect);
-//   
-//     long nDataVals_true = 4;
-//     long nDataVals = theModel->GetNDataValues();
-//     TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
-//     bool psfPresent = theModel->HasPSF();
-//     bool oversampledPSFPresent = theModel->HasOversampledPSF();
-//     bool maskPresent = theModel->HasMask();
-//     TS_ASSERT_EQUALS(psfPresent, true);
-//     TS_ASSERT_EQUALS(oversampledPSFPresent, true);
-//     TS_ASSERT_EQUALS(maskPresent, false);
-// 
-//     delete optionsPtr;
-//     delete theModel;
-//     for (int i = 0; i < 2; i++) {
-//       psfOsampleInfo = psfOsampleInfoVect[i];
-//       delete psfOsampleInfo;
-//     }
-//     delete psfOsampleInfo;
-//   }
+  void testSetupMCMC_withOversampledPSF( void )
+  {
+    ModelObject *theModel = NULL;
+    OptionsBase *optionsPtr;
+    vector<int> nColumnsRowsVect;
+    PsfOversamplingInfo *psfOsampleInfo1;
+    PsfOversamplingInfo *psfOsampleInfo2;
+    vector<PsfOversamplingInfo *> psfOsampleInfoVect;
+
+    double *bigDataImage = (double *)calloc(nBigDataCols*nBigDataRows, sizeof(double));
+    
+    oversampledPSFImage = (double *)calloc(nOsampPSFCols*nOsampPSFRows, sizeof(double));
+    oversampledPSFImage[0] = 0.0;
+    oversampledPSFImage[1] = 1.0;
+    oversampledPSFImage[2] = 0.0;
+    oversampledPSFImage[3] = 0.0;
+
+    optionsPtr = new MCMCOptions();
+    optionsPtr->psfImagePresent = true;
+    optionsPtr->psfOversampling = true;
+
+    nColumnsRowsVect.push_back(nBigDataCols);
+    nColumnsRowsVect.push_back(nBigDataRows);
+    nColumnsRowsVect.push_back(nSmallPSFCols);
+    nColumnsRowsVect.push_back(nSmallPSFRows);
+    
+    string regionStr = "1:2,1:2";
+    psfOsampleInfo1 = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, regionStr, 0,0, true);
+    psfOsampleInfoVect.push_back(psfOsampleInfo1);
+    regionStr = "3:4,3:4";
+    psfOsampleInfo2 = new PsfOversamplingInfo(oversampledPSFImage, 2, 2, 2, regionStr, 0,0, false);
+    psfOsampleInfoVect.push_back(psfOsampleInfo2);
+  
+    theModel = SetupModelObject(optionsPtr, nColumnsRowsVect, smallDataImage, smallPSFImage,
+		    					NULL, NULL, psfOsampleInfoVect);
+  
+    long nDataVals_true = 100;
+    long nDataVals = theModel->GetNDataValues();
+    TS_ASSERT_EQUALS(nDataVals, nDataVals_true);
+    bool psfPresent = theModel->HasPSF();
+    bool oversampledPSFPresent = theModel->HasOversampledPSF();
+    bool maskPresent = theModel->HasMask();
+    TS_ASSERT_EQUALS(psfPresent, true);
+    TS_ASSERT_EQUALS(oversampledPSFPresent, true);
+    TS_ASSERT_EQUALS(maskPresent, false);
+
+    delete optionsPtr;
+    delete theModel;
+    delete psfOsampleInfo1;
+    delete psfOsampleInfo2;
+    free(bigDataImage);
+  }
 
   void testSetupMCMC_withMask( void )
   {

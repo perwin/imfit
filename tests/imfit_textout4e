@@ -13,7 +13,6 @@ Reading PSF image ("tests/psf_standard.fits") ...
 naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
 Reading oversampled PSF image ("tests/psf_oversamp.fits") ...
 naxis1 [# pixels/row] = 105, naxis2 [# pixels/col] = 105; nPixels_tot = 11025
-	Region to be oversampled within image: [100:110,100:110]
 Function: Gaussian
 6 total parameters
 Model Object: 40000 data values (pixels)
@@ -56,6 +55,6 @@ sigma		1.20062
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 2.877634 sec for fit, 2.933213 sec total)
+(Elapsed time: 2.977891 sec for fit, 3.035512 sec total)
 Done!
 

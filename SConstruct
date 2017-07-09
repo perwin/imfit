@@ -389,6 +389,10 @@ else:
 
 # Special case where we try to link libstdc++, libgomp, and libgcc_s statically
 # (probably *won't* work with clang/clang++, only with GCC)
+# Note that "-static-libstdc++" doesn't seem to accomplish anything; only
+# "-static-libgcc" does (and that statically links in libstdc++ and libgomp
+# in addition to libgcc_s). But we'll leave it in because it seems to be
+# the standard.
 if totalStaticLinking:
 	link_flags.append("-static-libgcc")
 	link_flags.append("-static-libstdc++")

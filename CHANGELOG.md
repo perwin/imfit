@@ -29,6 +29,9 @@ relevant for people hacking around with the code. It also means that future
 versions of Imfit will require compilers that support C++-11 (e.g., GCC
 versions 4.8 or newer).
 
+- Memory-use estimation now includes the effects of multiple PSF oversampling
+regions.
+
 ### Fixed:
 
 - In describing the PSF oversampling options, the documentation

@@ -14,7 +14,8 @@ class PsfOversamplingInfo
   public:
     PsfOversamplingInfo();
     PsfOversamplingInfo( double *inputPixels, int nCols, int nRows, int scale,
-    					string inputRegionString, int xOffset=0, int yOffset=0 );
+    					string inputRegionString, int xOffset=0, int yOffset=0,
+    					bool isUnique=true );
     ~PsfOversamplingInfo();
   
     void AddPsfPixels( double *inputPixels, int nCols, int nRows, bool isUnique );

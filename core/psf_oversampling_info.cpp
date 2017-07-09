@@ -50,7 +50,7 @@ PsfOversamplingInfo::PsfOversamplingInfo( )
 
 PsfOversamplingInfo::PsfOversamplingInfo( double *inputPixels, int nCols, int nRows, 
 										int scale, string inputRegionString,
-										int xOffset, int yOffset )
+										int xOffset, int yOffset, bool isUnique )
 {
   psfPixels = inputPixels;
   nColumns_psf = nCols;
@@ -59,6 +59,7 @@ PsfOversamplingInfo::PsfOversamplingInfo( double *inputPixels, int nCols, int nR
   regionString = inputRegionString;
   X0_offset = xOffset;
   Y0_offset = yOffset;
+  pixelsArrayIsUnique = isUnique;
 }
 
 

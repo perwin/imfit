@@ -785,6 +785,8 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   //oversamplingScale = oversampleScale;
   deltaX = x2 - x1 + 1;
   deltaY = y2 - y1 + 1;
+  assert( deltaX > 0 );
+  assert( deltaY > 0 );
   nCols_osamp = oversampleScale * deltaX;
   nRows_osamp = oversampleScale * deltaY;
   
@@ -810,7 +812,6 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   }
   oversampledRegionsVect.push_back(oversampledRegion);
   nOversampledRegions++;
-  printf("   ModelObject::AddOversampledPsfInfo: oversampling %d:%d,%d,%d\n", x1,x2,y1,y2);
   
   return 0;
 }

@@ -390,14 +390,18 @@ with the following commands:
 \subsubsection{Peculiarities of Compiling on Mac OS X}
 
 The standard compiler tools for Mac OS~X are those which come with
-Apple's Xcode. Prior to version 5, Xcode included
-\textsc{gcc} 4.2 (or an LLVM-based equivalent called ``llvm-gcc'').
-Unfortunately, the command-line compilers which come with Xcode 5 and later are
-based on Clang instead of \textsc{gcc} and so do \textit{not} support
-OpenMP. 
+Apple's Xcode. Prior to version 5, Xcode included \textsc{gcc} 4.2 (or
+an LLVM-based equivalent called ``llvm-gcc''). Unfortunately, the
+command-line compilers which come with Xcode 5 and later are based on
+Clang instead of \textsc{gcc} and so do \textit{not} support OpenMP.
+(Confusingly, the Clang-based tools include ``\texttt{gcc}'' and
+``\texttt{g++}'' links which are wrappers around \texttt{clang} and
+\texttt{clang++}. To be sure, try \texttt{gcc -v}; if you see something
+like ``Apple LLVM version'', then you know it's really the Clang
+compiler.)
 
-In order to compile \imfit{} with OpenMP, you will need either a
-previous version of Xcode (e.g., from a prior installation) or a
+In order to compile \imfit{} with OpenMP, you will need either an
+old version of Xcode (e.g., from a prior installation) or, more plausibly, a
 separate installation of \textsc{gcc} 4.2 or later, such as those
 available via package managers such as Fink, MacPorts, or Homebrew.
 
@@ -1166,7 +1170,8 @@ use that instead, via the \texttt{--noise} command-line option. By default, the
 pixel values in this image are assumed to be errors $\sigma_{i}$ in units of
 ADU/pixel. If the values are \textit{variances} ($\sigma_{i}^2$), you can specify
 this with the \texttt{--errors-are-variances} flag. You can also tell \imfitprog{}
-that the pixel values in the noise map are actual \textit{weights} $w_{i}$ via the
+that the pixel values in the noise map are actual \textit{weights} $w_{i}$ (e.g.,
+if the values are inverse variances) via the
 \texttt{--errors-are-weights} flag, if that happens to be the case. (If a mask
 image is supplied, the weights of masked pixels will still be set to 0,
 regardless of their individual values in the weight image.)

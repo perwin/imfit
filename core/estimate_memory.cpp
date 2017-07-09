@@ -30,6 +30,11 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <vector>
+
+using namespace std;
+
+#include "psf_oversampling_info.h"
 
 
 const int  FFTW_SIZE = 16;
@@ -37,14 +42,14 @@ const int  DOUBLE_SIZE = 8;
 
 
 /* ------------------- Function Prototypes ----------------------------- */
-long EstimateConvolverMemory( const int nModel_cols, const int nModel_rows, 
+long EstimateConvolverMemoryUse( const int nModel_cols, const int nModel_rows, 
 								const int nPSF_cols, const int nPSF_rows );
 
 
 
 /// Returns an estimate of the number of bytes needed by a Convolver object due
 /// to arrays allocated within the object.
-long EstimateConvolverMemory( const int nModel_cols, const int nModel_rows, 
+long EstimateConvolverMemoryUse( const int nModel_cols, const int nModel_rows, 
 								const int nPSF_cols, const int nPSF_rows )
 {
   long  nPaddedPixels = 0;
@@ -69,11 +74,41 @@ long EstimateConvolverMemory( const int nModel_cols, const int nModel_rows,
 
 
 /// Returns an estimate of the total number of bytes needed due to array allocations
+/// for oversampled-PSF convolution within ModelObject (and associated Convolver objects). 
+long EstimatePsfOversamplingMemoryUse( vector<PsfOversamplingInfo *> oversamplingInfoVect )
+{
+
+  long  nBytesNeeded = 0;
+  int  x1, x2, y1, y2;
+  
+  for (int i = 0; i < (int)oversamplingInfoVect.size(); i++) {
+    PsfOversamplingInfo * psfOsampInfo = oversamplingInfoVect[i];
+    int  oversampleScale = psfOsampInfo->GetOversamplingScale();
+    int  nPSF_osamp_cols = psfOsampInfo->GetNColumns();
+    int  nPSF_osamp_rows = psfOsampInfo->GetNRows();
+    psfOsampInfo->GetCorrectedRegionCoords(x1, x2, y1, y2);
+    int  deltaX = x2 - x1 + 1;
+    int  deltaY = y2 - y1 + 1;
+
+    int  nOversampModel_cols = deltaX*oversampleScale + 2*nPSF_osamp_cols;
+    int  nOversampModel_rows = deltaY*oversampleScale + 2*nPSF_osamp_rows;
+    long  nOversampModelPixels = (long)nOversampModel_cols * (long)nOversampModel_rows;
+    // memory for oversampled model image
+    nBytesNeeded += nOversampModelPixels * DOUBLE_SIZE;
+    // memory used by Convolver object for oversampled convolution
+    nBytesNeeded += EstimateConvolverMemoryUse(nOversampModel_cols, nOversampModel_rows, 
+   												nPSF_osamp_cols, nPSF_osamp_rows);
+  }
+  
+  return nBytesNeeded;
+}
+
+
+/// Returns an estimate of the total number of bytes needed due to array allocations
 /// within ModelObject (and associated Convolver objects), mpfit, and main.
 long EstimateMemoryUse( int nData_cols, int nData_rows, int nPSF_cols, int nPSF_rows,
 						int nFreeParams, bool levMarFit, bool cashTerms, bool outputResidual,
-						bool outputModel, int nPSF_osamp_cols, int nPSF_osamp_rows,
-						int deltaX_osamp, int deltaY_osamp, int oversampleScale )
+						bool outputModel )
 {
   long  nBytesNeeded = 0.0;
   long  nPaddedPixels = 0;
@@ -96,18 +131,7 @@ long EstimateMemoryUse( int nData_cols, int nData_rows, int nPSF_cols, int nPSF_
     nModel_rows = nData_rows + 2*nPSF_rows;
     nModelPixels = (long)nModel_cols * (long)nModel_rows;
     // memory used by Convolver object
-    nBytesNeeded += EstimateConvolverMemory(nModel_cols, nModel_rows, nPSF_cols, nPSF_rows);
-    // possible extra memory used by convolution with oversampled PSF
-    if (nPSF_osamp_cols > 0) {
-      nOversampModel_cols = deltaX_osamp*oversampleScale + 2*nPSF_osamp_cols;
-      nOversampModel_rows = deltaY_osamp*oversampleScale + 2*nPSF_osamp_rows;
-      nOversampModelPixels = (long)nOversampModel_cols * (long)nOversampModel_rows;
-      // memory for oversampled model image
-      nBytesNeeded += nOversampModelPixels * DOUBLE_SIZE;
-      // memory used by Convolver object for oversampled convolution
-      nBytesNeeded += EstimateConvolverMemory(nOversampModel_cols, nOversampModel_rows, 
-      											nPSF_osamp_cols, nPSF_osamp_rows);
-    }
+    nBytesNeeded += EstimateConvolverMemoryUse(nModel_cols, nModel_rows, nPSF_cols, nPSF_rows);
   }
   else
     nModelPixels = nDataPixels;

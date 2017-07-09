@@ -7,7 +7,7 @@
 echo
 echo "Generating and compiling unit tests for model_object..."
 $CXXTESTGEN --error-printer -o test_runner_setup_modelobj.cpp unit_tests/unittest_setup_model_object.t.h
-$CPP -DDEBUG -o test_runner_setup_modelobj test_runner_setup_modelobj.cpp core/model_object.cpp \
+$CPP -DDEBUG -fsanitize=address -o test_runner_setup_modelobj test_runner_setup_modelobj.cpp core/model_object.cpp \
 core/setup_model_object.cpp core/utilities.cpp core/convolver.cpp core/config_file_parser.cpp \
 core/mersenne_twister.cpp core/mp_enorm.cpp core/oversampled_region.cpp core/downsample.cpp \
 core/image_io.cpp core/psf_oversampling_info.cpp \
@@ -16,7 +16,7 @@ core/image_io.cpp core/psf_oversampling_info.cpp \
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for setup_model_object:"
-  ./test_runner_setup_modelobj
+  ./test_runner_setup_modelobj NewTestSuite
   exit
 else
   echo "** Compilation of unit tests for setup_model_object failed."
