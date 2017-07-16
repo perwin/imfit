@@ -5,7 +5,7 @@
 
 # Unit tests for setup_model_object
 echo
-echo "Generating and compiling unit tests for model_object..."
+echo "Generating and compiling unit tests for setup_model_object..."
 $CXXTESTGEN --error-printer -o test_runner_setup_modelobj.cpp unit_tests/unittest_setup_model_object.t.h
 $CPP -DDEBUG -fsanitize=address -o test_runner_setup_modelobj test_runner_setup_modelobj.cpp core/model_object.cpp \
 core/setup_model_object.cpp core/utilities.cpp core/convolver.cpp core/config_file_parser.cpp \

@@ -109,7 +109,7 @@
 	
 	[ ] Add regression test to do_imfit_tests.sh to do simple test of multiple regions
 	
-	[ ] Modify EstimateMemory (and code calling it in _main.cpp) to account for
+	[x] Modify EstimateMemory (and code calling it in _main.cpp) to account for
 	multiple oversampled regions
 	
 	[ ] LATER: Comment out or remove GetAllCoordsFromBracket2 from utilities, since we no longer

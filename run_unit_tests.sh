@@ -79,7 +79,7 @@ echo $RESULT
 RESULT+=$?
 echo $RESULT
 
-# Unit tests for utilities
+# Unit tests for model_object
 ./run_unittest_model_object.sh
 RESULT+=$?
 echo $RESULT

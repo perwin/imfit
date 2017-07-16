@@ -14,7 +14,6 @@ using namespace std;
 
 
 double psfPixels0[9] = {0.1, 0.1, 0.1, 0.1, 0.5, 0.1, 0.1, 0.1, 0.1};
-double psfPixels1[9] = {0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1};
 const int nColsPsf = 3;
 const int nRowsPsf = 3;
 const int nPixelsPsf = 9;
@@ -36,8 +35,14 @@ public:
     int x0_offset, y0_offset;
     string outputString;
     int scale0 = 3;
-
-    osampleInfo_ptr = new PsfOversamplingInfo(psfPixels0, nColsPsf, nRowsPsf, scale0,
+    
+    // allocate using malloc bcs PsfOversamplingInfo destructor will want to call free
+    double * psfPixels;
+    psfPixels = (double *)malloc(9*sizeof(double));
+    for (int i = 0; i < 9; i++)
+      psfPixels[i] = psfPixels0[i];
+    
+    osampleInfo_ptr = new PsfOversamplingInfo(psfPixels, nColsPsf, nRowsPsf, scale0,
     											regionString0);
 
     n = osampleInfo_ptr->GetNColumns();
@@ -72,7 +77,13 @@ public:
     string outputString;
     int scale0 = 5;
 
-    osampleInfo_ptr = new PsfOversamplingInfo(psfPixels0, nColsPsf, nRowsPsf, scale0,
+    // allocate using malloc bcs PsfOversamplingInfo destructor will want to call free
+    double * psfPixels;
+    psfPixels = (double *)malloc(9*sizeof(double));
+    for (int i = 0; i < 9; i++)
+      psfPixels[i] = psfPixels0[i];
+
+    osampleInfo_ptr = new PsfOversamplingInfo(psfPixels, nColsPsf, nRowsPsf, scale0,
     											regionString0, x0_offset_in, y0_offset_in);
 
     n = osampleInfo_ptr->GetNColumns();
@@ -142,7 +153,13 @@ public:
     double *pixVect;
     int  n;    
     
-    osampleInfo_ptr->AddPsfPixels(psfPixels0, nColsPsf, nRowsPsf);
+    // allocate using malloc bcs PsfOversamplingInfo destructor will want to call free
+    double * psfPixels;
+    psfPixels = (double *)malloc(9*sizeof(double));
+    for (int i = 0; i < 9; i++)
+      psfPixels[i] = psfPixels0[i];
+
+    osampleInfo_ptr->AddPsfPixels(psfPixels, nColsPsf, nRowsPsf, true);
     n = osampleInfo_ptr->GetNColumns();
     TS_ASSERT_EQUALS(nColsPsf, n);
     n = osampleInfo_ptr->GetNRows();
@@ -189,7 +206,13 @@ public:
     y1_true = 201;
     y2_true = 210;
 
-    osampleInfo_ptr = new PsfOversamplingInfo(psfPixels0, nColsPsf, nRowsPsf, scale0,
+    // allocate using malloc bcs PsfOversamplingInfo destructor will want to call free
+    double * psfPixels;
+    psfPixels = (double *)malloc(9*sizeof(double));
+    for (int i = 0; i < 9; i++)
+      psfPixels[i] = psfPixels0[i];
+
+    osampleInfo_ptr = new PsfOversamplingInfo(psfPixels, nColsPsf, nRowsPsf, scale0,
     											regionString, x0_offset_in, y0_offset_in);
 
     osampleInfo_ptr->GetCorrectedRegionCoords(x1, x2, y1, y2);
@@ -215,7 +238,13 @@ public:
     y1_true = 1;
     y2_true = 20;
 
-    osampleInfo_ptr = new PsfOversamplingInfo(psfPixels0, nColsPsf, nRowsPsf, scale0,
+    // allocate using malloc bcs PsfOversamplingInfo destructor will want to call free
+    double * psfPixels;
+    psfPixels = (double *)malloc(9*sizeof(double));
+    for (int i = 0; i < 9; i++)
+      psfPixels[i] = psfPixels0[i];
+
+    osampleInfo_ptr = new PsfOversamplingInfo(psfPixels, nColsPsf, nRowsPsf, scale0,
     											regionString, x0_offset_in, y0_offset_in);
 
     osampleInfo_ptr->GetCorrectedRegionCoords(x1, x2, y1, y2);

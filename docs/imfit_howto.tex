@@ -2932,6 +2932,40 @@ h_z
 
 
 
+
+
+
+\subsubsection{FerrersBar3D}
+
+Similar to ExponentialDisk3D, this function does line-of-sight integration
+through a Ferrers ellipsoid.  XXX
+
+As with the GaussianRing3D component, the bar can be imagined as lying in an
+(invisible) plane with a line of nodes at angle \texttt{PA} and inclination
+\texttt{inc} (as for the ExponentialDisk3D function, above); within this plane,
+the bar's major axis is at position angle \texttt{barPA} \textit{relative to
+the perpendicular to the line of nodes}
+
+Note that this is related to but different from the ``Ferrers'' component
+in GALFIT, which is a 2D function with intensity as a function of $(x,y)$
+position given by the same function XXX
+
+\begin{verbatim}
+FUNCTION FerrersBar3D
+PA
+inc
+barPA
+J_0
+R_bar
+q
+q_z
+n
+\end{verbatim}
+
+
+
+
+
 \chapter{Acknowledgments}
 
 Major inspirations for \Imfit{} include both \textsc{galfit} \citep{peng02,peng10} and 
