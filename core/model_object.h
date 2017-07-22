@@ -93,12 +93,12 @@ class ModelObject
 
 	// 2D only
     int AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf,
-                         double *psfPixels );
+                         double *psfPixels, bool normalizePSF=true );
 
  	// 2D only [to be deprecated]
     int AddOversampledPSFVector( long nPixels, int nColumns_psf, int nRows_psf, 
     					double *psfPixels_osamp, int oversampleScale, int x1, int x2, 
-    					int y1, int y2 );
+    					int y1, int y2, bool normalizePSF=true );
 
  	// 2D only [this will eventually replace AddOversampledPSFVector]
     int AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo );

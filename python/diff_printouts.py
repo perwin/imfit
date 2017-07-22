@@ -54,7 +54,7 @@ def main( argv=None ):
 	if len(difflines) == 0:
 		print(" OK.")
 	else:
-		print("\n")
+		print("   \033[1;31m Failed:\033[0m Diff output:")
 		for line in difflines:
 			print(line, end="")
 

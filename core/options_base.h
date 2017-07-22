@@ -32,8 +32,13 @@ class OptionsBase
     {
       noConfigFile = true;
       
+      noImage = true;
+      imageFileName = "";
+  
       psfImagePresent = false;
       psfFileName = "";
+      normalizePSF = true;
+      
       psfOversampling = false;
       psfOversampledImagePresent = false;
       psfOversampledFileName = "";
@@ -77,27 +82,31 @@ class OptionsBase
 
     // Data members:
     bool  noConfigFile;
-    string  configFileName;   // []
+    string  configFileName;
 
+    bool  noImage;
+    string  imageFileName;
+  
     bool  psfImagePresent;
-    string  psfFileName;     // []
+    string  psfFileName;
+    bool  normalizePSF;
   
     bool  psfOversampling;
     bool  psfOversampledImagePresent;
-    string  psfOversampledFileName;     // []
-    vector<string>  psfOversampledFileNames;     // []
+    string  psfOversampledFileName;
+    vector<string>  psfOversampledFileNames;
     int  psfOversamplingScale;
     vector<int>  psfOversamplingScales;
     bool  oversampleRegionSet;
     int  nOversampleRegions;
-    string  psfOversampleRegion;     // []
-    vector<string>  psfOversampleRegions;     // []
+    string  psfOversampleRegion;
+    vector<string>  psfOversampleRegions;
   
     bool  noiseImagePresent;
-    string  noiseFileName;   // []
+    string  noiseFileName;
     int  errorType;
   
-    string  maskFileName;   //  []
+    string  maskFileName;
     bool  maskImagePresent;
     int  maskFormat;
   

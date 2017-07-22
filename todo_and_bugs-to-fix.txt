@@ -1,7 +1,7 @@
 
 ** BUGS TO FIX:
 
-[ ] Bootstrap output:
+(1.5)[ ] Bootstrap output:
 	X0,Y0 values are *not* corrected to full-image coordinates if input image used
 	image subsections (e.g., for "imfit data.fits[200:400,100:300] ...", the saved
 	X0,Y0 values in the bootstrap output file will be subsection-relative, although
@@ -12,7 +12,37 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-[..] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
+(1.5)[ ] Add option to turn *off* normalization of input PSFs
+	-- Corentin Schreiber requested this for working with interferometric images,
+	which use "a peculiar point spread function, with a peak of unity and sum of zero."
+	[ ] Add commandline-option
+		[x] Update options_base.h to include psf-normalization option
+		[x] Update ProcessInput() in makeimage_main.cpp to include option
+		[x] Update ProcessInput() in imfit_main.cpp to include option
+		[ ] Update ProcessInput() in mcmc_main.cpp to include option
+		[ ] Update construction of PsfOversamplingInfo objects in makeimage_main.cpp
+			-- PsfOversamplingInfo::SetNormalizationFlag
+		[ ] Update construction of PsfOversamplingInfo objects in imfit_main.cpp
+		[ ] Update construction of PsfOversamplingInfo objects in mcmc_main.cpp
+	[x] Update ModelObject::AddPSFVector
+		-- input PSF normalization flag
+		-- pass parameter to Convolver::SetupPSF
+	[x] Update OversampledRegion
+	[x] Update ModelObject::AddOversampledPSFVector
+		-- input PSF normalization flag
+		-- pass parameter to OversampledRegion::AddPSFVector
+	[x] Update ModelObject::AddOversampledPSFInfo
+		-- input PSF normalization flag
+		-- pass parameter to OversampledRegion::AddPSFVector
+	[x] Update Convolver
+		[x] Internal normalize flag
+		[x] Update Convolver::SetupPSF to include normalize flag as input parameter
+		[x] Update Convolver::DoFullSetup to handle normalize flag
+	[x] Update PsfOversamplingInfo
+	[x] Update SetupModelObject
+		[x] Update calls to ModelObject::AddPSFVector
+	
+(1.5)[..] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
 	-- multiple sub-regions, all with same PSF
 	-- multiple sub-regions, each with its own PSF
 	-- probably simpler to require that each sub-region have its own PSF; user must
@@ -55,8 +85,7 @@
 		standard C/C++ arrays! (Weirdly, unique_ptr *does* have this ability.
 		Also, there is a C++-17 proposal to add this to shared_ptr, but that's not
 		helpful now...)
-	
-	
+
 	[x] Modify SetupModelObject to check for and handle multiple oversampling regions
 		[x] Basic check using 2 regions w/ 1 PSF and scale
 
@@ -115,6 +144,34 @@
 	[ ] LATER: Comment out or remove GetAllCoordsFromBracket2 from utilities, since we no longer
 	need it?
 
+
+(1.5)[ ] Unit tests for FerrersBar3D
+
+
+[ ] Separate functions for reading in images
+	[..] getimages_maskerror.h/cpp: reads in mask and/or error images
+		-- for imfit, imfit-mcmc main()
+		[x] Write code
+		[x] Modify imfit main() to use function
+		[ ] Modify imfit-mcmc main() to use function
+		
+	[ ] getimages_psf: combines reading in PSF and (optionally) oversampled PSF images
+		-- for makeimage, imfit, imfit-mcmc main()
+		[ ] Write code
+		[ ] Modify imfit main() to use function
+		[ ] Modify imfit-mcmc main() to use function
+
+
+[ ] Update regression tests to use color and/or output number of failed tests
+	[ ] Update regression test to accumulate & report number of failed tests
+		[..] Update do_makeimage_tests.sh
+		[ ] Update do_imfit_tests.sh
+		[ ] Update do_mcmc_tests.sh
+	[ ] Update regression test to use color when tests fail
+		[ ] Update do_makeimage_tests.sh
+		[ ] Update do_imfit_tests.sh
+		[ ] Update do_mcmc_tests.sh
+	
 
 [ ] Check input: Catch cases of oversampled regions that lie or extend outside data
 image (accounting for data image subset, if any)

@@ -19,9 +19,14 @@ convolved with its own, separate PSF image.
 
 - New image function: FerrersBar3D. XXX
 
+- Command-line flag `--no-normalize` will tell imfit, imfit-mcmc, and makeimage
+to *skip* normalization of any input PSF images (standard or oversampled). xxx
+
 ### Changed:
 
-- Binaries for MacOS X (or "macOS") are now compiled with GCC 6 instead of GCC 5.
+- Binaries for MacOS X (or "macOS") are now compiled with GCC 7 instead of GCC 5.
+(But if you're compiling the source code yourself, any version of GCC from 4.8
+onward will do.)
 
 - I have started (very slowly) updating some of the code to make use of
 C++-11 features. This should have no visible effects, but might start to be

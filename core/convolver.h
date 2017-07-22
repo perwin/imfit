@@ -37,7 +37,8 @@ class Convolver
     void SetMaxThreads( const int maximumThreadNumber );
     
     /// Supply PSF image to Convolver object
-    void SetupPSF( double *psfPixels_input, const int nColumns, const int nRows );
+    void SetupPSF( double *psfPixels_input, const int nColumns, const int nRows,
+    				bool normalize=true );
     
     void SetupImage( const int nColumns, const int nRows );
     
@@ -67,6 +68,7 @@ class Convolver
   fftw_complex  *multiplied_cmplx;
   fftw_plan  plan_inputImage, plan_psf, plan_inverse;
   bool  psfInfoSet, imageInfoSet, fftVectorsAllocated, fftPlansCreated;
+  bool  normalizePSF;
   int  debugStatus;
 };
 

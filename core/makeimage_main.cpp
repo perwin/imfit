@@ -467,6 +467,7 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
   optParser->AddUsageLine(" -o  --output <output-image.fits>        name for output image [default = modelimage.fits]");
   optParser->AddUsageLine("     --refimage <reference-image.fits>   reference image (for image size)");
   optParser->AddUsageLine("     --psf <psf.fits>                    PSF image to use (for convolution)");
+  optParser->AddUsageLine("     --no-normalize                      Do *not* normalize input PSF image");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     (Note that the following 3 options can be specified multiple times)");
   optParser->AddUsageLine("     --overpsf <psf.fits>                Oversampled PSF image to use");
@@ -475,7 +476,7 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --ncols <number-of-columns>         x-size of output image");
   optParser->AddUsageLine("     --nrows <number-of-rows>            y-size of output image");
-  optParser->AddUsageLine("     --nosubsampling                     Do *not* do pixel subsampling near centers");
+  optParser->AddUsageLine("     --no-subsampling                    Do *not* do pixel subsampling near centers");
 //  optParser->AddUsageLine("     --printimage             Print out images (for debugging)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --output-functions <root-name>      Output individual-function images");
@@ -505,7 +506,8 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
   optParser->AddFlag("sample-config");
   optParser->AddFlag("printimage");
   optParser->AddFlag("save-expanded");
-  optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("no-normalize");
+  optParser->AddFlag("no-subsampling");
   optParser->AddFlag("print-fluxes");
   optParser->AddFlag("nosave");
   optParser->AddOption("output", "o");
@@ -578,7 +580,10 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
   if (optParser->FlagSet("save-expanded")) {
     theOptions->saveExpandedImage = true;
   }
-  if (optParser->FlagSet("nosubsampling")) {
+  if (optParser->FlagSet("no-normalize")) {
+    theOptions->normalizePSF = false;
+  }
+  if (optParser->FlagSet("no-subsampling")) {
     theOptions->subsamplingFlag = false;
   }
   if (optParser->FlagSet("nosave")) {

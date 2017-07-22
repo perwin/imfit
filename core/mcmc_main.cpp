@@ -43,6 +43,7 @@
 #include "definitions.h"
 #include "utilities_pub.h"
 #include "image_io.h"
+#include "getimages.h"
 #include "model_object.h"
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
@@ -206,43 +207,50 @@ int main(int argc, char *argv[])
   // // Determine X0,Y0 pixel offset values if user specified an image section
   DetermineImageOffset(options->imageFileName, &X0_offset, &Y0_offset);
 
+
+  // Get (and check) mask and/or error images
+  std::tie(allMaskPixels, allErrorPixels, status) = GetMaskAndErrorImages(nColumns, nRows, 
+  													options, maskAllocated, errorPixels_allocated);
+  if (status < 0)
+    exit(-1);
+
   // Get and check mask image
-  if (options->maskImagePresent) {
-    printf("Reading mask image (\"%s\") ...\n", options->maskFileName.c_str());
-    allMaskPixels = ReadImageAsVector(options->maskFileName, &nMaskColumns, &nMaskRows);
-    if (allMaskPixels == NULL) {
-      fprintf(stderr,  "\n*** ERROR: Unable to read mask file \"%s\"!\n\n", 
-    			options->maskFileName.c_str());
-      exit(-1);
-    }
-    if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
-      fprintf(stderr, "\n*** ERROR: Dimensions of mask image (%s: %d columns, %d rows)\n",
-             options->maskFileName.c_str(), nMaskColumns, nMaskRows);
-      fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-             options->imageFileName.c_str(), nColumns, nRows);
-      exit(-1);
-    }
-    maskAllocated = true;
-  }
-           
-  // Get and check error image, if supplied
-  if (options->noiseImagePresent) {
-    printf("Reading noise image (\"%s\") ...\n", options->noiseFileName.c_str());
-    allErrorPixels = ReadImageAsVector(options->noiseFileName, &nErrColumns, &nErrRows);
-    if (allErrorPixels == NULL) {
-      fprintf(stderr,  "\n*** ERROR: Unable to read noise-image file \"%s\"!\n\n", 
-    			options->noiseFileName.c_str());
-      exit(-1);
-    }
-    errorPixels_allocated = true;
-    if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
-      fprintf(stderr, "\n*** ERROR: Dimensions of error image (%s: %d columns, %d rows)\n",
-             noiseImage.c_str(), nErrColumns, nErrRows);
-      fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-             options->imageFileName.c_str(), nColumns, nRows);
-      exit(-1);
-    }
-  }
+//   if (options->maskImagePresent) {
+//     printf("Reading mask image (\"%s\") ...\n", options->maskFileName.c_str());
+//     allMaskPixels = ReadImageAsVector(options->maskFileName, &nMaskColumns, &nMaskRows);
+//     if (allMaskPixels == NULL) {
+//       fprintf(stderr,  "\n*** ERROR: Unable to read mask file \"%s\"!\n\n", 
+//     			options->maskFileName.c_str());
+//       exit(-1);
+//     }
+//     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
+//       fprintf(stderr, "\n*** ERROR: Dimensions of mask image (%s: %d columns, %d rows)\n",
+//              options->maskFileName.c_str(), nMaskColumns, nMaskRows);
+//       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
+//              options->imageFileName.c_str(), nColumns, nRows);
+//       exit(-1);
+//     }
+//     maskAllocated = true;
+//   }
+//            
+//   // Get and check error image, if supplied
+//   if (options->noiseImagePresent) {
+//     printf("Reading noise image (\"%s\") ...\n", options->noiseFileName.c_str());
+//     allErrorPixels = ReadImageAsVector(options->noiseFileName, &nErrColumns, &nErrRows);
+//     if (allErrorPixels == NULL) {
+//       fprintf(stderr,  "\n*** ERROR: Unable to read noise-image file \"%s\"!\n\n", 
+//     			options->noiseFileName.c_str());
+//       exit(-1);
+//     }
+//     errorPixels_allocated = true;
+//     if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
+//       fprintf(stderr, "\n*** ERROR: Dimensions of error image (%s: %d columns, %d rows)\n",
+//              noiseImage.c_str(), nErrColumns, nErrRows);
+//       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
+//              options->imageFileName.c_str(), nColumns, nRows);
+//       exit(-1);
+//     }
+//   }
   
   // Read in PSF image, if supplied
   if (options->psfImagePresent) {
@@ -580,7 +588,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --seed <int>             RNG seed (for testing purposes)");
-  optParser->AddUsageLine("     --nosubsampling          Turn off pixel subsampling near centers of functions");
+  optParser->AddUsageLine("     --no-subsampling         Turn off pixel subsampling near centers of functions");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
   optParser->AddUsageLine("   imfit-mcmc -c model_config_n100a.dat ngc100.fits -o n100a_mcmc_chain");
@@ -597,7 +605,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
   optParser->AddFlag("errors-are-variances");
   optParser->AddFlag("errors-are-weights");
   optParser->AddFlag("mask-zero-is-bad");
-  optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("no-subsampling");
   optParser->AddFlag("model-errors");
   optParser->AddFlag("cashstat");
   optParser->AddFlag("poisson-mlr");
@@ -691,7 +699,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
   	printf("\t* Using Poisson maximum-likelihood-ratio statistic instead of chi^2 for minimization!\n");
   	theOptions->usePoissonMLR = true;
   }
-  if (optParser->FlagSet("nosubsampling")) {
+  if (optParser->FlagSet("no-subsampling")) {
     theOptions->subsamplingFlag = false;
   }
   if (optParser->FlagSet("silent")) {

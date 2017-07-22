@@ -14,8 +14,6 @@ using namespace std;
 // nColumnsRowsVector[1] = nRows
 // nColumnsRowsVector[2] = nColumns_psf  [optional]
 // nColumnsRowsVector[3] = nRows_psf  [optional]
-// nColumnsRowsVector[4] = nColumns_psf_oversampled  [optional]
-// nColumnsRowsVector[5] = nRows_psf_oversampled  [optional]
 
 ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVector, 
 					double *dataPixels, double *psfPixels, double *maskPixels, 
@@ -28,6 +26,9 @@ ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVec
   long  nPixels_data, nPixels_psf;
   
   newModelObj = new ModelObject();
+  if (options->debugLevel > 0)
+    printf("\nSetupModelObject: Setting ModelObject debug level to %d\n\n", options->debugLevel);
+  newModelObj->SetDebugLevel(options->debugLevel);
 
   if (options->maxThreadsSet)
     newModelObj->SetMaxThreads(options->maxThreads);
@@ -41,7 +42,8 @@ ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVec
     nColumns_psf = nColumnsRowsVector[2];
     nRows_psf = nColumnsRowsVector[3];
     nPixels_psf = nColumns_psf * nRows_psf;
-    status = newModelObj->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
+    status = newModelObj->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels,
+    									options->normalizePSF);
     if (status < 0) {
       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
   	  exit(-1);

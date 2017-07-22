@@ -59,6 +59,11 @@ echo $RESULT
 RESULT+=$?
 echo $RESULT
 
+# Unit tests for getimages
+./run_unittest_getimages.sh 2>> temperror.log
+RESULT+=$?
+echo $RESULT
+
 # Unit tests for image_io
 ./run_unittest_imageio.sh 2>> temperror.log
 RESULT+=$?

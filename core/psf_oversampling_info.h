@@ -4,7 +4,6 @@
 #define _PSF_OVERSAMPLING_INFO_H_
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -15,13 +14,14 @@ class PsfOversamplingInfo
     PsfOversamplingInfo();
     PsfOversamplingInfo( double *inputPixels, int nCols, int nRows, int scale,
     					string inputRegionString, int xOffset=0, int yOffset=0,
-    					bool isUnique=true );
+    					bool isUnique=true, bool normalize=true );
     ~PsfOversamplingInfo();
   
     void AddPsfPixels( double *inputPixels, int nCols, int nRows, bool isUnique );
     void AddRegionString( string inputRegionString );
     void AddOversamplingScale( int scale );
     void AddImageOffset( int X0, int Y0 );
+    void SetNormalizationFlag( bool normalize );
   
     int GetNColumns( );
     int GetNRows( );
@@ -31,6 +31,7 @@ class PsfOversamplingInfo
     int GetOversamplingScale( );
     void GetImageOffset( int &x0, int &y0 );
     void GetCorrectedRegionCoords( int &x1, int &x2, int &y1, int &y2 );
+    bool GetNormalizationFlag( );
 
   private:
     int  nColumns_psf, nRows_psf;
@@ -39,6 +40,7 @@ class PsfOversamplingInfo
     bool  pixelsArrayIsUnique;
     double *  psfPixels;
     int  oversamplingScale;
+    bool  normalizePSF;
 };
 
 

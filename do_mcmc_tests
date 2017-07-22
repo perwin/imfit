@@ -17,7 +17,7 @@ echo "Running tests for imfit-mcmc..."
 
 # simple tests using small images; seed=7 to ensure repeatable pseudo-random numbers
 echo -n "   (now running MCMC chain ...)"
-./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --nosubsampling --seed=7 -o temptest/mcmc_test &> temptest/test_dump_mcmc1
+./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test &> temptest/test_dump_mcmc1
 echo ""
 
 # Testing to see if we catch input-image problems: all pixels masked, mismatched image sizes,

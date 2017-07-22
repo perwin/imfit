@@ -24,7 +24,6 @@
 /* ------------------------ Include Files (Header Files )--------------- */
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -41,8 +40,13 @@ using namespace std;
 
 PsfOversamplingInfo::PsfOversamplingInfo( )
 {
+  psfPixels = NULL;
   nColumns_psf = nRows_psf = 0;
+  oversamplingScale = 1;
+  regionString = "";
   X0_offset = Y0_offset = 0;
+  pixelsArrayIsUnique = true;
+  normalizePSF = true;
 }
 
 
@@ -50,7 +54,8 @@ PsfOversamplingInfo::PsfOversamplingInfo( )
 
 PsfOversamplingInfo::PsfOversamplingInfo( double *inputPixels, int nCols, int nRows, 
 										int scale, string inputRegionString,
-										int xOffset, int yOffset, bool isUnique )
+										int xOffset, int yOffset, bool isUnique,
+										bool normalize )
 {
   psfPixels = inputPixels;
   nColumns_psf = nCols;
@@ -60,6 +65,7 @@ PsfOversamplingInfo::PsfOversamplingInfo( double *inputPixels, int nCols, int nR
   X0_offset = xOffset;
   Y0_offset = yOffset;
   pixelsArrayIsUnique = isUnique;
+  normalizePSF = normalize;
 }
 
 
@@ -105,6 +111,13 @@ void PsfOversamplingInfo::AddImageOffset( int X0, int Y0 )
 {
   X0_offset = X0;
   Y0_offset = Y0;
+}
+
+
+/* ---------------- SetNormalizationFlag ------------------------------- */
+void PsfOversamplingInfo::SetNormalizationFlag( bool normalize )
+{
+  normalizePSF = normalize;
 }
 
 
@@ -169,6 +182,13 @@ void PsfOversamplingInfo::GetCorrectedRegionCoords( int &x1, int &x2, int &y1, i
   x2 = x2_region - X0_offset;
   y1 = y1_region - Y0_offset;
   y2 = y2_region - Y0_offset;
+}
+
+
+/* ---------------- GetNormalizationFlag ------------------------------- */
+bool PsfOversamplingInfo::GetNormalizationFlag( )
+{
+  return normalizePSF;
 }
 
 

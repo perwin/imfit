@@ -24,9 +24,6 @@ class ImfitOptions : public OptionsBase
     {
       configFileName = DEFAULT_IMFIT_CONFIG_FILE;
   
-      noImage = true;
-      imageFileName = "";
-  
       saveModel = false;
       outputModelFileName = "";
       saveResidualImage = false;
@@ -57,10 +54,7 @@ class ImfitOptions : public OptionsBase
     };
 
     // Extra data members (in addition to those in options_base.h):  
-    bool  noImage;
-    string  imageFileName;
-  
-    string  psfOversampleRegion;
+//    string  psfOversampleRegion;
   
     bool  saveModel;
     string  outputModelFileName;

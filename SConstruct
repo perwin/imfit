@@ -26,7 +26,7 @@
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
 #    $ scons --cc=gcc-4.9 --cpp=g++-4.9 <target-name>
-# shorthand for using GCC 6
+# shorthand for using GCC 7
 #    $ scons --use-gcc <target-name>
 #
 #
@@ -48,7 +48,7 @@
 # etc.
 
 
-# Copyright 2010--2016 by Peter Erwin.
+# Copyright 2010--2017 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -130,38 +130,6 @@ lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 link_flags = []
 
 
-
-# newer version, should work on MacOS X 10.9 (and also earlier versions)
-# def CheckForXcode5( ):
-# 	# code to check whether installed version of XCode is 5.0 or later, in which case
-# 	# we should specify llvm-g++-4.2 explicitly instead of relying on SCons to use g++
-# 	# [which for XCode 5 is Apple's llvm-based version *without* OpenMP support]
-# 	
-# 	macOSVersion = int(platform.mac_ver()[0].split(".")[1])
-# 	
-# 	if macOSVersion <= 7:
-# 		# XCode 5 cannot run on Lion or earlier
-# 		return False
-# 	if macOSVersion >= 9:  # Mavericks or later[?]
-# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.CLTools_Executables"
-# 	else:  # older OS versions (Mountain Lion or earlier)
-# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"
-# 	
-# 	output = subprocess.check_output([checkCommand],shell=True)
-# 	lines = output.splitlines()
-# 	for line in lines:
-# 		if line.find("version:") >= 0:
-# 			versionString = line.split()[1]
-# 			# version "number" is something like "5.0.1.0.1.1377666378", which can't
-# 			# be converted directly to a floating-point number; but we only need the
-# 			# major version, which is the very first part...
-# 			pp = versionString.split(".")
-# 			majorVersion = int(pp[0])
-# 			if (majorVersion >= 5):
-# 				return True
-# 	return False
-
-
 # find out what the default compilers (according to SCons) are
 env = DefaultEnvironment()
 cc_default = env["CC"]
@@ -171,12 +139,12 @@ CPP_COMPILER = cpp_default
 c_compiler_changed = False
 cpp_compiler_changed = False
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v6 is installed and
-# callable via gcc-6 and g++-6)
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v7 is installed and
+# callable via gcc-7 and g++-7)
 # Comment this out otherwise!
 if (os_type == "Darwin") and (getpass.getuser() == "erwin"): 
-	CC_COMPILER = "gcc-6"
-	CPP_COMPILER = "g++-6"
+	CC_COMPILER = "gcc-7"
+	CPP_COMPILER = "g++-7"
 	c_compiler_changed = True
 	cpp_compiler_changed = True
 
@@ -243,7 +211,7 @@ AddOption("--cc", dest="cc_compiler", type="string", action="store", default=Non
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v6 compilers")
+	default=False, help="use gcc and g++ v7 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 AddOption("--address-sanitize", dest="useAddressSanitize", action="store_true", 
@@ -295,8 +263,8 @@ if GetOption("cpp_compiler") is not None:
 	print "using %s for C++ compiler" % CPP_COMPILER
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
-	CC_COMPILER = "gcc-6"
-	CPP_COMPILER = "g++-6"
+	CC_COMPILER = "gcc-7"
+	CPP_COMPILER = "g++-7"
 	print "using %s for C compiler" % CC_COMPILER
 	print "using %s for C++ compiler" % CPP_COMPILER
 	c_compiler_changed = True
@@ -458,14 +426,6 @@ defines_opt = defines_opt + extra_defines
 # "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling
 
-# if xcode5 is True:
-# 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
-# 	# to ensure we can use OpenMP.
-# 	if not c_compiler_changed:
-# 		CC_COMPILER = "llvm-gcc-4.2"
-# 	if not cpp_compiler_changed:
-# 		CPP_COMPILER = "llvm-g++-4.2"
-
 env_opt = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
 					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
 env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
@@ -514,14 +474,6 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 
 # We have separate lists of object names (what we want the .o files to be called) and
 # source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
-
-# Pure C code
-#c_obj_string = """mp_enorm statistics mersenne_twister"""
-#c_obj_string = ""
-#c_objs = c_obj_string.split()
-#c_objs = [ C_SUBDIR + name for name in c_obj_string.split() ]
-#c_sources = [name + ".c" for name in c_objs]
-
 
 # C++ code
 
@@ -579,7 +531,8 @@ base_obj_string = """mp_enorm statistics mersenne_twister commandline_parser uti
 image_io config_file_parser add_functions"""
 base_objs = [ CORE_SUBDIR + name for name in base_obj_string.split() ]
 
-imfit_obj_string = """print_results bootstrap_errors estimate_memory imfit_main"""
+imfit_obj_string = """getimages print_results bootstrap_errors estimate_memory 
+imfit_main"""
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
 imfit_base_objs = base_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
@@ -587,7 +540,7 @@ imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 makeimage_base_objs = base_objs + [CORE_SUBDIR + "makeimage_main"]
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
-mcmc_obj_string = """estimate_memory mcmc_main"""
+mcmc_obj_string = """getimages estimate_memory mcmc_main"""
 mcmc_base_objs = [ CORE_SUBDIR + name for name in mcmc_obj_string.split() ]
 mcmc_base_objs = mcmc_base_objs + base_objs + cdream_objs
 mcmc_base_sources = [name + ".cpp" for name in mcmc_base_objs]
@@ -642,15 +595,6 @@ env_opt.Command("alltests", None, "./run_unit_tests.sh ; ./do_makeimage_tests ; 
 # *** Other programs (profilefit, psfconvolve, older stuff)
 # From here to the end of the file: removed from exported distribution version of SConstruct
 
-# if xcode5 is True:
-# 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
-# 	# to ensure we can use OpenMP.
-# 	# Replace the following with alternate compilers if needed (e.g., "gcc-4.9", "g++-4.9")
-# 	ALT_CC = "llvm-gcc-4.2"
-# 	ALT_CPP = "llvm-g++-4.2"
-# 	env_1d = Environment( CC=ALT_CC, CXX=ALT_CPP, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
-# 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
-#else:
 env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
 						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 

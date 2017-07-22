@@ -36,7 +36,7 @@ rm temptest/test_dump*
 echo ""
 echo "Running tests for imfit..."
 # simple tests using small images
-./imfit -c tests/config_imfit_expdisk32.dat --noise tests/uniform_image32.fits tests/testimage_expdisk32.fits --nosubsampling &> temptest/test_dump1
+./imfit -c tests/config_imfit_expdisk32.dat --noise tests/uniform_image32.fits tests/testimage_expdisk32.fits --no-subsampling &> temptest/test_dump1
 
 # test using cutout SDSS image
 ./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64.dat --gain=4.725 --readnoise=4.3 --sky=130.1 &> temptest/test_dump2
@@ -251,7 +251,7 @@ if (diff --brief temptest/test_dump6 tests/imfit_textout6)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump6 tests/imfit_textout6
   STATUS=1
 fi
@@ -301,7 +301,7 @@ if (diff --brief temptest/test_dump_bad1 tests/imfit_textout_bad1)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_bad1 tests/imfit_textout_bad1
   STATUS=1
 fi
@@ -311,7 +311,7 @@ if (diff --brief temptest/test_dump_bad2 tests/imfit_textout_bad2)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_bad2 tests/imfit_textout_bad2
   STATUS=1
 fi
@@ -321,7 +321,7 @@ if (diff --brief temptest/test_dump_bad3 tests/imfit_textout_bad3)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_bad3 tests/imfit_textout_bad3
   STATUS=1
 fi
@@ -331,7 +331,7 @@ if (diff --brief temptest/test_dump_bad4 tests/imfit_textout_bad4)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_bad4 tests/imfit_textout_bad4
   STATUS=1
 fi
@@ -341,7 +341,7 @@ if (diff --brief temptest/test_dump_bad5 tests/imfit_textout_bad5)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_bad5 tests/imfit_textout_bad5
   STATUS=1
 fi
@@ -351,7 +351,7 @@ if (diff --brief temptest/test_dump_bad6 tests/imfit_textout_bad6)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_bad6 tests/imfit_textout_bad6
   STATUS=1
 fi
@@ -361,7 +361,7 @@ if (diff --brief temptest/test_dump_bad7 tests/imfit_textout_bad7)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_bad7 tests/imfit_textout_bad7
   STATUS=1
 fi
@@ -371,7 +371,7 @@ if (diff --brief temptest/test_dump_bad8 tests/imfit_textout_bad8)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_bad8 tests/imfit_textout_bad7
   STATUS=1
 fi
@@ -381,7 +381,7 @@ if (diff --brief temptest/test_dump_badnloptname tests/imfit_textout_badnloptnam
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump_badnloptname tests/imfit_textout_badnloptname
   STATUS=1
 fi

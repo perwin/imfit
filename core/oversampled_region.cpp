@@ -144,7 +144,7 @@ void OversampledRegion::SetMaxThreads( const int maximumThreadNumber )
 // We assume this is an oversampled PSF, with the same oversampling scale as
 // specified in the input to SetupModelImage(), below
 void OversampledRegion::AddPSFVector( double *psfPixels, const int nColumns_psf, 
-										const int nRows_psf )
+										const int nRows_psf, bool normalizePSF )
 {
   assert( (nColumns_psf >= 1) && (nRows_psf >= 1) );
   
@@ -156,7 +156,7 @@ void OversampledRegion::AddPSFVector( double *psfPixels, const int nColumns_psf,
     nPSFColumns = nColumns_psf;
     nPSFRows = nRows_psf;
     psfConvolver = new Convolver();
-    psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
+    psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf, normalizePSF);
     psfConvolver->SetMaxThreads(maxRequestedThreads);
     doConvolution = true;
   }

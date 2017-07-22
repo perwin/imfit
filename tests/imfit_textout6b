@@ -1,6 +1,6 @@
 
 *** ERROR: Dimensions of mask image (tests/n3073rss_small_mask.fits: 150 columns, 200 rows)
-do not match dimensions of data image (tests/ic3478rss_64x64.fits: 64 columns, 64 rows)!
+do not match dimensions of data image (64 columns, 64 rows)!
 
 	Image file = tests/ic3478rss_64x64.fits
 	configuration file = tests/imfit_config_ic3478_64x64b.dat

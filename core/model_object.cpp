@@ -219,9 +219,9 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
   else
     debugLevel = debuggingLevel;
 
-  if (oversampledRegionAllocated)
-    for (int i = 0; i < nOversampledRegions; i++)
-      oversampledRegionsVect[i]->SetDebugLevel(debugLevel);
+//   if (oversampledRegionAllocated)
+//     for (int i = 0; i < nOversampledRegions; i++)
+//       oversampledRegionsVect[i]->SetDebugLevel(debugLevel);
 }
 
 
@@ -637,7 +637,7 @@ void ModelObject::ApplyMask( )
 // that we know the proper model-image dimensions), so we return an error if 
 // SetupModelImage() hasn't been called yet.
 int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf,
-                         	double *psfPixels )
+                         	double *psfPixels, bool normalizePSF )
 {
   int  returnStatus = 0;
   
@@ -654,7 +654,7 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
   nPSFColumns = nColumns_psf;
   nPSFRows = nRows_psf;
   psfConvolver = new Convolver();
-  psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf);
+  psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf, normalizePSF);
   psfConvolver->SetMaxThreads(maxRequestedThreads);
   doConvolution = true;
   
@@ -680,7 +680,7 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
 // size of the main model image (nModelColumns, nModelRows) will not be known.
 int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf, 
 						int nRows_psf, double *psfPixels_osamp, int oversampleScale,
-						int x1, int x2, int y1, int y2 )
+						int x1, int x2, int y1, int y2, bool normalizePSF )
 {
   int  deltaX, deltaY, nCols_osamp, nRows_osamp;
   int  status = 0;
@@ -726,7 +726,9 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
 
   // Allocate OversampledRegion object and give it necessary info
   OversampledRegion *oversampledRegion = new OversampledRegion();
-  oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
+  oversampledRegion->SetDebugLevel(debugLevel);
+  oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp,
+  									normalizePSF);
   oversampledRegionAllocated = true;
   status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
   									nPSFColumns, nPSFRows, oversampleScale);
@@ -802,7 +804,9 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
 
   // Allocate OversampledRegion object and give it necessary info
   OversampledRegion *oversampledRegion = new OversampledRegion();
-  oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp);
+  oversampledRegion->SetDebugLevel(debugLevel);
+  oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp,
+  									oversampledPsfInfo->GetNormalizationFlag());
   oversampledRegionAllocated = true;
   status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
   									nPSFColumns, nPSFRows, oversampleScale);

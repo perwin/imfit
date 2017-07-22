@@ -76,7 +76,7 @@
 // 			plan_inverse
 // 
 // 	6. Generate FFT(PSF)
-// 			A. Normalize PSF
+// 			A. Normalize PSF (if necessary)
 // 			B. ShiftAndWrapPSF()
 // 			C. fftw_execute(plan_psf)
 // 
@@ -129,6 +129,7 @@ Convolver::Convolver( )
   imageInfoSet = false;
   fftVectorsAllocated = false;
   fftPlansCreated = false;
+  normalizePSF = true;   // default is to normalize the PSF
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
 }
 
@@ -166,13 +167,15 @@ void Convolver::SetMaxThreads( const int maximumThreadNumber )
 /* ---------------- SetupPSF ------------------------------------------- */
 /// Pass in a pointer to the pixel vector for the input PSF image, as well as
 /// the image dimensions
-void Convolver::SetupPSF( double *psfPixels_input, const int nColumns, const int nRows )
+void Convolver::SetupPSF( double *psfPixels_input, const int nColumns, const int nRows,
+							bool normalize )
 {
 
   psfPixels = psfPixels_input;
   nColumns_psf = nColumns;
   nRows_psf = nRows;
   nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
+  normalizePSF = normalize;
   psfInfoSet = true;
 }
 
@@ -274,7 +277,7 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
 
   // Generate the Fourier transform of the PSF:
   // 1. Normalize the PSF
-  if (debugStatus >= 1) {
+  if ((debugStatus >= 1) && (normalizePSF)) {
     printf("Normalizing the PSF ...\n");
     if (debugStatus >= 2) {
       printf("The whole input PSF image, row by row:\n");
@@ -282,19 +285,21 @@ int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
     }
   }
   // Use Kahan summation to avoid underflow
-  psfSum = 0.0;
-  double  storedError = 0.0, adjustedVal = 0.0, tempSum = 0.0;
-  for (k = 0; k < nPixels_psf; k++) {
-    adjustedVal = psfPixels[k] - storedError;
-    tempSum = psfSum + adjustedVal;
-    storedError = (tempSum - psfSum) - adjustedVal;
-    psfSum = tempSum;
-  }
-  for (k = 0; k < nPixels_psf; k++)
-    psfPixels[k] = psfPixels[k] / psfSum;
-  if (debugStatus >= 2) {
-    printf("The whole *normalized* PSF image, row by row:\n");
-    PrintRealImage(psfPixels, nColumns_psf, nRows_psf);
+  if (normalizePSF) {
+    psfSum = 0.0;
+    double  storedError = 0.0, adjustedVal = 0.0, tempSum = 0.0;
+    for (k = 0; k < nPixels_psf; k++) {
+      adjustedVal = psfPixels[k] - storedError;
+      tempSum = psfSum + adjustedVal;
+      storedError = (tempSum - psfSum) - adjustedVal;
+      psfSum = tempSum;
+    }
+    for (k = 0; k < nPixels_psf; k++)
+      psfPixels[k] = psfPixels[k] / psfSum;
+    if (debugStatus >= 2) {
+      printf("The whole *normalized* PSF image, row by row:\n");
+      PrintRealImage(psfPixels, nColumns_psf, nRows_psf);
+    }
   }
 
   // 2. Prepare padded psf array for FFT, and then copy input PSF into

@@ -86,9 +86,9 @@ if (diff --brief temptest/test_dump0 tests/makeimage_textout0)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump0 tests/makeimage_textout0
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: biggertest... "
@@ -96,7 +96,7 @@ if (diff --brief temptest/test_dump1 tests/makeimage_textout1)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump1 tests/makeimage_textout1
   STATUS=1
 fi
@@ -110,7 +110,7 @@ if (diff --brief temptest/test_dump2 tests/makeimage_textout2)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump2 tests/makeimage_textout2
   STATUS=1
 fi
@@ -124,7 +124,7 @@ if (diff --brief temptest/test_dump3 tests/makeimage_textout3)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump3 tests/makeimage_textout3
   STATUS=1
 fi
@@ -144,7 +144,7 @@ if (diff --brief temptest/test_dump4 tests/makeimage_textout4)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump4 tests/makeimage_textout4
   STATUS=1
 fi
@@ -190,7 +190,7 @@ if (diff --brief temptest/test_dump5 tests/makeimage_textout5)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump5 tests/makeimage_textout5
   STATUS=1
 fi
@@ -200,7 +200,7 @@ if (diff --brief temptest/test_dump6 tests/makeimage_textout6)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump6 tests/makeimage_textout6
   STATUS=1
 fi
@@ -210,7 +210,7 @@ if (diff --brief temptest/test_dump7 tests/makeimage_textout7)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump7 tests/makeimage_textout7
   STATUS=1
 fi
@@ -220,7 +220,7 @@ if (diff --brief temptest/test_dump8 tests/makeimage_textout8)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump8 tests/makeimage_textout8
   STATUS=1
 fi
@@ -230,7 +230,7 @@ if (diff --brief temptest/test_dump9 tests/makeimage_textout9)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump9 tests/makeimage_textout9
   STATUS=1
 fi
@@ -240,7 +240,7 @@ if (diff --brief temptest/test_dump10 tests/makeimage_textout10)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump10 tests/makeimage_textout10
   STATUS=1
 fi
@@ -250,7 +250,7 @@ if (diff --brief temptest/test_dump11 tests/makeimage_textout11)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump11 tests/makeimage_textout11
   STATUS=1
 fi
@@ -260,7 +260,7 @@ if (diff --brief temptest/test_dump12 tests/makeimage_textout12)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump12 tests/makeimage_textout12
   STATUS=1
 fi
@@ -270,7 +270,7 @@ if (diff --brief temptest/test_dump13 tests/makeimage_textout13)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump13 tests/makeimage_textout13
   STATUS=1
 fi
@@ -280,7 +280,7 @@ if (diff --brief temptest/test_dump13b tests/makeimage_textout13b)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump13b tests/makeimage_textout13b
   STATUS=1
 fi
@@ -290,7 +290,7 @@ if (diff --brief temptest/test_dump14 tests/makeimage_textout14)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump14 tests/makeimage_textout14
   STATUS=1
 fi
@@ -300,7 +300,7 @@ if (diff --brief temptest/test_dump15 tests/makeimage_textout15)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
   diff temptest/test_dump15 tests/makeimage_textout15
   STATUS=1
 fi

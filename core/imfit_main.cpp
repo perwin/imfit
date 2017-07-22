@@ -38,11 +38,13 @@
 #include <string>
 #include <vector>
 #include <sys/time.h>
+#include <tuple>
 #include "fftw3.h"
 
 #include "definitions.h"
 #include "utilities_pub.h"
 #include "image_io.h"
+#include "getimages.h"
 #include "model_object.h"
 #include "add_functions.h"
 #include "param_struct.h"   // for mp_par structure
@@ -130,7 +132,6 @@ int main(int argc, char *argv[])
   double  *paramsVect;
   int  X0_offset = 0;
   int  Y0_offset = 0;
-  std::string  noiseImage;
   ModelObject  *theModel;
   vector<string>  functionList;
   vector<double>  parameterList;
@@ -213,44 +214,51 @@ int main(int argc, char *argv[])
   // Determine X0,Y0 pixel offset values if user specified an image section
   DetermineImageOffset(options->imageFileName, &X0_offset, &Y0_offset);
 
+
+  // Get (and check) mask and/or error images
+  std::tie(allMaskPixels, allErrorPixels, status) = GetMaskAndErrorImages(nColumns, nRows, 
+  													options, maskAllocated, errorPixels_allocated);
+  if (status < 0)
+    exit(-1);
+
   /* Get and check mask image */
-  if (options->maskImagePresent) {
-    printf("Reading mask image (\"%s\") ...\n", options->maskFileName.c_str());
-    allMaskPixels = ReadImageAsVector(options->maskFileName, &nMaskColumns, &nMaskRows);
-    if (allMaskPixels == NULL) {
-      fprintf(stderr,  "\n*** ERROR: Unable to read mask file \"%s\"!\n\n", 
-    			options->maskFileName.c_str());
-      exit(-1);
-    }
-    if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
-      fprintf(stderr, "\n*** ERROR: Dimensions of mask image (%s: %d columns, %d rows)\n",
-             options->maskFileName.c_str(), nMaskColumns, nMaskRows);
-      fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-             options->imageFileName.c_str(), nColumns, nRows);
-      exit(-1);
-    }
-    maskAllocated = true;
-  }
-           
-  /* Get and check error image, if supplied */
-  if (options->noiseImagePresent) {
-    printf("Reading noise image (\"%s\") ...\n", options->noiseFileName.c_str());
-    allErrorPixels = ReadImageAsVector(options->noiseFileName, &nErrColumns, &nErrRows);
-    if (allErrorPixels == NULL) {
-      fprintf(stderr,  "\n*** ERROR: Unable to read noise-image file \"%s\"!\n\n", 
-    			options->noiseFileName.c_str());
-      exit(-1);
-    }
-    errorPixels_allocated = true;
-    if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
-      fprintf(stderr, "\n*** ERROR: Dimensions of error image (%s: %d columns, %d rows)\n",
-             noiseImage.c_str(), nErrColumns, nErrRows);
-      fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-             options->imageFileName.c_str(), nColumns, nRows);
-      exit(-1);
-    }
-  }
-  
+//   if (options->maskImagePresent) {
+//     printf("Reading mask image (\"%s\") ...\n", options->maskFileName.c_str());
+//     allMaskPixels = ReadImageAsVector(options->maskFileName, &nMaskColumns, &nMaskRows);
+//     if (allMaskPixels == NULL) {
+//       fprintf(stderr,  "\n*** ERROR: Unable to read mask file \"%s\"!\n\n", 
+//     			options->maskFileName.c_str());
+//       exit(-1);
+//     }
+//     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
+//       fprintf(stderr, "\n*** ERROR: Dimensions of mask image (%s: %d columns, %d rows)\n",
+//              options->maskFileName.c_str(), nMaskColumns, nMaskRows);
+//       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
+//              options->imageFileName.c_str(), nColumns, nRows);
+//       exit(-1);
+//     }
+//     maskAllocated = true;
+//   }
+//            
+//   /* Get and check error image, if supplied */
+//   if (options->noiseImagePresent) {
+//     printf("Reading noise image (\"%s\") ...\n", options->noiseFileName.c_str());
+//     allErrorPixels = ReadImageAsVector(options->noiseFileName, &nErrColumns, &nErrRows);
+//     if (allErrorPixels == NULL) {
+//       fprintf(stderr,  "\n*** ERROR: Unable to read noise-image file \"%s\"!\n\n", 
+//     			options->noiseFileName.c_str());
+//       exit(-1);
+//     }
+//     errorPixels_allocated = true;
+//     if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
+//       fprintf(stderr, "\n*** ERROR: Dimensions of error image (%s: %d columns, %d rows)\n",
+//              options->noiseFileName.c_str(), nErrColumns, nErrRows);
+//       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
+//              options->imageFileName.c_str(), nColumns, nRows);
+//       exit(-1);
+//     }
+//   }
+    
   /* Read in PSF image, if supplied */
   if (options->psfImagePresent) {
     printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
@@ -316,54 +324,6 @@ int main(int argc, char *argv[])
     }
   }
 
-//   if (options->psfOversampledImagePresent) {
-//     if (options->psfOversamplingScale < 1) {
-//       fprintf(stderr, "\n*** ERROR: the oversampling scale for the oversampled PSF was not supplied!\n");
-//       fprintf(stderr, "           (use --overpsf_scale to specify the scale)\n\n");
-//       exit(-1);
-//     }
-//     if (! options->oversampleRegionSet) {
-//       fprintf(stderr, "\n*** ERROR: the oversampling region was not defined!\n");
-//       fprintf(stderr, "           (use --overpsf_region to specify the region)\n\n");
-//       exit(-1);
-//     }
-//     printf("Reading oversampled PSF image (\"%s\") ...\n", options->psfOversampledFileName.c_str());
-//     psfOversampledPixels = ReadImageAsVector(options->psfOversampledFileName, 
-//     							&nColumns_psf_oversampled, &nRows_psf_oversampled);
-//     if (psfOversampledPixels == NULL) {
-//       fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
-//     			options->psfOversampledFileName.c_str());
-//       exit(-1);
-//     }
-//     nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
-//     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
-//            nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
-//     // Determine oversampling region; correct for X0,Y0 pixel offset values if user 
-//     // specified an image section (if not, X0_offset and Y0_offset will be = 0)
-//     GetAllCoordsFromBracket(options->psfOversampleRegion, &x1_oversample, &x2_oversample, 
-//     						&y1_oversample, &y2_oversample);
-//     x1_oversample -= (int)X0_offset;
-//     x2_oversample -= (int)X0_offset;
-//     y1_oversample -= (int)Y0_offset;
-//     y2_oversample -= (int)Y0_offset;
-//     string  msg, msg0;
-//     if ((X0_offset != 0.0) || (Y0_offset != 0.0)) {
-//       msg0 = "\tRegion to be oversampled within full image:";
-//       msg = "\tRegion to be oversampled within fitted subset image:";
-//       printf("%s [%d:%d,%d:%d]\n", msg0.c_str(),
-//       		x1_oversample + (int)X0_offset,x2_oversample + (int)X0_offset,
-//       		y1_oversample + (int)Y0_offset,y2_oversample + (int)Y0_offset);
-//     }
-//     else
-//       msg = "\tRegion to be oversampled within image:";
-//     printf("%s [%d:%d,%d:%d]\n", msg.c_str(), x1_oversample,x2_oversample,
-//     		y1_oversample,y2_oversample);
-//     xyOsamplePos.push_back(x1_oversample);
-//     xyOsamplePos.push_back(x2_oversample);
-//     xyOsamplePos.push_back(y1_oversample);
-//     xyOsamplePos.push_back(y2_oversample);
-//   }
-
   if (! options->subsamplingFlag)
     printf("* Pixel subsampling has been turned OFF.\n");
 
@@ -375,106 +335,10 @@ int main(int argc, char *argv[])
   nColumnsRowsVect.push_back(nRows);
   nColumnsRowsVect.push_back(nColumns_psf);
   nColumnsRowsVect.push_back(nRows_psf);
-//   nColumnsRowsVect.push_back(nColumns_psf_oversampled);
-//   nColumnsRowsVect.push_back(nRows_psf_oversampled);
 
   theModel = SetupModelObject(options, nColumnsRowsVect, allPixels, psfPixels, allMaskPixels,
   								allErrorPixels, psfOversamplingInfoVect);
-//   theModel = SetupModelObject(options, nColumnsRowsVect, allPixels, psfPixels, allMaskPixels,
-//   								allErrorPixels, psfOversampledPixels, xyOsamplePos);
-
-
-//   // Create the model object
-//   theModel = new ModelObject();
-//   
-//   // Put limits on number of FFTW and OpenMP threads, if requested by user
-//   if (options->maxThreadsSet)
-//     theModel->SetMaxThreads(options->maxThreads);
-// 
-//   // Add PSF image vector, if present (needs to be added prior to image data, so that
-//   // ModelObject can figure out proper internal model-image size
-//   if (options->psfImagePresent) {
-//     status = theModel->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels);
-//     if (status < 0) {
-//       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddPSFVector!\n\n");
-//   	  exit(-1);
-//     }
-//   }
-// 
-//   // Add image data and useful information about image (gain, read noise, t_exp, etc.)
-//   status = theModel->AddImageDataVector(allPixels, nColumns, nRows);
-//   if (status < 0) {
-//     // Possible failure if attempt to allocate memory for model image fails
-//     fprintf(stderr, "*** ERROR: Failure in ModelObject::AddImageDataVector!\n\n");
-//     exit(-1);
-//   }
-//   theModel->AddImageCharacteristics(options->gain, options->readNoise, options->expTime, options->nCombined,
-//   							options->originalSky);
-//   theModel->PrintDescription();
-//   if (options->printImages)
-//     theModel->PrintInputImage();
-// 
-//   // Add oversampled PSF image vector and corresponding info, if present
-//   // (this operates on a sub-region of the main image, so ModelObject does not need
-//   // to know about this prior to the image data)
-//   if (options->psfOversampledImagePresent) {
-//     status = theModel->AddOversampledPSFVector(nPixels_psf_oversampled, nColumns_psf_oversampled, 
-//     			nRows_psf_oversampled, psfOversampledPixels, options->psfOversamplingScale,
-//     			x1_oversample, x2_oversample, y1_oversample, y2_oversample);
-//     if (status < 0) {
-//       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
-//   	  exit(-1);
-//     }
-//   }
-// 
-//   // If user supplied a mask image, add it and apply it to the internal weight image
-//   if (maskAllocated) {
-//     status = theModel->AddMaskVector(nPixels_tot, nColumns, nRows, allMaskPixels,
-//                              options->maskFormat);
-//     if (status < 0) {
-//       fprintf(stderr, "*** ERROR: Failure in ModelObject::AddMaskVector!\n\n");
-//   	  exit(-1);
-//     }
-//   }
-//   
-//   // Specify which fit statistic we'll use, and add user-supplied error image if
-//   // it exists and we're using chi^2; also catch special case of standard Cash
-//   // statistic + L-M minimizer
-//   if (options->useCashStatistic) {
-//     if ((options->solver == MPFIT_SOLVER) && (! options->printFitStatisticOnly)) {
-//       fprintf(stderr, "*** ERROR -- Cash statistic cannot be used with L-M solver!\n\n");
-//       return -1;
-//     }
-//     status = theModel->UseCashStatistic();
-//     if (status < 0) {
-//       fprintf(stderr, "*** ERROR: Failure in ModelObject::UseCashStatistic!\n\n");
-//       exit(-1);
-//     }
-//   } 
-//   else if (options->usePoissonMLR) {
-//     theModel->UsePoissonMLR();
-//   }
-//   else {
-//     // normal chi^2 statistics, so we either add error/noise image, or calculate it
-//     if (options->noiseImagePresent)
-//       theModel->AddErrorVector(nPixels_tot, nColumns, nRows, allErrorPixels,
-//                                options->errorType);
-//     else {
-//       if (options->useModelForErrors) {
-//         printf("* No noise image supplied ... will generate noise image from model image.\n");
-//         status = theModel->UseModelErrors();
-//         if (status < 0) {
-//           fprintf(stderr, "*** ERROR: Failure in ModelObject::UseModelErrors!\n\n");
-//           exit(-1);
-//         }
-//       }
-//       else {
-//         // default mode
-//         printf("* No noise image supplied ... will generate noise image from input data image.\n");
-//       }
-//     }
-//   }
-
+  
 
   // Add functions to the model object
   status = AddFunctions(theModel, functionList, FunctionBlockIndices, 
@@ -769,6 +633,7 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise/error/weight image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
+  optParser->AddUsageLine("     --no-normalize                      Do *not* normalize input PSF image");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     (Note that the following 3 options can be specified multiple times)");
   optParser->AddUsageLine("     --overpsf <psf.fits>      Oversampled PSF image to use");
@@ -815,7 +680,7 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --seed <int>             RNG seed (for testing purposes)");
-  optParser->AddUsageLine("     --nosubsampling          Turn off pixel subsampling near centers of functions");
+  optParser->AddUsageLine("     --no-subsampling         Turn off pixel subsampling near centers of functions");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
   optParser->AddUsageLine("   imfit -c model_config_n100a.dat ngc100.fits");
@@ -835,7 +700,8 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
   optParser->AddFlag("errors-are-variances");
   optParser->AddFlag("errors-are-weights");
   optParser->AddFlag("mask-zero-is-bad");
-  optParser->AddFlag("nosubsampling");
+  optParser->AddFlag("no-normalize");
+  optParser->AddFlag("no-subsampling");
   optParser->AddFlag("model-errors");
   optParser->AddFlag("cashstat");
   optParser->AddFlag("poisson-mlr");
@@ -965,7 +831,10 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
   	printf("\t* Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
   }
-  if (optParser->FlagSet("nosubsampling")) {
+  if (optParser->FlagSet("no-normalize")) {
+    theOptions->normalizePSF = false;
+  }
+  if (optParser->FlagSet("no-subsampling")) {
     theOptions->subsamplingFlag = false;
   }
   if (optParser->FlagSet("silent")) {
