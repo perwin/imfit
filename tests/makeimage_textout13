@@ -8,7 +8,7 @@ ffopen could not interpret primary array header of file:
 tests/config_makeimage_gensersic512.dat
 
 
-*** ERROR: Unable to read PSF image file "tests/config_makeimage_gensersic512.dat"!
+*** ERROR: Unable to read PSF file "tests/config_makeimage_gensersic512.dat"!
 
 	PSF image = tests/config_makeimage_gensersic512.dat
 Value from config file: nColumns = 512

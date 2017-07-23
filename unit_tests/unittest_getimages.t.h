@@ -288,3 +288,55 @@ public:
     fftw_free(errPixels);
   }
 };
+
+class TestGetPsfImage : public CxxTest::TestSuite
+{
+public:
+
+  void testBadName( void )
+  {
+    int  status;
+    OptionsBase *options = new OptionsBase();
+    double  *pixels;
+    int  nCols, nRows;
+
+    options->psfImagePresent = true;
+    options->psfFileName = NONEXISTENT_IMAGENAME;
+    std::tie(pixels, nCols, nRows, status) = GetPsfImage(options);
+    TS_ASSERT_EQUALS(status, -1);
+    TS_ASSERT_EQUALS(pixels, nullptr);
+  }
+  
+  void testBadFile( void )
+  {
+    int  status;
+    OptionsBase *options = new OptionsBase();
+    double  *pixels;
+    int  nCols, nRows;
+
+    options->psfImagePresent = true;
+    options->psfFileName = NONIMAGE_FILE;
+    std::tie(pixels, nCols, nRows, status) = GetPsfImage(options);
+    TS_ASSERT_EQUALS(status, -1);
+    TS_ASSERT_EQUALS(pixels, nullptr);
+  }
+
+  void testGoodFile( void )
+  {
+    int  status;
+    OptionsBase *options = new OptionsBase();
+    double  *pixels;
+    int  nCols = 0;
+    int  nRows = 0;
+
+    options->psfImagePresent = true;
+    options->psfFileName = ONES_IMAGE_3x3;
+    std::tie(pixels, nCols, nRows, status) = GetPsfImage(options);
+    TS_ASSERT_EQUALS(status, 0);
+    TS_ASSERT_EQUALS(nCols, 3);
+    TS_ASSERT_EQUALS(nRows, 3);
+    for (int i = 0; i < N_PIXELS_ONES_IMAGE; i++)
+      TS_ASSERT_EQUALS(pixels[i], 1.0);
+  }
+
+};

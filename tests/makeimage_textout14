@@ -6,7 +6,7 @@ failed to find or open the following file: (ffopen)
 _nofilewiththisname_wehope.fits
 
 
-*** ERROR: Unable to read PSF image file "_nofilewiththisname_wehope.fits"!
+*** ERROR: Unable to read PSF file "_nofilewiththisname_wehope.fits"!
 
 	PSF image = _nofilewiththisname_wehope.fits
 Value from config file: nColumns = 512

@@ -39,6 +39,7 @@
 
 #include "definitions.h"
 #include "image_io.h"
+#include "getimages.h"
 #include "model_object.h"
 #include "add_functions.h"
 #include "options_base.h"
@@ -185,19 +186,27 @@ int main( int argc, char *argv[] )
 
   // Read in PSF image, if supplied
   if (options->psfImagePresent) {
-    printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
-    psfPixels = ReadImageAsVector(options->psfFileName, &nColumns_psf, &nRows_psf);
-    if (psfPixels == NULL) {
-      fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
-      			options->psfFileName.c_str());
+    std::tie(psfPixels, nColumns_psf, nRows_psf, status) = GetPsfImage(options);
+    if (status < 0)
       exit(-1);
-    }
-    nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
-    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
-           nColumns_psf, nRows_psf, nPixels_psf);
   }
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
+
+//   if (options->psfImagePresent) {
+//     printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
+//     psfPixels = ReadImageAsVector(options->psfFileName, &nColumns_psf, &nRows_psf);
+//     if (psfPixels == NULL) {
+//       fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
+//       			options->psfFileName.c_str());
+//       exit(-1);
+//     }
+//     nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
+//     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
+//            nColumns_psf, nRows_psf, nPixels_psf);
+//   }
+//   else
+//     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
   // Read in oversampled PSF image(s), if supplied
   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {

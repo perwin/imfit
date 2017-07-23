@@ -1,3 +1,20 @@
+// Copyright 2017 by Peter Erwin.
+// 
+// This file is part of Imfit.
+// 
+// Imfit is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// Imfit is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with Imfit.  If not, see <http://www.gnu.org/licenses/>.
+
 #include <stdio.h>
 #include <string>
 #include <tuple>
@@ -38,6 +55,7 @@ std::tuple<double *, int> GetAndCheckImage( const string imageName, const string
 }
 
 
+// Function which retrieves and checks dimensions for mask and/or noise/error images.
 // Return values:
 // 		status = 1: mask image loaded, but no error image specified
 // 		status = 2: error image loaded, but no mask image was specified
@@ -79,55 +97,24 @@ std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRo
 }
 
 
-// std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRows, 
-// 										OptionsBase *options, bool &maskPixelsAllocated, 
-// 										bool &errorPixelsAllocated )
-// {
-//   int  nMaskColumns, nMaskRows;
-//   int  nErrColumns, nErrRows;
-//   double *maskPixels = nullptr;
-//   double *errorPixels = nullptr;
-//   
-//   maskPixelsAllocated = false;
-//   errorPixelsAllocated = false;
-//   
-//   /* Get and check mask image */
-//   if (options->maskImagePresent) {
-//     printf("Reading mask image (\"%s\") ...\n", options->maskFileName.c_str());
-//     maskPixels = ReadImageAsVector(options->maskFileName, &nMaskColumns, &nMaskRows);
-//     if (maskPixels == NULL) {
-//       fprintf(stderr,  "\n*** ERROR: Unable to read mask file \"%s\"!\n\n", 
-//     			options->maskFileName.c_str());
-//       return std::make_tuple(maskPixels, errorPixels, -1);
-//     }
-//     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
-//       fprintf(stderr, "\n*** ERROR: Dimensions of mask image (%s: %d columns, %d rows)\n",
-//              options->maskFileName.c_str(), nMaskColumns, nMaskRows);
-//       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-//              options->imageFileName.c_str(), nColumns, nRows);
-//       return std::make_tuple(maskPixels, errorPixels, -1);
-//     }
-//     maskPixelsAllocated = true;
-//   }
-//            
-//   /* Get and check error image, if supplied */
-//   if (options->noiseImagePresent) {
-//     printf("Reading noise image (\"%s\") ...\n", options->noiseFileName.c_str());
-//     errorPixels = ReadImageAsVector(options->noiseFileName, &nErrColumns, &nErrRows);
-//     if (errorPixels == NULL) {
-//       fprintf(stderr,  "\n*** ERROR: Unable to read noise-image file \"%s\"!\n\n", 
-//     			options->noiseFileName.c_str());
-//       return std::make_tuple(maskPixels, errorPixels, -1);
-//     }
-//     if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
-//       fprintf(stderr, "\n*** ERROR: Dimensions of error image (%s: %d columns, %d rows)\n",
-//              options->noiseFileName.c_str(), nErrColumns, nErrRows);
-//       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-//              options->imageFileName.c_str(), nColumns, nRows);
-//       return std::make_tuple(maskPixels, errorPixels, -1);
-//     }
-//     errorPixelsAllocated = true;
-//   }
-//   
-//   return std::make_tuple(maskPixels, errorPixels, 0);
-// }
+// Function which reads and returns data corresponding to requested PSF image
+std::tuple<double *, int, int, int> GetPsfImage( OptionsBase *options )
+{
+  int  status;
+  int  nColumns_psf, nRows_psf;
+  double *psfPixels = nullptr;
+  
+  // Read in PSF image
+  printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
+  std::tie(psfPixels, status) = GetAndCheckImage(options->psfFileName.c_str(), "PSF", 0,0);
+  if (status < 0)
+    return std::make_tuple(psfPixels, 0,0, -1);
+
+  GetImageSize(options->psfFileName, &nColumns_psf, &nRows_psf);
+  long nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
+  printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
+         nColumns_psf, nRows_psf, nPixels_psf);
+
+  return std::make_tuple(psfPixels, nColumns_psf, nRows_psf, 0);
+}
+

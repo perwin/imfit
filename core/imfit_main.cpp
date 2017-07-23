@@ -221,59 +221,29 @@ int main(int argc, char *argv[])
   if (status < 0)
     exit(-1);
 
-  /* Get and check mask image */
-//   if (options->maskImagePresent) {
-//     printf("Reading mask image (\"%s\") ...\n", options->maskFileName.c_str());
-//     allMaskPixels = ReadImageAsVector(options->maskFileName, &nMaskColumns, &nMaskRows);
-//     if (allMaskPixels == NULL) {
-//       fprintf(stderr,  "\n*** ERROR: Unable to read mask file \"%s\"!\n\n", 
-//     			options->maskFileName.c_str());
-//       exit(-1);
-//     }
-//     if ((nMaskColumns != nColumns) || (nMaskRows != nRows)) {
-//       fprintf(stderr, "\n*** ERROR: Dimensions of mask image (%s: %d columns, %d rows)\n",
-//              options->maskFileName.c_str(), nMaskColumns, nMaskRows);
-//       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-//              options->imageFileName.c_str(), nColumns, nRows);
-//       exit(-1);
-//     }
-//     maskAllocated = true;
-//   }
-//            
-//   /* Get and check error image, if supplied */
-//   if (options->noiseImagePresent) {
-//     printf("Reading noise image (\"%s\") ...\n", options->noiseFileName.c_str());
-//     allErrorPixels = ReadImageAsVector(options->noiseFileName, &nErrColumns, &nErrRows);
-//     if (allErrorPixels == NULL) {
-//       fprintf(stderr,  "\n*** ERROR: Unable to read noise-image file \"%s\"!\n\n", 
-//     			options->noiseFileName.c_str());
-//       exit(-1);
-//     }
-//     errorPixels_allocated = true;
-//     if ((nErrColumns != nColumns) || (nErrRows != nRows)) {
-//       fprintf(stderr, "\n*** ERROR: Dimensions of error image (%s: %d columns, %d rows)\n",
-//              options->noiseFileName.c_str(), nErrColumns, nErrRows);
-//       fprintf(stderr, "do not match dimensions of data image (%s: %d columns, %d rows)!\n\n",
-//              options->imageFileName.c_str(), nColumns, nRows);
-//       exit(-1);
-//     }
-//   }
-    
-  /* Read in PSF image, if supplied */
+
+  // Read in PSF image, if supplied
   if (options->psfImagePresent) {
-    printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
-    psfPixels = ReadImageAsVector(options->psfFileName, &nColumns_psf, &nRows_psf);
-    if (psfPixels == NULL) {
-      fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
-    			options->psfFileName.c_str());
+    std::tie(psfPixels, nColumns_psf, nRows_psf, status) = GetPsfImage(options);
+    if (status < 0)
       exit(-1);
-    }
-    nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
-    printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
-           nColumns_psf, nRows_psf, nPixels_psf);
   }
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
+//   if (options->psfImagePresent) {
+//     printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
+//     psfPixels = ReadImageAsVector(options->psfFileName, &nColumns_psf, &nRows_psf);
+//     if (psfPixels == NULL) {
+//       fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
+//     			options->psfFileName.c_str());
+//       exit(-1);
+//     }
+//     nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
+//     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
+//            nColumns_psf, nRows_psf, nPixels_psf);
+//   }
+//   else
+//     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
   // Read in oversampled PSF image(s), if supplied
   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {

@@ -12,7 +12,7 @@ core/getimages.cpp core/image_io.cpp -lcfitsio -lfftw3 \
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for getimages:"
-  ./test_runner_getimages TestGetMaskAndErrorImages
+  ./test_runner_getimages
   exit
 else
   echo "** Compilation of unit tests for getimages.cpp failed."

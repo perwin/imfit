@@ -19,5 +19,7 @@ std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRo
 										OptionsBase *options,  bool &maskPixelsAllocated, 
 										bool &errorPixelsAllocated );
 
+std::tuple<double *, int, int, int> GetPsfImage( OptionsBase *options );
+
 
 #endif  // _GETIMAGES_MASKERROR_H_

@@ -528,10 +528,10 @@ cdream_sources = [name + ".cpp" for name in cdream_objs]
 
 # Base files for imfit, makeimage, and imfit-mcmc:
 base_obj_string = """mp_enorm statistics mersenne_twister commandline_parser utilities 
-image_io config_file_parser add_functions"""
+image_io getimages config_file_parser add_functions"""
 base_objs = [ CORE_SUBDIR + name for name in base_obj_string.split() ]
 
-imfit_obj_string = """getimages print_results bootstrap_errors estimate_memory 
+imfit_obj_string = """print_results bootstrap_errors estimate_memory 
 imfit_main"""
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
 imfit_base_objs = base_objs + imfit_base_objs
@@ -540,7 +540,7 @@ imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 makeimage_base_objs = base_objs + [CORE_SUBDIR + "makeimage_main"]
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
-mcmc_obj_string = """getimages estimate_memory mcmc_main"""
+mcmc_obj_string = """estimate_memory mcmc_main"""
 mcmc_base_objs = [ CORE_SUBDIR + name for name in mcmc_obj_string.split() ]
 mcmc_base_objs = mcmc_base_objs + base_objs + cdream_objs
 mcmc_base_sources = [name + ".cpp" for name in mcmc_base_objs]
