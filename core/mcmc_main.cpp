@@ -223,20 +223,12 @@ int main(int argc, char *argv[])
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
-//   if (options->psfImagePresent) {
-//     printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
-//     psfPixels = ReadImageAsVector(options->psfFileName, &nColumns_psf, &nRows_psf);
-//     if (psfPixels == NULL) {
-//       fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
-//     			options->psfFileName.c_str());
-//       exit(-1);
-//     }
-//     nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
-//     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
-//            nColumns_psf, nRows_psf, nPixels_psf);
-//   }
-//   else
-//     printf("* No PSF image supplied -- no image convolution will be done!\n");
+  // Read in oversampled PSF image(s), if supplied
+  if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {
+    status = GetOversampledPsfInfo(options, X0_offset, Y0_offset, psfOversamplingInfoVect);
+	if (status < 0)
+	  exit(-1);
+  }
 
   // Read in oversampled PSF image, if supplied
 //   if (options->psfOversampledImagePresent) {
@@ -520,6 +512,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise/error/weight image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
+  optParser->AddUsageLine("     --no-normalize           Do *not* normalize input PSF image");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     (Note that the following 3 options can be specified multiple times)");
   optParser->AddUsageLine("     --overpsf <psf.fits>      Oversampled PSF image to use");
@@ -575,6 +568,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
   optParser->AddFlag("errors-are-variances");
   optParser->AddFlag("errors-are-weights");
   optParser->AddFlag("mask-zero-is-bad");
+  optParser->AddFlag("no-normalize");
   optParser->AddFlag("no-subsampling");
   optParser->AddFlag("model-errors");
   optParser->AddFlag("cashstat");
@@ -668,6 +662,9 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
   if ( (optParser->FlagSet("poisson-mlr")) || (optParser->FlagSet("mlr")) ) {
   	printf("\t* Using Poisson maximum-likelihood-ratio statistic instead of chi^2 for minimization!\n");
   	theOptions->usePoissonMLR = true;
+  }
+  if (optParser->FlagSet("no-normalize")) {
+    theOptions->normalizePSF = false;
   }
   if (optParser->FlagSet("no-subsampling")) {
     theOptions->subsamplingFlag = false;
@@ -998,24 +995,6 @@ void HandleConfigFileOptions( configOptions *configFileOptions, MCMCOptions *mai
 
 
 
-// NOTE: moved to utilities.cpp -- delete this later
-/// Takes user-supplied image filename and determines what, if any, x0 and y0
-/// pixel offsets are implied by any section specification in the filename
-/// (e.g. "somefile.fits[100:250,400:400]").
-/// Note that offsets are always >= 0.
-// void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
-// 					double *y_offset)
-// {
-//   int  xStart, yStart;
-// 
-//   GetPixelStartCoords(fullImageName, &xStart, &yStart);
-//   *x_offset = xStart - 1;
-//   *y_offset = yStart - 1;
-// }
-
-
-
-
 /* ---------------- LikelihoodFuncForDREAM ------------------------------- */
 
 // Function which returns log likelihood given a set of parameters in the
@@ -1035,9 +1014,6 @@ double LikelihoodFuncForDREAM( int chain, int gen, const double* state,
   double  chi2;
   
   chi2 = theModel->GetFitStatistic(params);
-//   if (gen < 0)   // print actual chi^2 value for very first evaulations
-// 	  printf(" [chi^2 = %f] ", chi2);
-
   return -chi2/2.0;
 }
 

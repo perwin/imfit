@@ -93,7 +93,6 @@ int main( int argc, char *argv[] )
 {
   int  nColumns, nRows;
   int  nColumns_psf, nRows_psf;
-  long  nPixels_psf;
   int  nParamsTot;
   int  status;
   double  *psfPixels = NULL;
@@ -183,7 +182,6 @@ int main( int argc, char *argv[] )
     nRows = options->nRows;
   }
   
-
   // Read in PSF image, if supplied
   if (options->psfImagePresent) {
     std::tie(psfPixels, nColumns_psf, nRows_psf, status) = GetPsfImage(options);
@@ -193,70 +191,60 @@ int main( int argc, char *argv[] )
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
-//   if (options->psfImagePresent) {
-//     printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
-//     psfPixels = ReadImageAsVector(options->psfFileName, &nColumns_psf, &nRows_psf);
-//     if (psfPixels == NULL) {
-//       fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
-//       			options->psfFileName.c_str());
-//       exit(-1);
-//     }
-//     nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
-//     printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
-//            nColumns_psf, nRows_psf, nPixels_psf);
-//   }
-//   else
-//     printf("* No PSF image supplied -- no image convolution will be done!\n");
-
   // Read in oversampled PSF image(s), if supplied
   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {
-    int psfOversamplingScale;
-    int nOversampledPsfImages = (int)options->psfOversampledFileNames.size();
-    int nOversampledScales = (int)options->psfOversamplingScales.size();
-    if (nOversampledPsfImages != nOversampledScales) {
-      fprintf(stderr, "\n*** ERROR: number of oversampling scales (%d) is not the same\n", 
-      					nOversampledScales);
-      fprintf(stderr, "           as number of oversampled-PSF images (%d)!\n\n",
-      					nOversampledPsfImages);
-      exit(-1);
-    }
-    if ((nOversampledPsfImages > 1) && (nOversampledPsfImages != options->nOversampleRegions)) {
-      fprintf(stderr, "\n*** ERROR: number of oversampled-PSF images (%d) must be = 1 OR\n", 
-      					nOversampledPsfImages);
-      fprintf(stderr, "           must be same as number of oversampled-PSF regions (%d)!\n\n",
-      					options->nOversampleRegions);
-      exit(-1);
-    }
-    printf("main: options->nOversampleRegions = %d\n", options->nOversampleRegions);
-    for (int nn = 0; nn < options->nOversampleRegions; nn++) {
-      printf("main: nn = %d: oversampling region = %s\n", nn, options->psfOversampleRegions[nn].c_str());
-      psfOversampleInfo = new PsfOversamplingInfo();
-      psfOversampleInfo->AddRegionString(options->psfOversampleRegions[nn]);
-      bool newPsfOversampledPixelsFlag = false;
-      if ( (nn == 0) || ((nn > 0) && (nOversampledPsfImages > 1)) ) {
-        // Always read PSF image and get oversampling scale from options object the
-        // first time through; do it again if user supplied more than one image and
-        // scale (otherwise, we reuse the same image and scale for subsequent regions)
-        printf("Reading oversampled PSF image (\"%s\") ...\n", options->psfOversampledFileNames[nn].c_str());
-        psfOversampledPixels = ReadImageAsVector(options->psfOversampledFileNames[nn], 
-		    							&nColumns_psf_oversampled, &nRows_psf_oversampled);
-        if (psfOversampledPixels == NULL) {
-          fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
-			      			options->psfOversampledFileNames[nn].c_str());
-          exit(-1);
-        }
-        newPsfOversampledPixelsFlag = true;
-        nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
-        printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
-	             nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
-	    psfOversamplingScale = options->psfOversamplingScales[nn];
-      }
-      psfOversampleInfo->AddPsfPixels(psfOversampledPixels, nColumns_psf_oversampled,
-      									nRows_psf_oversampled, newPsfOversampledPixelsFlag);
-      psfOversampleInfo->AddOversamplingScale(psfOversamplingScale);
-      psfOversamplingInfoVect.push_back(psfOversampleInfo);
-    }
+    status = GetOversampledPsfInfo(options, 0,0, psfOversamplingInfoVect);
+	if (status < 0)
+	  exit(-1);
   }
+
+//     int psfOversamplingScale;
+//     int nOversampledPsfImages = (int)options->psfOversampledFileNames.size();
+//     int nOversampledScales = (int)options->psfOversamplingScales.size();
+//     if (nOversampledPsfImages != nOversampledScales) {
+//       fprintf(stderr, "\n*** ERROR: number of oversampling scales (%d) is not the same\n", 
+//       					nOversampledScales);
+//       fprintf(stderr, "           as number of oversampled-PSF images (%d)!\n\n",
+//       					nOversampledPsfImages);
+//       exit(-1);
+//     }
+//     if ((nOversampledPsfImages > 1) && (nOversampledPsfImages != options->nOversampleRegions)) {
+//       fprintf(stderr, "\n*** ERROR: number of oversampled-PSF images (%d) must be = 1 OR\n", 
+//       					nOversampledPsfImages);
+//       fprintf(stderr, "           must be same as number of oversampled-PSF regions (%d)!\n\n",
+//       					options->nOversampleRegions);
+//       exit(-1);
+//     }
+//     printf("main: options->nOversampleRegions = %d\n", options->nOversampleRegions);
+//     for (int nn = 0; nn < options->nOversampleRegions; nn++) {
+//       printf("main: nn = %d: oversampling region = %s\n", nn, options->psfOversampleRegions[nn].c_str());
+//       psfOversampleInfo = new PsfOversamplingInfo();
+//       psfOversampleInfo->AddRegionString(options->psfOversampleRegions[nn]);
+//       bool newPsfOversampledPixelsFlag = false;
+//       if ( (nn == 0) || ((nn > 0) && (nOversampledPsfImages > 1)) ) {
+//         // Always read PSF image and get oversampling scale from options object the
+//         // first time through; do it again if user supplied more than one image and
+//         // scale (otherwise, we reuse the same image and scale for subsequent regions)
+//         printf("Reading oversampled PSF image (\"%s\") ...\n", options->psfOversampledFileNames[nn].c_str());
+//         psfOversampledPixels = ReadImageAsVector(options->psfOversampledFileNames[nn], 
+// 		    							&nColumns_psf_oversampled, &nRows_psf_oversampled);
+//         if (psfOversampledPixels == NULL) {
+//           fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
+// 			      			options->psfOversampledFileNames[nn].c_str());
+//           exit(-1);
+//         }
+//         newPsfOversampledPixelsFlag = true;
+//         nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
+//         printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
+// 	             nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
+// 	    psfOversamplingScale = options->psfOversamplingScales[nn];
+//       }
+//       psfOversampleInfo->AddPsfPixels(psfOversampledPixels, nColumns_psf_oversampled,
+//       									nRows_psf_oversampled, newPsfOversampledPixelsFlag);
+//       psfOversampleInfo->AddOversamplingScale(psfOversamplingScale);
+//       psfOversamplingInfoVect.push_back(psfOversampleInfo);
+//     }
+//   }
 
 
   if (! options->subsamplingFlag)

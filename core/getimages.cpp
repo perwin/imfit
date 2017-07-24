@@ -22,11 +22,14 @@
 #include "image_io.h"
 #include "options_base.h"
 #include "getimages.h"
+#include "psf_oversampling_info.h"
 #include "fftw3.h"  // so we can call fftw_free()
 
 
-// Code which retrieves an image from a (FITS) file and checks its dimensions
-// against a reference
+/// Main utility function: reads in image from FITS file imageName and checks dimensions
+/// against reference values (if latter are nonzero). Returns (nullptr, -1) if unable
+/// to read image-data from file or if image dimensions do not match references
+/// dimensions (unless latter are both 0).
 std::tuple<double *, int> GetAndCheckImage( const string imageName, const string imageType,
 											int nColumns_ref, int nRows_ref )
 {
@@ -55,11 +58,16 @@ std::tuple<double *, int> GetAndCheckImage( const string imageName, const string
 }
 
 
-// Function which retrieves and checks dimensions for mask and/or noise/error images.
-// Return values:
-// 		status = 1: mask image loaded, but no error image specified
-// 		status = 2: error image loaded, but no mask image was specified
-// 		status = 3: both images specified & loaded
+/// Function which retrieves and checks dimensions for mask and/or noise/error images.
+/// Returns tuple of (maskPixels, errorPixels, status), where maxPixels and errorPixels
+/// are double * (and are = nullptr when image in question was not requested).
+/// In case of errors in retrieving image data -- or if image dimensions do not
+/// match reference dimensions nColumns, nRows -- then (nullptr, nullptr, -1) is
+/// returned.
+/// Return values:
+/// 		status = 1: mask image loaded, but no error image specified
+/// 		status = 2: error image loaded, but no mask image was specified
+/// 		status = 3: both images specified & loaded
 std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRows, 
 										OptionsBase *options, bool &maskPixelsAllocated, 
 										bool &errorPixelsAllocated )
@@ -97,7 +105,11 @@ std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRo
 }
 
 
-// Function which reads and returns data corresponding to requested PSF image
+/// Function which reads and returns data corresponding to requested PSF image,
+/// along with PSF image dimensions:
+/// tuple of (psfPixels, nColumns_psf, nRows_psf, status).
+/// In case of errors in retrieving image data, return value is
+/// (nullptr, 0, 0, -1)
 std::tuple<double *, int, int, int> GetPsfImage( OptionsBase *options )
 {
   int  status;
@@ -118,3 +130,62 @@ std::tuple<double *, int, int, int> GetPsfImage( OptionsBase *options )
   return std::make_tuple(psfPixels, nColumns_psf, nRows_psf, 0);
 }
 
+
+
+// Function which reads and returns data corresponding to requested oversampled PSF
+// images
+int GetOversampledPsfInfo( OptionsBase *options, int xOffset, int yOffset, 
+							vector<PsfOversamplingInfo *> &psfOversamplingInfoVect )
+{
+  PsfOversamplingInfo * psfOversampleInfo;
+  double * psfOversampledPixels;
+  int  nColumns_psf_oversampled, nRows_psf_oversampled;
+  long  nPixels_psf_oversampled;
+  int psfOversamplingScale;
+  int nOversampledPsfImages = (int)options->psfOversampledFileNames.size();
+  int nOversampledScales = (int)options->psfOversamplingScales.size();
+  if (nOversampledPsfImages != nOversampledScales) {
+    fprintf(stderr, "\n*** ERROR: number of oversampling scales (%d) is not the same\n", 
+   					nOversampledScales);
+    fprintf(stderr, "           as number of oversampled-PSF images (%d)!\n\n",
+   					nOversampledPsfImages);
+    return -1;
+  }
+  if ((nOversampledPsfImages > 1) && (nOversampledPsfImages != options->nOversampleRegions)) {
+    fprintf(stderr, "\n*** ERROR: number of oversampled-PSF images (%d) must be = 1 OR\n", 
+   					nOversampledPsfImages);
+    fprintf(stderr, "           must be same as number of oversampled-PSF regions (%d)!\n\n",
+   					options->nOversampleRegions);
+    return -1;
+  }
+  for (int nn = 0; nn < options->nOversampleRegions; nn++) {
+    psfOversampleInfo = new PsfOversamplingInfo();
+    psfOversampleInfo->AddImageOffset(xOffset, yOffset);
+    psfOversampleInfo->AddRegionString(options->psfOversampleRegions[nn]);
+    bool newPsfOversampledPixelsFlag = false;
+    if ( (nn == 0) || ((nn > 0) && (nOversampledPsfImages > 1)) ) {
+      // Always read PSF image and get oversampling scale from options object the
+      // first time through; do it again if user supplied more than one image and
+      // scale (otherwise, we reuse the same image and scale for subsequent regions)
+      printf("Reading oversampled PSF image (\"%s\") ...\n", options->psfOversampledFileNames[nn].c_str());
+      psfOversampledPixels = ReadImageAsVector(options->psfOversampledFileNames[nn], 
+	    							&nColumns_psf_oversampled, &nRows_psf_oversampled);
+      if (psfOversampledPixels == NULL) {
+        fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
+		      			options->psfOversampledFileNames[nn].c_str());
+        return -1;
+      }
+      newPsfOversampledPixelsFlag = true;
+      nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
+      printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
+             nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
+      psfOversamplingScale = options->psfOversamplingScales[nn];
+    }
+    psfOversampleInfo->AddPsfPixels(psfOversampledPixels, nColumns_psf_oversampled,
+   									nRows_psf_oversampled, newPsfOversampledPixelsFlag);
+    psfOversampleInfo->AddOversamplingScale(psfOversamplingScale);
+    psfOversamplingInfoVect.push_back(psfOversampleInfo);
+  }
+  
+  return 0;
+}

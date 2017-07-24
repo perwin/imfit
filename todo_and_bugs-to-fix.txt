@@ -12,14 +12,14 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-(1.5)[ ] Add option to turn *off* normalization of input PSFs
+(1.5)[..] Add option to turn *off* normalization of input PSFs
 	-- Corentin Schreiber requested this for working with interferometric images,
 	which use "a peculiar point spread function, with a peak of unity and sum of zero."
 	[ ] Add commandline-option
 		[x] Update options_base.h to include psf-normalization option
 		[x] Update ProcessInput() in makeimage_main.cpp to include option
 		[x] Update ProcessInput() in imfit_main.cpp to include option
-		[ ] Update ProcessInput() in mcmc_main.cpp to include option
+		[x] Update ProcessInput() in mcmc_main.cpp to include option
 		[ ] Update construction of PsfOversamplingInfo objects in makeimage_main.cpp
 			-- PsfOversamplingInfo::SetNormalizationFlag
 		[ ] Update construction of PsfOversamplingInfo objects in imfit_main.cpp
@@ -148,14 +148,14 @@
 (1.5)[ ] Unit tests for FerrersBar3D
 
 
-[ ] Separate functions for reading in images
-	[..] getimages_maskerror.h/cpp: reads in mask and/or error images
+[..] Separate functions for reading in images
+	[x] getimages.h/cpp: reads in mask, error, and images
 		-- for imfit, imfit-mcmc main()
 		[x] Write code
 		[x] Modify imfit main() to use function
-		[ ] Modify imfit-mcmc main() to use function
+		[x] Modify imfit-mcmc main() to use function
 		
-	[ ] getimages_psf: combines reading in PSF and (optionally) oversampled PSF images
+	[ ] function for reading in oversampled PSF images
 		-- for makeimage, imfit, imfit-mcmc main()
 		[ ] Write code
 		[ ] Modify imfit main() to use function
@@ -167,10 +167,10 @@
 		[..] Update do_makeimage_tests.sh
 		[ ] Update do_imfit_tests.sh
 		[ ] Update do_mcmc_tests.sh
-	[ ] Update regression test to use color when tests fail
-		[ ] Update do_makeimage_tests.sh
-		[ ] Update do_imfit_tests.sh
-		[ ] Update do_mcmc_tests.sh
+	[x] Update regression test to use color when tests fail
+		[x] Update do_makeimage_tests.sh
+		[x] Update do_imfit_tests.sh
+		[x] Update do_mcmc_tests.sh
 	
 
 [ ] Check input: Catch cases of oversampled regions that lie or extend outside data
