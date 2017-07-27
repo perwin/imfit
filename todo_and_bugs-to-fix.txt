@@ -1,11 +1,50 @@
 
 ** BUGS TO FIX:
 
-(1.5)[ ] Bootstrap output:
+(1.5)[ ] Bootstrap and MCMC output:
 	X0,Y0 values are *not* corrected to full-image coordinates if input image used
 	image subsections (e.g., for "imfit data.fits[200:400,100:300] ...", the saved
 	X0,Y0 values in the bootstrap output file will be subsection-relative, although
 	the "best-fit" values in the header will be correctly full-image relative.
+	 -- BootstrapErrors() --> BootstrapErrorsBase()
+	 -- ModelObject::PrintModelParams -- corrections are applied *if* parameterInfo
+	 input parameter is non-NULL
+	 -- Need to write "horizontal" version of ModelObject::PrintModelParams
+	 	-- skips printing parameter names, but does apply x,y offsets
+		[x] Locate where in code we currently *do* correct for this
+		[x] Write unit test for new PrintModelParams function
+		[x] Write code to pass test
+	[x] Implement fix in bootstrap code
+	[x] Implement fix in MCMC code
+
+	[x] Add setting and storage of mp_param-type info *inside* ModelObject
+		-- idea is to circumvent the awkward, error-prone issue of how to pass through
+		mp_param pointer-to-array (or vector of mp_par) to ModelObject printing methods
+		-- could be simplified version of mp_par, maybe even just holding X0_offset,
+		Y0_offset
+			-- mp_par data members actually referenced within model_object.cpp:
+			PrintModelParams: .offset
+				print_results.cpp
+			PrintModelParamsToStrings: .offset, .fixed, .limits [+ .size() for vector<mp_par>]
+				mcmc_main.cpp
+			PrintModelParamsHorizontalString: .offset
+				bootstrap_errors.cpp
+		[x] Add vector<SimpleParameterInfo> to ModelObject
+		[x] Add printing method to ModelObject which uses internal vector
+		[x] Test substitution of new printing method in unit tests
+			[x] testPrintParamsToString
+			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_noOffset
+			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_withOffset
+			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_withOffset_2blocks
+
+	[ ] Convert code in print_results.cpp which uses PrintModelParams to use
+		PrintModelParamsToStrings instead, and then eliminate PrintModelParams ?
+
+	[ ] Update ModelOject1D Print*Params methods
+		[ ] Update adding parameter info to ModelObject1D in profilefit_main.cpp
+		[ ] Update other parameter-printing code in profilefit
+
+	
 
 
 
@@ -15,15 +54,15 @@
 (1.5)[..] Add option to turn *off* normalization of input PSFs
 	-- Corentin Schreiber requested this for working with interferometric images,
 	which use "a peculiar point spread function, with a peak of unity and sum of zero."
-	[ ] Add commandline-option
+	[x] Add commandline option
 		[x] Update options_base.h to include psf-normalization option
 		[x] Update ProcessInput() in makeimage_main.cpp to include option
 		[x] Update ProcessInput() in imfit_main.cpp to include option
 		[x] Update ProcessInput() in mcmc_main.cpp to include option
-		[ ] Update construction of PsfOversamplingInfo objects in makeimage_main.cpp
+		[x] Update construction of PsfOversamplingInfo objects in makeimage_main.cpp
 			-- PsfOversamplingInfo::SetNormalizationFlag
-		[ ] Update construction of PsfOversamplingInfo objects in imfit_main.cpp
-		[ ] Update construction of PsfOversamplingInfo objects in mcmc_main.cpp
+		[x] Update construction of PsfOversamplingInfo objects in imfit_main.cpp
+		[x] Update construction of PsfOversamplingInfo objects in mcmc_main.cpp
 	[x] Update ModelObject::AddPSFVector
 		-- input PSF normalization flag
 		-- pass parameter to Convolver::SetupPSF
@@ -41,6 +80,9 @@
 	[x] Update PsfOversamplingInfo
 	[x] Update SetupModelObject
 		[x] Update calls to ModelObject::AddPSFVector
+	[ ] Feedback (& PSF image??) from Corentin Schrieber
+		[ ] Ask for PSF image so we can test non-normalized PSF?
+		
 	
 (1.5)[..] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
 	-- multiple sub-regions, all with same PSF
@@ -188,6 +230,31 @@ image (accounting for data image subset, if any)
 	-- So: sanity-check the input PSF image to make sure the sum of its pixels is > 0
 
 
+[ ] Standardize on vector<mp_par> for parameter info/limits
+	-- currently, we use a mixture of mp_par * and vector<mp_par>; the latter is
+	preferable given that we don't have to worry about memory cleanup
+	-- need to modify solver-wrapper functions to handle this
+		-- test for empty vector<mp_par> instead of NULL
+		-- convert vector<mp_par> into suitable form
+			-- note that this conversion already happens in nlopt_fit, so this would
+			be merely a change, not an addition
+	
+	Things taking mp_par * as parameters:
+		bootstrap.h: BootstrapErrors; BootstrapErrorsArrayOnly
+		print_results.h: PrintResults; SaveParameters; SaveParameters2
+		model_object.h: PrintModelParams; PrintModelParamsHorizontalString
+		diff_evoln_fit.h: DiffEvolnFit [not used]
+		dispatch_solver.h: DispatchToSolver
+		levmar_fit.h: LevMarFit
+		mpfit.h: mpfit
+		nlopt_fit.h: NLOptFit
+		nmsimplex_fit.h: NMSimplexFit
+
+
+[ ] Consolidate PrintInputImage, PrintModelImage, etc. methods in ModelObject into a 
+single method with a string parameter ("data", "model", "weight", etc.)
+
+		
 [ ] MCMC program: "imfit-mcmc"
 	
 	[ ] Feedback from dream()
@@ -456,6 +523,37 @@ image (accounting for data image subset, if any)
 				[] config file with optional parameter
 				[] config file with optional parameter (different value)
 
+
+
+[ ] Optional linking of component orientations within a function block:
+	PA [position angle], INCLINATION [for 3D objects]
+	
+	In the individual-function parameter lists, we use "link=NAME", where
+	NAME = one of the allowed function-block parameters (i.e., PA or INCLINATION)
+	
+	E.g., a function block consistent of a Gaussian and an Exponential with
+	the exact same PA:
+	
+	X0  40		35,45
+	Y0	50		45,55
+	PA	15		0,30
+	FUNCTION Gaussian
+	PA		link=PA
+	ell		0.3		fixed
+	I_0		100
+	sigma	1.0
+	FUNCTION Exponential
+	PA		link=PA
+	ell		0.5		0.2,0.8
+	I_0		10		0,50
+	h		100		50,200
+	
+	Need some way of tagging parameter vector so we know which individual-function
+	parameters are duplicated
+	
+	Note that these are similar to but also *orthogonal* to the image-description
+	parameters; perhaps we can use some of the same logic for assembling and
+	disassembling parameter vectors
 
 
 [ ] Separate the code which does doing model-image-generation timing into separate file

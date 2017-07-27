@@ -187,6 +187,7 @@ buildForOldMacOS = False
 scanBuild = False
 addressSanitize = False
 setOptToDebug = False
+useLogging = False
 
 # Define some user options
 AddOption("--lib-path", dest="libraryPath", type="string", action="store", default=None,
@@ -216,6 +217,8 @@ AddOption("--scan-build", dest="doingScanBuild", action="store_true",
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 AddOption("--address-sanitize", dest="useAddressSanitize", action="store_true", 
 	default=False, help="set this to generate binaries with -fsanitize-address")
+AddOption("--logging", dest="useLogging", action="store_true", 
+	default=False, help="compile with support for logging via plog")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -278,6 +281,9 @@ if GetOption("useAddressSanitize") is True:
 	addressSanitize = True
 	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
 	setOptToDebug = True
+
+if GetOption("useLogging") is True:
+	useLogging = True
 
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
@@ -378,6 +384,9 @@ if doExtraChecks:   # default is to NOT do this; user must specify with "--extra
 	cflags_opt.append(["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith",
 					"-Wextra", "-pedantic"])
 
+if useLogging:
+	extra_defines.append(["-DUSE_PLOG"])
+	
 # Add any additional, user-specified preprocessor definitions (e.g., "define=DEBUG")
 for key, value in ARGLIST:
 	if key == 'define':
@@ -603,7 +612,7 @@ env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LI
 # so we need to include those in the compilation and link, even though they aren't
 # actually used in model_object1d. Similarly, code in image_io is referenced from
 # downsample.)
-modelobject1d_obj_string = """model_object oversampled_region downsample"""
+modelobject1d_obj_string = """model_object oversampled_region downsample psf_oversampling_info"""
 modelobject1d_objs = [CORE_SUBDIR + name for name in modelobject1d_obj_string.split()]
 modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 

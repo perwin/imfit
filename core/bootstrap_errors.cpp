@@ -38,7 +38,6 @@
 
 #include "definitions.h"
 #include "model_object.h"
-#include "mpfit.h"
 #include "levmar_fit.h"
 #ifndef NO_NLOPT
 #include "nmsimplex_fit.h"
@@ -191,6 +190,7 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
   int  nValidPixels = theModel->GetNValidPixels();
   int  verboseLevel = -1;   // ensure minimizer stays silent
   bool  saveToFile = false;
+  string  outputLine;
   
   if (outputFile_ptr != NULL)
     saveToFile = true;
@@ -244,9 +244,12 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
       for (i = 0; i < nParams; i++)
         outputParamArray[i][nSuccessfulIters] = paramsVect[i];
       if (saveToFile) {
-        for (i = 0; i < (nParams - 1); i++)
-          fprintf(outputFile_ptr, "%f\t\t", paramsVect[i]);
-        fprintf(outputFile_ptr, "%f\n", paramsVect[nParams - 1]);
+        outputLine = theModel->PrintModelParamsHorizontalString(paramsVect);
+//         outputLine = theModel->PrintModelParamsHorizontalString(paramsVect, parameterLimits);
+        fprintf(outputFile_ptr, "%s\n", outputLine.c_str());
+//         for (i = 0; i < (nParams - 1); i++)
+//           fprintf(outputFile_ptr, "%f\t\t", paramsVect[i]);
+//         fprintf(outputFile_ptr, "%f\n", paramsVect[nParams - 1]);
       }
       nSuccessfulIters += 1;
     }

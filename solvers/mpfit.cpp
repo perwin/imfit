@@ -918,7 +918,7 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
         // note that we print parameter values using xnew, not x, since x 
         // contains only the *free* parameters. xnew contains *all* parameters,
         // and holds the last set of parameter values passed to theModel (via funct)
-        theModel->PrintModelParams(stdout, xnew, NULL, NULL);
+        theModel->PrintModelParams(stdout, xnew, NULL);
       }
     }
     iter += 1;

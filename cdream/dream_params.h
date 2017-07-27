@@ -5,6 +5,7 @@
 #include <vector>
 using namespace std;
 
+#include "param_struct.h"
 
 typedef double (*LikelihoodFunction)( int chain_id, int gen, const double* state, 
                          const void* pars, bool recalc );

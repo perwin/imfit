@@ -4,12 +4,20 @@
 # with options for how many lines to skip at beginning or end.
 # Prints " OK." if they match, or prints trimmed diff if they don't.
 #
+# The script uses sys.exit() to return either 0 for success or 1 for some kind
+# of failure; this is for use with shell scripts for regression tests, etc.
+#
 # Usage:
 # $ diff_printouts.py new_file reference_file
 
 from __future__ import print_function
 
 import sys, os, optparse, difflib
+
+# predefine some ANSI color codes
+RED  = '\033[31m' # red
+NC = '\033[0m' # No Color
+
 
 DEFAULT_START = 0
 
@@ -53,10 +61,12 @@ def main( argv=None ):
 	difflines = list(diff)
 	if len(difflines) == 0:
 		print(" OK.")
+		sys.exit(0)
 	else:
-		print("   \033[1;31m Failed:\033[0m Diff output:")
+		print(RED + "   Failed: " + NC + "Diff output:")
 		for line in difflines:
 			print(line, end="")
+		sys.exit(1)
 
 
 

@@ -475,8 +475,8 @@ void ModelObject1d::PrintDescription( )
 // Basic function which prints to a file a summary of the best-fitting model,
 // in form suitable for future use as an input config file.
 
-void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], 
-										mp_par *parameterInfo, double errs[], const char *prefix )
+void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], double errs[], 
+										const char *prefix )
 {
   double  x0, paramVal;
   int nParamsThisFunc, k;
@@ -487,7 +487,7 @@ void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[],
     if (fblockStartFlags[n] == true) {
       // start of new function block: extract x0,y0 and then skip over them
       k = indexOffset;
-      x0 = params[k] + parameterInfo[k].offset;
+      x0 = params[k] + parameterInfoVect[k].offset;
       if (errs != NULL) {
         fprintf(output_ptr, "\n%sX0\t\t%f # +/- %f\n", prefix, x0, errs[k]);
       } else {
@@ -511,6 +511,43 @@ void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[],
     indexOffset += paramSizes[n];
   }
 }
+
+// void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], 
+// 										mp_par *parameterInfo, double errs[], const char *prefix )
+// {
+//   double  x0, paramVal;
+//   int nParamsThisFunc, k;
+//   int  indexOffset = 0;
+//   string  funcName, paramName;
+// 
+//   for (int n = 0; n < nFunctions; n++) {
+//     if (fblockStartFlags[n] == true) {
+//       // start of new function block: extract x0,y0 and then skip over them
+//       k = indexOffset;
+//       x0 = params[k] + parameterInfo[k].offset;
+//       if (errs != NULL) {
+//         fprintf(output_ptr, "\n%sX0\t\t%f # +/- %f\n", prefix, x0, errs[k]);
+//       } else {
+//         fprintf(output_ptr, "\n%sX0\t\t%f\n", prefix, x0);
+//       }
+//       indexOffset += 1;
+//     }
+//     
+//     // Now print the function and its parameters
+//     nParamsThisFunc = paramSizes[n];
+//     funcName = functionObjects[n]->GetShortName();
+//     fprintf(output_ptr, "%sFUNCTION %s\n", prefix, funcName.c_str());
+//     for (int i = 0; i < nParamsThisFunc; i++) {
+//       paramName = GetParameterName(indexOffset + i);
+//       paramVal = params[indexOffset + i];
+//       if (errs != NULL)
+//         fprintf(output_ptr, "%s%s\t\t%f # +/- %f\n", prefix, paramName.c_str(), paramVal, errs[indexOffset + i]);
+//       else
+//         fprintf(output_ptr, "%s%s\t\t%f\n", prefix, paramName.c_str(), paramVal);
+//     }
+//     indexOffset += paramSizes[n];
+//   }
+// }
 
 
 /* ---------------- PUBLIC METHOD: PopulateParameterNames -------------- */

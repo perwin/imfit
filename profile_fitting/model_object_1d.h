@@ -22,6 +22,7 @@
 #include "function_object.h"
 #include "model_object.h"
 #include "convolver1d.h"
+#include "param_struct.h"
 
 class ModelObject1d : public ModelObject
 {
@@ -51,8 +52,10 @@ class ModelObject1d : public ModelObject
     
     int Dimensionality( ) { return 1;};
     
-    void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
-							double errs[], const char *prefix="" );
+//     void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
+// 							double errs[], const char *prefix="" );
+    void PrintModelParams( FILE *output_ptr, double params[], double errs[], 
+    						const char *prefix="" );
     void PopulateParameterNames( );
     
     int FinalSetupForFitting( );
@@ -80,25 +83,12 @@ class ModelObject1d : public ModelObject
   private:
     Convolver1D  *psfConvolver;
   
-//   protected:  // same as private, except accessible to derived classes
-//     int  nParams;
-//     int  nDataVals, nColumns, nRows;
-//     bool  dataValsSet, parameterBoundsSet, modelVectorAllocated, modelImageComputed;
-//     bool  weightValsSet;
-//     int  nFunctions, nParamsTot;
-// 	double  *dataVector;
       bool  parameterBoundsSet;
 	  double  *dataXValues, *modelXValues;
 	  bool  dataAreMagnitudes;
 	// things useful for PSF convolution
 	  int  dataStartOffset, nPSFVals;
 	  double  *parameterBounds;
-// 	double  *weightVector;
-// 	double  *modelVector;
-// 	double  *parameterBounds;
-// 	std::vector<FunctionObject *> functionObjects;
-// 	std::vector<int> paramSizes;
-  
 };
 
 #endif   // _MODEL_OBJ_1D_H_

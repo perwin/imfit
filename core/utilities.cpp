@@ -33,7 +33,7 @@
 using namespace std;
 
 #include "utilities_pub.h"
-#include "mpfit.h"
+#include "param_struct.h"
 #include "statistics.h"
 
 /* ------------------- Function Prototypes ----------------------------- */
@@ -633,6 +633,28 @@ int IsNumeric( const char *aString )
     strtod(aString, &p);
     return (*p == '\0');
 }
+
+
+
+/// \brief Utility function (mainly for debugging) which prints contents of an
+///        mp_par structure
+string PrintMpPar( mp_par& p )
+{
+   return PrintToString("%s: fixed: %d, limited = (%d,%d), limits = (%f,%f), offset = %d",
+   			p.parname, p.fixed, p.limited[0],p.limited[1], p.limits[0],p.limits[1],
+   			p.offset);
+}
+
+// struct mp_par_struct {
+//   int fixed;        /* 1 = fixed; 0 = free */
+//   int limited[2];   /* 1 = low/upper limit; 0 = no limit */
+//   double limits[2]; /* lower/upper limit boundary value */
+// 
+//   char *parname;    /* Name of parameter, or 0 for none */
+//   
+//   double offset;    /* Offset to be added when printing/writing output
+//                        (e.g., X0  or Y0 offset when an image subsection is
+//                        being fitted) */
 
 
 

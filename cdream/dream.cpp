@@ -49,14 +49,23 @@ using namespace std;
 #include "dream.h"
 #include "dream_params.h"
 
+#include "model_object.h"
+#include "utilities_pub.h"
+
+#ifdef USE_PLOG
+#include "plog/Log.h"
+#endif
 
 
-int dream( const dream_pars* p, rng::RngStream* rng ) {
+int dream( const dream_pars* p, rng::RngStream* rng )
+{
   int inBurnIn = (p->burnIn > 0);
   int burnInStart = 0;
   int genNumber = 0;
   int nLikelihoodEvals = 0;
   bool converged = false;
+  
+  ModelObject * theModel = (ModelObject *)p->extraData;
 
   // opening message
   if (p->verboseLevel > 0) {
@@ -72,7 +81,7 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
   }
   
   // MCMC chains
-  Array3D<double> state(p->maxEvals, p->numChains,p->nvar);
+  Array3D<double> state(p->maxEvals, p->numChains, p->nvar);
   Array2D<double> lik(p->maxEvals + 1, p->numChains);
 
   Array2D<double> proposal(p->numChains, p->nvar);
@@ -82,6 +91,9 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
 
   vector<double> scaleReduction(p->nvar, 0.0);
   vector<double> pCR(p->nCR, 1.0/p->nCR);
+  
+  // PE: needed for easier printing of individual steps
+  double *tempParams = (double *)malloc(p->nvar * sizeof(double));
 
   // =========================================================================
   // read previous state
@@ -126,7 +138,10 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
     // save initial state of each chain
     for (int i = 0; i < p->numChains; ++i) {
       for (int j = 0; j < p->nvar; ++j) 
-        *oout[i] << state(0,i,j) << " ";
+        tempParams[j] = state(0,i,j);
+      string paramString = theModel->PrintModelParamsHorizontalString(tempParams);
+      *oout[i] << paramString << " ";
+//        *oout[i] << state(0,i,j) << " ";
 //      *oout[i]  << lik(0,i) << " " << inBurnIn << " " << 0 << " ";
       *oout[i]  << lik(0,i) << " " << inBurnIn << " " << " ";
       for (int j = 0; j < p->nCR; ++j) 
@@ -190,7 +205,7 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
       // generate proposal
       // PE: i = chain index, j = variable index
       for (int j = 0; j < p->nvar; ++j) 
-        proposal(i,j) = state(t - 1,i,j);
+        proposal(i,j) = state(t - 1, i, j);
       // pick pairs
       vector<int> r1(delta, 0);
       vector<int> r2(delta, 0);
@@ -442,13 +457,20 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
     }  // end of "if (++genNumber >= p->loopSteps)"
 
 
+    // FIXME: get output via PrintModelParamsHorizontalString working
     ++ireport;
     if (ireport >= p->report_interval) {
       ireport = 0;
       for (int i = 0; i < p->numChains; ++i) {
-        for (int j = 0; j < p->nvar; ++j) 
-          *oout[i] << state(t,i,j) << " ";
-//        *oout[i] << lik(t,i) << " " << (t < burnInStart + p->burnIn) << " " << genNumber << " ";
+        for (int j = 0; j < p->nvar; j++)
+          tempParams[j] = state(t,i,j);
+        string paramString = theModel->PrintModelParamsHorizontalString(tempParams);
+        *oout[i] << paramString << " ";
+        
+
+//         for (int j = 0; j < p->nvar; ++j) 
+//           *oout[i] << state(t,i,j) << " ";
+          
         *oout[i] << lik(t,i) << " " << (t < burnInStart + p->burnIn) << " " << " ";
         for (int j(0); j < p->nCR; ++j) 
           *oout[i] << pCR[j] << " ";
@@ -465,6 +487,10 @@ int dream( const dream_pars* p, rng::RngStream* rng ) {
       delete oout[i];
   }
 
+  // PE: memory cleanup of added stuff
+  free(tempParams);
+  
+  
   if (p->verboseLevel > 0)
     printf("%d likelihood function calls\n", nLikelihoodEvals);
   if (! converged) {

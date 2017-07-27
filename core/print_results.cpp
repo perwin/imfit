@@ -30,7 +30,6 @@ using namespace std;
 
 #include "definitions.h"
 #include "print_results.h"
-#include "mpfit.h"
 #include "param_struct.h"
 #include "statistics.h"
 #include "utilities_pub.h"
@@ -111,7 +110,8 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     
     double *paramErrs = (double *)calloc(model->GetNParams(), sizeof(double));
     solverResults.GetErrors(paramErrs);
-    model->PrintModelParams(stdout, params, parameterInfo, paramErrs);
+//     model->PrintModelParams(stdout, params, parameterInfo, paramErrs);
+    model->PrintModelParams(stdout, params, paramErrs);
     printf("\n");
     free(paramErrs);
   }
@@ -138,7 +138,8 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
     printf("AIC = %f, BIC = %f\n\n", aic, bic);
     // output the best-fit parameters
-    model->PrintModelParams(stdout, params, parameterInfo, NULL);
+//     model->PrintModelParams(stdout, params, parameterInfo, NULL);
+    model->PrintModelParams(stdout, params, NULL);
     printf("\n");
   }
 }
@@ -266,11 +267,13 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   if (solverResults.ErrorsPresent()) {
     parameterErrs = (double *)calloc(model->GetNParams(), sizeof(double));
     solverResults.GetErrors(parameterErrs);
-    model->PrintModelParams(file_ptr, params, parameterInfo, parameterErrs);
+//     model->PrintModelParams(file_ptr, params, parameterInfo, parameterErrs);
+    model->PrintModelParams(file_ptr, params, parameterErrs);
     free(parameterErrs);
   }
   else
-    model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
+//     model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
+    model->PrintModelParams(file_ptr, params, NULL);
 
   fclose(file_ptr);
 
@@ -286,7 +289,8 @@ void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par
   for (int i = 0; i < (int)outputHeader.size(); i++)
     fprintf(file_ptr, "%s\n", outputHeader[i].c_str());
   fprintf(file_ptr, "%s\n", prefix);
-  model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
+//   model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
+  model->PrintModelParams(file_ptr, params, NULL, prefix);
 }
 
 

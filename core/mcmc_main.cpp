@@ -61,6 +61,10 @@
 #include "dream.h"
 #include "rng/GSLStream.h"
 
+#ifdef USE_PLOG
+#include "plog/Log.h"
+#endif
+
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
@@ -71,6 +75,8 @@ static string  kReadNoiseString = "READNOISE";
 static string  kExpTimeString = "EXPTIME";
 static string  kNCombinedString = "NCOMBINED";
 static string  kOriginalSkyString = "ORIGINAL_SKY";
+
+const char *  LOG_FILENAME = "log_imfit-mcmc.txt";
 
 
 #ifdef USE_OPENMP
@@ -140,6 +146,8 @@ int main(int argc, char *argv[])
   vector<int>  FunctionBlockIndices;
   vector< map<string, string> > optionalParamsMap;
   bool  paramLimitsExist = false;
+  bool  parameterInfo_allocated = false;
+  mp_par  *parameterInfo;
   int  status, fitStatus, nSucessfulIterations;
   vector<string>  imageCommentsList;
   OptionsBase *commandOpts;
@@ -154,6 +162,11 @@ int main(int argc, char *argv[])
 
 
   gettimeofday(&timer_start_all, NULL);
+
+#ifdef USE_PLOG
+  plog::init(plog::debug, LOG_FILENAME, 100000, 3); // Initialize the logger.
+  LOG_INFO << "\n*** Starting up...";
+#endif
 
   progNameVersion += VERSION_STRING;
   MakeMCMCOutputHeader(&programHeader, progNameVersion, argc, argv);
@@ -304,6 +317,7 @@ int main(int argc, char *argv[])
   	exit(-1);
   }
   
+  
   // Determine nParamsTot, nFreeParams and nDegFreedom
   nParamsTot = nFreeParams = theModel->GetNParams();
   printf("%d total parameters\n", nParamsTot);
@@ -331,7 +345,43 @@ int main(int argc, char *argv[])
     fprintf(stderr, "*** ERROR: Failure in ModelObject::FinalSetupForFitting!\n\n");
     exit(-1);
   }
-  
+
+
+  // Set up parameter-info/limits array (mostly useful for storing
+  // X0_offset, Y0_offset, which will be needed for printing output
+  // parameter values)
+  if (nParamsTot <= 0) {
+    fprintf(stderr, "*** ERROR: nParamsTot was not set correctly!\n\n");
+    exit(-1);
+  }
+  parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
+  parameterInfo_allocated = true;
+  for (int i = 0; i < nParamsTot; i++) {
+    parameterInfo[i].fixed = paramLimits[i].fixed;
+    if (parameterInfo[i].fixed == 1) {
+      nFreeParams--;
+    }
+    parameterInfo[i].limited[0] = paramLimits[i].limited[0];
+    parameterInfo[i].limited[1] = paramLimits[i].limited[1];
+    parameterInfo[i].limits[0] = paramLimits[i].limits[0];
+    parameterInfo[i].limits[1] = paramLimits[i].limits[1];
+    // specify different offsets if using image subsection, and apply them to
+    // user-specified X0,Y0 limits
+    if (theModel->GetParameterName(i) == X0_string) {
+      parameterInfo[i].offset = X0_offset;
+      parameterInfo[i].limits[0] -= X0_offset;
+      parameterInfo[i].limits[1] -= X0_offset;
+    } else if (theModel->GetParameterName(i) == Y0_string) {
+      parameterInfo[i].offset = Y0_offset;
+      parameterInfo[i].limits[0] -= Y0_offset;
+      parameterInfo[i].limits[1] -= Y0_offset;
+    }
+  }
+
+  // tell ModelObject about parameterInfo (mainly useful for printing-related methods)
+  theModel->AddParameterInfo(parameterInfo);
+
+
  
   // Get estimate of memory use (do this *after* we know number of free parameters); 
   // warn if it will be large
@@ -428,8 +478,9 @@ int main(int argc, char *argv[])
 
   // Construct header using parameter names, etc.
   programHeader.push_back("#\n# Model definition:\n");
-  theModel->PrintModelParamsToStrings(programHeader, paramsVect, paramLimits, NULL,
-  									"#", true);
+//   theModel->PrintModelParamsToStrings(programHeader, paramsVect, paramLimits, NULL,
+//   									"#", true);
+  theModel->PrintModelParamsToStrings(programHeader, paramsVect, NULL, "#", true);
   programHeader.push_back("#\n# Column Headers\n");
   string headerString = theModel->GetParamHeader();
   headerString += "  likelihood  burn-in    ";
@@ -459,6 +510,10 @@ int main(int argc, char *argv[])
   		options->outputFileRoot.c_str(), options->outputFileRoot.c_str(), options->nChains - 1);
 
 
+#ifdef USE_PLOG
+  LOG_INFO << "*** Shutting down...";
+#endif
+
   // Free up memory
   fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()
   if (errorPixels_allocated)
@@ -470,6 +525,8 @@ int main(int argc, char *argv[])
   if (maskAllocated)
     fftw_free(allMaskPixels);           // allocated externally, in ReadImageAsVector()
   free(paramsVect);
+  if (parameterInfo_allocated)
+    free(parameterInfo);
   delete theModel;
 
   FreeVarsDreamParams(&dreamPars);

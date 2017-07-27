@@ -7,6 +7,13 @@
 # Including DE and oversampled-PSF tests: run script as
 # $ ./do_imfit_tests --all
 
+# Predefine some ANSI color escape codes
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# create an integer variable for status (& counting number of failed tests)
+declare -i STATUS=0
+
 FAILED_TEXT=" ** Test failed. **"
 
 do_fits_tests=$(./python/py_startup_test.py)
@@ -21,8 +28,6 @@ case "$OSTYPE" in
   linux*)   osname="linux" ;;
   *)        echo "unknown: $OSTYPE" ;;
 esac
-
-STATUS=0
 
 # create output directory for test_dump*, etc. files (will do nothing if
 # directory already exists), then delete existing test_dump* files
@@ -96,9 +101,11 @@ echo -n "   (now running Cash-statistic and Poisson MLR fits ...)"
 ./imfit tests/pgc35772_continuum.fits[340:630,300:580] -c tests/config_imfit_pgc35772.dat --mask=tests/pgc35772_mask.fits[340:630,300:580] --mlr  &> temptest/test_dump5d
 echo ""
 
-# test bootstrap resampling (just to see that program doesn't crash)
+# test bootstrap resampling (first is just to see that program doesn't crash, which happened
+# previously when nIterations = 3; third is for testing that we correct for image offsets)
 ./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 &> /dev/null
-./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 --save-bootstrap temp_bootstrap_output.dat &> /dev/null
+./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --seed 10 --bootstrap 5 --save-bootstrap temptest/temp_bootstrap_output.dat &> /dev/null
+./imfit tests/ic3478rss_64x64.fits[10:64,10:64] -c tests/imfit_config_ic3478_64x64b.dat --seed 10 --bootstrap 5 --save-bootstrap temptest/temp_bootstrap_output2.dat &> /dev/null
 
 # testing error-image generation and saving
 # first using data values for errors, then using model values (should be identical)
@@ -164,15 +171,19 @@ echo ""
 
 echo -n "*** Diff comparison with archives: first test... "
 ./python/diff_printouts.py tests/imfit_textout1 temptest/test_dump1 --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image... "
 ./python/diff_printouts.py tests/imfit_textout2 temptest/test_dump2 --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (take 2)... "
 ./python/diff_printouts.py tests/imfit_textout3 temptest/test_dump3 --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (N-M simplex fit)... "
 ./python/diff_printouts.py tests/imfit_textout3b temptest/test_dump3b --skip-last=3
+STATUS+=$?
 
 # special test for DE output because final parameter are more variable from one fit
 # to the next...
@@ -181,69 +192,96 @@ then
   tail -n 17 temptest/test_dump3c > temptest/test_dump3c_tail
   echo -n "*** Comparison with archives (tolerances ~ 5e-5 or smaller): tiny SDSS cutout image (DE fit)... "
   ./python/compare_imfit_printouts.py temptest/test_dump3c_tail tests/imfit_textout3c_tail
+  STATUS+=$?
 fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud)... "
 ./python/diff_printouts.py tests/imfit_textout3d temptest/test_dump3d --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud, fixed parameter)... "
 ./python/diff_printouts.py tests/imfit_textout3d2 temptest/test_dump3d2 --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit using sigma map)... "
 ./python/diff_printouts.py tests/imfit_textout3e temptest/test_dump3e --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit using variance map)... "
 ./python/diff_printouts.py tests/imfit_textout3e2 temptest/test_dump3e2 --skip-last=3
+STATUS+=$?
 
 
 echo -n "*** Diff comparison with archives: fit to larger (rectangular) SDSS image w/ PSF convolution... "
 ./python/diff_printouts.py tests/imfit_textout4 temptest/test_dump4 --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: same, but using counts/sec image + --exptime option... "
 ./python/diff_printouts.py tests/imfit_textout4b temptest/test_dump4b --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: chisquare-only calculation... "
 ./python/diff_printouts.py tests/imfit_textout4c temptest/test_dump4c --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: chisquare-only (Cash statistic) calculation... "
 ./python/diff_printouts.py tests/imfit_textout4d temptest/test_dump4d --skip-last=3
+STATUS+=$?
 
 if [ "$1" == "--all" ]
 then
   echo -n "*** Diff comparison with archives: fit using oversampled PSF... "
   ./python/diff_printouts.py tests/imfit_textout4e temptest/test_dump4e --skip-last=3
+  STATUS+=$?
 
   echo -n "*** Diff comparison with archives: fit using oversampled PSF + image section... "
   ./python/diff_printouts.py tests/imfit_textout4e2 temptest/test_dump4e2 --skip-last=3
+  STATUS+=$?
 fi
 
 echo -n "*** Diff comparison with archives: fit using Cash statistic... "
 tail -n 18 temptest/test_dump5a > temptest/test_dump5a_tail
 ./python/diff_printouts.py tests/imfit_textout5a_tail temptest/test_dump5a_tail --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: fit using Poisson MLR statistic (+ N-M solver)... "
 tail -n 18 temptest/test_dump5b > temptest/test_dump5b_tail
 ./python/diff_printouts.py tests/imfit_textout5b_tail temptest/test_dump5b_tail --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: fit using Poisson MLR statistic (+ L-M solver)... "
 tail -n 18 temptest/test_dump5c > temptest/test_dump5c_tail
 ./python/diff_printouts.py tests/imfit_textout5c_tail temptest/test_dump5c_tail --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: Poisson-MLR-stat fit to problematic image (+ L-M solver)... "
 tail -n 18 temptest/test_dump5d > temptest/test_dump5d_tail
 ./python/diff_printouts.py tests/imfit_textout5d_tail temptest/test_dump5d_tail --skip-last=3
+STATUS+=$?
+
+echo -n "*** Diff comparison with archives: bootstrap-resampling output... "
+tail -n 7 temptest/temp_bootstrap_output.dat > temptest/temp_bootstrap_output_tail
+./python/diff_printouts.py tests/bootstrap_output_seed10_tail.dat temptest/temp_bootstrap_output_tail
+STATUS+=$?
+
+echo -n "*** Diff comparison with archives: bootstrap-resampling output (with image offset)... "
+tail -n 7 temptest/temp_bootstrap_output2.dat > temptest/temp_bootstrap_output2_tail
+./python/diff_printouts.py tests/bootstrap_output_seed10_2_tail.dat temptest/temp_bootstrap_output2_tail
+STATUS+=$?
 
 
 # do output weight images agree?
 if [ $do_fits_tests = "1" ]
 then
   ./python/compare_fits_files.py temptest/test_weights_data.fits temptest/test_weights_model.fits
+  STATUS+=$?
 fi
 
 # Does residual + model = original image?
 if [ $do_fits_tests = "1" ]
 then
   ./python/compare_fits_files.py --compare-sum temptest/test_residual_ic3478.fits temptest/test_model_ic3478.fits tests/ic3478rss_64x64.fits
+  STATUS+=$?
 fi
 
 echo -n "*** Diff comparison with archives: catching the case of masking all pixels... "
@@ -251,47 +289,59 @@ if (diff --brief temptest/test_dump6 tests/imfit_textout6)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump6 tests/imfit_textout6
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: catching the case of mismatch in data and mask sizes... "
 ./python/diff_printouts.py tests/imfit_textout6b temptest/test_dump6b
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: catching non-image FITS file (empty HDU) for data image... "
 ./python/diff_printouts.py tests/imfit_textout6c temptest/test_dump6c
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: catching non-image FITS file (table in HDU 1) for data image... "
 ./python/diff_printouts.py tests/imfit_textout6d temptest/test_dump6d
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: catching non-image FITS file (empty HDU) for mask image... "
 ./python/diff_printouts.py tests/imfit_textout6e temptest/test_dump6e
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: catching [0] referring to empty HDU... "
 ./python/diff_printouts.py tests/imfit_textout6f temptest/test_dump6f
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: correctly handling [1] referring to valid image in FITS file... "
 ./python/diff_printouts.py tests/imfit_textout6g temptest/test_dump6g --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: correctly handling [1] + image subsection... "
 ./python/diff_printouts.py tests/imfit_textout6h temptest/test_dump6h --skip-last=3
+STATUS+=$?
 
 
 echo -n "*** Diff comparison with archives: automatic masking of NaN values in data... "
 ./python/diff_printouts.py tests/imfit_textout7a temptest/test_dump7a --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: automatic masking of NaN values in mask... "
 ./python/diff_printouts.py tests/imfit_textout7b temptest/test_dump7b --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: automatic masking of NaN values in noise map... "
 ./python/diff_printouts.py tests/imfit_textout7c temptest/test_dump7c --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: detection of zero-valued pixel (bad for data-based chi^2 errors)... "
 ./python/diff_printouts.py tests/imfit_textout7d temptest/test_dump7d --skip-last=3
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: ignore zero-valued pixel when it's masked... "
 ./python/diff_printouts.py tests/imfit_textout7e temptest/test_dump7e --skip-last=3
+STATUS+=$?
 
 
 
@@ -301,9 +351,9 @@ if (diff --brief temptest/test_dump_bad1 tests/imfit_textout_bad1)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_bad1 tests/imfit_textout_bad1
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 2... "
@@ -311,9 +361,9 @@ if (diff --brief temptest/test_dump_bad2 tests/imfit_textout_bad2)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_bad2 tests/imfit_textout_bad2
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 3... "
@@ -321,9 +371,9 @@ if (diff --brief temptest/test_dump_bad3 tests/imfit_textout_bad3)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_bad3 tests/imfit_textout_bad3
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 4... "
@@ -331,9 +381,9 @@ if (diff --brief temptest/test_dump_bad4 tests/imfit_textout_bad4)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_bad4 tests/imfit_textout_bad4
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 5... "
@@ -341,9 +391,9 @@ if (diff --brief temptest/test_dump_bad5 tests/imfit_textout_bad5)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_bad5 tests/imfit_textout_bad5
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 6... "
@@ -351,9 +401,9 @@ if (diff --brief temptest/test_dump_bad6 tests/imfit_textout_bad6)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_bad6 tests/imfit_textout_bad6
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 7... "
@@ -361,9 +411,9 @@ if (diff --brief temptest/test_dump_bad7 tests/imfit_textout_bad7)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_bad7 tests/imfit_textout_bad7
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad parameter specification... "
@@ -371,9 +421,9 @@ if (diff --brief temptest/test_dump_bad8 tests/imfit_textout_bad8)
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_bad8 tests/imfit_textout_bad7
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad --nlopt name... "
@@ -381,11 +431,24 @@ if (diff --brief temptest/test_dump_badnloptname tests/imfit_textout_badnloptnam
 then
   echo " OK"
 else
-  echo -e "   \033[1;31m Failed: \033[0mDiff output:"
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
   diff temptest/test_dump_badnloptname tests/imfit_textout_badnloptname
-  STATUS=1
+  STATUS+=1
 fi
 
+
+
+
+echo ""
+if [ $STATUS -eq 1 ]
+then
+  echo -e "${RED}One test failed!${NC}"
+elif [ $STATUS -gt 1 ]
+then
+  echo -e "${RED}${STATUS} tests failed!${NC}"
+else
+  echo "All tests passed."
+fi
 
 echo ""
 echo "Done."

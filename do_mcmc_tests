@@ -3,9 +3,15 @@
 # Regression tests for imfit-mcmc
 #
 
+# Predefine some ANSI color escape codes
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# create an integer variable for status (& counting number of failed tests)
+declare -i STATUS=0
+
 FAILED_TEXT=" ** Test failed. **"
 
-STATUS=0
 
 # create output directory for test_dump*, etc. files (will do nothing if
 # directory already exists)
@@ -36,6 +42,9 @@ echo ""
 ./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
 ./imfit-mcmc -c tests/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
 
+
+
+
 echo ""
 
 
@@ -45,6 +54,7 @@ echo ""
 printf "*** Diff comparison with archives: first test... "
 # skip last 4 lines to avoid trying to compare elapsed times
 ./python/diff_printouts.py temptest/test_dump_mcmc1 tests/mcmc_textout1 --skip-last=4
+STATUS+=$?
 
 printf "    Comparing first output chain file... "
 # skip first two lines of output file to avoid comparing timestamps
@@ -53,15 +63,17 @@ if (diff --brief temptest/mcmc_test.0.txt_skip2 tests/mcmc_ref1.0.txt_skip2)
 then
   printf " OK\n"
 else
-  echo "Output MCMC chain file temptest/mcmc_test.0.txt differs from reference file tests/mcmc_ref1.0.txt"
-  STATUS=1
+  echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test.0.txt differs from reference file tests/mcmc_ref1.0.txt"
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: catching the case of all data pixels masked... "
 ./python/diff_printouts.py tests/test_dump_mcmc2a temptest/test_dump2a
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: catching the case of mismatch in data and mask sizes... "
 ./python/diff_printouts.py tests/test_dump_mcmc2b temptest/test_dump2b
+STATUS+=$?
 
 
 # Note that for the following, we can compare with the imfit reference files,
@@ -72,9 +84,9 @@ if (diff --brief temptest/test_dump_bad1 tests/imfit_textout_bad1)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad1 tests/imfit_textout_bad1
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 2... "
@@ -82,9 +94,9 @@ if (diff --brief temptest/test_dump_bad2 tests/imfit_textout_bad2)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad2 tests/imfit_textout_bad2
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 3... "
@@ -92,9 +104,9 @@ if (diff --brief temptest/test_dump_bad3 tests/imfit_textout_bad3)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad3 tests/imfit_textout_bad3
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 4... "
@@ -102,9 +114,9 @@ if (diff --brief temptest/test_dump_bad4 tests/imfit_textout_bad4)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad4 tests/imfit_textout_bad4
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 5... "
@@ -112,9 +124,9 @@ if (diff --brief temptest/test_dump_bad5 tests/imfit_textout_bad5)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad5 tests/imfit_textout_bad5
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 6... "
@@ -122,9 +134,9 @@ if (diff --brief temptest/test_dump_bad6 tests/imfit_textout_bad6)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad6 tests/imfit_textout_bad6
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 7... "
@@ -132,9 +144,9 @@ if (diff --brief temptest/test_dump_bad7 tests/imfit_textout_bad7)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad7 tests/imfit_textout_bad7
-  STATUS=1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad parameter specification... "
@@ -142,11 +154,22 @@ if (diff --brief temptest/test_dump_bad8 tests/imfit_textout_bad8)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad7 tests/imfit_textout_bad7
-  STATUS=1
+  STATUS+=1
 fi
 
+
+echo ""
+if [ $STATUS -eq 1 ]
+then
+  echo -e "${RED}One test failed!${NC}"
+elif [ $STATUS -gt 1 ]
+then
+  echo -e "${RED}${STATUS} tests failed!${NC}"
+else
+  echo "All tests passed."
+fi
 
 echo ""
 echo "Done."

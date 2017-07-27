@@ -6,6 +6,8 @@
  *
  */
 
+#include <string>
+
 #ifndef _PARAM_STRUCT_H_
 #define _PARAM_STRUCT_H_
 
@@ -55,6 +57,19 @@ struct mp_par_struct {
 };
 
 typedef struct mp_par_struct mp_par;
+
+
+struct SimpleParameterInfo {
+  int fixed = 0;                 // 1 = fixed; 0 = free
+  int limited[2] = {0,0};        // 1 = low/upper limit; 0 = no limit */
+  double limits[2] = {0.0,0.0};  // lower/upper limit boundary value */
+
+  std::string paramName = "";    // Name of parameter
+  
+  double offset = 0.0;           // Offset to be added when printing/writing output
+                                 // (e.g., X0  or Y0 offset when an image subsection is
+                                 // being fitted)
+};
 
 
 #endif /* _PARAM_STRUCT_H_ */

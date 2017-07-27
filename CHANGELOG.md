@@ -5,10 +5,10 @@
 ## 1.5.0 -- 2017-mm-dd
 ### Added:
 
-- Multiple oversampling regions: Imfit can now
-optionally convolve multiple subsections of the model image with oversampled PSFs,
-instead of just one subsection as in previous versions. (This applies to all
-the individual programs: imfit, imfit-mcmc, and makeimage.)
+- Multiple oversampling regions: Imfit can now optionally convolve
+multiple subsections of the model image with oversampled PSFs, instead
+of just one subsection as in previous versions. (This applies to all the
+individual programs: imfit, imfit-mcmc, and makeimage.)
 
 By adding multiple invocations of `--overpsf_region x1:x2,y1:y2`, each
 region will be convolved with the same oversampled PSF (specified by
@@ -38,6 +38,12 @@ versions 4.8 or newer).
 regions.
 
 ### Fixed:
+
+- When bootstrap-resampling results or MCMC chains were saved in output files,
+the X0,Y0 coordinates were erroneously *not* corrected for any image sections
+(i.e., `data.fits[x1:x2,y1:y2]`); X0 and Y0 values are now corrected back to
+full-image coordinates (as was already done for printed and saved best-fit
+parameter values).
 
 - In describing the PSF oversampling options, the documentation
 (erroneously) gave an example of `--overpsf_region [x1:x2,y1:y2]`, when

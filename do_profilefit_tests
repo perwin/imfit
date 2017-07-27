@@ -2,6 +2,13 @@
 #
 # Regression tests for profilefit
 
+# Predefine some ANSI color escape codes
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# create an integer variable for status (& counting number of failed tests)
+declare -i STATUS=0
+
 FAILED_TEXT=" ** Test failed. **"
 
 echo ""
@@ -16,6 +23,8 @@ echo "Running tests for profilefit (L-M solver only)..."
 ./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --chisquare-only &> test_dump4
 
 
+
+
 echo ""
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit... "
@@ -23,8 +32,9 @@ if (diff --brief test_dump1 tests/profilefit_textout1)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}Diff output:"
   diff test_dump1 tests/profilefit_textout1
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: NGC 3348 Core-Sersic fit... "
@@ -32,8 +42,9 @@ if (diff --brief test_dump2 tests/profilefit_textout2)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}Diff output:"
   diff test_dump2 tests/profilefit_textout2
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Nelder-Mead Simplex)... "
@@ -42,8 +53,9 @@ if (diff --brief test_dump3a_tail tests/profilefit_textout3a)
 then
   echo " OK"
 else
-  echo "Diff output (last 11 lines):"
+  echo -e "   ${RED}Failed:${NC}Diff output:"
   diff test_dump3a_tail tests/profilefit_textout3a
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Differential Evoln.)... "
@@ -52,8 +64,9 @@ if (diff --brief test_dump3b_tail tests/profilefit_textout3b)
 then
   echo " OK"
 else
-  echo "Diff output (last 11 lines):"
+  echo -e "   ${RED}Failed:${NC}Diff output:"
   diff test_dump3b_tail tests/profilefit_textout3b
+  STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit -- print initial chi^2 only... "
@@ -61,11 +74,26 @@ if (diff --brief test_dump4 tests/profilefit_textout4)
 then
   echo " OK"
 else
-  echo "Diff output:"
+  echo -e "   ${RED}Failed:${NC}Diff output:"
   diff test_dump4 tests/profilefit_textout4
+  STATUS+=1
+fi
+
+
+echo ""
+if [ $STATUS -eq 1 ]
+then
+  echo -e "${RED}One test failed!${NC}"
+elif [ $STATUS -gt 1 ]
+then
+  echo -e "${RED}${STATUS} tests failed!${NC}"
+else
+  echo "All tests passed."
 fi
 
 
 echo ""
 echo "Done."
 echo ""
+
+exit $STATUS

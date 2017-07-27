@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "mpfit.h"
+#include "param_struct.h"
 #include "model_object.h"
 
 using namespace std;
@@ -110,6 +110,10 @@ bool NotANumber( const char theString[], int index, int restriction );
 ///        returns 0 if not.
 int IsNumeric( const char *aString );
 
+
+/// \brief Utility function (mainly for debugging) which prints contents of an
+///        mp_par structure
+string PrintMpPar( mp_par& paramStruct );
 
 
 #endif /* _UTILITIES_PUB_H_ */

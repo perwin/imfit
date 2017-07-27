@@ -5,6 +5,9 @@
 # file comparison).
 # Can also be used to compare the sum of two images to a third, to see if they
 # match within some tolerance (currently hard-coded as 10^-6).
+#
+# The script uses sys.exit() to return either 0 for success or 1 for some kind
+# of failure; this is for use with shell scripts for regression tests, etc.
 
 from __future__ import print_function
 
@@ -16,6 +19,10 @@ try:
 except:
 	from pyfits import open as fits_open
 #import pyfits
+
+# predefine some ANSI color codes
+RED  = '\033[31m' # red
+NC = '\033[0m' # No Color
 
 
 TOLERANCE = 1e-6
@@ -60,32 +67,40 @@ def main(argv=None):
 	fitsFile1 = args[1]
 	fitsFile2 = args[2]
 	if not os.path.exists(fitsFile1):
-		print("ERROR: unable to find FITS image file %s!\n" % fitsFile1)
-		return None
+		msg = "unable to find FITS image file %s!\n" % fitsFile1
+		print(RED + "ERROR: " + msg + NC)
+		sys.exit(1)
 	if not os.path.exists(fitsFile2):
-		print("ERROR: unable to find FITS image file %s!\n" % fitsFile2)
-		return None
+		msg = "unable to find FITS image file %s!\n" % fitsFile2
+		print(RED + "ERROR: " + msg + NC)
+		sys.exit(1)
 
 	if options.compareSum is True:
 		refSumFile = args[3]
 		if not os.path.exists(refSumFile):
-			print("ERROR: unable to find FITS image file %s!\n" % refSumFile)
-			return None
+			msg = "unable to find FITS image file %s!\n" % refSumFile
+			print(RED + "ERROR: " + msg + NC)
+			#print("ERROR: unable to find FITS image file %s!\n" % refSumFile)
+			sys.exit(1)
 		print("\tComparing sum of %s + %s with %s... " % (fitsFile1, fitsFile2, refSumFile), end="")
 		result = CompareSum(fitsFile1, fitsFile2, refSumFile)
 		if (result is False):
 			print("\n\t>>> WARNING: image %s + image %s DOES NOT match %s!" % (fitsFile1, fitsFile2, refSumFile))
 			print("t            (one or more pixels differ by > %.1e in relative terms\n" % (TOLERANCE))
+			sys.exit(1)
 		else:
 			print(" OK.")
+			sys.exit(0)
 	else:
 		txt = "\tComparing images %s and %s... " % (fitsFile1, fitsFile2)
 		print(txt, end="")
 		result = CompareImagesEqual(fitsFile1, fitsFile2)
 		if (result is False):
 			print("\n\t>>> WARNING: images %s and %s DO NOT match!\n" % (fitsFile1, fitsFile2))
+			sys.exit(1)
 		else:
 			print(" OK.")
+			sys.exit(0)
 
 
 if __name__ == '__main__':

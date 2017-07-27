@@ -388,14 +388,8 @@ int main(int argc, char *argv[])
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
   printf("%d free parameters (%d degrees of freedom)\n", nFreeParams, nDegFreedom);
 
-//   if ((options.solver == MPFIT_SOLVER) && (! paramLimitsExist)) {
-//     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
-//     printf("No parameter constraints!\n");
-//     mpfitParameterConstraints = NULL;
-//   } else {
-//     mpfitParameterConstraints = parameterInfo;
-//   }
-  
+  // tell ModelObject about parameterInfo (mainly useful for printing-related methods)
+  theModel->AddParameterInfo(parameterInfo);
 
 
   // OK, now we either print chi^2 value for the input parameters and quit, or

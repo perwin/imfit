@@ -60,6 +60,10 @@ class ModelObject
     // Probably 1D only, but might be usable by 2D version later...
     virtual void SetZeroPoint( double zeroPointValue );
 
+
+    // 2D only
+    void AddParameterInfo( mp_par  *inputParameterInfo );
+    void AddParameterInfo( vector<mp_par> inputParameterInfo );
  
 	// 2D only
     int AddImageDataVector( double *pixelVector, int nImageColumns, int nImageRows );
@@ -151,15 +155,23 @@ class ModelObject
     string GetParamHeader( );
 
     // common, but Specialized by ModelObject1D
-    virtual void PrintModelParams( FILE *output_ptr, double params[], 
-    								mp_par *parameterInfo, double errs[], 
+//     virtual void PrintModelParams( FILE *output_ptr, double params[], 
+//     								mp_par *parameterInfo, double errs[], 
+//     								const char *prefix="" );
+    virtual void PrintModelParams( FILE *output_ptr, double params[], double errs[], 
     								const char *prefix="" );
 
+//     virtual int PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
+// 									vector<mp_par> parameterInfo, double errs[], 
+// 									const char *prefix="", bool printLimits=false );
     virtual int PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
-									vector<mp_par> parameterInfo, double errs[], 
-									const char *prefix="", bool printLimits=false );
+									double errs[], const char *prefix="", bool printLimits=false );
 
-    // 2D only; NOT USED ANYWHERE!
+//     virtual string PrintModelParamsHorizontalString_old( const double params[], 
+//     						const mp_par parameterInfo[], const string& separator="\t\t" );
+    virtual string PrintModelParamsHorizontalString( const double params[], const string& separator="\t" );
+
+    // 2D only
     void PrintImage( double *pixelVector, int nColumns, int nRows );
 
     // 1D only
@@ -278,6 +290,7 @@ class ModelObject
     vector<FunctionObject *> functionObjects;
     vector<int> paramSizes;
     vector<string>  parameterLabels;
+    vector<SimpleParameterInfo> parameterInfoVect;
     
     // stuff for ovsersampled PSF convolution
     Convolver  *psfConvolver_osamp;

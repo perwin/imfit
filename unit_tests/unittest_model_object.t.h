@@ -31,6 +31,7 @@ using namespace std;
 #define SIMPLE_CONFIG_FILE "tests/config_imfit_flatsky.dat"
 #define CONFIG_FILE "tests/config_imfit_poisson.dat"
 #define CONFIG_FILE3b "tests/config_imfit_gauss-extra-params.dat"
+const string CONFIG_FILE_2BLOCKS("tests/config_imfit_2blocks.dat");
 
 
 // Reference things
@@ -393,7 +394,64 @@ public:
       TS_ASSERT_DELTA(outputModelVect[i], trueVals[i] + floorVal, 1e-7);
     delete modelObj;
  }
+};
 
+
+
+class TestPrintParams : public CxxTest::TestSuite
+{
+public:
+  ModelObject * modelObj1;
+  ModelObject * modelObj2a;
+  ModelObject * modelObj2b;
+  ModelObject * modelObj3;
+  vector<string>  functionList1, functionList2a, functionList3;
+  vector<double>  parameterList1, parameterList2a, parameterList3;
+  vector<mp_par>  paramLimits1, paramLimits2a, paramLimits3;
+  vector<int>  FunctionBlockIndices1, FunctionBlockIndices2a, FunctionBlockIndices3;
+  bool  paramLimitsExist1, paramLimitsExist2a, paramLimitsExist3;
+  configOptions  userConfigOptions1, userConfigOptions2a, userConfigOptions3;
+  int nSmallDataCols, nSmallDataRows;
+  
+  void setUp( )
+  {
+    int  status;
+    string  filename1 = CONFIG_FILE;
+    string  filename2a = SIMPLE_CONFIG_FILE;
+    string  filename3 = CONFIG_FILE_2BLOCKS;
+
+    nSmallDataCols = nSmallDataRows = 2;
+    
+    status = ReadConfigFile(filename1, true, functionList1, parameterList1, paramLimits1, 
+    						FunctionBlockIndices1, paramLimitsExist1, userConfigOptions1);
+    // Initialize modelObj1 and add model function & params (Exp + FlatSky)
+    modelObj1 = new ModelObject();
+    status = AddFunctions(modelObj1, functionList1, FunctionBlockIndices1, true, -1);
+
+    status = ReadConfigFile(filename2a, true, functionList2a, parameterList2a, paramLimits2a, 
+    						FunctionBlockIndices2a, paramLimitsExist2a, userConfigOptions2a);
+    // Initialize modelObj2a and add model function & params (FlatSky)
+    modelObj2a = new ModelObject();
+    status = AddFunctions(modelObj2a, functionList2a, FunctionBlockIndices2a, true, -1);
+
+    modelObj2b = new ModelObject();
+    status = AddFunctions(modelObj2b, functionList1, FunctionBlockIndices1, true, -1);
+
+    // Exp + FlatSky, each in its own function block
+    status = ReadConfigFile(filename3, true, functionList3, parameterList3, paramLimits3, 
+    						FunctionBlockIndices3, paramLimitsExist3, userConfigOptions3);
+    modelObj3 = new ModelObject();
+    status = AddFunctions(modelObj3, functionList3, FunctionBlockIndices3, true, -1);
+  }
+  
+  void tearDown( )
+  {
+    delete modelObj1;
+    delete modelObj2a;
+    delete modelObj2b;
+    delete modelObj3;
+  }
+  
   void testPrintParamsToString( void )
   {
     int nParamsTot = 7;
@@ -423,16 +481,10 @@ public:
     correctStrings2.push_back("#I_sky\t\t    100\t\t6,206\n");
 
     string prefix = "#";
+    vector<mp_par> parameterInfo_empty;
     vector<mp_par> parameterInfo;
-    
-    // Check that we correctly catch empty parameterInfo when we request printing
-    // of parameter limits
-    printf("size of parameterInfo = %d\n", (int)parameterInfo.size());
-    retVal = modelObj4->PrintModelParamsToStrings(outputVect, params, parameterInfo, NULL, 
-    												prefix.c_str(), true);
-    TS_ASSERT_EQUALS(retVal, -1);
-    
-    // OK, now kit out parameterInfo
+
+    // kit out parameterInfo
     mp_par currentParameterInfo;
     for (int i = 0; i < nParamsTot; i++) {
       currentParameterInfo.fixed = 0;
@@ -447,11 +499,19 @@ public:
     parameterInfo[1].fixed = 1;
     parameterInfo[5].fixed = 1;
 
-    modelObj4->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj1->SetupModelImage(nSmallDataCols, nSmallDataRows);
+  
+    // Check that we correctly catch empty parameterInfo when we request printing
+    // of parameter limits
+    printf("size of parameterInfo = %d\n", (int)parameterInfo.size());
+    retVal = modelObj1->PrintModelParamsToStrings(outputVect, params, NULL, prefix.c_str(), true);
+    TS_ASSERT_EQUALS(retVal, -1);
     
+
+    modelObj1->AddParameterInfo(parameterInfo);
+
     // output without parameter limits
-    retVal = modelObj4->PrintModelParamsToStrings(outputVect, params, parameterInfo, NULL, 
-    												prefix.c_str(), false);
+    retVal = modelObj1->PrintModelParamsToStrings(outputVect, params, NULL, prefix.c_str(), false);
     TS_ASSERT_EQUALS(retVal, 0);
     for (int i = 0; i < 9; i++) {
       TS_ASSERT_EQUALS(outputVect[i], correctStrings1[i]);
@@ -459,15 +519,162 @@ public:
 
     // output *with* parameter limits
     outputVect.clear();
-    retVal = modelObj4->PrintModelParamsToStrings(outputVect, params, parameterInfo, 
-    												NULL, prefix.c_str(), true);
+    retVal = modelObj1->PrintModelParamsToStrings(outputVect, params, NULL, prefix.c_str(), true);
     TS_ASSERT_EQUALS(retVal, 0);
     for (int i = 0; i < 9; i++) {
       TS_ASSERT_EQUALS(outputVect[i], correctStrings2[i]);
     }
   }
-};
- 
+
+  void testPrintModelParamsHorizontalString_noOffset1( )
+  {
+    int nParamsTot = 3;
+    double params[3] = {21.0, 22.0, 100.0};   // X0, Y0, I_sky
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    int  retVal;
+    vector<mp_par> parameterInfo;
+
+    string  correctString = "21.00000000\t22.00000000\t100.0000000";
+    string  outputString;
+
+    // OK, now kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 0;
+      currentParameterInfo.limited[1] = 0;
+      currentParameterInfo.limits[0] = 0.0;
+      currentParameterInfo.limits[1] = 0.0;
+      currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+
+    modelObj2a->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj2a->AddParameterInfo(parameterInfo);
+
+    int nParams = modelObj2a->GetNParams();
+    TS_ASSERT_EQUALS(nParams, nParamsTot);
+
+    outputString = modelObj2a->PrintModelParamsHorizontalString(params);
+    TS_ASSERT_EQUALS(outputString, correctString);
+  }
+
+  void testPrintModelParamsHorizontalString_noOffset2( )
+  {
+    int nParamsTot = 7;
+    double params[7] = {21.0, 22.0, 0.0, 0.5, 50.0, 10.0, 100.0};   // X0, Y0, PA, ell, I_0, h, I_sky
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    int  retVal;
+    vector<mp_par> parameterInfo;
+
+    string  correctString = "21.00000000\t22.00000000\t0.000000000\t0.5000000000\t50.00000000\t10.00000000\t100.0000000";
+    string  outputString;
+
+    // OK, now kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 0;
+      currentParameterInfo.limited[1] = 0;
+      currentParameterInfo.limits[0] = 0.0;
+      currentParameterInfo.limits[1] = 0.0;
+      currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+
+    modelObj2b->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj2b->AddParameterInfo(parameterInfo);
+
+    int nParams = modelObj2b->GetNParams();
+    TS_ASSERT_EQUALS(nParams, nParamsTot);
+
+    outputString = modelObj2b->PrintModelParamsHorizontalString(params);
+    TS_ASSERT_EQUALS(outputString, correctString);
+  }
+
+  void testPrintModelParamsHorizontalString_withOffset( )
+  {
+    int nParamsTot = 7;
+    double params[7] = {21.0, 22.0, 0.0, 0.5, 50.0, 10.0, 100.0};   // X0, Y0, PA, ell, I_0, h, I_sky
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    int  retVal;
+    vector<mp_par> parameterInfo;
+
+    string  correctString = "121.0000000\t222.0000000\t0.000000000\t0.5000000000\t50.00000000\t10.00000000\t100.0000000";
+    string  outputString;
+
+    // OK, now kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 0;
+      currentParameterInfo.limited[1] = 0;
+      currentParameterInfo.limits[0] = 0.0;
+      currentParameterInfo.limits[1] = 0.0;
+      if (i == 0)
+        currentParameterInfo.offset = 100.0;
+      else if (i == 1)
+        currentParameterInfo.offset = 200.0;
+      else
+        currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+
+    modelObj2b->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj2b->AddParameterInfo(parameterInfo);
+    
+    int nParams = modelObj2b->GetNParams();
+    TS_ASSERT_EQUALS(nParams, nParamsTot);
+
+    outputString = modelObj2b->PrintModelParamsHorizontalString(params);
+    TS_ASSERT_EQUALS(outputString, correctString);
+  }
+
+  void testPrintModelParamsHorizontalString_withOffset_2blocks( )
+  {
+    int nParamsTot = 9;
+    // X0, Y0, PA, ell, I_0, h; X0, Y0, I_sky
+    double params[9] = {21.0, 22.0, 0.0, 0.5, 50.0, 10.0, 35.0, 45.0, 1.0};
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    int  retVal;
+    vector<mp_par> parameterInfo;
+
+    string  outputString;
+    string  correctString = "121.0000000\t222.0000000\t0.000000000\t0.5000000000\t";
+    correctString += string("50.00000000\t10.00000000\t");
+    correctString += string("135.0000000\t245.0000000\t1.000000000");
+
+    // OK, now kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 0;
+      currentParameterInfo.limited[1] = 0;
+      currentParameterInfo.limits[0] = 0.0;
+      currentParameterInfo.limits[1] = 0.0;
+      // specify X0_offset for X0 parameters
+      if ((i == 0) || (i == 6))
+        currentParameterInfo.offset = 100.0;
+      // specify Y0_offset for Y0 parameters
+      else if ((i == 1) || (i == 7))
+        currentParameterInfo.offset = 200.0;
+      else
+        currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+
+    modelObj3->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj3->AddParameterInfo(parameterInfo);
+    
+    int nParams = modelObj3->GetNParams();
+    TS_ASSERT_EQUALS(nParams, nParamsTot);
+
+    outputString = modelObj3->PrintModelParamsHorizontalString(params);
+    TS_ASSERT_EQUALS(outputString, correctString);    
+  }
+}; 
+
+
 
 class TestPsfUsage : public CxxTest::TestSuite
 {

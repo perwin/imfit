@@ -189,7 +189,6 @@ int main(int argc, char *argv[])
   }
   HandleConfigFileOptions(&userConfigOptions, options);
 
-  
   if (options->noImage) {
     fprintf(stderr, "*** ERROR: No image to fit!\n\n");
     return -1;
@@ -210,13 +209,11 @@ int main(int argc, char *argv[])
   // Determine X0,Y0 pixel offset values if user specified an image section
   DetermineImageOffset(options->imageFileName, &X0_offset, &Y0_offset);
 
-
   // Get (and check) mask and/or error images
   std::tie(allMaskPixels, allErrorPixels, status) = GetMaskAndErrorImages(nColumns, nRows, 
   													options, maskAllocated, errorPixels_allocated);
   if (status < 0)
     exit(-1);
-
 
   // Read in PSF image, if supplied
   if (options->psfImagePresent) {
@@ -226,7 +223,6 @@ int main(int argc, char *argv[])
   }
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
-
 
   // Read in oversampled PSF image(s), if supplied
   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {
@@ -342,6 +338,10 @@ int main(int argc, char *argv[])
   // by DiffEvolnFit (if called) and by PrintResults.  We also decrement nFreeParams for
   // each *fixed* parameter.
   printf("Setting up parameter information array ...\n");
+  if (nParamsTot <= 0) {
+    fprintf(stderr, "*** ERROR: nParamsTot was not set correctly!\n\n");
+    exit(-1);
+  }
   parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
   parameterInfo_allocated = true;
   for (int i = 0; i < nParamsTot; i++) {
@@ -365,6 +365,9 @@ int main(int argc, char *argv[])
       parameterInfo[i].limits[1] -= Y0_offset;
     }
   }
+  // tell ModelObject about parameterInfo (mainly useful for printing-related methods)
+  theModel->AddParameterInfo(parameterInfo);
+  
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
   printf("%d free parameters (%ld degrees of freedom)\n", nFreeParams, nDegFreedom);
 

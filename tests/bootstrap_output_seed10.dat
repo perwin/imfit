@@ -1,0 +1,18 @@
+# Best-fit model results for imfit 1.4.0 (OpenMP-enabled)
+# Generated on Tue Jul 25 00:52:01 2017 by the following command:
+#    imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 --save-bootstrap temp_bootstrap_output2.dat --seed=10
+#
+#X0		32.9439
+#Y0		34.0933
+#FUNCTION Sersic
+#PA		18.2612
+#ell		0.235989
+#n		2.40028
+#I_e		20.0094
+#r_e		60.7612
+#
+# Bootstrap resampling output (3 iterations requested):
+# X0_1		Y0_1		PA_1	ell_1	n_1	I_e_1	r_e_1	
+32.953080		34.119442		18.017018		0.232848		2.415204		19.680060		61.341876
+32.908907		34.091874		18.677358		0.236743		2.384060		20.184051		60.526700
+32.936015		34.025772		18.314478		0.233295		2.369359		20.622890		59.414238
