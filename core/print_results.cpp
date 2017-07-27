@@ -44,7 +44,21 @@ using namespace std;
 
 
 /* Local Functions: */
-//void PrintParam( FILE *outFile, string& paramName, double paramValue, double paramErr );
+
+// Utility function for printing parameters to a file (including to stdout),
+// with or without parameter errors (use NULL to indicate no errors) and
+// with an optional prefix character for each line.
+// Basically a wrapper around ModelObject::PrintModelParamsToStrings
+void PrintParameters( FILE *filePtr, ModelObject *model, double *parameters, 
+					  double *paramErrors, const char *prefix="" )
+{
+    vector<string> outputLines;
+
+    model->PrintModelParamsToStrings(outputLines, parameters, paramErrors, prefix);
+    for (auto line: outputLines)
+      fprintf(filePtr, "%s", line.c_str());
+}
+
 void GetSolverSummary( int status, int solverID, string& outputString );
 
 
@@ -106,13 +120,13 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
       printf("Reduced Chi^2 = %f\n", mpResult->bestnorm / nDegreesFreedom);
     if (whichStat == FITSTAT_POISSON_MLR)
       printf("Reduced Chi^2 equivalent = %f\n", mpResult->bestnorm / nDegreesFreedom);
-    printf("AIC = %f, BIC = %f\n", aic, bic);
+    printf("AIC = %f, BIC = %f\n\n", aic, bic);
     
     double *paramErrs = (double *)calloc(model->GetNParams(), sizeof(double));
     solverResults.GetErrors(paramErrs);
-//     model->PrintModelParams(stdout, params, parameterInfo, paramErrs);
-    model->PrintModelParams(stdout, params, paramErrs);
+    PrintParameters(stdout, model, params, paramErrs);
     printf("\n");
+
     free(paramErrs);
   }
   else {
@@ -137,9 +151,7 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
     bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
     printf("AIC = %f, BIC = %f\n\n", aic, bic);
-    // output the best-fit parameters
-//     model->PrintModelParams(stdout, params, parameterInfo, NULL);
-    model->PrintModelParams(stdout, params, NULL);
+    PrintParameters(stdout, model, params, NULL);
     printf("\n");
   }
 }
@@ -268,15 +280,16 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
     parameterErrs = (double *)calloc(model->GetNParams(), sizeof(double));
     solverResults.GetErrors(parameterErrs);
 //     model->PrintModelParams(file_ptr, params, parameterInfo, parameterErrs);
-    model->PrintModelParams(file_ptr, params, parameterErrs);
+//    model->PrintModelParams(file_ptr, params, parameterErrs);
+    PrintParameters(file_ptr, model, params, parameterErrs);
     free(parameterErrs);
   }
   else
 //     model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
-    model->PrintModelParams(file_ptr, params, NULL);
+//    model->PrintModelParams(file_ptr, params, NULL);
+    PrintParameters(file_ptr, model, params, NULL);
 
   fclose(file_ptr);
-
 }
 
 
@@ -290,7 +303,8 @@ void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par
     fprintf(file_ptr, "%s\n", outputHeader[i].c_str());
   fprintf(file_ptr, "%s\n", prefix);
 //   model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
-  model->PrintModelParams(file_ptr, params, NULL, prefix);
+//  model->PrintModelParams(file_ptr, params, NULL, prefix);
+  PrintParameters(file_ptr, model, params, NULL, prefix);
 }
 
 

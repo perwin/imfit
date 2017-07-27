@@ -39,11 +39,11 @@ regions.
 
 ### Fixed:
 
-- When bootstrap-resampling results or MCMC chains were saved in output files,
-the X0,Y0 coordinates were erroneously *not* corrected for any image sections
-(i.e., `data.fits[x1:x2,y1:y2]`); X0 and Y0 values are now corrected back to
-full-image coordinates (as was already done for printed and saved best-fit
-parameter values).
+- When bootstrap-resampling results (imfit) or MCMC chains (imfit-mcmc) were saved 
+in output files, the X0,Y0 coordinates were erroneously *not* corrected if an image 
+section was specified (i.e., fitting `data.fits[x1:x2,y1:y2]` as opposed to `data.fits`); 
+X0 and Y0 values are now corrected back to full-image coordinates (as was already 
+done for printed and saved best-fit parameter values).
 
 - In describing the PSF oversampling options, the documentation
 (erroneously) gave an example of `--overpsf_region [x1:x2,y1:y2]`, when

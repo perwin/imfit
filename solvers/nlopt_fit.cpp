@@ -1,6 +1,6 @@
 /* FILE: nlopt_fit.cpp --------------------------------------------------- */
 
-// Copyright 2014--2015 by Peter Erwin.
+// Copyright 2014--2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -53,7 +53,6 @@
 
 #include <string>
 #include <sstream>
-#include <vector>
 #include <map>
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,6 +80,7 @@ static int  verboseOutput;
 static int  funcCallCount = 0;
 nlopt_opt  theOptimizer;
 string  currentSolverName;
+
 
 
 void PopulateAlgorithmMap( map<string, nlopt_algorithm>& input_map )
@@ -127,7 +127,8 @@ double myfunc_nlopt_gen(unsigned n, const double *x, double *grad, void *my_func
     if ((funcCallCount % FUNCS_PER_REPORTING_STEP) == 0) {
       printf("\tN-M simplex: function call %d: objective = %f\n", funcCallCount, fitStatistic);
       if ( (verboseOutput > 1) && ((funcCallCount % (REPORT_STEPS_PER_VERBOSE_OUTPUT*FUNCS_PER_REPORTING_STEP)) == 0) ) {
-        theModel->PrintModelParams(stdout, params, NULL);
+//         theModel->PrintModelParams(stdout, params, NULL);
+        PrintParametersSimple(theModel, params);
       }
     }
   }

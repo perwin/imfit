@@ -400,6 +400,7 @@ public:
     
     // check that we correctly stored the targets
     nTargets = testParser->GetNTargets("x");
+    TS_ASSERT_EQUALS( nTargets, 2 );
     targetString = testParser->GetTargetString("x", 0);
     TS_ASSERT_EQUALS( targetString, "target_for_x_1" );
     targetString = testParser->GetTargetString("x", 1);
@@ -473,11 +474,11 @@ public:
 
   void testCLineParser_ParseQueueOption_complex2( void )
   {
-    int  argc = 12;
+    int  argc = 14;
     char  *argv[] = {"./makeimage", "tests/config_makeimage_gauss-oversample.dat",
     				 "-o", "temptest/oversampled.fits", "--psf", "tests/psf_standard.fits",
     				 "--overpsf", "tests/psf_oversamp.fits", "--overpsf_scale", "3",
-    				"--overpsf_region", "100:110,100:110"};
+    				"--overpsf_region", "100:110,100:110", "--overpsf_region", "50:60,80:90"};
     int  status;
     string  targetString;
     CLineParser  *testParser;
@@ -511,13 +512,22 @@ public:
     TS_ASSERT_EQUALS( targetString, "tests/psf_standard.fits" );
 
     targetString = testParser->GetTargetString("overpsf");
+    int nTargets = testParser->GetNTargets("overpsf");
+    TS_ASSERT_EQUALS( nTargets, 1 );
+    TS_ASSERT_EQUALS( targetString, "tests/psf_oversamp.fits" );
+
+    targetString = testParser->GetTargetString("overpsf", 0);
     TS_ASSERT_EQUALS( targetString, "tests/psf_oversamp.fits" );
 
     targetString = testParser->GetTargetString("overpsf_scale");
     TS_ASSERT_EQUALS( targetString, "3" );
 
-    targetString = testParser->GetTargetString("overpsf_region");
+    nTargets = testParser->GetNTargets("overpsf_region");
+    TS_ASSERT_EQUALS( nTargets, 2 );
+    targetString = testParser->GetTargetString("overpsf_region", 0);
     TS_ASSERT_EQUALS( targetString, "100:110,100:110" );
+    targetString = testParser->GetTargetString("overpsf_region", 1);
+    TS_ASSERT_EQUALS( targetString, "50:60,80:90" );
   }
 
 

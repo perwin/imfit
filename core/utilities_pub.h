@@ -46,6 +46,13 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
                            const string &psfFileName, int mode=HDR_MAKEIMAGE,
                            const string &dataFileName="" );
 
+/// \brief Utility function to print current parameter values (grouped by function,
+///        with names) to stdout
+void PrintParametersSimple( ModelObject *model, double *parameters );
+
+
+
+
 /// \brief Splits a string and returns substrings ("tokens").
 ///
 /// The vector tokens is cleared before adding the substrings.

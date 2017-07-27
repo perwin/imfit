@@ -37,7 +37,7 @@
 			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_withOffset
 			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_withOffset_2blocks
 
-	[ ] Convert code in print_results.cpp which uses PrintModelParams to use
+	[x] Convert code in print_results.cpp which uses PrintModelParams to use
 		PrintModelParamsToStrings instead, and then eliminate PrintModelParams ?
 
 	[ ] Update ModelOject1D Print*Params methods
@@ -152,8 +152,8 @@
 		the last one gets recorded in the OptionParser object
 		[ ] Modify commandline_parser to handle multi-instance options
 			[x] Plan out possible interface
-			[ ] Add unit tests to unittest_commandline_parser.t.h
-			[ ] Write code to make tests pass
+			[x] Add unit tests to unittest_commandline_parser.t.h
+			[x] Write code to make tests pass
 			?[ ] Consider rewriting commandline_parser to make all OptionParser objects
 			the same (with internal vector), with behavior (singleton or vector)
 			depending on how constructor is called
@@ -204,15 +204,32 @@
 		[ ] Modify imfit-mcmc main() to use function
 
 
-[ ] Update regression tests to use color and/or output number of failed tests
-	[ ] Update regression test to accumulate & report number of failed tests
-		[..] Update do_makeimage_tests.sh
-		[ ] Update do_imfit_tests.sh
-		[ ] Update do_mcmc_tests.sh
+[x] Update regression tests to use color and/or output number of failed tests
+	[x] Update regression test to accumulate & report number of failed tests
+		[x] Update do_makeimage_tests.sh
+		[x] Update do_imfit_tests.sh
+		[x] Update do_mcmc_tests.sh
 	[x] Update regression test to use color when tests fail
 		[x] Update do_makeimage_tests.sh
 		[x] Update do_imfit_tests.sh
 		[x] Update do_mcmc_tests.sh
+	[x] Update do_profilefit_tests
+
+
+[ ] Test image convolution with even-numbered-pixel arrays (e.g., 4x4 PSF image)
+	-- gauss_36x36.fits, gauss_35x35.fits
+	OK, for a 36x36 PSF image, centering the PSF at (19,19) produces an *unshifted*
+	output image, similar if not identical to convolution with the 35x35 centered PSF image.
+	(I think this is because it's effectively equivalent to a 37x37 centered PSF.)
+	Any other centering for the 36x36 PSF image, including the "true" centering at
+	(18.5,18.5) -- produces *shifted* output images.
+	[x] Generate 36x36x PSF test image
+	[x] Test on Sersic image
+	
+	[ ] Should try testing this with e.g scipy or astropy convolution
+		[ ] Read up on scipy convolution code
+		[ ] Write function to read in FITS images and do convolution
+		[ ] Execute ...
 	
 
 [ ] Check input: Catch cases of oversampled regions that lie or extend outside data

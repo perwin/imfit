@@ -85,6 +85,7 @@
 #include "mpfit.h"
 #include "model_object.h"
 #include "mp_enorm.h"
+#include "utilities_pub.h"
 
 /* Forward declarations of functions in this module */
 int mp_fdjac2(mp_func funct,
@@ -108,6 +109,7 @@ int mp_min0(int a, int b);
 int mp_covar(int n, double *r, int ldr, int *ipvt, double tol, double *wa);
 
 int CheckFinite(int ntot, double *matrix);
+
 
 /* Macro to call user function */
 #define mp_call(funct, m, n, x, fvec, dvec, priv) (*(funct))(m,n,x,fvec,dvec,priv)
@@ -918,7 +920,8 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
         // note that we print parameter values using xnew, not x, since x 
         // contains only the *free* parameters. xnew contains *all* parameters,
         // and holds the last set of parameter values passed to theModel (via funct)
-        theModel->PrintModelParams(stdout, xnew, NULL);
+        PrintParametersSimple(theModel, xnew);
+//         theModel->PrintModelParams(stdout, xnew, NULL);
       }
     }
     iter += 1;

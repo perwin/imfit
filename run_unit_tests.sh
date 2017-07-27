@@ -40,7 +40,7 @@ RESULT+=$?
 echo $RESULT
 
 # Unit tests for command-line parser
-./run_unittest_cmlineparser.sh 2>> temperror.log
+./run_unittest_commandlineparser.sh 2>> temperror.log
 RESULT+=$?
 echo $RESULT
 

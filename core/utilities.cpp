@@ -158,6 +158,18 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
 
 
 
+/* ---------------- FUNCTION: PrintParametersSimple() -------------- */
+void PrintParametersSimple( ModelObject *model, double *parameters )
+{
+    vector<string> outputLines;
+
+    model->PrintModelParamsToStrings(outputLines, parameters, NULL);
+    for (auto line: outputLines)
+      printf("%s", line.c_str());
+}
+
+
+
 
 /* ---------------- FUNCTION: SplitString() ------------------------ */
 /// This function tokenizes a string, splitting it into substrings using

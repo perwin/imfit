@@ -102,7 +102,8 @@ echo -n "   (now running Cash-statistic and Poisson MLR fits ...)"
 echo ""
 
 # test bootstrap resampling (first is just to see that program doesn't crash, which happened
-# previously when nIterations = 3; third is for testing that we correct for image offsets)
+# previously when nIterations = 3; third is for testing that we correct for image offsets
+# in the saved-iterations output file)
 ./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --bootstrap 3 &> /dev/null
 ./imfit tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --seed 10 --bootstrap 5 --save-bootstrap temptest/temp_bootstrap_output.dat &> /dev/null
 ./imfit tests/ic3478rss_64x64.fits[10:64,10:64] -c tests/imfit_config_ic3478_64x64b.dat --seed 10 --bootstrap 5 --save-bootstrap temptest/temp_bootstrap_output2.dat &> /dev/null

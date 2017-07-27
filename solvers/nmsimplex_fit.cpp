@@ -1,6 +1,6 @@
 /* FILE: nmsimplex_fit.cpp ----------------------------------------------- */
 
-// Copyright 2012--2015 by Peter Erwin.
+// Copyright 2012--2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -48,7 +48,6 @@
 
 #include <string>
 #include <sstream>
-#include <vector>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -59,6 +58,7 @@
 #include "param_struct.h"   // for mp_par structure
 #include "nmsimplex_fit.h"
 #include "solver_results.h"
+#include "utilities_pub.h"
 
 const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
@@ -94,7 +94,8 @@ double myfunc_nlopt( unsigned n, const double *x, double *grad, void *my_func_da
     if ((funcCallCount % FUNCS_PER_REPORTING_STEP) == 0) {
       printf("\tN-M simplex: function call %d: objective = %f\n", funcCallCount, fitStatistic);
       if ( (verboseOutput > 1) && ((funcCallCount % (REPORT_STEPS_PER_VERBOSE_OUTPUT*FUNCS_PER_REPORTING_STEP)) == 0) ) {
-        theModel->PrintModelParams(stdout, params, NULL);
+//         theModel->PrintModelParams(stdout, params, NULL);
+        PrintParametersSimple(theModel, params);
       }
     }
   }

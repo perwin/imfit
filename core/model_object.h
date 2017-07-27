@@ -155,20 +155,12 @@ class ModelObject
     string GetParamHeader( );
 
     // common, but Specialized by ModelObject1D
-//     virtual void PrintModelParams( FILE *output_ptr, double params[], 
-//     								mp_par *parameterInfo, double errs[], 
+//     virtual void PrintModelParams( FILE *output_ptr, double params[], double errs[], 
 //     								const char *prefix="" );
-    virtual void PrintModelParams( FILE *output_ptr, double params[], double errs[], 
-    								const char *prefix="" );
 
-//     virtual int PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
-// 									vector<mp_par> parameterInfo, double errs[], 
-// 									const char *prefix="", bool printLimits=false );
     virtual int PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
 									double errs[], const char *prefix="", bool printLimits=false );
 
-//     virtual string PrintModelParamsHorizontalString_old( const double params[], 
-//     						const mp_par parameterInfo[], const string& separator="\t\t" );
     virtual string PrintModelParamsHorizontalString( const double params[], const string& separator="\t" );
 
     // 2D only
