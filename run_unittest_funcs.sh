@@ -6,7 +6,7 @@
 echo
 echo "Generating and compiling unit tests for function objects..."
 $CXXTESTGEN --error-printer -o test_runner_funcs.cpp unit_tests/unittest_funcs.t.h 
-$CPP -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
+$CPP -std=c++11 -o test_runner_funcs test_runner_funcs.cpp function_objects/function_object.cpp \
 function_objects/func_exp.cpp function_objects/func_flatsky.cpp \
 function_objects/func_gaussian.cpp function_objects/func_moffat.cpp \
 function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects/func_king2.cpp \

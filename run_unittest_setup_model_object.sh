@@ -7,7 +7,7 @@
 echo
 echo "Generating and compiling unit tests for setup_model_object..."
 $CXXTESTGEN --error-printer -o test_runner_setup_modelobj.cpp unit_tests/unittest_setup_model_object.t.h
-$CPP -DDEBUG -fsanitize=address -o test_runner_setup_modelobj test_runner_setup_modelobj.cpp core/model_object.cpp \
+$CPP -std=c++11 -o test_runner_setup_modelobj test_runner_setup_modelobj.cpp core/model_object.cpp \
 core/setup_model_object.cpp core/utilities.cpp core/convolver.cpp core/config_file_parser.cpp \
 core/mersenne_twister.cpp core/mp_enorm.cpp core/oversampled_region.cpp core/downsample.cpp \
 core/image_io.cpp core/psf_oversampling_info.cpp \

@@ -245,11 +245,7 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
         outputParamArray[i][nSuccessfulIters] = paramsVect[i];
       if (saveToFile) {
         outputLine = theModel->PrintModelParamsHorizontalString(paramsVect);
-//         outputLine = theModel->PrintModelParamsHorizontalString(paramsVect, parameterLimits);
         fprintf(outputFile_ptr, "%s\n", outputLine.c_str());
-//         for (i = 0; i < (nParams - 1); i++)
-//           fprintf(outputFile_ptr, "%f\t\t", paramsVect[i]);
-//         fprintf(outputFile_ptr, "%f\n", paramsVect[nParams - 1]);
       }
       nSuccessfulIters += 1;
     }

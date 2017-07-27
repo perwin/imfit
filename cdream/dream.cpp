@@ -52,10 +52,6 @@ using namespace std;
 #include "model_object.h"
 #include "utilities_pub.h"
 
-#ifdef USE_PLOG
-#include "plog/Log.h"
-#endif
-
 
 int dream( const dream_pars* p, rng::RngStream* rng )
 {
@@ -141,8 +137,6 @@ int dream( const dream_pars* p, rng::RngStream* rng )
         tempParams[j] = state(0,i,j);
       string paramString = theModel->PrintModelParamsHorizontalString(tempParams);
       *oout[i] << paramString << " ";
-//        *oout[i] << state(0,i,j) << " ";
-//      *oout[i]  << lik(0,i) << " " << inBurnIn << " " << 0 << " ";
       *oout[i]  << lik(0,i) << " " << inBurnIn << " " << " ";
       for (int j = 0; j < p->nCR; ++j) 
         *oout[i] << pCR[j] << " ";
@@ -457,7 +451,6 @@ int dream( const dream_pars* p, rng::RngStream* rng )
     }  // end of "if (++genNumber >= p->loopSteps)"
 
 
-    // FIXME: get output via PrintModelParamsHorizontalString working
     ++ireport;
     if (ireport >= p->report_interval) {
       ireport = 0;
@@ -466,11 +459,6 @@ int dream( const dream_pars* p, rng::RngStream* rng )
           tempParams[j] = state(t,i,j);
         string paramString = theModel->PrintModelParamsHorizontalString(tempParams);
         *oout[i] << paramString << " ";
-        
-
-//         for (int j = 0; j < p->nvar; ++j) 
-//           *oout[i] << state(t,i,j) << " ";
-          
         *oout[i] << lik(t,i) << " " << (t < burnInStart + p->burnIn) << " " << " ";
         for (int j(0); j < p->nCR; ++j) 
           *oout[i] << pCR[j] << " ";
