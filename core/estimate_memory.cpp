@@ -11,7 +11,7 @@
 // will be done using int values, will overflow, and the overflow value will be
 // stored in the long variable...
 
-// Copyright 2015--2016 by Peter Erwin.
+// Copyright 2015--2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

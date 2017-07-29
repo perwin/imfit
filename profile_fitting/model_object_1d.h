@@ -52,10 +52,13 @@ class ModelObject1d : public ModelObject
     
     int Dimensionality( ) { return 1;};
     
-//     void PrintModelParams( FILE *output_ptr, double params[], mp_par *parameterInfo,
-// 							double errs[], const char *prefix="" );
-    void PrintModelParams( FILE *output_ptr, double params[], double errs[], 
-    						const char *prefix="" );
+//     void PrintModelParams( FILE *output_ptr, double params[], double errs[], 
+//     						const char *prefix="" );
+
+    int PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
+									double errs[], const char *prefix="", 
+									bool printLimits=false ) override;
+
     void PopulateParameterNames( );
     
     int FinalSetupForFitting( );

@@ -26,12 +26,23 @@
 #include "mp_enorm.h"
 #include "convolver1d.h"
 #include "mersenne_twister.h"
+#include "utilities_pub.h"
 
 
 /* ---------------- Definitions ---------------------------------------- */
 static string  UNDEFINED = "<undefined>";
 
 #define OPENMP_CHUNK_SIZE  10
+
+// output formatting for printing parameters
+#define X_FORMAT_WITH_ERRS "%sX0\t\t%.6f # +/- %.6f\n"
+#define X_FORMAT "%sX0\t\t%.6f\n"
+#define X_FORMAT_WITH_LIMITS "%sX0\t\t%.6f\t\t%g,%g\n"
+#define X_FORMAT_WITH_FIXED "%sX0\t\t%.6f\t\tfixed\n"
+#define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%f # +/- %f\n"
+#define PARAM_FORMAT "%s%s\t\t%f\n"
+#define PARAM_FORMAT_WITH_LIMITS "%s%s\t\t%f\t\t%g,%g\n"
+#define PARAM_FORMAT_WITH_FIXED "%s%s\t\t%f\t\tfixed\n"
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -475,45 +486,8 @@ void ModelObject1d::PrintDescription( )
 // Basic function which prints to a file a summary of the best-fitting model,
 // in form suitable for future use as an input config file.
 
-void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], double errs[], 
-										const char *prefix )
-{
-  double  x0, paramVal;
-  int nParamsThisFunc, k;
-  int  indexOffset = 0;
-  string  funcName, paramName;
-
-  for (int n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0,y0 and then skip over them
-      k = indexOffset;
-      x0 = params[k] + parameterInfoVect[k].offset;
-      if (errs != NULL) {
-        fprintf(output_ptr, "\n%sX0\t\t%f # +/- %f\n", prefix, x0, errs[k]);
-      } else {
-        fprintf(output_ptr, "\n%sX0\t\t%f\n", prefix, x0);
-      }
-      indexOffset += 1;
-    }
-    
-    // Now print the function and its parameters
-    nParamsThisFunc = paramSizes[n];
-    funcName = functionObjects[n]->GetShortName();
-    fprintf(output_ptr, "%sFUNCTION %s\n", prefix, funcName.c_str());
-    for (int i = 0; i < nParamsThisFunc; i++) {
-      paramName = GetParameterName(indexOffset + i);
-      paramVal = params[indexOffset + i];
-      if (errs != NULL)
-        fprintf(output_ptr, "%s%s\t\t%f # +/- %f\n", prefix, paramName.c_str(), paramVal, errs[indexOffset + i]);
-      else
-        fprintf(output_ptr, "%s%s\t\t%f\n", prefix, paramName.c_str(), paramVal);
-    }
-    indexOffset += paramSizes[n];
-  }
-}
-
-// void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], 
-// 										mp_par *parameterInfo, double errs[], const char *prefix )
+// void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], double errs[], 
+// 										const char *prefix )
 // {
 //   double  x0, paramVal;
 //   int nParamsThisFunc, k;
@@ -524,7 +498,7 @@ void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], double 
 //     if (fblockStartFlags[n] == true) {
 //       // start of new function block: extract x0,y0 and then skip over them
 //       k = indexOffset;
-//       x0 = params[k] + parameterInfo[k].offset;
+//       x0 = params[k] + parameterInfoVect[k].offset;
 //       if (errs != NULL) {
 //         fprintf(output_ptr, "\n%sX0\t\t%f # +/- %f\n", prefix, x0, errs[k]);
 //       } else {
@@ -548,6 +522,84 @@ void ModelObject1d::PrintModelParams( FILE *output_ptr, double params[], double 
 //     indexOffset += paramSizes[n];
 //   }
 // }
+
+
+/* ---------------- PUBLIC METHOD: PrintModelParamsToStrings ---------- */
+/// Like PrintModelParams, but appends lines of output as strings to the input
+/// vector of string. 
+/// Optionally, the lower and upper limits defined in parameterInfo are also printed, 
+/// OR associated lower and upper error bounds in errs can be printed.
+///
+/// If errs != NULL, then +/- errors are printed as well (only if printLimits is false)
+///
+/// If prefix != NULL, then the specified character (e.g., '#') is prepended to
+/// each output line.
+///
+/// If printLimits == true, then lower and upper parameter limits will be printed
+/// for each parameter (or else "fixed" for fixed parameters)
+int ModelObject1d::PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
+									double errs[], const char *prefix, bool printLimits )
+{
+  double  x0, paramVal;
+  int nParamsThisFunc, k;
+  int  indexOffset = 0;
+  string  funcName, paramName, newLine;
+
+  if ((printLimits) && (parameterInfoVect.size() == 0)) {
+    fprintf(stderr, "** ERROR: ModelObject1d::PrintModelParamsToStrings -- printing of parameter limits\n");
+    fprintf(stderr, "was requested, but parameterInfoVect is empty!\n");
+    return -1;
+  }
+
+  for (int n = 0; n < nFunctions; n++) {
+    if (fblockStartFlags[n] == true) {
+      // start of new function block: extract x0,y0 and then skip over them
+      k = indexOffset;
+      x0 = params[k] + parameterInfoVect[k].offset;
+      if (printLimits) {
+        if (parameterInfoVect[k].fixed == 1)
+          newLine = PrintToString(X_FORMAT_WITH_FIXED, prefix, x0);
+        else
+          newLine = PrintToString(X_FORMAT_WITH_LIMITS, prefix, x0, 
+        				parameterInfoVect[k].limits[0], parameterInfoVect[k].limits[1]);
+        stringVector.push_back(newLine);
+      } else {
+        if (errs != NULL) {
+          stringVector.push_back(PrintToString(X_FORMAT_WITH_ERRS, prefix, x0, errs[k]));
+        } else {
+          stringVector.push_back(PrintToString(X_FORMAT, prefix, x0));
+        }
+      }
+      indexOffset += 1;
+    }
+    
+    // Now print the function and its parameters
+    nParamsThisFunc = paramSizes[n];
+    funcName = functionObjects[n]->GetShortName();
+    stringVector.push_back(PrintToString("%sFUNCTION %s\n", prefix, funcName.c_str()));
+    for (int i = 0; i < nParamsThisFunc; i++) {
+      paramName = GetParameterName(indexOffset + i);
+      paramVal = params[indexOffset + i];
+      if (printLimits)
+        if (parameterInfoVect[indexOffset + i].fixed == 1)
+          newLine = PrintToString(PARAM_FORMAT_WITH_FIXED, prefix, paramName.c_str(), 
+        						paramVal);
+        else
+          newLine = PrintToString(PARAM_FORMAT_WITH_LIMITS, prefix, paramName.c_str(), 
+        						paramVal, parameterInfoVect[indexOffset + i].limits[0], 
+        						parameterInfoVect[indexOffset + i].limits[1]);
+      else if (errs != NULL)
+        newLine = PrintToString(PARAM_FORMAT_WITH_ERRS, prefix, paramName.c_str(), 
+        						paramVal, errs[indexOffset + i]);
+      else
+        newLine = PrintToString(PARAM_FORMAT, prefix, paramName.c_str(), paramVal);
+      stringVector.push_back(newLine);
+    }
+    indexOffset += paramSizes[n];
+  }
+  
+  return 0;
+}
 
 
 /* ---------------- PUBLIC METHOD: PopulateParameterNames -------------- */

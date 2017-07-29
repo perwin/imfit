@@ -111,6 +111,12 @@ os_type = os.uname()[0]
 
 # *** Set up compiler flags, library lists, include paths
 
+# Note on sse2, etc.:
+#    SSE2 is supported on Intel processors from xxx onward
+#    AVX  is supported on Intel "Core i3/i5/i7" processors from 2011 onward
+#    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
+#    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2106 onward)
+
 # cflags_opt = ["-O3", "-g0", "-msse2"]
 # cflags_db = ["-Wall", "-g3"]
 cflags_opt = ["-O3", "-g0", "-msse2", "-std=c++11"]

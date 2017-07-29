@@ -1,4 +1,4 @@
-/* FILE: imfit1d_main.cpp  ----------------------------------------------- */
+/* FILE: profilefit_main.cpp  -------------------------------------------- */
 /*
  * This is a modified version of imfit_main.cpp, which does fitting of 1-D
  * profiles, where the profile is stored in a text file with two or three
@@ -62,7 +62,7 @@
 #define DEFAULT_MODEL_OUTPUT_FILE   "model_profile_save.dat"
 #define DEFAULT_1D_OUTPUT_PARAMETER_FILE   "bestfit_parameters_profilefit.dat"
 
-#define VERSION_STRING      "v1.2"
+#define VERSION_STRING      "v1.5"
 
 
 
@@ -102,7 +102,6 @@ typedef struct {
 
 /* Local Functions: */
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
-//void ProcessInputOld( int argc, char *argv[], commandOptions *theOptions );
 int myfunc( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *aModel );
 
@@ -148,7 +147,6 @@ int main(int argc, char *argv[])
   vector<string>  functionList;
   vector<double>  parameterList;
   mp_par  *parameterInfo;
-//  mp_par  *mpfitParameterConstraints;
   commandOptions  options;
   configOptions  userConfigOptions;
   SolverResults  resultsFromSolver;
@@ -273,19 +271,10 @@ int main(int argc, char *argv[])
     for (int i = 0; i < nStoredDataVals; i++)
       yWeights[i] = 1.0;
   } 
-//   else {
-//     if (weightMode == WEIGHTS_ARE_SIGMAS) {
-//       // Construct weights as 1/err
-//       printf("Converting errors to weights (w = 1/err)\n");
-//       for (int i = 0; i < nStoredDataVals; i++)
-//         yWeights[i] = 1.0/yWeights[i];
-//     }
-//   }
 
 
   /* Read in PSF profile, if supplied */
   if (options.psfPresent) {
-//    printf("Reading PSF profile (\"%s\") ...\n", options.psfFileName.c_str());
     nPixels_psf = CountDataLines(options.psfFileName);
     if ((nPixels_psf < 1) || (nPixels_psf > MAX_N_DATA_VALS)) {
       /* file has no data *or* too much data (or an integer overflow occured 
@@ -398,7 +387,6 @@ int main(int argc, char *argv[])
     printf("\n");
     fitStatus = 1;
     PrintFitStatistic(paramsVect, theModel, nFreeParams);
-//    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus);
     printf("\n");
     // turn off saveing of parameter file
     options.saveBestFitParams = false;
@@ -411,38 +399,6 @@ int main(int argc, char *argv[])
     							
     PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
   }
-//     if (options.solver == MPFIT_SOLVER) {
-//       printf("\nCalling Levenberg-Marquardt solver ...\n");
-//       fitStatus = LevMarFit(nParamsTot, nFreeParams, nStoredDataVals, paramsVect, parameterInfo, 
-//       						theModel, options.ftol, paramLimitsExist, options.verbose);
-//     }
-//     else if (options.solver == DIFF_EVOLN_SOLVER) {
-//       printf("\nCalling Differential Evolution solver ..\n");
-//       fitStatus = DiffEvolnFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       				options.verbose);
-//       printf("\n");
-//       PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, NULL);
-//       printf("\n");
-//     }
-// #ifndef NO_NLOPT
-//     else if (options.solver == NMSIMPLEX_SOLVER) {
-//       printf("\nCalling Nelder-Mead Simplex solver ..\n");
-//       fitStatus = NMSimplexFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       							options.verbose);
-//       printf("\n");
-//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-//       printf("\n");
-//     }
-//     else if (options.solver == GENERIC_NLOPT_SOLVER) {
-//       printf("\nCalling miscellaneous NLOpt solver ..\n");
-//       fitStatus = NLOptFit(nParamsTot, paramsVect, parameterInfo, theModel, options.ftol,
-//       						options.verbose, options.nloptSolverName);
-//       printf("\n");
-//       PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-//       printf("\n");
-//     }
-// #endif
-//   }
 
 
 
