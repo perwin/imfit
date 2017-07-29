@@ -22,9 +22,17 @@ echo ""
 echo "Running tests for imfit-mcmc..."
 
 # simple tests using small images; seed=7 to ensure repeatable pseudo-random numbers
-echo -n "   (now running MCMC chain ...)"
+echo -n "   (now running MCMC chain (test 1)...)"
 ./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test &> temptest/test_dump_mcmc1
 echo ""
+
+# same, but now checking that we correct for image offset when we specify subsection
+# of data image
+echo -n "   (now running MCMC chain (test 2)...)"
+./imfit-mcmc tests/faintstar.fits[3:10,3:10] -c tests/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test2 &> /dev/null
+echo ""
+
+
 
 # Testing to see if we catch input-image problems: all pixels masked, mismatched image sizes,
 # 2a: testing that we catch error: case of all pixels masked:
@@ -58,12 +66,23 @@ STATUS+=$?
 
 printf "    Comparing first output chain file... "
 # skip first two lines of output file to avoid comparing timestamps
-tail -n +3 temptest/mcmc_test.0.txt > temptest/mcmc_test.0.txt_skip2
-if (diff --brief temptest/mcmc_test.0.txt_skip2 tests/mcmc_ref1.0.txt_skip2)
+tail -n +3 temptest/mcmc_test.1.txt > temptest/mcmc_test.1.txt_skip2
+if (diff --brief temptest/mcmc_test.1.txt_skip2 tests/mcmc_ref1.1.txt_skip2)
 then
   printf " OK\n"
 else
-  echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test.0.txt differs from reference file tests/mcmc_ref1.0.txt"
+  echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test.1.txt differs from reference file tests//mcmc_ref1.1.txt_skip2"
+  STATUS+=1
+fi
+
+printf "    Comparing first output chain file (fitting faintstar.fits[3:10,3:10]... "
+# skip first two lines of output file to avoid comparing timestamps
+tail -n +3 temptest/mcmc_test2.1.txt > temptest/mcmc_test2.1.txt_skip2
+if (diff --brief temptest/mcmc_test2.1.txt_skip2 tests/mcmc_ref2.1.txt_skip2)
+then
+  printf " OK\n"
+else
+  echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test2.1.txt differs from reference file tests/mcmc_ref2.1.txt_skip2"
   STATUS+=1
 fi
 

@@ -41,7 +41,7 @@ Chain 5: likelihood = -2074.15
 Convergence detected!
 101410 likelihood function calls
 
-MCMC chains written to output files temptest/mcmc_test.0.txt through temptest/mcmc_test.5.txt
+MCMC chains written to output files temptest/mcmc_test.1.txt through temptest/mcmc_test.6.txt
 (Elapsed time: 8.164373 sec)
 
 Done!

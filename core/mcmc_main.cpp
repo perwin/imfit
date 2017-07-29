@@ -506,8 +506,8 @@ int main(int argc, char *argv[])
   // DO THE MCMC!
   printf("\nStart of MCMC processing...\n");
   dream(&dreamPars, &rng);
-  printf("\nMCMC chains written to output files %s.0.txt through %s.%d.txt", 
-  		options->outputFileRoot.c_str(), options->outputFileRoot.c_str(), options->nChains - 1);
+  printf("\nMCMC chains written to output files %s.1.txt through %s.%d.txt", 
+  		options->outputFileRoot.c_str(), options->outputFileRoot.c_str(), options->nChains);
 
 
 #ifdef USE_PLOG

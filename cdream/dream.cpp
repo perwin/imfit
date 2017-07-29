@@ -106,11 +106,12 @@ int dream( const dream_pars* p, rng::RngStream* rng )
   vector<ostream*> oout;
   ios_base::openmode fmode = (p->appendFile) ? (ios_base::out | ios_base::app) : ios_base::out;
 
+  // PE: changed output chain-file names so they start with 1, not 0
   oout.resize(p->numChains, &cout);
   if (p->outputRootname != "" && p->outputRootname != "-") {
     for (int i = 0; i < p->numChains; ++i) {
       chainFilename.str("");
-      chainFilename << p->outputRootname << "." << i << ".txt";
+      chainFilename << p->outputRootname << "." << i + 1 << ".txt";
       oout[i] = new ofstream(chainFilename.str().c_str(), fmode);
       oout[i]->setf(ios::scientific, ios::floatfield);
       oout[i]->precision(12);
