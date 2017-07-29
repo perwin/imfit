@@ -1,49 +1,6 @@
 
 ** BUGS TO FIX:
 
-(1.5)[ ] Bootstrap and MCMC output:
-	X0,Y0 values are *not* corrected to full-image coordinates if input image used
-	image subsections (e.g., for "imfit data.fits[200:400,100:300] ...", the saved
-	X0,Y0 values in the bootstrap output file will be subsection-relative, although
-	the "best-fit" values in the header will be correctly full-image relative.
-	 -- BootstrapErrors() --> BootstrapErrorsBase()
-	 -- ModelObject::PrintModelParams -- corrections are applied *if* parameterInfo
-	 input parameter is non-NULL
-	 -- Need to write "horizontal" version of ModelObject::PrintModelParams
-	 	-- skips printing parameter names, but does apply x,y offsets
-		[x] Locate where in code we currently *do* correct for this
-		[x] Write unit test for new PrintModelParams function
-		[x] Write code to pass test
-	[x] Implement fix in bootstrap code
-	[x] Implement fix in MCMC code
-
-	[x] Add setting and storage of mp_param-type info *inside* ModelObject
-		-- idea is to circumvent the awkward, error-prone issue of how to pass through
-		mp_param pointer-to-array (or vector of mp_par) to ModelObject printing methods
-		-- could be simplified version of mp_par, maybe even just holding X0_offset,
-		Y0_offset
-			-- mp_par data members actually referenced within model_object.cpp:
-			PrintModelParams: .offset
-				print_results.cpp
-			PrintModelParamsToStrings: .offset, .fixed, .limits [+ .size() for vector<mp_par>]
-				mcmc_main.cpp
-			PrintModelParamsHorizontalString: .offset
-				bootstrap_errors.cpp
-		[x] Add vector<SimpleParameterInfo> to ModelObject
-		[x] Add printing method to ModelObject which uses internal vector
-		[x] Test substitution of new printing method in unit tests
-			[x] testPrintParamsToString
-			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_noOffset
-			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_withOffset
-			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_withOffset_2blocks
-
-	[x] Convert code in print_results.cpp which uses PrintModelParams to use
-		PrintModelParamsToStrings instead, and then eliminate PrintModelParams ?
-
-	[ ] Update ModelOject1D Print*Params methods
-		[ ] Update adding parameter info to ModelObject1D in profilefit_main.cpp
-		[ ] Update other parameter-printing code in profilefit
-
 	
 
 
@@ -183,7 +140,7 @@
 	[x] Modify EstimateMemory (and code calling it in _main.cpp) to account for
 	multiple oversampled regions
 	
-	[ ] LATER: Comment out or remove GetAllCoordsFromBracket2 from utilities, since we no longer
+	[x] LATER: Comment out or remove GetAllCoordsFromBracket2 from utilities, since we no longer
 	need it?
 
 
@@ -746,6 +703,56 @@ of string: options.psfOversampleRegions
 
 
 * BUGS FIXED
+
+(1.5)[x] Bootstrap and MCMC output:
+	X0,Y0 values are *not* corrected to full-image coordinates if input image used
+	image subsections (e.g., for "imfit data.fits[200:400,100:300] ...", the saved
+	X0,Y0 values in the bootstrap output file will be subsection-relative, although
+	the "best-fit" values in the header will be correctly full-image relative.
+	 -- BootstrapErrors() --> BootstrapErrorsBase()
+	 -- ModelObject::PrintModelParams -- corrections are applied *if* parameterInfo
+	 input parameter is non-NULL
+	 -- Need to write "horizontal" version of ModelObject::PrintModelParams
+	 	-- skips printing parameter names, but does apply x,y offsets
+	 
+	 FIXED: Rewriting of printout methods to be more consistent; storing parameter-limits
+	 info (including X0,Y0 offset values) inside ModelObject instead of trying to
+	 pass them around to the PrintModelParams functions.
+	 
+		[x] Locate where in code we currently *do* correct for this
+		[x] Write unit test for new PrintModelParams function
+		[x] Write code to pass test
+	[x] Implement fix in bootstrap code
+	[x] Implement fix in MCMC code
+
+	[x] Add setting and storage of mp_param-type info *inside* ModelObject
+		-- idea is to circumvent the awkward, error-prone issue of how to pass through
+		mp_param pointer-to-array (or vector of mp_par) to ModelObject printing methods
+		-- could be simplified version of mp_par, maybe even just holding X0_offset,
+		Y0_offset
+			-- mp_par data members actually referenced within model_object.cpp:
+			PrintModelParams: .offset
+				print_results.cpp
+			PrintModelParamsToStrings: .offset, .fixed, .limits [+ .size() for vector<mp_par>]
+				mcmc_main.cpp
+			PrintModelParamsHorizontalString: .offset
+				bootstrap_errors.cpp
+		[x] Add vector<SimpleParameterInfo> to ModelObject
+		[x] Add printing method to ModelObject which uses internal vector
+		[x] Test substitution of new printing method in unit tests
+			[x] testPrintParamsToString
+			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_noOffset
+			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_withOffset
+			[x] PrintModelParamsHorizontalString -- testPrintModelParamsHorizontalString_withOffset_2blocks
+
+	[x] Convert code in print_results.cpp which uses PrintModelParams to use
+		PrintModelParamsToStrings instead, and then eliminate PrintModelParams ?
+
+	[x] Update ModelOject1D Print*Params methods
+		[x] Update adding parameter info to ModelObject1D in profilefit_main.cpp
+		[x] Update other parameter-printing code in profilefit
+
+
 
 [X] PSF oversampling:
 	Small deviations in output image were present when generated using current working

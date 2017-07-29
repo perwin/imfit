@@ -78,8 +78,8 @@ void StripBrackets( const string& inputFilename, string& strippedFilename );
 /// Extracts all coordinates from string of form "[x1:x2,y1:y1]"
 void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
                            int *y1, int *y2 );
-void GetAllCoordsFromBracket2( const string& bracketString, vector<int>& x1, vector<int>& x2,
-                           vector<int>& y1, vector<int>& y2 );
+// void GetAllCoordsFromBracket2( const string& bracketString, vector<int>& x1, vector<int>& x2,
+//                            vector<int>& y1, vector<int>& y2 );
 
 /// Extracts coordinates x1 and y1 from string of form "[x1:x2,y1:y1]"
 void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,

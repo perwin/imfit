@@ -26,7 +26,8 @@ to *skip* normalization of any input PSF images (standard or oversampled). xxx
 
 - Output MCMC chains produced by `imfit-mcmc` are now numbered starting with 1
 instead of with 0. (This is more consistent with the rest of Imfit, which uses
-1-based numbering everywhere outside of the actual C++ code.)
+1-based numbering everywhere outside of the actual C++ code. My apologies if
+this messes up anyone's analysis code!)
 
 - Binaries for MacOS X (or "macOS") are now compiled with GCC 7 instead of GCC 5.
 (But if you're compiling the source code yourself, any version of GCC from 4.8

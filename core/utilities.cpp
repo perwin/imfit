@@ -319,52 +319,52 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
 /* ---------------- FUNCTION: GetAllCoordsFromBracket2() ------------ */
 // Given a string of the form "x1:x2,y1:y2", add x1, x2, y1, and y2 to
 // the input vectors
-void GetAllCoordsFromBracket2( const string& bracketString, vector<int>& x1, vector<int>& x2,
-                           vector<int>& y1, vector<int>& y2 )
-{
-  vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
-  const string star = string("*");
-  int  xx1, xx2, yy1, yy2;
-
-  // default values indicating errors:
-  xx1 = 0;
-  xx2 = 0;
-  yy1 = 0;
-  yy2 = 0;
-  
-  SplitString(bracketString, sectionPieces, ",");
-  // handle the x part of the section specification
-  if (sectionPieces[0] == star)
-    xx1 = 1;
-  else {
-    SplitString(sectionPieces[0], subsectionPieces_x, ":");
-    if (subsectionPieces_x.size() != 2) {
-      fprintf(stderr, "\nWARNING1: Incorrect image section format!\n");
-      fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
-      return;
-    }
-    xx1 = atoi(subsectionPieces_x[0].c_str());
-    xx2 = atoi(subsectionPieces_x[1].c_str());
-  }
-  // handle the y part of the section specification
-  if (sectionPieces[1] == star)
-    yy1 = 1;
-  else {
-    SplitString(sectionPieces[1], subsectionPieces_y, ":");
-    if (subsectionPieces_y.size() != 2) {
-      fprintf(stderr, "\nWARNING2: Incorrect image section format!\n");
-      fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
-      return;
-    }
-    yy1 = atoi(subsectionPieces_y[0].c_str());
-    yy2 = atoi(subsectionPieces_y[1].c_str());
-  }
-  
-  x1.push_back(xx1);
-  x2.push_back(xx2);
-  y1.push_back(yy1);
-  y2.push_back(yy2);
-}
+// void GetAllCoordsFromBracket2( const string& bracketString, vector<int>& x1, vector<int>& x2,
+//                            vector<int>& y1, vector<int>& y2 )
+// {
+//   vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
+//   const string star = string("*");
+//   int  xx1, xx2, yy1, yy2;
+// 
+//   // default values indicating errors:
+//   xx1 = 0;
+//   xx2 = 0;
+//   yy1 = 0;
+//   yy2 = 0;
+//   
+//   SplitString(bracketString, sectionPieces, ",");
+//   // handle the x part of the section specification
+//   if (sectionPieces[0] == star)
+//     xx1 = 1;
+//   else {
+//     SplitString(sectionPieces[0], subsectionPieces_x, ":");
+//     if (subsectionPieces_x.size() != 2) {
+//       fprintf(stderr, "\nWARNING1: Incorrect image section format!\n");
+//       fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
+//       return;
+//     }
+//     xx1 = atoi(subsectionPieces_x[0].c_str());
+//     xx2 = atoi(subsectionPieces_x[1].c_str());
+//   }
+//   // handle the y part of the section specification
+//   if (sectionPieces[1] == star)
+//     yy1 = 1;
+//   else {
+//     SplitString(sectionPieces[1], subsectionPieces_y, ":");
+//     if (subsectionPieces_y.size() != 2) {
+//       fprintf(stderr, "\nWARNING2: Incorrect image section format!\n");
+//       fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
+//       return;
+//     }
+//     yy1 = atoi(subsectionPieces_y[0].c_str());
+//     yy2 = atoi(subsectionPieces_y[1].c_str());
+//   }
+//   
+//   x1.push_back(xx1);
+//   x2.push_back(xx2);
+//   y1.push_back(yy1);
+//   y2.push_back(yy2);
+// }
 
 
 /* ---------------- FUNCTION: GetStartCoordsFromBracket() ----------- */
