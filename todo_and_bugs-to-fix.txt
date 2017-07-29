@@ -128,10 +128,10 @@
 		[x] Modify main() to handle multiple regions (as in makeimage)
 		[x] Add code to pass in image offsets (X0_offset, Y0_offset) to psfOveramplingInfo objects
 	
-	[..] Modify mcmc_main.cpp to handle multiple oversampling regions
+	[x] Modify mcmc_main.cpp to handle multiple oversampling regions
 		[x] Modify ProcessInput to include & handle options (as in imfit)
-		[ ] Update ProcessInput in imfit-mcmc to use multi-instance options
-		[ ] Modify main() to handle multiple regions (as in imfit)
+		[x] Update ProcessInput in imfit-mcmc to use multi-instance options
+		[x] Modify main() to handle multiple regions (as in imfit)
 	
 	[x] Check that both PSF-oversampling tests in do_imfit_tests.sh work
 	

@@ -120,10 +120,10 @@ int main(int argc, char *argv[])
   bool  errorPixels_allocated = false;
   double  *allMaskPixels;
   bool  maskAllocated = false;
-  double  *psfOversampledPixels;
-  int  nColumns_psf_oversampled, nRows_psf_oversampled;
-  long  nPixels_psf_oversampled;
-  PsfOversamplingInfo  *psfOversampleInfo = NULL;
+//   double  *psfOversampledPixels;
+//   int  nColumns_psf_oversampled, nRows_psf_oversampled;
+//   long  nPixels_psf_oversampled;
+//   PsfOversamplingInfo  *psfOversampleInfo = NULL;
   vector<PsfOversamplingInfo *>  psfOversamplingInfoVect;
   double  *paramsVect;
   int  X0_offset = 0;
@@ -530,8 +530,8 @@ int main(int argc, char *argv[])
     fftw_free(allErrorPixels);          // allocated externally, in ReadImageAsVector()
   if (options->psfImagePresent)
     fftw_free(psfPixels);               // allocated externally, in ReadImageAsVector()
-  if (options->psfOversampledImagePresent)
-    fftw_free(psfOversampledPixels);    // allocated externally, in ReadImageAsVector()
+//   if (options->psfOversampledImagePresent)
+//     fftw_free(psfOversampledPixels);    // allocated externally, in ReadImageAsVector()
   if (maskAllocated)
     fftw_free(allMaskPixels);           // allocated externally, in ReadImageAsVector()
   if (psfOversamplingInfoVect.size() > 0) {

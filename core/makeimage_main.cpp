@@ -605,7 +605,6 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
   
   // oversampled PSF(s) and region(s)
   if (optParser->OptionSet("overpsf")) {
-    printf("\nhandling overpsf...\n");
     theOptions->psfOversampling = true;
     theOptions->psfOversampledImagePresent = true;
     for (int i = 0; i < optParser->GetNTargets("overpsf"); i++) {
@@ -613,10 +612,8 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
       theOptions->psfOversampledFileNames.push_back(fileName);
       printf("\tOversampled PSF image = %s\n", fileName.c_str());
     }
-    printf("done.\n");
   }
   if (optParser->OptionSet("overpsf_scale")) {
-    printf("\nhandling overpsf_scale...\n");
     for (int i = 0; i < optParser->GetNTargets("overpsf_scale"); i++) {
       string scaleStr = optParser->GetTargetString("overpsf_scale", i).c_str();
       if (NotANumber(scaleStr.c_str(), 0, kPosInt)) {
@@ -628,10 +625,8 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
       theOptions->psfOversamplingScales.push_back(scale);
       printf("\tPSF oversampling scale = %d\n", scale);
     }
-    printf("done.\n");
   }
   if (optParser->OptionSet("overpsf_region")) {
-    printf("\nhandling overpsf_region...\n");
     theOptions->oversampleRegionSet = true;
     for (int i = 0; i < optParser->GetNTargets("overpsf_region"); i++) {
       string psfRegion = optParser->GetTargetString("overpsf_region", i);
@@ -639,7 +634,6 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
       theOptions->nOversampleRegions += 1;
       printf("\tPSF oversampling region = %s\n", psfRegion.c_str());
     }
-    printf("done.\n");
   }
   
   if (optParser->OptionSet("ncols")) {

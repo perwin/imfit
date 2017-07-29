@@ -125,18 +125,18 @@ int main(int argc, char *argv[])
   bool  errorPixels_allocated = false;
   double  *allMaskPixels;
   bool  maskAllocated = false;
-  double  *psfOversampledPixels;
-  int  nColumns_psf_oversampled, nRows_psf_oversampled;
-  long  nPixels_psf_oversampled;
-  PsfOversamplingInfo  *psfOversampleInfo = NULL;
+//   double  *psfOversampledPixels;
+//   int  nColumns_psf_oversampled, nRows_psf_oversampled;
+//   long  nPixels_psf_oversampled;
+//   PsfOversamplingInfo  *psfOversampleInfo = NULL;
   vector<PsfOversamplingInfo *>  psfOversamplingInfoVect;
   double  *paramsVect;
   int  X0_offset = 0;
   int  Y0_offset = 0;
-  int  x1_oversample = 0;
-  int  x2_oversample = 0;
-  int  y1_oversample = 0;
-  int  y2_oversample = 0;
+//   int  x1_oversample = 0;
+//   int  x2_oversample = 0;
+//   int  y1_oversample = 0;
+//   int  y2_oversample = 0;
   vector<int> xyOsamplePos;
   std::string  noiseImage;
   ModelObject  *theModel;
@@ -520,10 +520,15 @@ int main(int argc, char *argv[])
     fftw_free(allErrorPixels);          // allocated externally, in ReadImageAsVector()
   if (options->psfImagePresent)
     fftw_free(psfPixels);               // allocated externally, in ReadImageAsVector()
-  if (options->psfOversampledImagePresent)
-    fftw_free(psfOversampledPixels);    // allocated externally, in ReadImageAsVector()
+//   if (options->psfOversampledImagePresent)
+//     fftw_free(psfOversampledPixels);    // allocated externally, in ReadImageAsVector()
   if (maskAllocated)
     fftw_free(allMaskPixels);           // allocated externally, in ReadImageAsVector()
+  if (psfOversamplingInfoVect.size() > 0) {
+    for (int nn = 0; nn < (int)psfOversamplingInfoVect.size(); nn++)
+      free(psfOversamplingInfoVect[nn]);
+    psfOversamplingInfoVect.clear();
+  }
   free(paramsVect);
   if (parameterInfo_allocated)
     free(parameterInfo);
@@ -758,32 +763,65 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
     theOptions->psfImagePresent = true;
     printf("\tPSF image = %s\n", theOptions->psfFileName.c_str());
   }
-  
+
   // oversampled PSF(s) and region(s)
   if (optParser->OptionSet("overpsf")) {
-    string fileName = optParser->GetTargetString("overpsf");
-    theOptions->psfOversampledFileNames.push_back(fileName);
     theOptions->psfOversampling = true;
     theOptions->psfOversampledImagePresent = true;
-    printf("\tOversampled PSF image = %s\n", fileName.c_str());
+    for (int i = 0; i < optParser->GetNTargets("overpsf"); i++) {
+      string fileName = optParser->GetTargetString("overpsf", i);
+      theOptions->psfOversampledFileNames.push_back(fileName);
+      printf("\tOversampled PSF image = %s\n", fileName.c_str());
+    }
   }
   if (optParser->OptionSet("overpsf_scale")) {
-    if (NotANumber(optParser->GetTargetString("overpsf_scale").c_str(), 0, kPosInt)) {
-      fprintf(stderr, "*** ERROR: overpsf_scale should be a positive integer!\n");
-      delete optParser;
-      exit(1);
+    for (int i = 0; i < optParser->GetNTargets("overpsf_scale"); i++) {
+      string scaleStr = optParser->GetTargetString("overpsf_scale", i).c_str();
+      if (NotANumber(scaleStr.c_str(), 0, kPosInt)) {
+        fprintf(stderr, "*** ERROR: overpsf_scale should be a positive integer!\n");
+        delete optParser;
+        exit(1);
+      }
+      int scale = atoi(scaleStr.c_str());
+      theOptions->psfOversamplingScales.push_back(scale);
+      printf("\tPSF oversampling scale = %d\n", scale);
     }
-    int scale = atoi(optParser->GetTargetString("overpsf_scale").c_str());
-    theOptions->psfOversamplingScales.push_back(scale);
-    printf("\tPSF oversampling scale = %d\n", scale);
   }
   if (optParser->OptionSet("overpsf_region")) {
-  	string psfRegion = optParser->GetTargetString("overpsf_region");
-    theOptions->psfOversampleRegions.push_back(psfRegion);
     theOptions->oversampleRegionSet = true;
-    theOptions->nOversampleRegions += 1;
-    printf("\tPSF oversampling region = %s\n", psfRegion.c_str());
+    for (int i = 0; i < optParser->GetNTargets("overpsf_region"); i++) {
+      string psfRegion = optParser->GetTargetString("overpsf_region", i);
+      theOptions->psfOversampleRegions.push_back(psfRegion);
+      theOptions->nOversampleRegions += 1;
+      printf("\tPSF oversampling region = %s\n", psfRegion.c_str());
+    }
   }
+
+  // oversampled PSF(s) and region(s)
+//   if (optParser->OptionSet("overpsf")) {
+//     string fileName = optParser->GetTargetString("overpsf");
+//     theOptions->psfOversampledFileNames.push_back(fileName);
+//     theOptions->psfOversampling = true;
+//     theOptions->psfOversampledImagePresent = true;
+//     printf("\tOversampled PSF image = %s\n", fileName.c_str());
+//   }
+//   if (optParser->OptionSet("overpsf_scale")) {
+//     if (NotANumber(optParser->GetTargetString("overpsf_scale").c_str(), 0, kPosInt)) {
+//       fprintf(stderr, "*** ERROR: overpsf_scale should be a positive integer!\n");
+//       delete optParser;
+//       exit(1);
+//     }
+//     int scale = atoi(optParser->GetTargetString("overpsf_scale").c_str());
+//     theOptions->psfOversamplingScales.push_back(scale);
+//     printf("\tPSF oversampling scale = %d\n", scale);
+//   }
+//   if (optParser->OptionSet("overpsf_region")) {
+//   	string psfRegion = optParser->GetTargetString("overpsf_region");
+//     theOptions->psfOversampleRegions.push_back(psfRegion);
+//     theOptions->oversampleRegionSet = true;
+//     theOptions->nOversampleRegions += 1;
+//     printf("\tPSF oversampling region = %s\n", psfRegion.c_str());
+//   }
 
   if (optParser->OptionSet("mask")) {
     theOptions->maskFileName = optParser->GetTargetString("mask");
