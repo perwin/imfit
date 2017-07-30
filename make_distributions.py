@@ -47,6 +47,7 @@ else:
 
 # Create dictionaries holding subdirectory names and lists of associated files
 documentationFileDict = {"dir": "docs", "file_list": dm.documentation_files.split()}
+extrasFileDict = {"dir": "extras", "file_list": dm.extras_files.split()}
 coreFileDict = {"dir": "core", "file_list": dm.source_files_core.split()}
 solversFileDict = {"dir": "solvers", "file_list": dm.source_files_solvers.split()}
 mcmcFileDict = {"dir": "cdream", "file_list": dm.source_files_mcmc.split()}
@@ -63,6 +64,7 @@ testing_scripts_list = dm.testing_scripts.split()
 python_files_for_binary_dist_list = dm.python_files_for_binary_dist.split()
 
 documentation_file_list = [ documentationFileDict["dir"] + "/" + fname for fname in documentationFileDict["file_list"] ]
+extras_file_list = [ extrasFileDict["dir"] + "/" + fname for fname in extrasFileDict["file_list"] ]
 
 example_file_list = [ exampleFileDict["dir"] + "/" + fname for fname in exampleFileDict["file_list"] ]
 python_file_list = [ pythonFileDict["dir"] + "/" + fname for fname in pythonFileDict["file_list"] ]
@@ -85,13 +87,13 @@ funcobj_file_list_h = [ funcObjFileDict["dir"] + "/" + fname + ".h" for fname in
 funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 
 
-allFileLists = [binary_only_file_list, misc_required_files_list, documentation_file_list,
+allFileLists = [binary_only_file_list, misc_required_files_list, documentation_file_list, extras_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
 				mcmc_file_list, core_file_list, funcobj_file_list]
-allFileLists_source = [misc_required_files_list, documentation_file_list,
+allFileLists_source = [misc_required_files_list, documentation_file_list, extras_file_list,
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
 				mcmc_file_list, core_file_list, funcobj_file_list]
-subdirs_list = ["docs", "examples", "python", "tests", "tests/osx", "tests/linux", 
+subdirs_list = ["docs", "extras", "examples", "python", "tests", "tests/osx", "tests/linux", 
 				"function_objects", "solvers", "cdream", "cdream/include", "cdream/include/rng", "core"]
 
 
@@ -191,7 +193,8 @@ def MakeBinaries( mode=None ):
 def MakeBinaryDist( mode=None ):
 	distDir = "imfit-%s/" % VERSION_STRING
 	final_file_list = binary_only_file_list + misc_required_files_list + \
-						python_files_for_binary_dist_list + documentation_file_list + example_file_list
+						python_files_for_binary_dist_list + documentation_file_list + \
+						extras_file_list + example_file_list
 	
 	if (mode is None):
 		# Mac OS 10.8 or newer, or Linux
@@ -212,6 +215,7 @@ def MakeBinaryDist( mode=None ):
 def MakeSourceDist( ):
 	distDir = "imfit-%s/" % VERSION_STRING
 	final_file_list = example_file_list + misc_required_files_list + documentation_file_list
+	final_file_list += extras_file_list
 	final_file_list += funcobj_file_list
 	final_file_list += solvers_file_list
 	final_file_list += mcmc_file_list

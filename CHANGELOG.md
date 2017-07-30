@@ -8,8 +8,7 @@
 - Multiple oversampling regions: Imfit can now optionally convolve
 multiple subsections of the model image with oversampled PSFs, instead
 of just one subsection as in previous versions. (This applies to all the
-individual programs: imfit, imfit-mcmc, and makeimage.)
-
+individual programs: imfit, imfit-mcmc, and makeimage.)<br><br>
 By adding multiple invocations of `--overpsf_region x1:x2,y1:y2`, each
 region will be convolved with the same oversampled PSF (specified by
 `--overpsf <fits-filename>` and `overpsf-scale <int>`). Alternately, you
@@ -21,6 +20,11 @@ convolved with its own, separate PSF image.
 
 - Command-line flag `--no-normalize` will tell imfit, imfit-mcmc, and makeimage
 to *skip* normalization of any input PSF images (standard or oversampled). xxx
+(Thanks to Corentin Schreiber for requesting this.)
+
+- Tab auto-completions (for the Bash shell)! Imfit now includes a shell script
+(`extras/imfit_completions.bash`) which can be used to define auto-completions
+of imfit/imfit-mcmc/makeimage command-line options with the TAB key when using the Bash shell.
 
 ### Changed:
 
@@ -34,27 +38,30 @@ this messes up anyone's analysis code!)
 onward will do.)
 
 - I have started (very slowly) updating some of the code to make use of
-C++-11 features. This should have no visible effects, but might start to be
-relevant for people hacking around with the code. It also means that future
-versions of Imfit will require compilers that support C++-11 (e.g., GCC
-versions 4.8 or newer).
+C++-11 features. This should have no visible effects, but might start to
+be relevant for people hacking around with the code. It also means that
+Imfit now requires compilers that support C++-11 (e.g., GCC versions 4.8
+or newer).
 
 - Memory-use estimation now includes the effects of multiple PSF oversampling
 regions.
 
 ### Fixed:
 
-- When bootstrap-resampling results (imfit) or MCMC chains (imfit-mcmc) were saved 
-in output files, the X0,Y0 coordinates were erroneously *not* corrected if an image 
-section was specified (i.e., fitting `data.fits[x1:x2,y1:y2]` as opposed to `data.fits`); 
-X0 and Y0 values are now corrected back to full-image coordinates (as was already 
-done for printed and saved best-fit parameter values).
+- When bootstrap-resampling results (imfit) or MCMC chains (imfit-mcmc)
+were saved in output files, the X0,Y0 coordinates were erroneously *not*
+corrected if an image section was specified (i.e., fitting
+`data.fits[x1:x2,y1:y2]` as opposed to `data.fits`); X0 and Y0 values
+are now corrected back to full-image coordinates (as was already done
+for printed and saved best-fit parameter values). (Thanks to Iskren
+Georgiev for spotting this in the MCMC output.)
 
 - In describing the PSF oversampling options, the documentation
 (erroneously) gave an example of `--overpsf_region [x1:x2,y1:y2]`, when
 the correct format was `--overpsf_region x1:x2,y1:y2`. The documentation
 has been updated to recommend the latter format; however, the code has
 also been changed so that *both* formats are now acceptable.
+(Thanks to Iskren Georgiev for reporting this.)
 
 
 

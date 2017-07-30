@@ -19,6 +19,11 @@ CHANGELOG.md
 cdream/LICENSE_cdream.txt
 """
 
+extras_files = """
+imfit_completions.bash
+README.md
+"""
+
 python_files_for_binary_dist = """
 python/imfit.py
 python/imfit_funcs.py
