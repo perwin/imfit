@@ -24,6 +24,7 @@ function_objects/integrator.cpp function_objects/func_expdisk3d.cpp \
 function_objects/func_brokenexpdisk3d.cpp function_objects/func_gaussianring3d.cpp \
 function_objects/func_ferrersbar3d.cpp function_objects/func_king.cpp \
 function_objects/func_king2.cpp function_objects/func_gauss_extraparams.cpp \
+function_objects/helper_funcs_3d.cpp \
 -I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST \
 -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
 if [ $? -eq 0 ]
