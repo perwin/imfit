@@ -54,6 +54,7 @@
 
 #include "func_gaussianring3d.h"
 #include "integrator.h"
+#include "helper_funcs_3d.h"
 
 
 using namespace std;
@@ -219,17 +220,10 @@ double LuminosityDensityRing( double s, void *params )
   double  h_z = paramsVect[11];
   double  twosigma_squared = paramsVect[12];
   
-  // Given current value of s and the pre-defined parameters, determine our 
-  // 3D location (x_d,y_d,z_d) [by construction, x_d = x_d0]
-  y_d = y_d0 + s*sinInc;
-  z_d = z_d0 - s*cosInc;
-  
-  // Convert 3D Cartesian coordinate to rotated x_ring,y_ring,z_ring coordinate,
-  // where x_ring is along ring major axis
-  x_ring = x_d0*cosRingPA + y_d*sinRingPA;
-  y_ring = -x_d0*sinRingPA + y_d*cosRingPA;
-  z_ring = fabs(z_d);
-  
+  // Determine 3D Cartesian coordinates in bar's native frame of reference
+  Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, cosRingPA, sinRingPA,
+							x_ring, y_ring, z_ring);
+
   // NOTE: FOR A CONSTANT-WIDTH RING (i.e., where sigma does *not* scale with ellipticity),
   // we could: scale *a_ring* and compute R without scaling...
   // OR: proceed as normal, but rescale sigma to account for ellipticity...

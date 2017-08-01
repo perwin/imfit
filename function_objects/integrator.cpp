@@ -1,7 +1,7 @@
 /* FILE: integrator.cpp ------------------------------------------------ */
 /* 
  * Code for performing a line-of-sight integration using GSL QAGS integration.
- * Everything inside a single function, as local variables, to ensure thread
+ * Everything is inside a single function, as local variables, to ensure thread
  * safety (e.g., for use with OpenMP).
  *
  * NOTE: Trial use of gsl_integration_qagi (integrating from -infty to +infty
@@ -15,7 +15,7 @@
  * Ferrers bar, so not much reason to change them.
  */
  
- // Copyright 2011--2016 by Peter Erwin.
+// Copyright 2011--2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
