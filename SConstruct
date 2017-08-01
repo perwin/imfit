@@ -522,6 +522,7 @@ if useExtraFuncs:
 		functionobject_obj_string += " func_expdisk3d_trunc"
 		functionobject_obj_string += " func_logspiral"
 		functionobject_obj_string += " func_nan"
+		functionobject_obj_string += " func_triaxbar3d"
 
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]

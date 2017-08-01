@@ -136,6 +136,8 @@ func_edge-on-disk
 func_brokenexpdisk3d 
 func_expdisk3d 
 func_gaussianring3d 
+func_ferrersbar3d
+helper_funcs_3d
 integrator
 """
 

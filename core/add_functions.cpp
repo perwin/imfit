@@ -71,6 +71,7 @@
 #include "func_logspiral.h"
 #include "func_nan.h"
 #include "func_expdisk3d_trunc.h"
+#include "func_triaxbar3d.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -217,6 +218,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   NaNFunc::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<NaNFunc>();
+
+  TriaxBar3D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<TriaxBar3D>();
 #endif
 
 #ifdef USE_TEST_FUNCS
