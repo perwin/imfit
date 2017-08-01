@@ -10,7 +10,8 @@
  * y0 = yc;   -- center of component (pixels, y)
  * PA = params[0 + offsetIndex];   -- PA of component line of nodes, rel. to image +x axis
  * inclination = params[1 + offsetIndex];  -- inclination to line of sight (i=0 for face-on)
- * barPA = params[2 + offsetIndex ];  -- position of bar major-axis relative to line of nodes
+ * barPA = params[2 + offsetIndex ];  -- position of bar major-axis relative to line of nodes,
+ *                                       in component equatorial plane
  * J_0 = params[3 + offsetIndex ];  -- central luminosity density (ADU)
  * R = params[4 + offsetIndex ];   -- radial length of long axis of bar (semi-major axis a)
  * q = params[5 + offsetIndex ];   -- b/a (ratio of minor planar axis to major planar axis)
@@ -28,8 +29,6 @@
 #include "function_object.h"
 
 using namespace std;
-
-//#define CLASS_SHORT_NAME  "FerrersBar3D"
 
 
 /// \brief Class for image function using LOS integration through 3D Ferrers bar model

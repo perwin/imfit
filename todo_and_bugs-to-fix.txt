@@ -147,32 +147,6 @@
 (1.5)[ ] Unit tests for FerrersBar3D
 
 
-[..] Separate functions for reading in images
-	[x] getimages.h/cpp: reads in mask, error, and images
-		-- for imfit, imfit-mcmc main()
-		[x] Write code
-		[x] Modify imfit main() to use function
-		[x] Modify imfit-mcmc main() to use function
-		
-	[ ] function for reading in oversampled PSF images
-		-- for makeimage, imfit, imfit-mcmc main()
-		[ ] Write code
-		[ ] Modify imfit main() to use function
-		[ ] Modify imfit-mcmc main() to use function
-
-
-[x] Update regression tests to use color and/or output number of failed tests
-	[x] Update regression test to accumulate & report number of failed tests
-		[x] Update do_makeimage_tests.sh
-		[x] Update do_imfit_tests.sh
-		[x] Update do_mcmc_tests.sh
-	[x] Update regression test to use color when tests fail
-		[x] Update do_makeimage_tests.sh
-		[x] Update do_imfit_tests.sh
-		[x] Update do_mcmc_tests.sh
-	[x] Update do_profilefit_tests
-
-
 [ ] Test image convolution with even-numbered-pixel arrays (e.g., 4x4 PSF image)
 	-- gauss_36x36.fits, gauss_35x35.fits
 	OK, for a 36x36 PSF image, centering the PSF at (19,19) produces an *unshifted*
@@ -202,6 +176,8 @@ image (accounting for data image subset, if any)
 [ ] Check input: Catch cases of PSF images with all zeros
 	-- when PSF image is normalized, this will (silently) make PSF image have all NaN values
 	-- So: sanity-check the input PSF image to make sure the sum of its pixels is > 0
+	*if* we're doing normalization (if user requested --no-normalize, then assume they
+	know what they're doing...)
 
 
 [ ] Standardize on vector<mp_par> for parameter info/limits
@@ -430,9 +406,14 @@ single method with a string parameter ("data", "model", "weight", etc.)
      		-- only problem: how can we record the optional-parameter values in
      		the output?
      		-- New method for FunctionObject which prints out extra params
-     		E.g., in ModelObject::PrintModelParams and ModelObject::PrintModelParamsToStrings, 
+     		E.g., in ModelObject::PrintModelParamsToStrings, 
      		just after printing the function name, we check to see if it has optional 
      		parameters, and if so, we ask the FunctionObject to print their names & values
+     		(Note that we shouldn't need to modify PrintModelParamsHorizontalString,
+     		because that's used in bootstrap and MCMC output, where the header of the
+     		file has the original or best-fit values, which is where we'd print the
+     		optional parameters, and because the optional parameters aren't part of
+     		the fit/MCMC process!)
 
 		Uses:
 			1. ReadConfigFile retrieves optional params in optional-params-vector
@@ -666,43 +647,11 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 
 
-** MINOR BUGS TO FIX/IMPROVEMENTS TO MAKE:
-
-[ ] When imfit saves bootstrap output, X0,Y0 values are *not* corrected for
-cfitsio offset values
-	E.g., for X0,Y0 = 125,604 in image.fits[100:300,500:800], the saved
-	X0,Y0 vaalues are 25,104
-
-
-[ ] In imfit and imfit-mcmc, oversampled-convolution regions are referenced by
-a string: options.psfOversampleRegion
-
-	The x1,x2,y1,y2 boundaries of the oversampled region are extracted from this string:
-    if (! options.oversampleRegionSet) {
-		GetAllCoordsFromBracket(options.psfOversampleRegion, &x1_oversample, ...)
-		
-	In makeimage, oversampled-convolution regions are referenced by a *vector*
-of string: options.psfOversampleRegions
-	the x1,x2,y1,y2 boundaries are extracted from the vector; effectively, only the
-	*last* string in the vector is actually used (since we loop over the vector, but
-	keep assigning the output to the same int variables):
-	
-    if (! options.oversampleRegionSet) {
-    ...
-    for (int ii = 0; ii < options->nOversampleRegions; ii++)
-      GetAllCoordsFromBracket2(options->psfOversampleRegions[ii], x1_oversample, x2_oversample, 
-    						y1_oversample, y2_oversample);
-
-	SO:
-		imfit,imfit-mcmc assume a single oversampled region, stored in options.psfOversampleRegion
-		makeimage assumes *multiple* oversampled regions, stored in options.psfOversampleRegions
-		BUT: the rest of makeimage assumes there's only one oversampled region (and only
-		one oversampled PSF).
 
 
 
 
-* BUGS FIXED
+** BUGS FIXED
 
 (1.5)[x] Bootstrap and MCMC output:
 	X0,Y0 values are *not* corrected to full-image coordinates if input image used
@@ -843,7 +792,33 @@ OK, here is the problem:
 
 
 
-* IMPROVEMENTS APPLIED
+** IMPROVEMENTS APPLIED
+
+[x] Update regression tests to use color and/or output number of failed tests
+	[x] Update regression test to accumulate & report number of failed tests
+		[x] Update do_makeimage_tests.sh
+		[x] Update do_imfit_tests.sh
+		[x] Update do_mcmc_tests.sh
+	[x] Update regression test to use color when tests fail
+		[x] Update do_makeimage_tests.sh
+		[x] Update do_imfit_tests.sh
+		[x] Update do_mcmc_tests.sh
+	[x] Update do_profilefit_tests
+
+
+[X] Separate functions for reading in images
+	[x] getimages.h/cpp: reads in mask, error, and images
+		-- for imfit, imfit-mcmc main()
+		[x] Write code
+		[x] Modify imfit main() to use function
+		[x] Modify imfit-mcmc main() to use function
+		
+	[x] function for reading in oversampled PSF images
+		-- for makeimage, imfit, imfit-mcmc main()
+		[x] Write code
+		[x] Modify imfit main() to use function
+		[x] Modify imfit-mcmc main() to use function
+
 
 [x] New function(s) to assign image data, etc. to ModelObject instance
 	SetupModelObject

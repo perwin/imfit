@@ -82,9 +82,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.5.0a (OpenMP-enabled)"
+#define VERSION_STRING      "1.5.0b1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.5.0a"
+#define VERSION_STRING      "1.5.0b1"
 #endif
 
 
@@ -120,10 +120,6 @@ int main(int argc, char *argv[])
   bool  errorPixels_allocated = false;
   double  *allMaskPixels;
   bool  maskAllocated = false;
-//   double  *psfOversampledPixels;
-//   int  nColumns_psf_oversampled, nRows_psf_oversampled;
-//   long  nPixels_psf_oversampled;
-//   PsfOversamplingInfo  *psfOversampleInfo = NULL;
   vector<PsfOversamplingInfo *>  psfOversamplingInfoVect;
   double  *paramsVect;
   int  X0_offset = 0;
@@ -162,10 +158,9 @@ int main(int argc, char *argv[])
 
  
   /* Define default options, then process the command line */
-  /* Process command line and parse config file: */
   // Use a pointer to OptionsBase so we can use it in calls to SetupModelImage
   commandOpts = new ImfitOptions();
-  // Use a pointer to MakeimageOptions so we can access all the extra, makeimage-specific
+  // Use a pointer to ImfitOptions so we can access all the extra, imfit-specific
   // data members
   options = (ImfitOptions *)commandOpts;
   
@@ -230,54 +225,6 @@ int main(int argc, char *argv[])
 	if (status < 0)
 	  exit(-1);
   }
-
-//   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {
-//     int psfOversamplingScale;
-//     int nOversampledPsfImages = (int)options->psfOversampledFileNames.size();
-//     int nOversampledScales = (int)options->psfOversamplingScales.size();
-//     if (nOversampledPsfImages != nOversampledScales) {
-//       fprintf(stderr, "\n*** ERROR: number of oversampling scales (%d) is not the same\n", 
-//       					nOversampledScales);
-//       fprintf(stderr, "           as number of oversampled-PSF images (%d)!\n\n",
-//       					nOversampledPsfImages);
-//       exit(-1);
-//     }
-//     if ((nOversampledPsfImages > 1) && (nOversampledPsfImages != options->nOversampleRegions)) {
-//       fprintf(stderr, "\n*** ERROR: number of oversampled-PSF images (%d) must be = 1 OR\n", 
-//       					nOversampledPsfImages);
-//       fprintf(stderr, "           must be same as number of oversampled-PSF regions (%d)!\n\n",
-//       					options->nOversampleRegions);
-//       exit(-1);
-//     }
-//     for (int nn = 0; nn < options->nOversampleRegions; nn++) {
-//       psfOversampleInfo = new PsfOversamplingInfo();
-//       psfOversampleInfo->AddImageOffset(X0_offset, Y0_offset);
-//       psfOversampleInfo->AddRegionString(options->psfOversampleRegions[nn]);
-//       bool newPsfOversampledPixelsFlag = false;
-//       if ( (nn == 0) || ((nn > 0) && (nOversampledPsfImages > 1)) ) {
-//         // Always read PSF image and get oversampling scale from options object the
-//         // first time through; do it again if user supplied more than one image and
-//         // scale (otherwise, we reuse the same image and scale for subsequent regions)
-//         printf("Reading oversampled PSF image (\"%s\") ...\n", options->psfOversampledFileNames[nn].c_str());
-//         psfOversampledPixels = ReadImageAsVector(options->psfOversampledFileNames[nn], 
-// 		    							&nColumns_psf_oversampled, &nRows_psf_oversampled);
-//         if (psfOversampledPixels == NULL) {
-//           fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
-// 			      			options->psfOversampledFileNames[nn].c_str());
-//           exit(-1);
-//         }
-//         newPsfOversampledPixelsFlag = true;
-//         nPixels_psf_oversampled = (long)nColumns_psf_oversampled * (long)nRows_psf_oversampled;
-//         printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
-// 	             nColumns_psf_oversampled, nRows_psf_oversampled, nPixels_psf_oversampled);
-// 	    psfOversamplingScale = options->psfOversamplingScales[nn];
-//       }
-//       psfOversampleInfo->AddPsfPixels(psfOversampledPixels, nColumns_psf_oversampled,
-//       									nRows_psf_oversampled, newPsfOversampledPixelsFlag);
-//       psfOversampleInfo->AddOversamplingScale(psfOversamplingScale);
-//       psfOversamplingInfoVect.push_back(psfOversampleInfo);
-//     }
-//   }
 
   if (! options->subsamplingFlag)
     printf("* Pixel subsampling has been turned OFF.\n");
@@ -530,8 +477,6 @@ int main(int argc, char *argv[])
     fftw_free(allErrorPixels);          // allocated externally, in ReadImageAsVector()
   if (options->psfImagePresent)
     fftw_free(psfPixels);               // allocated externally, in ReadImageAsVector()
-//   if (options->psfOversampledImagePresent)
-//     fftw_free(psfOversampledPixels);    // allocated externally, in ReadImageAsVector()
   if (maskAllocated)
     fftw_free(allMaskPixels);           // allocated externally, in ReadImageAsVector()
   if (psfOversamplingInfoVect.size() > 0) {

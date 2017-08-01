@@ -24,7 +24,7 @@
  *     [v0.1]: 24 Aug 2012: Created (as modification of func_exp3d.cpp).
  */
 
-// Copyright 2012--2016 by Peter Erwin.
+// Copyright 2012--2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -198,7 +198,7 @@ double GaussianRing3D::GetValue( double x, double y )
 
 /* Compute luminosity density for a location (x_d,y_d,z_d) which is at line-of-sight 
  * distance s from start point (x_d0, y_d0, z_d0), where midplane of component (e.g.,
- * disk of galaxy) is oriented at angle (90 - inclination) to the line of sight vector. 
+ * disk of galaxy) is oriented at angle (90 - inclination) to the line of sight vector.
  */ 
 double LuminosityDensityRing( double s, void *params )
 {

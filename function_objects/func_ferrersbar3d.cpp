@@ -21,7 +21,7 @@
  *     [v0.1]: 16 Oct 2012: Created (as modification of func_exp3d.cpp.
  */
 
-// Copyright 2012, 2013 by Peter Erwin.
+// Copyright 2012, 2013, 2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -50,6 +50,7 @@
 
 #include "func_ferrersbar3d.h"
 #include "integrator.h"
+#include "helper_funcs_3d.h"
 
 
 using namespace std;
@@ -224,15 +225,19 @@ double LuminosityDensity_FerrersBar( double s, void *params )
   double c2 = paramsVect[10];
   double n = paramsVect[11];
   
+  // Determine 3D Cartesian coordinates in bar's native frame of referemce
+  Compute3DObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, cosBarPA, sinBarPA,
+							x_bar, y_bar, z_bar);
+
   // Given s and the pre-defined parameters, determine our 3D location (x_d,y_d,z_d)
   // [by construction, x_d = x_d0]
-  y_d = y_d0 + s*sinInc;
-  z_d = z_d0 - s*cosInc;
-  
-  // Convert 3D Cartesian coordinate to rotated x_bar,y_bar,z_bar coordinate
-  x_bar = x_d0*cosBarPA + y_d*sinBarPA;
-  y_bar = -x_d0*sinBarPA + y_d*cosBarPA;
-  z_bar = fabs(z_d);
+//   y_d = y_d0 + s*sinInc;
+//   z_d = z_d0 - s*cosInc;
+//   
+//   // Convert 3D Cartesian coordinate to rotated x_bar,y_bar,z_bar coordinate
+//   x_bar = x_d0*cosBarPA + y_d*sinBarPA;
+//   y_bar = -x_d0*sinBarPA + y_d*cosBarPA;
+//   z_bar = fabs(z_d);
   
   // Calculate luminosity density for Ferrers ellipsoid
   m2 = y_bar*y_bar/a2 + x_bar*x_bar/b2 + z_bar*z_bar/c2;
