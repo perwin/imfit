@@ -342,10 +342,10 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
   int i, j, info, iflag, nfree, npegged, iter;
   int qanylim = 0, qanypegged = 0;
 
-  int ij,jj,l;
-  double actred,delta,dirder,fnorm,fnorm1,gnorm, orignorm;
-  double par,pnorm,prered,ratio;
-  double sum,temp,temp1,temp2,temp3,xnorm, alpha;
+  int ij, jj, l;
+  double actred, delta, dirder, fnorm, fnorm1, gnorm, orignorm;
+  double par, pnorm, prered, ratio;
+  double sum, temp, temp1, temp2, temp3, xnorm, alpha;
   static double one = 1.0;
   static double p1 = 0.1;
   static double p5 = 0.5;
@@ -1167,9 +1167,9 @@ int mp_fdjac2(mp_func funct,
 *
       **********
 */
-  int i,j,ij;
+  int i, j, ij;
   int iflag = 0;
-  double eps,h,temp;
+  double eps, h, temp;
   static double zero = 0.0;
   double **dvec = 0;
   int has_analytical_deriv = 0, has_numerical_deriv = 0;
@@ -1624,8 +1624,8 @@ void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
 *
 *     **********
 */
-  int i,ij,ik,kk,j,jp1,k,kp1,l,nsing;
-  double cos,cotan,qtbpj,sin,sum,tan,temp;
+  int i, ij, ik, kk, j, jp1, k, kp1, l, nsing;
+  double cos, cotan, qtbpj, sin, sum, tan, temp;
   static double zero = 0.0;
   static double p25 = 0.25;
   static double p5 = 0.5;
@@ -1867,9 +1867,9 @@ void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
    *
    *     **********
    */
-  int i,iter,ij,jj,j,jm1,jp1,k,l,nsing;
-  double dxnorm,fp,gnorm,parc,parl,paru;
-  double sum,temp;
+  int i, iter, ij, jj, j, jm1, jp1, k, l, nsing;
+  double dxnorm, fp, gnorm, parc, parl, paru;
+  double sum, temp;
   static double zero = 0.0;
   /* static double one = 1.0; */
   static double p1 = 0.1;

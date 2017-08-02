@@ -201,8 +201,30 @@ image (accounting for data image subset, if any)
 		nmsimplex_fit.h: NMSimplexFit
 
 
-[ ] Consolidate PrintInputImage, PrintModelImage, etc. methods in ModelObject into a 
+[X] Consolidate PrintInputImage, PrintModelImage, etc. methods in ModelObject into a 
 single method with a string parameter ("data", "model", "weight", etc.)
+
+
+[ ] Experiment with adding OpenMP to convolver.cpp
+	-- e.g., in ConvolveImage(): multiplication of complex arrays; possible
+	other array processing
+	-- use "makeimage --timing <N>" to measure things
+	-- also run PSF-convolution tests from do_makeimage_tests to make sure we
+	don't break things
+
+
+[ ] Check vectorization of mpfit.cpp
+	-- $ g++-7 -o solvers/mpfit.o -c -O3 -g0 -msse2 -mavx -fopt-info-vec-optimized -std=c++11 -fopenmp -DANSI -DUSING_SCONS -DFFTW_THREADING -DUSE_OPENMP -I. -I/usr/local/include -Icore -Isolvers -Icdream -Icdream/include -Ifunction_objects -Ifunction_objects_1d -Iprofile_fitting solvers/mpfit.cpp
+	[ ] Compile code with -fopt-info-vec-optimized to see what was & wasn't vectorized
+	[ ] Identify large loops (e.g, for i < m) that weren't vectorized
+
+
+[ ] Refactoring of mpfit.cpp
+	[ ] Go through code and check which variables declared as "static <type> = y" can
+	be redeclared as "const <type> = y"
+		-- clearer indication to reader that these are *constants*, not changeable
+		persistent variables; possibly allows compiler to be a little more efficient
+		if it knows certain "variables" are really constants?
 
 		
 [ ] MCMC program: "imfit-mcmc"

@@ -23,19 +23,19 @@ Estimated memory use: 8747785 bytes (8.3 MB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 49095.069693
-	mpfit iteration 2: fit statistic = 37345.298228
-	mpfit iteration 3: fit statistic = 37110.187474
-	mpfit iteration 4: fit statistic = 37053.537340
-	mpfit iteration 5: fit statistic = 36993.750759
-	mpfit iteration 6: fit statistic = 36947.464153
-	mpfit iteration 7: fit statistic = 36910.890036
-	mpfit iteration 8: fit statistic = 36882.958346
-	mpfit iteration 9: fit statistic = 36862.501544
-	mpfit iteration 10: fit statistic = 36848.786602
-	mpfit iteration 11: fit statistic = 36841.049093
-	mpfit iteration 12: fit statistic = 36831.937182
-	mpfit iteration 13: fit statistic = 36828.584571
+	mpfit iteration 1: fit statistic = 49095.069659
+	mpfit iteration 2: fit statistic = 37345.298207
+	mpfit iteration 3: fit statistic = 37110.187335
+	mpfit iteration 4: fit statistic = 37053.537196
+	mpfit iteration 5: fit statistic = 36993.750700
+	mpfit iteration 6: fit statistic = 36947.464136
+	mpfit iteration 7: fit statistic = 36910.890047
+	mpfit iteration 8: fit statistic = 36882.958364
+	mpfit iteration 9: fit statistic = 36862.501558
+	mpfit iteration 10: fit statistic = 36848.786612
+	mpfit iteration 11: fit statistic = 36841.049081
+	mpfit iteration 12: fit statistic = 36831.937564
+	mpfit iteration 13: fit statistic = 36828.584569
 	mpfit iteration 14: fit statistic = 36828.578486
 	mpfit iteration 15: fit statistic = 36828.577740
 	mpfit iteration 16: fit statistic = 36828.577653
@@ -59,7 +59,7 @@ PA		111.919 # +/- 0.264349
 ell		0.184262 # +/- 0.00159888
 n		 3.2805 # +/- 0.0340844
 I_e		78.2972 # +/- 2.69301
-r_e		26.7975 # +/-  0.6481
+r_e		26.7976 # +/-  0.6481
 FUNCTION Exponential
 PA		 51.724 # +/- 0.806494
 ell		0.35226 # +/- 0.014009
@@ -68,6 +68,6 @@ h		53.6058 # +/- 1.16411
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 1.151854 sec for fit, 1.179479 sec total)
+(Elapsed time: 0.743510 sec for fit, 0.788099 sec total)
 Done!
 

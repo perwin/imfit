@@ -4,6 +4,7 @@
 
 # Predefine some ANSI color escape codes
 RED='\033[0;31m'
+GREEN='\033[0;0;32m'
 NC='\033[0m' # No Color
 
 # create an integer variable for status (& counting number of failed tests)
@@ -174,12 +175,15 @@ fi
 
 
 # Note that we chose an OS-specific path for the reference file (image output is
-# marginally different for Linux vs OS X)
+# marginally different for Linux vs OS X).
+# Also, we only test pixels with values > 1.0e-7, since ~ zero-valued pixels in FFT
+# output tend to vary depending on SSE, etc., and we're really only interested in how
+# well the PSF convolution of the source reproduces.
 if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that convolution with oversampled PSF works (single region)... "
   echo ""
 then
-  ./python/compare_fits_files.py temptest/oversampled.fits tests/${osname}/oversampled_orig.fits
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled.fits tests/${osname}/oversampled_orig.fits
   STATUS+=$?
 fi
 
@@ -187,7 +191,7 @@ if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that convolution with oversampled PSF works (two regions, same PSF)... "
   echo ""
 then
-  ./python/compare_fits_files.py temptest/oversampled2both.fits tests/${osname}/oversampled2both_orig.fits
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled2both.fits tests/${osname}/oversampled2both_orig.fits
   STATUS+=$?
 fi
 
@@ -195,7 +199,7 @@ if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that convolution with oversampled PSF works (two regions, 2 PSFs)... "
   echo ""
 then
-  ./python/compare_fits_files.py temptest/oversampled2both_2psf.fits tests/${osname}/oversampled2both_orig.fits
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled2both_2psf.fits tests/${osname}/oversampled2both_orig.fits
   STATUS+=$?
 fi
 
@@ -329,7 +333,7 @@ elif [ $STATUS -gt 1 ]
 then
   echo -e "${RED}${STATUS} tests failed!${NC}"
 else
-  echo "All tests passed."
+  echo -e "${GREEN}All tests passed.${NC}"
 fi
 
 

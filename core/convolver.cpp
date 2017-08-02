@@ -119,6 +119,8 @@
 
 #include "convolver.h"
 
+#define DEFAULT_OPENMP_CHUNK_SIZE  10
+
 
 			
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -340,6 +342,7 @@ void Convolver::ConvolveImage( double *pixelVector )
   for (z = 0; z < nPixels_padded; z++)
     image_in_padded[z] = 0.0;
   //   Second, copy input image array into padded array (accounting for padding):
+  //   [note that inner loop will be auto-vectorized by GCC with -msse2]
   for (ii = 0; ii < nRows_image; ii++) {   // step by row number = y
     for (jj = 0; jj < nColumns_image; jj++) {  // step by column number = x
       image_in_padded[(long)ii*nColumns_padded + jj] = pixelVector[(long)ii*nColumns_image + jj];
@@ -360,14 +363,20 @@ void Convolver::ConvolveImage( double *pixelVector )
   }
   
   // Multiply transformed arrays:
+  #pragma omp simd
   for (z = 0; z < nPixels_padded_complex; z++) {
-    a = image_fft_cmplx[z][0];   // real part
-    b = image_fft_cmplx[z][1];   // imaginary part
-    c = psf_fft_cmplx[z][0];
-    d = psf_fft_cmplx[z][1];
-    multiplied_cmplx[z][0] = a*c - b*d;
-    multiplied_cmplx[z][1] = b*c + a*d;
+    multiplied_cmplx[z][0] = image_fft_cmplx[z][0]*psf_fft_cmplx[z][0] - image_fft_cmplx[z][1]*psf_fft_cmplx[z][1];
+    multiplied_cmplx[z][1] = image_fft_cmplx[z][1]*psf_fft_cmplx[z][0] + image_fft_cmplx[z][0]*psf_fft_cmplx[z][1];
   }
+//   for (z = 0; z < nPixels_padded_complex; z++) {
+//     a = image_fft_cmplx[z][0];   // real part
+//     b = image_fft_cmplx[z][1];   // imaginary part
+//     c = psf_fft_cmplx[z][0];
+//     d = psf_fft_cmplx[z][1];
+//     multiplied_cmplx[z][0] = a*c - b*d;
+//     multiplied_cmplx[z][1] = b*c + a*d;
+//   }
+
   if (debugStatus >= 3) {
     printf("The (modulus of the) product [multiplied_cmplx], row by row:\n");
     PrintComplexImage_Absolute(multiplied_cmplx, nColumns_padded, nRows_padded);

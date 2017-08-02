@@ -25,14 +25,14 @@ Estimated memory use: 8747785 bytes (8.3 MB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 1377103.411714
-	mpfit iteration 2: fit statistic = 1050142.359099
-	mpfit iteration 3: fit statistic = 120537.103741
-	mpfit iteration 4: fit statistic = 71410.363700
-	mpfit iteration 5: fit statistic = 43864.625871
-	mpfit iteration 6: fit statistic = 36911.984109
-	mpfit iteration 7: fit statistic = 36828.859285
-	mpfit iteration 8: fit statistic = 36828.611693
+	mpfit iteration 1: fit statistic = 1377106.038928
+	mpfit iteration 2: fit statistic = 1050140.736742
+	mpfit iteration 3: fit statistic = 120553.564799
+	mpfit iteration 4: fit statistic = 71412.564612
+	mpfit iteration 5: fit statistic = 43861.497643
+	mpfit iteration 6: fit statistic = 36911.966274
+	mpfit iteration 7: fit statistic = 36828.859260
+	mpfit iteration 8: fit statistic = 36828.611694
 	mpfit iteration 9: fit statistic = 36828.581709
 	mpfit iteration 10: fit statistic = 36828.578450
 	mpfit iteration 11: fit statistic = 36828.578059
@@ -57,15 +57,15 @@ PA		111.919 # +/- 0.264349
 ell		0.184258 # +/- 0.00159882
 n		3.28046 # +/- 0.0340831
 I_e		1.45249 # +/- 0.0499468
-r_e		 26.797 # +/- 0.648142
+r_e		 26.797 # +/- 0.648141
 FUNCTION Exponential
-PA		51.7247 # +/- 0.806568
+PA		51.7246 # +/- 0.806568
 ell		0.352234 # +/- 0.0140126
-I_0		0.73783 # +/- 0.0333997
+I_0		0.737829 # +/- 0.0333997
 h		53.6064 # +/- 1.16482
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.873971 sec for fit, 0.890110 sec total)
+(Elapsed time: 0.578247 sec for fit, 0.594434 sec total)
 Done!
 

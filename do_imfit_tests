@@ -9,6 +9,7 @@
 
 # Predefine some ANSI color escape codes
 RED='\033[0;31m'
+GREEN='\033[0;0;32m'
 NC='\033[0m' # No Color
 
 # create an integer variable for status (& counting number of failed tests)
@@ -448,7 +449,7 @@ elif [ $STATUS -gt 1 ]
 then
   echo -e "${RED}${STATUS} tests failed!${NC}"
 else
-  echo "All tests passed."
+  echo -e "${GREEN}All tests passed.${NC}"
 fi
 
 echo ""
