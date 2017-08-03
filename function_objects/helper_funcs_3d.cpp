@@ -35,12 +35,30 @@
 // with Imfit.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <math.h>
+#include <tuple>
 
 #include "helper_funcs_3d.h"
 
-void Compute3dObjectCoords( double s, double x_d0, double y_d0, double z_d0, 
-							double sinInc, double cosInc, double cosObjPA, double sinObjPA,
-							double & x_obj, double & y_obj, double & z_obj )
+// void Compute3dObjectCoords( double s, double x_d0, double y_d0, double z_d0, 
+// 							double sinInc, double cosInc, double cosObjPA, double sinObjPA,
+// 							double & x_obj, double & y_obj, double & z_obj )
+// {
+//   // Given current value of s and the pre-defined parameters, determine our 
+//   // 3D location (x_d,y_d,z_d) [by construction, x_d = x_d0]
+//   double y_d = y_d0 + s*sinInc;
+//   double z_d = z_d0 - s*cosInc;
+//   
+//   // Convert 3D Cartesian coordinate to rotated x_obj,y_obj,z_obj coordinate,
+//   // where x_obj is along object's major axis, y_obj is perpendicular in object
+//   // midplane, and z_obj is perpendicular to object midplane.
+//   x_obj = x_d0*cosObjPA + y_d*sinObjPA;
+//   y_obj = -x_d0*sinObjPA + y_d*cosObjPA;
+//   z_obj = fabs(z_d);
+// }
+
+std::tuple<double, double, double> Compute3dObjectCoords( double s, double x_d0, double y_d0, 
+												double z_d0, double sinInc, double cosInc, 
+												double cosObjPA, double sinObjPA )
 {
   // Given current value of s and the pre-defined parameters, determine our 
   // 3D location (x_d,y_d,z_d) [by construction, x_d = x_d0]
@@ -50,9 +68,10 @@ void Compute3dObjectCoords( double s, double x_d0, double y_d0, double z_d0,
   // Convert 3D Cartesian coordinate to rotated x_obj,y_obj,z_obj coordinate,
   // where x_obj is along object's major axis, y_obj is perpendicular in object
   // midplane, and z_obj is perpendicular to object midplane.
-  x_obj = x_d0*cosObjPA + y_d*sinObjPA;
-  y_obj = -x_d0*sinObjPA + y_d*cosObjPA;
-  z_obj = fabs(z_d);
+  double x_obj = x_d0*cosObjPA + y_d*sinObjPA;
+  double y_obj = -x_d0*sinObjPA + y_d*cosObjPA;
+  double z_obj = fabs(z_d);
+  return std::make_tuple(x_obj, y_obj, z_obj);
 }
 
 

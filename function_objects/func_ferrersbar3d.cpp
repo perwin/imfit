@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <tuple>
 #include <gsl/gsl_errno.h>
 
 #include "func_ferrersbar3d.h"
@@ -226,9 +227,11 @@ double LuminosityDensity_FerrersBar( double s, void *params )
   double n = paramsVect[11];
   
   // Determine 3D Cartesian coordinates in bar's native frame of reference
-  Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, cosBarPA, sinBarPA,
-							x_bar, y_bar, z_bar);
-  
+//   Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, cosBarPA, sinBarPA,
+// 							x_bar, y_bar, z_bar);
+  std::tie(x_bar, y_bar, z_bar) = Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, 
+  														cosBarPA, sinBarPA);
+
   // Calculate luminosity density for Ferrers ellipsoid at x_bar, y_bar, z_bar
   m2 = y_bar*y_bar/a2 + x_bar*x_bar/b2 + z_bar*z_bar/c2;
   if (m2 > 1.0)

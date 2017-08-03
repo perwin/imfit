@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <tuple>
 #include <gsl/gsl_errno.h>
 
 #include "func_triaxbar3d.h"
@@ -240,8 +241,10 @@ double LuminosityDensity_TriaxBar( double s, void *params )
   double  twosigma_squared = paramsVect[10];
   
   // Determine 3D Cartesian coordinates in bar's native frame of reference
-  Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, cosBarPA, sinBarPA,
-							x_bar, y_bar, z_bar);
+//   Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, cosBarPA, sinBarPA,
+// 							x_bar, y_bar, z_bar);
+  std::tie(x_bar, y_bar, z_bar) = Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, 
+  														cosBarPA, sinBarPA);
   
   // Calculate luminosity density for Gaussian ellipsoid at x_bar, y_bar, z_bar
   r2 = CalculateTriaxRadiusSquared_simple(x_bar, y_bar, z_bar, q, q_z);

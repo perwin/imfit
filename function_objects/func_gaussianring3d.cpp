@@ -50,6 +50,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <tuple>
 #include <gsl/gsl_errno.h>
 
 #include "func_gaussianring3d.h"
@@ -221,8 +222,10 @@ double LuminosityDensityRing( double s, void *params )
   double  twosigma_squared = paramsVect[12];
   
   // Determine 3D Cartesian coordinates in bar's native frame of reference
-  Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, cosRingPA, sinRingPA,
-							x_ring, y_ring, z_ring);
+//   Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, cosInc, cosRingPA, sinRingPA,
+// 							x_ring, y_ring, z_ring);
+  std::tie(x_ring, y_ring, z_ring) = Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, 
+  														cosInc, cosRingPA, sinRingPA);
 
   // NOTE: FOR A CONSTANT-WIDTH RING (i.e., where sigma does *not* scale with ellipticity),
   // we could: scale *a_ring* and compute R without scaling...

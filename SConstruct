@@ -602,7 +602,8 @@ env_opt.Program("imfit-mcmc", mcmc_sources)
 env_opt.Command("unit", None, "./run_unit_tests.sh")
 
 # All tests:
-env_opt.Command("alltests", None, "./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests")
+env_opt.Command("alltests", None, 
+	"./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests ; ./do_mcmc_tests")
 
 
 

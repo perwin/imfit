@@ -16,15 +16,21 @@ can also add multiple invocations of `--overpsf <fits-filename>` and
 `overpsf-scale <int>` to specify that each oversampled region should be
 convolved with its own, separate PSF image.
 
-- New image function: FerrersBar3D. XXX
+- New image function: FerrersBar3D. This is the classic Ferrers
+ellipsoid often used in modeling of orbits in barred-galaxy potentials,
+implementing a bounded triaxial ellipsoid seen at arbitrary orientation
+with luminosity density following the Ferrers ellipsoid mass-density
+form. As with the ExponentialDisk3D and GaussianRing3D functions, this
+uses integration along the line of sight to construct the model image.<br><br>
 
 - Command-line flag `--no-normalize` will tell imfit, imfit-mcmc, and makeimage
 to *skip* normalization of any input PSF images (standard or oversampled). xxx
 (Thanks to Corentin Schreiber for requesting this.)
 
-- Tab auto-completions (for the Bash shell)! Imfit now includes a shell script
-(`extras/imfit_completions.bash`) which can be used to define auto-completions
-of imfit/imfit-mcmc/makeimage command-line options with the TAB key when using the Bash shell.
+- Tab auto-completions (for the Bash shell)! Imfit now includes a shell
+script (`extras/imfit_completions.bash`) which can be used to define
+auto-completions of imfit/imfit-mcmc/makeimage command-line options with
+the TAB key when using the Bash shell.
 
 ### Changed:
 
@@ -62,6 +68,13 @@ the correct format was `--overpsf_region x1:x2,y1:y2`. The documentation
 has been updated to recommend the latter format; however, the code has
 also been changed so that *both* formats are now acceptable.
 (Thanks to Iskren Georgiev for reporting this.)
+
+- The binary Mac distribution of version 1.4 was accidentally linked with
+a version of the FFTW library which did *not* include SSE2 vector math
+support; consequently, fits with PSF convolution were about 5-10% *slower*
+than in version 1.3. The binary distribution for Macs is now linked to
+an FFTW library with both SSE2 and AVX support, and so should be as
+fast as version 1.3 again.
 
 
 
