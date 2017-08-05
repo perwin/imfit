@@ -25,7 +25,7 @@ int dream_restore_state( const dream_pars* p, Array3D<double>& state, Array2D<do
         printf("%d ", i);
       int line = 0;
       ostringstream chainFilename("");
-      chainFilename << p->outputRootname << "." << i << ".txt";
+      chainFilename << p->outputRootname << "." << i + 1 << ".txt";
       ifstream ifile(chainFilename.str().c_str());
       if (! ifile) {
         prevLines = -1;

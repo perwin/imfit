@@ -347,7 +347,9 @@ int dream( const dream_pars* p, rng::RngStream* rng )
       } else {
         for (int j = 0; j < p->nvar; ++j)
           state(t,i,j) = state(t - 1,i,j);
-        newLikelihood = prevLikelihood;
+        // [.]TAG: lik
+        // lik2[i][t] = lik2[i][t - 1];
+        lik(t,i) = lik(t - 1,i);
       }
     }  // end of loop(i) over individual chains
 
@@ -410,14 +412,11 @@ int dream( const dream_pars* p, rng::RngStream* rng )
         // remove outlier chains
         vector<double> meanlik(p->numChains, -INFINITY);
         vector<bool> outliers(p->numChains, false);
-        // [ ]TAG: lik
         check_outliers(t, lik, meanlik, outliers);
         int best_chain = gsl_stats_max_index(meanlik.data(), 1, p->numChains);
         for (int i = 0; i < p->numChains; ++i) {
           if (outliers[i] && i != best_chain) {
             // chain is an outlier
-            // [.] TAG: lik
-            // lik2[i][t] = lik2[best_chain][t]
             lik(t,i) = lik(t,best_chain);
             for (int j = 0; j < p->nvar; ++j) 
               state(t,i,j) = state(t,best_chain,j);
@@ -486,8 +485,6 @@ int dream( const dream_pars* p, rng::RngStream* rng )
           tempParams[j] = state(t,i,j);
         string paramString = theModel->PrintModelParamsHorizontalString(tempParams);
         *oout[i] << paramString << " ";
-        // TAG: lik
-        // *oout[i] << lik2[i][t] << " " << (t < burnInStart + p->burnIn) << " " << " ";
         *oout[i] << lik(t,i) << " " << (t < burnInStart + p->burnIn) << " " << " ";
         for (int j(0); j < p->nCR; ++j) 
           *oout[i] << pCR[j] << " ";

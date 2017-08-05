@@ -38,6 +38,20 @@ else
   echo "   (-- skipping test 2 --)"
 fi
 
+if [ "$1" == "--all" ]
+then
+  # 2c: testing that we can restart from previous iterations
+  echo -n "   (now running MCMC chain (test 3: restarting from previous chains)...)"
+  cp tests/mcmc_data/mcmc_test_short*.txt temptest/
+  # note that we don't need to use seed=7, bcs we wouldn't be starting at the same RNG
+  # state as the original imfit-mcmc run left off at
+  ./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --no-subsampling --seed=1 -o temptest/mcmc_test_short --append &> temptest/test_dump_mcmc1c
+  echo ""
+else
+  echo "   (-- skipping test 3 --)"
+fi
+
+
 
 
 # Testing to see if we catch input-image problems: all pixels masked, mismatched image sizes,
@@ -87,6 +101,20 @@ then
   # skip first two lines of output file to avoid comparing timestamps
   tail -n +3 temptest/mcmc_test2.1.txt > temptest/mcmc_test2.1.txt_skip2
   if (diff --brief temptest/mcmc_test2.1.txt_skip2 tests/mcmc_ref2.1.txt_skip2)
+  then
+    printf " OK\n"
+  else
+    echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test2.1.txt differs from reference file tests/mcmc_ref2.1.txt_skip2"
+    STATUS+=1
+  fi
+fi
+
+if [ "$1" == "--all" ]
+then
+  printf "    Comparing first output chain file from test 3 (restart + append)... "
+  # skip first two lines of output file to avoid comparing timestamps
+  tail -n 100 temptest/mcmc_test_short.1.txt > temptest/mcmc_test_short.1.txt_last100
+  if (diff --brief temptest/mcmc_test_short.1.txt_last100 tests/mcmc_test_short_ref.1.txt_last100)
   then
     printf " OK\n"
   else
