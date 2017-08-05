@@ -248,7 +248,8 @@ double LuminosityDensity_TriaxBar( double s, void *params )
   
   // Calculate luminosity density for Gaussian ellipsoid at x_bar, y_bar, z_bar
   r2 = CalculateTriaxRadiusSquared_simple(x_bar, y_bar, z_bar, q, q_z);
-  return J_0 * exp(-r2/twosigma_squared);
+//  return J_0 * exp(-r2/twosigma_squared);
+  return LumDensity_Gaussian(r2, J_0, twosigma_squared);
 }
 
 

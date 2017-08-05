@@ -36,6 +36,7 @@ class OptionObject
     void StoreTarget( const char targString[] );   // e.g., store filename pointed to by option
     bool TargetSet( );   // has target been set (if option is not flag)?
     string& GetTargetString( int n=0 );
+    void EnableQueue( );
     bool IsQueue( );
     virtual int NTargetsStored( );
 
@@ -45,28 +46,29 @@ class OptionObject
     // Data members:
     bool  isFlag, flagSet, targetSet, isQueue;
     vector<string>  targetStrings;
+    int  nStrings;
 };
 
 
 
 /// \brief Derived class holding info about an individual command-line option/flag,
 /// which can handle multiple instances, storing target strings in a vector.
-class QueueOptionObject : public OptionObject
-{
-  public:
-    // Constructors and Destructors:
-    QueueOptionObject( );
-    ~QueueOptionObject( );
-    
-    // Overridden public member functions:
-    int NTargetsStored( );
-
-  private:
-    // Private member functions:
-    
-    // New data members:
-    int  nStrings;
-};
+// class QueueOptionObject : public OptionObject
+// {
+//   public:
+//     // Constructors and Destructors:
+//     QueueOptionObject( );
+//     ~QueueOptionObject( );
+//     
+//     // Overridden public member functions:
+//     int NTargetsStored( );
+// 
+//   private:
+//     // Private member functions:
+//     
+//     // New data members:
+//     int  nStrings;
+// };
 
 
 

@@ -139,7 +139,8 @@ public:
     string  testTargetString2 = "test_target2";
     string  targetRecipient;
     
-    testOptionObj = new QueueOptionObject();
+    testOptionObj = new OptionObject();
+    testOptionObj->EnableQueue();
 
     TS_ASSERT_EQUALS( testOptionObj->IsQueue(), true );
 

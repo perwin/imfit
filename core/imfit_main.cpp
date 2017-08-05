@@ -624,9 +624,9 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
   optParser->AddOption("noise");
   optParser->AddOption("mask");
   optParser->AddOption("psf");
-  optParser->AddOption("overpsf");
-  optParser->AddOption("overpsf_scale");
-  optParser->AddOption("overpsf_region");
+  optParser->AddQueueOption("overpsf");
+  optParser->AddQueueOption("overpsf_scale");
+  optParser->AddQueueOption("overpsf_region");
   optParser->AddOption("save-params");
   optParser->AddOption("save-model");
   optParser->AddOption("save-residual");

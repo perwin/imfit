@@ -104,14 +104,14 @@
 	[x] Add regression test to do_makeimage_tests.sh to do simple test of multiple regions
 		[see planning_for_mult-oversampling_tests.txt for possible starting points]
 	
-	[..] Modify ProcessInput in makeimage to handle multiple --overpsf* instances
+	[x] Modify ProcessInput in makeimage to handle multiple --overpsf* instances
 		-- currently, when we specify multiple instances of e.g. --overpsf_region, only
 		the last one gets recorded in the OptionParser object
-		[ ] Modify commandline_parser to handle multi-instance options
+		[x] Modify commandline_parser to handle multi-instance options
 			[x] Plan out possible interface
 			[x] Add unit tests to unittest_commandline_parser.t.h
 			[x] Write code to make tests pass
-			?[ ] Consider rewriting commandline_parser to make all OptionParser objects
+			?[X] Consider rewriting commandline_parser to make all OptionParser objects
 			the same (with internal vector), with behavior (singleton or vector)
 			depending on how constructor is called
 		

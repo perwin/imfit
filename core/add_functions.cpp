@@ -72,6 +72,8 @@
 #include "func_nan.h"
 #include "func_expdisk3d_trunc.h"
 #include "func_triaxbar3d.h"
+#include "func_triaxbar3d_sq.h"
+#include "func_triaxbar3d_gengauss_sq.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -221,6 +223,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   TriaxBar3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<TriaxBar3D>();
+
+  TriaxBar3D_SuperQuadric::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<TriaxBar3D_SuperQuadric>();
+
+  TriaxBar3D_GenGaussian_SuperQuadric::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<TriaxBar3D_GenGaussian_SuperQuadric>();
 #endif
 
 #ifdef USE_TEST_FUNCS

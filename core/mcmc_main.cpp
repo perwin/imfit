@@ -581,9 +581,9 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
   optParser->AddOption("noise");
   optParser->AddOption("mask");
   optParser->AddOption("psf");
-  optParser->AddOption("overpsf");
-  optParser->AddOption("overpsf_scale");
-  optParser->AddOption("overpsf_region");
+  optParser->AddQueueOption("overpsf");
+  optParser->AddQueueOption("overpsf_scale");
+  optParser->AddQueueOption("overpsf_region");
   optParser->AddOption("sky");
   optParser->AddOption("gain");
   optParser->AddOption("readnoise");

@@ -85,6 +85,13 @@ void OptionObject::DefineAsFlag(  )
 }
 
 
+/* ---------------- EnableQueue ---------------------------------------- */
+void OptionObject::EnableQueue(  )
+{
+  isQueue = true;
+}
+
+
 /* ---------------- IsFlag --------------------------------------------- */
 bool OptionObject::IsFlag(  )
 {
@@ -138,34 +145,35 @@ string& OptionObject::GetTargetString( int n )
 /* ---------------- NTargetsStored ------------------------------------- */
 int OptionObject::NTargetsStored(  )
 {
-  if (targetSet)
-    return 1;
-  else
-    return 0;
+//   if (targetSet)
+//     return 1;
+//   else
+//     return 0;
+  return (int)targetStrings.size();
 }
 
 
 
 
 /* *** DEFINITIONS FOR QUEUOPTIONOBJECT CLASS *** */
-
-/* ---------------- CONSTRUCTOR ---------------------------------------- */
-QueueOptionObject::QueueOptionObject( )
-{
-  isQueue = true;
-}
-
-QueueOptionObject::~QueueOptionObject( )
-{
-  ;  // everything we need handled is done in parent class's destructor
-}
-
-
-/* ---------------- NTargetsStored ------------------------------------- */
-int QueueOptionObject::NTargetsStored(  )
-{
-  return (int)targetStrings.size();
-}
+// 
+// /* ---------------- CONSTRUCTOR ---------------------------------------- */
+// QueueOptionObject::QueueOptionObject( )
+// {
+//   isQueue = true;
+// }
+// 
+// QueueOptionObject::~QueueOptionObject( )
+// {
+//   ;  // everything we need handled is done in parent class's destructor
+// }
+// 
+// 
+// /* ---------------- NTargetsStored ------------------------------------- */
+// int QueueOptionObject::NTargetsStored(  )
+// {
+//   return (int)targetStrings.size();
+// }
 
 
 
@@ -271,7 +279,8 @@ void CLineParser::AddOption( const string shortOptString, const string longOptSt
 /// Add a possible queue option (single-character only) to the set of command-line flags/options
 void CLineParser::AddQueueOption( const string shortOptString )
 {
-  OptionObject *newOptionObj = new QueueOptionObject;
+  OptionObject *newOptionObj = new OptionObject;
+  newOptionObj->EnableQueue();
   optObjPointers.push_back(newOptionObj);
   optMap[shortOptString] = newOptionObj;
 }
@@ -280,7 +289,8 @@ void CLineParser::AddQueueOption( const string shortOptString )
 /// Add a possible queue option (with both short and long versions) to the set of command-line options
 void CLineParser::AddQueueOption( const string shortOptString, const string longOptString )
 {
-  OptionObject *newOptionObj = new QueueOptionObject;
+  OptionObject *newOptionObj = new OptionObject;
+  newOptionObj->EnableQueue();
   optObjPointers.push_back(newOptionObj);
   optMap[shortOptString] = newOptionObj;
   optMap[longOptString] = newOptionObj;
