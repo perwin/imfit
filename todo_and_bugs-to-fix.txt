@@ -205,6 +205,37 @@ image (accounting for data image subset, if any)
 single method with a string parameter ("data", "model", "weight", etc.)
 
 
+[ ] Experiment with adding OpenMP to MCMC code
+	-- profiling shows that dream() spends 20-25% of time in check_outliers(), and
+	virtually all of *that* (99.6%) is in gsl_stats_mean.
+	-- preliminary tests suggest that using #pragma omp simd speeds up mean
+	calculation by ~ 15 times compared to gsl_stats_mean (and about 5x compared to
+	regular OpenMP parallel for)
+	Also, 15% of dream() time is in PrintModelParamsHorizontalString
+	
+	PROBLEM: calls to gsl_stats_mean in check_outliers() use lik, which is one of
+	cdream's odd Array2D<double> objects, which stores *all* the likelihoods and
+	requires a step size = numChains in calls to gsl_stats_mean
+		-- Need to store likelihoods in 1D double[] arrays, maybe stored in
+		vector<double[]> ? As far as I can tell, lik is (with one exception)
+		accessed in loops over numChains, using t or t - 1, so we probably
+		would not have lots of back-and-forth thrashing if we re-arranged
+		like into vector<double[]> (where vector.size = numChains, and each
+		double[] has length = maxEvals + 1
+		
+	[ ] Convert lik variable in dream.cpp to vector<double[]>
+		[ ] Do conversion
+		[ ] Test to make sure program works
+		[ ] Test to make sure speed hasn't significantly changed
+	[ ] Convert check_outliers.cpp to use "#pgrama omp simd" on computation
+	of means, instead of gsl_stats_mean
+		[ ] Test to make sure program works
+		[ ] Test to see if speed has changed
+	[ ]? Try adding "#pragma omp parallel for" to computation of means
+
+
+
+
 [ ] Experiment with adding OpenMP to convolver.cpp
 	-- e.g., in ConvolveImage(): multiplication of complex arrays; possible
 	other array processing

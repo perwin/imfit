@@ -12,10 +12,12 @@ void check_outliers( int t, Array2D<double>& lik, vector<double>& meanlik,
   vector<double> liksrt(numChains);
   if ((int) meanlik.size() < numChains) 
     meanlik.resize(numChains, -INFINITY);
+  
   for (int i(0); i < numChains; ++i) {
     meanlik[i] = gsl_stats_mean(lik.pt(t0,i), numChains, t - t0);
     liksrt[i] = meanlik[i];
   }
+  
   sort(liksrt.begin(), liksrt.end());
   Q1 = gsl_stats_quantile_from_sorted_data(liksrt.data() ,1 ,liksrt.size() ,0.25);
   Q3 = gsl_stats_quantile_from_sorted_data(liksrt.data() ,1 ,liksrt.size() ,0.75);

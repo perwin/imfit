@@ -597,7 +597,10 @@ makeimage_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zi
 env_debug.Program("makeimage_db", makeimage_dbg_objlist)
 env_opt.Program("makeimage", makeimage_sources)
 
+mcmc_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(mcmc_objs, mcmc_sources) ]
+env_debug.Program("imfit-mcmc_db", mcmc_dbg_objlist)
 env_opt.Program("imfit-mcmc", mcmc_sources)
+
 
 # Run tests
 # Unit tests:

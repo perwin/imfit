@@ -78,6 +78,12 @@ int dream( const dream_pars* p, rng::RngStream* rng )
   
   // MCMC chains
   Array3D<double> state(p->maxEvals, p->numChains, p->nvar);
+  // [x]TAG: lik
+  vector<double *> lik2(p->numChains);
+  for (int i = 0; i < p->numChains; i++) {
+    double * tempArrayPtr = new double[p->maxEvals + 1];
+    lik2.push_back(tempArrayPtr);
+  }
   Array2D<double> lik(p->maxEvals + 1, p->numChains);
 
   Array2D<double> proposal(p->numChains, p->nvar);
@@ -94,6 +100,7 @@ int dream( const dream_pars* p, rng::RngStream* rng )
   // =========================================================================
   // read previous state
 
+  // [ ]TAG: lik
   int prevLines = dream_restore_state(p, state, lik, pCR, inBurnIn);
   if (prevLines < 0) {
     fprintf(stderr, "DREAM: previous MCMC output files not found!\n");
@@ -123,12 +130,13 @@ int dream( const dream_pars* p, rng::RngStream* rng )
   }
 
   // =========================================================================
-  // Initialize with latin hypbercube sampling if not a resumed run
+  // Initialize with latin hypercube sampling if not a resumed run
 
   int do_calc(1);
 
   if (! p->appendFile) {
     Array2DView<double> initVar(state.n_y(), state.n_z(), state.pt(0,0,0));
+    // [ ]TAG: lik
     ArrayView<double> initLik(lik.n_y(), lik.pt(0,0));
     dream_initialize(p, rng, initVar, initLik);
 
@@ -138,6 +146,8 @@ int dream( const dream_pars* p, rng::RngStream* rng )
         tempParams[j] = state(0,i,j);
       string paramString = theModel->PrintModelParamsHorizontalString(tempParams);
       *oout[i] << paramString << " ";
+      // [.]TAG: lik
+      // *oout[i]  << lik2[0][i] << " " << inBurnIn << " " << " ";
       *oout[i]  << lik(0,i) << " " << inBurnIn << " " << " ";
       for (int j = 0; j < p->nCR; ++j) 
         *oout[i] << pCR[j] << " ";
@@ -279,43 +289,56 @@ int dream( const dream_pars* p, rng::RngStream* rng )
           }
         }
         if (p->recalcLik + inBurnIn > 0) {
+          // [.]TAG: lik
+          // lik2[i][t - 1] = p->fun(i, t - 1, state.pt(t - 1, i), p->extraData, true);
           lik(t - 1,i) = p->fun(i, t - 1, state.pt(t - 1, i), p->extraData, true);
           nLikelihoodEvals++;
         }
         if (do_calc) {
+          // [.]TAG: lik
+          // lik2[i][t] = p->fun(i, t, proposal(i), p->extraData, false);
           lik(t,i) = p->fun(i, t, proposal(i), p->extraData, false);
           nLikelihoodEvals++;
           // if (p->vflag) cout << ". Likelihood = " << lik(t,i) << endl;
-        } else 
+        } else   // [.] TAG: lik
+          // lik2[i][t] = -INFINITY;
           lik(t,i) = -INFINITY;
       } else {
         for (int j = 0; j < p->nvar; ++j) 
           proposal(i,j) = state(t - 1,i,j);
         if (p->recalcLik + inBurnIn > 0) {
+          // [.]TAG: lik
+          // lik2[i][t] = p->fun(i, t, proposal(i), p->extraData, true);
           lik(t,i) = p->fun(i, t, proposal(i), p->extraData, true);
           nLikelihoodEvals++;
-        } else {
+        } else {  // [.]TAG: lik
+          // lik2[i][t] = lik2(t - 1,i);
           lik(t,i) = lik(t - 1,i);
         }
       }
     }
 
     for (int i = 0; i < p->numChains; ++i) {
-      if (lik(t,i) == -INFINITY) 
+      // [.]TAG: lik
+      // double newLikelihood = lik2[i][t];
+      // double prevLikelihood = lik2[i][t - 1];
+      double newLikelihood = lik(t,i);
+      double prevLikelihood = lik(t - 1,i);
+      if (newLikelihood == -INFINITY) 
         acceptStep[i] = 0;
-      else if (lik(t,i) >= lik(t - 1,i)) 
+      else if (newLikelihood >= prevLikelihood) 
         acceptStep[i] = 1;
       else {
         rng->uniform(1, &drand);
-        if (log(drand) < lik(t,i) - lik(t - 1,i)) 
+        if (log(drand) < newLikelihood - prevLikelihood) 
           acceptStep[i] = 1;
         else 
           acceptStep[i] = 0;
       }
       if (p->verboseLevel > 1) {
-        cout << t << " " << lik(t - 1,i) 
+        cout << t << " " << prevLikelihood 
              << " <- " << acceptStep[i] << "|" << updateDim[i]
-             << " -> " << lik(t,i) << endl;
+             << " -> " << newLikelihood << endl;
       }
       if (acceptStep[i]) {
         ++numAccepted;
@@ -324,7 +347,7 @@ int dream( const dream_pars* p, rng::RngStream* rng )
       } else {
         for (int j = 0; j < p->nvar; ++j)
           state(t,i,j) = state(t - 1,i,j);
-        lik(t,i) = lik(t - 1,i);
+        newLikelihood = prevLikelihood;
       }
     }  // end of loop(i) over individual chains
 
@@ -387,11 +410,14 @@ int dream( const dream_pars* p, rng::RngStream* rng )
         // remove outlier chains
         vector<double> meanlik(p->numChains, -INFINITY);
         vector<bool> outliers(p->numChains, false);
+        // [ ]TAG: lik
         check_outliers(t, lik, meanlik, outliers);
         int best_chain = gsl_stats_max_index(meanlik.data(), 1, p->numChains);
         for (int i = 0; i < p->numChains; ++i) {
           if (outliers[i] && i != best_chain) {
             // chain is an outlier
+            // [.] TAG: lik
+            // lik2[i][t] = lik2[best_chain][t]
             lik(t,i) = lik(t,best_chain);
             for (int j = 0; j < p->nvar; ++j) 
               state(t,i,j) = state(t,best_chain,j);
@@ -460,6 +486,8 @@ int dream( const dream_pars* p, rng::RngStream* rng )
           tempParams[j] = state(t,i,j);
         string paramString = theModel->PrintModelParamsHorizontalString(tempParams);
         *oout[i] << paramString << " ";
+        // TAG: lik
+        // *oout[i] << lik2[i][t] << " " << (t < burnInStart + p->burnIn) << " " << " ";
         *oout[i] << lik(t,i) << " " << (t < burnInStart + p->burnIn) << " " << " ";
         for (int j(0); j < p->nCR; ++j) 
           *oout[i] << pCR[j] << " ";
@@ -478,6 +506,8 @@ int dream( const dream_pars* p, rng::RngStream* rng )
 
   // PE: memory cleanup of added stuff
   free(tempParams);
+  for (int i = 0; i < p->numChains; i++)
+    delete[] lik2[i];
   
   
   if (p->verboseLevel > 0)
