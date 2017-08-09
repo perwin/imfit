@@ -141,12 +141,25 @@
 	
 	[x] Check that both PSF-oversampling tests in do_imfit_tests.sh work
 	
-	[ ] Add regression test to do_imfit_tests.sh to do simple test of multiple regions
-		[ ] Make "data" image: 50x50 pix, 2 small Gaussians + background
-		[ ] Make "noisy" version of data image
-		[ ] Test fit using no oversampling
-		[ ] Test fit using 1-region oversampling
-		[ ] Test fit using 2-region oversampling
+	[X] Add regression test to do_imfit_tests.sh to do simple test of multiple regions
+		Image generated with standard 35x35 Moffat PSF, with noise added
+./makeimage config_makeimage_2gauss_small.dat --psf tests/psf_moffat_35.fits -o modelimage_psf.fits
+~/python/add_noise_to_image.py modelimage_psf.fits modelimage_psf_noisy.fits --gain=1000
+		Fit w/o PSF: ./imfit -c config_imfit_2gauss_small.dat modelimage_psf_noisy.fits
+		Fit w/ PSF:  ./imfit -c config_imfit_2gauss_small.dat modelimage_psf_noisy.fits --psf=tests/psf_moffat_35.fits
+
+		Image generated w/ 2 oversampled-PSF regions
+./makeimage config_makeimage_2gauss_small.dat -o modelimage_psf+2osamp.fits --psf tests/psf_moffat_35.fits --overpsf tests/psf_moffat_35_oversamp3.fits --overpsf_scale 3 --overpsf_region 35:45,35:45 --overpsf_region  10:20,5:15
+~/python/add_noise_to_image.py modelimage_psf+2osamp.fits modelimage_psf+2osamp_noisy.fits --gain=1000
+		Fit w/o PSF: ./imfit -c config_imfit_2gauss_small.dat modelimage_psf+2osamp_noisy.fits
+		Fit w/ PSF:  ./imfit -c config_imfit_2gauss_small.dat modelimage_psf+2osamp_noisy.fits --psf=tests/psf_moffat_35.fits
+		Fit with oversampled PSF: 
+			./imfit -c config_imfit_2gauss_small.dat modelimage_psf_noisy.fits --psf=tests/psf_moffat_35.fits --overpsf tests/psf_moffat_35_oversamp3.fits --overpsf_scale 3 --overpsf_region 35:45,35:45 --overpsf_region  10:20,5:15
+
+		[X] Make "data" image: 50x50 pix, 2 small Gaussians + background
+		[X] Make "noisy" version of data image
+		[X] Test fit using no oversampling
+		[X] Test fit using 2-region oversampling
 	
 	[x] Modify EstimateMemory (and code calling it in _main.cpp) to account for
 	multiple oversampled regions

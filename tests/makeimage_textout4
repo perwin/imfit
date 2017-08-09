@@ -1,7 +1,7 @@
-	PSF image = tests/psf_moffat_35.fits
+	PSF image = tests/psf_moffat_35_n4699z.fits
 Value from config file: nColumns = 512
 Value from config file: nRows = 512
-Reading PSF image ("tests/psf_moffat_35.fits") ...
+Reading PSF image ("tests/psf_moffat_35_n4699z.fits") ...
 naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
 Function: Sersic_GenEllipse
 Model Object: 262144 data values (pixels)

@@ -2,7 +2,7 @@
 	* No fitting will be done!
 	* Using standard Cash statistic instead of chi^2 for minimization!
 	configuration file = tests/imfit_config_n3073.dat
-	PSF image = tests/psf_moffat_35.fits
+	PSF image = tests/psf_moffat_35_n4699z.fits
 	mask image = tests/n3073rss_small_mask.fits
 Value from config file: gain = 4.725000 e-/ADU
 Value from config file: read noise = 4.300000 e-
@@ -10,7 +10,7 @@ Value from config file: original sky = 154.330000
 Reading data image ("tests/n3073rss_small.fits") ...
 naxis1 [# pixels/row] = 150, naxis2 [# pixels/col] = 200; nPixels_tot = 30000
 Reading mask image ("tests/n3073rss_small_mask.fits") ...
-Reading PSF image ("tests/psf_moffat_35.fits") ...
+Reading PSF image ("tests/psf_moffat_35_n4699z.fits") ...
 naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
 Function: Sersic
@@ -27,6 +27,6 @@ AIC = -305659743.733982, BIC = -305659652.811314
 
 
 
-(Elapsed time: 0.014679 sec)
+(Elapsed time: 0.015027 sec)
 Done!
 

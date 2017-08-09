@@ -313,3 +313,119 @@ sigma		1.20062
 (Same as when fitting cutout image; also same as fitting full image in 3C -- presumably
 because the outermost pixels excluded by the cutout have too little signal to really 
 affect the fit)
+
+
+
+
+*** Testing with multiple oversampling regions
+
+Original makeimage config file:
+config_makeimage_2gauss_small.dat
+
+Generate image with two Gaussians, each convolved with 3x3-oversampled PSF:
+$ ./makeimage config_makeimage_2gauss_small.dat -o modelimage_psf+2osamp.fits --psf tests/psf_moffat_35.fits --overpsf tests/psf_moffat_35_oversamp3.fits --overpsf_scale 3 --overpsf_region 35:45,35:45 --overpsf_region  10:20,5:15
+$ ~/python/add_noise_to_image.py modelimage_psf+2osamp.fits modelimage_psf+2osamp_noisy.fits --gain=1000 --seed=10
+[ cp modelimage_psf+2osamp_noisy.fits tests/twogaussian_psf+2osamp_noisy.fits ]
+
+Makeimage parameters:
+X0              40.5
+Y0              40.25
+FUNCTION Gaussian
+PA                0
+ell               0
+I_0             110
+sigma           1.0
+
+X0              15.1
+Y0              10.6
+FUNCTION Gaussian
+PA                0
+ell               0
+I_0             90	
+sigma           1.0
+FUNCTION FlatSky
+I_0				100.0
+
+
+Fit to noisy image using just main PSF:
+$ ./imfit -c config_imfit_2gauss_small.dat modelimage_psf+2osamp_noisy.fits --psf=tests/psf_moffat_35.fits
+Reduced Chi^2 = 0.999850
+AIC = 2507.685240, BIC = 2554.219800
+
+X0		40.1703 # +/- 0.0064
+Y0		39.9137 # +/- 0.0064
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		109.668 # +/- 1.27346
+sigma		1.00101 # +/- 0.00687169
+
+X0		14.7626 # +/- 0.0078
+Y0		10.2573 # +/- 0.0078
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		88.6079 # +/- 1.22085
+sigma		1.01015 # +/- 0.00827045
+
+Fit to noisy image using oversampled PSF as well:
+$ ./imfit -c config_imfit_2gauss_small.dat modelimage_psf+2osamp_noisy.fits --psf=tests/psf_moffat_35.fits --overpsf tests/psf_moffat_35_oversamp3.fits --overpsf_scale 3 --overpsf_region 35:45,35:45 --overpsf_region  10:20,5:15
+Reduced Chi^2 = 0.999991
+AIC = 2508.035300, BIC = 2554.569860
+
+X0		40.5036 # +/- 0.0064
+Y0		40.2470 # +/- 0.0064
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		109.583 # +/- 1.27144
+sigma		1.00132 # +/- 0.00686879
+
+X0		15.0959 # +/- 0.0078
+Y0		10.5906 # +/- 0.0078
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		88.5157 # +/- 1.21834
+sigma		1.01064 # +/- 0.00826686
+
+BETTER! (Not dramatically so -- delta-AIC is ~ 1 -- but X0,Y0 values are definitely
+closer)
+
+
+Fit to clean image using main PSF:
+$ ./imfit -c config_imfit_2gauss_small.dat modelimage_psf+2osamp.fits --psf=tests/psf_moffat_35.fits
+X0		40.1667 # +/- 0.0064
+Y0		39.9167 # +/- 0.0064
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		110.104 # +/- 1.27929
+sigma		0.999584 # +/- 0.00686315
+
+X0		14.7667 # +/- 0.0077
+Y0		10.2667 # +/- 0.0077
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		  90.09 # +/- 1.25894
+sigma		0.99954 # +/- 0.00828357
+
+Fit to clean image using oversampled PSF as well:
+$ ./imfit -c config_imfit_2gauss_small.dat modelimage_psf+2osamp.fits --psf=tests/psf_moffat_35.fits --overpsf tests/psf_moffat_35_oversamp3.fits --overpsf_scale 3 --overpsf_region 35:45,35:45 --overpsf_region  10:20,5:15
+X0		40.5000 # +/- 0.0064
+Y0		40.2500 # +/- 0.0064
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		 109.99 # +/- 1.27658
+sigma		1.00003 # +/- 0.00685993
+
+X0		15.1000 # +/- 0.0077
+Y0		10.6000 # +/- 0.0077
+FUNCTION Gaussian
+PA		      0 # +/-       0
+ell		      0 # +/-       0
+I_0		89.9915 # +/- 1.25616
+sigma		1.00003 # +/- 0.00828014
+

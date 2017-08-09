@@ -74,26 +74,28 @@ fi
 # test non-square SDSS image + PSF convolution; then test count/sec version with --exptime
 # option; then just do chisquare-only calculations (for chi^2 and Cash statistic)
 echo -n "   (now running fit with PSF convolution ...)"
-./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits &> temptest/test_dump4
+./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35_n4699z.fits &> temptest/test_dump4
 # test on count/sec image using --exptime; remember to rescale --sky as well! (= 154.33 / 53.907456)
-./imfit tests/n3073rss_small_cps.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --exptime=53.907456 --sky=2.8628692847238053 &> temptest/test_dump4b
-./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only &> temptest/test_dump4c
-./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35.fits --chisquare-only --cashstat &> temptest/test_dump4d
+./imfit tests/n3073rss_small_cps.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35_n4699z.fits --exptime=53.907456 --sky=2.8628692847238053 &> temptest/test_dump4b
+./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35_n4699z.fits --chisquare-only &> temptest/test_dump4c
+./imfit tests/n3073rss_small.fits -c tests/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --psf tests/psf_moffat_35_n4699z.fits --chisquare-only --cashstat &> temptest/test_dump4d
 echo ""
 
 # test use of oversampled PSF (don't use L-M; doesn't converge)
 if [ "$1" == "--all" ]
 then
   echo -n "   (now running fits with oversampled PSF ...)"
+  # Don't use L-M for first two (converges way too slowly)
   ./imfit -c tests/config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm tests/oversamp_test4.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110  &> temptest/test_dump4e
   ./imfit -c tests/config_imfit_gauss-oversample-test2.dat --gain=100 --mlr --nm tests/oversamp_test4.fits[51:200,41:190] --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110  &> temptest/test_dump4e2
+  # L-M works just fine for this
+  ./imfit -c tests/config_imfit_2gauss_small.dat tests/twogaussian_psf+2osamp_noisy.fits --psf=tests/psf_moffat_35.fits --overpsf tests/psf_moffat_35_oversamp3.fits --overpsf_scale 3 --overpsf_region 35:45,35:45 --overpsf_region 10:20,5:15  &> temptest/test_dump4e3
   echo ""
 else
   echo "   (-- skipping oversampled PSF tests --)"
 fi
 
 # FIXME: tests of multi-region PSF oversampling: two regions, same PSF
-#./imfit -c tests/config_imfit_gauss-oversample2.dat tests/${osname}/oversampled2both_orig.fits --mlr --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --overpsf_region 20:30,20:30  > temptest/test_dump_null
 
 
 # test fitting with Cash statistic
@@ -244,6 +246,10 @@ then
 
   echo -n "*** Diff comparison with archives: fit using oversampled PSF + image section... "
   ./python/diff_printouts.py tests/imfit_textout4e2 temptest/test_dump4e2 --skip-last=3
+  STATUS+=$?
+
+  echo -n "*** Diff comparison with archives: fit using oversampled PSF + 2 image sections... "
+  ./python/diff_printouts.py tests/imfit_textout4e3 temptest/test_dump4e3 --skip-last=3
   STATUS+=$?
 fi
 

@@ -52,11 +52,11 @@ echo "Running tests for makeimage..."
 # same, but now testing --refimage [we assume that tests/gensersictest_orig.fits is 512x512]
 ./makeimage tests/config_makeimage_sersic+exp512_nosize.dat -o temptest/sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > temptest/test_dump3b
 # test using PSF convolution:
-./makeimage tests/config_makeimage_gensersic512.dat -o temptest/gensersictest_conv.fits --psf tests/psf_moffat_35.fits > temptest/test_dump4
+./makeimage tests/config_makeimage_gensersic512.dat -o temptest/gensersictest_conv.fits --psf tests/psf_moffat_35_n4699z.fits > temptest/test_dump4
 # test doing --print-fluxes:
 ./makeimage tests/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > temptest/test_dump5
 # tests of --output-functions with PSF convolution:
-./makeimage tests/config_makeimage_sersic+exp512.dat -o temptest/sersic+exp_conv.fits --output-functions temptest/singleImage_conv --psf tests/psf_moffat_35.fits > temptest/test_dump_null
+./makeimage tests/config_makeimage_sersic+exp512.dat -o temptest/sersic+exp_conv.fits --output-functions temptest/singleImage_conv --psf tests/psf_moffat_35_n4699z.fits > temptest/test_dump_null
 
 # tests of PSF oversampling: one region
 ./makeimage tests/config_makeimage_gauss-oversample.dat -o temptest/oversampled.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110  > temptest/test_dump_null

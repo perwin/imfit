@@ -1,0 +1,15 @@
+# Config file for makeimage, meant to be used to generate a 35x35-pixel image of a Moffat
+# function with FWHM = 2.4 pixels and beta = 5.0
+
+NCOLS   105
+NROWS   105
+
+# Circular Moffat
+X0    52.0
+Y0    52.0
+FUNCTION   Moffat
+PA		0.0
+ell		0.0
+I_0		1.0
+fwhm	7.2
+beta	5.0

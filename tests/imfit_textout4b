@@ -1,6 +1,6 @@
 	Image file = tests/n3073rss_small_cps.fits
 	configuration file = tests/imfit_config_n3073.dat
-	PSF image = tests/psf_moffat_35.fits
+	PSF image = tests/psf_moffat_35_n4699z.fits
 	mask image = tests/n3073rss_small_mask.fits
 	original sky level = 2.86287 ADU
 	exposure time = 53.9075 sec
@@ -10,7 +10,7 @@ Original-sky value in config file ignored (using command-line value)
 Reading data image ("tests/n3073rss_small_cps.fits") ...
 naxis1 [# pixels/row] = 150, naxis2 [# pixels/col] = 200; nPixels_tot = 30000
 Reading mask image ("tests/n3073rss_small_mask.fits") ...
-Reading PSF image ("tests/psf_moffat_35.fits") ...
+Reading PSF image ("tests/psf_moffat_35_n4699z.fits") ...
 naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
 ModelObject::AddMaskVector -- treating zero-valued pixels as good ...
 * No noise image supplied ... will generate noise image from input data image.
@@ -66,6 +66,6 @@ h		53.6064 # +/- 1.16482
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.578247 sec for fit, 0.594434 sec total)
+(Elapsed time: 0.582401 sec for fit, 0.598459 sec total)
 Done!
 
