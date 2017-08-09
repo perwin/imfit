@@ -120,7 +120,7 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
       printf("Reduced Chi^2 = %f\n", mpResult->bestnorm / nDegreesFreedom);
     if (whichStat == FITSTAT_POISSON_MLR)
       printf("Reduced Chi^2 equivalent = %f\n", mpResult->bestnorm / nDegreesFreedom);
-    printf("AIC = %f, BIC = %f\n\n", aic, bic);
+    printf("AIC = %f, BIC = %f\n", aic, bic);
     
     double *paramErrs = (double *)calloc(model->GetNParams(), sizeof(double));
     solverResults.GetErrors(paramErrs);
@@ -150,7 +150,7 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
       printf("%s = %f\n", reducedStatName.c_str(), fitStatistic / nDegreesFreedom);
     aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
     bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
-    printf("AIC = %f, BIC = %f\n\n", aic, bic);
+    printf("AIC = %f, BIC = %f\n", aic, bic);
     PrintParameters(stdout, model, params, NULL);
     printf("\n");
   }

@@ -92,6 +92,10 @@ else
   echo "   (-- skipping oversampled PSF tests --)"
 fi
 
+# FIXME: tests of multi-region PSF oversampling: two regions, same PSF
+#./imfit -c tests/config_imfit_gauss-oversample2.dat tests/${osname}/oversampled2both_orig.fits --mlr --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --overpsf_region 20:30,20:30  > temptest/test_dump_null
+
+
 # test fitting with Cash statistic
 echo -n "   (now running Cash-statistic and Poisson MLR fits ...)"
 ./imfit tests/testimage_poisson_lowsn20.fits -c tests/config_imfit_poisson.dat --cashstat --nm &> temptest/test_dump5a
@@ -147,7 +151,9 @@ echo ""
 ./imfit -c tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits &> temptest/test_dump7d
 # and now test to see if we correctly ignore bad pixel value when it's masked
 ./imfit -c tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits --mask=tests/mask_for_onezero.fits &> temptest/test_dump7e
- 
+ # test to see if we save multi-function-block output correctly when using N-M simplex
+./imfit -c config_imfit_2gauss_small.dat testimage_2gauss_psf.fits --nm --save-params=temptest/bestfit_params_2gauss_small.dat &> temptest/test_dump7f
+
 #    Testing to see that bad config files are caught:
 ./imfit -c tests/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
 ./imfit -c tests/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
@@ -344,6 +350,22 @@ STATUS+=$?
 echo -n "*** Diff comparison with archives: ignore zero-valued pixel when it's masked... "
 ./python/diff_printouts.py tests/imfit_textout7e temptest/test_dump7e --skip-last=3
 STATUS+=$?
+
+# Note that we test two things here: the console output *and* the bestfit-parameter
+# output file
+echo -n "*** Diff comparison with archives: print blank line between function blocks... "
+./python/diff_printouts.py tests/imfit_textout7f temptest/test_dump7f --skip-last=3
+STATUS+=$?
+echo -n "*** Diff comparison with archives: same, checking output parameter file... "
+tail -n +4 temptest/bestfit_params_2gauss_small.dat > temptest/bestfit_params_2gauss_small_tail.dat
+if (diff --brief temptest/bestfit_params_2gauss_small_tail.dat tests/bestfit_params_2gauss_small_tail.dat)
+then
+  echo " OK"
+else
+  echo -e "   {$RED}Failed:{$NC} Diff output:"
+  diff temptest/bestfit_params_2gauss_small_tail.dat tests/bestfit_params_2gauss_small_tail.dat
+  STATUS+=1
+fi
 
 
 

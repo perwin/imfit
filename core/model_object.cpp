@@ -1721,6 +1721,8 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
       y0 = params[k + 1];
       x0 += parameterInfoVect[k].offset;
       y0 += parameterInfoVect[k + 1].offset;
+      // blank line (or line with just prefix character) before start of function block
+      stringVector.push_back(PrintToString("%s\n", prefix));
       if (printLimits) {
         if (parameterInfoVect[k].fixed == 1)
           newLine = PrintToString(XY_FORMAT_WITH_FIXED, prefix, "X0", x0);

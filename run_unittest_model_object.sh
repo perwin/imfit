@@ -30,7 +30,7 @@ function_objects/helper_funcs_3d.cpp \
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for model_object:"
-  ./test_runner_modelobj TestPrintParams
+  ./test_runner_modelobj
   exit
 else
   echo "** Compilation of unit tests for model_object failed."

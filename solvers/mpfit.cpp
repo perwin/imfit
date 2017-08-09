@@ -913,16 +913,19 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
     }
     xnorm = mp_enorm(nfree, wa2);
     fnorm = fnorm1;
-    // Added by PE: printing updates
+    // Added by PE: printing updates (note that PrintParameters will automatically
+    // print "\n" before each function block, so we don't need to append "\n" if
+    // we're calling that function
     if (config->verbose > 0) {
-      printf("\tmpfit iteration %d: fit statistic = %f\n", iter, fnorm*fnorm);
+      printf("\tmpfit iteration %d: fit statistic = %f", iter, fnorm*fnorm);
       if (config->verbose > 1) {
         // note that we print parameter values using xnew, not x, since x 
         // contains only the *free* parameters. xnew contains *all* parameters,
         // and holds the last set of parameter values passed to theModel (via funct)
         PrintParametersSimple(theModel, xnew);
-//         theModel->PrintModelParams(stdout, xnew, NULL);
       }
+      else
+        printf("\n");
     }
     iter += 1;
   }

@@ -461,6 +461,7 @@ public:
     vector<string> outputVect;
   
     vector<string> correctStrings1, correctStrings2;
+    correctStrings1.push_back("#\n");
     correctStrings1.push_back("#X0\t\t21.0000\n");
     correctStrings1.push_back("#Y0\t\t22.0000\n");
     correctStrings1.push_back("#FUNCTION Exponential\n");
@@ -470,6 +471,7 @@ public:
     correctStrings1.push_back("#h\t\t     10\n");
     correctStrings1.push_back("#FUNCTION FlatSky\n");
     correctStrings1.push_back("#I_sky\t\t    100\n");
+    correctStrings2.push_back("#\n");
     correctStrings2.push_back("#X0\t\t21.0000\t\t0,200\n");
     correctStrings2.push_back("#Y0\t\t22.0000\t\tfixed\n");
     correctStrings2.push_back("#FUNCTION Exponential\n");

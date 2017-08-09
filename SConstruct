@@ -193,6 +193,7 @@ build32bit = False
 buildForOldMacOS = False
 scanBuild = False
 addressSanitize = False
+allSanitize = False
 setOptToDebug = False
 useLogging = False
 
@@ -222,6 +223,8 @@ AddOption("--use-gcc", dest="useGCC", action="store_true",
 	default=False, help="use gcc and g++ v7 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
+AddOption("--sanitize", dest="useAllSanitize", action="store_true", 
+	default=False, help="set this to generate binaries with -fsanitize-address, -fsanitize-undefined, and -fsanitize=leak")
 AddOption("--address-sanitize", dest="useAddressSanitize", action="store_true", 
 	default=False, help="set this to generate binaries with -fsanitize-address")
 AddOption("--logging", dest="useLogging", action="store_true", 
@@ -286,9 +289,12 @@ if GetOption("doingScanBuild") is True:
 
 if GetOption("useAddressSanitize") is True:
 	addressSanitize = True
-	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
+	useOpenMP = False
 	setOptToDebug = True
-
+if GetOption("useAllSanitize") is True:
+	allSanitize = True
+	useOpenMP = False
+	setOptToDebug = True
 if GetOption("useLogging") is True:
 	useLogging = True
 
@@ -406,6 +412,14 @@ if addressSanitize is True:
 	cflags_db.append("-fsanitize=address")
 	cflags_db.append("-fno-omit-frame-pointer")
 	link_flags.append("-fsanitize=address")
+	link_flags.append("-fno-omit-frame-pointer")
+
+if allSanitize is True:
+	cflags_opt += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
+	cflags_opt.append("-fno-omit-frame-pointer")
+	cflags_db += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
+	cflags_db.append("-fno-omit-frame-pointer")
+	link_flags += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
 	link_flags.append("-fno-omit-frame-pointer")
 
 

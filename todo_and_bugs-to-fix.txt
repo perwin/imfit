@@ -8,6 +8,12 @@
 
 ** NEAR-TERM FUTURE TODO:
 
+(1.5)[X] Fix regression in lack of blank likes between function blocks in output
+	-- apparently only shows up for N-M or DE fits!
+	[X] Look for possible previous 2-fuction-block test outputs
+	[X] Fix missing blank line between function blocks in output
+	[X] Add regression test to make sure this doesn't happen again.
+	
 (1.5)[..] Add option to turn *off* normalization of input PSFs
 	-- Corentin Schreiber requested this for working with interferometric images,
 	which use "a peculiar point spread function, with a peak of unity and sum of zero."
@@ -136,6 +142,11 @@
 	[x] Check that both PSF-oversampling tests in do_imfit_tests.sh work
 	
 	[ ] Add regression test to do_imfit_tests.sh to do simple test of multiple regions
+		[ ] Make "data" image: 50x50 pix, 2 small Gaussians + background
+		[ ] Make "noisy" version of data image
+		[ ] Test fit using no oversampling
+		[ ] Test fit using 1-region oversampling
+		[ ] Test fit using 2-region oversampling
 	
 	[x] Modify EstimateMemory (and code calling it in _main.cpp) to account for
 	multiple oversampled regions
@@ -147,7 +158,7 @@
 (1.5)[ ] Unit tests for FerrersBar3D
 
 
-[ ] Test image convolution with even-numbered-pixel arrays (e.g., 4x4 PSF image)
+[X] Test image convolution with even-numbered-pixel arrays (e.g., 4x4 PSF image)
 	-- gauss_36x36.fits, gauss_35x35.fits
 	OK, for a 36x36 PSF image, centering the PSF at (19,19) produces an *unshifted*
 	output image, similar if not identical to convolution with the 35x35 centered PSF image.
@@ -156,11 +167,20 @@
 	(18.5,18.5) -- produces *shifted* output images.
 	[x] Generate 36x36x PSF test image
 	[x] Test on Sersic image
-	
-	[ ] Should try testing this with e.g scipy or astropy convolution
-		[ ] Read up on scipy convolution code
-		[ ] Write function to read in FITS images and do convolution
-		[ ] Execute ...
+
+[ ] Test image convolution with overpsf_scale = even number
+	-- e.g., current WFC/IR empirical PSF images are 101x101 with 4x4 oversampling;
+	PSF center is at 51,51, like it should be
+	http://www.stsci.edu/hst/wfc3/analysis/PSF
+	-- some of the (outer) pixel values are slightly negative...
+	[ ] Negative pixels?
+		[ ] Try convolving model image with PSF image as-is
+		[ ] Try convolving model image with PSF image that has had < 0 pixels set = 0
+	[ ] Extract sample WFC/IR PSF from empirical-PSF file
+	[ ] Find/make a good WFC3/IR galaxy image
+	[ ] Trial fits with regular (TinyTim?) PSF
+	[ ] Trial fits with oversampled PSF	
+		[ ] Trial fits with 
 	
 
 [ ] Check input: Catch cases of oversampled regions that lie or extend outside data
@@ -223,15 +243,17 @@ single method with a string parameter ("data", "model", "weight", etc.)
 		like into vector<double[]> (where vector.size = numChains, and each
 		double[] has length = maxEvals + 1
 		
-	[ ] Convert lik variable in dream.cpp to vector<double[]>
+	[ ] Convert lik variable in dream.cpp to vector<double *>
+		-- ~/coding/imfit-feature-simd/
 		[ ] Do conversion
+			[x] Do main conversion
+			[ ] Convert dream_restore_state() to use vector<double *>
 		[ ] Test to make sure program works
 		[ ] Test to make sure speed hasn't significantly changed
 	[ ] Convert check_outliers.cpp to use "#pgrama omp simd" on computation
 	of means, instead of gsl_stats_mean
 		[ ] Test to make sure program works
 		[ ] Test to see if speed has changed
-	[ ]? Try adding "#pragma omp parallel for" to computation of means
 
 
 

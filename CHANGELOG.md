@@ -62,6 +62,11 @@ are now corrected back to full-image coordinates (as was already done
 for printed and saved best-fit parameter values). (Thanks to Iskren
 Georgiev for spotting this in the MCMC output.)
 
+- [ ] Printouts and output files listing the best-fitting parameter values
+were supposed to include a blank line between function blocks (for easier
+reading), but this only happened when Levenberg-Marquardt fits were
+done. This now works for fits with N-M simplex and Differential Evolution.
+
 - In describing the PSF oversampling options, the documentation
 (erroneously) gave an example of `--overpsf_region [x1:x2,y1:y2]`, when
 the correct format was `--overpsf_region x1:x2,y1:y2`. The documentation

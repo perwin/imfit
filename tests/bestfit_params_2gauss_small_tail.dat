@@ -1,0 +1,26 @@
+
+# Results of fit:
+#   Algorithm: Nelder-Mead Simplex: status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
+#   Fit statistic: chi-squared (data-based errors)
+#   Best-fit value: 34.529135
+#   Reduced value: 0.013856
+#   AIC: 50.586943
+#   BIC: 97.121503
+
+X0		40.5000
+Y0		40.2500
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		45.9406
+sigma		1.53717
+
+X0		15.1000
+Y0		10.6000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		 37.597
+sigma		 1.5369
+FUNCTION FlatSky
+I_sky		    100
