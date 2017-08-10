@@ -1,6 +1,7 @@
 #    ./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test
 #
 # Model definition:
+#
 #X0		5.0000		3,8
 #Y0		6.0000		3,8
 #FUNCTION Gaussian

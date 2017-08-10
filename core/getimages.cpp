@@ -142,6 +142,7 @@ int GetOversampledPsfInfo( OptionsBase *options, int xOffset, int yOffset,
   int  nColumns_psf_oversampled, nRows_psf_oversampled;
   long  nPixels_psf_oversampled;
   int psfOversamplingScale;
+  
   int nOversampledPsfImages = (int)options->psfOversampledFileNames.size();
   int nOversampledScales = (int)options->psfOversamplingScales.size();
   if (nOversampledPsfImages != nOversampledScales) {
