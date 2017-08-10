@@ -2,7 +2,7 @@
 /*   Several utility routines used by imfit, makeimage, etc.
  */
 
-// Copyright 2010-2015 by Peter Erwin.
+// Copyright 2010-2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -29,6 +29,7 @@
 #include <vector>
 #include <string>
 #include <cstdarg>
+#include <tuple>
 
 using namespace std;
 
@@ -269,18 +270,15 @@ void StripBrackets( const string& inputFilename, string& strippedFilename )
 
 /* ---------------- FUNCTION: GetAllCoordsFromBracket() ------------- */
 // Given a string of the form "x1:x2,y1:y2", return x1, x2, y1, and y2
-void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
-                           int *y1, int *y2 )
+std::tuple<int, int, int, int> GetAllCoordsFromBracket( const string& bracketString )
 {
   vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
   const string star = string("*");
   string  copyBracketString;
+  int  x1, x2, y1, y2;
 
   // default values indicating errors:
-  *x1 = 0;
-  *x2 = 0;
-  *y1 = 0;
-  *y2 = 0;
+  x1 = x2 = y1 = y2 = 0;
   
   // Trim away "[" at start, "]" at end if user accidentally included them
   string::size_type  startIndex = bracketString.find_first_not_of("[");
@@ -290,147 +288,98 @@ void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
   SplitString(copyBracketString, sectionPieces, ",");
   // handle the x part of the section specification
   if (sectionPieces[0] == star)
-    *x1 = 1;
+    x1 = 1;
   else {
     SplitString(sectionPieces[0], subsectionPieces_x, ":");
     if (subsectionPieces_x.size() != 2) {
       fprintf(stderr, "\nWARNING1: Incorrect image section format!\n");
       fprintf(stderr, "\t\"%s\"\n", copyBracketString.c_str());
-      return;
+      std::make_tuple(0,0,0,0);
     }
-    *x1 = atoi(subsectionPieces_x[0].c_str());
-    *x2 = atoi(subsectionPieces_x[1].c_str());
+    x1 = atoi(subsectionPieces_x[0].c_str());
+    x2 = atoi(subsectionPieces_x[1].c_str());
   }
   // handle the y part of the section specification
   if (sectionPieces[1] == star)
-    *y1 = 1;
+    y1 = 1;
   else {
     SplitString(sectionPieces[1], subsectionPieces_y, ":");
     if (subsectionPieces_y.size() != 2) {
       fprintf(stderr, "\nWARNING2: Incorrect image section format!\n");
       fprintf(stderr, "\t\"%s\"\n", copyBracketString.c_str());
-      return;
+      return std::make_tuple(0,0,0,0);
     }
-    *y1 = atoi(subsectionPieces_y[0].c_str());
-    *y2 = atoi(subsectionPieces_y[1].c_str());
+    y1 = atoi(subsectionPieces_y[0].c_str());
+    y2 = atoi(subsectionPieces_y[1].c_str());
   }
+  
+  return std::make_tuple(x1, x2, y1, y2);
 }
-
-/* ---------------- FUNCTION: GetAllCoordsFromBracket2() ------------ */
-// Given a string of the form "x1:x2,y1:y2", add x1, x2, y1, and y2 to
-// the input vectors
-// void GetAllCoordsFromBracket2( const string& bracketString, vector<int>& x1, vector<int>& x2,
-//                            vector<int>& y1, vector<int>& y2 )
-// {
-//   vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
-//   const string star = string("*");
-//   int  xx1, xx2, yy1, yy2;
-// 
-//   // default values indicating errors:
-//   xx1 = 0;
-//   xx2 = 0;
-//   yy1 = 0;
-//   yy2 = 0;
-//   
-//   SplitString(bracketString, sectionPieces, ",");
-//   // handle the x part of the section specification
-//   if (sectionPieces[0] == star)
-//     xx1 = 1;
-//   else {
-//     SplitString(sectionPieces[0], subsectionPieces_x, ":");
-//     if (subsectionPieces_x.size() != 2) {
-//       fprintf(stderr, "\nWARNING1: Incorrect image section format!\n");
-//       fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
-//       return;
-//     }
-//     xx1 = atoi(subsectionPieces_x[0].c_str());
-//     xx2 = atoi(subsectionPieces_x[1].c_str());
-//   }
-//   // handle the y part of the section specification
-//   if (sectionPieces[1] == star)
-//     yy1 = 1;
-//   else {
-//     SplitString(sectionPieces[1], subsectionPieces_y, ":");
-//     if (subsectionPieces_y.size() != 2) {
-//       fprintf(stderr, "\nWARNING2: Incorrect image section format!\n");
-//       fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
-//       return;
-//     }
-//     yy1 = atoi(subsectionPieces_y[0].c_str());
-//     yy2 = atoi(subsectionPieces_y[1].c_str());
-//   }
-//   
-//   x1.push_back(xx1);
-//   x2.push_back(xx2);
-//   y1.push_back(yy1);
-//   y2.push_back(yy2);
-// }
-
 
 /* ---------------- FUNCTION: GetStartCoordsFromBracket() ----------- */
 /// Given a string of the form "x1:x2,y1:y2", return x1 and y1. Special cases:
 ///    1. "*,y1:y2" ==> returns 1, y1;
 ///    2. "x1:x2,*" ==> returns x1, 1
-void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
-                           const string& fileName )
+std::tuple<int, int>  GetStartCoordsFromBracket( const string& bracketString,
+                           							const string& fileName )
 {
   vector<string>  sectionPieces, subsectionPieces_x, subsectionPieces_y;
   const string star = string("*");
+  int x1, y1;
 
   // default values indicating errors:
-  *x1 = 0;
-  *y1 = 0;
+  x1 = y1 = 0;
   
   SplitString(bracketString, sectionPieces, ",");
   // handle the x part of the section specification
   if (sectionPieces[0] == star)
-    *x1 = 1;
+    x1 = 1;
   else {
     SplitString(sectionPieces[0], subsectionPieces_x, ":");
     if (subsectionPieces_x.size() != 2) {
       fprintf(stderr, "\nWARNING1: Incorrect image section format in \"%s\"!\n",
     					fileName.c_str());
       fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
-      return;
+      return std::make_tuple(0,0);
     }
-    *x1 = atoi(subsectionPieces_x[0].c_str());
+    x1 = atoi(subsectionPieces_x[0].c_str());
   }
   // handle the y part of the section specification
   if (sectionPieces[1] == star)
-    *y1 = 1;
+    y1 = 1;
   else {
     SplitString(sectionPieces[1], subsectionPieces_y, ":");
     if (subsectionPieces_y.size() != 2) {
       fprintf(stderr, "\nWARNING2: Incorrect image section format in \"%s\"!\n",
     					fileName.c_str());
       fprintf(stderr, "\t\"%s\"\n", bracketString.c_str());
-      return;
+      return std::make_tuple(0,0);
     }
-    *y1 = atoi(subsectionPieces_y[0].c_str());
+    y1 = atoi(subsectionPieces_y[0].c_str());
   }
+  return std::make_tuple(x1, y1);
 }
 
 
 /* ---------------- FUNCTION: GetPixelStartCoords() ---------------- */
 
-void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart )
+std::tuple<int, int> GetPixelStartCoords( const string& inputFilename )
 {
   string::size_type  loc1, loc2, loc3, loc4;
   int  nPieces;
   string  sectionSubstring;
   vector<string>  sectionPieces;
   bool  twoSections = false;
+  int xStart, yStart;
   
   // default values indicating errors:
-  *xStart = 0;
-  *yStart = 0;
+  xStart = yStart = 0;
   
   loc1 = inputFilename.find('[', 0);
   if (loc1 == string::npos) {
     // no image section specified, so we're using the entire image
-    *xStart = 1;
-    *yStart = 1;
-    return;
+    xStart = yStart = 1;
+    return std::make_tuple(xStart, yStart);
   }
   
   // OK, if we get here, then there's apparently an image section
@@ -438,7 +387,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
   if (loc2 == string::npos) {
     fprintf(stderr, "\nWARNING: Incorrect image section format in \"%s\"!\n",
     				inputFilename.c_str());
-    return;
+    return std::make_tuple(0,0);
   }
   // check for possible second bracket group
   loc3 = inputFilename.find("[", loc2);
@@ -448,7 +397,7 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
     if (loc4 == string::npos) {
       fprintf(stderr, "\nWARNING: Incorrect image section format in \"%s\"!\n",
       				inputFilename.c_str());
-      return;
+      return std::make_tuple(0,0);
     }
     twoSections = true;
   }
@@ -461,21 +410,21 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
   // (nPieces = 1)
   if (nPieces == 2) {
     // apparently an image section
-    GetStartCoordsFromBracket(sectionSubstring, xStart, yStart, inputFilename);
+    std::tie(xStart, yStart) = GetStartCoordsFromBracket(sectionSubstring, inputFilename);
     // we found a valid (or invalid) image section; ignore anything else...
-    return;
+    return std::make_tuple(xStart, yStart);
   }
   // if we don't have an image section, we need to have an image extension number
   if ((nPieces != 1) || (sectionSubstring.size() < 1)) {
     fprintf(stderr, "\nWARNING: Incorrect image section format in \"%s\"!\n",
   					inputFilename.c_str());
-    return;
+    return std::make_tuple(0,0);
   }
   if (twoSections == false) {
     // OK, just an image extension and nothing else
-    *xStart = 1;
-    *yStart = 1;
-    return;
+    xStart = 1;
+    yStart = 1;
+    return std::make_tuple(xStart, yStart);
   }
       
   if (twoSections == true) {
@@ -488,12 +437,12 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
     if (nPieces != 2) {
       fprintf(stderr, "\nWARNING: Incorrect image section format in \"%s\"!\n",
     					inputFilename.c_str());
-      return;
+      return std::make_tuple(0,0);
     }
     // apparently an image section
-    GetStartCoordsFromBracket(sectionSubstring, xStart, yStart, inputFilename);
+    std::tie(xStart, yStart) = GetStartCoordsFromBracket(sectionSubstring, inputFilename);
   }
-
+  return std::make_tuple(xStart, yStart);
 }
 
 
@@ -501,15 +450,15 @@ void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart 
 /// Takes user-supplied image filename and determines what, if any, x0 and y0
 /// pixel offsets are implied by any section specification in the filename
 /// (e.g. "somefile.fits[100:250,400:400]").
-/// Note that offsets are always >= 0.
+/// Note that offsets are always >= 0; if image section starts at x=1 or
+/// y=1, then the offsets are by definition 0 or 0, respectively.
 
-void DetermineImageOffset( const std::string &fullImageName, int *x_offset, int *y_offset )
+std::tuple<int, int> DetermineImageOffset( const std::string &fullImageName )
 {
   int  xStart, yStart;
 
-  GetPixelStartCoords(fullImageName, &xStart, &yStart);
-  *x_offset = xStart - 1;
-  *y_offset = yStart - 1;
+  std::tie(xStart, yStart) = GetPixelStartCoords(fullImageName);
+  return std::make_tuple(xStart - 1, yStart - 1);
 }
 
 

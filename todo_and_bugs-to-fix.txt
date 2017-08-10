@@ -8,6 +8,10 @@
 
 ** NEAR-TERM FUTURE TODO:
 
+[ ] Update run_unit_tests.sh to accumulate number of failures and report success/failure
+with green/red text.
+
+
 (1.5)[..] Add option to turn *off* normalization of input PSFs
 	-- Corentin Schreiber requested this for working with interferometric images,
 	which use "a peculiar point spread function, with a peak of unity and sum of zero."
@@ -676,7 +680,7 @@ image oversampled
 	e.g. "--overpsf_region all"
 
 
-[] Combine code for generating output header 
+[X] Combine code for generating output header 
 	Currently: lines 329--335 and also 369--375 of print_results.cpp
 	-- generate in main() as list of strings?
 	-- would allow us to remove "string& programName, int argc, char *argv[]" from

@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 using namespace std;
 #include "utilities_pub.h"
 
@@ -400,17 +401,17 @@ public:
     int  correct_x2b = 265;
     int  correct_y1b = 245;
     int  correct_y2b = 255;
-    GetAllCoordsFromBracket(s1, &x1, &x2, &y1, &y2);
+    std::tie(x1, x2, y1, y2) = GetAllCoordsFromBracket(s1);
     TS_ASSERT( x1 == correct_x1a );
     TS_ASSERT( x2 == correct_x2a );
     TS_ASSERT( y1 == correct_y1a );
     TS_ASSERT( y2 == correct_y2a );
-    GetAllCoordsFromBracket(s2, &x1, &x2, &y1, &y2);
+    std::tie(x1, x2, y1, y2) = GetAllCoordsFromBracket(s2);
     TS_ASSERT( x1 == correct_x1b );
     TS_ASSERT( x2 == correct_x2b );
     TS_ASSERT( y1 == correct_y1b );
     TS_ASSERT( y2 == correct_y2b );
-    GetAllCoordsFromBracket(s3, &x1, &x2, &y1, &y2);
+    std::tie(x1, x2, y1, y2) = GetAllCoordsFromBracket(s3);
     TS_ASSERT( x1 == correct_x1b );
     TS_ASSERT( x2 == correct_x2b );
     TS_ASSERT( y1 == correct_y1b );
@@ -427,7 +428,7 @@ public:
     int  x1, y1, x2, y2;
     int  correct_xoff = 100;
     int  correct_yoff = 200;
-    GetStartCoordsFromBracket(s1, &x1, &y1, fn1);
+    std::tie(x1,y1) = GetStartCoordsFromBracket(s1, fn1);
     TS_ASSERT( x1 == correct_xoff );
     TS_ASSERT( y1 == correct_yoff );
   }
@@ -443,10 +444,10 @@ public:
     int  correct_yoff1 = 200;
     int  correct_xoff2 = 100;
     int  correct_yoff2 = 1;
-    GetStartCoordsFromBracket(s1, &x1, &y1, fn1);
+    std::tie(x1,y1) = GetStartCoordsFromBracket(s1, fn1);
     TS_ASSERT( x1 == correct_xoff1 );
     TS_ASSERT( y1 == correct_yoff1 );
-    GetStartCoordsFromBracket(s2, &x2, &y2, fn2);
+    std::tie(x2,y2) = GetStartCoordsFromBracket(s2, fn2);
     TS_ASSERT( x2 == correct_xoff2 );
     TS_ASSERT( y2 == correct_yoff2 );
   }
@@ -461,10 +462,10 @@ public:
     int  x1, y1, x2, y2;
     int  correct_xoff = 1;
     int  correct_yoff = 1;
-    GetPixelStartCoords(s1, &x1, &y1);
+    std::tie(x1,y1) = GetPixelStartCoords(s1);
     TS_ASSERT( x1 == correct_xoff );
     TS_ASSERT( y1 == correct_yoff );
-    GetPixelStartCoords(s2, &x2, &y2);
+    std::tie(x2,y2) = GetPixelStartCoords(s2);
     TS_ASSERT( x2 == correct_xoff );
     TS_ASSERT( y2 == correct_yoff );
   }
@@ -477,13 +478,13 @@ public:
     int  x1, y1, x2, y2, x3, y3;
     int  correct_xoff = 0;
     int  correct_yoff = 0;
-    GetPixelStartCoords(s1, &x1, &y1);
+    std::tie(x1,y1) = GetPixelStartCoords(s1);
     TS_ASSERT( x1 == correct_xoff );
     TS_ASSERT( y1 == correct_yoff );
-    GetPixelStartCoords(s2, &x2, &y2);
+    std::tie(x2,y2) = GetPixelStartCoords(s2);
     TS_ASSERT( x2 == correct_xoff );
     TS_ASSERT( y2 == correct_yoff );
-    GetPixelStartCoords(s3, &x3, &y3);
+    std::tie(x3,y3) = GetPixelStartCoords(s3);
     TS_ASSERT( x3 == correct_xoff );
     TS_ASSERT( y3 == correct_yoff );
   }
@@ -495,10 +496,10 @@ public:
     int  x1, y1, x2, y2;
     int  correct_xoff = 100;
     int  correct_yoff = 200;
-    GetPixelStartCoords(s1, &x1, &y1);
+    std::tie(x1,y1) = GetPixelStartCoords(s1);
     TS_ASSERT( x1 == correct_xoff );
     TS_ASSERT( y1 == correct_yoff );
-    GetPixelStartCoords(s2, &x2, &y2);
+    std::tie(x2,y2) = GetPixelStartCoords(s2);
     TS_ASSERT( x2 == correct_xoff );
     TS_ASSERT( y2 == correct_yoff );
   }
@@ -512,10 +513,10 @@ public:
     int  correct_yoff1 = 200;
     int  correct_xoff2 = 100;
     int  correct_yoff2 = 1;
-    GetPixelStartCoords(s1, &x1, &y1);
+    std::tie(x1,y1) = GetPixelStartCoords(s1);
     TS_ASSERT( x1 == correct_xoff1 );
     TS_ASSERT( y1 == correct_yoff1 );
-    GetPixelStartCoords(s2, &x2, &y2);
+    std::tie(x2,y2) = GetPixelStartCoords(s2);
     TS_ASSERT( x2 == correct_xoff2 );
     TS_ASSERT( y2 == correct_yoff2 );
   }
@@ -534,13 +535,13 @@ public:
     int  correct_yoff2 = 1;
     int  correct_xoff3 = 1;
     int  correct_yoff3 = 1;
-    GetPixelStartCoords(s1, &x1, &y1);
+    std::tie(x1,y1) = GetPixelStartCoords(s1);
     TS_ASSERT( x1 == correct_xoff1 );
     TS_ASSERT( y1 == correct_yoff1 );
-    GetPixelStartCoords(s2, &x2, &y2);
+    std::tie(x2,y2) = GetPixelStartCoords(s2);
     TS_ASSERT( x2 == correct_xoff2 );
     TS_ASSERT( y2 == correct_yoff2 );
-    GetPixelStartCoords(s3, &x3, &y3);
+    std::tie(x3,y3) = GetPixelStartCoords(s3);
     TS_ASSERT( x3 == correct_xoff3 );
     TS_ASSERT( y3 == correct_yoff3 );
   }
@@ -549,8 +550,6 @@ public:
 
 
   // Tests for DetermineImageOffset
-// void DetermineImageOffset( const std::string &fullImageName, double *x_offset,
-// 					double *y_offset );
   void testDetermineImageOffset( void )
   {
     string  s1("image.fits[51:200,41:190]");
@@ -565,13 +564,12 @@ public:
     int  correct_y1_oversamp = 60;
     int  correct_y2_oversamp = 70;
 
-    GetPixelStartCoords(s1, &x1, &y1);
+    std::tie(x1,y1) = GetPixelStartCoords(s1);
     TS_ASSERT( x1 == correct_xoff );
     TS_ASSERT( y1 == correct_yoff );
     
-    DetermineImageOffset(s1, &X0_offset, &Y0_offset);
-    GetAllCoordsFromBracket(s1_region, &x1_oversample, &x2_oversample, 
-    						&y1_oversample, &y2_oversample);
+    std::tie(X0_offset, Y0_offset) = DetermineImageOffset(s1);
+    std::tie(x1_oversample, x2_oversample, y1_oversample, y2_oversample) = GetAllCoordsFromBracket(s1_region);
     x1_oversample -= X0_offset;
     x2_oversample -= X0_offset;
     y1_oversample -= Y0_offset;

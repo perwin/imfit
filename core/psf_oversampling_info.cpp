@@ -178,7 +178,7 @@ std::tuple<int, int, int, int> PsfOversamplingInfo::GetCorrectedRegionCoords( )
 {
   int  x1_region, x2_region, y1_region, y2_region;
   int  x1, x2, y1, y2;
-  GetAllCoordsFromBracket(regionString, &x1_region, &x2_region, &y1_region, &y2_region);
+  std::tie(x1_region, x2_region, y1_region, y2_region) = GetAllCoordsFromBracket(regionString);
   x1 = x1_region - X0_offset;
   x2 = x2_region - X0_offset;
   y1 = y1_region - Y0_offset;

@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
            nColumns, nRows, nPixels_tot);
   // // Determine X0,Y0 pixel offset values if user specified an image section
-  DetermineImageOffset(options->imageFileName, &X0_offset, &Y0_offset);
+  std::tie(X0_offset, Y0_offset) = DetermineImageOffset(options->imageFileName);
 
 
   // Get (and check) mask and/or error images

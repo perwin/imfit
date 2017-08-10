@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "param_struct.h"
 #include "model_object.h"
@@ -76,22 +77,19 @@ void StripBrackets( const string& inputFilename, string& strippedFilename );
 
 
 /// Extracts all coordinates from string of form "[x1:x2,y1:y1]"
-void GetAllCoordsFromBracket( const string& bracketString, int *x1, int *x2,
-                           int *y1, int *y2 );
-// void GetAllCoordsFromBracket2( const string& bracketString, vector<int>& x1, vector<int>& x2,
-//                            vector<int>& y1, vector<int>& y2 );
+std::tuple<int, int, int, int> GetAllCoordsFromBracket( const string& bracketString );
 
 /// Extracts coordinates x1 and y1 from string of form "[x1:x2,y1:y1]"
-void GetStartCoordsFromBracket( const string& bracketString, int *x1, int *y1,
-                           const string& fileName );
+std::tuple<int, int> GetStartCoordsFromBracket( const string& bracketString, 
+					                           const string& fileName );
 
 /// \brief Determines "start" coordinates (lower-left corner) for an image,
 ///        accounting for any image section provided
-void GetPixelStartCoords( const string& inputFilename, int *xStart, int *yStart );
+std::tuple<int, int> GetPixelStartCoords( const string& inputFilename );
 
 /// \brief Takes user-supplied image filename and determines what, if any, x0 and y0
-/// pixel offsets are implied by any section specification in the filename
-void DetermineImageOffset( const std::string &fullImageName, int *x_offset, int *y_offset );
+///        pixel offsets are implied by any section specification in the filename
+std::tuple<int, int> DetermineImageOffset( const std::string &fullImageName );
 
 /// \brief Checks to see if image (FITS) file exists (ignores any image-section specification;
 ///        filenames beginning "ftp:" or "http:" are assumed to exist.
