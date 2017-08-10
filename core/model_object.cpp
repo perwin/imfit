@@ -198,7 +198,6 @@ ModelObject::~ModelObject()
     nOversampledRegions = 0;
     oversampledRegionsExist = false;
     oversampledRegionAllocated = false;
-//    delete oversampledRegion;
   }
   
   if (bootstrapIndicesAllocated) {
@@ -219,10 +218,6 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
   }
   else
     debugLevel = debuggingLevel;
-
-//   if (oversampledRegionAllocated)
-//     for (int i = 0; i < nOversampledRegions; i++)
-//       oversampledRegionsVect[i]->SetDebugLevel(debugLevel);
 }
 
 
@@ -324,8 +319,6 @@ void ModelObject::AddParameterInfo( mp_par  *inputParameterInfo )
     paramStruct.offset = inputParameterInfo[i].offset;
     parameterInfoVect.push_back(paramStruct);
   }
-//   for (int i = 0; i < nParamsTot; i++)
-//     PrintParameterInfoLine(i, parameterInfoVect[i]);
 }
 
 void ModelObject::AddParameterInfo( vector<mp_par> inputParameterInfo )
@@ -341,8 +334,6 @@ void ModelObject::AddParameterInfo( vector<mp_par> inputParameterInfo )
     paramStruct.offset = inputParameterInfo[i].offset;
     parameterInfoVect.push_back(paramStruct);
   }
-//   for (int i = 0; i < nParamsTot; i++)
-//     PrintParameterInfoLine(i, parameterInfoVect[i]);
 }
 
 
@@ -752,7 +743,6 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
   if (y2 > nDataRows)
     y2 = nDataRows;
   // size of oversampling region
-  //oversamplingScale = oversampleScale;
   deltaX = x2 - x1 + 1;
   deltaY = y2 - y1 + 1;
   nCols_osamp = oversampleScale * deltaX;
@@ -1632,60 +1622,6 @@ void ModelObject::GetFunctionNames( vector<string>& functionNames )
     functionNames.push_back(functionObjects[n]->GetShortName());
   }
 }
-
-
-/* ---------------- PUBLIC METHOD: PrintModelParams --------=---------- */
-/// Basic function which prints to a file (or, e.g. stdout) a summary of the
-/// best-fitting model, in form suitable for future use as an input config file.
-/// If parameterInfo != NULL, then x0,y0 are corrected for any positional offsets.
-///
-/// If errs != NULL, then +/- errors are printed as well
-///
-/// If prefix != NULL, then the specified character (e.g., '#') is prepended to
-/// each output line.
-// void ModelObject::PrintModelParams( FILE *output_ptr, double params[], double errs[], 
-// 									const char *prefix )
-// {
-//   double  x0, y0, paramVal;
-//   int nParamsThisFunc, k;
-//   int  indexOffset = 0;
-//   string  funcName, paramName;
-// 
-//   for (int n = 0; n < nFunctions; n++) {
-//     if (fblockStartFlags[n] == true) {
-//       // start of new function block: extract x0,y0 and then skip over them
-//       k = indexOffset;
-//       x0 = params[k];
-//       y0 = params[k + 1];
-//       x0 += parameterInfoVect[k].offset;
-//       y0 += parameterInfoVect[k + 1].offset;
-//       if (errs != NULL) {
-//         fprintf(output_ptr, "\n");
-//         fprintf(output_ptr, XY_FORMAT_WITH_ERRS, prefix, "X0", x0, errs[k]);
-//         fprintf(output_ptr, XY_FORMAT_WITH_ERRS, prefix, "Y0", y0, errs[k + 1]);
-//       } else {
-//         fprintf(output_ptr, XY_FORMAT, prefix, "X0", x0);
-//         fprintf(output_ptr, XY_FORMAT, prefix, "Y0", y0);
-//       }
-//       indexOffset += 2;
-//     }
-//     
-//     // Now print the function and its parameters
-//     nParamsThisFunc = paramSizes[n];
-//     funcName = functionObjects[n]->GetShortName();
-//     fprintf(output_ptr, "%sFUNCTION %s\n", prefix, funcName.c_str());
-//     for (int i = 0; i < nParamsThisFunc; i++) {
-//       paramName = GetParameterName(indexOffset + i);
-//       paramVal = params[indexOffset + i];
-//       if (errs != NULL)
-//         fprintf(output_ptr, PARAM_FORMAT_WITH_ERRS, prefix, paramName.c_str(), paramVal, 
-//         		errs[indexOffset + i]);
-//       else
-//         fprintf(output_ptr, PARAM_FORMAT, prefix, paramName.c_str(), paramVal);
-//     }
-//     indexOffset += paramSizes[n];
-//   }
-// }
 
 
 /* ---------------- PUBLIC METHOD: PrintModelParamsToStrings ---------- */

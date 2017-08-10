@@ -61,10 +61,6 @@
 #include "dream.h"
 #include "rng/GSLStream.h"
 
-#ifdef USE_PLOG
-#include "plog/Log.h"
-#endif
-
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
@@ -80,9 +76,9 @@ const char *  LOG_FILENAME = "log_imfit-mcmc.txt";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.5.0b1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.5.0 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.5.0b1"
+#define VERSION_STRING      "1.5.0"
 #endif
 
 
@@ -154,11 +150,6 @@ int main(int argc, char *argv[])
 
 
   gettimeofday(&timer_start_all, NULL);
-
-#ifdef USE_PLOG
-  plog::init(plog::debug, LOG_FILENAME, 100000, 3); // Initialize the logger.
-  LOG_INFO << "\n*** Starting up...";
-#endif
 
   progNameVersion += VERSION_STRING;
   MakeMCMCOutputHeader(&programHeader, progNameVersion, argc, argv);
@@ -450,10 +441,6 @@ int main(int argc, char *argv[])
   printf("\nMCMC chains written to output files %s.1.txt through %s.%d.txt", 
   		options->outputFileRoot.c_str(), options->outputFileRoot.c_str(), options->nChains);
 
-
-#ifdef USE_PLOG
-  LOG_INFO << "*** Shutting down...";
-#endif
 
   // Free up memory
   fftw_free(allPixels);                 // allocated externally, in ReadImageAsVector()

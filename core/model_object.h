@@ -155,9 +155,6 @@ class ModelObject
     string GetParamHeader( );
 
     // common, but Specialized by ModelObject1D
-//     virtual void PrintModelParams( FILE *output_ptr, double params[], double errs[], 
-//     								const char *prefix="" );
-
     virtual int PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
 									double errs[], const char *prefix="", bool printLimits=false );
 

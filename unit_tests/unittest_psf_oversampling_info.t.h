@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 using namespace std;
 
 #include "psf_oversampling_info.h"
@@ -215,7 +216,7 @@ public:
     osampleInfo_ptr = new PsfOversamplingInfo(psfPixels, nColsPsf, nRowsPsf, scale0,
     											regionString, x0_offset_in, y0_offset_in);
 
-    osampleInfo_ptr->GetCorrectedRegionCoords(x1, x2, y1, y2);
+    std::tie(x1, x2, y1, y2) = osampleInfo_ptr->GetCorrectedRegionCoords();
     TS_ASSERT_EQUALS(x1, x1_true);
     TS_ASSERT_EQUALS(x2, x2_true);
     TS_ASSERT_EQUALS(y1, y1_true);
@@ -247,7 +248,7 @@ public:
     osampleInfo_ptr = new PsfOversamplingInfo(psfPixels, nColsPsf, nRowsPsf, scale0,
     											regionString, x0_offset_in, y0_offset_in);
 
-    osampleInfo_ptr->GetCorrectedRegionCoords(x1, x2, y1, y2);
+    std::tie(x1, x2, y1, y2) = osampleInfo_ptr->GetCorrectedRegionCoords();
     TS_ASSERT_EQUALS(x1, x1_true);
     TS_ASSERT_EQUALS(x2, x2_true);
     TS_ASSERT_EQUALS(y1, y1_true);
