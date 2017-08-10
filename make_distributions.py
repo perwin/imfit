@@ -18,7 +18,7 @@ MAC_DEST_BIN = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/bina
 MAC_CHANGELOG_MD = "CHANGELOG.md"
 MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/CHANGELOG.html"
 
-VERSION_STRING = "1.4.0"
+VERSION_STRING = "1.5.0"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -94,7 +94,8 @@ allFileLists_source = [misc_required_files_list, documentation_file_list, extras
 				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
 				mcmc_file_list, core_file_list, funcobj_file_list]
 subdirs_list = ["docs", "extras", "examples", "python", "tests", "tests/osx", "tests/linux", 
-				"function_objects", "solvers", "cdream", "cdream/include", "cdream/include/rng", "core"]
+				"tests/mcmc_data", "function_objects", "solvers", "cdream", "cdream/include", 
+				"cdream/include/rng", "core"]
 
 
 
@@ -256,10 +257,10 @@ def main(argv):
 			MakeBinaries()
 			MakeDistributionDir(mode="binary")
 			MakeBinaryDist()
-			print("Generating binary-only Mac distribution for 10.6/10.7 (%s)..." % BINARY_TARFILE_OLDMAC)
-			MakeBinaries(mode="oldmac")
-			#MakeDistributionDir()
-			MakeBinaryDist(mode="oldmac")
+# 			print("Generating binary-only Mac distribution for 10.6/10.7 (%s)..." % BINARY_TARFILE_OLDMAC)
+# 			MakeBinaries(mode="oldmac")
+# 			#MakeDistributionDir()
+# 			MakeBinaryDist(mode="oldmac")
 		else:
 			print("\nGenerating binary-only Linux distribution (%s)..." % BINARY_TARFILE)
 			MakeBinaries()

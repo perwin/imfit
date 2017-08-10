@@ -31,6 +31,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <vector>
+#include <tuple>
 
 using namespace std;
 
@@ -86,7 +87,7 @@ long EstimatePsfOversamplingMemoryUse( vector<PsfOversamplingInfo *> oversamplin
     int  oversampleScale = psfOsampInfo->GetOversamplingScale();
     int  nPSF_osamp_cols = psfOsampInfo->GetNColumns();
     int  nPSF_osamp_rows = psfOsampInfo->GetNRows();
-    psfOsampInfo->GetCorrectedRegionCoords(x1, x2, y1, y2);
+    std::tie(x1, x2, y1, y2) = psfOsampInfo->GetCorrectedRegionCoords();
     int  deltaX = x2 - x1 + 1;
     int  deltaY = y2 - y1 + 1;
 

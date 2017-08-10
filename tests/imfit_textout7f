@@ -1,9 +1,9 @@
-	Image file = testimage_2gauss_psf.fits
+	Image file = tests/testimage_2gauss_psf.fits
 	* Nelder-Mead simplex solver selected!
-	configuration file = config_imfit_2gauss_small.dat
+	configuration file = tests/config_imfit_2gauss_small.dat
 	output best-fit parameter file = temptest/bestfit_params_2gauss_small.dat
 Value from config file: gain = 1000.000000 e-/ADU
-Reading data image ("testimage_2gauss_psf.fits") ...
+Reading data image ("tests/testimage_2gauss_psf.fits") ...
 naxis1 [# pixels/row] = 50, naxis2 [# pixels/col] = 50; nPixels_tot = 2500
 * No PSF image supplied -- no image convolution will be done!
 * No noise image supplied ... will generate noise image from input data image.
@@ -99,6 +99,6 @@ I_sky		    100
 
 Saving best-fit parameters in file "temptest/bestfit_params_2gauss_small.dat"
 
-(Elapsed time: 0.259980 sec for fit, 0.262108 sec total)
+(Elapsed time: 0.264856 sec for fit, 0.270404 sec total)
 Done!
 

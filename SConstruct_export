@@ -26,7 +26,7 @@
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
 #    $ scons --cc=gcc-4.9 --cpp=g++-4.9 <target-name>
-# shorthand for using GCC 5.1
+# shorthand for using GCC 7
 #    $ scons --use-gcc <target-name>
 #
 #
@@ -48,7 +48,7 @@
 # etc.
 
 
-# Copyright 2010--2016 by Peter Erwin.
+# Copyright 2010--2017 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -111,8 +111,16 @@ os_type = os.uname()[0]
 
 # *** Set up compiler flags, library lists, include paths
 
-cflags_opt = ["-O3", "-g0", "-msse2"]
-cflags_db = ["-Wall", "-g3"]
+# Note on sse2, etc.:
+#    SSE2 is supported on Intel processors from xxx onward
+#    AVX  is supported on Intel "Core i3/i5/i7" processors from 2011 onward
+#    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
+#    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2106 onward)
+
+# cflags_opt = ["-O3", "-g0", "-msse2"]
+# cflags_db = ["-Wall", "-g3"]
+cflags_opt = ["-O3", "-g0", "-msse2", "-std=c++11"]
+cflags_db = ["-Wall", "-g3", "-O0", "-std=c++11", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith"]
 
 base_defines = ["ANSI", "USING_SCONS"]
 
@@ -124,40 +132,9 @@ lib_list_1d = ["fftw3", "m"]
 
 include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, CDREAM_SUBDIR,
 				CDREAM_INCLUDE_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
-lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
+#lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
+lib_path = ["/usr/local/lib"]
 link_flags = []
-
-
-
-# newer version, should work on MacOS X 10.9 (and also earlier versions)
-# def CheckForXcode5( ):
-# 	# code to check whether installed version of XCode is 5.0 or later, in which case
-# 	# we should specify llvm-g++-4.2 explicitly instead of relying on SCons to use g++
-# 	# [which for XCode 5 is Apple's llvm-based version *without* OpenMP support]
-# 	
-# 	macOSVersion = int(platform.mac_ver()[0].split(".")[1])
-# 	
-# 	if macOSVersion <= 7:
-# 		# XCode 5 cannot run on Lion or earlier
-# 		return False
-# 	if macOSVersion >= 9:  # Mavericks or later[?]
-# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.CLTools_Executables"
-# 	else:  # older OS versions (Mountain Lion or earlier)
-# 		checkCommand = "pkgutil --pkg-info=com.apple.pkg.DeveloperToolsCLI"
-# 	
-# 	output = subprocess.check_output([checkCommand],shell=True)
-# 	lines = output.splitlines()
-# 	for line in lines:
-# 		if line.find("version:") >= 0:
-# 			versionString = line.split()[1]
-# 			# version "number" is something like "5.0.1.0.1.1377666378", which can't
-# 			# be converted directly to a floating-point number; but we only need the
-# 			# major version, which is the very first part...
-# 			pp = versionString.split(".")
-# 			majorVersion = int(pp[0])
-# 			if (majorVersion >= 5):
-# 				return True
-# 	return False
 
 
 # find out what the default compilers (according to SCons) are
@@ -169,36 +146,30 @@ CPP_COMPILER = cpp_default
 c_compiler_changed = False
 cpp_compiler_changed = False
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v5 is installed and
-# callable via gcc-5 and g++-5)
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v7 is installed and
+# callable via gcc-7 and g++-7)
 # Comment this out otherwise!
 if (os_type == "Darwin") and (getpass.getuser() == "erwin"): 
-	CC_COMPILER = "gcc-5"
-	CPP_COMPILER = "g++-5"
+	CC_COMPILER = "gcc-7"
+	CPP_COMPILER = "g++-7"
 	c_compiler_changed = True
 	cpp_compiler_changed = True
 
 
 # *** System-specific setup
-#xcode5 = False
-if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
-	# Note: if for some reason you need to compile to 32-bit -- e.g., because
-	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
-	# are 32-bit, use the following
-	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
-#	xcode5 = CheckForXcode5()
+# if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
+# 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
+# 	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
+# 	# are 32-bit, use the following
+# 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 if (os_type == "Linux"):
 	# change the following path definitions as needed
 	include_path.append("/usr/include")
 	if os.getlogin() == "erwin":
 		include_path.append("/home/erwin/include")
 		lib_path.append("/home/erwin/lib")
-	# When compiled under Linux, -O3 causes mysterious "invalid pointer" error at end of run
-	cflags_opt = ["-O3", "-g0"]
-	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 	# silly Linux doesn't have OpenBSD string routines built in, so we'll have to include them
 	base_defines = base_defines + ["LINUX"]
-#	lib_list.append("gslcblas")
 defines_opt = base_defines
 #defines_db = base_defines + ["DEBUG"]
 defines_db = base_defines
@@ -221,6 +192,10 @@ buildFatBinary = False
 build32bit = False
 buildForOldMacOS = False
 scanBuild = False
+addressSanitize = False
+allSanitize = False
+setOptToDebug = False
+useLogging = False
 
 # Define some user options
 AddOption("--lib-path", dest="libraryPath", type="string", action="store", default=None,
@@ -245,9 +220,15 @@ AddOption("--cc", dest="cc_compiler", type="string", action="store", default=Non
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v5.1 compilers")
+	default=False, help="use gcc and g++ v7 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
+AddOption("--sanitize", dest="useAllSanitize", action="store_true", 
+	default=False, help="set this to generate binaries with -fsanitize-address, -fsanitize-undefined, and -fsanitize=leak")
+AddOption("--address-sanitize", dest="useAddressSanitize", action="store_true", 
+	default=False, help="set this to generate binaries with -fsanitize-address")
+AddOption("--logging", dest="useLogging", action="store_true", 
+	default=False, help="compile with support for logging via plog")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -295,8 +276,8 @@ if GetOption("cpp_compiler") is not None:
 	print "using %s for C++ compiler" % CPP_COMPILER
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
-	CC_COMPILER = "gcc-5"
-	CPP_COMPILER = "g++-5"
+	CC_COMPILER = "gcc-7"
+	CPP_COMPILER = "g++-7"
 	print "using %s for C compiler" % CC_COMPILER
 	print "using %s for C++ compiler" % CPP_COMPILER
 	c_compiler_changed = True
@@ -305,6 +286,17 @@ if GetOption("useGCC") is True:
 if GetOption("doingScanBuild") is True:
 	scanBuild = True
 	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
+
+if GetOption("useAddressSanitize") is True:
+	addressSanitize = True
+	useOpenMP = False
+	setOptToDebug = True
+if GetOption("useAllSanitize") is True:
+	allSanitize = True
+	useOpenMP = False
+	setOptToDebug = True
+if GetOption("useLogging") is True:
+	useLogging = True
 
 if GetOption("useStaticLibs") is True:
 	useStaticLibs = True
@@ -320,6 +312,10 @@ if GetOption("buildForOldMac") is True:
 
 
 # *** Setup for various options (either default, or user-altered)
+
+if setOptToDebug:
+	print("** Turning off optimizations!")
+	cflags_opt = cflags_db
 
 if useStaticLibs:
 	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
@@ -380,6 +376,10 @@ else:
 
 # Special case where we try to link libstdc++, libgomp, and libgcc_s statically
 # (probably *won't* work with clang/clang++, only with GCC)
+# Note that "-static-libstdc++" doesn't seem to accomplish anything; only
+# "-static-libgcc" does (and that statically links in libstdc++ and libgomp
+# in addition to libgcc_s). But we'll leave it in because it seems to be
+# the standard.
 if totalStaticLinking:
 	link_flags.append("-static-libgcc")
 	link_flags.append("-static-libstdc++")
@@ -397,10 +397,30 @@ if doExtraChecks:   # default is to NOT do this; user must specify with "--extra
 	cflags_opt.append(["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith",
 					"-Wextra", "-pedantic"])
 
+if useLogging:
+	extra_defines.append(["-DUSE_PLOG"])
+	
 # Add any additional, user-specified preprocessor definitions (e.g., "define=DEBUG")
 for key, value in ARGLIST:
 	if key == 'define':
 		extra_defines.append(value)
+
+
+if addressSanitize is True:
+	cflags_opt.append("-fsanitize=address")
+	cflags_opt.append("-fno-omit-frame-pointer")
+	cflags_db.append("-fsanitize=address")
+	cflags_db.append("-fno-omit-frame-pointer")
+	link_flags.append("-fsanitize=address")
+	link_flags.append("-fno-omit-frame-pointer")
+
+if allSanitize is True:
+	cflags_opt += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
+	cflags_opt.append("-fno-omit-frame-pointer")
+	cflags_db += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
+	cflags_db.append("-fno-omit-frame-pointer")
+	link_flags += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
+	link_flags.append("-fno-omit-frame-pointer")
 
 
 # *** Special distribution-building options
@@ -435,14 +455,6 @@ defines_opt = defines_opt + extra_defines
 # *** Create Environments for compilation:
 # "env_debug" is environment with debugging options turned on
 # "env_opt" is an environment for optimized compiling
-
-# if xcode5 is True:
-# 	# Kludge to use gcc/g++ 4.2 with XCode 5.0 (assumes previous XCode 4.x installation),
-# 	# to ensure we can use OpenMP.
-# 	if not c_compiler_changed:
-# 		CC_COMPILER = "llvm-gcc-4.2"
-# 	if not cpp_compiler_changed:
-# 		CPP_COMPILER = "llvm-g++-4.2"
 
 env_opt = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
 					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
@@ -493,18 +505,11 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 # We have separate lists of object names (what we want the .o files to be called) and
 # source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
 
-# Pure C code
-#c_obj_string = """mp_enorm statistics mersenne_twister"""
-#c_obj_string = ""
-#c_objs = c_obj_string.split()
-#c_objs = [ C_SUBDIR + name for name in c_obj_string.split() ]
-#c_sources = [name + ".c" for name in c_objs]
-
-
 # C++ code
 
 # ModelObject and related classes/files:
-modelobject_obj_string = """model_object convolver oversampled_region downsample"""
+modelobject_obj_string = """model_object convolver oversampled_region downsample
+		psf_oversampling_info setup_model_object"""
 modelobject_objs = [ CORE_SUBDIR + name for name in modelobject_obj_string.split() ]
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
@@ -513,7 +518,8 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
 		func_sersic func_gen-sersic func_core-sersic func_broken-exp
 		func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
 		func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
-		func_edge-on-ring func_edge-on-ring2side func_king func_king2"""
+		func_edge-on-ring func_edge-on-ring2side func_king func_king2
+		helper_funcs_3d"""
 if useGSL:
 	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"
@@ -521,6 +527,7 @@ if useGSL:
 	functionobject_obj_string += " func_expdisk3d"  # requires integrator
 	functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
 	functionobject_obj_string += " func_gaussianring3d"  # requires integrator
+	functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
 if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
@@ -530,6 +537,9 @@ if useExtraFuncs:
 		functionobject_obj_string += " func_expdisk3d_trunc"
 		functionobject_obj_string += " func_logspiral"
 		functionobject_obj_string += " func_nan"
+		functionobject_obj_string += " func_triaxbar3d"
+		functionobject_obj_string += " func_triaxbar3d_sq"
+		functionobject_obj_string += " func_triaxbar3d_gengauss_sq"
 
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
@@ -552,10 +562,11 @@ cdream_sources = [name + ".cpp" for name in cdream_objs]
 
 # Base files for imfit, makeimage, and imfit-mcmc:
 base_obj_string = """mp_enorm statistics mersenne_twister commandline_parser utilities 
-image_io config_file_parser add_functions"""
+image_io getimages config_file_parser add_functions"""
 base_objs = [ CORE_SUBDIR + name for name in base_obj_string.split() ]
 
-imfit_obj_string = """print_results bootstrap_errors estimate_memory imfit_main"""
+imfit_obj_string = """print_results bootstrap_errors estimate_memory 
+imfit_main"""
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
 imfit_base_objs = base_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
@@ -577,7 +588,7 @@ imfit_sources = imfit_base_sources + modelobject_sources + functionobject_source
 makeimage_objs = makeimage_base_objs + modelobject_objs + functionobject_objs
 makeimage_sources = makeimage_base_sources + modelobject_sources + functionobject_sources
 
-# makeimage: put all the object and source-code lists together
+# imfit-mcmc: put all the object and source-code lists together
 mcmc_objs = mcmc_base_objs + modelobject_objs + functionobject_objs
 mcmc_sources = mcmc_base_sources + modelobject_sources + functionobject_sources
 
@@ -600,14 +611,18 @@ makeimage_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zi
 env_debug.Program("makeimage_db", makeimage_dbg_objlist)
 env_opt.Program("makeimage", makeimage_sources)
 
+mcmc_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(mcmc_objs, mcmc_sources) ]
+env_debug.Program("imfit-mcmc_db", mcmc_dbg_objlist)
 env_opt.Program("imfit-mcmc", mcmc_sources)
+
 
 # Run tests
 # Unit tests:
 env_opt.Command("unit", None, "./run_unit_tests.sh")
 
 # All tests:
-env_opt.Command("alltests", None, "./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests")
+env_opt.Command("alltests", None, 
+	"./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests ; ./do_mcmc_tests")
 
 
 

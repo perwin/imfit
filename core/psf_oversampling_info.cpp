@@ -174,14 +174,16 @@ void PsfOversamplingInfo::GetImageOffset( int &x0, int &y0 )
 
 
 /* ---------------- GetCorrectedRegionCoords --------------------------- */
-void PsfOversamplingInfo::GetCorrectedRegionCoords( int &x1, int &x2, int &y1, int &y2 )
+std::tuple<int, int, int, int> PsfOversamplingInfo::GetCorrectedRegionCoords( )
 {
   int  x1_region, x2_region, y1_region, y2_region;
+  int  x1, x2, y1, y2;
   GetAllCoordsFromBracket(regionString, &x1_region, &x2_region, &y1_region, &y2_region);
   x1 = x1_region - X0_offset;
   x2 = x2_region - X0_offset;
   y1 = y1_region - Y0_offset;
   y2 = y2_region - Y0_offset;
+  return std::make_tuple(x1, x2, y1, y2);
 }
 
 

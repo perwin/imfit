@@ -154,7 +154,7 @@ echo ""
 # and now test to see if we correctly ignore bad pixel value when it's masked
 ./imfit -c tests/config_3x3_flatsky.dat tests/testimage_3x3_onezero.fits --mask=tests/mask_for_onezero.fits &> temptest/test_dump7e
  # test to see if we save multi-function-block output correctly when using N-M simplex
-./imfit -c config_imfit_2gauss_small.dat testimage_2gauss_psf.fits --nm --save-params=temptest/bestfit_params_2gauss_small.dat &> temptest/test_dump7f
+./imfit -c tests/config_imfit_2gauss_small.dat tests/testimage_2gauss_psf.fits --nm --save-params=temptest/bestfit_params_2gauss_small.dat &> temptest/test_dump7f
 
 #    Testing to see that bad config files are caught:
 ./imfit -c tests/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1

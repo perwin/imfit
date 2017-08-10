@@ -39,6 +39,7 @@ convolver
 definitions
 downsample
 estimate_memory 
+getimages
 image_io
 mersenne_twister
 model_object
@@ -46,10 +47,16 @@ mp_enorm
 option_struct_imfit
 option_struct_makeimage
 option_struct_mcmc
+options_base
+options_imfit
+options_makeimage
+options_mcmc
 oversampled_region
 param_struct
 print_results
+psf_oversampling_info
 sample_configs
+setup_model_object
 statistics
 utilities_pub
 """
@@ -78,6 +85,7 @@ config_file_parser
 convolver
 downsample
 estimate_memory 
+getimages
 image_io 
 imfit_main
 makeimage_main
@@ -87,6 +95,8 @@ model_object
 mp_enorm
 oversampled_region
 print_results
+psf_oversampling_info
+setup_model_object
 statistics
 utilities 
 """
@@ -169,6 +179,9 @@ imfit_funcs.py
 
 
 test_files = """
+bestfit_params_2gauss_small_tail.dat
+bootstrap_output_seed10_tail.dat
+bootstrap_output_seed10_2_tail.dat
 config_imfit_expdisk32.dat
 imfit_config_ic3478_64x64.dat
 imfit_config_ic3478_64x64b.dat
@@ -180,6 +193,8 @@ config_imfit_flatsky.dat
 config_imfit_small-gaussian.dat
 config_3x3_flatsky.dat
 config_imfit_gauss-oversample-test2.dat
+config_imfit_2gauss_small.dat
+config_makeimage_gauss-oversample2.dat
 config_makeimage_gauss-oversample.dat
 config_makeimage_sersictest512_bad1.dat
 config_makeimage_sersictest512_bad2.dat
@@ -211,6 +226,8 @@ biggertest_orig.fits
 gensersictest_orig.fits
 sersic+exp_orig.fits
 gensersictest612_conv_cutout512.fits
+testimage_2gauss_psf.fits
+twogaussian_psf+2osamp_noisy.fits
 flatsky_128x128.fits
 testimage_3x3_nan.fits
 testimage_3x3_onezero.fits
@@ -222,6 +239,9 @@ test_multiextension_hdu0empty.fits
 test_table.fits
 psf_standard.fits
 psf_oversamp.fits
+psf_moffat_35.fits
+psf_moffat_35_n4699z.fits
+psf_moffat_35_oversamp3.fits
 imfit_textout1
 imfit_textout2
 imfit_textout3
@@ -237,6 +257,7 @@ imfit_textout4c
 imfit_textout4d
 imfit_textout4e
 imfit_textout4e2
+imfit_textout4e3
 imfit_textout5a_tail
 imfit_textout5b_tail
 imfit_textout5c_tail
@@ -254,6 +275,7 @@ imfit_textout7b
 imfit_textout7c
 imfit_textout7d
 imfit_textout7e
+imfit_textout7f
 imfit_textout_bad1
 imfit_textout_bad2
 imfit_textout_bad3
@@ -267,7 +289,6 @@ config_biggertest_4c.dat
 config_makeimage_gensersic512.dat
 config_makeimage_sersic+exp512.dat
 config_makeimage_sersic+exp512_nosize.dat
-psf_moffat_35.fits
 makeimage_textout0
 makeimage_textout1
 makeimage_textout2
@@ -282,10 +303,22 @@ makeimage_textout10
 makeimage_textout11
 makeimage_textout12
 makeimage_textout13
+makeimage_textout13b
 makeimage_textout14
 makeimage_textout15
 mcmc_textout1
-mcmc_ref1.0.txt_skip2
+mcmc_ref1.1.txt_skip2
+mcmc_ref2.1.txt_skip2
+mcmc_test_short_ref.1.txt_last100
+test_dump_mcmc2a
+test_dump_mcmc2b
 osx/oversampled_orig.fits
+osx/oversampled2both_orig.fits
 linux/oversampled_orig.fits
+mcmc_data/mcmc_test_short.1.txt
+mcmc_data/mcmc_test_short.2.txt
+mcmc_data/mcmc_test_short.3.txt
+mcmc_data/mcmc_test_short.4.txt
+mcmc_data/mcmc_test_short.5.txt
+mcmc_data/mcmc_test_short.6.txt
 """

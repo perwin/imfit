@@ -9,9 +9,6 @@ using namespace std;
 #include "dream.h"
 #include "array.h"
 
-// [ ]TAG: lik
-// int dream_restore_state( const dream_pars* p, Array3D<double>& state, vector<double *>& lik2,
-//     					vector<double>& pCR, int& inBurnIn )
 int dream_restore_state( const dream_pars* p, Array3D<double>& state, Array2D<double>& lik,
     					vector<double>& pCR, int& inBurnIn )
 {
@@ -43,8 +40,6 @@ int dream_restore_state( const dream_pars* p, Array3D<double>& state, Array2D<do
           istringstream istr(input);
           for (int j = 0; j < p->nvar; ++j) 
             istr >> state(line,i,j); 
-          // [ ]TAG: lik
-          // istr >> lik2[i][line] >> inBurnIn;
           istr >> lik(line,i) >> inBurnIn;
           for (int j(0); j < p->nCR; ++j) 
             istr >> pCR[j];

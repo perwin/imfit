@@ -363,18 +363,19 @@ void Convolver::ConvolveImage( double *pixelVector )
   }
   
   // Multiply transformed arrays:
-  #pragma omp simd
   for (z = 0; z < nPixels_padded_complex; z++) {
-    multiplied_cmplx[z][0] = image_fft_cmplx[z][0]*psf_fft_cmplx[z][0] - image_fft_cmplx[z][1]*psf_fft_cmplx[z][1];
-    multiplied_cmplx[z][1] = image_fft_cmplx[z][1]*psf_fft_cmplx[z][0] + image_fft_cmplx[z][0]*psf_fft_cmplx[z][1];
+    a = image_fft_cmplx[z][0];   // real part
+    b = image_fft_cmplx[z][1];   // imaginary part
+    c = psf_fft_cmplx[z][0];
+    d = psf_fft_cmplx[z][1];
+    multiplied_cmplx[z][0] = a*c - b*d;
+    multiplied_cmplx[z][1] = b*c + a*d;
   }
+  // Alternate approach using OpenMP SIMD directives; no real speedup
+//   #pragma omp simd
 //   for (z = 0; z < nPixels_padded_complex; z++) {
-//     a = image_fft_cmplx[z][0];   // real part
-//     b = image_fft_cmplx[z][1];   // imaginary part
-//     c = psf_fft_cmplx[z][0];
-//     d = psf_fft_cmplx[z][1];
-//     multiplied_cmplx[z][0] = a*c - b*d;
-//     multiplied_cmplx[z][1] = b*c + a*d;
+//     multiplied_cmplx[z][0] = image_fft_cmplx[z][0]*psf_fft_cmplx[z][0] - image_fft_cmplx[z][1]*psf_fft_cmplx[z][1];
+//     multiplied_cmplx[z][1] = image_fft_cmplx[z][1]*psf_fft_cmplx[z][0] + image_fft_cmplx[z][0]*psf_fft_cmplx[z][1];
 //   }
 
   if (debugStatus >= 3) {

@@ -4,6 +4,7 @@
 #define _PSF_OVERSAMPLING_INFO_H_
 
 #include <string>
+#include <tuple>
 
 using namespace std;
 
@@ -30,7 +31,8 @@ class PsfOversamplingInfo
     string GetRegionString( );
     int GetOversamplingScale( );
     void GetImageOffset( int &x0, int &y0 );
-    void GetCorrectedRegionCoords( int &x1, int &x2, int &y1, int &y2 );
+    std::tuple<int, int, int, int> GetCorrectedRegionCoords( );
+//    void GetCorrectedRegionCoords( int &x1, int &x2, int &y1, int &y2 );
     bool GetNormalizationFlag( );
 
   private:

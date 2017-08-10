@@ -40,7 +40,7 @@ instead of with 0. (This is more consistent with the rest of Imfit, which uses
 this messes up anyone's analysis code!)
 
 - Binaries for MacOS X (or "macOS") are now compiled with GCC 7 instead of GCC 5.
-(But if you're compiling the source code yourself, any version of GCC from 4.8
+(But if you're compiling the source code yourself, any version of GCC from 4.9
 onward will do.)
 
 - I have started (very slowly) updating some of the code to make use of
@@ -48,6 +48,8 @@ C++-11 features. This should have no visible effects, but might start to
 be relevant for people hacking around with the code. It also means that
 Imfit now requires compilers that support C++-11 (e.g., GCC versions 4.8
 or newer).
+
+- The "--nosubsampling" flag has been renamed to "--no-subsampling"
 
 - Memory-use estimation now includes the effects of multiple PSF oversampling
 regions.
@@ -62,10 +64,11 @@ are now corrected back to full-image coordinates (as was already done
 for printed and saved best-fit parameter values). (Thanks to Iskren
 Georgiev for spotting this in the MCMC output.)
 
-- [ ] Printouts and output files listing the best-fitting parameter values
+- Printouts and output files listing the best-fitting parameter values
 were supposed to include a blank line between function blocks (for easier
 reading), but this only happened when Levenberg-Marquardt fits were
-done. This now works for fits with N-M simplex and Differential Evolution.
+done. This now works for fits with N-M simplex and Differential Evolution
+as well.
 
 - In describing the PSF oversampling options, the documentation
 (erroneously) gave an example of `--overpsf_region [x1:x2,y1:y2]`, when
@@ -79,7 +82,7 @@ a version of the FFTW library which did *not* include SSE2 vector math
 support; consequently, fits with PSF convolution were about 5-10% *slower*
 than in version 1.3. The binary distribution for Macs is now linked to
 an FFTW library with both SSE2 and AVX support, and so should be as
-fast as version 1.3 again.
+fast as version 1.3 again (and possibly a little faster on recent CPUs).
 
 
 

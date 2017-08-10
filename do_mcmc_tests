@@ -43,7 +43,7 @@ then
   # 2c: testing that we can restart from previous iterations
   echo -n "   (now running MCMC chain (test 3: restarting from previous chains)...)"
   cp tests/mcmc_data/mcmc_test_short*.txt temptest/
-  # note that we don't need to use seed=7, bcs we wouldn't be starting at the same RNG
+  # note that there's no point in specifying seed=7, bcs we wouldn't be starting at the same RNG
   # state as the original imfit-mcmc run left off at
   ./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --no-subsampling --seed=1 -o temptest/mcmc_test_short --append &> temptest/test_dump_mcmc1c
   echo ""

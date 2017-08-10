@@ -8,12 +8,6 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-(1.5)[X] Fix regression in lack of blank likes between function blocks in output
-	-- apparently only shows up for N-M or DE fits!
-	[X] Look for possible previous 2-fuction-block test outputs
-	[X] Fix missing blank line between function blocks in output
-	[X] Add regression test to make sure this doesn't happen again.
-	
 (1.5)[..] Add option to turn *off* normalization of input PSFs
 	-- Corentin Schreiber requested this for working with interferometric images,
 	which use "a peculiar point spread function, with a peak of unity and sum of zero."
@@ -47,7 +41,7 @@
 		[ ] Ask for PSF image so we can test non-normalized PSF?
 		
 	
-(1.5)[..] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
+(1.5)[X] Oversampling of multiple sub-regions (possibly with their own oversampled PSFs)
 	-- multiple sub-regions, all with same PSF
 	-- multiple sub-regions, each with its own PSF
 	-- probably simpler to require that each sub-region have its own PSF; user must
@@ -171,6 +165,13 @@
 (1.5)[ ] Unit tests for FerrersBar3D
 
 
+(1.5)[X] Fix regression in lack of blank likes between function blocks in output
+	-- apparently only shows up for N-M or DE fits!
+	[X] Look for possible previous 2-fuction-block test outputs
+	[X] Fix missing blank line between function blocks in output
+	[X] Add regression test to make sure this doesn't happen again.
+	
+
 [X] Test image convolution with even-numbered-pixel arrays (e.g., 4x4 PSF image)
 	-- gauss_36x36.fits, gauss_35x35.fits
 	OK, for a 36x36 PSF image, centering the PSF at (19,19) produces an *unshifted*
@@ -238,7 +239,7 @@ image (accounting for data image subset, if any)
 single method with a string parameter ("data", "model", "weight", etc.)
 
 
-[ ] Experiment with adding OpenMP to MCMC code
+[X] Experiment with adding OpenMP to MCMC code
 	-- profiling shows that dream() spends 20-25% of time in check_outliers(), and
 	virtually all of *that* (99.6%) is in gsl_stats_mean.
 	-- preliminary tests suggest that using #pragma omp simd speeds up mean
@@ -256,17 +257,19 @@ single method with a string parameter ("data", "model", "weight", etc.)
 		like into vector<double[]> (where vector.size = numChains, and each
 		double[] has length = maxEvals + 1
 		
-	[ ] Convert lik variable in dream.cpp to vector<double *>
+	[X] Convert lik variable in dream.cpp to vector<double *>
 		-- ~/coding/imfit-feature-simd/
 		[ ] Do conversion
 			[x] Do main conversion
 			[ ] Convert dream_restore_state() to use vector<double *>
 		[ ] Test to make sure program works
 		[ ] Test to make sure speed hasn't significantly changed
-	[ ] Convert check_outliers.cpp to use "#pgrama omp simd" on computation
+	[X] Convert check_outliers.cpp to use "#pgrama omp simd" on computation
 	of means, instead of gsl_stats_mean
 		[ ] Test to make sure program works
 		[ ] Test to see if speed has changed
+		
+	CONCLUSION: No meaningful speedup possible; reverted to previous state of code.
 
 
 

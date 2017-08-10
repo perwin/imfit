@@ -54,6 +54,7 @@
 #include <assert.h>
 #include <math.h>
 #include <iostream>
+#include <tuple>
 #include "mersenne_twister.h"
 
 #include "definitions.h"
@@ -801,10 +802,11 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   nRows_psf = oversampledPsfInfo->GetNRows();
   nPixels = (long)nColumns_psf * (long)nRows_psf;
   oversampleScale = oversampledPsfInfo->GetOversamplingScale();
-  oversampledPsfInfo->GetCorrectedRegionCoords(x1, x2, y1, y2);
+  std::tie(x1, x2, y1, y2) = oversampledPsfInfo->GetCorrectedRegionCoords();
   psfPixels_osamp = oversampledPsfInfo->GetPsfPixels();
   
   assert( (nPixels >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
+  assert( (x1 < x2) && (y1 < y2) );
   assert( (oversampleScale >= 1) );
   // assertion to check that nModelColumns and nModelRows *have* been set to good values
   assert( (nModelColumns > 0) && (nModelRows > 0) );
