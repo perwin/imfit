@@ -112,17 +112,17 @@ long EstimateMemoryUse( int nData_cols, int nData_rows, int nPSF_cols, int nPSF_
 						bool outputModel )
 {
   long  nBytesNeeded = 0.0;
-  long  nPaddedPixels = 0;
-  long  nPaddedPixels_cmplx = 0;
-  int  nCols_padded = 0;
-  int  nRows_padded = 0;
-  int  nCols_padded_trimmed = 0;
+//   long  nPaddedPixels = 0;
+//   long  nPaddedPixels_cmplx = 0;
+//   int  nCols_padded = 0;
+//   int  nRows_padded = 0;
+//   int  nCols_padded_trimmed = 0;
   long  nDataPixels = (long)nData_cols * (long)nData_rows;
   long  dataSize = nDataPixels * DOUBLE_SIZE;
   int  nModel_rows, nModel_cols;
-  int  nOversampModel_cols, nOversampModel_rows;
+//   int  nOversampModel_cols, nOversampModel_rows;
   long  nModelPixels = 0;
-  long  nOversampModelPixels = 0;
+//   long  nOversampModelPixels = 0;
   
   nBytesNeeded += dataSize;   // allocated outside
   

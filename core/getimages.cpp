@@ -69,7 +69,7 @@ std::tuple<double *, int> GetAndCheckImage( const string imageName, const string
 /// 		status = 2: error image loaded, but no mask image was specified
 /// 		status = 3: both images specified & loaded
 std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRows, 
-										OptionsBase *options, bool &maskPixelsAllocated, 
+										const OptionsBase *options, bool &maskPixelsAllocated, 
 										bool &errorPixelsAllocated )
 {
   int  status = 0;
@@ -110,7 +110,7 @@ std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRo
 /// tuple of (psfPixels, nColumns_psf, nRows_psf, status).
 /// In case of errors in retrieving image data, return value is
 /// (nullptr, 0, 0, -1)
-std::tuple<double *, int, int, int> GetPsfImage( OptionsBase *options )
+std::tuple<double *, int, int, int> GetPsfImage( const OptionsBase *options )
 {
   int  status;
   int  nColumns_psf, nRows_psf;
@@ -134,7 +134,7 @@ std::tuple<double *, int, int, int> GetPsfImage( OptionsBase *options )
 
 // Function which reads and returns data corresponding to requested oversampled PSF
 // images
-int GetOversampledPsfInfo( OptionsBase *options, int xOffset, int yOffset, 
+int GetOversampledPsfInfo( const OptionsBase *options, int xOffset, int yOffset, 
 							vector<PsfOversamplingInfo *> &psfOversamplingInfoVect )
 {
   PsfOversamplingInfo * psfOversampleInfo;

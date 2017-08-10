@@ -29,8 +29,8 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
 
 /// \brief Saves image data (1D array, logical dimensions nColumns x nRows) as
 ///        FITS file, with comments added to header.
-int SaveVectorAsImage( double *pixelVector, const std::string filename, const int nColumns,
-                         const int nRows, std::vector<std::string> comments );
+int SaveVectorAsImage( double *pixelVector, const std::string filename, int nColumns,
+                         int nRows, std::vector<std::string> comments );
 
 int CountHeaderDataUnits( fitsfile  *imfile_ptr );
 

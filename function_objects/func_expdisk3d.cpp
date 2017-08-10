@@ -163,7 +163,7 @@ double ExponentialDisk3D::GetValue( double x, double y )
   double  xp, yp, x_d0, y_d0, z_d0, totalIntensity;
   double  integLimit;
   double  xyParameters[11];
-  int  nSubsamples;
+//   int  nSubsamples;
   
   // Calculate x,y in component (projected sky) reference frame
   xp = x_diff*cosPA + y_diff*sinPA;

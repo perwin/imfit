@@ -152,10 +152,9 @@ double FerrersBar3D::GetValue( double x, double y )
 {
   double  x_diff = x - x0;
   double  y_diff = y - y0;
-  double  xp, yp, x_d0, y_d0, z_d0, totalIntensity, error;
+  double  xp, yp, x_d0, y_d0, z_d0, totalIntensity;
   double  xyParameters[12];
-  int  nSubsamples;
-  int  nEvals;
+//   int  nSubsamples;
   
   // Calculate x,y in component (projected sky) reference frame, corrected for
   // rotation of line of nodes
@@ -211,8 +210,8 @@ double FerrersBar3D::GetValue( double x, double y )
  */ 
 double LuminosityDensity_FerrersBar( double s, void *params )
 {
-  double  y_d, z_d, x_bar, y_bar, z_bar, m2, lumDensity;
-  double  *paramsVect = (double *)params;
+  double x_bar, y_bar, z_bar, m2, lumDensity;
+  double *paramsVect = (double *)params;
   double x_d0 = paramsVect[0];
   double y_d0 = paramsVect[1];
   double z_d0 = paramsVect[2];

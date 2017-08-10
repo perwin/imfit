@@ -57,6 +57,7 @@
 #include "estimate_memory.h"
 #include "sample_configs.h"
 
+// MCMC code from cdream
 #include "dream_params.h"
 #include "dream.h"
 #include "rng/GSLStream.h"
@@ -111,8 +112,6 @@ int main(int argc, char *argv[])
   long  nPixels_tot;
   int  nRows_psf = 0;
   int  nColumns_psf = 0;
-  long  nPixels_psf = 0;
-  int  nErrColumns, nErrRows, nMaskColumns, nMaskRows;
   long  nDegFreedom;
   int  nParamsTot, nFreeParams;
   double  *allPixels;
@@ -136,7 +135,7 @@ int main(int argc, char *argv[])
   bool  paramLimitsExist = false;
   bool  parameterInfo_allocated = false;
   mp_par  *parameterInfo;
-  int  status, fitStatus, nSucessfulIterations;
+  int  status;
   vector<string>  imageCommentsList;
   OptionsBase *commandOpts;
   MCMCOptions *options;
@@ -238,8 +237,8 @@ int main(int argc, char *argv[])
   nColumnsRowsVect.push_back(nColumns_psf);
   nColumnsRowsVect.push_back(nRows_psf);
 
-  theModel = SetupModelObject(options, nColumnsRowsVect, allPixels, psfPixels, allMaskPixels,
-  								allErrorPixels, psfOversamplingInfoVect);
+  theModel = SetupModelObject(options, nColumnsRowsVect, allPixels, psfPixels, 
+  								allMaskPixels, allErrorPixels, psfOversamplingInfoVect);
 
 
 
@@ -466,7 +465,7 @@ int main(int argc, char *argv[])
   // Elapsed time reports
   if (options->verbose >= 0) {
     gettimeofday(&timer_end_all, NULL);
-    double  microsecs, time_elapsed_all, time_elapsed_fit;
+    double  microsecs, time_elapsed_all;
     microsecs = timer_end_all.tv_usec - timer_start_all.tv_usec;
     time_elapsed_all = timer_end_all.tv_sec - timer_start_all.tv_sec + microsecs/1e6;
     printf("\n(Elapsed time: %.6f sec)\n", time_elapsed_all);

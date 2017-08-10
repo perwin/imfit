@@ -93,7 +93,7 @@
 		[x] Update tests to include multiple oversampled regions
 		[x] Update MCMC-mode tests to include multiple oversampled regions
 	
-	[ ] Add unit tests to ?oversampled_region to catch bad nBaseColumns, nBaseRows
+	[-] Add unit tests to ?oversampled_region to catch bad nBaseColumns, nBaseRows
 		PROBLEM: In ModelObject::AddOversampledPsfInfo, bad oversampled-PSF region
 		specifications (i.e., extending outside image) will generate bad deltaX, deltaY
 	
@@ -224,9 +224,8 @@ image (accounting for data image subset, if any)
 			be merely a change, not an addition
 	
 	Things taking mp_par * as parameters:
-		bootstrap.h: BootstrapErrors; BootstrapErrorsArrayOnly
+		bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
 		print_results.h: PrintResults; SaveParameters; SaveParameters2
-		model_object.h: PrintModelParams; PrintModelParamsHorizontalString
 		diff_evoln_fit.h: DiffEvolnFit [not used]
 		dispatch_solver.h: DispatchToSolver
 		levmar_fit.h: LevMarFit
@@ -274,12 +273,13 @@ single method with a string parameter ("data", "model", "weight", etc.)
 
 
 
-[ ] Experiment with adding OpenMP to convolver.cpp
+[X] Experiment with adding OpenMP to convolver.cpp
 	-- e.g., in ConvolveImage(): multiplication of complex arrays; possible
 	other array processing
 	-- use "makeimage --timing <N>" to measure things
 	-- also run PSF-convolution tests from do_makeimage_tests to make sure we
 	don't break things
+	CONCLUSION: Doesn't really make a difference
 
 
 [ ] Check vectorization of mpfit.cpp
@@ -289,11 +289,12 @@ single method with a string parameter ("data", "model", "weight", etc.)
 
 
 [ ] Refactoring of mpfit.cpp
-	[ ] Go through code and check which variables declared as "static <type> = y" can
+	[X] Go through code and check which variables declared as "static <type> = y" can
 	be redeclared as "const <type> = y"
 		-- clearer indication to reader that these are *constants*, not changeable
 		persistent variables; possibly allows compiler to be a little more efficient
 		if it knows certain "variables" are really constants?
+
 
 		
 [ ] MCMC program: "imfit-mcmc"
@@ -302,7 +303,7 @@ single method with a string parameter ("data", "model", "weight", etc.)
 		[ ] Detect failed opening of output files, complain and exit
 		[ ] Detect failed write to output files, complain and exit?
 		[x] Return values indicating: convergence vs max-iterations
-		[ ] Record and report cumulative number of likelihood evaluations
+		[x] Record and report cumulative number of likelihood evaluations
 		[ ] Print (and maybe report) total number of iterations
 
 	[ ] Possible speedup for dream(): delay writing of output until end
@@ -343,7 +344,7 @@ single method with a string parameter ("data", "model", "weight", etc.)
 		[x] Set up do_mcmc_test.sh
 		[x] Test run of do_mcmc_test.sh
 	
-	[ ] Add to regression tests for imfit-mcmc
+	[x] Add to regression tests for imfit-mcmc
 		[x] Add some error-detecting regression tests
 		
 	[x] Link/copy/add cdream code
@@ -602,7 +603,7 @@ single method with a string parameter ("data", "model", "weight", etc.)
 	disassembling parameter vectors
 
 
-[ ] Separate the code which does doing model-image-generation timing into separate file
+[ ] Separate the code which does model-image-generation timing into separate file
 	(so it can be used by both makeimage and imfit-mcmc)
 	
 [-] Implement Kahan summation in ModelObject::FindTotalFluxes
@@ -642,7 +643,7 @@ single method with a string parameter ("data", "model", "weight", etc.)
 
 
 [..] Add "const" specifiers to input parameters of functions, as appropriate
-	Done through: convolver
+	Done through: oversampled_region
 
 
 [] Possible improved error reporting

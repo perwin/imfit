@@ -153,7 +153,7 @@ double GaussianRing3D::GetValue( double x, double y )
   double  xp, yp, x_d0, y_d0, z_d0, totalIntensity;
   double  integLimit;
   double  xyParameters[13];
-  int  nSubsamples;
+//   int  nSubsamples;
   
   // Calculate x,y in component's (projected sky) reference frame: xp,yp
   xp = x_diff*cosPA + y_diff*sinPA;
@@ -204,7 +204,7 @@ double GaussianRing3D::GetValue( double x, double y )
  */ 
 double LuminosityDensityRing( double s, void *params )
 {
-  double  y_d, z_d, R, deltaR, lumDensity;
+  double  R, deltaR, lumDensity;
   double  x_ring, y_ring, z_ring, y_ring_scaled;
   double  *paramsVect = (double *)params;
   double  x_d0 = paramsVect[0];

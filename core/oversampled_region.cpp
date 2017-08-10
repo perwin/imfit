@@ -123,7 +123,7 @@ void OversampledRegion::SetDebugImageName( const string imageName )
 
 
 /* ---------------- SetDebugLevel ------------------------------------- */
-void OversampledRegion::SetDebugLevel( const int debuggingLevel )
+void OversampledRegion::SetDebugLevel( int debuggingLevel )
 {
   debugLevel = debuggingLevel;
 }
@@ -132,7 +132,7 @@ void OversampledRegion::SetDebugLevel( const int debuggingLevel )
 /* ---------------- SetMaxThreads -------------------------------------- */
 // User specifies maximum number of FFTW threads to use (ignored if not compiled
 // with multithreaded FFTW library)
-void OversampledRegion::SetMaxThreads( const int maximumThreadNumber )
+void OversampledRegion::SetMaxThreads( int maximumThreadNumber )
 {
   maxRequestedThreads = maximumThreadNumber;
 }
@@ -143,8 +143,8 @@ void OversampledRegion::SetMaxThreads( const int maximumThreadNumber )
 // the image dimensions.
 // We assume this is an oversampled PSF, with the same oversampling scale as
 // specified in the input to SetupModelImage(), below
-void OversampledRegion::AddPSFVector( double *psfPixels, const int nColumns_psf, 
-										const int nRows_psf, bool normalizePSF )
+void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int nRows_psf, 
+										bool normalizePSF )
 {
   assert( (nColumns_psf >= 1) && (nRows_psf >= 1) );
   
@@ -283,7 +283,8 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   if (debugLevel > 0) {
     vector<string>  imageCommentsList;
     outputName = debugImageName + ".fits";
-    printf("\nOversampledRegion::ComputeRegionAndDownsample -- Saving output model image (\"%s\") ...\n", outputName.c_str());
+    printf("\nOversampledRegion::ComputeRegionAndDownsample -- Saving output model image (\"%s\") ...\n", 
+    		outputName.c_str());
     status = SaveVectorAsImage(modelVector, outputName, nModelColumns, nModelRows, 
     							imageCommentsList);
   }
@@ -297,9 +298,10 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   if (debugLevel > 0) {
     vector<string>  imageCommentsList;
     outputName = debugImageName + "_conv.fits";
-    printf("\nOversampledRegion::ComputeRegionAndDownsample -- Saving PSF-convolved output model image (\"%s\") ...\n", outputName.c_str());
-    status = SaveVectorAsImage(modelVector, outputName, 
-                        nModelColumns, nModelRows, imageCommentsList);
+    printf("\nOversampledRegion::ComputeRegionAndDownsample -- Saving PSF-convolved output model image (\"%s\") ...\n", 
+    		outputName.c_str());
+    status = SaveVectorAsImage(modelVector, outputName, nModelColumns, nModelRows, 
+    							imageCommentsList);
   }
 #endif
 

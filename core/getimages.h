@@ -21,16 +21,16 @@ std::tuple<double *, int> GetAndCheckImage( const string imageName, const string
 
 /// Reads in mask and/or noise/error images
 std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRows, 
-										OptionsBase *options,  bool &maskPixelsAllocated, 
+										const OptionsBase *options,  bool &maskPixelsAllocated, 
 										bool &errorPixelsAllocated );
 
 /// Reads in PSF image, returning dimensions as well
-std::tuple<double *, int, int, int> GetPsfImage( OptionsBase *options );
+std::tuple<double *, int, int, int> GetPsfImage( const OptionsBase *options );
 
 /// Reads in multiple oversampled PSF images, storing them (along with user-specified
 /// info like oversampling scale and image regions for oversampling) in a vector
 /// of (pointers to) PsfOversamplingInfo objects.
-int GetOversampledPsfInfo( OptionsBase *options, int xOffset, int yOffset, 
+int GetOversampledPsfInfo( const OptionsBase *options, int xOffset, int yOffset, 
 							vector<PsfOversamplingInfo *> &psfOversamplingInfoVect );
 
 

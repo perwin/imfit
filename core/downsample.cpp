@@ -51,12 +51,11 @@
 /// each main-size pixel in the sub-region corresponds to oversampleScale x oversampleScale
 /// subpixels (i.e., pixels in oversampledImage)
 
-void DownsampleAndReplace( double *oversampledImage, const int nOversampCols, 
-						const int nOversampRows, const int nOversampPSFCols, 
-						const int nOversampPSFRows,	double *mainImage, const int nMainCols, 
-						const int nMainRows, const int nMainPSFCols, const int nMainPSFRows,
-						const int startX, const int startY, const int oversampleScale, 
-						const int debugLevel )
+void DownsampleAndReplace( const double *oversampledImage, int nOversampCols, 
+						int nOversampRows, int nOversampPSFCols, int nOversampPSFRows,	
+						double *mainImage, int nMainCols, int nMainRows, int nMainPSFCols, 
+						int nMainPSFRows, int startX, int startY, int oversampleScale, 
+						int debugLevel )
 {
   int  i, j, i_sub, j_sub, ii, jj;
   int  i1, j1, ii1, jj1;

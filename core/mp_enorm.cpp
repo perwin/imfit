@@ -51,7 +51,7 @@
 #define RGIANT   1.304e19
 
 
-double mp_enorm( int n, double *x )
+double mp_enorm( int n, const double *x )
 {
   int  i;
   double  agiant, floatn, xabs;

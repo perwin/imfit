@@ -316,8 +316,8 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
 /// vector written as comments to the FITS header.
 ///
 ///    Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
-int SaveVectorAsImage( double *pixelVector, const std::string filename, const int nColumns,
-                         const int nRows, std::vector<std::string> comments )
+int SaveVectorAsImage( double *pixelVector, const std::string filename, int nColumns,
+                         int nRows, std::vector<std::string> comments )
 {
   fitsfile  *imfile_ptr;
   std::string  finalFilename = "!";   // starting filename with "!" ==> clobber any existing file

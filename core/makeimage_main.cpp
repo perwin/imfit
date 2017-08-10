@@ -96,10 +96,7 @@ int main( int argc, char *argv[] )
   int  nParamsTot;
   int  status;
   double  *psfPixels = NULL;
-  double  *psfOversampledPixels = NULL;
-  int  nColumns_psf_oversampled, nRows_psf_oversampled;
   long  nPixels_psf_oversampled;
-  PsfOversamplingInfo  *psfOversampleInfo;
   vector<PsfOversamplingInfo *>  psfOversamplingInfoVect;
   double  *paramsVect;
   ModelObject  *theModel;

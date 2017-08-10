@@ -32,12 +32,12 @@ class OversampledRegion
     // Public member functions:
     void SetDebugImageName( const string imageName );
     
-    void AddPSFVector( double *psfPixels_input, const int nColumns, const int nRows,
+    void AddPSFVector( double *psfPixels_input, int nColumns, int nRows,
     					bool normalizePSF=true );
     
-    void SetMaxThreads( const int maximumThreadNumber );
+    void SetMaxThreads( int maximumThreadNumber );
 
-    void SetDebugLevel( const int debuggingLevel );
+    void SetDebugLevel( int debuggingLevel );
 
     int SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
     					int nColumnsMain, int nRowsMain, int nColumnsPSF_main,

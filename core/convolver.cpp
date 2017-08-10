@@ -160,7 +160,7 @@ Convolver::~Convolver( )
 /* ---------------- SetMaxThreads -------------------------------------- */
 /// User specifies maximum number of FFTW threads to use (ignored if not compiled
 /// with multithreaded FFTW library)
-void Convolver::SetMaxThreads( const int maximumThreadNumber )
+void Convolver::SetMaxThreads( int maximumThreadNumber )
 {
   maxRequestedThreads = maximumThreadNumber;
 }
@@ -169,7 +169,7 @@ void Convolver::SetMaxThreads( const int maximumThreadNumber )
 /* ---------------- SetupPSF ------------------------------------------- */
 /// Pass in a pointer to the pixel vector for the input PSF image, as well as
 /// the image dimensions
-void Convolver::SetupPSF( double *psfPixels_input, const int nColumns, const int nRows,
+void Convolver::SetupPSF( double *psfPixels_input, int nColumns, int nRows,
 							bool normalize )
 {
 
@@ -184,7 +184,7 @@ void Convolver::SetupPSF( double *psfPixels_input, const int nColumns, const int
 
 /* ---------------- SetupImage ----------------------------------------- */
 //! Pass in the dimensions of the image we'll be convolving with the PSF
-void Convolver::SetupImage( const int nColumns, const int nRows )
+void Convolver::SetupImage( int nColumns, int nRows )
 {
 
   nColumns_image = nColumns;
@@ -198,7 +198,7 @@ void Convolver::SetupImage( const int nColumns, const int nRows )
 /// General setup prior to actually supplying the image data and doing the
 /// convolution: determine padding dimensions; allocate FFTW arrays and plans;
 /// normalize, shift, and Fourier transform the PSF image.
-int Convolver::DoFullSetup( const int debugLevel, const bool doFFTWMeasure )
+int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
 {
   long  k;
   unsigned  fftwFlags;

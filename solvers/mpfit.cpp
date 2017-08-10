@@ -87,6 +87,19 @@
 #include "mp_enorm.h"
 #include "utilities_pub.h"
 
+
+// Constant definitions (PE)
+const double zero = 0.0;
+const double p0001 = 1.0e-4;
+const double p001 = 0.001;
+const double p05 = 0.05;
+const double p1 = 0.1;
+const double p25 = 0.25;
+const double p5 = 0.5;
+const double p75 = 0.75;
+const double one = 1.0;
+
+
 /* Forward declarations of functions in this module */
 int mp_fdjac2(mp_func funct,
               int m, int n, int *ifree, int npar, double *x, double *fvec,
@@ -346,13 +359,6 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
   double actred, delta, dirder, fnorm, fnorm1, gnorm, orignorm;
   double par, pnorm, prered, ratio;
   double sum, temp, temp1, temp2, temp3, xnorm, alpha;
-  static double one = 1.0;
-  static double p1 = 0.1;
-  static double p5 = 0.5;
-  static double p25 = 0.25;
-  static double p75 = 0.75;
-  static double p0001 = 1.0e-4;
-  static double zero = 0.0;
   int nfev = 0;
 
   double *step = 0, *dstep = 0, *llim = 0, *ulim = 0;
@@ -1173,8 +1179,7 @@ int mp_fdjac2(mp_func funct,
   int i, j, ij;
   int iflag = 0;
   double eps, h, temp;
-  static double zero = 0.0;
-  double **dvec = 0;
+  double **dvec = nullptr;
   int has_analytical_deriv = 0, has_numerical_deriv = 0;
   int has_debug_deriv = 0;
   
@@ -1425,9 +1430,6 @@ void mp_qrfac(int m, int n, double *a, int lda,
 */
   int i, ij, jj, j, jp1, k, kmax, minmn;
   double ajnorm, sum, temp;
-  static double zero = 0.0;
-  static double one = 1.0;
-  static double p05 = 0.05;
   /*
    *     compute the initial column norms and initialize several arrays.
    */
@@ -1629,9 +1631,6 @@ void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
 */
   int i, ij, ik, kk, j, jp1, k, kp1, l, nsing;
   double cos, cotan, qtbpj, sin, sum, tan, temp;
-  static double zero = 0.0;
-  static double p25 = 0.25;
-  static double p5 = 0.5;
   
   /*
    *     copy r and (q transpose)*b to preserve input and initialize s.
@@ -1873,10 +1872,6 @@ void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
   int i, iter, ij, jj, j, jm1, jp1, k, l, nsing;
   double dxnorm, fp, gnorm, parc, parl, paru;
   double sum, temp;
-  static double zero = 0.0;
-  /* static double one = 1.0; */
-  static double p1 = 0.1;
-  static double p001 = 0.001;
   
   /*
    *     compute and store in x the gauss-newton direction. if the
@@ -2161,7 +2156,7 @@ int mp_covar(int n, double *r, int ldr, int *ipvt, double tol, double *wa)
   int i, ii, j, jj, k, l;
   int kk, kj, ji, j0, k0, jj0;
   int sing;
-  double one = 1.0, temp, tolr, zero = 0.0;
+  double temp, tolr;
 
   /*
    * form the inverse of r in the full upper triangle of r.

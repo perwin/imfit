@@ -14,11 +14,10 @@
 
 /// \brief Replaces subsection of main region with oversampled version of subsection,
 ///        downsampled to match main image scale
-void DownsampleAndReplace( double *oversampledImage, const int nOversampCols, 
-						const int nOversampRows, const int nOversampPSFCols, 
-						const int nOversampPSFRows,	double *mainImage, const int nMainCols, 
-						const int nMainRows, const int nMainPSFCols, const int nMainPSFRows,
-						const int startX, const int startY, const int oversampleScale, 
-						const int debugLevel );
+void DownsampleAndReplace( const double *oversampledImage, int nOversampCols, 
+						int nOversampRows, int nOversampPSFCols, int nOversampPSFRows,	
+						double *mainImage, int nMainCols, int nMainRows, int nMainPSFCols, 
+						int nMainPSFRows, int startX, int startY, int oversampleScale, 
+						int debugLevel );
 
 #endif /* _DOWNSAMPLE_H_ */

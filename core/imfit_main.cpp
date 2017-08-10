@@ -1050,5 +1050,4 @@ void HandleConfigFileOptions( configOptions *configFileOptions, ImfitOptions *ma
 }
 
 
-
 /* END OF FILE: imfit_main.cpp ------------------------------------------- */
