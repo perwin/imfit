@@ -5,8 +5,8 @@
 # binary (cxxtestgen); it also defines which compilers are used for compiling
 # C and C++ code.
 
-# optional specification if we're running on a Mac (e.g., specify specific version 
-# of gcc/g++ to avoid getting LLVM/clang by default)
+# optional specification if we're running on a Mac (currently, we allow use
+# of Clang/Clang++ because it provides nice error messages)
 if [[ $OSTYPE == darwin* ]]
 then
   CPP=g++

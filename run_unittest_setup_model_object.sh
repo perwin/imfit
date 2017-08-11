@@ -3,6 +3,11 @@
 # load environment-dependent definitions for CXXTESTGEN, CPP, etc.
 . ./define_unittest_vars.sh
 
+# Predefine some ANSI color escape codes
+RED='\033[0;31m'
+GREEN='\033[0;0;32m'
+NC='\033[0m' # No Color
+
 # Unit tests for setup_model_object
 echo
 echo "Generating and compiling unit tests for setup_model_object..."
@@ -19,6 +24,6 @@ then
   ./test_runner_setup_modelobj NewTestSuite
   exit
 else
-  echo "** Compilation of unit tests for setup_model_object failed."
+  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
   exit 1
 fi

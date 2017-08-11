@@ -3,6 +3,11 @@
 # load environment-dependent definitions for CXXTESTGEN, CPP, etc.
 . ./define_unittest_vars.sh
 
+# Predefine some ANSI color escape codes
+RED='\033[0;31m'
+GREEN='\033[0;0;32m'
+NC='\033[0m' # No Color
+
 echo
 echo "Generating and compiling unit tests for mpfit..."
 $CXXTESTGEN --error-printer -o test_runner_mpfit.cpp unit_tests/unittest_mpfit.t.h 
@@ -14,6 +19,6 @@ then
   ./test_runner_mpfit
   exit
 else
-  echo "Compilation of unit tests for mpfit.cpp failed."
+  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
   exit 1
 fi

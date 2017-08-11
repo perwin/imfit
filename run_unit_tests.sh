@@ -28,6 +28,10 @@
 # fi
 # CXXTESTGEN=$CXXTEST/bin/cxxtestgen
 
+# Predefine some ANSI color escape codes
+RED='\033[0;31m'
+GREEN='\033[0;0;32m'
+NC='\033[0m' # No Color
 
 # integer-variable counter to keep track of how many errors occur (if no errors, 
 # then value will remain = 0)
@@ -145,6 +149,17 @@ echo $RESULT
 # echo "Running unit tests for model_object:"
 # ./test_runner_modelobj 2>> temperror.log
 # RESULT+=$?
+
+echo ""
+if [ $RESULT -eq 1 ]
+then
+  echo -e "${RED}One set of tests failed!${NC}"
+elif [ $RESULT -gt 1 ]
+then
+  echo -e "${RED}${RESULT} sets of tests failed!${NC}"
+else
+  echo -e "${GREEN}All unit tests passed.${NC}"
+fi
 
 
 echo

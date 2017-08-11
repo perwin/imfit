@@ -3,6 +3,11 @@
 # load environment-dependent definitions for CXXTESTGEN, CPP, etc.
 . ./define_unittest_vars.sh
 
+# Predefine some ANSI color escape codes
+RED='\033[0;31m'
+GREEN='\033[0;0;32m'
+NC='\033[0m' # No Color
+
 # Unit tests for model_object (includes extra -lgslcblas in case we compile on Linux)
 echo
 echo "Generating and compiling unit tests for model_object..."
@@ -33,6 +38,6 @@ then
   ./test_runner_modelobj
   exit
 else
-  echo "** Compilation of unit tests for model_object failed."
+  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
   exit 1
 fi
