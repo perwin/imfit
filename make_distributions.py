@@ -269,7 +269,7 @@ def main(argv):
 # 			MakeBinaryDist(mode="oldmac")
 		else:
 			print("\nGenerating binary-only Linux distribution (%s)..." % BINARY_TARFILE)
-			MakeBinaries()
+			MakeBinaries(mode="Linux")
 			MakeDistributionDir(mode="binary")
 			MakeBinaryDist()
 	if options.sourceDist is True:
