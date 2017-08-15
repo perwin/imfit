@@ -21,7 +21,7 @@ ellipsoid often used in modeling of orbits in barred-galaxy potentials,
 which implements a bounded triaxial ellipsoid seen at arbitrary orientation
 with luminosity density following the Ferrers mass-density
 form. As with the ExponentialDisk3D and GaussianRing3D functions, this
-uses integration along the line of sight to construct the model image.<br><br>
+uses integration along the line of sight to construct the model image.
 
 - Command-line flag `--no-normalize` will tell imfit, imfit-mcmc, and makeimage
 to *skip* normalization of any input PSF images (standard or oversampled). 
