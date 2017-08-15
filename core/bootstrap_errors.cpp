@@ -9,7 +9,7 @@
  * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
-// Copyright 2013-2015 by Peter Erwin.
+// Copyright 2013-2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

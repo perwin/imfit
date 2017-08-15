@@ -4,7 +4,7 @@
 
 /* FILE: print_results.cpp ----------------------------------------- */
 
-// Copyright 2010--2016 by Peter Erwin.
+// Copyright 2010--2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -279,14 +279,10 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
   if (solverResults.ErrorsPresent()) {
     parameterErrs = (double *)calloc(model->GetNParams(), sizeof(double));
     solverResults.GetErrors(parameterErrs);
-//     model->PrintModelParams(file_ptr, params, parameterInfo, parameterErrs);
-//    model->PrintModelParams(file_ptr, params, parameterErrs);
     PrintParameters(file_ptr, model, params, parameterErrs);
     free(parameterErrs);
   }
   else
-//     model->PrintModelParams(file_ptr, params, parameterInfo, NULL);
-//    model->PrintModelParams(file_ptr, params, NULL);
     PrintParameters(file_ptr, model, params, NULL);
 
   fclose(file_ptr);
@@ -302,8 +298,6 @@ void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par
   for (int i = 0; i < (int)outputHeader.size(); i++)
     fprintf(file_ptr, "%s\n", outputHeader[i].c_str());
   fprintf(file_ptr, "%s\n", prefix);
-//   model->PrintModelParams(file_ptr, params, parameterInfo, NULL, prefix);
-//  model->PrintModelParams(file_ptr, params, NULL, prefix);
   PrintParameters(file_ptr, model, params, NULL, prefix);
 }
 

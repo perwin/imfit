@@ -54,7 +54,6 @@ class ImfitOptions : public OptionsBase
     };
 
     // Extra data members (in addition to those in options_base.h):  
-//    string  psfOversampleRegion;
   
     bool  saveModel;
     string  outputModelFileName;

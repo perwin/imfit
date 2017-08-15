@@ -3,7 +3,7 @@
 // Code for downsampling an oversampled image and copying the downsampled version
 // into a larger, standard-sampled image.
 
-// Copyright 2014-2015 by Peter Erwin.
+// Copyright 2014-2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

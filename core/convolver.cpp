@@ -478,4 +478,3 @@ void PrintComplexImage_Absolute( fftw_complex *image_cmplx, int nColumns, int nR
 
 
 /* END OF FILE: convolver.cpp ------------------------------------------ */
-

@@ -607,18 +607,6 @@ string PrintMpPar( mp_par& p )
    			p.offset);
 }
 
-// struct mp_par_struct {
-//   int fixed;        /* 1 = fixed; 0 = free */
-//   int limited[2];   /* 1 = low/upper limit; 0 = no limit */
-//   double limits[2]; /* lower/upper limit boundary value */
-// 
-//   char *parname;    /* Name of parameter, or 0 for none */
-//   
-//   double offset;    /* Offset to be added when printing/writing output
-//                        (e.g., X0  or Y0 offset when an image subsection is
-//                        being fitted) */
-
-
 
 
 /* END OF FILE: utilities.cpp -------------------------------------- */

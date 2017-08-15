@@ -39,7 +39,7 @@
 //   }
 
 
-// Copyright 2014, 2015 by Peter Erwin.
+// Copyright 2014, 2015, 2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -314,4 +314,3 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
 
 
 /* END OF FILE: oversampled_region.cpp --------------------------------- */
-

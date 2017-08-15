@@ -145,37 +145,8 @@ string& OptionObject::GetTargetString( int n )
 /* ---------------- NTargetsStored ------------------------------------- */
 int OptionObject::NTargetsStored(  )
 {
-//   if (targetSet)
-//     return 1;
-//   else
-//     return 0;
   return (int)targetStrings.size();
 }
-
-
-
-
-/* *** DEFINITIONS FOR QUEUOPTIONOBJECT CLASS *** */
-// 
-// /* ---------------- CONSTRUCTOR ---------------------------------------- */
-// QueueOptionObject::QueueOptionObject( )
-// {
-//   isQueue = true;
-// }
-// 
-// QueueOptionObject::~QueueOptionObject( )
-// {
-//   ;  // everything we need handled is done in parent class's destructor
-// }
-// 
-// 
-// /* ---------------- NTargetsStored ------------------------------------- */
-// int QueueOptionObject::NTargetsStored(  )
-// {
-//   return (int)targetStrings.size();
-// }
-
-
 
 
 
@@ -447,7 +418,6 @@ string& CLineParser::GetArgument( const int n )
 {
   return argStrings[n];
 }
-
 
 
 

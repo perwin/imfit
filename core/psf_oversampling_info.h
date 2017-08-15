@@ -32,7 +32,6 @@ class PsfOversamplingInfo
     int GetOversamplingScale( );
     void GetImageOffset( int &x0, int &y0 );
     std::tuple<int, int, int, int> GetCorrectedRegionCoords( );
-//    void GetCorrectedRegionCoords( int &x1, int &x2, int &y1, int &y2 );
     bool GetNormalizationFlag( );
 
   private:
