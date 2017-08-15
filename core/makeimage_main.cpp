@@ -274,34 +274,26 @@ int main( int argc, char *argv[] )
   
     // Save individual-function images, if requested
     if ((options->saveImage) && (options->saveAllFunctions)) {
-      string  currentFilename;
       vector<string> functionNames;
-      char  numstring[21];   // large enough to hold any 64-bit integer
       int  nFuncs = theModel->GetNFunctions();
       theModel->GetFunctionNames(functionNames);
-      string  newString;
-      char  *new_string;
       for (int i = 0; i < nFuncs; i++) {
         // Generate single-function image (exit if that failed -- e.g., due to
         // memory allocation failure)
+        string currentFilename, headerString;
         singleFunctionImage = theModel->GetSingleFunctionImage(paramsVect, i);
         if (singleFunctionImage == NULL) {
           fprintf(stderr, "\n*** ERROR: Unable to generate single-function image #%d!\n\n", i);
           exit(-1);
         }
-        currentFilename = options->functionRootName;
-        sprintf(numstring, "%d", i + 1);
-        currentFilename += numstring;
-        currentFilename += "_";
-        currentFilename += functionNames[i];
-        currentFilename += ".fits";
+        currentFilename = PrintToString("%s%d_%s.fits", options->functionRootName.c_str(),
+        								i + 1, functionNames[i].c_str());
         printf("%s\n", currentFilename.c_str());
         // Add comments for FITS header, describing this function
-        asprintf(&new_string, "FUNCTION %s", functionNames[i].c_str());
-        newString = new_string;
-        imageCommentsList.push_back(newString);
-        status = SaveVectorAsImage(singleFunctionImage, currentFilename, 
-                        nColumns, nRows, imageCommentsList);
+        headerString = PrintToString("FUNCTION %s", functionNames[i].c_str());
+        imageCommentsList.push_back(headerString);
+        status = SaveVectorAsImage(singleFunctionImage, currentFilename, nColumns, nRows, 
+        							imageCommentsList);
         if (status != 0) {
           fprintf(stderr,  "\n*** WARNING: Unable to save output single-function image file \"%s\"!\n\n", 
           			currentFilename.c_str());

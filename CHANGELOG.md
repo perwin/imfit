@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.5.0 -- 2017-mm-dd
+## 1.5.0 -- 2017-08-16
 ### Added:
 
 - Multiple oversampling regions: Imfit can now optionally convolve
@@ -16,15 +16,15 @@ can also add multiple invocations of `--overpsf <fits-filename>` and
 `overpsf-scale <int>` to specify that each oversampled region should be
 convolved with its own, separate PSF image.
 
-- New image function: FerrersBar3D. This is the classic Ferrers
+- New image function: FerrersBar3D. This is the classic Ferrers (1877)
 ellipsoid often used in modeling of orbits in barred-galaxy potentials,
-implementing a bounded triaxial ellipsoid seen at arbitrary orientation
-with luminosity density following the Ferrers ellipsoid mass-density
+which implements a bounded triaxial ellipsoid seen at arbitrary orientation
+with luminosity density following the Ferrers mass-density
 form. As with the ExponentialDisk3D and GaussianRing3D functions, this
 uses integration along the line of sight to construct the model image.<br><br>
 
 - Command-line flag `--no-normalize` will tell imfit, imfit-mcmc, and makeimage
-to *skip* normalization of any input PSF images (standard or oversampled). xxx
+to *skip* normalization of any input PSF images (standard or oversampled). 
 (Thanks to Corentin Schreiber for requesting this.)
 
 - Tab auto-completions (for the Bash shell)! Imfit now includes a shell
@@ -36,12 +36,8 @@ the TAB key when using the Bash shell.
 
 - Output MCMC chains produced by `imfit-mcmc` are now numbered starting with 1
 instead of with 0. (This is more consistent with the rest of Imfit, which uses
-1-based numbering everywhere outside of the actual C++ code. My apologies if
+1-based numbering almost everywhere outside of the actual C++ code. My apologies if
 this messes up anyone's analysis code!)
-
-- Binaries for MacOS X (or "macOS") are now compiled with GCC 7 instead of GCC 5.
-(But if you're compiling the source code yourself, any version of GCC from 4.9
-onward will do.)
 
 - I have started (very slowly) updating some of the code to make use of
 C++-11 features. This should have no visible effects, but might start to
@@ -49,10 +45,17 @@ be relevant for people hacking around with the code. It also means that
 Imfit now requires compilers that support C++-11 (e.g., GCC versions 4.8
 or newer).
 
-- The "--nosubsampling" flag has been renamed to "--no-subsampling"
+- The "--nosubsampling" flag has been renamed to "--no-subsampling", to be
+more consistent with other multi-syllabic option names.
 
 - Memory-use estimation now includes the effects of multiple PSF oversampling
 regions.
+
+- Binaries for MacOS X (or "macOS") are now compiled with GCC 7 instead of GCC 5.
+(But if you're compiling the source code yourself, any version of GCC from 4.8
+onward will do.)
+
+- I am no longer including pre-compiled versions for Mac OS X 10.6 or 10.7.
 
 ### Fixed:
 
@@ -84,6 +87,8 @@ than in version 1.3. The binary distribution for Macs is now linked to
 an FFTW library with both SSE2 and AVX support, and so should be as
 fast as version 1.3 again (and possibly a little faster on recent CPUs).
 
+- The Python function python/imfit.py was missing an "import numpy as np"
+statement; this has been fixed.
 
 
 ## 1.4.0 -- 2016-11-10

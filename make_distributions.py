@@ -25,6 +25,7 @@ os_machine_type = os.uname()[4]   # "x86-64", etc.
 
 # basic scons command (specifies use of OpenMP and static linking)
 scons_string = "scons --static"
+scons_string_mac = "scons --allstatic"
 
 SOURCE_TARFILE = "imfit-%s-source.tar.gz" % VERSION_STRING
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
@@ -135,34 +136,34 @@ def MakeDistributionDir( mode="binary" ):
 	shutil.copy("SConstruct_export", distDir + "SConstruct")
 
 
-def MakeFatFile( file1, file2, outputName ):
-	cmdText = "lipo -create {0} {1} -output {2}".format(file1, file2, outputName)
-	subprocess.check_output(cmdText, shell=True)
-	
-def MakeFatBinaries( ):
-	"""We need this because we now default to using GCC 5.1, which cannot make
-	"fat" binaries by default.
-	We only do this for the "oldmac" case (Mac OS X 10.6 and 10.7), since
-	no one is trying to run 32-bit programs on 10.8 or later.
-	"""
-
-	print("   Calling SCons to generate 32-bit imfit binary for Mac OS 10.6/10.7...")
-	subprocess.check_output(scons_string_oldmac + " --32bit" + " imfit", shell=True)
-	shutil.move("imfit", "imfit32")
-	print("   Calling SCons to generate 64-bit imfit binary for Mac OS 10.6/10.7...")
-	subprocess.check_output(scons_string_oldmac + " imfit", shell=True)
-	shutil.move("imfit", "imfit64")
-	print("Merging into combined 32-bit/64-bit binary...")
-	MakeFatFile("imfit32", "imfit64", "imfit")
-
-	print("   Calling SCons to generate 32-bit makeimage binary for Mac OS 10.6/10.7...")
-	subprocess.check_output(scons_string_oldmac + " --32bit" + " makeimage", shell=True)
-	shutil.move("makeimage", "makeimage32")
-	print("   Calling SCons to generate 64-bit makeimage binary for Mac OS 10.6/10.7...")
-	subprocess.check_output(scons_string_oldmac + " makeimage", shell=True)
-	shutil.move("makeimage", "makeimage64")
-	print("Merging into combined 32-bit/64-bit binary...")
-	MakeFatFile("makeimage32", "makeimage64", "makeimage")
+# def MakeFatFile( file1, file2, outputName ):
+# 	cmdText = "lipo -create {0} {1} -output {2}".format(file1, file2, outputName)
+# 	subprocess.check_output(cmdText, shell=True)
+# 	
+# def MakeFatBinaries( ):
+# 	"""We need this because we now default to using GCC 5.1, which cannot make
+# 	"fat" binaries by default.
+# 	We only do this for the "oldmac" case (Mac OS X 10.6 and 10.7), since
+# 	no one is trying to run 32-bit programs on 10.8 or later.
+# 	"""
+# 
+# 	print("   Calling SCons to generate 32-bit imfit binary for Mac OS 10.6/10.7...")
+# 	subprocess.check_output(scons_string_oldmac + " --32bit" + " imfit", shell=True)
+# 	shutil.move("imfit", "imfit32")
+# 	print("   Calling SCons to generate 64-bit imfit binary for Mac OS 10.6/10.7...")
+# 	subprocess.check_output(scons_string_oldmac + " imfit", shell=True)
+# 	shutil.move("imfit", "imfit64")
+# 	print("Merging into combined 32-bit/64-bit binary...")
+# 	MakeFatFile("imfit32", "imfit64", "imfit")
+# 
+# 	print("   Calling SCons to generate 32-bit makeimage binary for Mac OS 10.6/10.7...")
+# 	subprocess.check_output(scons_string_oldmac + " --32bit" + " makeimage", shell=True)
+# 	shutil.move("makeimage", "makeimage32")
+# 	print("   Calling SCons to generate 64-bit makeimage binary for Mac OS 10.6/10.7...")
+# 	subprocess.check_output(scons_string_oldmac + " makeimage", shell=True)
+# 	shutil.move("makeimage", "makeimage64")
+# 	print("Merging into combined 32-bit/64-bit binary...")
+# 	MakeFatFile("makeimage32", "makeimage64", "makeimage")
 
 def MakeOldMacBinaries( ):
 	"""This is for making 64-bit binaries for Mac OS X 10.6 or 10.7.
@@ -177,17 +178,22 @@ def MakeOldMacBinaries( ):
 
 def MakeBinaries( mode=None ):
 	# Generate appropriate binaries
-	if (mode is None):
+	print("MakeBinaries: mode = %s" % mode)
+	if (mode == "Darwin") or (mode == "Linux"):
 		# Mac OS 10.8 or newer, or Linux
+		if (mode is "Darwin"):
+			# use "--allstatic" to force static linking of GCC libraries (esp. libgomp)
+			scons_string_final = scons_string_mac
+		else:
+			scons_string_final = scons_string
 		print("   Calling SCons to generate imfit binary...")
-		subprocess.check_output(scons_string + " imfit", shell=True)
+		subprocess.check_output(scons_string_final + " imfit", shell=True)
 		print("   Calling SCons to generate makeimage binary...")
-		subprocess.check_output(scons_string + " makeimage", shell=True)
+		subprocess.check_output(scons_string_final + " makeimage", shell=True)
 		print("   Calling SCons to generate imfit-mcmc binary...")
-		subprocess.check_output(scons_string + " imfit-mcmc", shell=True)
-	else:
+		subprocess.check_output(scons_string_final + " imfit-mcmc", shell=True)
+	else:   # mode = "oldmac"
 		# Mac OS 10.6 or 10.7
-		#MakeFatBinaries()
 		MakeOldMacBinaries()
 	
 
@@ -254,7 +260,7 @@ def main(argv):
 	if options.binaryDist is True:
 		if (os_type == "Darwin"):
 			print("\nGenerating binary-only Mac distribution (%s)..." % BINARY_TARFILE)
-			MakeBinaries()
+			MakeBinaries(mode=os_type)
 			MakeDistributionDir(mode="binary")
 			MakeBinaryDist()
 # 			print("Generating binary-only Mac distribution for 10.6/10.7 (%s)..." % BINARY_TARFILE_OLDMAC)

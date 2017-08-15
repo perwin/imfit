@@ -8,10 +8,6 @@
 
 ** NEAR-TERM FUTURE TODO:
 
-[ ] Update run_unit_tests.sh to accumulate number of failures and report success/failure
-with green/red text.
-
-
 (1.5)[..] Add option to turn *off* normalization of input PSFs
 	-- Corentin Schreiber requested this for working with interferometric images,
 	which use "a peculiar point spread function, with a peak of unity and sum of zero."
@@ -42,6 +38,7 @@ with green/red text.
 	[x] Update SetupModelObject
 		[x] Update calls to ModelObject::AddPSFVector
 	[ ] Feedback (& PSF image??) from Corentin Schrieber
+		[X] Does it work the way he wanted it to?
 		[ ] Ask for PSF image so we can test non-normalized PSF?
 		
 	
@@ -175,6 +172,11 @@ with green/red text.
 	[X] Fix missing blank line between function blocks in output
 	[X] Add regression test to make sure this doesn't happen again.
 	
+
+[X] Update run_unit_tests.sh to accumulate number of failures and report success/failure
+with green/red text.
+
+
 
 [X] Test image convolution with even-numbered-pixel arrays (e.g., 4x4 PSF image)
 	-- gauss_36x36.fits, gauss_35x35.fits

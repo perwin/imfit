@@ -64,8 +64,9 @@ string vformat( const char *fmt, va_list ap )
 {
   // Allocate a buffer on the stack that's big enough for us almost
   // all the time.  Be prepared to allocate dynamically if it doesn't fit.
-  size_t  size = 1024;
-  char  stackbuf[1024];
+  const size_t INITIAL_BUFFER_SIZE = 1024;
+  size_t  size = INITIAL_BUFFER_SIZE;
+  char  stackbuf[INITIAL_BUFFER_SIZE];
   vector<char>  dynamicbuf;
   char *buf = &stackbuf[0];
 
