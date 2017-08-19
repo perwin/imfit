@@ -49,6 +49,6 @@ class Sersic : public FunctionObject
 
   private:
   double  x0, y0, PA, ell, n, I_e, r_e;   // parameters
-  double  n2, bn, invn;
+  double  bn, invn;
   double  q, PA_rad, cosPA, sinPA;   // other useful (shape-related) quantities
 };

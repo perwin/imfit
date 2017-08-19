@@ -217,8 +217,6 @@ public:
     bool  subsampleFlag = false;
     thisFunc = new Exponential();
     thisFunc->SetSubsampling(subsampleFlag);
-//    subsampleFlag = true;
-//    thisFunc_subsampled = new Exponential(subsampleFlag);
   }
   
   void tearDown()
@@ -320,8 +318,6 @@ public:
     bool  subsampleFlag = false;
     thisFunc = new Sersic();
     thisFunc->SetSubsampling(subsampleFlag);
-//    subsampleFlag = true;
-//    thisFunc_subsampled = new Sersic(subsampleFlag);
   }
   
   void tearDown()

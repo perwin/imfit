@@ -52,6 +52,6 @@ class CoreSersic : public FunctionObject
 
   private:
   double  x0, y0, PA, ell, n, I_b, r_e, r_b, alpha, gamma;   // parameters
-  double  n2, bn, invn, Iprime;
+  double  bn, invn, Iprime;
   double  q, PA_rad, cosPA, sinPA;   // other useful (shape-related) quantities
 };
