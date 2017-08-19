@@ -1,4 +1,6 @@
-// Copyright 2015 by Peter Erwin.
+/* FILE: solver_results.cpp ---------------------------------------------- */
+
+// Copyright 2015, 2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -225,3 +227,7 @@ void SolverResults::GetErrors( double *errors )
   for (int i = 0; i < nParameters; i++)
     errors[i] = paramSigmas[i];
 }
+
+
+
+/* END OF FILE: solver_results.cpp --------------------------------------- */

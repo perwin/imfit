@@ -47,7 +47,7 @@ class ModelObject
     
     
     // Adds a new FunctionObject pointer to the internal vector
-    void AddFunction( FunctionObject *newFunctionObj_ptr );
+    virtual void AddFunction( FunctionObject *newFunctionObj_ptr );
     
     // common, but Specialized by ModelObject1D
     virtual void DefineFunctionBlocks( vector<int>& functionStartIndices );
@@ -191,7 +191,7 @@ class ModelObject
     long GetNDataValues( );
 
     // Returns total number of *non-masked* data values
-    long GetNValidPixels( );
+    virtual long GetNValidPixels( );
 
 	// 2D only
     bool HasPSF( );
@@ -199,7 +199,7 @@ class ModelObject
     bool HasMask( );
 
 	// 2D only
-    double * GetModelImageVector( );
+    virtual double * GetModelImageVector( );
 
 	// 2D only
     double * GetExpandedModelImageVector( );

@@ -94,7 +94,6 @@ double myfunc_nlopt( unsigned n, const double *x, double *grad, void *my_func_da
     if ((funcCallCount % FUNCS_PER_REPORTING_STEP) == 0) {
       printf("\tN-M simplex: function call %d: objective = %f\n", funcCallCount, fitStatistic);
       if ( (verboseOutput > 1) && ((funcCallCount % (REPORT_STEPS_PER_VERBOSE_OUTPUT*FUNCS_PER_REPORTING_STEP)) == 0) ) {
-//         theModel->PrintModelParams(stdout, params, NULL);
         PrintParametersSimple(theModel, params);
       }
     }
@@ -237,7 +236,6 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, mp_par *parameterLi
   free(maxParamValues);
   return (int)result;
 }
-
 
 
 

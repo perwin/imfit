@@ -1,6 +1,6 @@
 /* FILE: levmar_fit.cpp -------------------------------------------------- */
 
-// Copyright 2012, 2013, 2015 by Peter Erwin.
+// Copyright 2012, 2013, 2015, 2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

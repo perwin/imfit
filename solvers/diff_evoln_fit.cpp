@@ -11,7 +11,7 @@
  *
  */
 
-// Copyright 2010--2014 by Peter Erwin.
+// Copyright 2010--2017 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -82,7 +82,6 @@ public:
 
 private:
   int count;
-//  double  lastChiSquared;
   ModelObject  *theModel;
 };
 

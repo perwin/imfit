@@ -298,7 +298,7 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 }
 
 
-/* ---------------- PUBLIC METHOD: AddParameterInfo ------------------- */
+/* ---------------- PUBLIC METHOD: PrintParameterInfoLine ------------- */
 
 void PrintParameterInfoLine( int i, SimpleParameterInfo p )
 {

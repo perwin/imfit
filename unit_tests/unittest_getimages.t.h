@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 using namespace std;
+
 #include "fftw3.h"
 #include "getimages.h"
 #include "options_base.h"
@@ -18,12 +19,6 @@ const string ONES_IMAGE_3x3("tests/testimage_3x3_ones.fits");
 const string IMAGE_3x3("tests/testimage_3x3_onezero.fits");
 const int N_PIXELS_ONES_IMAGE = 9;
 
-
-// std::tuple<double *, int> GetAndCheckImage( const string imageName, const string imageType,
-// 											int nColumns_ref, int nRows_ref );
-// std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRows, 
-// 										OptionsBase *options,  bool &maskPixelsAllocated, 
-// 										bool &errorPixelsAllocated );
 
 const double  DELTA = 1.0e-9;
 const double  DELTA_e7 = 1.0e-7;
@@ -109,17 +104,20 @@ public:
     int  status;
     double  *maskPixels;
     double  *errPixels;
-    OptionsBase *options = new OptionsBase();
+    string  maskImageName = "";
+    string  errImageName = "";
     int  nCols_ref = 3;
     int  nRows_ref = 3;
     bool  maskAllocated = false;
     bool  errAllocated = false;
 
     std::tie(maskPixels, errPixels, status) = GetMaskAndErrorImages(nCols_ref, nRows_ref,
-    				 							options, maskAllocated, errAllocated);
+    				 							maskImageName, errImageName, maskAllocated, errAllocated);
     TS_ASSERT_EQUALS(status, 0);
-    
-    delete options;
+    TS_ASSERT_EQUALS(maskAllocated, false);
+    TS_ASSERT_EQUALS(errAllocated, false);
+    TS_ASSERT_EQUALS(maskPixels, nullptr);
+    TS_ASSERT_EQUALS(errPixels, nullptr);
   }
 
   void testBadMaskName( void )
@@ -127,19 +125,20 @@ public:
     int  status;
     double  *maskPixels;
     double  *errPixels;
-    OptionsBase *options = new OptionsBase();
+    string  maskImageName = NONEXISTENT_IMAGENAME;
+    string  errImageName = "";
     int  nCols_ref = 3;
     int  nRows_ref = 3;
     bool  maskAllocated = false;
     bool  errAllocated = false;
 
-    options->maskImagePresent = true;
-    options->maskFileName = NONEXISTENT_IMAGENAME;
     std::tie(maskPixels, errPixels, status) = GetMaskAndErrorImages(nCols_ref, nRows_ref,
-    				 							options, maskAllocated, errAllocated);
+    				 							maskImageName, errImageName, maskAllocated, errAllocated);
     TS_ASSERT_EQUALS(status, -1);
-    
-    delete options;
+    TS_ASSERT_EQUALS(maskAllocated, false);
+    TS_ASSERT_EQUALS(errAllocated, false);
+    TS_ASSERT_EQUALS(maskPixels, nullptr);
+    TS_ASSERT_EQUALS(errPixels, nullptr);
   }
 
   void testBadMaskFile( void )
@@ -147,19 +146,20 @@ public:
     int  status;
     double  *maskPixels;
     double  *errPixels;
-    OptionsBase *options = new OptionsBase();
+    string  maskImageName = NONIMAGE_FILE;
+    string  errImageName = "";
     int  nCols_ref = 3;
     int  nRows_ref = 3;
     bool  maskAllocated = false;
     bool  errAllocated = false;
 
-    options->maskImagePresent = true;
-    options->maskFileName = NONIMAGE_FILE;
     std::tie(maskPixels, errPixels, status) = GetMaskAndErrorImages(nCols_ref, nRows_ref,
-    				 							options, maskAllocated, errAllocated);
+    				 							maskImageName, errImageName, maskAllocated, errAllocated);
     TS_ASSERT_EQUALS(status, -1);
-    
-    delete options;
+    TS_ASSERT_EQUALS(maskAllocated, false);
+    TS_ASSERT_EQUALS(errAllocated, false);
+    TS_ASSERT_EQUALS(maskPixels, nullptr);
+    TS_ASSERT_EQUALS(errPixels, nullptr);
   }
 
   void testBadMaskSize( void )
@@ -167,21 +167,20 @@ public:
     int  status;
     double  *maskPixels;
     double  *errPixels;
-    OptionsBase *options = new OptionsBase();
+    string  maskImageName = ONES_IMAGE_3x3;
+    string  errImageName = "";
     int  nCols_ref = 10;
     int  nRows_ref = 10;
     bool  maskAllocated = false;
     bool  errAllocated = false;
 
-    options->maskImagePresent = true;
-    options->maskFileName = ONES_IMAGE_3x3;
     std::tie(maskPixels, errPixels, status) = GetMaskAndErrorImages(nCols_ref, nRows_ref,
-    				 							options, maskAllocated, errAllocated);
+    				 							maskImageName, errImageName, maskAllocated, errAllocated);
     TS_ASSERT_EQUALS(status, -1);
     TS_ASSERT_EQUALS(maskAllocated, false);
     TS_ASSERT_EQUALS(errAllocated, false);
-    
-    delete options;
+    TS_ASSERT_EQUALS(maskPixels, nullptr);
+    TS_ASSERT_EQUALS(errPixels, nullptr);
   }
 
   void testGoodMaskFile( void )
@@ -189,24 +188,22 @@ public:
     int  status;
     double  *maskPixels;
     double  *errPixels;
-    OptionsBase *options = new OptionsBase();
+    string  maskImageName = ONES_IMAGE_3x3;
+    string  errImageName = "";
     int  nCols_ref = 3;
     int  nRows_ref = 3;
     bool  maskAllocated = false;
     bool  errAllocated = false;
 
-    options->maskImagePresent = true;
-    options->maskFileName = ONES_IMAGE_3x3;
     std::tie(maskPixels, errPixels, status) = GetMaskAndErrorImages(nCols_ref, nRows_ref,
-    				 							options, maskAllocated, errAllocated);
+    				 							maskImageName, errImageName, maskAllocated, errAllocated);
     TS_ASSERT_EQUALS(status, 1);
     TS_ASSERT_EQUALS(maskAllocated, true);
     TS_ASSERT_EQUALS(errAllocated, false);
+    TS_ASSERT_EQUALS(errPixels, nullptr);
     for (int i = 0; i < N_PIXELS_ONES_IMAGE; i++)
       TS_ASSERT_EQUALS(maskPixels[i], 1.0);
-    TS_ASSERT_EQUALS(errPixels, nullptr);
 
-    delete options;
     fftw_free(maskPixels);
   }
 
@@ -215,21 +212,20 @@ public:
     int  status;
     double  *maskPixels;
     double  *errPixels;
-    OptionsBase *options = new OptionsBase();
+    string  maskImageName = "";
+    string  errImageName = ONES_IMAGE_3x3;
     int  nCols_ref = 10;
     int  nRows_ref = 10;
     bool  maskAllocated = false;
     bool  errAllocated = false;
 
-    options->noiseImagePresent = true;
-    options->noiseFileName = ONES_IMAGE_3x3;
     std::tie(maskPixels, errPixels, status) = GetMaskAndErrorImages(nCols_ref, nRows_ref,
-    				 							options, maskAllocated, errAllocated);
+    				 							maskImageName, errImageName, maskAllocated, errAllocated);
     TS_ASSERT_EQUALS(status, -1);
     TS_ASSERT_EQUALS(maskAllocated, false);
     TS_ASSERT_EQUALS(errAllocated, false);
-    
-    delete options;
+    TS_ASSERT_EQUALS(maskPixels, nullptr);
+    TS_ASSERT_EQUALS(errPixels, nullptr);
   }
 
   void testGoodErrFile( void )
@@ -237,24 +233,22 @@ public:
     int  status;
     double  *maskPixels;
     double  *errPixels;
-    OptionsBase *options = new OptionsBase();
+    string  maskImageName = "";
+    string  errImageName = ONES_IMAGE_3x3;
     int  nCols_ref = 3;
     int  nRows_ref = 3;
     bool  maskAllocated = false;
     bool  errAllocated = false;
 
-    options->noiseImagePresent = true;
-    options->noiseFileName = ONES_IMAGE_3x3;
     std::tie(maskPixels, errPixels, status) = GetMaskAndErrorImages(nCols_ref, nRows_ref,
-    				 							options, maskAllocated, errAllocated);
+    				 							maskImageName, errImageName, maskAllocated, errAllocated);
     TS_ASSERT_EQUALS(status, 2);
     TS_ASSERT_EQUALS(maskAllocated, false);
     TS_ASSERT_EQUALS(errAllocated, true);
+    TS_ASSERT_EQUALS(maskPixels, nullptr);
     for (int i = 0; i < N_PIXELS_ONES_IMAGE; i++)
       TS_ASSERT_EQUALS(errPixels[i], 1.0);
-    TS_ASSERT_EQUALS(maskPixels, nullptr);
 
-    delete options;
     fftw_free(errPixels);
   }
 
@@ -263,18 +257,15 @@ public:
     int  status;
     double  *maskPixels;
     double  *errPixels;
-    OptionsBase *options = new OptionsBase();
+    string  maskImageName = ONES_IMAGE_3x3;
+    string  errImageName = ONES_IMAGE_3x3;
     int  nCols_ref = 3;
     int  nRows_ref = 3;
     bool  maskAllocated = false;
     bool  errAllocated = false;
 
-    options->maskImagePresent = true;
-    options->noiseImagePresent = true;
-    options->maskFileName = ONES_IMAGE_3x3;
-    options->noiseFileName = ONES_IMAGE_3x3;
     std::tie(maskPixels, errPixels, status) = GetMaskAndErrorImages(nCols_ref, nRows_ref,
-    				 							options, maskAllocated, errAllocated);
+    				 							maskImageName, errImageName, maskAllocated, errAllocated);
     TS_ASSERT_EQUALS(status, 3);
     TS_ASSERT_EQUALS(maskAllocated, true);
     TS_ASSERT_EQUALS(errAllocated, true);
@@ -283,11 +274,11 @@ public:
     for (int i = 0; i < N_PIXELS_ONES_IMAGE; i++)
       TS_ASSERT_EQUALS(errPixels[i], 1.0);
 
-    delete options;
     fftw_free(maskPixels);
     fftw_free(errPixels);
   }
 };
+
 
 class TestGetPsfImage : public CxxTest::TestSuite
 {
@@ -296,13 +287,11 @@ public:
   void testBadName( void )
   {
     int  status;
-    OptionsBase *options = new OptionsBase();
+    string  psfFilename = NONEXISTENT_IMAGENAME;
     double  *pixels;
     int  nCols, nRows;
 
-    options->psfImagePresent = true;
-    options->psfFileName = NONEXISTENT_IMAGENAME;
-    std::tie(pixels, nCols, nRows, status) = GetPsfImage(options);
+    std::tie(pixels, nCols, nRows, status) = GetPsfImage(psfFilename);
     TS_ASSERT_EQUALS(status, -1);
     TS_ASSERT_EQUALS(pixels, nullptr);
   }
@@ -310,13 +299,11 @@ public:
   void testBadFile( void )
   {
     int  status;
-    OptionsBase *options = new OptionsBase();
+    string  psfFilename = NONIMAGE_FILE;
     double  *pixels;
     int  nCols, nRows;
 
-    options->psfImagePresent = true;
-    options->psfFileName = NONIMAGE_FILE;
-    std::tie(pixels, nCols, nRows, status) = GetPsfImage(options);
+    std::tie(pixels, nCols, nRows, status) = GetPsfImage(psfFilename);
     TS_ASSERT_EQUALS(status, -1);
     TS_ASSERT_EQUALS(pixels, nullptr);
   }
@@ -324,19 +311,16 @@ public:
   void testGoodFile( void )
   {
     int  status;
-    OptionsBase *options = new OptionsBase();
+    string  psfFilename = ONES_IMAGE_3x3;
     double  *pixels;
     int  nCols = 0;
     int  nRows = 0;
 
-    options->psfImagePresent = true;
-    options->psfFileName = ONES_IMAGE_3x3;
-    std::tie(pixels, nCols, nRows, status) = GetPsfImage(options);
+    std::tie(pixels, nCols, nRows, status) = GetPsfImage(psfFilename);
     TS_ASSERT_EQUALS(status, 0);
     TS_ASSERT_EQUALS(nCols, 3);
     TS_ASSERT_EQUALS(nRows, 3);
     for (int i = 0; i < N_PIXELS_ONES_IMAGE; i++)
       TS_ASSERT_EQUALS(pixels[i], 1.0);
   }
-
 };

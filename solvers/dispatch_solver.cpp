@@ -1,3 +1,34 @@
+/** @file
+ * \brief DispatchToSolver function.
+ */
+/* FILE: dispatch_solver.cpp --------------------------------------------- */
+
+// Copyright 2010--2017 by Peter Erwin.
+// 
+// This file is part of Imfit.
+// 
+// Imfit is free software: you can redistribute it and/or modify it under
+// the terms of the GNU General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// Imfit is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+// for more details.
+// 
+// You should have received a copy of the GNU General Public License along
+// with Imfit.  If not, see <http://www.gnu.org/licenses/>.
+
+
+// * Return values:
+// 1 = Generic success return value (e.g., fit-statistic convergence)
+// 5 = Optimization stopped because maximum number of generations was reached
+// Error codes (negative return values)
+// -1  = Generic failure code [NOT USED YET]
+// -2 = Missing fitting bounds for at least one parameter.
+// -5 = Halted because user objective function returned NaN.
+
 #include <stdio.h>
 
 #include "definitions.h"
@@ -51,12 +82,4 @@ int DispatchToSolver( int solverID, int nParametersTot, int nFreeParameters, int
 }
 
 
-
-// in main():
-// 
-//   fitStatus = DispatchSolver(options.solver, nParamsTot, nFreeParams, nPixels_tot, paramsVect,
-//   							 parameterInfo, theModel, options.ftol, paramLimitsExist,
-// 							 options.verbose, &resultsFromSolver, options.nloptSolverName);
-// 
-//   PrintResults(paramsVect, 0, theModel, nFreeParams, parameterInfo, fitStatus);
-// 
+/* END OF FILE: dispatch_solver.cpp -------------------------------------- */

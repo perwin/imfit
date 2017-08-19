@@ -181,7 +181,7 @@ int main( int argc, char *argv[] )
   
   // Read in PSF image, if supplied
   if (options->psfImagePresent) {
-    std::tie(psfPixels, nColumns_psf, nRows_psf, status) = GetPsfImage(options);
+    std::tie(psfPixels, nColumns_psf, nRows_psf, status) = GetPsfImage(options->psfFileName);
     if (status < 0)
       exit(-1);
   }

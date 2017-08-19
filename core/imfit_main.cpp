@@ -206,13 +206,14 @@ int main(int argc, char *argv[])
 
   // Get (and check) mask and/or error images
   std::tie(allMaskPixels, allErrorPixels, status) = GetMaskAndErrorImages(nColumns, nRows, 
-  													options, maskAllocated, errorPixels_allocated);
+  										options->maskFileName, options->noiseFileName, 
+  										maskAllocated, errorPixels_allocated);
   if (status < 0)
     exit(-1);
 
   // Read in PSF image, if supplied
   if (options->psfImagePresent) {
-    std::tie(psfPixels, nColumns_psf, nRows_psf, status) = GetPsfImage(options);
+    std::tie(psfPixels, nColumns_psf, nRows_psf, status) = GetPsfImage(options->psfFileName);
     if (status < 0)
       exit(-1);
   }

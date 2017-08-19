@@ -18,9 +18,6 @@
 #ifndef _DESOLVER_H
 #define _DESOLVER_H
 
-// #if !defined(_DESOLVER_H)
-// #define _DESOLVER_H
-
 const int stBest1Exp       =    0;
 const int stRand1Exp       =    1;
 const int stRandToBest1Exp =    2;
@@ -94,7 +91,6 @@ protected:
   int generations;
 
   int strategy;
-//	StrategyFunction calcTrialSolution;
   double scale;
   double probability;
 
