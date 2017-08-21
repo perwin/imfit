@@ -363,26 +363,54 @@ image (accounting for data image subset, if any)
 	E.g., a function block consistent of a Gaussian and an Exponential with
 	the exact same PA:
 	
-	X0  40		35,45
-	Y0	50		45,55
-	PA	15		0,30
+	X0 		 	40		35,45
+	Y0			50		45,55
+	PA_block	15		0,30
 	FUNCTION Gaussian
-	PA		link=PA
+	PA		link=PA_block
 	ell		0.3		fixed
 	I_0		100
 	sigma	1.0
 	FUNCTION Exponential
-	PA		link=PA
+	PA		link=PA_block
 	ell		0.5		0.2,0.8
 	I_0		10		0,50
 	h		100		50,200
 	
 	Need some way of tagging parameter vector so we know which individual-function
 	parameters are duplicated
+		-- I.e., *remove* those parameters from the main parameter vector sent to
+		the solver or MCMC; have logic in ModelObject which can copy PA_block
+		value 
+		
 	
 	Note that these are similar to but also *orthogonal* to the image-description
 	parameters; perhaps we can use some of the same logic for assembling and
 	disassembling parameter vectors
+	
+	Conceptually, we have *block parameters* -- X0,Y0,PA_block,inc_block --
+	and function parameters. All functions in a block already refer to X0,Y0 in the 
+	block parameters
+	
+	[X]How do we coordinate PA between 2D and 3D image functions?
+		OK, our standard definition for a 3D function's line of nodes is
+		the *same* as for 2D functions, so we're OK there
+		What about PA for e.g. GaussianRing3D or FerrersBar3D? For now, don't
+		worry about it...
+	
+	[-]Add SetPA() method to FunctionObject, which overrides any internal extraction
+	of PA from main parameter vector?
+		-- this implies that we *know* which parameters are PA-related, which
+		is maybe too much specialization (or too much information in ModelObject
+		vs in the FunctionObjects)
+	OR:
+	[-]Always pass in X0,Y0,PA,inc to all functions; let functions decide what to
+	do with them. (Needs a way of telling functions that they're supposed to use
+	block PA and/or inc when setting them up.)
+		-- We would still need logic in main to remove unneeded PA and inc parameters
+		from the main parameter vector, and logic in ModelObject to add in (dummy)
+		values to the parameters passed to the FunctionObjects ...
+
 
 
 [ ] Separate the code which does model-image-generation timing into separate file

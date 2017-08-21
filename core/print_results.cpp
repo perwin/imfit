@@ -67,9 +67,8 @@ void GetSolverSummary( int status, int solverID, string& outputString );
 // Craig Markwardt's testmpfit.c, but will also accomodate results from a fit
 // done with other minimization algorithms, such as Nelder-Mead simplex or
 // Differential Evolution (call with result=0 to indicate non-LM optimizer).
-void PrintResults( double *params, ModelObject *model, int nFreeParameters, 
-					mp_par *parameterInfo, int fitStatus, SolverResults& solverResults,
-					bool recomputeStatistic )
+void PrintResults( double *params, ModelObject *model, int nFreeParameters, int fitStatus, 
+					SolverResults& solverResults, bool recomputeStatistic )
 {
   long  nValidPixels = model->GetNValidPixels();
   long  nDegreesFreedom = nValidPixels - nFreeParameters;
@@ -78,7 +77,7 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
   string  fitStatName, reducedStatName;
   double  fitStatistic, aic, bic;
   bool  printReduced;
-  mp_result  *mpResult;
+  mp_result  *mpResult = nullptr;
   
   whichStat = model->WhichFitStatistic();
   whichSolver = solverResults.GetSolverType();
@@ -94,7 +93,7 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters,
     InterpretMpfitResult(fitStatus, mpfitMessage);
     printf("\n*** mpfit status = %d -- %s\n", fitStatus, mpfitMessage.c_str());
     // Only print results of fit if valid fit was achieved
-    if ((params == 0) || (mpResult == 0))
+    if ((params == nullptr) || (mpResult == nullptr))
       return;
     if (whichStat == FITSTAT_CASH) {
       printf("  CASH STATISTIC = %f    (%ld DOF)\n", mpResult->bestnorm, nDegreesFreedom);
@@ -217,9 +216,9 @@ void GetSolverSummary( int status, int solverID, string& outputString )
 
 
 /// Saves best-fit parameters (and summary of fit statistics) to a file.
-void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
-         			 string& outputFilename, vector<string>& outputHeader,
-                    int nFreeParameters, int whichSolver, int fitStatus, SolverResults& solverResults )
+void SaveParameters( double *params, ModelObject *model, string& outputFilename, 
+					vector<string>& outputHeader, int nFreeParameters, int whichSolver, 
+					int fitStatus, SolverResults& solverResults )
 {
   FILE  *file_ptr;
   string  statName, algorithmSummary;
@@ -292,7 +291,7 @@ void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo,
 
 // Same as SaveParameters, but requires a previously opened file pointer; also allows
 // optional prefix string for each line (default declaration in header file = "")
-void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
+void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, 
                     vector<string>& outputHeader, const char *prefix )
 {
   for (int i = 0; i < (int)outputHeader.size(); i++)

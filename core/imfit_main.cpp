@@ -391,7 +391,7 @@ int main(int argc, char *argv[])
     							options->rngSeed);
     gettimeofday(&timer_end_fit, NULL);
     							
-    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
+    PrintResults(paramsVect, theModel, nFreeParams, fitStatus, resultsFromSolver);
   }
 
 
@@ -400,8 +400,7 @@ int main(int argc, char *argv[])
     if (options->saveBootstrap) {
       bootstrapSaveFile_ptr = fopen(options->outputBootstrapFileName.c_str(), "w");
       // write general info + best-fitting params as a commented-out header
-      SaveParameters2(bootstrapSaveFile_ptr, paramsVect, theModel, parameterInfo, 
-      				programHeader, "#");
+      SaveParameters2(bootstrapSaveFile_ptr, paramsVect, theModel, programHeader, "#");
     }
     
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
@@ -428,9 +427,8 @@ int main(int argc, char *argv[])
   // anyway, and the user might just have given us a bad path for one of the output images
   if (options->saveBestFitParams) {
     printf("Saving best-fit parameters in file \"%s\"\n", options->outputParameterFileName.c_str());
-    SaveParameters(paramsVect, theModel, parameterInfo, options->outputParameterFileName,
-    								programHeader, nFreeParams, options->solver, 
-    								fitStatus, resultsFromSolver);
+    SaveParameters(paramsVect, theModel, options->outputParameterFileName, programHeader, 
+    						nFreeParams, options->solver, fitStatus, resultsFromSolver);
   }
   if (options->saveModel) {
     PrepareImageComments(&imageCommentsList, progNameVersion, options->outputParameterFileName,

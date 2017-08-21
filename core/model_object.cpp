@@ -1259,10 +1259,15 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
   if (modelErrors)
     UpdateWeightVector();
 
+
   // In standard case, z = index into dataVector, weightVector, and yResults; it comes 
   // from linearly stepping through (0, ..., nDataVals).
   // In the bootstrap case, z = index into yResults and bootstrapIndices vector;
   // b = bootstrapIndices[z] = index into dataVector and weightVector
+  
+  // NOTE: in the doConvolution case, the algorithm is sufficiently complicated that
+  // it makes sense to keep it in the current form, with PMLR or chi^2 calculation
+  // for each pixel being done with if/else statements
   
   if (doConvolution) {
     // Step through model image so that we correctly match its pixels with corresponding
@@ -1293,24 +1298,30 @@ void ModelObject::ComputeDeviates( double yResults[], double params[] )
     }
   }   // end if convolution case
   
+  // NOTE: in the non-convolution case, the algorithm is simple enough that we can
+  // write it as separate loops for the PMLR vs chi^2 cases (which allows the
+  // compiler to auto-vectorize the loops in the chi^2 case)
   else {
     // No convolution, so model image is same size & shape as data and weight images
     if (doBootstrap) {
-      for (z = 0; z < nValidDataVals; z++) {
-        b = bootstrapIndices[z];
-        if (poissonMLR)
+      if (poissonMLR)
+        for (z = 0; z < nValidDataVals; z++) {
+          b = bootstrapIndices[z];
           yResults[z] = ComputePoissonMLRDeviate(b, b);
-        else   // standard chi^2 term
+        } else {   // standard chi^2 term
+        for (z = 0; z < nValidDataVals; z++) {
+          b = bootstrapIndices[z];
           yResults[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
+        }
        }
     }
     else {
-      for (z = 0; z < nDataVals; z++) {
-        if (poissonMLR)
+      if (poissonMLR)
+        for (z = 0; z < nDataVals; z++)
           yResults[z] = ComputePoissonMLRDeviate(z, z);
-        else   // standard chi^2 term
+      else   // standard chi^2 term
+        for (z = 0; z < nDataVals; z++)
           yResults[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
-      }
     }
     
   }  // end else (non-convolution case)
@@ -1503,6 +1514,7 @@ double ModelObject::ChiSquared( double params[] )
         deviatesVector[z] = weightVector[b] * (dataVector[b] - modelVector[b]);
       }
     } else {
+      // Note: this loop is auto-vectorized when compiling with -O3 and -sse2 (g++-7)
       for (z = 0; z < nDataVals; z++) {
         deviatesVector[z] = weightVector[z] * (dataVector[z] - modelVector[z]);
       }
@@ -2089,6 +2101,7 @@ double * ModelObject::GetResidualImageVector( )
   }
   else {
     // Model image is same size & shape as data and weight images
+    // Note: this loop is auto-vectorized when compiling with -O3 and -sse2 (g++-7)
     for (z = 0; z < nDataVals; z++) {
       residualVector[z] = (dataVector[z] - modelVector[z]);
     }
@@ -2115,6 +2128,7 @@ double * ModelObject::GetWeightImageVector( )
     return NULL;
   }
   for (long z = 0; z < nDataVals; z++) {
+    // Note: this loop is auto-vectorized when compiling with -O3 and -sse2 (g++-7)
     double  w_sqrt = weightVector[z];   // internal weight value (sqrt of formal weight)
   	standardWeightVector[z] = w_sqrt*w_sqrt;
   }

@@ -16,18 +16,17 @@
 
 
 /// Code for printing the results of a fit to stdout.
-void PrintResults( double *params, ModelObject *model, int nFreeParameters, 
-					mp_par *parameterInfo, int fitStatus, SolverResults& solverResults,
-					bool recomputeStatistic=false );
+void PrintResults( double *params, ModelObject *model, int nFreeParameters, int fitStatus, 
+					SolverResults& solverResults, bool recomputeStatistic=false );
 
 void PrintFitStatistic( double *params, ModelObject *model, int nFreeParameters );
 
-void SaveParameters( double *params, ModelObject *model, mp_par *parameterInfo, 
-          string& outputFilename, vector<string>& outputHeader,
-          int nFreeParameters, int whichSolver, int fitStatus, SolverResults& solverResults );
+void SaveParameters( double *params, ModelObject *model, string& outputFilename, 
+					vector<string>& outputHeader, int nFreeParameters, int whichSolver, 
+					int fitStatus, SolverResults& solverResults );
 
-void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, mp_par *parameterInfo, 
-                    vector<string>& outputHeader, const char *prefix );
+void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model, 
+                    	vector<string>& outputHeader, const char *prefix );
 
 
 #endif /* _PRINT_RESULTS_H_ */
