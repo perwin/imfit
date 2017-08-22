@@ -29,15 +29,15 @@ function_objects/integrator.cpp function_objects/func_expdisk3d.cpp \
 function_objects/func_brokenexpdisk3d.cpp function_objects/func_gaussianring3d.cpp \
 function_objects/func_ferrersbar3d.cpp function_objects/func_king.cpp \
 function_objects/func_king2.cpp function_objects/func_gauss_extraparams.cpp \
-function_objects/helper_funcs_3d.cpp \
+function_objects/helper_funcs.cpp function_objects/helper_funcs_3d.cpp \
 -I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST \
--lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
+-L/usr/local/lib -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for model_object:"
   ./test_runner_modelobj
   exit
 else
-  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
+  echo -e "${RED}Compilation of unit tests for model_object.cpp failed.${NC}"
   exit 1
 fi

@@ -20,13 +20,14 @@ function_objects/func_edge-on-disk.cpp \
 function_objects/func_gauss_extraparams.cpp \
 function_objects_1d/func1d_exp_test.cpp \
 function_objects/helper_funcs.cpp core/utilities.cpp \
--I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -Ifunction_objects -lm -lgsl -lgslcblas
+-I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -Ifunction_objects \
+-L/usr/local/lib -lm -lgsl -lgslcblas
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for function objects:"
   ./test_runner_funcs
   exit
 else
-  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
+  echo -e "${RED}Compilation of unit tests for FunctionObject classes failed.${NC}"
   exit 1
 fi

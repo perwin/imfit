@@ -19,6 +19,6 @@ then
   ./test_runner_utilities
   exit
 else
-  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
+  echo -e "${RED}Compilation of unit tests for utilities.cpp failed.${NC}"
   exit 1
 fi

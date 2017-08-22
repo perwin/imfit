@@ -19,6 +19,6 @@ then
   ./test_runner_mpfit
   exit
 else
-  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
+  echo -e "${RED}Compilation of unit tests for mpfit.cpp failed.${NC}"
   exit 1
 fi

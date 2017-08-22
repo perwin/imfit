@@ -17,13 +17,13 @@ core/setup_model_object.cpp core/utilities.cpp core/convolver.cpp core/config_fi
 core/mersenne_twister.cpp core/mp_enorm.cpp core/oversampled_region.cpp core/downsample.cpp \
 core/image_io.cpp core/psf_oversampling_info.cpp \
 -I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST \
--lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
+-L/usr/local/lib -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for setup_model_object:"
   ./test_runner_setup_modelobj NewTestSuite
   exit
 else
-  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
+  echo -e "${RED}Compilation of unit tests for setup_model_object.cpp failed.${NC}"
   exit 1
 fi

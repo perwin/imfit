@@ -14,10 +14,10 @@ $CXXTESTGEN --error-printer -o test_runner_options.cpp unit_tests/unittest_optio
 $CPP -std=c++11 -o test_runner_options test_runner_options.cpp -I. -Icore -I/usr/local/include -I$CXXTEST
 if [ $? -eq 0 ]
 then
-  echo "Running unit tests for options_makeimage:"
+  echo "Running unit tests for OptionsBase and derived classes:"
   ./test_runner_options
   exit
 else
-  echo -e "${RED}Compilation of unit tests for add_functions.cpp failed.${NC}"
+  echo -e "${RED}Compilation of unit tests for OptionsBase and derived classes failed.${NC}"
   exit 1
 fi
