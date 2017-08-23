@@ -30,7 +30,7 @@ int dream_restore_state( const dream_pars* p, Array3D<double>& state, Array2D<do
         break;
       } else {
         string input;
-        while (! getline(ifile,input).eof()) {
+        while (! getline(ifile, input).eof()) {
           if (line >= p->maxEvals) 
             break;
           if (input.length() == 0) 

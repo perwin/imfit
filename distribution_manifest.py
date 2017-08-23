@@ -44,9 +44,6 @@ image_io
 mersenne_twister
 model_object
 mp_enorm
-option_struct_imfit
-option_struct_makeimage
-option_struct_mcmc
 options_base
 options_imfit
 options_makeimage

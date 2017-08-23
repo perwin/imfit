@@ -25,7 +25,7 @@ os_machine_type = os.uname()[4]   # "x86-64", etc.
 
 # basic scons command (specifies use of OpenMP and static linking)
 scons_string = "scons --static"
-scons_string_mac = "scons --allstatic"
+scons_string_mac = "scons --allstatic --mac-distribution"
 
 SOURCE_TARFILE = "imfit-%s-source.tar.gz" % VERSION_STRING
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
@@ -176,25 +176,34 @@ def MakeOldMacBinaries( ):
 	subprocess.check_output(scons_string_oldmac + " makeimage", shell=True)
 	
 
-def MakeBinaries( mode=None ):
-	# Generate appropriate binaries
-	print("MakeBinaries: mode = %s" % mode)
-	if (mode == "Darwin") or (mode == "Linux"):
-		# Mac OS 10.8 or newer, or Linux
-		if (mode is "Darwin"):
-			# use "--allstatic" to force static linking of GCC libraries (esp. libgomp)
-			scons_string_final = scons_string_mac
-		else:
-			scons_string_final = scons_string
-		print("   Calling SCons to generate imfit binary...")
-		subprocess.check_output(scons_string_final + " imfit", shell=True)
-		print("   Calling SCons to generate makeimage binary...")
-		subprocess.check_output(scons_string_final + " makeimage", shell=True)
-		print("   Calling SCons to generate imfit-mcmc binary...")
-		subprocess.check_output(scons_string_final + " imfit-mcmc", shell=True)
-	else:   # mode = "oldmac"
-		# Mac OS 10.6 or 10.7
-		MakeOldMacBinaries()
+# def MakeBinaries( mode=None ):
+# 	# Generate appropriate binaries
+# 	print("MakeBinaries: mode = %s" % mode)
+# 	if (mode == "Darwin") or (mode == "Linux"):
+# 		# Mac OS 10.8 or newer, or Linux
+# 		if (mode is "Darwin"):
+# 			# use "--allstatic" to force static linking of GCC libraries (esp. libgomp)
+# 			scons_string_final = scons_string_mac
+# 		else:
+# 			scons_string_final = scons_string
+# 		print("   Calling SCons to generate imfit binary...")
+# 		subprocess.check_output(scons_string_final + " imfit", shell=True)
+# 		print("   Calling SCons to generate makeimage binary...")
+# 		subprocess.check_output(scons_string_final + " makeimage", shell=True)
+# 		print("   Calling SCons to generate imfit-mcmc binary...")
+# 		subprocess.check_output(scons_string_final + " imfit-mcmc", shell=True)
+# 	else:   # mode = "oldmac"
+# 		# Mac OS 10.6 or 10.7
+# 		MakeOldMacBinaries()
+
+def MakeMacBinaries( ):
+	scons_string_final = scons_string_mac
+	print("   Calling SCons to generate imfit binary...")
+	subprocess.check_output(scons_string_final + " imfit", shell=True)
+	print("   Calling SCons to generate makeimage binary...")
+	subprocess.check_output(scons_string_final + " makeimage", shell=True)
+	print("   Calling SCons to generate imfit-mcmc binary...")
+	subprocess.check_output(scons_string_final + " imfit-mcmc", shell=True)
 	
 
 def MakeBinaryDist( mode=None ):
@@ -260,7 +269,8 @@ def main(argv):
 	if options.binaryDist is True:
 		if (os_type == "Darwin"):
 			print("\nGenerating binary-only Mac distribution (%s)..." % BINARY_TARFILE)
-			MakeBinaries(mode=os_type)
+			MakeMacBinaries()
+#			MakeBinaries(mode=os_type)
 			MakeDistributionDir(mode="binary")
 			MakeBinaryDist()
 # 			print("Generating binary-only Mac distribution for 10.6/10.7 (%s)..." % BINARY_TARFILE_OLDMAC)

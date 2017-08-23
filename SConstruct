@@ -38,7 +38,10 @@
 #
 
 # *** EXPORT CONFIGURATIONS ***
-# MacOS X fat binaries
+# macOS static binaries
+# $ scons --allstatic --mac-distribution
+
+# OLD: MacOS X fat binaries
 # $ scons --static --fat
 
 # To add one or more directories to the header or library search paths:
@@ -82,19 +85,19 @@ import os, subprocess, platform, getpass
 # don't specify that)
 # We assume that FFTW library is static-only (since that's the default installation).
 
-STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/libcfitsio.a")
+# STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/libcfitsio.a")
 
 # The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
-STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
-STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/lib/libgsl.a")
-STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/lib/libgslcblas.a")
+# STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
+# STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/lib/libgsl.a")
+# STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/lib/libgslcblas.a")
 
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
-STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/local_libs/nlopt_nothreadlocal/libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
+# STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
+# STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/local_libs/nlopt_nothreadlocal/libnlopt.a")
+# STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 
 CORE_SUBDIR = "core/"
@@ -104,9 +107,26 @@ SOLVER_SUBDIR = "solvers/"
 CDREAM_SUBDIR = "cdream/"
 CDREAM_INCLUDE_SUBDIR = CDREAM_SUBDIR + "include/"
 PROFILEFIT_SUBDIR = "profile_fitting/"
-#C_SUBDIR = "c_code/"
+
+BAD_OPENMP_COMPILER_WARNING = """
+*** WARNING: You appear to be trying to compile with OpenMP support under macOS 
+while using Apple's (Xcode) clang++, which does NOT support OpenMP.
+(Note that clang++ may be aliased on a macOS system as /usr/bin/g++.)
+
+Either compile without OpenMP by calling scons with the --no-openmp flag,
+or (better) use a different compiler (e.g., GCC, or a version of Clang/LLVM
+with OpenMP support).
+"""
+
 
 os_type = os.uname()[0]
+
+
+def CheckCompilerForOpenMP( os_type ):
+	if os_type == "Darwin":
+		print("CheckCompiler: " + env["CXX"])
+	else:  # assume we're on Linux with GCC
+		return True
 
 
 # *** Set up compiler flags, library lists, include paths
@@ -146,6 +166,7 @@ CPP_COMPILER = cpp_default
 c_compiler_changed = False
 cpp_compiler_changed = False
 
+
 # ** Special setup for compilation by P.E. on Mac (assumes GCC v7 is installed and
 # callable via gcc-7 and g++-7)
 # Comment this out otherwise!
@@ -168,10 +189,7 @@ if (os_type == "Linux"):
 	if os.getlogin() == "erwin":
 		include_path.append("/home/erwin/include")
 		lib_path.append("/home/erwin/lib")
-	# silly Linux doesn't have OpenBSD string routines built in, so we'll have to include them
-	base_defines = base_defines + ["LINUX"]
 defines_opt = base_defines
-#defines_db = base_defines + ["DEBUG"]
 defines_db = base_defines
 
 extra_defines = []
@@ -235,6 +253,8 @@ AddOption("--static", dest="useStaticLibs", action="store_true",
 	default=False, help="force static library linking")
 AddOption("--allstatic", dest="useTotalStaticLinking", action="store_true", 
 	default=False, help="force static library linking, *including* system libraries if possible")
+AddOption("--mac-distribution", dest="compileForMacDistribution", action="store_true", 
+	default=False, help="use this to make macOS binaries for public distribution")
 # AddOption("--fat", dest="makeFatBinaries", action="store_true", 
 # 	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
 AddOption("--32bit", dest="make32bit", action="store_true", 
@@ -310,6 +330,23 @@ if GetOption("make32bit") is True:
 if GetOption("buildForOldMac") is True:
 	buildForOldMacOS = True
 
+if GetOption("compileForMacDistribution") is True:
+	print("DOING MAC DISTRIBUTION COMPILE!")
+	useStaticLibs = True
+	totalStaticLinking = True
+	# reset lib_path so linker only looks where we want it to -- i.e., in the 
+	# directory with static library files
+	lib_path = ["/Users/erwin/coding/imfit/local_libs"]
+
+
+# OK, let's check to see if we're trying to compile with OpenMP *and* using Apple's
+# fake GCC, which won't work
+if useOpenMP and (os_type == "Darwin") and (CPP_COMPILER in ["g++", "clang++"]):
+	result_str = str(subprocess.check_output("g++ --version", shell=True))
+	if result_str.find("Apple LLVM") >= 0:
+		print(BAD_OPENMP_COMPILER_WARNING)
+		exit(1)
+
 
 # *** Setup for various options (either default, or user-altered)
 
@@ -317,7 +354,7 @@ if setOptToDebug:
 	print("** Turning off optimizations!")
 	cflags_opt = cflags_db
 
-if useStaticLibs:
+if useStaticLibs and (os_type == "Linux"):
 	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
 else:
 	# append to standard library list, which means linker will look for
@@ -334,16 +371,11 @@ if useFFTWThreading:   # default is to do this
 	extra_defines.append("FFTW_THREADING")
 
 if useGSL:   # default is to do this
-	if useStaticLibs:
-		if (os_type == "Darwin"):
-			lib_list.append(STATIC_GSL_LIBRARY_FILE_MACOSX)
-			lib_list_1d.append(STATIC_GSL_LIBRARY_FILE_MACOSX)
-		else:
-			# assuming we're on a Linux system
-			lib_list.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
-			lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
-			lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
-			lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
+	if useStaticLibs and (os_type == "Linux"):
+		lib_list.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
+		lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
+		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
+		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 	else:
 		lib_list.append("gsl")
 		lib_list.append("gslcblas")		
@@ -353,26 +385,22 @@ else:
 	extra_defines.append("NO_GSL")
 
 if useNLopt:   # default is to do this
-	if useStaticLibs:
-		if (os_type == "Darwin"):
-			if buildForOldMacOS is True:
-				# Special case compiling for Mac OS 10.6 and 10.7 -- use local path
-				# to NLopt library built *without* thread-local storage
-				lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
-				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
-			else:
-				# Mac OS 10.8 and later -- use standard /usr/local/lib path
-				lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
-				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
-		else:
-			# assuming we're on a Linux system
-			lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
-			lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
+# 			if buildForOldMacOS is True:
+# 				# Special case compiling for Mac OS 10.6 and 10.7 -- use local path
+# 				# to NLopt library built *without* thread-local storage
+# 				lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
+# 				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
+#				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
+	if useStaticLibs and (os_type == "Linux"):
+		lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
+		lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
 	else:
 		lib_list.append("nlopt")	
 		lib_list_1d.append("nlopt")	
 else:
 	extra_defines.append("NO_NLOPT")
+
+
 
 # Special case where we try to link libstdc++, libgomp, and libgcc_s statically
 # (probably *won't* work with clang/clang++, only with GCC)
