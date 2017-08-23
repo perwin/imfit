@@ -35,13 +35,13 @@ AIC = 105.093989, BIC = 115.093617
 X0		5.0037 # +/- 0.0287
 Y0		5.0036 # +/- 0.0286
 FUNCTION Gaussian
-PA		      0 # +/-       0
-ell		      0 # +/-       0
-I_0		503.614 # +/- 7.08249
-sigma		2.50411 # +/- 0.0211561
+PA		      0 # +/- 0
+ell		      0 # +/- 0
+I_0		503.614 # +/- 7.0825
+sigma		2.50411 # +/- 0.021156
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.003134 sec for fit, 0.005251 sec total)
+(Elapsed time: 0.003606 sec for fit, 0.005421 sec total)
 Done!
 

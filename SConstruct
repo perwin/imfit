@@ -118,15 +118,7 @@ or (better) use a different compiler (e.g., GCC, or a version of Clang/LLVM
 with OpenMP support).
 """
 
-
 os_type = os.uname()[0]
-
-
-def CheckCompilerForOpenMP( os_type ):
-	if os_type == "Darwin":
-		print("CheckCompiler: " + env["CXX"])
-	else:  # assume we're on Linux with GCC
-		return True
 
 
 # *** Set up compiler flags, library lists, include paths

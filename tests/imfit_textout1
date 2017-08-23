@@ -38,13 +38,13 @@ AIC = 12.082596, BIC = 41.588831
 X0		15.0000 # +/- 0.0214
 Y0		15.0000 # +/- 0.0091
 FUNCTION Exponential
-PA		     90 # +/- 0.103197
-ell		    0.5 # +/- 0.00171083
-I_0		    100 # +/- 0.152262
-h		     20 # +/- 0.0727724
+PA		     90 # +/- 0.1032
+ell		    0.5 # +/- 0.0017108
+I_0		    100 # +/- 0.15226
+h		     20 # +/- 0.072772
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.004713 sec for fit, 0.018310 sec total)
+(Elapsed time: 0.004053 sec for fit, 0.005892 sec total)
 Done!
 
