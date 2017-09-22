@@ -1,5 +1,10 @@
 # Bash tab auto-completion definitions for imfit, imfit-mcmc, and makeimage
 
+# First, define the function to be called when the user has typed the command
+# name and then pressed TAB.
+# Then, register the function using "complete -F <function_name> <command_name>"
+# (add -f to ensure that filename completion also works)
+
 _imfit() 
 {
     local cur prev opts
@@ -20,7 +25,7 @@ _imfit()
         return 0
     fi
 }
-complete -F _imfit imfit
+complete -f -F _imfit imfit
 
 
 _imfit_mcmc() 
@@ -44,7 +49,7 @@ _imfit_mcmc()
         return 0
     fi
 }
-complete -F _imfit_mcmc imfit-mcmc
+complete -f -F _imfit_mcmc imfit-mcmc
 
 
 _makeimage() 
@@ -63,5 +68,5 @@ _makeimage()
         return 0
     fi
 }
-complete -F _makeimage makeimage
+complete -f -F _makeimage makeimage
 

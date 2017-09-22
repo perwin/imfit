@@ -108,6 +108,16 @@ CDREAM_SUBDIR = "cdream/"
 CDREAM_INCLUDE_SUBDIR = CDREAM_SUBDIR + "include/"
 PROFILEFIT_SUBDIR = "profile_fitting/"
 
+BAD_OPENMP_COMPILER_WARNING = """
+*** WARNING: You appear to be trying to compile with OpenMP support under macOS 
+while using Apple's (Xcode) clang++, which does NOT support OpenMP.
+(Note that clang++ may be aliased on a macOS system as /usr/bin/g++.)
+
+Either compile without OpenMP by calling scons with the --no-openmp flag,
+or (better) use a different compiler (e.g., GCC, or a version of Clang/LLVM
+with OpenMP support).
+"""
+
 os_type = os.uname()[0]
 
 
@@ -147,6 +157,7 @@ CC_COMPILER = cc_default
 CPP_COMPILER = cpp_default
 c_compiler_changed = False
 cpp_compiler_changed = False
+
 
 # ** Special setup for compilation by P.E. on Mac (assumes GCC v7 is installed and
 # callable via gcc-7 and g++-7)
@@ -318,7 +329,16 @@ if GetOption("compileForMacDistribution") is True:
 	# reset lib_path so linker only looks where we want it to -- i.e., in the 
 	# directory with static library files
 	lib_path = ["/Users/erwin/coding/imfit/local_libs"]
-	
+
+
+# OK, let's check to see if we're trying to compile with OpenMP *and* using Apple's
+# fake GCC, which won't work
+if useOpenMP and (os_type == "Darwin") and (CPP_COMPILER in ["g++", "clang++"]):
+	result_str = str(subprocess.check_output("g++ --version", shell=True))
+	if result_str.find("Apple LLVM") >= 0:
+		print(BAD_OPENMP_COMPILER_WARNING)
+		exit(1)
+
 
 # *** Setup for various options (either default, or user-altered)
 

@@ -76,7 +76,7 @@
 #    os.uname()[0] = "SunOS" --> Solaris
 #    os.uname()[0] = "Linux" --> Linux
 
-import os, subprocess, platform, getpass
+import os, subprocess, platform, getpass, pwd
 
 
 
@@ -162,7 +162,11 @@ cpp_compiler_changed = False
 # ** Special setup for compilation by P.E. on Mac (assumes GCC v7 is installed and
 # callable via gcc-7 and g++-7)
 # Comment this out otherwise!
-if (os_type == "Darwin") and (getpass.getuser() == "erwin"): 
+# Note that the following way of determining the username seems to be a bit more 
+# portable than "getpass.getuser()", which fails for "Ubuntu on Windows" (acc. to 
+# Lee Kelvin, who contributed the new version)
+userName = pwd.getpwuid(os.getuid())[0]
+if (os_type == "Darwin") and (userName == "erwin"): 
 	CC_COMPILER = "gcc-7"
 	CPP_COMPILER = "g++-7"
 	c_compiler_changed = True
@@ -560,6 +564,7 @@ if useExtraFuncs:
 		functionobject_obj_string += " func_triaxbar3d"
 		functionobject_obj_string += " func_triaxbar3d_sq"
 		functionobject_obj_string += " func_triaxbar3d_gengauss_sq"
+		functionobject_obj_string += " func_exp-higher-mom"
 
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]

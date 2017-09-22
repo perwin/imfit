@@ -1,0 +1,55 @@
+	Image file = tests/ic3478rss_64x64.fits
+	configuration file = tests/imfit_reference/imfit_config_ic3478_64x64c.dat
+	noise image = tests/ic3478rss_64x64_sigma.fits
+Value from config file: gain = 4.725000 e-/ADU
+Value from config file: read noise = 4.300000 e-
+Value from config file: original sky = 130.100000
+Reading data image ("tests/ic3478rss_64x64.fits") ...
+naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
+Reading noise image ("tests/ic3478rss_64x64_sigma.fits") ...
+* No PSF image supplied -- no image convolution will be done!
+Function: Sersic
+7 total parameters
+Model Object: 4096 data values (pixels)
+ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
+Setting up parameter information array ...
+6 free parameters (4090 degrees of freedom)
+Estimated memory use: 425984 bytes (416.0 KB)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 198337.456846
+	mpfit iteration 2: fit statistic = 15612.628250
+	mpfit iteration 3: fit statistic = 10934.381208
+	mpfit iteration 4: fit statistic = 7034.007731
+	mpfit iteration 5: fit statistic = 5138.515994
+	mpfit iteration 6: fit statistic = 4556.672772
+	mpfit iteration 7: fit statistic = 4555.947626
+	mpfit iteration 8: fit statistic = 4555.947592
+
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+  CHI-SQUARE = 4555.947592    (4090 DOF)
+  INITIAL CHI^2 = 439705.767981
+        NPAR = 7
+       NFREE = 6
+     NPEGGED = 0
+     NITER = 9
+      NFEV = 59
+
+Reduced Chi^2 = 1.113924
+AIC = 4567.968135, BIC = 4605.854189
+
+X0		32.9439 # +/- 0.0128
+Y0		34.0933 # +/- 0.0156
+FUNCTION Sersic
+PA		18.2613 # +/- 0.30982
+ell		0.235985 # +/- 0.0023011
+n		    2.4 # +/- 0
+I_e		20.0156 # +/- 0.077391
+r_e		60.7483 # +/- 0.24714
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.083907 sec for fit, 0.086720 sec total)
+Done!
+

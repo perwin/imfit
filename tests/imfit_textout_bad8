@@ -1,8 +1,0 @@
-
-*** ReadConfigFile: Bad parameter specification at line 12 in configuration file!
-    (Parameter line should be: name, then initial numerical value (+ optionally "fixed" OR lower,upper numerical limits)
-
-*** ERROR: Failure reading configuration file!
-
-	Image file = tests/ic3478rss_64x64.fits
-	configuration file = tests/config_imfit_badparamline.dat

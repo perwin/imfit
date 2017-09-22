@@ -28,6 +28,7 @@ using namespace std;
 #include "function_objects/func_broken-exp.h"
 #include "function_objects/func_broken-exp2d.h"
 #include "function_objects/func_edge-on-disk.h"
+#include "function_objects/func_multi-broken-exp.h"
 
 const double  DELTA = 1.0e-9;
 const double  DELTA_e9 = 1.0e-9;
@@ -1395,8 +1396,112 @@ public:
 
     // check that we get correct set of parameter names
     thisFunc->GetParameterNames(paramNames);
-    TS_ASSERT( paramNames == correctParamNames );
+    TS_ASSERT_EQUALS(paramNames, correctParamNames );
     
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
+  }
+};
+
+
+class TestMultiBrokenExponential : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new MultiBrokenExponential();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 10;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("ell");
+    correctParamNames.push_back("I_0");
+    correctParamNames.push_back("h1");
+    correctParamNames.push_back("h2");
+    correctParamNames.push_back("h3");
+    correctParamNames.push_back("r_break1");
+    correctParamNames.push_back("r_break2");
+    correctParamNames.push_back("alpha1");
+    correctParamNames.push_back("alpha2");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT_EQUALS(paramNames, correctParamNames );
+    
+  }
+
+// # Sample profile for tests
+// # I0 = 100, h1 = 20, h2 = 10, h3 = 5, r_brk1 = 10, r_brk2 = 20
+// # alpha = 0.1, 0.1
+// # alpha = 1, 1
+// # alpha = 100, 100
+// 
+// # p01 = [100.0, 20.0, 10.0, 5.0, 10.0, 20.0, 0.1, 0.1]
+// # I_01 = [62.42459371, 62.00155144, 43.84819263, 29.89701942,19.75152889, 12.66637718, 0.62207092])
+// # 
+// # p1 = [100.0, 20.0, 10.0, 5.0, 10.0, 20.0, 1.0, 1.0]
+// I1 = (100.0, 99.501224163558689, 77.85410746224612, 58.58686690528004, 36.750989624929915,
+//  20.81878008682871, 0.055308562573433168)
+
+// # p100 = [100.0, 20.0, 10.0, 5.0, 10.0, 20.0, 100.0, 100.0]
+// # I_100 = (100.0, 99.501247919268238, 77.880078307140494, 60.632048862625965,
+// # 17.377394345044511, 8.2028121352973606, 3.059023205018258e-05)
+// r = np.array([0.0, 0.1, 5.0, 10.0, 15.0, 20.0, 50.0])
+
+  void testCalculations_circular( void )
+  {
+    // centered at x0,y0 = 100,100
+    double  x0 = 100.0;
+    double  y0 = 100.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular doubly broken-exp with I_0 = 100, h1,h2,3 = 20,10,5, 
+    //								r_brk1,r_brk2 = 10,20, alpha1,alpha2 = 1,1
+    double  params[10] = {90.0, 0.0, 100.0, 20.0,10.0,5.0, 10.0,20.0, 1.0,1.0};
+    
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), 100.0, DELTA );
+    // r = 1 value
+    double rEqualsZeroPointOneValue = 99.501224163558689;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.1, 100.0), rEqualsZeroPointOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(99.9, 100.0), rEqualsZeroPointOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 99.9), rEqualsZeroPointOneValue, DELTA);
+    // r = 10 value
+    double rEqualsTen = 58.58686690528004;
+    TS_ASSERT_DELTA( thisFunc->GetValue(110.0, 100.0), rEqualsTen, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(90.0, 100.0), rEqualsTen, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 90.0), rEqualsTen, DELTA);
+    // r = 50 value
+    double rEquals50Value = 0.055308562573433168;
+    TS_ASSERT_DELTA( thisFunc->GetValue(150.0, 100.0), rEquals50Value, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(50.0, 100.0), rEquals50Value, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 50.0), rEquals50Value, DELTA);
   }
 
   void testCanCalculateTotalFlux( void )

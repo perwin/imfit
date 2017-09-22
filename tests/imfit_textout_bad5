@@ -1,7 +1,0 @@
-*** WARNING: first parameter limit for "Y0" (260) must be < second limit (250)!
-    (Error on input line 7 of configuration file)
-
-*** ERROR: Failure reading configuration file!
-
-	Image file = tests/ic3478rss_64x64.fits
-	configuration file = tests/config_imfit_sersictest512_badlimits1.dat

@@ -74,6 +74,7 @@
 #include "func_triaxbar3d.h"
 #include "func_triaxbar3d_sq.h"
 #include "func_triaxbar3d_gengauss_sq.h"
+#include "func_exp-higher-mom.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -229,6 +230,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   TriaxBar3D_GenGaussian_SuperQuadric::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<TriaxBar3D_GenGaussian_SuperQuadric>();
+
+  ExponentialHigherMoment::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<ExponentialHigherMoment>();
 #endif
 
 #ifdef USE_TEST_FUNCS

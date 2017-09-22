@@ -2,6 +2,15 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.5.1 -- 2017-mm-dd
+### Fixed:
+
+- The bash tab-completion file introduced in 1.5.0 did not include filename
+completion (i.e., if you typed "imfit " and then the beginning of a filename
+in the current directory and *then* pressed the TAB key, the bash shell's
+normal filename completion wouldn't work). This has been fixed.
+
+
 ## 1.5.0 -- 2017-08-16
 ### Added:
 

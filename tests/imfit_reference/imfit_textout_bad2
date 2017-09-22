@@ -1,0 +1,7 @@
+
+*** ReadConfigFile: No actual functions found in configuration file!
+
+*** ERROR: Failure reading configuration file!
+
+	Image file = tests/ic3478rss_64x64.fits
+	configuration file = tests/makeimage_reference/config_makeimage_sersictest512_bad2.dat

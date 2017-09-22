@@ -24,7 +24,7 @@ echo "Running tests for imfit-mcmc..."
 
 # simple tests using small images; seed=7 to ensure repeatable pseudo-random numbers
 echo -n "   (now running MCMC chain (test 1)...)"
-./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test &> temptest/test_dump_mcmc1
+./imfit-mcmc tests/faintstar.fits -c tests/imfit-mcmc_reference/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test &> temptest/test_dump_mcmc1
 echo ""
 
 if [ "$1" == "--all" ]
@@ -32,7 +32,7 @@ then
   # same, but now checking that we correct for image offset when we specify subsection
   # of data image
   echo -n "   (now running MCMC chain (test 2)...)"
-  ./imfit-mcmc tests/faintstar.fits[3:10,3:10] -c tests/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test2 &> /dev/null
+  ./imfit-mcmc tests/faintstar.fits[3:10,3:10] -c tests/imfit-mcmc_reference/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test2 &> /dev/null
   echo ""
 else
   echo "   (-- skipping test 2 --)"
@@ -45,7 +45,7 @@ then
   cp tests/mcmc_data/mcmc_test_short*.txt temptest/
   # note that there's no point in specifying seed=7, bcs we wouldn't be starting at the same RNG
   # state as the original imfit-mcmc run left off at
-  ./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --no-subsampling --seed=1 -o temptest/mcmc_test_short --append &> temptest/test_dump_mcmc1c
+  ./imfit-mcmc tests/faintstar.fits -c tests/imfit-mcmc_reference/config_imfit_faintstar.dat --no-subsampling --seed=1 -o temptest/mcmc_test_short --append &> temptest/test_dump_mcmc1c
   echo ""
 else
   echo "   (-- skipping test 3 --)"
@@ -60,15 +60,15 @@ fi
 # 2b: testing that we catch error: case of mismatched image sizes:
 ./imfit-mcmc tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump2b
 
-./imfit-mcmc -c tests/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
-./imfit-mcmc -c tests/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
-./imfit-mcmc -c tests/config_makeimage_sersictest512_bad3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad3
-./imfit-mcmc -c tests/config_makeimage_sersictest512_bad4.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad4
-./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad5
-./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad6
-./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
-./imfit-mcmc -c tests/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
-./imfit-mcmc -c tests/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
+./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
+./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
+./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad3
+./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad4.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad4
+./imfit-mcmc -c tests/imfit_reference/config_imfit_sersictest512_badlimits1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad5
+./imfit-mcmc -c tests/imfit_reference/config_imfit_sersictest512_badlimits2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad6
+./imfit-mcmc -c tests/imfit_reference/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
+./imfit-mcmc -c tests/imfit_reference/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
+./imfit-mcmc -c tests/makeimage_reference/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
 
 
 
@@ -136,82 +136,82 @@ STATUS+=$?
 # because the output should be the same
 
 echo -n "*** Diff comparison with archives: bad config file 1... "
-if (diff --brief temptest/test_dump_bad1 tests/imfit_textout_bad1)
+if (diff --brief temptest/test_dump_bad1 tests/imfit_reference/imfit_textout_bad1)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
-  diff temptest/test_dump_bad1 tests/imfit_textout_bad1
+  diff temptest/test_dump_bad1 tests/imfit_reference/imfit_textout_bad1
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 2... "
-if (diff --brief temptest/test_dump_bad2 tests/imfit_textout_bad2)
+if (diff --brief temptest/test_dump_bad2 tests/imfit_reference/imfit_textout_bad2)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
-  diff temptest/test_dump_bad2 tests/imfit_textout_bad2
+  diff temptest/test_dump_bad2 tests/imfit_reference/imfit_textout_bad2
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 3... "
-if (diff --brief temptest/test_dump_bad3 tests/imfit_textout_bad3)
+if (diff --brief temptest/test_dump_bad3 tests/imfit_reference/imfit_textout_bad3)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
-  diff temptest/test_dump_bad3 tests/imfit_textout_bad3
+  diff temptest/test_dump_bad3 tests/imfit_reference/imfit_textout_bad3
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 4... "
-if (diff --brief temptest/test_dump_bad4 tests/imfit_textout_bad4)
+if (diff --brief temptest/test_dump_bad4 tests/imfit_reference/imfit_textout_bad4)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
-  diff temptest/test_dump_bad4 tests/imfit_textout_bad4
+  diff temptest/test_dump_bad4 tests/imfit_reference/imfit_textout_bad4
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 5... "
-if (diff --brief temptest/test_dump_bad5 tests/imfit_textout_bad5)
+if (diff --brief temptest/test_dump_bad5 tests/imfit_reference/imfit_textout_bad5)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
-  diff temptest/test_dump_bad5 tests/imfit_textout_bad5
+  diff temptest/test_dump_bad5 tests/imfit_reference/imfit_textout_bad5
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 6... "
-if (diff --brief temptest/test_dump_bad6 tests/imfit_textout_bad6)
+if (diff --brief temptest/test_dump_bad6 tests/imfit_reference/imfit_textout_bad6)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
-  diff temptest/test_dump_bad6 tests/imfit_textout_bad6
+  diff temptest/test_dump_bad6 tests/imfit_reference/imfit_textout_bad6
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad config file 7... "
-if (diff --brief temptest/test_dump_bad7 tests/imfit_textout_bad7)
+if (diff --brief temptest/test_dump_bad7 tests/imfit_reference/imfit_textout_bad7)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
-  diff temptest/test_dump_bad7 tests/imfit_textout_bad7
+  diff temptest/test_dump_bad7 tests/imfit_reference/imfit_textout_bad7
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: bad parameter specification... "
-if (diff --brief temptest/test_dump_bad8 tests/imfit_textout_bad8)
+if (diff --brief temptest/test_dump_bad8 tests/imfit_reference/imfit_textout_bad8)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
-  diff temptest/test_dump_bad7 tests/imfit_textout_bad7
+  diff temptest/test_dump_bad8 tests/imfit_reference/imfit_textout_bad8
   STATUS+=1
 fi
 

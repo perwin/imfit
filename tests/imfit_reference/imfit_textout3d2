@@ -1,0 +1,118 @@
+	Image file = tests/ic3478rss_64x64.fits
+	configuration file = tests/imfit_reference/imfit_config_ic3478_64x64c.dat
+Value from config file: gain = 4.725000 e-/ADU
+Value from config file: read noise = 4.300000 e-
+Value from config file: original sky = 130.100000
+Reading data image ("tests/ic3478rss_64x64.fits") ...
+naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
+* No PSF image supplied -- no image convolution will be done!
+* No noise image supplied ... will generate noise image from input data image.
+Function: Sersic
+7 total parameters
+Model Object: 4096 data values (pixels)
+ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
+Setting up parameter information array ...
+6 free parameters (4090 degrees of freedom)
+Estimated memory use: 425984 bytes (416.0 KB)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 198337.464916
+X0		32.3180
+Y0		32.5876
+FUNCTION Sersic
+PA		14.6519
+ell		      0
+n		    2.4
+I_e		 18.061
+r_e		32.6624
+	mpfit iteration 2: fit statistic = 15612.629060
+X0		32.9545
+Y0		33.5463
+FUNCTION Sersic
+PA		14.6519
+ell		      0
+n		    2.4
+I_e		22.9445
+r_e		  46.03
+	mpfit iteration 3: fit statistic = 10937.380464
+X0		32.9686
+Y0		33.8079
+FUNCTION Sersic
+PA		14.6519
+ell		0.070967
+n		    2.4
+I_e		23.0724
+r_e		47.3491
+	mpfit iteration 4: fit statistic = 7037.736608
+X0		32.9579
+Y0		34.0175
+FUNCTION Sersic
+PA		 27.475
+ell		0.175577
+n		    2.4
+I_e		22.6488
+r_e		51.3713
+	mpfit iteration 5: fit statistic = 5140.311044
+X0		32.9440
+Y0		34.0860
+FUNCTION Sersic
+PA		15.1239
+ell		0.224895
+n		    2.4
+I_e		19.8625
+r_e		59.3535
+	mpfit iteration 6: fit statistic = 4556.680857
+X0		32.9445
+Y0		34.0937
+FUNCTION Sersic
+PA		  18.49
+ell		0.234923
+n		    2.4
+I_e		20.0148
+r_e		60.6989
+	mpfit iteration 7: fit statistic = 4555.947935
+X0		32.9439
+Y0		34.0934
+FUNCTION Sersic
+PA		18.2603
+ell		0.235983
+n		    2.4
+I_e		20.0157
+r_e		60.7479
+	mpfit iteration 8: fit statistic = 4555.947901
+X0		32.9439
+Y0		34.0933
+FUNCTION Sersic
+PA		18.2613
+ell		0.235985
+n		    2.4
+I_e		20.0156
+r_e		60.7483
+
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+  CHI-SQUARE = 4555.947901    (4090 DOF)
+  INITIAL CHI^2 = 439705.788935
+        NPAR = 7
+       NFREE = 6
+     NPEGGED = 0
+     NITER = 9
+      NFEV = 59
+
+Reduced Chi^2 = 1.113924
+AIC = 4567.968444, BIC = 4605.854498
+
+X0		32.9439 # +/- 0.0128
+Y0		34.0933 # +/- 0.0156
+FUNCTION Sersic
+PA		18.2613 # +/- 0.30982
+ell		0.235985 # +/- 0.0023011
+n		    2.4 # +/- 0
+I_e		20.0156 # +/- 0.077391
+r_e		60.7483 # +/- 0.24714
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.083820 sec for fit, 0.087014 sec total)
+Done!
+

@@ -1,0 +1,6 @@
+
+*** ReadConfigFile: Bad parameter specification at line 12 in configuration file!
+    (Parameter line should be: name, then initial numerical value (+ optionally "fixed" OR lower,upper numerical limits)
+
+*** ERROR: Failure reading configuration file "tests/imfit_reference/config_imfit_badparamline.dat"!
+

@@ -1,0 +1,104 @@
+	Image file = tests/testimage_2gauss_psf.fits
+	* Nelder-Mead simplex solver selected!
+	configuration file = tests/imfit_reference/config_imfit_2gauss_small.dat
+	output best-fit parameter file = temptest/bestfit_params_2gauss_small.dat
+Value from config file: gain = 1000.000000 e-/ADU
+Reading data image ("tests/testimage_2gauss_psf.fits") ...
+naxis1 [# pixels/row] = 50, naxis2 [# pixels/col] = 50; nPixels_tot = 2500
+* No PSF image supplied -- no image convolution will be done!
+* No noise image supplied ... will generate noise image from input data image.
+Function: Gaussian
+Function: Gaussian
+Function: FlatSky
+13 total parameters
+Model Object: 2500 data values (pixels)
+ModelObject: mask vector applied to weight vector. (2500 valid pixels remain)
+Setting up parameter information array ...
+8 free parameters (2492 degrees of freedom)
+Estimated memory use: 80000 bytes (78.1 KB)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Nelder-Mead Simplex solver ..
+	N-M simplex: function call 20: objective = 467522.977318
+	N-M simplex: function call 40: objective = 248050.973837
+	N-M simplex: function call 60: objective = 52639.138809
+	N-M simplex: function call 80: objective = 48283.690176
+	N-M simplex: function call 100: objective = 9550.886546
+	N-M simplex: function call 120: objective = 2861.673145
+	N-M simplex: function call 140: objective = 1531.639896
+	N-M simplex: function call 160: objective = 986.387691
+	N-M simplex: function call 180: objective = 868.542193
+	N-M simplex: function call 200: objective = 372.499509
+	N-M simplex: function call 220: objective = 282.677816
+	N-M simplex: function call 240: objective = 285.522057
+	N-M simplex: function call 260: objective = 222.380368
+	N-M simplex: function call 280: objective = 210.078761
+	N-M simplex: function call 300: objective = 207.508993
+	N-M simplex: function call 320: objective = 194.963737
+	N-M simplex: function call 340: objective = 193.280737
+	N-M simplex: function call 360: objective = 187.512420
+	N-M simplex: function call 380: objective = 185.433408
+	N-M simplex: function call 400: objective = 178.983284
+	N-M simplex: function call 420: objective = 172.874762
+	N-M simplex: function call 440: objective = 152.002326
+	N-M simplex: function call 460: objective = 133.420351
+	N-M simplex: function call 480: objective = 119.450800
+	N-M simplex: function call 500: objective = 104.238104
+	N-M simplex: function call 520: objective = 92.179950
+	N-M simplex: function call 540: objective = 77.746019
+	N-M simplex: function call 560: objective = 62.833394
+	N-M simplex: function call 580: objective = 54.724247
+	N-M simplex: function call 600: objective = 53.350664
+	N-M simplex: function call 620: objective = 41.357970
+	N-M simplex: function call 640: objective = 38.568571
+	N-M simplex: function call 660: objective = 35.281859
+	N-M simplex: function call 680: objective = 35.019258
+	N-M simplex: function call 700: objective = 34.663324
+	N-M simplex: function call 720: objective = 34.598720
+	N-M simplex: function call 740: objective = 34.536089
+	N-M simplex: function call 760: objective = 34.532305
+	N-M simplex: function call 780: objective = 34.531645
+	N-M simplex: function call 800: objective = 34.530315
+	N-M simplex: function call 820: objective = 34.530045
+	N-M simplex: function call 840: objective = 34.529454
+	N-M simplex: function call 860: objective = 34.529357
+	N-M simplex: function call 880: objective = 34.529211
+	N-M simplex: function call 900: objective = 34.529247
+	N-M simplex: function call 920: objective = 34.529158
+	N-M simplex: function call 940: objective = 34.529164
+	N-M simplex: function call 960: objective = 34.529144
+	N-M simplex: function call 980: objective = 34.529141
+	N-M simplex: function call 1000: objective = 34.529139
+	N-M simplex: function call 1020: objective = 34.529136
+	N-M simplex: function call 1040: objective = 34.529136
+Nelder-Mead Simplex: status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
+
+  CHI-SQUARE = 34.529135
+  NFEV = 1050
+
+Reduced Chi^2 = 0.013856
+AIC = 50.586943, BIC = 97.121503
+
+X0		40.5000
+Y0		40.2500
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		45.9406
+sigma		1.53717
+
+X0		15.1000
+Y0		10.6000
+FUNCTION Gaussian
+PA		      0
+ell		      0
+I_0		 37.597
+sigma		 1.5369
+FUNCTION FlatSky
+I_sky		    100
+
+Saving best-fit parameters in file "temptest/bestfit_params_2gauss_small.dat"
+
+(Elapsed time: 0.723724 sec for fit, 0.727124 sec total)
+Done!
+
