@@ -3,7 +3,7 @@
 *** ERROR: Failure in ModelObject::FinalSetupForFitting!
 
 	Image file = tests/ic3478rss_64x64.fits
-	configuration file = tests/imfit_config_ic3478_64x64b.dat
+	configuration file = tests/imfit_reference/imfit_config_ic3478_64x64b.dat
 	mask image = tests/totalmask_64x64.fits
 Value from config file: gain = 4.725000 e-/ADU
 Value from config file: read noise = 4.300000 e-

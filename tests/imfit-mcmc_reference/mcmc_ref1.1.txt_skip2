@@ -1,4 +1,6 @@
-#    ./imfit-mcmc tests/faintstar.fits -c tests/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test
+# Markov chain Monte Carlo output from imfit-mcmc 1.5.0 (OpenMP-enabled)
+# Generated on Fri Sep 22 13:06:07 2017 by the following command:
+#    ./imfit-mcmc tests/faintstar.fits -c tests/imfit-mcmc_reference/config_imfit_faintstar.dat --no-subsampling --seed=7 -o temptest/mcmc_test
 #
 # Model definition:
 #

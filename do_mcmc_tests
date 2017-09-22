@@ -56,9 +56,9 @@ fi
 
 # Testing to see if we catch input-image problems: all pixels masked, mismatched image sizes,
 # 2a: testing that we catch error: case of all pixels masked:
-./imfit-mcmc tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --mask tests/totalmask_64x64.fits  &> temptest/test_dump2a
+./imfit-mcmc tests/ic3478rss_64x64.fits -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --mask tests/totalmask_64x64.fits  &> temptest/test_dump2a
 # 2b: testing that we catch error: case of mismatched image sizes:
-./imfit-mcmc tests/ic3478rss_64x64.fits -c tests/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump2b
+./imfit-mcmc tests/ic3478rss_64x64.fits -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump2b
 
 ./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
 ./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
@@ -68,7 +68,7 @@ fi
 ./imfit-mcmc -c tests/imfit_reference/config_imfit_sersictest512_badlimits2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad6
 ./imfit-mcmc -c tests/imfit_reference/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
 ./imfit-mcmc -c tests/imfit_reference/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
-./imfit-mcmc -c tests/makeimage_reference/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
+./imfit-mcmc -c tests/imfit_reference/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
 
 
 
@@ -81,17 +81,17 @@ echo ""
 
 printf "*** Diff comparison with archives: first test... "
 # skip last 4 lines to avoid trying to compare elapsed times
-./python/diff_printouts.py temptest/test_dump_mcmc1 tests/mcmc_textout1 --skip-last=4
+./python/diff_printouts.py temptest/test_dump_mcmc1 tests/imfit-mcmc_reference/mcmc_textout1 --skip-last=4
 STATUS+=$?
 
 printf "    Comparing first output chain file from test 1... "
 # skip first two lines of output file to avoid comparing timestamps
 tail -n +3 temptest/mcmc_test.1.txt > temptest/mcmc_test.1.txt_skip2
-if (diff --brief temptest/mcmc_test.1.txt_skip2 tests/mcmc_ref1.1.txt_skip2)
+if (diff --brief temptest/mcmc_test.1.txt_skip2 tests/imfit-mcmc_reference/mcmc_ref1.1.txt_skip2)
 then
   printf " OK\n"
 else
-  echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test.1.txt differs from reference file tests//mcmc_ref1.1.txt_skip2"
+  echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test.1.txt differs from reference file tests/imfit-mcmc_reference/mcmc_ref1.1.txt_skip2"
   STATUS+=1
 fi
 

@@ -1,5 +1,5 @@
 	Image file = tests/faintstar.fits
-	configuration file = tests/config_imfit_faintstar.dat
+	configuration file = tests/imfit-mcmc_reference/config_imfit_faintstar.dat
 	RNG seed = 7
 Value from config file: gain = 4.720000 e-/ADU
 Value from config file: read noise = 1.150000 e-
@@ -42,7 +42,7 @@ Convergence detected!
 101410 likelihood function calls
 
 MCMC chains written to output files temptest/mcmc_test.1.txt through temptest/mcmc_test.6.txt
-(Elapsed time: 8.164373 sec)
+(Elapsed time: 1.412121 sec)
 
 Done!
 

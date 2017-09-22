@@ -28,8 +28,8 @@ using namespace std;
 #include "param_struct.h"
 
 
-#define SIMPLE_CONFIG_FILE "tests/config_imfit_flatsky.dat"
-#define CONFIG_FILE "tests/config_imfit_poisson.dat"
+#define SIMPLE_CONFIG_FILE "tests/imfit_reference/config_imfit_flatsky.dat"
+#define CONFIG_FILE "tests/imfit_reference/config_imfit_poisson.dat"
 #define CONFIG_FILE3b "tests/config_imfit_gauss-extra-params.dat"
 const string CONFIG_FILE_2BLOCKS("tests/config_imfit_2blocks.dat");
 
