@@ -75,6 +75,7 @@
 #include "func_triaxbar3d_sq.h"
 #include "func_triaxbar3d_gengauss_sq.h"
 #include "func_exp-higher-mom.h"
+#include "func_double-broken-exp.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -233,6 +234,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   ExponentialHigherMoment::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<ExponentialHigherMoment>();
+
+  DoubleBrokenExponential::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<DoubleBrokenExponential>();
 #endif
 
 #ifdef USE_TEST_FUNCS

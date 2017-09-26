@@ -1,4 +1,4 @@
-/*   Class interface definition for func_multi-broken-exp.cpp
+/*   Class interface definition for func_double-broken-exp.cpp
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the luminosity as a function of radius for an elliptical
@@ -22,20 +22,20 @@
  */
 
 
-// CLASS MultiBrokenExponential:
+// CLASS DoubleBrokenExponential:
 
 #include "function_object.h"
 
 
 /// Class for image function with elliptical isophotes and broken-exponential profile
-class MultiBrokenExponential : public FunctionObject
+class DoubleBrokenExponential : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file
   static const char  className[];
   
   public:
     // Constructors:
-    MultiBrokenExponential( );
+    DoubleBrokenExponential( );
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );

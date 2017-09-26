@@ -28,7 +28,7 @@ using namespace std;
 #include "function_objects/func_broken-exp.h"
 #include "function_objects/func_broken-exp2d.h"
 #include "function_objects/func_edge-on-disk.h"
-#include "function_objects/func_multi-broken-exp.h"
+#include "function_objects/func_double-broken-exp.h"
 
 const double  DELTA = 1.0e-9;
 const double  DELTA_e9 = 1.0e-9;
@@ -1408,7 +1408,7 @@ public:
 };
 
 
-class TestMultiBrokenExponential : public CxxTest::TestSuite 
+class TestDoubleBrokenExponential : public CxxTest::TestSuite 
 {
   FunctionObject  *thisFunc, *thisFunc_subsampled;
   
@@ -1417,7 +1417,7 @@ public:
   {
     // FUNCTION-SPECIFIC:
     bool  subsampleFlag = false;
-    thisFunc = new MultiBrokenExponential();
+    thisFunc = new DoubleBrokenExponential();
     thisFunc->SetSubsampling(subsampleFlag);
   }
   
@@ -1487,7 +1487,7 @@ public:
     // FUNCTION-SPECIFIC:
     // r = 0 value
     TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), 100.0, DELTA );
-    // r = 1 value
+    // r = 0.1 value
     double rEqualsZeroPointOneValue = 99.501224163558689;
     TS_ASSERT_DELTA( thisFunc->GetValue(100.1, 100.0), rEqualsZeroPointOneValue, DELTA);
     TS_ASSERT_DELTA( thisFunc->GetValue(99.9, 100.0), rEqualsZeroPointOneValue, DELTA);
@@ -1502,6 +1502,49 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(150.0, 100.0), rEquals50Value, DELTA);
     TS_ASSERT_DELTA( thisFunc->GetValue(50.0, 100.0), rEquals50Value, DELTA);
     TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 50.0), rEquals50Value, DELTA);
+    // r = 500 value
+    double rEquals500Value = 4.5319905994148505e-41;
+    TS_ASSERT_EQUALS( thisFunc->GetValue(600.0, 100.0), rEquals500Value);
+  }
+
+  void testCalculations_elliptical( void )
+  {
+    // centered at x0,y0 = 100,100
+    double  x0 = 100.0;
+    double  y0 = 100.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: ell=0.5 broken-exp with I_0 = 100, h1,h2,3 = 20,10,5, 
+    //								r_brk1,r_brk2 = 10,20, alpha1,alpha2 = 1,1
+    double  params[10] = {90.0, 0.5, 100.0, 20.0,10.0,5.0, 10.0,20.0, 1.0,1.0};
+    
+    // test
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 0 value
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), 100.0, DELTA );
+    // r = 0.1 value; account for ellipticity = 0.5 for y offsets
+    double rEqualsZeroPointOneValue = 99.501224163558689;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.1, 100.0), rEqualsZeroPointOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(99.9, 100.0), rEqualsZeroPointOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 99.95), rEqualsZeroPointOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.05), rEqualsZeroPointOneValue, DELTA);
+    // r = 10 value; account for ellipticity = 0.5 for y offsets
+    double rEqualsTen = 58.58686690528004;
+    TS_ASSERT_DELTA( thisFunc->GetValue(110.0, 100.0), rEqualsTen, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(90.0, 100.0), rEqualsTen, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 95.0), rEqualsTen, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 105.0), rEqualsTen, DELTA);
+    // r = 50 value; account for ellipticity = 0.5 for y offsets
+    double rEquals50Value = 0.055308562573433168;
+    TS_ASSERT_DELTA( thisFunc->GetValue(150.0, 100.0), rEquals50Value, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(50.0, 100.0), rEquals50Value, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 75.0), rEquals50Value, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 125.0), rEquals50Value, DELTA);
+    // r = 500 value; account for ellipticity = 0.5 for y offsets
+    double rEquals500Value = 4.5319905994148505e-41;
+    TS_ASSERT_EQUALS( thisFunc->GetValue(600.0, 100.0), rEquals500Value);
+    TS_ASSERT_EQUALS( thisFunc->GetValue(100.0, 350.0), rEquals500Value);
   }
 
   void testCanCalculateTotalFlux( void )

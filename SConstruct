@@ -555,6 +555,7 @@ if useGSL:
 if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
+	functionobject_obj_string += " func_double-broken-exp"
 	if useGSL:
 		functionobject_obj_string += " func_brokenexpbar3d"
 		functionobject_obj_string += " func_boxytest3d"

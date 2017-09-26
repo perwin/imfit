@@ -8,6 +8,28 @@
 
 ** NEAR-TERM FUTURE TODO:
 
+[X] Double-broken exponential (for Nacho)
+	[X] Figure out what's causing minor-axis discontinuities
+		-- initial creation of ell=0.5 image shows good behavior along major
+		axis, strange behavior at faint levels along minor axis
+		[X] Try generating 1D minor-axis image
+			[X] Add printing code to func_double-broken-exp.cpp (at what radius
+			do we switch to pure exponential calculation?)
+			[X] Generate 1D minor-axis image
+			
+			$ ./makeimage config_makeimage_double-broken-exp_1d-minoraxis.dat -o modelimage_doublebroken_1d.fits
+			imdatamodel_mb1d = fits.getdata("/Users/erwin/coding/imfit/modelimage_doublebroken_1d.fits")
+			clf();semilogy(imdatamodel_1d[0,:], 'ko', ms=2)
+			
+			scaledR1 > 100 at |r| >= 152 (and for |r| < 152, not)
+				assuming q=0.5, this is r >= 76
+	[X] Generate large-radii values (from Python code) for unit tests
+	[X] Add fixed code from Python to double-broken-exp.cpp
+		[X] Run unit tests
+		[X] Check 1D minor-axis image, using commands above
+
+
+	
 [ ] Unit tests for FerrersBar3D
 
 

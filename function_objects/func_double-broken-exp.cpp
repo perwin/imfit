@@ -1,4 +1,4 @@
-/* FILE: func_multi-broken-exp.cpp ------------------------------------- */
+/* FILE: func_double-broken-exp.cpp ------------------------------------ */
 /*
  *   Function object class for a double broken-exponential function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
@@ -44,7 +44,7 @@
 #include <string.h>
 #include <string>
 
-#include "func_multi-broken-exp.h"
+#include "func_double-broken-exp.h"
 
 using namespace std;
 
@@ -53,11 +53,11 @@ using namespace std;
 const int   N_PARAMS = 10;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h1", "h2", "h3",
 								"r_break1", "r_break2", "alpha1", "alpha2"};
-const char  FUNCTION_NAME[] = "Multi-Broken-Exponential function";
+const char  FUNCTION_NAME[] = "Double-Broken-Exponential function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
-const char MultiBrokenExponential::className[] = "MultiBrokenExponential";
+const char DoubleBrokenExponential::className[] = "DoubleBrokenExponential";
 
 
 double CalculateScalingFactor( double h1, double h2, double h3, double r_brk1,
@@ -66,7 +66,7 @@ double CalculateScalingFactor( double h1, double h2, double h3, double r_brk1,
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-MultiBrokenExponential::MultiBrokenExponential( )
+DoubleBrokenExponential::DoubleBrokenExponential( )
 {
   string  paramName;
   
@@ -86,7 +86,7 @@ MultiBrokenExponential::MultiBrokenExponential( )
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
-void MultiBrokenExponential::Setup( double params[], int offsetIndex, double xc, double yc )
+void DoubleBrokenExponential::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
@@ -119,12 +119,12 @@ void MultiBrokenExponential::Setup( double params[], int offsetIndex, double xc,
 
 
 /* ---------------- PRIVATE METHOD: CalculateIntensity ----------------- */
-// This function calculates the intensity for a broken-exponential function at radius r,
-// with the various parameters and derived values (I_0*S, exponent, etc.)
+// This function calculates the intensity for a double-broken-exponential function 
+// at radius r, with the various parameters and derived values (I_0*S, exponent, etc.)
 // pre-calculated by Setup().
 // NOTE: We assume that r >= 0, since GetValue() ensures that.
 
-double MultiBrokenExponential::CalculateIntensity( double r )
+double DoubleBrokenExponential::CalculateIntensity( double r )
 {
   double  P1, P2, P3;
   double  I;
@@ -135,8 +135,9 @@ double MultiBrokenExponential::CalculateIntensity( double r )
   // second piece
   // check for possible overflow in exponentiation if r >> r_b1, and re-route around it:
   double scaledR1 = alpha1*(r - r_b1);
-  if (scaledR1 > 100.0)
-    P2 = exp(delta_Rb1_scaled - r/h2);
+  if (scaledR1 > 100.0) {
+    P2 = exp(r/h1 - r/h2 + delta_Rb1_scaled);
+  }
   else
 	P2 = pow(1.0 + exp(scaledR1), exponent2);
 
@@ -144,7 +145,7 @@ double MultiBrokenExponential::CalculateIntensity( double r )
   // check for possible overflow in exponentiation if r >> r_b2, and re-route around it:
   double scaledR2 = alpha2*(r - r_b2);
   if (scaledR2 > 100.0)
-    P3 = exp(delta_Rb2_scaled - r/h3);
+    P3 = exp(r/h2 - r/h3 + delta_Rb2_scaled);
   else
 	P3 = pow(1.0 + exp(scaledR2), exponent3);
 
@@ -154,7 +155,7 @@ double MultiBrokenExponential::CalculateIntensity( double r )
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
 
-double MultiBrokenExponential::GetValue( double x, double y )
+double DoubleBrokenExponential::GetValue( double x, double y )
 {
   double  x_diff = x - x0;
   double  y_diff = y - y0;
@@ -198,10 +199,10 @@ double MultiBrokenExponential::GetValue( double x, double y )
 /* ---------------- PROTECTED METHOD: CalculateSubsamples ------------------------- */
 // Function which determines the number of pixel subdivisions for sub-pixel integration,
 // given that the current pixel is a distance of r away from the center of the
-// broken-exponential function.
+// double-broken-exponential function.
 // This function returns the number of x and y subdivisions; the total number of subpixels
 // will then be the return value *squared*.
-int MultiBrokenExponential::CalculateSubsamples( double r )
+int DoubleBrokenExponential::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   
@@ -242,4 +243,4 @@ double CalculateScalingFactor( double h1, double h2, double h3, double r_brk1,
 }
 
 
-/* END OF FILE: func_multi-broken-exp.cpp ------------------------------ */
+/* END OF FILE: func_double-broken-exp.cpp ----------------------------- */
