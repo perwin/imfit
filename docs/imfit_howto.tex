@@ -519,7 +519,12 @@ Basic use of \imfit{} from the command line looks like this:
 where \textit{config-file} is the name of the configuration file
 which describes the model (the combination of 2D functions, initial values
 for parameters, and possible limits on parameter values) and \textit{input-image}
-is the \textsc{fits} image we want to fit with the model.
+is the \textsc{fits} image we want to fit with the model. 
+
+Note that both \textit{config-file} and \textit{input-image} -- as well
+as other file names specified by options discussed below -- can be plain
+filenames in the current working directory, relative paths (e.g.,
+\texttt{data\_dir/image.fits}), or absolute paths.
 
 The ``options'' are a set of command-line flags and options (use ``\imfitprog{} \texttt{-h}''
 or ``\imfitprog{} \texttt{--help}'' to see the complete list). Options must be followed by
@@ -2462,7 +2467,7 @@ Really simple example: FlatSky
 GetValues vs CalculateIntensity
 
 3D functions -- see existing functions for guidance; also note helper functions
-in \texttt{helper\_funcs\3d.h/cpp}.
+in \texttt{helper\_funcs\_3d.h/cpp}.
 
 
 

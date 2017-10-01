@@ -552,8 +552,6 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
     xnew[ifree[i]] = x[i];
   }
   
-  /* XXX call iterproc */
-
   /* Calculate the jacobian matrix */
 #ifdef DEBUG
   printf("\n*mpfit: (iter=%d) calling mp_fdjac2...\n", iter);
@@ -749,7 +747,9 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
    *            store the direction p and x + p. calculate the norm of p.
    */
   for (j = 0; j < nfree; j++) {
-//    printf("\t post-mp_lmpar: wa1[%d] = %g\n", j, wa1[j]);
+#ifdef DEBUG
+    printf("\t post-mp_lmpar: wa1[%d] = %g\n", j, wa1[j]);
+#endif
     wa1[j] = -wa1[j];
   }
 
@@ -1185,6 +1185,9 @@ int mp_fdjac2(mp_func funct,
   
   temp = mp_dmax1(epsfcn,MP_MACHEP0);
   eps = sqrt(temp);
+#ifdef DEBUG
+    printf("  *mp_fdjac2: eps = %g\n", eps);
+#endif
   ij = 0;
 
   dvec = (double **) malloc(sizeof(double **)*npar);
@@ -1525,12 +1528,12 @@ void mp_qrfac(int m, int n, double *a, int lda,
           jj += 1; /* [i+m*j] */
         }
         if ((pivot != 0) && (rdiag[k] != zero)) {
-          temp = a[j+m*k]/rdiag[k];
+          temp = a[j + m*k]/rdiag[k];
           temp = mp_dmax1( zero, one-temp*temp );
           rdiag[k] *= sqrt(temp);
           temp = rdiag[k]/wa[k];
           if ((p05*temp*temp) <= MP_MACHEP0) {
-            rdiag[k] = mp_enorm(m-j-1,&a[jp1+m*k]);
+            rdiag[k] = mp_enorm(m - j - 1, &a[jp1 + m*k]);
             wa[k] = rdiag[k];
           }
         }
@@ -1640,7 +1643,7 @@ void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
   for (j = 0; j < n; j++) {
     ij = kk;
     ik = kk;
-    for (i=j; i<n; i++)
+    for (i = j; i < n; i++)
       {
         r[ij] = r[ik];
         ij += 1;   /* [i+ldr*j] */
@@ -1648,7 +1651,7 @@ void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
       }
     x[j] = r[kk];
     wa[j] = qtb[j];
-    kk += ldr+1; /* j+ldr*j */
+    kk += ldr + 1; /* j+ldr*j */
   }
 
   /*
@@ -1662,7 +1665,7 @@ void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
     l = ipvt[j];
     if (diag[l] == zero)
       goto L90;
-    for (k=j; k<n; k++)
+    for (k = j; k < n; k++)
       sdiag[k] = zero;
     sdiag[j] = diag[l];
     /*
@@ -1671,7 +1674,7 @@ void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
      *         beyond the first n, which is initially zero.
      */
     qtbpj = zero;
-    for (k=j; k<n; k++)
+    for (k = j; k < n; k++)
       {
         /*
          *            determine a givens rotation which eliminates the
@@ -1683,13 +1686,13 @@ void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
         if (fabs(r[kk]) < fabs(sdiag[k]))
           {
             cotan = r[kk]/sdiag[k];
-            sin = p5/sqrt(p25+p25*cotan*cotan);
+            sin = p5/sqrt(p25 + p25*cotan*cotan);
             cos = sin*cotan;
           }
         else
           {
             tan = sdiag[k]/r[kk];
-            cos = p5/sqrt(p25+p25*tan*tan);
+            cos = p5/sqrt(p25 + p25*tan*tan);
             sin = cos*tan;
           }
         /*
@@ -1707,7 +1710,7 @@ void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
         if (n > kp1)
           {
             ik = kk + 1;
-            for (i=kp1; i<n; i++)
+            for (i = kp1; i < n; i++)
               {
                 temp = cos*r[ik] + sin*sdiag[i];
                 sdiag[i] = -sin*r[ik] + cos*sdiag[i];
@@ -1891,7 +1894,7 @@ void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
   if (nsing >= 1) {
     for (k = 0; k < nsing; k++) {
       j = nsing - k - 1;
-      wa1[j] = wa1[j]/r[j+ldr*j];
+      wa1[j] = wa1[j]/r[j + ldr*j];
       temp = wa1[j];
       jm1 = j - 1;
       if (jm1 >= 0) {
@@ -1943,7 +1946,7 @@ void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
           ij += 1;
         }
       }
-      wa1[j] = (wa1[j] - sum)/r[j+ldr*j];
+      wa1[j] = (wa1[j] - sum)/r[j + ldr*j];
       jj += ldr; /* [i+ldr*j] */
     }
     temp = mp_enorm(n,wa1);
@@ -1967,13 +1970,13 @@ void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
   gnorm = mp_enorm(n,wa1);
   paru = gnorm/delta;
   if (paru == zero)
-    paru = MP_DWARF/mp_dmin1(delta,p1);
+    paru = MP_DWARF/mp_dmin1(delta, p1);
   /*
    *     if the input par lies outside of the interval (parl,paru),
    *     set par to the closer endpoint.
    */
-  *par = mp_dmax1( *par,parl);
-  *par = mp_dmin1( *par,paru);
+  *par = mp_dmax1( *par, parl);
+  *par = mp_dmin1( *par, paru);
   if (*par == zero)
     *par = gnorm/dxnorm;
 
@@ -1986,7 +1989,7 @@ void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
    *         evaluate the function at the current value of par.
    */
   if (*par == zero)
-    *par = mp_dmax1(MP_DWARF,p001*paru);
+    *par = mp_dmax1(MP_DWARF, p001*paru);
   temp = sqrt( *par );
   for (j = 0; j < n; j++)
     wa1[j] = temp*diag[ifree[j]];
@@ -2019,7 +2022,7 @@ void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
     jp1 = j + 1;
     if (jp1 < n) {
         ij = jp1 + jj;
-        for (i=jp1; i<n; i++) {
+        for (i = jp1; i < n; i++) {
             wa1[i] -= r[ij]*temp;
             ij += 1; /* [i+ldr*j] */
         }
@@ -2165,7 +2168,7 @@ int mp_covar(int n, double *r, int ldr, int *ipvt, double tol, double *wa)
 #if 0
   for (j = 0; j < n; j++) {
     for (i = 0; i < n; i++) {
-      printf("%f ", r[j*ldr+i]);
+      printf("%f ", r[j*ldr + i]);
     }
     printf("\n");
   }
@@ -2185,7 +2188,7 @@ int mp_covar(int n, double *r, int ldr, int *ipvt, double tol, double *wa)
 
       k0 = k*ldr; j0 = j*ldr;
       for (i = 0; i <= j; i++) {
-        r[k0+i] += (-temp*r[j0+i]);
+        r[k0+i] += (-temp*r[j0 + i]);
       }
     }
     l = k;
@@ -2201,17 +2204,17 @@ int mp_covar(int n, double *r, int ldr, int *ipvt, double tol, double *wa)
       k0 = k*ldr; 
 
       for (j = 0; j < k; j++) {
-        temp = r[k*ldr+j];
+        temp = r[k*ldr + j];
 
         j0 = j*ldr;
         for (i = 0; i <= j; i++) {
-          r[j0+i] += temp*r[k0+i];
+          r[j0 + i] += temp*r[k0 + i];
         }
       }
       
-      temp = r[k0+k];
+      temp = r[k0 + k];
       for (i = 0; i <= k; i++) {
-        r[k0+i] *= temp;
+        r[k0 + i] *= temp;
       }
     }
   }
@@ -2226,14 +2229,14 @@ int mp_covar(int n, double *r, int ldr, int *ipvt, double tol, double *wa)
     j0 = j*ldr;
     jj0 = jj*ldr;
     for (i = 0; i <= j; i++) {
-      ji = j0+i;
+      ji = j0 + i;
 
       if (sing) r[ji] = zero;
       ii = ipvt[i];
-      if (ii > jj) r[jj0+ii] = r[ji];
-      if (ii < jj) r[ii*ldr+jj] = r[ji];
+      if (ii > jj) r[jj0 + ii] = r[ji];
+      if (ii < jj) r[ii*ldr + jj] = r[ji];
     }
-    wa[jj] = r[j0+j];
+    wa[jj] = r[j0 + j];
   }
 
   /*
@@ -2242,15 +2245,15 @@ int mp_covar(int n, double *r, int ldr, int *ipvt, double tol, double *wa)
   for (j = 0; j < n; j++) {
     j0 = j*ldr;
     for (i = 0; i < j; i++) {
-      r[j0+i] = r[i*ldr+j];
+      r[j0 + i] = r[i*ldr + j];
     }
-    r[j0+j] = wa[j];
+    r[j0 + j] = wa[j];
   }
 
 #if 0
   for (j = 0; j < n; j++) {
     for (i = 0; i < n; i++) {
-      printf("%f ", r[j*ldr+i]);
+      printf("%f ", r[j*ldr + i]);
     }
     printf("\n");
   }
