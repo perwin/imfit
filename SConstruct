@@ -721,6 +721,12 @@ testparser_objs = ["test_parser", "core/config_file_parser", "core/utilities"]
 testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 
+# test_2dspline: put all the object and source-code lists together
+spline2dtest_objs = ["spline2dtest_main", "core/commandline_parser", "core/utilities",
+					"core/image_io"]
+spline2dtest_sources = [name + ".cpp" for name in spline2dtest_objs]
+
+
 
 
 
@@ -733,6 +739,10 @@ env_debug.Program("psfconvolve", psfconvolve_dbg_objlist)
 
 psfconvolve1d_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve1d_objs, psfconvolve1d_sources) ]
 env_1d.Program("psfconvolve1d", psfconvolve1d_dbg_objlist)
+
+
+spline2dtest_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(spline2dtest_objs, spline2dtest_sources) ]
+env_debug.Program("spline2dtest", spline2dtest_objlist)
 
 
 # timing: variation on makeimage designed to time image-generation and convolution

@@ -1,0 +1,312 @@
+// Test code for 2D spline interpolation
+
+
+// Things to deal with:
+//
+//   [] Make sure that GSL 2D spline interpolation doesn't switch x,y
+// 
+// From GSL manual:
+// with i = 0,...,xsize-1 and j = 0,...,ysize-1
+// z_ij = za[j*xsize + i]
+// So:
+// z[x,y] = z[j*nColumns + i]
+// 
+// 
+// In ModelObject: x is indexed by j, y is indexed by i
+// j = k % nModelColumns;
+// i = k / nModelColumns;
+// y = (double)(i + 1);
+// x = (double)(j + 1);
+// modelVector[i*nModelColumns + j] = newValSum;
+
+//   [] Internal coordinate system for PSF array vs pixel coordinates
+//   -- image function will get X0,Y0 and then x,y
+//      positions relative to PSF center: xDiff = x - X0, yDiff = y - Y0
+//     
+//    Ideal "native" coordinate system has PSF center at (0,0), with coordinates
+//    running from x = -nCols/2,..,nCols/2
+//      PSF with even number of columns, e.g.., nCols = 6
+//        -2.5,-1.5,-0.5,0.5,1.5,2.5
+//      PSF with odd number of columns, e.g.., nCols = 5
+//        -2,-1,0,1,2
+//
+//
+//    CODE TO GENERATE properly centered xArray and yArray
+//      xBound = (nColumns - 1) / 2.0;
+//      double *xArray = (double *)calloc(nColumns, sizeof(double));
+//      for (int n = 0; n < nColumns; n++) {
+//        xArray[n] = n - xBound;
+//      yBound = (nRows - 1) / 2.0;
+//      double *yArray = (double *)calloc(nRows, sizeof(double));
+//      for (int n = 0; n < nRows; n++) {
+//        yArray[n] = n - yBound;
+// 
+//    [] How to handle points beyond boundary of PSF
+//      for |xDiff| > halfWidth_psf --> return 0.0
+//      for |yDiff| > halfHeight_psf --> return 0.0
+
+// Results from IRAF imexam:
+// no shift --> center at 8,8
+// xshift=-0.25 --> center at 8.24,8
+// xshift=-1 --> center at 9,8
+// 
+// central pixel is *normally* at 8,8 --> 0,0
+// 
+// xshift = -1 --> peak-flux center of model now has coordinate 7,8 --> -1,0
+// So xshift can be interpreted as "change center of model/PSF from 0,0 to xshift,0"
+
+
+       
+#include <stdio.h>
+#include <math.h>
+#include <string>
+#include "fftw3.h"
+#include "gsl/gsl_spline2d.h"
+
+#include "image_io.h"
+#include "commandline_parser.h"
+#include "utilities_pub.h"
+
+using namespace std;
+
+
+/* ---------------- Definitions ---------------------------------------- */
+// Option names for use in config files
+static string  kNCols1 = "NCOLS";
+static string  kNCols2 = "NCOLUMNS";
+static string  kNRows = "NROWS";
+
+static string  psfFilename1 = "simplegauss.fits";
+static string  psfFilename2 = "tests/psf_moffat_35.fits";
+
+
+typedef struct {
+  std::string  inputFilename;
+  std::string  outputFilename;
+  double  xShift;
+  double  yShift;
+  int  debug;
+} commandOptions;
+
+
+
+/* ------------------- Function Prototypes ----------------------------- */
+
+double * MakeShiftedImage( double *inputImage, int nRows, int nColumns,
+							double xShift, double yShift, commandOptions *theOptions );
+void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
+
+
+/* ---------------- MAIN ----------------------------------------------- */
+
+int main( int argc, char *argv[] )
+{
+  string  psfFilename = psfFilename1;
+  string  outputImageFilename = "output_spline2dtest.fits";
+  int  nColumns_psf = 0;
+  int  nRows_psf = 0;
+  long  nPixels_psf = 0;
+  double  *psfPixels = nullptr;
+  double  *shiftedImage = nullptr;
+  commandOptions  options;
+
+  options.inputFilename = psfFilename1;
+  options.outputFilename = "output_spline2dtest.fits";
+  options.xShift = 0.0;
+  options.yShift = 0.0;
+  options.debug = 0;
+
+  ProcessInput(argc, argv, &options);
+
+  printf("nCol = 5: ");
+  int nC = 5;
+  double xBound = (nC - 1) / 2.0;
+  for (int n = 0; n < nC; n++)
+    printf("%g, ", n - xBound);
+  printf("\n");
+  printf("nCol = 5: ");
+  nC = 6;
+  xBound = (nC - 1) / 2.0;
+  for (int n = 0; n < nC; n++)
+    printf("%g, ", n - xBound);
+  printf("\n");
+
+
+  printf("Reading input image (\"%s\") ...\n", options.inputFilename.c_str());
+  psfPixels = ReadImageAsVector(options.inputFilename, &nColumns_psf, &nRows_psf);
+  if (psfPixels == nullptr) {
+    fprintf(stderr,  "\n*** ERROR: Unable to read PSF image file \"%s\"!\n\n", 
+    			options.inputFilename.c_str());
+    return -1;
+  }
+  nPixels_psf = (long)(nColumns_psf * nRows_psf);
+  printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
+           nColumns_psf, nRows_psf, nPixels_psf);
+
+
+  // Generate shifted image (just makes a copy at the moment)
+  shiftedImage = MakeShiftedImage(psfPixels, nColumns_psf, nRows_psf, options.xShift, options.yShift,
+  									&options);
+
+  printf("\nSaving output image (\"%s\") ...\n", options.outputFilename.c_str());
+  vector<string>  commentStrings;
+  SaveVectorAsImage(shiftedImage, options.outputFilename, nColumns_psf, nRows_psf, commentStrings);
+
+  // Free memory
+  if (psfPixels != nullptr)
+    fftw_free(psfPixels);
+  if (shiftedImage != nullptr)
+    fftw_free(shiftedImage);
+
+  printf("Done.\n");
+}
+
+
+
+double * MakeShiftedImage( double *inputImage, int nColumns, int nRows,
+							double xShift, double yShift, commandOptions *theOptions )
+{
+  double  *xArray, *yArray;
+  double  *newImage;
+  double  xBound, yBound, xMin, xMax, yMin, yMax;
+  long  nPixelsTot = (long)(nRows * nColumns);
+  gsl_spline2d * splineInterp;
+  int  n, result;
+  size_t xSize = (size_t)(nColumns);
+  size_t ySize = (size_t)(nRows);
+
+  // construct x and y index arrays (1 .. nColumns or nRows)
+  xBound = (nColumns - 1) / 2.0;
+  yBound = (nRows - 1) / 2.0;
+  xArray = (double *)calloc((size_t)nColumns, sizeof(double));
+  yArray = (double *)calloc((size_t)nRows, sizeof(double));
+  for (n = 0; n < nColumns; n++)
+    xArray[n] = n - xBound;
+//    xArray[i] = (double)(i + 1.0);
+  for (n = 0; n < nRows; n++)
+    yArray[n] = n - yBound;
+//    yArray[j] = (double)(j + 1.0);
+  xMin = -xBound;
+  xMax = xBound;
+  yMin = -yBound;
+  yMax = yBound;
+//   xMin = xArray[0];
+//   xMax = xArray[nColumns - 1];
+//   yMin = yArray[0];
+//   yMax = yArray[nRows - 1];
+
+  gsl_interp_accel *xacc = gsl_interp_accel_alloc();
+  gsl_interp_accel *yacc = gsl_interp_accel_alloc();
+  splineInterp = gsl_spline2d_alloc(gsl_interp2d_bicubic, xSize, ySize);
+  result = gsl_spline2d_init(splineInterp, xArray, yArray, inputImage, xSize, ySize);
+
+  newImage = fftw_alloc_real(nPixelsTot);
+  
+//   for (int k = 0; k < nPixelsTot; k++)
+//     newImage[k] = inputImage[k];
+  for (long k = 0; k < nPixelsTot; k++) {
+    int  i,j;
+    double  x, y, newVal;
+    j = k % nColumns;
+    i = k / nColumns;
+//     y = (double)(i + 1) + yShift;
+//     x = (double)(j + 1) + xShift;
+    y = i - yBound + yShift;
+    x = j - xBound + xShift;
+    if (theOptions->debug > 0)
+      printf("   k = %ld: i,j = %d,%d and x,y = %g,%g\n", k, i, j, x, y);
+    if ((x < xMin) || (x > xMax) || (y < yMin) || (y > yMax))
+      newVal = 0.0;
+    else
+      newVal = gsl_spline2d_eval(splineInterp, x, y, xacc, yacc);
+    newImage[i*nColumns + j] = newVal;
+  }
+
+
+  gsl_spline2d_free(splineInterp);
+  gsl_interp_accel_free(xacc);
+  gsl_interp_accel_free(yacc);
+  free(xArray);
+  free(yArray);
+  
+  return newImage;
+}
+
+
+
+void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
+{
+
+  CLineParser *optParser = new CLineParser();
+  string  tempString = "";
+
+  /* SET THE USAGE/HELP   */
+  optParser->AddUsageLine("Usage: ");
+  optParser->AddUsageLine("   spline2dtest [options] inputFile [outputFile]");
+  optParser->AddUsageLine(" -h  --help                   Prints this help");
+  optParser->AddUsageLine("     --xshift <value>         x-shift in pixels");
+  optParser->AddUsageLine("     --yshift <value>         y-shift in pixels");
+  optParser->AddUsageLine("");
+  optParser->AddUsageLine("     --debug                  extra printouts");
+
+  optParser->AddFlag("help", "h");
+  optParser->AddFlag("debug");
+  optParser->AddOption("xshift");
+  optParser->AddOption("yshift");
+
+
+  // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
+  // to be ignored only, rather than causing program to exit
+  optParser->UnrecognizedAreErrors();
+  
+  int status = optParser->ParseCommandLine( argc, argv );
+  /* Process the results: actual arguments, if any: */
+  if (optParser->nArguments() > 0) {
+    theOptions->inputFilename = optParser->GetArgument(0);
+    printf("\tInput image file = %s\n", theOptions->inputFilename.c_str());
+  }
+  if (optParser->nArguments() > 1) {
+    theOptions->outputFilename = optParser->GetArgument(1);
+    printf("\tOutput image file = %s\n", theOptions->outputFilename.c_str());
+  }
+
+  /* Process the results: options */
+  if (status < 0) {
+    printf("\nError on command line... quitting...\n\n");
+    delete optParser;
+    exit(1);
+  }
+
+  /* Process the results: options */
+  // First four are options which print useful info and then exit the program
+  if ( optParser->FlagSet("help") || optParser->CommandLineEmpty() ) {
+    optParser->PrintUsage();
+    delete optParser;
+    exit(1);
+  }
+  if ( optParser->FlagSet("debug") || optParser->CommandLineEmpty() ) {
+    theOptions->debug = 1;
+  }
+  if (optParser->OptionSet("xshift")) {
+    if (NotANumber(optParser->GetTargetString("xshift").c_str(), 0, kAnyReal)) {
+      fprintf(stderr, "*** ERROR: xshift should be a real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->xShift = atof(optParser->GetTargetString("xshift").c_str());
+    printf("\txshift = %g pixel\n", theOptions->xShift);
+  }
+  if (optParser->OptionSet("yshift")) {
+    if (NotANumber(optParser->GetTargetString("yshift").c_str(), 0, kAnyReal)) {
+      fprintf(stderr, "*** ERROR: yshift should be a real number!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->yShift = atof(optParser->GetTargetString("yshift").c_str());
+    printf("\tyshift = %g pixel\n", theOptions->yShift);
+  }
+
+  delete optParser;
+
+}
+
