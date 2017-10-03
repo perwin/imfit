@@ -1,0 +1,45 @@
+
+[ ] Simple program to test 2D spline interpolation
+	-- Read in PSF image
+	-- Test interpolation shifting by whole pixels
+	-- Test interpolation shifting by 0.5 pixels
+	-- Test interpolation shifting by fractional pixels
+
+	
+[ ] Simple makeimage-type program which only uses PointSource function
+	-- for testing 2D spline interpolation
+	[ ] 
+
+
+
+Let ModelObject handle supplying PSF images to PointSource functions?
+	-- ModelObject generates psfInterpolator object, passes pointer to that
+	into individual PointSource functions
+	-- C++11 weak pointer?
+
+
+Future options:
+	[] How to handle PSF oversampling regions?
+		-- want to make sure we don't accidentally overwrite a PointSource
+		with an oversampled region
+		-- PointSource with two PSF images?
+			Optional boolean-setting method for FunctionObject: doing oversampled
+			region
+			-- Ensure internal flag is reset to false when Setup() is called;
+			new method should be called *after* Setup if we're doing oversampling
+		-- Problem: each oversampling region has its own (possibly unique) oversampled
+		PSF
+		
+		-- How do we handle point sources with centers outside oversampling region
+		but wings extending in to 
+		
+		-- Very general possibility: PointSource can accept pointer to psfInterpolator
+		object via special method (after Setup is called), so each OversampledRegion
+		object can keep its own psfInterpolator object and pass it to the PointSource
+		image function
+			-- BUT: how do we take care of overall I_tot scaling?
+			OK: psfInterpolator object should carry its own total-counts factor
+		
+	[] How does this interact with weird radio-interferometric PSFs (cf. Corentin
+	Schreiber)? How do we scale those?
+	

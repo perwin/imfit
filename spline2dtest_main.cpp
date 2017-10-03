@@ -66,15 +66,13 @@
 #include "image_io.h"
 #include "commandline_parser.h"
 #include "utilities_pub.h"
+#include "function_objects/function_object.h"
+#include "psf_interpolator.h"
 
 using namespace std;
 
 
 /* ---------------- Definitions ---------------------------------------- */
-// Option names for use in config files
-static string  kNCols1 = "NCOLS";
-static string  kNCols2 = "NCOLUMNS";
-static string  kNRows = "NROWS";
 
 static string  psfFilename1 = "simplegauss.fits";
 static string  psfFilename2 = "tests/psf_moffat_35.fits";
@@ -90,9 +88,11 @@ typedef struct {
 
 
 
+
+
 /* ------------------- Function Prototypes ----------------------------- */
 
-double * MakeShiftedImage( double *inputImage, int nRows, int nColumns,
+double * MakeShiftedImage2( PsfInterpolator *theInterpolator, int nRows, int nColumns, 
 							double xShift, double yShift, commandOptions *theOptions );
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
 
@@ -118,18 +118,18 @@ int main( int argc, char *argv[] )
 
   ProcessInput(argc, argv, &options);
 
-  printf("nCol = 5: ");
-  int nC = 5;
-  double xBound = (nC - 1) / 2.0;
-  for (int n = 0; n < nC; n++)
-    printf("%g, ", n - xBound);
-  printf("\n");
-  printf("nCol = 5: ");
-  nC = 6;
-  xBound = (nC - 1) / 2.0;
-  for (int n = 0; n < nC; n++)
-    printf("%g, ", n - xBound);
-  printf("\n");
+//   printf("nCol = 5: ");
+//   int nC = 5;
+//   double xBound = (nC - 1) / 2.0;
+//   for (int n = 0; n < nC; n++)
+//     printf("%g, ", n - xBound);
+//   printf("\n");
+//   printf("nCol = 5: ");
+//   nC = 6;
+//   xBound = (nC - 1) / 2.0;
+//   for (int n = 0; n < nC; n++)
+//     printf("%g, ", n - xBound);
+//   printf("\n");
 
 
   printf("Reading input image (\"%s\") ...\n", options.inputFilename.c_str());
@@ -144,90 +144,111 @@ int main( int argc, char *argv[] )
            nColumns_psf, nRows_psf, nPixels_psf);
 
 
+  PsfInterpolator *theInterpolator = new PsfInterpolator(psfPixels, nColumns_psf, nRows_psf);
+  
   // Generate shifted image (just makes a copy at the moment)
-  shiftedImage = MakeShiftedImage(psfPixels, nColumns_psf, nRows_psf, options.xShift, options.yShift,
-  									&options);
+  shiftedImage = MakeShiftedImage2(theInterpolator, nColumns_psf, nRows_psf, 
+  									options.xShift, options.yShift, &options);
 
   printf("\nSaving output image (\"%s\") ...\n", options.outputFilename.c_str());
   vector<string>  commentStrings;
   SaveVectorAsImage(shiftedImage, options.outputFilename, nColumns_psf, nRows_psf, commentStrings);
 
   // Free memory
+  delete theInterpolator;
   if (psfPixels != nullptr)
     fftw_free(psfPixels);
   if (shiftedImage != nullptr)
     fftw_free(shiftedImage);
-
+  
   printf("Done.\n");
 }
 
 
 
-double * MakeShiftedImage( double *inputImage, int nColumns, int nRows,
+// double * MakeShiftedImage( double *inputImage, int nColumns, int nRows,
+// 							double xShift, double yShift, commandOptions *theOptions )
+// {
+//   double  *xArray, *yArray;
+//   double  *newImage;
+//   double  xBound, yBound, deltaXMin, deltaXMax, deltaYMin, deltaYMax;
+//   long  nPixelsTot = (long)(nRows * nColumns);
+//   int  n, result;
+//   size_t xSize = (size_t)(nColumns);
+//   size_t ySize = (size_t)(nRows);
+// 
+//   // construct x and y index arrays (1 .. nColumns or nRows)
+//   xBound = (nColumns - 1) / 2.0;
+//   yBound = (nRows - 1) / 2.0;
+//   xArray = (double *)calloc((size_t)nColumns, sizeof(double));
+//   yArray = (double *)calloc((size_t)nRows, sizeof(double));
+//   for (n = 0; n < nColumns; n++)
+//     xArray[n] = n - xBound;
+//   for (n = 0; n < nRows; n++)
+//     yArray[n] = n - yBound;
+//   deltaXMin = -xBound;
+//   deltaXMax = xBound;
+//   deltaYMin = -yBound;
+//   deltaYMax = yBound;
+// 
+//   gsl_spline2d * splineInterp;
+//   gsl_interp_accel *xacc = gsl_interp_accel_alloc();
+//   gsl_interp_accel *yacc = gsl_interp_accel_alloc();
+//   splineInterp = gsl_spline2d_alloc(gsl_interp2d_bicubic, xSize, ySize);
+//   result = gsl_spline2d_init(splineInterp, xArray, yArray, inputImage, xSize, ySize);
+// 
+//   newImage = fftw_alloc_real(nPixelsTot);
+//   
+//   for (long k = 0; k < nPixelsTot; k++) {
+//     int  i,j;
+//     double  x, y, newVal;
+//     j = k % nColumns;
+//     i = k / nColumns;
+//     y = i - yBound + yShift;
+//     x = j - xBound + xShift;
+//     if (theOptions->debug > 0)
+//       printf("   k = %ld: i,j = %d,%d and x,y = %g,%g\n", k, i, j, x, y);
+//     if ((x < deltaXMin) || (x > deltaXMax) || (y < deltaYMin) || (y > deltaYMax))
+//       newVal = 0.0;
+//     else
+//       newVal = gsl_spline2d_eval(splineInterp, x, y, xacc, yacc);
+//     newImage[i*nColumns + j] = newVal;
+//   }
+// 
+// 
+//   gsl_spline2d_free(splineInterp);
+//   gsl_interp_accel_free(xacc);
+//   gsl_interp_accel_free(yacc);
+//   free(xArray);
+//   free(yArray);
+//   
+//   return newImage;
+// }
+
+
+
+double * MakeShiftedImage2( PsfInterpolator *theInterpolator, int nRows, int nColumns, 
 							double xShift, double yShift, commandOptions *theOptions )
 {
-  double  *xArray, *yArray;
   double  *newImage;
-  double  xBound, yBound, xMin, xMax, yMin, yMax;
   long  nPixelsTot = (long)(nRows * nColumns);
-  gsl_spline2d * splineInterp;
-  int  n, result;
-  size_t xSize = (size_t)(nColumns);
-  size_t ySize = (size_t)(nRows);
-
-  // construct x and y index arrays (1 .. nColumns or nRows)
-  xBound = (nColumns - 1) / 2.0;
-  yBound = (nRows - 1) / 2.0;
-  xArray = (double *)calloc((size_t)nColumns, sizeof(double));
-  yArray = (double *)calloc((size_t)nRows, sizeof(double));
-  for (n = 0; n < nColumns; n++)
-    xArray[n] = n - xBound;
-//    xArray[i] = (double)(i + 1.0);
-  for (n = 0; n < nRows; n++)
-    yArray[n] = n - yBound;
-//    yArray[j] = (double)(j + 1.0);
-  xMin = -xBound;
-  xMax = xBound;
-  yMin = -yBound;
-  yMax = yBound;
-//   xMin = xArray[0];
-//   xMax = xArray[nColumns - 1];
-//   yMin = yArray[0];
-//   yMax = yArray[nRows - 1];
-
-  gsl_interp_accel *xacc = gsl_interp_accel_alloc();
-  gsl_interp_accel *yacc = gsl_interp_accel_alloc();
-  splineInterp = gsl_spline2d_alloc(gsl_interp2d_bicubic, xSize, ySize);
-  result = gsl_spline2d_init(splineInterp, xArray, yArray, inputImage, xSize, ySize);
+  double  xBound = (nColumns - 1) / 2.0;
+  double  yBound = (nRows - 1) / 2.0;
 
   newImage = fftw_alloc_real(nPixelsTot);
-  
-//   for (int k = 0; k < nPixelsTot; k++)
-//     newImage[k] = inputImage[k];
+
+
   for (long k = 0; k < nPixelsTot; k++) {
     int  i,j;
-    double  x, y, newVal;
+    double  x, y;
     j = k % nColumns;
     i = k / nColumns;
-//     y = (double)(i + 1) + yShift;
-//     x = (double)(j + 1) + xShift;
     y = i - yBound + yShift;
     x = j - xBound + xShift;
     if (theOptions->debug > 0)
       printf("   k = %ld: i,j = %d,%d and x,y = %g,%g\n", k, i, j, x, y);
-    if ((x < xMin) || (x > xMax) || (y < yMin) || (y > yMax))
-      newVal = 0.0;
-    else
-      newVal = gsl_spline2d_eval(splineInterp, x, y, xacc, yacc);
-    newImage[i*nColumns + j] = newVal;
+    newImage[i*nColumns + j] = theInterpolator->GetValue(x, y);
   }
-
-
-  gsl_spline2d_free(splineInterp);
-  gsl_interp_accel_free(xacc);
-  gsl_interp_accel_free(yacc);
-  free(xArray);
-  free(yArray);
   
   return newImage;
 }
