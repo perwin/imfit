@@ -1,9 +1,20 @@
 
-[ ] Simple program to test 2D spline interpolation
+[X] Simple program to test 2D spline interpolation
 	-- Read in PSF image
 	-- Test interpolation shifting by whole pixels
 	-- Test interpolation shifting by 0.5 pixels
 	-- Test interpolation shifting by fractional pixels
+	
+
+[ ] Simple derivation of FunctionObject to do point-source interpolation (PointSource)
+	-- assume external code generates PsfInterpolator instance
+	-- needs extra setup function where we pass in pointer to PsfInterpolator instance
+	[ ] Make stub files, modify SConstruct; test compilation
+	[ ] Add generation of instance to spline2dtest_main.cpp
+	[ ] Write & test code for passing in pointer to PsfInterpolator instance
+	[ ] Make alternate version of MakeShiftedImage2() in spline2dtest_main.cpp
+		that uses PointSource
+	[ ] Test spline2dtest using PointSource
 
 	
 [ ] Simple makeimage-type program which only uses PointSource function
@@ -16,6 +27,14 @@ Let ModelObject handle supplying PSF images to PointSource functions?
 	-- ModelObject generates psfInterpolator object, passes pointer to that
 	into individual PointSource functions
 	-- C++11 weak pointer?
+
+
+Alternate interpolation
+	-- Lanczos looks simple enough to implement directly
+	-- Make PointSource have an optional parameter which specifies e.g.
+	bicubic spline vs Lanczos2 vs Lanczos3?
+		[] Write Python code to implement 1D Lanczos interpolation
+		[] Write Python code to implement 2D Lanczos interpolation
 
 
 Future options:
@@ -31,7 +50,7 @@ Future options:
 		PSF
 		
 		-- How do we handle point sources with centers outside oversampling region
-		but wings extending in to 
+		but wings extending in to it?
 		
 		-- Very general possibility: PointSource can accept pointer to psfInterpolator
 		object via special method (after Setup is called), so each OversampledRegion

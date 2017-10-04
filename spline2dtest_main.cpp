@@ -3,7 +3,7 @@
 
 // Things to deal with:
 //
-//   [] Make sure that GSL 2D spline interpolation doesn't switch x,y
+//   [X] Make sure that GSL 2D spline interpolation doesn't switch x,y
 // 
 // From GSL manual:
 // with i = 0,...,xsize-1 and j = 0,...,ysize-1
@@ -67,7 +67,8 @@
 #include "commandline_parser.h"
 #include "utilities_pub.h"
 #include "function_objects/function_object.h"
-#include "psf_interpolator.h"
+#include "func_pointsource.h"
+#include "psf_interpolators.h"
 
 using namespace std;
 
@@ -83,6 +84,8 @@ typedef struct {
   std::string  outputFilename;
   double  xShift;
   double  yShift;
+  double  x0;
+  double  y0;
   int  debug;
 } commandOptions;
 
@@ -92,8 +95,11 @@ typedef struct {
 
 /* ------------------- Function Prototypes ----------------------------- */
 
-double * MakeShiftedImage2( PsfInterpolator *theInterpolator, int nRows, int nColumns, 
-							double xShift, double yShift, commandOptions *theOptions );
+// double * MakeShiftedImage2( PsfInterpolator_bicubic *theInterpolator, int nRows, int nColumns, 
+// 							double xShift, double yShift, commandOptions *theOptions );
+double * MakeShiftedImage3( PointSource *ptSourceFunc, int nRows, int nColumns, 
+							double x0, double y0, commandOptions *theOptions );
+
 void ProcessInput( int argc, char *argv[], commandOptions *theOptions );
 
 
@@ -114,6 +120,8 @@ int main( int argc, char *argv[] )
   options.outputFilename = "output_spline2dtest.fits";
   options.xShift = 0.0;
   options.yShift = 0.0;
+  options.x0 = 3.0;
+  options.y0 = 3.0;
   options.debug = 0;
 
   ProcessInput(argc, argv, &options);
@@ -144,11 +152,13 @@ int main( int argc, char *argv[] )
            nColumns_psf, nRows_psf, nPixels_psf);
 
 
-  PsfInterpolator *theInterpolator = new PsfInterpolator(psfPixels, nColumns_psf, nRows_psf);
+  PsfInterpolator *theInterpolator = new PsfInterpolator_bicubic(psfPixels, nColumns_psf, nRows_psf);
+  PointSource * pointSourceFunc = new PointSource();
+  pointSourceFunc->AddPsfInterpolator(theInterpolator);
   
-  // Generate shifted image (just makes a copy at the moment)
-  shiftedImage = MakeShiftedImage2(theInterpolator, nColumns_psf, nRows_psf, 
-  									options.xShift, options.yShift, &options);
+  // Generate shifted image
+  shiftedImage = MakeShiftedImage3(pointSourceFunc, nColumns_psf, nRows_psf, 
+  									options.x0, options.y0, &options);
 
   printf("\nSaving output image (\"%s\") ...\n", options.outputFilename.c_str());
   vector<string>  commentStrings;
@@ -156,6 +166,7 @@ int main( int argc, char *argv[] )
 
   // Free memory
   delete theInterpolator;
+  delete pointSourceFunc;
   if (psfPixels != nullptr)
     fftw_free(psfPixels);
   if (shiftedImage != nullptr)
@@ -227,27 +238,54 @@ int main( int argc, char *argv[] )
 
 
 
-double * MakeShiftedImage2( PsfInterpolator *theInterpolator, int nRows, int nColumns, 
-							double xShift, double yShift, commandOptions *theOptions )
+// double * MakeShiftedImage2( PsfInterpolator_bicubic *theInterpolator, int nRows, int nColumns, 
+// 							double xShift, double yShift, commandOptions *theOptions )
+// {
+//   double  *newImage;
+//   long  nPixelsTot = (long)(nRows * nColumns);
+//   double  xBound = (nColumns - 1) / 2.0;
+//   double  yBound = (nRows - 1) / 2.0;
+// 
+//   newImage = fftw_alloc_real(nPixelsTot);
+// 
+// 
+//   for (long k = 0; k < nPixelsTot; k++) {
+//     int  i,j;
+//     double  x, y;
+//     j = k % nColumns;
+//     i = k / nColumns;
+//     y = i - yBound + yShift;
+//     x = j - xBound + xShift;
+//     if (theOptions->debug > 0)
+//       printf("   k = %ld: i,j = %d,%d and x,y = %g,%g\n", k, i, j, x, y);
+//     newImage[i*nColumns + j] = theInterpolator->GetValue(x, y);
+//   }
+//   
+//   return newImage;
+// }
+
+
+double * MakeShiftedImage3( PointSource *ptSourceFunc, int nRows, int nColumns, 
+							double x0, double y0, commandOptions *theOptions )
 {
   double  *newImage;
   long  nPixelsTot = (long)(nRows * nColumns);
-  double  xBound = (nColumns - 1) / 2.0;
-  double  yBound = (nRows - 1) / 2.0;
+  double  paramVect[1] = {1.0};
 
   newImage = fftw_alloc_real(nPixelsTot);
 
+  ptSourceFunc->Setup(paramVect, 0, x0, y0);
 
   for (long k = 0; k < nPixelsTot; k++) {
     int  i,j;
     double  x, y;
     j = k % nColumns;
     i = k / nColumns;
-    y = i - yBound + yShift;
-    x = j - xBound + xShift;
+    y = i + 1.0;
+    x = j + 1.0;
     if (theOptions->debug > 0)
       printf("   k = %ld: i,j = %d,%d and x,y = %g,%g\n", k, i, j, x, y);
-    newImage[i*nColumns + j] = theInterpolator->GetValue(x, y);
+    newImage[i*nColumns + j] = ptSourceFunc->GetValue(x, y);
   }
   
   return newImage;
@@ -265,15 +303,19 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine("Usage: ");
   optParser->AddUsageLine("   spline2dtest [options] inputFile [outputFile]");
   optParser->AddUsageLine(" -h  --help                   Prints this help");
-  optParser->AddUsageLine("     --xshift <value>         x-shift in pixels");
-  optParser->AddUsageLine("     --yshift <value>         y-shift in pixels");
+//   optParser->AddUsageLine("     --xshift <value>         x-shift in pixels");
+//   optParser->AddUsageLine("     --yshift <value>         y-shift in pixels");
+  optParser->AddUsageLine("     --x0 <value>             x-center in pixels");
+  optParser->AddUsageLine("     --y0 <value>             y-center in pixels");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --debug                  extra printouts");
 
   optParser->AddFlag("help", "h");
   optParser->AddFlag("debug");
-  optParser->AddOption("xshift");
-  optParser->AddOption("yshift");
+//   optParser->AddOption("xshift");
+//   optParser->AddOption("yshift");
+  optParser->AddOption("x0");
+  optParser->AddOption("y0");
 
 
   // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
@@ -308,23 +350,41 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   if ( optParser->FlagSet("debug") || optParser->CommandLineEmpty() ) {
     theOptions->debug = 1;
   }
-  if (optParser->OptionSet("xshift")) {
-    if (NotANumber(optParser->GetTargetString("xshift").c_str(), 0, kAnyReal)) {
-      fprintf(stderr, "*** ERROR: xshift should be a real number!\n");
+//   if (optParser->OptionSet("xshift")) {
+//     if (NotANumber(optParser->GetTargetString("xshift").c_str(), 0, kAnyReal)) {
+//       fprintf(stderr, "*** ERROR: xshift should be a real number!\n");
+//       delete optParser;
+//       exit(1);
+//     }
+//     theOptions->xShift = atof(optParser->GetTargetString("xshift").c_str());
+//     printf("\txshift = %g pixel\n", theOptions->xShift);
+//   }
+//   if (optParser->OptionSet("yshift")) {
+//     if (NotANumber(optParser->GetTargetString("yshift").c_str(), 0, kAnyReal)) {
+//       fprintf(stderr, "*** ERROR: yshift should be a real number!\n");
+//       delete optParser;
+//       exit(1);
+//     }
+//     theOptions->yShift = atof(optParser->GetTargetString("yshift").c_str());
+//     printf("\tyshift = %g pixel\n", theOptions->yShift);
+//   }
+  if (optParser->OptionSet("x0")) {
+    if (NotANumber(optParser->GetTargetString("x0").c_str(), 0, kAnyReal)) {
+      fprintf(stderr, "*** ERROR: x0 should be a real number!\n");
       delete optParser;
       exit(1);
     }
-    theOptions->xShift = atof(optParser->GetTargetString("xshift").c_str());
-    printf("\txshift = %g pixel\n", theOptions->xShift);
+    theOptions->x0 = atof(optParser->GetTargetString("x0").c_str());
+    printf("\tx0 = %g pixel\n", theOptions->x0);
   }
-  if (optParser->OptionSet("yshift")) {
-    if (NotANumber(optParser->GetTargetString("yshift").c_str(), 0, kAnyReal)) {
-      fprintf(stderr, "*** ERROR: yshift should be a real number!\n");
+  if (optParser->OptionSet("y0")) {
+    if (NotANumber(optParser->GetTargetString("y0").c_str(), 0, kAnyReal)) {
+      fprintf(stderr, "*** ERROR: y0 should be a real number!\n");
       delete optParser;
       exit(1);
     }
-    theOptions->yShift = atof(optParser->GetTargetString("yshift").c_str());
-    printf("\tyshift = %g pixel\n", theOptions->yShift);
+    theOptions->y0 = atof(optParser->GetTargetString("y0").c_str());
+    printf("\ty0 = %g pixel\n", theOptions->y0);
   }
 
   delete optParser;

@@ -722,8 +722,8 @@ testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 
 # test_2dspline: put all the object and source-code lists together
-spline2dtest_objs = ["spline2dtest_main", "psf_interpolator", "core/commandline_parser", "core/utilities",
-					"core/image_io"]
+spline2dtest_objs = ["spline2dtest_main", "psf_interpolators", "core/commandline_parser", "core/utilities",
+					"core/image_io", "function_objects/function_object", "func_pointsource"]
 spline2dtest_sources = [name + ".cpp" for name in spline2dtest_objs]
 
 

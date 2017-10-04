@@ -1,16 +1,20 @@
 #include <stdlib.h>
 
 #include "gsl/gsl_spline2d.h"
-#include "psf_interpolator.h"
+#include "psf_interpolators.h"
 
 
 
 /* ---------------- Definitions ---------------------------------------- */
 
 
+
+// DERIVED CLASS: PsfInterpolator_bicubic -- uses GNU Scientific Library's
+// 2D bicubic spline interpolation
+
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-PsfInterpolator::PsfInterpolator( double *inputImage, int nCols_image, int nRows_image )
+PsfInterpolator_bicubic::PsfInterpolator_bicubic( double *inputImage, int nCols_image, int nRows_image )
 {
   nColumns = nCols_image;
   nRows = nRows_image;
@@ -37,7 +41,7 @@ PsfInterpolator::PsfInterpolator( double *inputImage, int nCols_image, int nRows
 
 /* ---------------- DESTRUCTOR ----------------------------------------- */
 
-PsfInterpolator::~PsfInterpolator( )
+PsfInterpolator_bicubic::~PsfInterpolator_bicubic( )
 {
   gsl_spline2d_free(splineInterp);
   gsl_interp_accel_free(xacc);
@@ -49,7 +53,7 @@ PsfInterpolator::~PsfInterpolator( )
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
 
-double PsfInterpolator::GetValue( double x, double y )
+double PsfInterpolator_bicubic::GetValue( double x, double y )
 {
   double newVal;
   if ((x < deltaXMin) || (x > deltaXMax) || (y < deltaYMin) || (y > deltaYMax))
