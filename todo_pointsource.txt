@@ -6,21 +6,85 @@
 	-- Test interpolation shifting by fractional pixels
 	
 
-[ ] Simple derivation of FunctionObject to do point-source interpolation (PointSource)
+[X] Simple derivation of FunctionObject to do point-source interpolation (PointSource)
 	-- assume external code generates PsfInterpolator instance
 	-- needs extra setup function where we pass in pointer to PsfInterpolator instance
-	[ ] Make stub files, modify SConstruct; test compilation
-	[ ] Add generation of instance to spline2dtest_main.cpp
-	[ ] Write & test code for passing in pointer to PsfInterpolator instance
-	[ ] Make alternate version of MakeShiftedImage2() in spline2dtest_main.cpp
+	[X] Make stub files, modify SConstruct; test compilation
+	[X] Add generation of instance to spline2dtest_main.cpp
+	[X] Write & test code for passing in pointer to PsfInterpolator instance
+	[X] Make alternate version of MakeShiftedImage2() in spline2dtest_main.cpp
 		that uses PointSource
-	[ ] Test spline2dtest using PointSource
+	[X] Test spline2dtest using PointSource
 
 	
-[ ] Simple makeimage-type program which only uses PointSource function
-	-- for testing 2D spline interpolation
-	[ ] 
+[X] Add point-source function to makeimage
+	-- ModelObject::CreateModelImage
+	-- ModelObject::GetSingleFunctionImage
+	-- [X]ModelObject::FindTotalFluxes -- OK, bcs we can call TotalFlux() method
+	[X] Add PointSource to add_functions.cpp, etc.
+	[X] Add PointSource setup to ModelObject
+	[X] Add normalization of localPsfPixels in ModelObject
+	[X] Look for places within ModelObject where we have to handle PointSource
+	presence/absence
+	[X] Exclude PointSource from general, pre-convolution image construction
+		[X] Handle case where there are *no* non-PointSource functions
+		[X] Add generation of PointSource contributions, after convolution step
+	[X] Rewrite GetSingleFunctionImage to handle PointSource output
+		-- rewrite code to do loop over functions, with
+			if func.is.PointSource:
+				generate image w/o PSF convolution
+			if not func.is.PointSource
+				generate image normally, w/ PSF convolution
 
+[X] Test integration of PointSource image: does flux add up?
+
+[X] Test imfit
+	[X] Test compilation and standard tests
+	[X] Test fitting with PointSource
+
+$ ./imfit tempo.fits -c config_imfit_pointsource.dat --psf=tests/psf_moffat_35.fits
+  CHI-SQUARE = 40535.202040    (39997 DOF)
+  INITIAL CHI^2 = 130759.860769
+        NPAR = 3
+       NFREE = 3
+     NPEGGED = 0
+     NITER = 7
+      NFEV = 25
+
+Reduced Chi^2 = 1.013456
+AIC = 40541.202640, BIC = 40566.991944
+
+X0		120.4926 # +/- 0.0041
+Y0		120.1928 # +/- 0.0041
+FUNCTION PointSource
+I_tot		 100319 # +/- 326.27
+
+time = 0.331s
+
+$ ./imfit tempo.fits -c config_imfit_fixedgauss.dat --psf=tests/psf_moffat_35.fits
+  CHI-SQUARE = 41947.858460    (39997 DOF)
+  INITIAL CHI^2 = 134104.030538
+        NPAR = 6
+       NFREE = 3
+     NPEGGED = 0
+     NITER = 21
+      NFEV = 84
+
+Reduced Chi^2 = 1.048775
+AIC = 41953.859060, BIC = 41979.648364
+
+X0		120.4981 # +/- 0.0011
+Y0		120.4066 # +/- 0.0016
+FUNCTION Gaussian
+PA		      0 # +/- 0
+ell		      0 # +/- 0
+I_0		1.587e+06 # +/- 5201.2
+sigma		    0.1 # +/- 0
+
+time = 1.1s
+
+
+[ ] Test imfit-mcmc
 
 
 Let ModelObject handle supplying PSF images to PointSource functions?

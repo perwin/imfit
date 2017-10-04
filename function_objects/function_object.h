@@ -31,7 +31,11 @@ class FunctionObject
     virtual bool HasExtraParams( ) { return(false); }
     virtual int SetExtraParams( map<string, string>& )  { return -1; }
     virtual bool ExtraParamsSet( ) { return(extraParamsSet); }
-    
+
+    // override in derived classes only if said class is PointSource or similar
+    virtual bool IsPointSource( ) { return(false); };
+    virtual void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf ) { ; };
+
     // probably no need to modify this:
     virtual void SetSubsampling( bool subsampleFlag );
 

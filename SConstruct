@@ -543,7 +543,7 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
 		func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
 		func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
 		func_edge-on-ring func_edge-on-ring2side func_king func_king2
-		helper_funcs helper_funcs_3d"""
+		helper_funcs helper_funcs_3d psf_interpolators"""
 if useGSL:
 	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"
@@ -552,6 +552,7 @@ if useGSL:
 	functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
 	functionobject_obj_string += " func_gaussianring3d"  # requires integrator
 	functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
+	functionobject_obj_string += " func_pointsource"
 if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
@@ -722,8 +723,9 @@ testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 
 # test_2dspline: put all the object and source-code lists together
-spline2dtest_objs = ["spline2dtest_main", "psf_interpolators", "core/commandline_parser", "core/utilities",
-					"core/image_io", "function_objects/function_object", "func_pointsource"]
+spline2dtest_objs = ["spline2dtest_main", "function_objects/psf_interpolators", 
+					"core/commandline_parser", "core/utilities", "core/image_io", 
+					"function_objects/function_object", "function_objects/func_pointsource"]
 spline2dtest_sources = [name + ".cpp" for name in spline2dtest_objs]
 
 

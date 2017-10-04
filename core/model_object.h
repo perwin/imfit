@@ -259,11 +259,12 @@ class ModelObject
     bool  modelImageSetupDone;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
-    bool  doConvolution;
+    bool  doConvolution, pointSourcesPresent;
     bool  modelErrors, dataErrors, externalErrorVectorSupplied;
     bool  useCashStatistic, poissonMLR;
     bool  deviatesVectorAllocated;   // for chi-squared calculations
     bool  extraCashTermsVectorAllocated;
+    bool  localPsfPixels_allocated;
     bool  zeroPointSet;
     int  nFunctions, nFunctionBlocks, nFunctionParams, nParamsTot;
     double  *dataVector;
@@ -274,6 +275,7 @@ class ModelObject
     double  *residualVector;
     double  *outputModelVector;
     double  *extraCashTermsVector;
+    double  *localPsfPixels;
     long  *bootstrapIndices;
     bool  *fblockStartFlags;
     vector<FunctionObject *> functionObjects;

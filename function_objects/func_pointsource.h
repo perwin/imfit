@@ -23,10 +23,13 @@ class PointSource : public FunctionObject
   public:
     // Constructors:
     PointSource( );
+    // Need a destructor to dispose of PsfInterpolator object
+    ~PointSource( );
 
     // redefined method/member function:
     void AddPsfInterpolator( PsfInterpolator *theInterpolator );
     bool IsPointSource( );
+    void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf );
     bool HasExtraParams( );
     int SetExtraParams( map<string, string>& inputMap );
 
@@ -34,7 +37,6 @@ class PointSource : public FunctionObject
     double  GetValue( double x, double y );
     bool CanCalculateTotalFlux(  );
     double TotalFlux( );
-    // No destructor for now
     
     // class method for returning official short name of class
     static void GetClassShortName( string& classname ) { classname = className; };
@@ -46,4 +48,5 @@ class PointSource : public FunctionObject
     double  I_scaled;
     string  interpolatorType = "bicubic";
     PsfInterpolator *psfInterpolator;
+    bool interpolatorAllocated = false;
 };

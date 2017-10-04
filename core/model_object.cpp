@@ -97,6 +97,9 @@ const int  DOUBLE_SIZE = 8;
 #define DEFAULT_OPENMP_CHUNK_SIZE  10
 
 
+void NormalizePSF( double *psfPixels, long nPixels_psf );
+
+
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
 ModelObject::ModelObject( )
@@ -106,6 +109,7 @@ ModelObject::ModelObject( )
   modelVector = NULL;
   residualVector = NULL;
   outputModelVector = NULL;
+  localPsfPixels = nullptr;
   
   modelVectorAllocated = false;
   maskVectorAllocated = false;
@@ -115,6 +119,7 @@ ModelObject::ModelObject( )
   outputModelVectorAllocated = false;
   deviatesVectorAllocated = false;
   extraCashTermsVectorAllocated = false;
+  localPsfPixels_allocated = false;
   
   doBootstrap = false;
   bootstrapIndicesAllocated = false;
@@ -135,6 +140,7 @@ ModelObject::ModelObject( )
   oversampledRegionsExist = false;
   oversampledRegionAllocated = false;
   zeroPointSet = false;
+  pointSourcesPresent = false;
   
   nFunctions = 0;
   nFunctionBlocks = 0;
@@ -181,6 +187,8 @@ ModelObject::~ModelObject()
     free(outputModelVector);
   if (extraCashTermsVectorAllocated)
     free(extraCashTermsVector);
+  if (localPsfPixels_allocated)
+    free(localPsfPixels);
   
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)
@@ -251,6 +259,15 @@ void ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
   nNewParams = newFunctionObj_ptr->GetNParams();
   paramSizes.push_back(nNewParams);
   nFunctionParams += nNewParams;
+  
+  // handle optional case of PointSource function
+  if (newFunctionObj_ptr->IsPointSource()) {
+    if (localPsfPixels_allocated)
+      newFunctionObj_ptr->AddPsfData(localPsfPixels, nPSFColumns, nPSFRows);
+    else
+      fprintf(stderr, "** ERROR: PointSource function specified, but no PSF image was supplied!\n");
+    pointSourcesPresent = true;
+  }
 }
 
 
@@ -679,13 +696,19 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
   
   assert( (nPixels_psf >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
   
-  // check for bad values
+  // store copy of PSF locally and check for bad values
+  localPsfPixels = (double *) calloc((size_t)nPixels_psf, sizeof(double));
   for (long i = 0; i < nPixels_psf; i++) {
     if (! isfinite(psfPixels[i])) {
       fprintf(stderr, "** ERROR: PSF image has one or more non-finite values!\n");
+      free(localPsfPixels);
+      localPsfPixels_allocated = false;
       return -1;
     }
+    localPsfPixels[i] = psfPixels[i];
   }
+  localPsfPixels_allocated = true;
+  NormalizePSF(localPsfPixels, nPixels_psf);
   
   nPSFColumns = nColumns_psf;
   nPSFRows = nRows_psf;
@@ -1051,10 +1074,12 @@ void ModelObject::CreateModelImage( double params[] )
     storedError = 0.0;
     for (n = 0; n < nFunctions; n++) {
       // Use Kahan summation algorithm
-      adjVal = functionObjects[n]->GetValue(x, y) - storedError;
-      tempSum = newValSum + adjVal;
-      storedError = (tempSum - newValSum) - adjVal;
-      newValSum = tempSum;
+      if (! functionObjects[n]->IsPointSource()) {
+        adjVal = functionObjects[n]->GetValue(x, y) - storedError;
+        tempSum = newValSum + adjVal;
+        storedError = (tempSum - newValSum) - adjVal;
+        newValSum = tempSum;
+      }
     }
     modelVector[i*nModelColumns + j] = newValSum;
   }
@@ -1065,6 +1090,35 @@ void ModelObject::CreateModelImage( double params[] )
   // 2. Do PSF convolution (using standard pixel scale), if requested
   if (doConvolution)
     psfConvolver->ConvolveImage(modelVector);
+  
+  
+  // 2.B Generate PointSource functions, if present
+  if (pointSourcesPresent) {
+#pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
+    {
+    #pragma omp for schedule (static, ompChunkSize)
+    for (long k = 0; k < nModelVals; k++) {
+      j = k % nModelColumns;
+      i = k / nModelColumns;
+      y = (double)(i - nPSFRows + 1);              // Iraf counting: first row = 1
+                                                   // (note that nPSFRows = 0 if not doing PSF convolution)
+      x = (double)(j - nPSFColumns + 1);           // Iraf counting: first column = 1
+                                                   // (note that nPSFColumns = 0 if not doing PSF convolution)
+      newValSum = 0.0;
+      storedError = 0.0;
+      for (n = 0; n < nFunctions; n++) {
+        // Use Kahan summation algorithm
+        if (functionObjects[n]->IsPointSource()) {
+          adjVal = functionObjects[n]->GetValue(x, y) - storedError;
+          tempSum = newValSum + adjVal;
+          storedError = (tempSum - newValSum) - adjVal;
+          newValSum = tempSum;
+        }
+      }
+      modelVector[i*nModelColumns + j] += newValSum;
+    }
+    } // end omp parallel section
+  }
   
   
   // 3. Optional generation of oversampled sub-image and convolution with oversampled PSF
@@ -1144,8 +1198,8 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   } // end omp parallel section
   
   
-  // Do PSF convolution, if requested
-  if (doConvolution) {
+  // Do PSF convolution, if requested and if this is *not* a PointSource function
+  if ((doConvolution) && (! functionObjects[functionIndex]->IsPointSource())) {
     if (! outputModelVectorAllocated) {
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
       if (outputModelVector == NULL) {
@@ -2306,6 +2360,27 @@ bool ModelObject::CheckWeightVector( )
   }
   return weightVectorOK;
 }
+
+
+
+
+// Extra stuff
+
+void NormalizePSF( double *psfPixels, long nPixels_psf )
+{
+  // Use Kahan summation to avoid underflow
+  long  k;
+  double  psfSum = 0.0, storedError = 0.0, adjustedVal = 0.0, tempSum = 0.0;
+  for (k = 0; k < nPixels_psf; k++) {
+    adjustedVal = psfPixels[k] - storedError;
+    tempSum = psfSum + adjustedVal;
+    storedError = (tempSum - psfSum) - adjustedVal;
+    psfSum = tempSum;
+  }
+  for (k = 0; k < nPixels_psf; k++)
+    psfPixels[k] = psfPixels[k] / psfSum;
+}
+
 
 
 

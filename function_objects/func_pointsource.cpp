@@ -80,6 +80,14 @@ PointSource::PointSource( )
   doSubsampling = false;
 }
 
+/* ---------------- DESTRUCTOR ----------------------------------------- */
+
+PointSource::~PointSource( )
+{
+  if (interpolatorAllocated)
+    delete psfInterpolator;
+}
+
 
 /* ---------------- PUBLIC METHOD: IsPointSource ----------------------- */
 
@@ -89,6 +97,16 @@ bool PointSource::IsPointSource( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AddPsfData -------------------------- */
+
+void PointSource::AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf )
+{
+  psfInterpolator = new PsfInterpolator_bicubic(psfPixels, nColumns_psf, nRows_psf);
+  interpolatorAllocated = true;
+}
+
+
+// FIXME: remove this method?
 /* ---------------- PUBLIC METHOD: AddPsfInterpolator ------------------ */
 
 void PointSource::AddPsfInterpolator( PsfInterpolator *theInterpolator )

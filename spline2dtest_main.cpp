@@ -95,8 +95,6 @@ typedef struct {
 
 /* ------------------- Function Prototypes ----------------------------- */
 
-// double * MakeShiftedImage2( PsfInterpolator_bicubic *theInterpolator, int nRows, int nColumns, 
-// 							double xShift, double yShift, commandOptions *theOptions );
 double * MakeShiftedImage3( PointSource *ptSourceFunc, int nRows, int nColumns, 
 							double x0, double y0, commandOptions *theOptions );
 
@@ -152,9 +150,10 @@ int main( int argc, char *argv[] )
            nColumns_psf, nRows_psf, nPixels_psf);
 
 
-  PsfInterpolator *theInterpolator = new PsfInterpolator_bicubic(psfPixels, nColumns_psf, nRows_psf);
+//   PsfInterpolator *theInterpolator = new PsfInterpolator_bicubic(psfPixels, nColumns_psf, nRows_psf);
   PointSource * pointSourceFunc = new PointSource();
-  pointSourceFunc->AddPsfInterpolator(theInterpolator);
+  pointSourceFunc->AddPsfData(psfPixels, nColumns_psf, nRows_psf);
+//  pointSourceFunc->AddPsfInterpolator(theInterpolator);
   
   // Generate shifted image
   shiftedImage = MakeShiftedImage3(pointSourceFunc, nColumns_psf, nRows_psf, 
@@ -165,7 +164,7 @@ int main( int argc, char *argv[] )
   SaveVectorAsImage(shiftedImage, options.outputFilename, nColumns_psf, nRows_psf, commentStrings);
 
   // Free memory
-  delete theInterpolator;
+//  delete theInterpolator;
   delete pointSourceFunc;
   if (psfPixels != nullptr)
     fftw_free(psfPixels);
