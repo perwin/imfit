@@ -708,7 +708,8 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
     localPsfPixels[i] = psfPixels[i];
   }
   localPsfPixels_allocated = true;
-  NormalizePSF(localPsfPixels, nPixels_psf);
+  if (normalizePSF)
+    NormalizePSF(localPsfPixels, nPixels_psf);
   
   nPSFColumns = nColumns_psf;
   nPSFRows = nRows_psf;
