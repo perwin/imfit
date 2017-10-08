@@ -27,7 +27,9 @@ function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.c
 function_objects/integrator.cpp function_objects/func_expdisk3d.cpp function_objects/func_brokenexpdisk3d.cpp \
 function_objects/func_gaussianring3d.cpp function_objects/func_ferrersbar3d.cpp \
 function_objects/func_king.cpp function_objects/func_king2.cpp \
+function_objects/func_pointsource.cpp \
 function_objects/helper_funcs.cpp function_objects/helper_funcs_3d.cpp \
+function_objects/psf_interpolators.cpp \
 core/mersenne_twister.cpp core/mp_enorm.cpp \
 -I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST -L/usr/local/lib \
 -lfftw3_threads -lfftw3 -lcfitsio -lgsl -lgslcblas -lm

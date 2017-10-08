@@ -45,6 +45,7 @@ public:
     referenceFunctionNameList.push_back("ModifiedKing");
     referenceFunctionNameList.push_back("ModifiedKing2");
     referenceFunctionNameList.push_back("Moffat");
+    referenceFunctionNameList.push_back("PointSource");
     referenceFunctionNameList.push_back("Sersic");
     referenceFunctionNameList.push_back("Sersic_GenEllipse");
     nFunctionNames_ref = referenceFunctionNameList.size();
