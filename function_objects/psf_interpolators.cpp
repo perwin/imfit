@@ -10,7 +10,7 @@
 
 
 // DERIVED CLASS: PsfInterpolator_bicubic -- uses GNU Scientific Library's
-// 2D bicubic spline interpolation
+// 2D bicubic interpolation
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 

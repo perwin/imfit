@@ -34,7 +34,7 @@ class PsfInterpolator
 };
 
 
-// Derived class using GNU Scientific Library's 2D bicubic spline interpolation
+// Derived class using GNU Scientific Library's 2D bicubic interpolation
 class PsfInterpolator_bicubic : public PsfInterpolator
 {
   public:

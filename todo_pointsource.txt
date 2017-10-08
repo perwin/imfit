@@ -1,5 +1,5 @@
 
-[X] Simple program to test 2D spline interpolation
+[X] Simple program to test 2D interpolation
 	-- Read in PSF image
 	-- Test interpolation shifting by whole pixels
 	-- Test interpolation shifting by 0.5 pixels
@@ -90,15 +90,19 @@ time = 1.1s
 Let ModelObject handle supplying PSF images to PointSource functions?
 	-- ModelObject generates psfInterpolator object, passes pointer to that
 	into individual PointSource functions
-	-- C++11 weak pointer?
 
 
 Alternate interpolation
 	-- Lanczos looks simple enough to implement directly
 	-- Make PointSource have an optional parameter which specifies e.g.
-	bicubic spline vs Lanczos2 vs Lanczos3?
-		[] Write Python code to implement 1D Lanczos interpolation
+	bicubic vs Lanczos2 vs Lanczos3?
+	-- Lanczos3 seems to be more popular than Lanczos2?
+	-- zero-pad PointSource copy of PSF if we're using Lanczos
+		[X] Look for Python code implementing Lanczos interpolation (e.g., for
+		checking our code against "proper" output)
+		[X] Write Python code to implement 1D Lanczos interpolation
 		[] Write Python code to implement 2D Lanczos interpolation
+			
 
 
 Future options:
@@ -114,7 +118,12 @@ Future options:
 		PSF
 		
 		-- How do we handle point sources with centers outside oversampling region
-		but wings extending in to it?
+		but wings extending in to it? (We can still use low-res PointSource objects,
+		since it will just involve finer sampling with the interpolator)
+		
+		Each oversampling region gets its own oversampled PSF (and scale). The
+		question is: how do we tell a given PointSource instance which oversampled
+		PSF to use?
 		
 		-- Very general possibility: PointSource can accept pointer to psfInterpolator
 		object via special method (after Setup is called), so each OversampledRegion
