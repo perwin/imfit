@@ -13,9 +13,12 @@ os:
 env:
   - OMP_NUM_THREADS=4
 
+# experimental stuff (Oct 2017)
 before_install:
+  - sudo rm /etc/apt/sources.list.d/mongodb-3.2.list
   - sudo apt-get -qq update
   - sudo apt-get install -y libgsl-dev
+# end
 
 addons:
   apt:
