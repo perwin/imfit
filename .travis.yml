@@ -18,7 +18,8 @@ addons:
     packages:
     - libfftw3-dev
     - libcfitsio3-dev
-    - libgsl0-dev
+#    - libgsl0-dev
+    - libgsl-dev
     - libnlopt-dev
     - cxxtest
 # the following are not useful, bcs the Python virtualenv can't see them (see above for why
