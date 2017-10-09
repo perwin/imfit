@@ -16,7 +16,7 @@ env:
 # experimental stuff (Oct 2017)
 before_install:
   - sudo add-apt-repository ppa:tsvetko.tsvetkov/trusty-backports -y
-  - sudo apt-get update -q
+  - sudo apt-get -qq update
   - sudo apt-get install lib-gsl -y
 # end
 
