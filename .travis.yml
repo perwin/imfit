@@ -14,6 +14,10 @@ env:
   - OMP_NUM_THREADS=4
 
 # experimental stuff (Oct 2017)
+# we need to do this because we now require GSL 2.0 or later (for 2D bicubic interpolation), and 
+# the default Ubuntu 14.04 package (libgls0-dev) is 1.16
+# (Note that the "trusty-backports" PPA claims that "it will stay online until Ubuntu 14.04 reaches 
+# its end of life (April 2019)")
 before_install:
   - sudo add-apt-repository ppa:tsvetko.tsvetkov/trusty-backports -y
   - sudo apt-get -qq update
@@ -25,8 +29,7 @@ addons:
     packages:
     - libfftw3-dev
     - libcfitsio3-dev
-#    - libgsl0-dev
-#    - libgsl-dev
+#    - libgsl0-dev   # [commented-out bcs this is GSL version 1.16, which is too old]
     - libnlopt-dev
     - cxxtest
 # the following are not useful, bcs the Python virtualenv can't see them (see above for why
