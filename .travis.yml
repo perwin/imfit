@@ -17,7 +17,7 @@ env:
 before_install:
   - sudo add-apt-repository ppa:tsvetko.tsvetkov/trusty-backports -y
   - sudo apt-get -qq update
-  - sudo apt-get install lib-gsl -y
+  - sudo apt-get install libgsl-dev -y
 # end
 
 addons:
