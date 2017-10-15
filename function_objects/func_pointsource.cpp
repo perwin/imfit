@@ -19,7 +19,7 @@
  *       = Sum_i (I_tot * I_norm,i)
  *
  *   MODIFICATION HISTORY:
- *     2 Oct 2017: Created (as modification of func_gaussian.cpp.
+ *     2 Oct 2017: Created (as modification of func_gaussian.cpp).
  */
 
 // Copyright 2017 by Peter Erwin.

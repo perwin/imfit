@@ -1,6 +1,7 @@
 #ifndef _PSF_INTERPOLATORS_H_
 #define _PSF_INTERPOLATORS_H_
 
+// The following requires GSL version 2.0 or later
 #include "gsl/gsl_spline2d.h"
 
 #define kInterpolator_Base 0
@@ -13,7 +14,7 @@ class PsfInterpolator
 {
   public:
   // need to provide zero-parameter base-class constructor, since derived-class
-  // constructors will automatically try to call it
+  // constructors will automatically call it
   PsfInterpolator( ) { ; };
   // derived classes should implement their own versions of this
   PsfInterpolator( double *inputImage, int nCols_image, int nRows_image ) { ; };

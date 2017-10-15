@@ -25,6 +25,7 @@ using namespace std;
 #include "function_objects/func_sersic.h"
 #include "function_objects/func_king.h"
 #include "function_objects/func_king2.h"
+#include "function_objects/func_pointsource.h"
 #include "function_objects/func_broken-exp.h"
 #include "function_objects/func_broken-exp2d.h"
 #include "function_objects/func_edge-on-disk.h"
@@ -1233,6 +1234,58 @@ public:
   {
     bool result = thisFunc->CanCalculateTotalFlux();
     TS_ASSERT_EQUALS(result, false);
+  }
+};
+
+
+class TestPointSource : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new PointSource();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 1;
+    correctParamNames.push_back("I_tot");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+  }
+
+  void testBasic_PointSourceRelated( void )
+  {
+    bool  answer;
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->IsPointSource(), true );
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, true);
   }
 };
 

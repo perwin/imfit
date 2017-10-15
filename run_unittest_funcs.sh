@@ -18,6 +18,7 @@ function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects
 function_objects/func_broken-exp.cpp function_objects/func_double-broken-exp.cpp \
 function_objects/func_broken-exp2d.cpp function_objects/func_edge-on-disk.cpp \
 function_objects/func_gauss_extraparams.cpp \
+function_objects/func_pointsource.cpp function_objects/psf_interpolators.cpp \
 function_objects_1d/func1d_exp_test.cpp \
 function_objects/helper_funcs.cpp core/utilities.cpp \
 -I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -Ifunction_objects \

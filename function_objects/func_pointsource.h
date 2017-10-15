@@ -1,7 +1,7 @@
 /*   Class interface definition for func_pointsource.cpp
  *
  *   A class derived from FunctionObject (function_object.h),
- * which produces XXX
+ * which produces a shifted and interpolated copy of a PSF image.
  *
  */
 
@@ -27,8 +27,8 @@ class PointSource : public FunctionObject
     ~PointSource( );
 
     // redefined method/member function:
-    void AddPsfInterpolator( PsfInterpolator *theInterpolator );
     bool IsPointSource( );
+    void AddPsfInterpolator( PsfInterpolator *theInterpolator );
     void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf );
     bool HasExtraParams( );
     int SetExtraParams( map<string, string>& inputMap );

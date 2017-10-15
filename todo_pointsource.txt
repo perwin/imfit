@@ -42,7 +42,7 @@
 	[X] Test compilation and standard tests
 	[X] Test fitting with PointSource
 
-$ ./imfit tempo.fits -c config_imfit_pointsource.dat --psf=tests/psf_moffat_35.fits
+$ ./imfit pointsource_test_200x200.fits -c config_imfit_pointsource.dat --psf=tests/psf_moffat_35.fits
   CHI-SQUARE = 40535.202040    (39997 DOF)
   INITIAL CHI^2 = 130759.860769
         NPAR = 3
@@ -61,7 +61,7 @@ I_tot		 100319 # +/- 326.27
 
 time = 0.331s
 
-$ ./imfit tempo.fits -c config_imfit_fixedgauss.dat --psf=tests/psf_moffat_35.fits
+$ ./imfit pointsource_test_200x200.fits -c config_imfit_fixedgauss.dat --psf=tests/psf_moffat_35.fits
   CHI-SQUARE = 41947.858460    (39997 DOF)
   INITIAL CHI^2 = 134104.030538
         NPAR = 6
@@ -101,7 +101,9 @@ Alternate interpolation
 		[X] Look for Python code implementing Lanczos interpolation (e.g., for
 		checking our code against "proper" output)
 		[X] Write Python code to implement 1D Lanczos interpolation
-		[] Write Python code to implement 2D Lanczos interpolation
+		[X] Write Python code to implement 2D Lanczos interpolation
+			[X] Investigate issue of normalization of Lanczos kernel
+			
 			
 
 
@@ -132,6 +134,8 @@ Future options:
 			-- BUT: how do we take care of overall I_tot scaling?
 			OK: psfInterpolator object should carry its own total-counts factor
 		
-	[] How does this interact with weird radio-interferometric PSFs (cf. Corentin
+	[X] How does this interact with weird radio-interferometric PSFs (cf. Corentin
 	Schreiber)? How do we scale those?
+		-- OK, Corentin says that as long as we don't try to normalize the PSF image,
+		the central peak flux can be interpreted as the total flux.
 	

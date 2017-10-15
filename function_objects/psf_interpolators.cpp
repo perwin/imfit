@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+// The following requires GSL version 2.0 or later
 #include "gsl/gsl_spline2d.h"
 #include "psf_interpolators.h"
 
@@ -14,7 +15,8 @@
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-PsfInterpolator_bicubic::PsfInterpolator_bicubic( double *inputImage, int nCols_image, int nRows_image )
+PsfInterpolator_bicubic::PsfInterpolator_bicubic( double *inputImage, int nCols_image, 
+													int nRows_image )
 {
   nColumns = nCols_image;
   nRows = nRows_image;
