@@ -88,7 +88,8 @@ def main(argv=None):
 		print("\tComparing sum of %s + %s with %s... " % (fitsFile1, fitsFile2, refSumFile), end="")
 		result = CompareSum(fitsFile1, fitsFile2, refSumFile)
 		if (result is False):
-			print("\n\t>>> WARNING: image %s + image %s DOES NOT match %s!" % (fitsFile1, fitsFile2, refSumFile))
+			txt = "\n\t" + RED + ">>> WARNING:" + NC
+			print(txt + " image %s + image %s DOES NOT match %s!" % (fitsFile1, fitsFile2, refSumFile))
 			print("t            (one or more pixels differ by > %.1e in relative terms\n" % (TOLERANCE))
 			sys.exit(1)
 		else:
@@ -99,7 +100,8 @@ def main(argv=None):
 		print(txt, end="")
 		result = CompareImagesEqual(fitsFile1, fitsFile2, minValue=options.minValue)
 		if (result is False):
-			print("\n\t>>> WARNING: images %s and %s DO NOT match!\n" % (fitsFile1, fitsFile2))
+			txt = "\n\t" + RED + ">>> WARNING:" + NC
+			print(txt + " images %s and %s DO NOT match!\n" % (fitsFile1, fitsFile2))
 			sys.exit(1)
 		else:
 			print(" OK.")

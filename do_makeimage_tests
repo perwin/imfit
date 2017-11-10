@@ -58,8 +58,8 @@ echo "Running tests for makeimage..."
 # tests of --output-functions with PSF convolution:
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat -o temptest/sersic+exp_conv.fits --output-functions temptest/singleImage_conv --psf tests/psf_moffat_35_n4699z.fits > temptest/test_dump_null
 
-# tests of PSF oversampling: one region
-./makeimage tests/makeimage_reference/config_makeimage_gauss-oversample.dat -o temptest/oversampled.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110  > temptest/test_dump_null
+# tests of PSF oversampling: one region (including single-function image output)
+./makeimage tests/makeimage_reference/config_makeimage_gauss-oversample.dat -o temptest/oversampled.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --output-functions=temptest/oversampled_single  > temptest/test_dump_null
 # tests of PSF oversampling: two regions, same PSF
 ./makeimage tests/makeimage_reference/config_makeimage_gauss-oversample2.dat -o temptest/oversampled2both.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --overpsf_region 20:30,20:30  > temptest/test_dump_null
 # tests of PSF oversampling: two regions, two PSFs
@@ -184,6 +184,14 @@ if [ $do_fits_tests = "1" ]
   echo ""
 then
   ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled.fits tests/${osname}/oversampled_orig.fits
+  STATUS+=$?
+fi
+
+if [ $do_fits_tests = "1" ]
+  echo -n "*** Testing that convolution with oversampled PSF works for single-function output (single region)... "
+  echo ""
+then
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled_single1_Gaussian.fits tests/${osname}/oversampled_orig.fits
   STATUS+=$?
 fi
 

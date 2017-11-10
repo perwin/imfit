@@ -111,13 +111,25 @@ Future options:
 	[] How to handle PSF oversampling regions?
 		-- want to make sure we don't accidentally overwrite a PointSource
 		with an oversampled region
-		-- PointSource with two PSF images?
+		-- [-]PointSource with two PSF images?
 			Optional boolean-setting method for FunctionObject: doing oversampled
 			region
 			-- Ensure internal flag is reset to false when Setup() is called;
 			new method should be called *after* Setup if we're doing oversampling
-		-- Problem: each oversampling region has its own (possibly unique) oversampled
-		PSF
+			-- Problem: each oversampling region has its own (possibly unique) oversampled
+			PSF, so this is *not* a good idea
+		
+		-- Conceptually, a PointSource is an image function like any other (e.g. Sersic),
+		so the user shouldn't have to specify anything unusual (*except* the actual
+		oversampled PSF images, which apply to regions)
+		
+		-- Note that we could in principle have multiple PointSource objects within
+		the same oversampled-PSF region
+		
+		-- Currently, ModelObject::AddFunction passes in a pointer to the main 
+		localPsfPixels array to each new PointSource object (using their AddPsfData method).
+			-- So we need a way to pass in an oversampled PSF vector and tell a
+			PointSource object to interpolate using that instead of the main PSF
 		
 		-- How do we handle point sources with centers outside oversampling region
 		but wings extending in to it? (We can still use low-res PointSource objects,
@@ -131,9 +143,63 @@ Future options:
 		object via special method (after Setup is called), so each OversampledRegion
 		object can keep its own psfInterpolator object and pass it to the PointSource
 		image function
+			-- PointSource::AddPsfInterpolator
+			-- Do this in ModelObject, too
+			-- This is in several ways simpler and more efficient
+				-- one (correct) interpolator for each oversampled region
+				-- no need to delete old interpolator and create new one each time
+				we call xxx from within ModelObject
+			-- Awkward: how do we allow different interpolators (e.g., GSL bicubic
+			vs Lanczos)?
+				-- Modify things to make a command-line option specifying the
+				interpolation mode? (Applied to all PointSource objects)
+					-- default is bicubic; later we can add things like
+					"--point-source-interpolation=lanczos3"
+			
 			-- BUT: how do we take care of overall I_tot scaling?
 			OK: psfInterpolator object should carry its own total-counts factor
 		
+		[ ] Modify ModelImage to hold internal PsfInterpolator object
+			[ ] Add PsfInterpolator data member (& allocation flag)
+			[ ] Add initialization to constructor
+			[ ] Add deallocation to destructor
+			[ ] Run unit & regression tests!
+			[ ] Modify ModelObject::AddFunction to remove code passing PSF pixel
+			data to PointSource function objects and replace it with code passing in
+			pointer to PsfInterpolator data member (via PointSource::AddPsfInterpolator)
+			[ ] Modify ModelObject to *remove* localPsfPixels and all associated
+			code
+			[ ] Modify ModelObject::CreateModelImage to add passing-in of PsfInterpolator
+			pointer to PointSource objects *if* oversampled regions exist (because if
+			they do, we'll be re-assigning the PointSource internal pointer within
+			the oversampling)
+			[ ] Modify ModelObject::GetSingleFunctionImage as for CreateModelImage
+				-- need to put this in after PSF convolution!
+			[ ] Run unit & regression tests!
+
+		[ ] Modify OversampledRegion to hold internal PsfInterpolator object
+			
+		[ ] Make simple config file & reference image for testing
+			-- One PointSource object in an oversampled region
+			[ ] Make sample config file with one PointSource instance, located
+			in what will be the oversampled region
+			[ ] Make reference image
+				[ ] make oversampled image with point source
+				[ ] downsample 2nd image to same resolution as base image
+			-- Two PointSource objects, one in an oversampled region
+			[ ] Make sample config file with two PointSource instances, one located
+			in what will be the oversampled region
+			[ ] Make reference image
+				[ ] make base image with (non-oversampled) point source
+				[ ] make oversampled image with point source
+				[ ] downsample 2nd image to same resolution as base image, then
+				add to base image
+
+				
+		[ ] Modify OversampledRegion::ComputeRegionAndDownsample
+	
+	
+	
 	[X] How does this interact with weird radio-interferometric PSFs (cf. Corentin
 	Schreiber)? How do we scale those?
 		-- OK, Corentin says that as long as we don't try to normalize the PSF image,

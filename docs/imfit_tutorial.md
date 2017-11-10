@@ -570,7 +570,7 @@ the program will quit; otherwise, it will quit when it reaches 100,000 generatio
 values can be changed with command-line options.)
 
 When it's done, you will have *seven* output text files, named
-mcmc\_ic3478r.0.txt, mcmc\_ic3478r.1.txt, etc., one for each of the
+mcmc\_ic3478r.1.txt, mcmc\_ic3478r.2.txt, etc., one for each of the
 individual chains. (By default, the total number of chains is = the number
 of free parameters in the model.) Each is similar to the bootstrap-resampling output
 file in format, with one column for each parameter in the model (plus
