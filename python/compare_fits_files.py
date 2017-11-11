@@ -37,16 +37,25 @@ def CompareImagesEqual( fname1, fname2, minValue=0.0 ):
 	return np.array_equal(imdata1[validPix], imdata2[validPix])
 
 
-def CompareSum( fname1, fname2, referenceSum_fname ):
+def CompareSum( fname1, fname2, referenceSum_fname, minValue=0.0 ):
 	"""Sum the first two images and compare the result with the third; if the maximum
 	relative deviation is >= 1e-6, return False, else return True.
 	"""
-	imdata1 = fits_open(fname1)[0].data
-	imdata2 = fits_open(fname2)[0].data
+	# kludge to avoid division by zero or very small numbers problem when one or
+	# more input image has values equal to or very close to zero: add 1 to each
+	# input image (and 2 to the reference image)
+	imdata1 = fits_open(fname1)[0].data + 1.0
+	imdata2 = fits_open(fname2)[0].data + 1.0
 	imSum = imdata1 + imdata2
-	refSum_imdata = fits_open(referenceSum_fname)[0].data
+	refSum_imdata = fits_open(referenceSum_fname)[0].data + 2.0
 	devianceImdata = np.abs((imSum / refSum_imdata) - 1.0)
+		
 	if np.max(devianceImdata) >= TOLERANCE:
+# 		i,j = np.unravel_index(devianceImdata.argmax(), devianceImdata.shape)
+# 		print()
+# 		print(np.max(devianceImdata))
+# 		print(imSum[i,j], refSum_imdata[i,j], devianceImdata[i,j])
+# 		print()
 		return False
 	else:
 		return True
@@ -86,7 +95,7 @@ def main(argv=None):
 			#print("ERROR: unable to find FITS image file %s!\n" % refSumFile)
 			sys.exit(1)
 		print("\tComparing sum of %s + %s with %s... " % (fitsFile1, fitsFile2, refSumFile), end="")
-		result = CompareSum(fitsFile1, fitsFile2, refSumFile)
+		result = CompareSum(fitsFile1, fitsFile2, refSumFile, options.minValue)
 		if (result is False):
 			txt = "\n\t" + RED + ">>> WARNING:" + NC
 			print(txt + " image %s + image %s DOES NOT match %s!" % (fitsFile1, fitsFile2, refSumFile))

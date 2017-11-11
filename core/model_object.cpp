@@ -1093,7 +1093,7 @@ void ModelObject::CreateModelImage( double params[] )
     psfConvolver->ConvolveImage(modelVector);
   
   
-  // 2.B Generate PointSource functions, if present
+  // 2.B Generate PointSource functions, if present (must be done *after* PSF convolution!)
   if (pointSourcesPresent) {
 #pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
     {
@@ -1148,6 +1148,7 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   int  offset = 0;
   int  iDataRow, iDataCol;
   long  i, j, z, zModel;
+  vector<FunctionObject *> singleFuncObjVector;
   
   assert( (functionIndex >= 0) );
   // Check parameter values for sanity
@@ -1200,7 +1201,19 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   
   
   // Do PSF convolution, if requested and if this is *not* a PointSource function
-  if ((doConvolution) && (! functionObjects[functionIndex]->IsPointSource())) {
+  if ((doConvolution) && (! functionObjects[functionIndex]->IsPointSource()))
+    psfConvolver->ConvolveImage(modelVector);
+
+  // 3. Optional generation of oversampled sub-image and convolution with oversampled PSF
+  if (oversampledRegionsExist)
+    for (int n = 0; n < nOversampledRegions; n++) {
+      // populate FunctionObject vector with just this function
+      singleFuncObjVector.push_back(functionObjects[functionIndex]);
+      oversampledRegionsVect[n]->ComputeRegionAndDownsample(modelVector, singleFuncObjVector, 1);
+    }
+
+  // Return model image (extract correct subimage if PSF convolution was done)
+  if (doConvolution) {
     if (! outputModelVectorAllocated) {
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
       if (outputModelVector == NULL) {
@@ -1210,7 +1223,6 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
       }
       outputModelVectorAllocated = true;
     }
-    psfConvolver->ConvolveImage(modelVector);
     // Step through model image so that we correctly match its pixels with corresponding
     // pixels output image
     for (z = 0; z < nDataVals; z++) {

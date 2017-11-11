@@ -1,7 +1,34 @@
 
 ** BUGS TO FIX:
 
-	
+[ ] Add oversampling to computation of single-function images
+ex-lm65:imfit erwin$ ./makeimage tests/makeimage_reference/config_makeimage_gauss-oversample.dat -o temptest/oversampled.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --output-functions=newtest
+ex-lm65:imfit erwin$ ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled.fits tests/osx/oversampled_orig.fits
+	Comparing images temptest/oversampled.fits and tests/osx/oversampled_orig.fits...  OK.
+ex-lm65:imfit erwin$ ./python/compare_fits_files.py --min-value=1.0e-7 newtest1_Gaussian.fits tests/osx/oversampled_orig.fits
+	Comparing images newtest1_Gaussian.fits and tests/osx/oversampled_orig.fits... 
+	>>> WARNING: images newtest1_Gaussian.fits and tests/osx/oversampled_orig.fits DO NOT match!
+
+./makeimage tests/makeimage_reference/config_makeimage_gauss-oversample.dat -o temptest/oversampled.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --output-functions=temptest/oversampled_single
+
+	[X] Create or copy oversampled test image (single-function) for reference
+	[X] Test output using makeimage:
+		compare main output model image with single-function image: should
+		be different (bcs we haven't fixed anything yet!)
+	[X] Modify ModelObject::GetSingleFunctionImage to include oversampling
+	[X] Run unit tests
+	[X] Compile makeimage and run regression tests
+	[X] Test output using makeimage:
+		compare main output model image with single-function image: should
+		be identical
+	[X] Add test to do_makeimage_tests
+		[X] modify very first oversampling test so it also spits out single-function image
+		./makeimage tests/makeimage_reference/config_makeimage_gauss-oversample.dat -o temptest/oversampled.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --output-functions=temptest/oversampled_single
+		[X] Add test comparing reference image with single-function image
+		./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled_single_Gaussian.fits tests/${osname}/oversampled_orig.fits
+	[ ] Add test using two-function config file to do_makeimage_tests
+		-- e.g., use ./python/compare_fits_files.py --compare-sum to make sure individual
+		single-function images sum to match main output
 
 
 
