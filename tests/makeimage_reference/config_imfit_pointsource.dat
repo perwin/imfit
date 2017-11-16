@@ -1,0 +1,6 @@
+ORIGINAL_SKY	100.0
+
+X0	122
+Y0	122
+FUNCTION PointSource
+I_tot	2e4
