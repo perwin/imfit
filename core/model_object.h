@@ -18,6 +18,7 @@
 
 #include "definitions.h"
 #include "function_objects/function_object.h"
+#include "function_objects/psf_interpolators.h"
 #include "convolver.h"
 #include "oversampled_region.h"
 #include "psf_oversampling_info.h"
@@ -282,6 +283,9 @@ class ModelObject
     vector<int> paramSizes;
     vector<string>  parameterLabels;
     vector<SimpleParameterInfo> parameterInfoVect;
+    
+    PsfInterpolator *psfInterpolator;
+    bool  psfInterpolator_allocated;
     
     // stuff for ovsersampled PSF convolution
     Convolver  *psfConvolver_osamp;

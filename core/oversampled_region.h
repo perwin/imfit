@@ -14,6 +14,7 @@
 
 #include "convolver.h"
 #include "function_objects/function_object.h"
+#include "function_objects/psf_interpolators.h"
 
 using namespace std;
 
@@ -63,6 +64,8 @@ class OversampledRegion
     bool  doConvolution, setupComplete, modelVectorAllocated;
     double  *modelVector;
     string  debugImageName;
+    PsfInterpolator *psfInterpolator;
+    bool  psfInterpolator_allocated;
 
 };
 

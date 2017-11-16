@@ -96,6 +96,8 @@ OversampledRegion::OversampledRegion( )
   setupComplete = false;
   debugLevel = 0;
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
+  psfInterpolator = nullptr;
+  psfInterpolator_allocated = false;
   ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
   
   debugImageName = "oversampled_region_testoutput";
@@ -108,6 +110,8 @@ OversampledRegion::~OversampledRegion( )
 {
   if (modelVectorAllocated)
     free(modelVector);
+  if (psfInterpolator_allocated)
+    delete psfInterpolator;
   if (doConvolution)
     delete psfConvolver;
 }
@@ -159,6 +163,17 @@ void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int n
     psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf, normalizePSF);
     psfConvolver->SetMaxThreads(maxRequestedThreads);
     doConvolution = true;
+  }
+  
+  // We assume PSF has been normalized by psfConvolver, if user requested that
+  // Default case of GSL bicubic interpolation
+  if ((nColumns_psf >= 4) && (nRows_psf >= 4)) {
+    psfInterpolator = new PsfInterpolator_bicubic(psfPixels, nColumns_psf, nRows_psf);
+    psfInterpolator_allocated = true;
+  }
+  else {
+    fprintf(stderr, "** ERROR: Oversampled PSF image is too small for interpolation with PointSource functions!\n");
+    fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
   }
 }
 
@@ -252,6 +267,8 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
 // Compute oversampled-region image, using OpenMP for speed
 // (possibly slower if sub-region is really small, but in that case this whole
 // function will only take a small part of total runtime)
+
+  // 1. Do main image computation (all non-PointSource functions)
 #pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
   {
   #pragma omp for schedule (static, ompChunkSize)
@@ -267,17 +284,18 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
     newValSum = 0.0;
     storedError = 0.0;
     for (n = 0; n < nFunctions; n++) {
-      // Use Kahan summation algorithm
-      adjVal = functionObjectVect[n]->GetValue(x, y) - storedError;
-      tempSum = newValSum + adjVal;
-      storedError = (tempSum - newValSum) - adjVal;
-      newValSum = tempSum;
+      if (! functionObjectVect[n]->IsPointSource()) {
+        // Use Kahan summation algorithm
+        adjVal = functionObjectVect[n]->GetValue(x, y) - storedError;
+        tempSum = newValSum + adjVal;
+        storedError = (tempSum - newValSum) - adjVal;
+        newValSum = tempSum;
+      }
     }
     modelVector[i*nModelColumns + j] = newValSum;
   }
   
   } // end omp parallel section
-
 
 #ifdef DEBUG
   if (debugLevel > 0) {
@@ -290,7 +308,8 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   }
 #endif
 
-  // Do PSF convolution, if requested
+
+  // 2. Do PSF convolution, if requested
   if (doConvolution)
     psfConvolver->ConvolveImage(modelVector);
 
@@ -304,6 +323,38 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
     							imageCommentsList);
   }
 #endif
+
+
+  // 3. Add flux from PointSource functions, if present (must be done *after* PSF convolution!)
+  // Re-assign psfInterpolator object
+  for (n = 0; n < nFunctions; n++)
+    if (functionObjectVect[n]->IsPointSource())
+      functionObjectVect[n]->AddPsfInterpolator(psfInterpolator);
+
+#pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
+  {
+  #pragma omp for schedule (static, ompChunkSize)
+  for (long k = 0; k < nModelVals; k++) {
+    j = k % nModelColumns;
+    i = k / nModelColumns;
+    y = y1_region + startY_offset + (i - nPSFRows)*subpixFrac;
+    x = x1_region + startX_offset + (j - nPSFColumns)*subpixFrac;
+    newValSum = 0.0;
+    storedError = 0.0;
+    for (n = 0; n < nFunctions; n++) {
+      if (functionObjectVect[n]->IsPointSource()) {
+        // Use Kahan summation algorithm
+        adjVal = functionObjectVect[n]->GetValue(x, y) - storedError;
+        tempSum = newValSum + adjVal;
+        storedError = (tempSum - newValSum) - adjVal;
+        newValSum = tempSum;
+      }
+    }
+    modelVector[i*nModelColumns + j] += newValSum;
+  }
+  } // end omp parallel section
+
+
 
   // downsample & copy into main image
   DownsampleAndReplace(modelVector, nModelColumns,nModelRows,nPSFColumns,nPSFRows, 

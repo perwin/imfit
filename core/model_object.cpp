@@ -110,6 +110,8 @@ ModelObject::ModelObject( )
   residualVector = NULL;
   outputModelVector = NULL;
   localPsfPixels = nullptr;
+  psfInterpolator = nullptr;
+  psfInterpolator_allocated = false;
   
   modelVectorAllocated = false;
   maskVectorAllocated = false;
@@ -189,6 +191,9 @@ ModelObject::~ModelObject()
     free(extraCashTermsVector);
   if (localPsfPixels_allocated)
     free(localPsfPixels);
+
+  if (psfInterpolator_allocated)
+    delete psfInterpolator;
   
   if (nFunctions > 0)
     for (int i = 0; i < nFunctions; i++)
@@ -262,8 +267,8 @@ void ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
   
   // handle optional case of PointSource function
   if (newFunctionObj_ptr->IsPointSource()) {
-    if (localPsfPixels_allocated)
-      newFunctionObj_ptr->AddPsfData(localPsfPixels, nPSFColumns, nPSFRows);
+    if (psfInterpolator_allocated)
+      newFunctionObj_ptr->AddPsfInterpolator(psfInterpolator);
     else
       fprintf(stderr, "** ERROR: PointSource function specified, but no PSF image was supplied!\n");
     pointSourcesPresent = true;
@@ -695,8 +700,8 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
   int  returnStatus = 0;
   
   assert( (nPixels_psf >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
-  
-  // store copy of PSF locally and check for bad values
+
+  // store PSF pixels locally (and check for bad pixel values)
   localPsfPixels = (double *) calloc((size_t)nPixels_psf, sizeof(double));
   for (long i = 0; i < nPixels_psf; i++) {
     if (! isfinite(psfPixels[i])) {
@@ -710,7 +715,22 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
   localPsfPixels_allocated = true;
   if (normalizePSF)
     NormalizePSF(localPsfPixels, nPixels_psf);
+
+  // instantiate PsfInterpolator object for possible use by PointSource image functions
+  if (pointSourcesPresent) {
+    // default case of GSL bicubic interpolation
+    if ((nColumns_psf >= 4) && (nRows_psf >= 4)) {
+      psfInterpolator = new PsfInterpolator_bicubic(localPsfPixels, nColumns_psf, nRows_psf);
+      psfInterpolator_allocated = true;
+    }
+    else {
+      fprintf(stderr, "** ERROR: PSF image is too small for interpolation with PointSource functions!\n");
+      fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
+      return -2;
+    }
+  }
   
+  // Finally, set up Convolver object
   nPSFColumns = nColumns_psf;
   nPSFRows = nRows_psf;
   psfConvolver = new Convolver();
@@ -1074,8 +1094,8 @@ void ModelObject::CreateModelImage( double params[] )
     newValSum = 0.0;
     storedError = 0.0;
     for (n = 0; n < nFunctions; n++) {
-      // Use Kahan summation algorithm
       if (! functionObjects[n]->IsPointSource()) {
+        // Use Kahan summation algorithm
         adjVal = functionObjects[n]->GetValue(x, y) - storedError;
         tempSum = newValSum + adjVal;
         storedError = (tempSum - newValSum) - adjVal;
@@ -1093,8 +1113,14 @@ void ModelObject::CreateModelImage( double params[] )
     psfConvolver->ConvolveImage(modelVector);
   
   
-  // 2.B Generate PointSource functions, if present (must be done *after* PSF convolution!)
+  // 2.B Add flux from PointSource functions, if present 
+  // (must be done *after* PSF convolution!)
   if (pointSourcesPresent) {
+    // Re-assign psfInterpolator object
+    for (n = 0; n < nFunctions; n++)
+      if (functionObjects[n]->IsPointSource())
+        functionObjects[n]->AddPsfInterpolator(psfInterpolator);
+    
 #pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
     {
     #pragma omp for schedule (static, ompChunkSize)
@@ -1180,7 +1206,12 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
     offset += paramSizes[np];
   }
   
-  // OK, populate modelVector with the model image
+  
+  // If requested function is PointSource, re-assign the PsfInterpolator object
+  if (functionObjects[functionIndex]->IsPointSource())
+    functionObjects[functionIndex]->AddPsfInterpolator(psfInterpolator);
+
+  // 1. OK, populate modelVector with the model image -- standard pixel scaling
   // OpenMP Parallel section; see CreateModelImage() for general notes on this
   // Note that since we expect this code to be called only occasionally, we have
   // not converted it to the fast-for-small-images, single-loop version used in
@@ -1196,11 +1227,9 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
       modelVector[i*nModelColumns + j] = newVal;
     }
   }
-  
   } // end omp parallel section
   
-  
-  // Do PSF convolution, if requested and if this is *not* a PointSource function
+  // 2. Do PSF convolution, if requested and if this is *not* a PointSource function
   if ((doConvolution) && (! functionObjects[functionIndex]->IsPointSource()))
     psfConvolver->ConvolveImage(modelVector);
 

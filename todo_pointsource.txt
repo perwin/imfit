@@ -159,25 +159,39 @@ Future options:
 			-- BUT: how do we take care of overall I_tot scaling?
 			OK: psfInterpolator object should carry its own total-counts factor
 		
-		[ ] Modify ModelImage to hold internal PsfInterpolator object
-			[ ] Add PsfInterpolator data member (& allocation flag)
-			[ ] Add initialization to constructor
-			[ ] Add deallocation to destructor
-			[ ] Run unit & regression tests!
-			[ ] Modify ModelObject::AddFunction to remove code passing PSF pixel
+		[X] Modify ModelImage to hold internal PsfInterpolator object
+			-- this will do interpolation for the main/global PSF
+			[X] Add PsfInterpolator data member (& allocation flag)
+			[X] Add initialization to constructor
+			[X] Add deallocation to destructor
+			[X] Run unit & regression tests!
+			[X] Modify ModelObject::AddFunction to remove code passing PSF pixel
 			data to PointSource function objects and replace it with code passing in
 			pointer to PsfInterpolator data member (via PointSource::AddPsfInterpolator)
-			[ ] Modify ModelObject to *remove* localPsfPixels and all associated
-			code
-			[ ] Modify ModelObject::CreateModelImage to add passing-in of PsfInterpolator
+			[X] Modify ModelObject::CreateModelImage to add passing-in of PsfInterpolator
 			pointer to PointSource objects *if* oversampled regions exist (because if
 			they do, we'll be re-assigning the PointSource internal pointer within
 			the oversampling)
-			[ ] Modify ModelObject::GetSingleFunctionImage as for CreateModelImage
+			[X] Modify PsfInterpolator_bicubic to catch case of PSFs with x_size or y_size
+				< 4 (minimum size for GSL bicubic interplation)
+			[X] Add test to unit tests to catch the above
+			[X] Run unit tests!
+			[X] Modify ModelObject::GetSingleFunctionImage as for CreateModelImage
 				-- need to put this in after PSF convolution!
-			[ ] Run unit & regression tests!
+			[X] Run unit & regression tests!
 
-		[ ] Modify OversampledRegion to hold internal PsfInterpolator object
+		[X] Modify OversampledRegion to hold internal PsfInterpolator object
+			[X] Add PsfInterpolator data member (& allocation flag)
+			[X] Add initialization to constructor
+			[X] Add deallocation to destructor
+			[X] Run unit & regression tests!
+			[X] Modify OversampledRegion::AddPSFVector to create PsfInterpolator object
+			[X] Modify OversampledRegion::ComputeRegionAndDownsample to assign
+				PsfInterpolator object to PointSource function objects (if they exist)
+			[X] Modify OversampledRegion::ComputeRegionAndDownsample to handle
+				PointSource computations after regular image computation & PSF convolution
+			[X] Run regression tests!
+
 			
 		[ ] Make simple config file & reference image for testing
 			-- One PointSource object in an oversampled region
@@ -195,8 +209,6 @@ Future options:
 				[ ] downsample 2nd image to same resolution as base image, then
 				add to base image
 
-				
-		[ ] Modify OversampledRegion::ComputeRegionAndDownsample
 	
 	
 	

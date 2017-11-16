@@ -30,6 +30,7 @@ using namespace std;
 
 #define SIMPLE_CONFIG_FILE "tests/imfit_reference/config_imfit_flatsky.dat"
 #define CONFIG_FILE "tests/imfit_reference/config_imfit_poisson.dat"
+#define CONFIG_FILE_POINTSOURCE "config_imfit_pointsource.dat"
 #define CONFIG_FILE3b "tests/config_imfit_gauss-extra-params.dat"
 const string CONFIG_FILE_2BLOCKS("tests/config_imfit_2blocks.dat");
 
@@ -681,14 +682,14 @@ public:
 class TestPsfUsage : public CxxTest::TestSuite
 {
 public:
-  vector<string>  functionList1, functionList3, functionList3b;
-  vector<double>  parameterList1, parameterList3, parameterList3b;
-  vector<mp_par>  paramLimits1, paramLimits3, paramLimits3b;
-  vector<int>  FunctionBlockIndices1, FunctionBlockIndices3, FunctionBlockIndices3b;
-  bool  paramLimitsExist1, paramLimitsExist3, paramLimitsExist3b;
+  vector<string>  functionList1, functionList2, functionList3, functionList3b;
+  vector<double>  parameterList1, parameterList2, parameterList3, parameterList3b;
+  vector<mp_par>  paramLimits1, paramLimits2, paramLimits3, paramLimits3b;
+  vector<int>  FunctionBlockIndices1, FunctionBlockIndices2, FunctionBlockIndices3, FunctionBlockIndices3b;
+  bool  paramLimitsExist1, paramLimitsExist2, paramLimitsExist3, paramLimitsExist3b;
   mp_par  *parameterInfo;
   int  status;
-  configOptions  userConfigOptions1, userConfigOptions3, userConfigOptions3b;
+  configOptions  userConfigOptions1, userConfigOptions2, userConfigOptions3, userConfigOptions3b;
   double  *smallDataImage;
   double  *smallErrorImage;
   double  *smallVarianceImage;
@@ -813,6 +814,37 @@ public:
     // add PSF pixels first
     status = modelObj5a->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, badPSFImage);
     TS_ASSERT_EQUALS(status, -1);
+    
+    delete modelObj5a;
+  }
+
+  // make sure ModelObject complains if we add a PSF too small for bicubic interpolation
+  // in a PointSource object (PSF must be 4x4 or larger)
+  void testCatchBadPSF_forPointSource( void )
+  {
+    int  nColumns = 10;
+    int  nRows = 10;
+    int  nColumns_psf = 3;
+    int  nRows_psf = 3;
+    int  nPixels_psf = 9;
+    double  tooSmallPsfImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+    int  status;
+    string  filename2 = CONFIG_FILE_POINTSOURCE;
+
+    status = ReadConfigFile(filename2, true, functionList2, parameterList2, paramLimits2, 
+    						FunctionBlockIndices2, paramLimitsExist2, userConfigOptions2);
+
+    ModelObject *modelObj5a2;
+    // Initialize modelObj5a2 and add model function & params (Exp + PointSource)
+    modelObj5a2 = new ModelObject();
+    status = AddFunctions(modelObj5a2, functionList2, FunctionBlockIndices2, true, -1);
+
+    // This is the correct order
+    // add PSF pixels first
+    status = modelObj5a2->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, tooSmallPsfImage);
+    TS_ASSERT_EQUALS(status, -2);
+
+    delete modelObj5a2;
   }
 
   // make sure ModelObject complains if we add oversampled PSF with NaN pixel values

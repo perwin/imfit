@@ -5,6 +5,10 @@
 ## 1.5.1 -- 2017-mm-dd
 ### Fixed:
 
+- Convolution with oversampled PSFs was not being done when single-function
+images were generated (i.e., by makeimage with the --output-functions option).
+This has been fixed.
+
 - The bash tab-completion file introduced in 1.5.0 did not include filename
 completion (i.e., if you typed "imfit " and then the beginning of a filename
 in the current directory and *then* pressed the TAB key, the bash shell's

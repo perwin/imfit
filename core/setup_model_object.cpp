@@ -95,7 +95,7 @@ ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVec
     for (int i = 0; i < (int)psfOversampleInfoVect.size(); i++) {
       status = newModelObj->AddOversampledPsfInfo(psfOversampleInfoVect[i]);
       if (status < 0) {
-        fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPSFVector!\n\n");
+        fprintf(stderr, "*** ERROR: Failure in ModelObject::AddOversampledPsfInfo!\n\n");
   	    exit(-1);
       }
     }

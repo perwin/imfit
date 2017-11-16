@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+#include "psf_interpolators.h"
+
 using namespace std;
 
 
@@ -35,6 +37,7 @@ class FunctionObject
     // override in derived classes only if said class is PointSource or similar
     virtual bool IsPointSource( ) { return(false); };
     virtual void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf ) { ; };
+    virtual void AddPsfInterpolator( PsfInterpolator *theInterpolator ) { ; };
 
     // probably no need to modify this:
     virtual void SetSubsampling( bool subsampleFlag );
