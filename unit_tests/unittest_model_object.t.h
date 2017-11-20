@@ -614,17 +614,13 @@ public:
       currentParameterInfo.limited[1] = 0;
       currentParameterInfo.limits[0] = 0.0;
       currentParameterInfo.limits[1] = 0.0;
-      if (i == 0)
-        currentParameterInfo.offset = 100.0;
-      else if (i == 1)
-        currentParameterInfo.offset = 200.0;
-      else
-        currentParameterInfo.offset = 0.0;
+      currentParameterInfo.offset = 0.0;
       parameterInfo.push_back(currentParameterInfo);
     }
 
     modelObj2b->SetupModelImage(nSmallDataCols, nSmallDataRows);
     modelObj2b->AddParameterInfo(parameterInfo);
+    modelObj2b->AddImageOffsets(100.0, 200.0);
     
     int nParams = modelObj2b->GetNParams();
     TS_ASSERT_EQUALS(nParams, nParamsTot);
@@ -655,19 +651,13 @@ public:
       currentParameterInfo.limited[1] = 0;
       currentParameterInfo.limits[0] = 0.0;
       currentParameterInfo.limits[1] = 0.0;
-      // specify X0_offset for X0 parameters
-      if ((i == 0) || (i == 6))
-        currentParameterInfo.offset = 100.0;
-      // specify Y0_offset for Y0 parameters
-      else if ((i == 1) || (i == 7))
-        currentParameterInfo.offset = 200.0;
-      else
-        currentParameterInfo.offset = 0.0;
+      currentParameterInfo.offset = 0.0;
       parameterInfo.push_back(currentParameterInfo);
     }
 
     modelObj3->SetupModelImage(nSmallDataCols, nSmallDataRows);
     modelObj3->AddParameterInfo(parameterInfo);
+    modelObj3->AddImageOffsets(100.0, 200.0);
     
     int nParams = modelObj3->GetNParams();
     TS_ASSERT_EQUALS(nParams, nParamsTot);
