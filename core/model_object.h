@@ -73,6 +73,9 @@ class ModelObject
     void AddImageCharacteristics( double imageGain, double readoutNoise, double expTime, 
     							int nCombinedImages, double originalSkyBackground );
     
+    // 2D only
+    void AddImageOffsets( int offset_X0, int offset_Y0 );
+    
 	// 2D only
     int SetupModelImage( int nImageColumns, int nImageRows );
     
@@ -283,6 +286,7 @@ class ModelObject
     vector<int> paramSizes;
     vector<string>  parameterLabels;
     vector<SimpleParameterInfo> parameterInfoVect;
+    int  imageOffset_X0, imageOffset_Y0;
     
     PsfInterpolator *psfInterpolator;
     bool  psfInterpolator_allocated;

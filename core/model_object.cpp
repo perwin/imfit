@@ -160,6 +160,8 @@ ModelObject::ModelObject( )
   readNoise_adu_squared = 0.0;
   originalSky = 0.0;
   
+  imageOffset_X0 = imageOffset_Y0 = 0;
+  
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
   ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
   
@@ -323,11 +325,11 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 
 /* ---------------- PUBLIC METHOD: PrintParameterInfoLine ------------- */
 
-void PrintParameterInfoLine( int i, SimpleParameterInfo p )
-{
-  printf("i = %d: %d, (%d,%d), (%f,%f), %f\n", i, p.fixed, p.limited[0],p.limited[1],
-  		p.limits[0],p.limits[1], p.offset);
-}
+// void PrintParameterInfoLine( int i, SimpleParameterInfo p )
+// {
+//   printf("i = %d: %d, (%d,%d), (%f,%f), %f\n", i, p.fixed, p.limited[0],p.limited[1],
+//   		p.limits[0],p.limits[1], p.offset);
+// }
 
 void ModelObject::AddParameterInfo( mp_par  *inputParameterInfo )
 {
@@ -339,7 +341,7 @@ void ModelObject::AddParameterInfo( mp_par  *inputParameterInfo )
     paramStruct.limited[1] = inputParameterInfo[i].limited[1];
     paramStruct.limits[0] = inputParameterInfo[i].limits[0];
     paramStruct.limits[1] = inputParameterInfo[i].limits[1];
-    paramStruct.offset = inputParameterInfo[i].offset;
+//    paramStruct.offset = inputParameterInfo[i].offset;
     parameterInfoVect.push_back(paramStruct);
   }
 }
@@ -354,7 +356,7 @@ void ModelObject::AddParameterInfo( vector<mp_par> inputParameterInfo )
     paramStruct.limited[1] = inputParameterInfo[i].limited[1];
     paramStruct.limits[0] = inputParameterInfo[i].limits[0];
     paramStruct.limits[1] = inputParameterInfo[i].limits[1];
-    paramStruct.offset = inputParameterInfo[i].offset;
+//    paramStruct.offset = inputParameterInfo[i].offset;
     parameterInfoVect.push_back(paramStruct);
   }
 }
@@ -447,6 +449,15 @@ void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise
 
   effectiveGain = gain * exposureTime * nCombined;
   readNoise_adu_squared = readNoise*readNoise/(effectiveGain*effectiveGain);
+}
+
+
+/* ---------------- PUBLIC METHOD: AddImageOffsets --------------------- */
+
+void ModelObject::AddImageOffsets( int offset_X0, int offset_Y0 )
+{
+  imageOffset_X0 = offset_X0;
+  imageOffset_Y0 = offset_Y0;
 }
 
 
@@ -1764,10 +1775,10 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
     if (fblockStartFlags[n] == true) {
       // start of new function block: extract x0,y0 and then skip over them
       k = indexOffset;
-      x0 = params[k];
-      y0 = params[k + 1];
-      x0 += parameterInfoVect[k].offset;
-      y0 += parameterInfoVect[k + 1].offset;
+      x0 = params[k] + imageOffset_X0;
+      y0 = params[k + 1] + imageOffset_Y0;
+//       x0 += parameterInfoVect[k].offset;
+//       y0 += parameterInfoVect[k + 1].offset;
       // blank line (or line with just prefix character) before start of function block
       stringVector.push_back(PrintToString("%s\n", prefix));
       if (printLimits) {
@@ -1840,10 +1851,10 @@ string ModelObject::PrintModelParamsHorizontalString( const double params[], con
     if (fblockStartFlags[n] == true) {
       // start of new function block: extract x0,y0 and then skip over them
       k = indexOffset;
-      x0 = params[k];
-      y0 = params[k + 1];
-      x0 += parameterInfoVect[k].offset;
-      y0 += parameterInfoVect[k + 1].offset;
+      x0 = params[k] + imageOffset_X0;
+      y0 = params[k + 1] + imageOffset_Y0;
+//       x0 += parameterInfoVect[k].offset;
+//       y0 += parameterInfoVect[k + 1].offset;
       if (n > 0)
         outputString += PrintToString("%s%#.10g%s%#.10g", separator.c_str(), x0, separator.c_str(), y0);
       else

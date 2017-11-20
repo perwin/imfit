@@ -314,6 +314,7 @@ int main(int argc, char *argv[])
 
   // tell ModelObject about parameterInfo (mainly useful for printing-related methods)
   theModel->AddParameterInfo(parameterInfo);
+  theModel->AddImageOffsets(X0_offset, Y0_offset);
 
 
  
