@@ -161,6 +161,9 @@ $IMFIT -c tests/imfit_reference/config_3x3_flatsky.dat tests/testimage_3x3_oneze
  # test to see if we save multi-function-block output correctly when using N-M simplex
 $IMFIT -c tests/imfit_reference/config_imfit_2gauss_small.dat tests/testimage_2gauss_psf.fits --nm --save-params=temptest/bestfit_params_2gauss_small.dat &> temptest/test_dump7f
 
+# test to see if fitting with interpolated PSF works
+$IMFIT -c tests/imfit_reference/config_imfit_ptsource.dat tests/psf_moffat_fwhm2.fits --psf=tests/psf_moffat_fwhm2_35x35.fits &> temptest/test_dump8a
+
 #    Testing to see that bad config files are caught:
 $IMFIT -c tests/makeimage_reference/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
 $IMFIT -c tests/makeimage_reference/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
@@ -376,6 +379,12 @@ else
   diff temptest/bestfit_params_2gauss_small_tail.dat tests/bestfit_params_2gauss_small_tail.dat
   STATUS+=1
 fi
+
+
+echo -n "*** Diff comparison with archives: fitting with bicubic-interpolated PSF image... "
+./python/diff_printouts.py tests/imfit_reference/imfit_textout8a temptest/test_dump8a --skip-last=3
+STATUS+=$?
+
 
 
 

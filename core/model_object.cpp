@@ -301,7 +301,8 @@ int ModelObject::SetupPsfInterpolation( )
     fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
     return -2;
   }
-
+  
+  return 0;
 }
 
 

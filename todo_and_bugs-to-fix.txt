@@ -1,6 +1,12 @@
 
 ** BUGS TO FIX:
 
+[ ] Fix broken unit test in unittest_model_object.t.h
+	In TestPsfUsage::testCatchBadPSF_forPointSource:
+	/home/travis/build/perwin/imfit/unit_tests/unittest_model_object.t.h:835: Error: Expected (status == -2), found (0 != -2)
+
+
+
 
 
 
@@ -101,6 +107,13 @@ image (accounting for data image subset, if any)
 		
 [ ] MCMC program: "imfit-mcmc"
 	
+	[ ] Flag error and quite when config file has unconstrained parameters
+		-- i.e., parameters with no constraints is OK for L-M or N-M fits, but
+		not for DE fits and *not* for MCMC analysis
+		-- current code apparently converts unconstrained parameters into 
+		[ ] Locate code which checks for missing parameter constraints in DE mode
+		
+		
 	[ ] Feedback from dream()
 		[ ] Detect failed opening of output files, complain and exit
 		[ ] Detect failed write to output files, complain and exit?

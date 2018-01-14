@@ -818,7 +818,7 @@ public:
     int  nRows_psf = 3;
     int  nPixels_psf = 9;
     double  tooSmallPsfImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
-    int  status;
+    int  dummy, status;
     string  filename2 = CONFIG_FILE_POINTSOURCE;
 
     status = ReadConfigFile(filename2, true, functionList2, parameterList2, paramLimits2, 
@@ -829,9 +829,14 @@ public:
     modelObj5a2 = new ModelObject();
     status = AddFunctions(modelObj5a2, functionList2, FunctionBlockIndices2, true, -1);
 
-    // This is the correct order
-    // add PSF pixels first
+    // First, see if we catch case of missing PSF
+    status = modelObj5a2->SetupPsfInterpolation();
+    TS_ASSERT_EQUALS(status, -1);
+
+    // Second, see if we catch case of PSF that's present but too small
     status = modelObj5a2->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, tooSmallPsfImage);
+    TS_ASSERT_EQUALS(status, 0);
+    status = modelObj5a2->SetupPsfInterpolation();
     TS_ASSERT_EQUALS(status, -2);
 
     delete modelObj5a2;

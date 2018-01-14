@@ -1,0 +1,10 @@
+# Config file for imfit, for use in fitting an interpolated PSF image to
+# an image with constant background + (Moffat-profile) point source.
+
+X0		19		18,24
+Y0		19		18,24
+FUNCTION PointSource
+I_tot		250000		1e3,1e6
+FUNCTION FlatSky
+I_sky	100		fixed
+
