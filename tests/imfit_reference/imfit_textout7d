@@ -13,3 +13,4 @@ naxis1 [# pixels/row] = 3, naxis2 [# pixels/col] = 3; nPixels_tot = 9
 Function: FlatSky
 3 total parameters
 Model Object: 9 data values (pixels)
+ModelObject: mask vector applied to weight vector. (9 valid pixels remain)

@@ -596,21 +596,27 @@ of these three options is usable with Cash statistic or Poisson-MLR statistic mi
 
 \bigskip
 
-\item \texttt{--sky} \textit{sky-level} -- specifies an original constant sky background
-level (in counts/pixel) that was subtracted from the image; used for internal
-computation of the noise map (for \chisquare{} minimization) or for correcting the 
-Cash statistic or Poisson-MLR statistic computation. (If the units of the pixel values are 
-counts/sec, then the sky level should also be in those units, and you should use the 
-``\texttt{--exptime}'' option to specify the original exposure time.)
+\item \texttt{--sky} \textit{sky-level} -- specifies an original
+constant sky background level (in counts/pixel) \textit{that was
+previously subtracted from the image}; this is used for internal
+computation of the noise map (for \chisquare{} minimization) or for
+correcting the Cash statistic or Poisson-MLR statistic computation. (If
+the units of the pixel values are counts/sec, then the sky level should
+also be in those units, and you should use the ``\texttt{--exptime}''
+option to specify the original exposure time.)
+
 \item \texttt{--gain} \textit{value} -- specifies the A/D gain (in electrons/ADU)
 of the input image; used for internal computation of the noise map (for \chisquare{}
 minimization) or for correcting the Cash statistic and Poisson-MLR statistic computation.
+
 \item \texttt{--readnoise} \textit{value} -- specifies the read noise (in electrons)
 of the input image; used for internal computation of the noise map for \chisquare{}
 minimization (this is ignored in the case of Cash statistic or Poisson-MLR statistic minimization).
+
 \item \texttt{--exptime} \textit{value} -- specifies the exposure time of the image;
 this should \textbf{only} be used \textit{if} the image has been divided by the exposure time
 (i.e., if the pixel units are counts/sec).
+
 \item \texttt{--ncombined} \textit{value} -- if values in the input
 image are the result of averaging (or computing the median of) two or
 more original images, then this option should be used to specify the

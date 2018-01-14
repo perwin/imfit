@@ -45,7 +45,6 @@ ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVec
   newModelObj = new ModelObject();
   if (options->debugLevel > 0)
     printf("\nSetupModelObject: Setting ModelObject debug level to %d\n\n", options->debugLevel);
-  newModelObj->SetDebugLevel(options->debugLevel);
 
   if (options->maxThreadsSet)
     newModelObj->SetMaxThreads(options->maxThreads);

@@ -257,9 +257,9 @@ void ModelObject::SetOMPChunkSize( int chunkSize )
 
 
 /* ---------------- PUBLIC METHOD: AddFunction ------------------------- */
-void ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
+int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
 {
-  int  nNewParams;
+  int  nNewParams, result;
   
   functionObjects.push_back(newFunctionObj_ptr);
   nFunctions += 1;
@@ -269,14 +269,40 @@ void ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
   
   // handle optional case of PointSource function
   if (newFunctionObj_ptr->IsPointSource()) {
-    if (psfInterpolator_allocated)
-      newFunctionObj_ptr->AddPsfInterpolator(psfInterpolator);
-    else
-      fprintf(stderr, "** ERROR: PointSource function specified, but no PSF image was supplied!\n");
+    if (! psfInterpolator_allocated) {
+      result = SetupPsfInterpolation();
+      if (result < 0)
+      	return -1;
+    }
+    newFunctionObj_ptr->AddPsfInterpolator(psfInterpolator);
     pointSourcesPresent = true;
   }
+  
+  return 0;
 }
 
+
+/* ---------------- PUBLIC METHOD: SetupPsfInterpolation -------------- */
+int ModelObject::SetupPsfInterpolation( )
+{
+  // instantiate PsfInterpolator object for possible use by PointSource image functions
+  // default case of GSL bicubic interpolation
+  if (! localPsfPixels_allocated) {
+    fprintf(stderr, "** ERROR: PointSource image function being used, but no ");
+    fprintf(stderr, "PSF image was supplied!\n");
+    return -1;
+  }
+  if ((nPSFColumns >= 4) && (nPSFRows >= 4)) {
+    psfInterpolator = new PsfInterpolator_bicubic(localPsfPixels, nPSFColumns, nPSFRows);
+    psfInterpolator_allocated = true;
+  }
+  else {
+    fprintf(stderr, "** ERROR: PSF image is too small for interpolation with PointSource functions!\n");
+    fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
+    return -2;
+  }
+
+}
 
 
 /* ---------------- PUBLIC METHOD: DefineFunctionBlocks --------------- */
@@ -727,20 +753,6 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
   if (normalizePSF)
     NormalizePSF(localPsfPixels, nPixels_psf);
 
-  // instantiate PsfInterpolator object for possible use by PointSource image functions
-  if (pointSourcesPresent) {
-    // default case of GSL bicubic interpolation
-    if ((nColumns_psf >= 4) && (nRows_psf >= 4)) {
-      psfInterpolator = new PsfInterpolator_bicubic(localPsfPixels, nColumns_psf, nRows_psf);
-      psfInterpolator_allocated = true;
-    }
-    else {
-      fprintf(stderr, "** ERROR: PSF image is too small for interpolation with PointSource functions!\n");
-      fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
-      return -2;
-    }
-  }
-  
   // Finally, set up Convolver object
   nPSFColumns = nColumns_psf;
   nPSFRows = nRows_psf;
@@ -1007,9 +1019,14 @@ int ModelObject::FinalSetupForFitting( )
 #endif
 
   // Apply mask to weight vector (i.e., weight -> 0 for masked pixels)
-  if (CheckWeightVector())
-    ApplyMask();
-  else {
+//   if (CheckWeightVector())
+//     ApplyMask();
+//   else {
+//     fprintf(stderr, "** ModelObject::FinalSetup -- bad values detected in weight vector!\n");
+//     returnStatus = -1;
+//   }
+  ApplyMask();
+  if (! CheckWeightVector()) {
     fprintf(stderr, "** ModelObject::FinalSetup -- bad values detected in weight vector!\n");
     returnStatus = -1;
   }

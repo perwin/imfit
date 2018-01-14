@@ -289,7 +289,13 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
           fprintf(stderr, "function \"%s\"\n", thisFunctionObj->GetShortName().c_str());
         }
       }
-      theModel->AddFunction(thisFunctionObj);
+      status = theModel->AddFunction(thisFunctionObj);
+      if (status < 0) {
+        fprintf(stderr, "Error attempting to add function \"%s\"", 
+        		thisFunctionObj->GetShortName().c_str());
+        fprintf(stderr, " to ModelObject!\n");
+        return status;
+      }
     }
   }
   // OK, we're done adding functions; now tell the model object to do some final setup

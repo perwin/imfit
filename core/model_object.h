@@ -48,8 +48,11 @@ class ModelObject
     
     
     // Adds a new FunctionObject pointer to the internal vector
-    virtual void AddFunction( FunctionObject *newFunctionObj_ptr );
+    virtual int AddFunction( FunctionObject *newFunctionObj_ptr );
     
+    // 2D only
+    int SetupPsfInterpolation( );
+
     // common, but Specialized by ModelObject1D
     virtual void DefineFunctionBlocks( vector<int>& functionStartIndices );
     

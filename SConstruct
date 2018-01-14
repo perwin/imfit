@@ -262,11 +262,11 @@ AddOption("--old-mac", dest="buildForOldMac", action="store_true",
 # * Check to see if user actually specified something, and implement it
 if GetOption("headerPath") is not None:
 	extraPaths = GetOption("headerPath").split(":")
-	print "extra header search paths: ", extraPaths
+	print("extra header search paths: ", extraPaths)
 	include_path += extraPaths
 if GetOption("libraryPath") is not None:
 	extraPaths = GetOption("libraryPath").split(":")
-	print "extra library search paths: ", extraPaths
+	print("extra library search paths: ", extraPaths)
 	lib_path += extraPaths
 if GetOption("fftwThreading") is False:
 	useFFTWThreading = False
@@ -285,17 +285,17 @@ if GetOption("doExtraChecks") is True:
 # change the compilers if user requests it
 if GetOption("cc_compiler") is not None:
 	CC_COMPILER = GetOption("cc_compiler")
-	print "using %s for C compiler" % CC_COMPILER
+	print("using %s for C compiler" % CC_COMPILER)
 	c_compiler_changed = True
 if GetOption("cpp_compiler") is not None:
 	CPP_COMPILER = GetOption("cpp_compiler")
-	print "using %s for C++ compiler" % CPP_COMPILER
+	print("using %s for C++ compiler" % CPP_COMPILER)
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
 	CC_COMPILER = "gcc-7"
 	CPP_COMPILER = "g++-7"
-	print "using %s for C compiler" % CC_COMPILER
-	print "using %s for C++ compiler" % CPP_COMPILER
+	print("using %s for C compiler" % CC_COMPILER)
+	print("using %s for C++ compiler" % CPP_COMPILER)
 	c_compiler_changed = True
 	cpp_compiler_changed = True
 

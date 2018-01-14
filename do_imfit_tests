@@ -42,6 +42,8 @@ rm temptest/test_dump*
 IMFIT="./imfit"
 #IMFIT="/Users/erwin/bin/imfit-1.4"
 
+
+# ** Run imfit with different test inputs **
 echo ""
 echo "Running tests for imfit..."
 # simple tests using small images
@@ -177,7 +179,7 @@ $IMFIT tests/testimage_poisson_lowsn20.fits -c tests/imfit_reference/config_imfi
 
 echo ""
 
-
+# ** Run diff comparisons with output against reference output **
 # Note that we diff only the first n lines to avoid irrelevant variations in the
 # elapsed-time output (reported at the end of the file).
 
