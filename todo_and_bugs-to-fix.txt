@@ -1,11 +1,6 @@
 
 ** BUGS TO FIX:
 
-[ ] Fix broken unit test in unittest_model_object.t.h
-	In TestPsfUsage::testCatchBadPSF_forPointSource:
-	/home/travis/build/perwin/imfit/unit_tests/unittest_model_object.t.h:835: Error: Expected (status == -2), found (0 != -2)
-
-
 
 
 
