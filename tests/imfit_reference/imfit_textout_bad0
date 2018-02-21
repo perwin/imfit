@@ -1,0 +1,19 @@
+*** ERROR: Missing one or more limits for model parameter values in config file!
+    (In MCMC mode, all model parameters must be fixed or have lower & upper limits)
+
+	Image file = tests/faintstar.fits
+	configuration file = tests/imfit-mcmc_reference/config_imfit_faintstar_nolims.dat
+	RNG seed = 7
+Value from config file: gain = 4.720000 e-/ADU
+Value from config file: read noise = 1.150000 e-
+Value from config file: original sky = 124.940000
+Reading data image ("tests/faintstar.fits") ...
+naxis1 [# pixels/row] = 10, naxis2 [# pixels/col] = 10; nPixels_tot = 100
+* No PSF image supplied -- no image convolution will be done!
+* Pixel subsampling has been turned OFF.
+* No noise image supplied ... will generate noise image from input data image.
+Function: Gaussian
+6 total parameters
+6 free parameters (94 degrees of freedom)
+Model Object: 100 data values (pixels)
+ModelObject: mask vector applied to weight vector. (100 valid pixels remain)

@@ -60,6 +60,9 @@ fi
 # 2b: testing that we catch error: case of mismatched image sizes:
 ./imfit-mcmc tests/ic3478rss_64x64.fits -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --mask tests/n3073rss_small_mask.fits  &> temptest/test_dump2b
 
+# 2a: testing that we catch bad model-config file: missing parameter limit
+./imfit-mcmc tests/faintstar.fits -c tests/imfit-mcmc_reference/config_imfit_faintstar_nolims.dat --no-subsampling --seed=7 &> temptest/test_dump_bad0
+
 ./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
 ./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
 ./imfit-mcmc -c tests/makeimage_reference/config_makeimage_sersictest512_bad3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad3
@@ -134,6 +137,16 @@ STATUS+=$?
 
 # Note that for the following, we can compare with the imfit reference files,
 # because the output should be the same
+
+echo -n "*** Diff comparison with archives: bad config file 0 (missing parameter limits)... "
+if (diff --brief temptest/test_dump_bad0 tests/imfit_reference/imfit_textout_bad0)
+then
+  echo " OK"
+else
+  echo -e "   ${RED}Failed:${NC}  Diff output:"
+  diff temptest/test_dump_bad0 tests/imfit_reference/imfit_textout_bad0
+  STATUS+=1
+fi
 
 echo -n "*** Diff comparison with archives: bad config file 1... "
 if (diff --brief temptest/test_dump_bad1 tests/imfit_reference/imfit_textout_bad1)

@@ -281,6 +281,20 @@ int main(int argc, char *argv[])
   }
 
 
+  // Check to see that all parameters have limits (or are fixed), since MCMC requires
+  // parameter limits
+  bool  paramLimitsOK = true;
+  for (int i = 0; i < nParamsTot; i++) {
+    if ( (paramLimits[i].fixed == 0) && 
+    	( (paramLimits[i].limited[0] == 0) || (paramLimits[i].limited[1] == 0) ) )
+      paramLimitsOK = false;
+  }
+  if (! paramLimitsOK) {
+    fprintf(stderr, "*** ERROR: Missing one or more limits for model parameter values in config file!\n");
+    fprintf(stderr, "    (In MCMC mode, all model parameters must be fixed or have lower & upper limits)\n\n");
+    exit(-2); 
+  }
+  
   // Set up parameter-info/limits array (mostly useful for storing
   // X0_offset, Y0_offset, which will be needed for printing output
   // parameter values)

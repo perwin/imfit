@@ -102,11 +102,16 @@ image (accounting for data image subset, if any)
 		
 [ ] MCMC program: "imfit-mcmc"
 	
-	[ ] Flag error and quite when config file has unconstrained parameters
+	[X] Flag error and quit when config file has unconstrained parameters
 		-- i.e., parameters with no constraints is OK for L-M or N-M fits, but
 		not for DE fits and *not* for MCMC analysis
-		-- current code apparently converts unconstrained parameters into 
-		[ ] Locate code which checks for missing parameter constraints in DE mode
+		-- current code apparently converts unconstrained parameters into 0,0 limits
+		[X] Locate code which checks for missing parameter constraints in DE mode
+			-- DiffEvolnFit in diff_evoln_fit.cpp
+				checks parameterLimits input object; prints error message and
+				returns -2 if one or more limits are missing
+		[X] Locate where we might check parameterLimits in MCMC code
+		[X] Implement check for missing parameter limits
 		
 		
 	[ ] Feedback from dream()
