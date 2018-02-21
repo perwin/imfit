@@ -73,7 +73,7 @@
 
 \newcommand{\pmlr}{PMLR}
 
-\newcommand{\versionnum}{1.5.0}
+\newcommand{\versionnum}{1.6.0}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -2588,6 +2588,29 @@ beta
 %  scaledR = r / alpha;
 %  denominator = pow((1.0 + scaledR*scaledR), beta);
 %  return (I_0 / denominator);
+
+
+\subsection{PointSource}
+
+This function approximates a point source (e.g., star, AGN, etc.) by
+taking the user-input PSF image and generating an interpolated,
+intensity-scaled copy of it at the X0,Y0 position of the parent function
+block. It has only one free parameter: $I_{\rm tot}$, which is the
+factor that the PSF image is multiplied by, and which will usually
+correspond to the total flux of the point source.
+
+For standard model-image generation, the main user-supplied PSF
+image is used. If PSF ovsersampling is specified, then any PointSource
+objects which fall within a specified oversampling region (via \texttt{--overpsf_region})
+will interpolate the corresponding oversampled PSF image used instead.
+
+The interpolation is done using the 2D bicubic function
+(\texttt{gsl\_interp2d\_bicubic}) from the GNU Scientific Library.
+
+\begin{verbatim}
+FUNCTION PointSource
+I_tot
+\end{verbatim}
 
 
 \subsubsection{ModifiedKing}

@@ -61,10 +61,10 @@ using namespace std;
 
 
 /* ---------------- Definitions ---------------------------------------- */
-const int   N_PARAMS = 10;
+const int   N_PARAMS = 11;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "m", "i_wind", "I_0", "R_i", "sigma", "gamma",
-								"R_max", "sigma_max"};
-const char  FUNCTION_NAME[] = "Logarithmic Spiral function (Gaussian radial modulation)";
+								"R_max", "sigma_max_in", "sigma_max_out"};
+const char  FUNCTION_NAME[] = "Logarithmic Spiral function (2-sided Gaussian radial modulation)";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 const double  MIN_RADIUS = 0.001;
@@ -101,13 +101,14 @@ void LogSpiralGauss::Setup( double params[], int offsetIndex, double xc, double 
   PA = params[0 + offsetIndex];   // line of nodes for projected circle
   ell = params[1 + offsetIndex];  // ellipticity of projected circle
   m = params[2 + offsetIndex];   // multiplicity of spiral (m=2 for standard 2-arm spiral)
-  i_pitch = params[3 + offsetIndex];   // pitch or winding angle [degrees]
+  i_pitch = params[3 + offsetIndex];   // pitch angle [degrees]
   I_0 = params[4 + offsetIndex];   // intensity at peak of spiral/ring
   R_i = params[5 + offsetIndex];   // radius where spiral crosses x=0 [ring for infinite winding]
   sigma = params[6 + offsetIndex];  // Gaussian width of spiral
   gamma = params[7 + offsetIndex];  // phase angle (azimuthal offset) for spiral pattern
-  R_max = params[8 + offsetIndex];  // radius where spiral pattern is maximum
-  sigma_max = params[9 + offsetIndex];  // sigma for R_max
+  R_max = params[8 + offsetIndex];  // radius where intensity is maximum
+  sigma_max_in = params[9 + offsetIndex];  // inner sigma for R_max
+  sigma_max_out = params[10 + offsetIndex];  // outer sigma for R_max
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
@@ -118,7 +119,8 @@ void LogSpiralGauss::Setup( double params[], int offsetIndex, double xc, double 
 
   m_over_tani = m / tan(i_pitch * DEG2RAD);
   sigma_squared = sigma*sigma;
-  twosigma_max_squared = 2.0*sigma_max*sigma_max;
+  twosigma_max_in_squared = 2.0*sigma_max_in*sigma_max_in;
+  twosigma_max_out_squared = 2.0*sigma_max_out*sigma_max_out;
 }
 
 
@@ -128,6 +130,8 @@ void LogSpiralGauss::Setup( double params[], int offsetIndex, double xc, double 
 double LogSpiralGauss::CalculateIntensity( double r, double phi )
 {
   double  I, logSpiralFn, r_scaled;
+  double  r_diff = fabs(r - R_max);
+  double  twosigma_r_squared;
   
   if (r <= 0.0) {
     r = MIN_RADIUS;
@@ -135,8 +139,16 @@ double LogSpiralGauss::CalculateIntensity( double r, double phi )
   logSpiralFn = m_over_tani * log(r/R_i) + gamma;
   double  phi_term = 1.0 - cos(m*phi - logSpiralFn);
   double  exp_stuff = exp( (-r*r/sigma_squared) * phi_term );
+
+  // decide which sigma to use for each Gaussian component
+  if (r < R_max) {  // inside the ring
+    twosigma_r_squared = twosigma_max_in_squared;
+  }
+  else {  // outside the ring
+    twosigma_r_squared = twosigma_max_out_squared;
+  }
   r_scaled = r - R_max;
-  I = I_0 * exp(-(r_scaled*r_scaled)/twosigma_max_squared);
+  I = I_0 * exp(-(r_diff*r_diff)/twosigma_r_squared);
   return I * exp_stuff;
 }
 

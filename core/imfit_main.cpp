@@ -11,7 +11,7 @@
  *    10 Nov--2 Dec 2009: Early stages of development
 */
 
-// Copyright 2009--2017 by Peter Erwin.
+// Copyright 2009--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -82,9 +82,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.5.0 (OpenMP-enabled)"
+#define VERSION_STRING      "1.6.0b1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.5.0"
+#define VERSION_STRING      "1.6.0b1"
 #endif
 
 

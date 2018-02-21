@@ -562,6 +562,7 @@ if useExtraFuncs:
 		functionobject_obj_string += " func_boxytest3d"
 		functionobject_obj_string += " func_expdisk3d_trunc"
 		functionobject_obj_string += " func_logspiral"
+		functionobject_obj_string += " func_logspiral2"
 		functionobject_obj_string += " func_logspiral_gauss"
 		functionobject_obj_string += " func_nan"
 		functionobject_obj_string += " func_triaxbar3d"

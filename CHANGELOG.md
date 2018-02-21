@@ -2,7 +2,21 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.5.1 -- 2017-mm-dd
+## 1.6.0 -- 2018-mm-dd
+### Added:
+
+- New image function: PointSource. This is an interpolating function
+which takes the user-supplied PSF image, rescales it in intensity, and
+interpolates it to the position specified by the X0 and Y0 parameters of
+a function block. (If an oversampled PSF is supplied, then that will be
+used for the specified oversampled region or regions.)
+This is more accurate for true point sources than the
+current approach of constructing a narrow Gaussian and convolving that
+with the PSF image. The interpolation is done with the GLS bicubic
+interpolation function; future version may offer the option of something
+like interpolation with a Lanczos kernel. (Thanks to Corentin Schreiber
+for suggesting this development and helping test it!)
+
 ### Fixed:
 
 - Convolution with oversampled PSFs was not being done when single-function

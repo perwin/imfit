@@ -70,6 +70,7 @@
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
 #include "func_logspiral.h"
+#include "func_logspiral2.h"
 #include "func_logspiral_gauss.h"
 #include "func_nan.h"
 #include "func_expdisk3d_trunc.h"
@@ -224,6 +225,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   LogSpiral::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiral>();
+
+  LogSpiral2::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<LogSpiral2>();
 
   LogSpiralGauss::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiralGauss>();
