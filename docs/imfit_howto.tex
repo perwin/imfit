@@ -2,6 +2,7 @@
 
 \usepackage[T1]{fontenc}
 
+% Specify use of Minion Pro as the main typeface
 \usepackage[lf]{MinionPro}
 \usepackage{MnSymbol}
 % specify Inconsolata for tt (including verbatim environment)
@@ -9,7 +10,7 @@
 
 % microtypography package -- mainly so we can firmly turn off ligatures for tt font
 % (otherwise we sometimes get "--" --> en-dash, which we don't want in command-line
-% and code examples!
+% and code examples!)
 \usepackage[expansion=false]{microtype}
 \DisableLigatures{encoding = T1, family = tt* }
 
@@ -56,6 +57,7 @@
 %    --> 1.07 * 1.2 * 10pt = 12.8 pt
 \linespread{1.07}
 
+% Default forms for package and program names
 \newcommand{\imfit}{\textbf{Imfit}}
 \newcommand{\Imfit}{\textbf{Imfit}}
 \newcommand{\imfitprog}{\texttt{imfit}}
@@ -63,16 +65,15 @@
 \newcommand{\makeimage}{\texttt{makeimage}}
 \newcommand{\Makeimage}{\texttt{Makeimage}}
 
+% math and math-related definitions
 \newcommand{\arcdeg}{\ensuremath{^{\circ}}}
-
 \newcommand{\chisquare}{\ensuremath{\chi^{2}}}
 \newcommand{\chisquaredata}{\ensuremath{\chi_{d}^{2}}}
 \newcommand{\chisquaremodel}{\ensuremath{\chi_{m}^{2}}}
-
 \newcommand{\rbar}{\ensuremath{R_{\mathrm{bar}}}}
-
 \newcommand{\pmlr}{PMLR}
 
+% Other stuff, including version number
 \newcommand{\versionnum}{1.6.0}
 
 \newcommand{\red}{\textcolor{red}}
@@ -130,10 +131,6 @@ writing C++ code for a new image-function class (this can be done by copying and
 modifying an existing pair of \texttt{.h/.cpp} files for one of the pre-supplied
 image functions), making small modifications to two additional files to include
 references to the new function, and re-compiling the program.
-
-%Notes are [WILL BE] provided
-%to guide the interested user in adding new functions; in most cases, a
-%basic working knowledge of C should suffice.
 
 \Imfit{} is an open-source project; the source code is freely available
 under the \textsc{gnu} Public License (\textsc{gpl}).
@@ -334,20 +331,6 @@ not available, then the parts of the tests which compare output images
 with reference versions will be skipped.
 
 
-%\subsubsection{Recommended Option: Compiling with OpenMP Support}
-%
-%\Imfit{} and \makeimage{} can be compiled to take advantage of OpenMP compiler support,
-%which speeds up image computation by splitting it up across multiple CPUs
-%(and multiple cores within multi-core CPUs).
-%Currently, the code uses OpenMP 2.5 options, which means that if you are using
-%the \textsc{gcc} compiler, you need version 4.2 or higher.
-%
-%To include OpenMP support, compile using the following options:
-%\begin{quote}
-%\texttt{\$ scons --openmp imfit} \\
-%\texttt{\$ scons --openmp makeimage}
-%\end{quote}
-
 
 \subsubsection{Telling the Compiler Where to Find Header Files and Libraries}
 
@@ -435,11 +418,6 @@ you can remove multithreaded FFT computation by compiling with the following com
 \texttt{\$ scons --no-threading imfit-mcmc} \\
 \texttt{\$ scons --no-threading makeimage}
 \end{quote}
-
-%Or, with the \texttt{configure + make} approach:
-%\begin{quote}
-%\texttt{\$ ./configure --disable-threading}
-%\end{quote}
 
 
 
@@ -1227,7 +1205,7 @@ correctly.
 
 \bigskip
 
-In the case of minimizing the Cash statistic $C$ or the related Poisson-MLR statistic, the 
+In the case of minimizing the Poisson-MLR statistic or the related Cash statistic $C$, the 
 only relevant external maps are masks. For the Cash statistic $C$, the actual minimized 
 quantity is:
 \begin{equation}
@@ -1245,6 +1223,8 @@ The Poisson-MLR statistic includes extra terms based on the data values:
 \mathrm{\pmlr} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I^{\prime}_{m, i} - I^{\prime}_{d, i} \ln I^{\prime}_{m, i} + I^{\prime}_{d, i} \ln I^{\prime}_{d, i} - I^{\prime}_{d, i} \right).
 \end{equation}
+
+\medskip
 
 Note that \imfitprog{} does \textit{not} try to obtain information (such as
 the A/D gain or read noise) from the \textsc{fits} header of an image. This is primarily
@@ -1382,7 +1362,8 @@ maximum-likelihood approach. In practice, this is done by
 \textit{minimizing} a maximum-likelihood statistic defined as $-2 \ln
 \mathcal{L}$, where $\mathcal{L}$ is the likelihood of a given model. The rest
 of this section describes the different versions of $-2 \ln \mathcal{L}$
-which can be minimized to achieve the best fit.
+which can be minimized to achieve the best fit. Note that this is equivalent
+to a Bayesian approach which assumes constant priors on all model parameters.
 
 By default, \Imfit{} uses a Gaussian-based maximum likelihood statistic
 which is the total \chisquare{} for the model. This is defined by
@@ -1421,7 +1402,8 @@ Specifying the Cash statistic is done with the \texttt{--cashstat} command-line 
 A drawback of the Cash statistic is that it \textit{cannot} be minimized with the
 Levenberg-Marquardt algorithm, since the latter assumes that all terms in the summation are
 $\ge 0$, which is usually not true for the Cash statistic.  Fortunately, there is also the 
-Poisson-MLR (maximum likelihood ratio) statistic \pmlr, which includes extra terms based on the data values:
+Poisson-MLR (maximum likelihood ratio) statistic \pmlr, which includes extra terms based 
+on the data values:
 \begin{equation}
 -2 \ln \mathcal{L}  \; = \; \mathrm{\pmlr} \; = \;  2 \sum_{i = 1}^{N} w_{i} \, 
 \left( I_{m, i} - I_{d, i} \ln I_{m, i} + I_{d, i} \ln I_{d, i} - I_{d, i} \right).
@@ -2606,9 +2588,9 @@ correspond to the total flux of the point source. Of course, it also
 
 For standard model-image generation, the main user-supplied PSF image is
 used. If PSF ovsersampling is specified, then any PointSource objects
-which fall within a specified oversampling region (via
+which fall within an oversampling region (specified via
 \texttt{--overpsf\_region}) will interpolate the corresponding
-oversampled PSF image instead.
+\textit{oversampled} PSF image (specified via \texttt{--overpsf}) instead.
 
 The interpolation is done using the 2D bicubic function
 (\texttt{gsl\_interp2d\_bicubic}) from the GNU Scientific Library.

@@ -208,7 +208,6 @@ Future options:
 				[ ] make oversampled image with point source
 				[ ] downsample 2nd image to same resolution as base image, then
 				add to base image
-
 	
 	
 	

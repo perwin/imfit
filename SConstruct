@@ -182,7 +182,10 @@ if (os_type == "Darwin") and (userName == "erwin"):
 if (os_type == "Linux"):
 	# change the following path definitions as needed
 	include_path.append("/usr/include")
-	if os.getlogin() == "erwin":
+	#if os.getlogin() == "erwin":
+	# the following seems to be more portable; os.getlogin doesn't work in Ubuntu 16.04,
+	# for example, but this does
+	if userName == "erwin":
 		include_path.append("/home/erwin/include")
 		lib_path.append("/home/erwin/lib")
 defines_opt = base_defines
