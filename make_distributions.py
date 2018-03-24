@@ -18,7 +18,7 @@ MAC_DEST_BIN = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/bina
 MAC_CHANGELOG_MD = "CHANGELOG.md"
 MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/CHANGELOG.html"
 
-VERSION_STRING = "1.5.0"
+VERSION_STRING = "1.6.0"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.
@@ -55,6 +55,9 @@ mcmcFileDict = {"dir": "cdream", "file_list": dm.source_files_mcmc.split()}
 funcObjFileDict = {"dir": "function_objects", "file_list": dm.source_files_funcobj.split()}
 exampleFileDict = {"dir": "examples", "file_list": dm.example_files.split()}
 pythonFileDict = {"dir": "python", "file_list": dm.python_files.split()}
+testFileDict_imfit = {"dir": "tests/imfit_reference", "file_list": dm.test_files_imfit.split()}
+testFileDict_mcmc = {"dir": "tests/imfit-mcmc_reference", "file_list": dm.test_files_mcmc.split()}
+testFileDict_makeimage = {"dir": "tests/makeimage_reference", "file_list": dm.test_files_makeimage.split()}
 testFileDict = {"dir": "tests", "file_list": dm.test_files.split()}
 
 
@@ -69,6 +72,9 @@ extras_file_list = [ extrasFileDict["dir"] + "/" + fname for fname in extrasFile
 
 example_file_list = [ exampleFileDict["dir"] + "/" + fname for fname in exampleFileDict["file_list"] ]
 python_file_list = [ pythonFileDict["dir"] + "/" + fname for fname in pythonFileDict["file_list"] ]
+test_file_imfit_list = [ testFileDict_imfit["dir"] + "/" + fname for fname in testFileDict_imfit["file_list"] ]
+test_file_mcmc_list = [ testFileDict_mcmc["dir"] + "/" + fname for fname in testFileDict_mcmc["file_list"] ]
+test_file_makeimage_list = [ testFileDict_makeimage["dir"] + "/" + fname for fname in testFileDict_makeimage["file_list"] ]
 test_file_list = [ testFileDict["dir"] + "/" + fname for fname in testFileDict["file_list"] ]
 
 solvers_file_list_cpp = [ solversFileDict["dir"] + "/" + fname + ".cpp" for fname in solversFileDict["file_list"] ]
@@ -89,12 +95,15 @@ funcobj_file_list = funcobj_file_list_h + funcobj_file_list_cpp
 
 
 allFileLists = [binary_only_file_list, misc_required_files_list, documentation_file_list, extras_file_list,
-				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
+				example_file_list, python_file_list, testing_scripts_list, test_file_imfit_list, 
+				test_file_mcmc_list, test_file_makeimage_list, test_file_list, solvers_file_list,
 				mcmc_file_list, core_file_list, funcobj_file_list]
 allFileLists_source = [misc_required_files_list, documentation_file_list, extras_file_list,
-				example_file_list, python_file_list, testing_scripts_list, test_file_list, solvers_file_list,
+				example_file_list, python_file_list, testing_scripts_list, test_file_imfit_list, 
+				test_file_mcmc_list, test_file_makeimage_list, test_file_list, solvers_file_list,
 				mcmc_file_list, core_file_list, funcobj_file_list]
 subdirs_list = ["docs", "extras", "examples", "python", "tests", "tests/osx", "tests/linux", 
+				"tests/imfit_reference", "tests/imfit-mcmc_reference", "tests/makeimage_reference", 
 				"tests/mcmc_data", "function_objects", "solvers", "cdream", "cdream/include", 
 				"cdream/include/rng", "core"]
 
@@ -241,6 +250,9 @@ def MakeSourceDist( ):
 	final_file_list += core_file_list
 	final_file_list += python_file_list
 	final_file_list += testing_scripts_list
+	final_file_list += test_file_imfit_list
+	final_file_list += test_file_mcmc_list
+	final_file_list += test_file_makeimage_list
 	final_file_list += test_file_list
 	final_file_list.append("SConstruct")
 	

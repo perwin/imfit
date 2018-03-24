@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.6.0 -- 2018-mm-dd
+## 1.6.0 -- 2018-03-24
 ### Added:
 
 - New image function: PointSource. This is an interpolating function
