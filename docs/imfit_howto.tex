@@ -156,20 +156,20 @@ distinction should be meaningless. (I.e., in most cases you're using the
 \bigskip
 
 \textbf{System Requirements:} \Imfit{} has been built and tested on
-Intel-based MacOS X (or macOS) 10.8--10.12 (Mountain
-Lion, Mavericks, Yosemite, El Capitan, and Sierra)\footnote{Versions 1.3
-and earlier were also built for MacOS X 10.6 and 10.7; it's unclear
-whether the current version could still be compiled for those systems.}
-and Linux (Ubuntu) systems. It uses standard C++ or C++11 and should
-work on most Unix-style systems with a modern C++ compiler and the
-Standard Template Library (e.g., \textsc{gcc} v4.8.1 or higher). It
-relies on two external, open-source libraries: version 3 of the
-\textsc{cfitsio} library\footnote{\url{http://heasarc.nasa.gov/fitsio/}}
-for \textsc{fits} image I/O and version 3 of the \textsc{fftw} (Fastest
+Intel-based MacOS X (or macOS) 10.8--10.12 (Mountain Lion, Mavericks,
+Yosemite, El Capitan, and Sierra)\footnote{Versions 1.3 and earlier were
+also built for MacOS X 10.6 and 10.7; it's unclear whether the current
+version could still be compiled for those systems.} and Linux (Ubuntu)
+systems. It uses standard C++ or C++11 and should work on most
+Unix-style systems with a modern C++ compiler and the Standard Template
+Library (e.g., \textsc{gcc} v4.8.1 or higher). It relies on two
+external, open-source libraries: version 3 of the \textsc{cfitsio}
+library\footnote{\url{http://heasarc.nasa.gov/fitsio/}} for
+\textsc{fits} image I/O and version 3 of the \textsc{fftw} (Fastest
 Fourier Transform in the West)
 library\footnote{\url{http://www.fftw.org/}} for PSF convolution. Some
 optional components -- as well as the \imfitmcmc{} program -- require
-the \textsc{gnu} Scientific Library
+version 2.0 or higher of the \textsc{gnu} Scientific Library
 (\textsc{gsl}),\footnote{\url{http://www.gnu.org/s/gsl/}} and the NLopt
 library\footnote{\url{http://ab-initio.mit.edu/wiki/index.php/NLopt}},
 but the program can also be built without these.
@@ -230,9 +230,10 @@ you don't have access to the NLopt library.
 (\textsc{gsl}) -- this is necessary if you want to use the MCMC program
 \imfitmcmc. It is also necessary if you wish to use certain image
 functions that rely on \textsc{gsl}.  Currently, the only such functions
-are the EdgeOnDisk component and the sample 3D line-of-sight integration
-functions (e.g., ExponentialDisk3D). \Imfit{} can be built without these
-components, if for some reason you don't have access to the \textsc{gsl}.
+are the PointSource component, the EdgeOnDisk component and the sample
+3D line-of-sight integration functions (e.g., ExponentialDisk3D).
+\Imfit{} can be built without these components, if for some reason you
+don't have access to the \textsc{gsl}.
 
 \item Install SCons (if needed; see below).
 

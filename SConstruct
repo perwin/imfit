@@ -85,19 +85,19 @@ import os, subprocess, platform, getpass, pwd
 # don't specify that)
 # We assume that FFTW library is static-only (since that's the default installation).
 
-# STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/libcfitsio.a")
+STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/libcfitsio.a")
 
 # The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
 # STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
-# STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/lib/libgsl.a")
-# STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/lib/libgslcblas.a")
+STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libgsl.a")
+STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/local/lib/libgslcblas.a")
 
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
 # STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
-# STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/local_libs/nlopt_nothreadlocal/libnlopt.a")
-# STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/local_libs/nlopt_nothreadlocal/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 
 CORE_SUBDIR = "core/"
