@@ -44,7 +44,9 @@ ArXiv version:
 
 DOI for current release (v1.6), archived at Zenodo:
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.843508.svg)](https://doi.org/10.5281/zenodo.843508)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.594956.svg)](https://doi.org/10.5281/zenodo.594956)
+
+<!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.843508.svg)](https://doi.org/10.5281/zenodo.843508) -->
 
 <!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.165856.svg)](https://doi.org/10.5281/zenodo.165856) -->
 
