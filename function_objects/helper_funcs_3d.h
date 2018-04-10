@@ -20,8 +20,11 @@ double CalculateTriaxEquivRadius( double xp, double yp, double zp, double q, dou
 
 // Luminosity-density functions
 
+// Basic Gaussian function: J = J_0 * exp(-twosigma_squared / r2)
 double LumDensity_Gaussian( double r2, double J_0, double twosigma_squared );
 
+// Generalized Gaussian function (equivalent to Sersic function, but using
+// radial scale length alpha instead of half-light radius r_e
 double LumDensity_GenGaussian( double r, double J_0, double inv_alpha, double beta );
 
 

@@ -17,7 +17,7 @@
  * with x-axis = major axis of object.
 */
 
-// Copyright 2011--2017 by Peter Erwin.
+// Copyright 2011--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -41,6 +41,9 @@
 
 
 
+// Convert 2D coordinates in image/sky plane (x_diff, y_diff) to 3D coordinates
+// in component axisymmetric reference frame (x_d0, y_d0, z_d0) at the intersection
+// of line-of-sight ray with sky frame
 std::tuple<double, double, double> ImageCoordsTo3dStartCoords( double x_diff, double y_diff,
 															double cosPA, double sinPA, 
 															double cosInc, double sinInc )
@@ -77,6 +80,8 @@ std::tuple<double, double, double> Compute3dObjectCoords( double s, double x_d0,
   double z_obj = fabs(z_d);
   return std::make_tuple(x_obj, y_obj, z_obj);
 }
+
+
 
 
 // Compute equivalent radius given position (xp, yp, zp) relative to center of
