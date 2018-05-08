@@ -109,11 +109,11 @@ def CompareResultsEqual( textFile1, textFile2 ):
 
 def main( argv=None ):
 
- 	usageString = "%prog new_text_file reference_text_file\n"
- 	parser = optparse.OptionParser(usage=usageString, version="%prog ")
+	usageString = "%prog new_text_file reference_text_file\n"
+	parser = optparse.OptionParser(usage=usageString, version="%prog ")
 
- 	(options, args) = parser.parse_args(argv)
- 
+	(options, args) = parser.parse_args(argv)
+
 	# args[0] = name program was called with
 	# args[1] = first actual argument, etc.
 

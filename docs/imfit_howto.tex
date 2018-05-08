@@ -226,14 +226,14 @@ this is necessary if you wish to use the Nelder-Mead minimization
 algorithm. \Imfit{} can be built without this, if for some reason
 you don't have access to the NLopt library.
 
-\item (Optional) Install the \textsc{gnu} Scientific Library
-(\textsc{gsl}) -- this is necessary if you want to use the MCMC program
-\imfitmcmc. It is also necessary if you wish to use certain image
-functions that rely on \textsc{gsl}.  Currently, the only such functions
-are the PointSource component, the EdgeOnDisk component and the sample
-3D line-of-sight integration functions (e.g., ExponentialDisk3D).
-\Imfit{} can be built without these components, if for some reason you
-don't have access to the \textsc{gsl}.
+\item (Optional, but strongly recommended) Install the \textsc{gnu}
+Scientific Library (\textsc{gsl}) -- this is necessary if you want to
+use the MCMC program \imfitmcmc. It is also necessary if you wish to use
+certain image functions that rely on \textsc{gsl}, such as the
+PointSource component, the EdgeOnDisk component, and the sample 3D
+line-of-sight integration functions (e.g., ExponentialDisk3D). \Imfit{}
+can be built without these components, if for some reason you don't have
+access to the \textsc{gsl}.
 
 \item Install SCons (if needed; see below).
 

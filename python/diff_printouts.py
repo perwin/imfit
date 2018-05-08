@@ -33,7 +33,7 @@ def main( argv=None ):
 	parser.add_option("--get-last", type="int", dest="getLast", default=0,
 				help="retrieve the last N lines of each file (before applying --skip options")
 
- 	(options, args) = parser.parse_args(argv)
+	(options, args) = parser.parse_args(argv)
  
 	# args[0] = name program was called with
 	# args[1] = first actual argument, etc.
