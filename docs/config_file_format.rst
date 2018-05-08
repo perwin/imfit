@@ -36,18 +36,27 @@ few of these as are needed (the exception being the NCOLS and NROWS
 entries for a makeimage configuration file -- both of those should be
 provided).
 
-The allowed entries for an imfit configuration file are: \* GAIN -- the
-A/D gain value (electrons/count) for the image \* READNOISE -- any
-Gaussian read noise (electrons) \* EXPTIME -- total integration time
-*if* pixel values are counts/sec \* NCOMBINED -- number of images
-combined *if* pixel values are mean or median \* ORIGINAL\_SKY -- any
-original constant sky-background value which was subtracted from the
-image
+The allowed entries for an imfit configuration file are:
 
-The allowed entries for a makeimage configuration file are: \* NCOLS --
-integer defining the width (number of columns) of the output image \*
-NROWS -- integer defining the height (number of rows) of the output
-image
+-  GAIN -- the A/D gain value (electrons/count) for the image
+
+-  READNOISE -- any Gaussian read noise (electrons)
+
+-  EXPTIME -- total integration time *if* pixel values are counts/sec
+
+-  NCOMBINED -- number of images combined *if* pixel values are mean or
+   median
+
+-  ORIGINAL\_SKY -- any original constant sky-background value which was
+   subtracted from the image
+
+The allowed entries for a makeimage configuration file are:
+
+-  NCOLS -- integer defining the width (number of columns) of the output
+   image
+
+-  NROWS -- integer defining the height (number of rows) of the output
+   image
 
 All of this information can *also* be provided via command-line options,
 which if present will override any corresponding values in the
