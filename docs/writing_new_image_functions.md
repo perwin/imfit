@@ -159,12 +159,13 @@ with this (which computes the "alpha" parameter of the Moffat function)
 
 D. Changes to the `CalculateIntensity` method:
 
+XXX
 
 ## Other Potential Issues
 
 If your new image function has an analytic expression for the total flux, then
 you might consider overriding the CanCalculateTotalFlux method to return `true`
-and override the `TotalFlux` method so that it calculates and returns the
+and then override the `TotalFlux` method so that it calculates and returns the
 total flux. (The default is to let `makeimage` estimate the total flux numerically,
 by generating a large image using the image function and summing all the pixel
 values.)

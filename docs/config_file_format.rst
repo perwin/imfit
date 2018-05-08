@@ -1,12 +1,16 @@
 Configuration File Format
 =========================
 
-Imfit and makeimage *always* require a configuration file, a text file
-which describes the model to be fit to the data (in the case of imfit)
-or to be generated (in the case of makeimage), plus some optional
-information about the image itself.
+Imfit, imfit-mcmc, and makeimage *always* require a configuration file,
+a text file which describes the model to be fit to or compared with the
+data (in the case of imfit or imfit-mcmc) or to be generated (in the
+case of makeimage), plus some optional information about the image
+itself.
 
 This page provides a basic description of the configuration file format.
+
+In what follows, I generally use "imfit" to refer to both imfit *and*
+imfit-mcmc, unless otherwise noted.
 
 Blank lines and Comments
 ------------------------
@@ -47,8 +51,8 @@ The allowed entries for an imfit configuration file are:
 -  NCOMBINED -- number of images combined *if* pixel values are mean or
    median
 
--  ORIGINAL\_SKY -- any original constant sky-background value which was
-   subtracted from the image
+-  ORIGINAL\_SKY -- any original constant value (e.g., sky background)
+   which has already been subtracted from the image
 
 The allowed entries for a makeimage configuration file are:
 
@@ -85,9 +89,12 @@ a set of image functions which share the same center.
     <parameter specifications ...>
 
 The optional limit specifications for X0 and Y0, which are only used by
-imfit, can have one of two forms: 1. The word "fixed", which indicates
-that the parameter should be held fixed 2. A comma-separated pair of
-numbers specifying lower and upper limits
+imfit, can have one of two forms:
+
+1. The word "fixed", which indicates that the parameter should be held
+   fixed
+
+2. A comma-separated pair of numbers specifying lower and upper limits
 
 Image-Function Declarations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,9 +125,12 @@ A simple example:
     h     15
 
 The optional limit specification for the parameters are exactly like
-those for the X0 and Y0 values (see above): 1. The word "fixed", which
-indicates that the parameter should be held fixed 2. A comma-separated
-pair of numbers specifying lower and upper limits
+those for the X0 and Y0 values (see above):
+
+1. The word "fixed", which indicates that the parameter should be held
+   fixed
+
+2. A comma-separated pair of numbers specifying lower and upper limits
 
 Note that limit specifications are actually *required* by the
 Differential Evolution solver; they are optional for the other solvers
@@ -185,4 +195,39 @@ an image-description prelude.
 Example: Multiple function blocks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TBD.
+Multiple function blocks can be included in a configuration file; these
+indicate different sets of image functions which share a common center
+(i.e, X0,Y0 location on the image).
+
+A simple example, modifying the previous example by including a Sersic
+function representing a neighboring galaxy located approximately 100
+pixels away in the X direction and 50 pixels away in Y:
+
+::
+
+    GAIN          4.725
+    READNOISE     4.3
+    ORIGINAL_SKY  130.14
+
+    X0   129.0    125,135
+    Y0   129.0    125,135
+    FUNCTION Sersic
+    PA    18.0    0,90
+    ell    0.2    0,1
+    n      4      fixed
+    I_e    15     0,500
+    r_e    25     0,100
+    FUNCTION Exponential
+    PA    18.0    0,90
+    ell   0.5     0,0.8
+    I_0   100     1,500
+    h     50      5,500
+
+    X0   240.0    235,245
+    Y0   183.0    180,186
+    FUNCTION Sersic
+    PA    -40.0    -10,-60
+    ell    0.5    0,1
+    n      1      0.5,2.0
+    I_e    5     0,520
+    r_e    10     0,20

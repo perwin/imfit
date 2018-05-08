@@ -19,8 +19,9 @@
 To get started with Imfit, you need to download the pre-compiled binary
 distribution for your platform (Mac or Linux), or else download and
 compile the source code; links to both can be found on [the main imfit
-page](../index.html). Notes on how to compile the source code can be
-found in the Imfit [documentation](../../../resources/imfit/imfit_howto.pdf).
+page](http://www.mpe.mpg.de/~erwin/code/imfit/). Notes on how to compile
+the source code can be found in the Imfit
+[documentation](https://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf).
 
 In both the binary-only and source-code distributions, there is a subdirectory
 called "examples", which has some images we'll be using in this tutorial --
@@ -30,7 +31,7 @@ go ahead and work in the examples subdirectory, or copy the files there to
 another directory and work there.
 
 If you want to download just the examples directory and its files, you
-can find it [here](../../../resources/imfit/imfit_examples.tar.gz).
+can find it [here](https://www.mpe.mpg.de/~erwin/resources/imfit/imfit_examples.tar.gz).
 
 <br>
 
@@ -109,13 +110,16 @@ try to address in a bit.
 
 <a name="fig1"></a>
 
+<!-- RapidWeaver path
 <img src="../../../resources/images/fig1_for_tutorial.png" alt="SDSS image, exponential model, residual" style="width:700px;"/>
-
-<!-- local, non-RapidWeaver path
-<img src="fig1_for_tutorial.png" alt="SDSS image, exponential model, residual" style="width:750px;"/>
 -->
 
-<b>Figure 1:</b>  log-scaled isophotes for original SDSS image (left) 
+<!-- RapidWeaver path
+<img src="fig1_for_tutorial.png" alt="SDSS image, exponential model, residual" style="width:750px;"/>
+-->
+![](./fig1_for_tutorial.png "SDSS image, exponential model, residual")
+
+**Figure 1:**  log-scaled isophotes for original SDSS image (left) 
 and  best-fitting exponential model (middle), along with linear-scaled residual image 
 (data - model, right).
 
@@ -278,13 +282,17 @@ The result is a significantly better fit:
 
 
 <a name="fig2"></a>
+<!-- 
 <img src="../../../resources/images/fig2_for_tutorial.png" alt="SDSS image, S&eacute;rsic model, residual" style="width:700px;"/>
+ -->
 
 <!-- local, non-RapidWeaver path 
 <img src="fig2_for_tutorial.png" alt="SDSS image, S&eacute;rsic model, residual" style="width:750px;"/>
 -->
 
-<b>Figure 2:</b> log-scaled isophotes for original
+![](./fig2_for_tutorial.png "SDSS image, Sersic model, residual")
+
+**Figure 2:** log-scaled isophotes for original
 SDSS image (left) and best-fitting S&eacute;rsic model (middle), along with
 linear-scaled residual image (data - model, right). Note that the
 residuals are much improved over the residuals for the exponential model
@@ -337,7 +345,9 @@ SDSS image using a circular Moffat function:
 <img src="fig3_for_tutorial.png" alt="SDSS image, S&eacute;rsic model, residual" style="width:750px;"/>
 -->
 
-<b>Figure 3:</b> log-scaled isophotes for original
+![](./fig3_for_tutorial.png "SDSS image, Sersic model, residual")
+
+**Figure 3:** log-scaled isophotes for original
 SDSS image (left) and best-fitting, PSF-convolved S&eacute;rsic model (middle), along with
 linear-scaled residual image (data - model, right).
 
@@ -524,7 +534,7 @@ parameter values.
 There are many possible ways of analyzing the bootstrap-resampling
 output. One thing you can do, if the model is not *too* complicated, is
 make a scatterplot matrix (a.k.a. corner plot) of the parameters. The
-Python package [corner.py](https://orner.readthedocs.io/en/latest/) can be used for this;
+Python package [corner.py](https://corner.readthedocs.io/en/latest/) can be used for this;
 here's a quick-and-dirty example that also uses the `imfit.GetBootstrapOutput`
 function:
 
@@ -544,7 +554,9 @@ The result is shown below.
 
 <p>
 
-<b>Figure 4:</b> Scatterplot matrix of parameter values from 500 rounds of bootstrap resampling
+![](./fig4_for_tutorial.png "SDSS image, Sersic model, residual")
+
+**Figure 4:** Scatterplot matrix of parameter values from 500 rounds of bootstrap resampling
 fits to the IC 3478 *r*-band image (S&eacute;rsic model, no PSF convolution).
 Note the clear correlations between the S&eacute;rsic model parameters (n, r\_e,
 I\_e).
@@ -602,8 +614,9 @@ The result is shown below.
 -->
 
 <p>
+![](./fig5_for_tutorial.png "SDSS image, Sersic model, residual")
 
-<b>Figure 5:</b> Scatterplot matrix of parameter values from Markov
+**Figure 5:** Scatterplot matrix of parameter values from Markov
 chain Monte Carlo analysis of the IC 3478 *r*-band image (S&eacute;rsic
 model, no PSF convolution). Note the strong correlations between the
 S&eacute;rsic model parameters (n, r\_e, I\_e), and the weaker correlation

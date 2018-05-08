@@ -1,0 +1,17 @@
+WARNING: This is primarily intended for personal use by PE within my local
+copy of the repository; it is *not* a general guideline for building the
+docs.
+
+1. Update Markdown files; use BBEdit Markup->Preview to check on how it looks.
+
+2. Generate rST versions of the Markdown files by running convert_md_to_rst.sh
+script, then test the Sphinx HTML generatio by running Sphinx via the
+Makefile
+
+	$ ./convert_md_to_rst.sh && make html
+
+View the resulting docs in a web browser pointed at 
+	file:///Users/erwin/coding/imfit/docs/_build/html/index.html
+
+If things look good, commit the changes to the Mercurial repo and pushd
+to Github.

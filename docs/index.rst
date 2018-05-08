@@ -38,6 +38,7 @@ The main documentation for Imfit is in the PDF file
 
    imfit_tutorial
    config_file_format
+   fitting_images
    design-and-architecture
    writing_new_image_functions
 
