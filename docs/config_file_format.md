@@ -8,8 +8,8 @@ itself.
 
 This page provides a basic description of the configuration file format.
 
-In what follows, I generally use "imfit" to refer to both imfit *and* imfit-mcmc,
-unless otherwise noted.
+(In what follows, I generally use "imfit" to refer to both imfit *and* imfit-mcmc,
+unless otherwise noted.)
 
 
 ### Blank lines and Comments
@@ -48,6 +48,7 @@ The allowed entries for an imfit configuration file are:
 * ORIGINAL_SKY -- any original constant value (e.g., sky background) which has
 already been subtracted from the image
 
+
 The allowed entries for a makeimage configuration file are:
 
 * NCOLS -- integer defining the width (number of columns) of the output image
@@ -60,7 +61,7 @@ will override any corresponding values in the configuration file.
 
 ## Main Section: Defining the Model
 
-The main (and only required) section of the configuration file is the part which
+The main (and required) section of the configuration file is the part which
 describes the actual model to be fit (or generated and saved in the case of makeimage).
 This consists of one or more **function blocks**.
 
@@ -78,15 +79,20 @@ share the same center.
 The optional limit specifications for X0 and Y0, which are only used by
 imfit, can have one of two forms:
 
-1. The word "fixed", which indicates that the parameter should be held fixed
+1. The word "fixed", which indicates that the parameter should be held fixed.
+E.g.
 
-2. A comma-separated pair of numbers specifying lower and upper limits
+        X0  101.5   fixed
+
+2. A comma-separated pair of numbers specifying lower and upper limits, e.g.
+
+        X0  101.5    98.0,103.5
 
 
 ### Image-Function Declarations
 
 An **image-function declaration** consists of the word "FUNCTION" followed by the
-name of an image function. (Recall that you can use `--list-functions` to
+name of one of Imfit's image functions. (Recall that you can use `--list-functions` to
 get a list of the available image functions and `--list-parameters` to get that
 list along with the parameter list for each function.) This is followed by the
 list of parameter values; these are the values for generating a model image with
@@ -113,20 +119,22 @@ X0 and Y0 values (see above):
 
 2. A comma-separated pair of numbers specifying lower and upper limits
 
-Note that limit specifications are actually *required* by the Differential Evolution
-solver; they are optional for the other solvers (including the default Levenberg-Marquardt solver).
-Limit specifications are *ignored* by makeimage.
+Note that parameter-limit specifications are actually *required* by imfit-mcmc.
+They are also required when using imfit's Differential Evolution solver;
+they are optional for the other solvers (including the default
+Levenberg-Marquardt solver). Limit specifications are *ignored* by
+makeimage.
 
 
 ## Examples
 
 ### Example: Single-function image
 
-This is based on configuration file in the `examples/` subdirectory. If
-used with imfit, it fits a single Sersic function to a 256 by 256-pixel
+This is based on configuration file in the `examples/` subdirectory, where
+it is meant to be used to fit a single Sersic function to a 256 by 256-pixel
 cutout of an SDSS image. If used with makeimage, it generates a 2D Sersic-function
 image using the specified parameters. This example does *not* contain gain or read-noise
-specifications (for use with imfit). Lower and upper limites are listed for all parameters
+specifications. Lower and upper limits are listed for all parameters
 for use with imfit.
 
     X0   129.0    125,135
@@ -168,12 +176,12 @@ an image-description prelude.
 ### Example: Multiple function blocks
 
 Multiple function blocks can be included in a configuration file; these indicate
-different sets of image functions which share a common center (i.e, X0,Y0 location
+different sets of image functions which share common centers (i.e, x0,y0 locations
 on the image).
 
 A simple example, modifying the previous example by including a Sersic function
-representing a neighboring galaxy located approximately 100 pixels away in the
-X direction and 50 pixels away in Y:
+representing a neighboring galaxy located approximately 110 pixels away in the
+X direction and 45 pixels away in Y:
 
     GAIN          4.725
     READNOISE     4.3

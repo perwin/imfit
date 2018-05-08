@@ -31,16 +31,19 @@ are defined as virtual methods in the base class:
 -  The class constructor -- in most cases, the code for this can be
    copied from any of the existing FunctionObject subclasses, unless
    some special extra initialization is needed.
+
 -  ``Setup()`` -- this is used by the calling program to supply the
    current set of function parameters (including the (*x*\ 0,\ *y*\ 0)
    pixel values for the center) prior to determining intensity values
    for individual pixels. This is a convenient place to do any general
    calculations which don't depend on the exact pixel (*x*,\ *y*)
    values.
+
 -  ``GetValue()`` -- this is used by the calling program to obtain the
    surface brightness for a given pixel location (*x*,\ *y*). In
    existing FunctionObject subclasses, this method often calls other
    (private) methods to handle details of the calculation.
+
 -  ``GetClassShortName()`` -- this is a class function which returns the
    short version of the class name as a string.
 
@@ -147,10 +150,10 @@ from ``Gaussian`` to ``NewMoffat`` (e.g., ``Gaussian::Setup`` becomes
 ``NewMoffat::Setup``).
 
 C. Change the ``Setup`` method. Here, you'll need to change how the
-input parameter vector is converted into individual parameters, and do
+input parameter array is converted into individual parameters, and do
 any useful pre-computations (i.e., computations that depend on the
 parameter values, but not on individual pixel values or values derived
-from the pixel values, like radius).
+from the latter, like radius).
 
 Change
 
@@ -186,7 +189,56 @@ with this (which computes the "alpha" parameter of the Moffat function)
 
 D. Changes to the ``CalculateIntensity`` method:
 
-XXX
+Although it is the public method GetValue which is called by other parts
+of the program, we don't actually need to change the current version of
+that method in this example. The code in the original Gaussian version
+of GetValue converts pixel positions to a scaled radius value, given
+input values for the center, ellipticity, and position angle, and then
+calls the private method CalculateIntensity to determine the intensity
+as a function of the radius. Since we're still assuming a perfectly
+elliptical shape, we can keep the existing code. (GetValue also includes
+possible pixel subsampling, which is useful for cases where intensity
+changes rapidly one scales of a single pixel; we'll apply a simple
+modification for the Moffat function later on.)
+
+So in this case we actually implement the details of the new function's
+algorithm in CalculateIntensity. Replace the original version of that
+method with the following:
+
+::
+
+    double NewMoffat::CalculateIntensity( double r )
+    {
+      double  scaledR, denominator;
+
+      scaledR = r / alpha;
+      denominator = pow((1.0 + scaledR*scaledR), beta);
+      return (I_0 / denominator);
+    }
+
+E. Changes to the ``CalculateSubsamples`` method:
+
+Although pixel subsampling is performed in the GetValues method, the
+determination of whether or not to actually \*do\*\* the subsampling --
+and how much of it to do -- is determined in CalcualteSubsamples.
+
+For the Gaussian function, subsampling can be useful happen when *r* < 1
+*and* sigma < 1. The equivalent for the Moffat function would be *r* < 1
+and alpha < 1, so change the line in CalculateSubsamples that says
+
+::
+
+    if ((sigma <= 1.0) && (r <= 1.0))
+
+to say
+
+::
+
+    if ((alpha <= 1.0) && (r <= 1.0))
+
+At this point, most of the work is done. We only need to update the code
+in add\_functions.cpp so it knows about the new function and update the
+SConstruct file so that the new function is included in the compilation.
 
 Other Potential Issues
 ----------------------
