@@ -97,6 +97,15 @@ bool PointSource::IsPointSource( )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetInterpolationType ---------------- */
+
+string PointSource::GetInterpolationType( )
+{
+  return interpolationType;
+}
+
+
+// FIXME: remove this method?
 /* ---------------- PUBLIC METHOD: AddPsfData -------------------------- */
 
 void PointSource::AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf )
@@ -106,7 +115,6 @@ void PointSource::AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf
 }
 
 
-// FIXME: remove this method?
 /* ---------------- PUBLIC METHOD: AddPsfInterpolator ------------------ */
 
 void PointSource::AddPsfInterpolator( PsfInterpolator *theInterpolator )
@@ -148,10 +156,10 @@ int PointSource::SetExtraParams( map<string,string>& inputMap )
   map<string,string>::iterator iter;
   for( iter = inputMap.begin(); iter != inputMap.end(); iter++) {
     if (iter->first == "method") {
-      interpolatorType = iter->second;
+      interpolationType = iter->second;
       // FIXME: do additional checks & setup here
       printf("   PointSource::SetExtraParams -- setting method = %s\n", 
-       		interpolatorType.c_str());
+       		interpolationType.c_str());
       extraParamsSet = true;
       return 1;
     }

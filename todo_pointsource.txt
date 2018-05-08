@@ -104,6 +104,47 @@ Alternate interpolation
 		[X] Write Python code to implement 2D Lanczos interpolation
 			[X] Investigate issue of normalization of Lanczos kernel
 			
+	PROBLEM: Currently, the bicubic interpolation is hard-coded into
+	model_object.cpp and oversampled_region.cpp, which instantiate
+	PsfInterpolator_bicubic objects and then pass these to the FunctionObject
+	instances when the latter are PointSource objects.
+		ModelObject::SetupPsfInterpolation
+		OversampledRegion::AddPSFVector
+	(this saves a tiny amount of memory in that we don't need multiple
+	copies of the PsfInterpolator objects)
+	
+	In ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
+  // handle optional case of PointSource function
+  if (newFunctionObj_ptr->IsPointSource()) {
+    if (! psfInterpolator_allocated) {
+      // START NEW
+      string interpolationType = newFunctionObj_ptr->InterpolationType()
+      result = SetupPsfInterpolation(interpolationType);
+      // END NEW
+      if (result < 0)
+      	return -1;
+    }
+    newFunctionObj_ptr->AddPsfInterpolator(psfInterpolator);
+    pointSourcesPresent = true;
+  }
+  
+  [ ] Modify ModelObject::SetupPsfInterpolation to take string input
+  specifying interpolation type (default = "bicubic-spline")
+  	[ ] Check if input is valid (length > 0, has one of allowed values);
+  	return error if not
+  
+  [X] Add InterpolationType method to FunctionObject
+  	[X] Add stub method (returns "") to FunctionObject
+  	[X] Add overridden method to PointSource
+  
+  [ ] Add in Lanczsos2 interpolator
+  	[ ] Write PsfInterpolator subclass to do Lanczos2 interpolation
+  	[ ] Write unit tests for PsfInterpolator classes
+
+
+	POSSIBLE SOLUTION: Give PointSource a method that tells caller what type
+	of interpolation has been requested? Then caller (e.g. ModelObject) knows
+	what class of PsfInterpolator to instantiate and pass to PointSource
 			
 
 

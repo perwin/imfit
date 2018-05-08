@@ -17,8 +17,8 @@
 #include <string>
 
 #include "definitions.h"
-#include "function_objects/function_object.h"
-#include "function_objects/psf_interpolators.h"
+#include "function_object.h"
+#include "psf_interpolators.h"
 #include "convolver.h"
 #include "oversampled_region.h"
 #include "psf_oversampling_info.h"
@@ -51,7 +51,7 @@ class ModelObject
     virtual int AddFunction( FunctionObject *newFunctionObj_ptr );
     
     // 2D only
-    int SetupPsfInterpolation( );
+    int SetupPsfInterpolation( int interpolationType=kInterpolator_bicubic );
 
     // common, but Specialized by ModelObject1D
     virtual void DefineFunctionBlocks( vector<int>& functionStartIndices );

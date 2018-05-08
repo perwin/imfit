@@ -38,6 +38,7 @@ class FunctionObject
     virtual bool IsPointSource( ) { return(false); };
     virtual void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf ) { ; };
     virtual void AddPsfInterpolator( PsfInterpolator *theInterpolator ) { ; };
+    virtual string GetInterpolationType( ) { return string(""); };
 
     // probably no need to modify this:
     virtual void SetSubsampling( bool subsampleFlag );

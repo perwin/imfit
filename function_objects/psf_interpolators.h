@@ -10,6 +10,15 @@
 #define kInterpolator_lanczos3 3
 
 
+// Auxiliary functions (public so we can test them)
+double Lanczos( double x, int n );
+
+int FindIndex( double xArray[], double xVal );
+
+
+
+// Classes
+
 class PsfInterpolator
 {
   public:
@@ -23,11 +32,11 @@ class PsfInterpolator
   
   int GetInterpolatorType( ) { return interpolatorType; };
   
+  // pure virtual function (making this an abstract base class)
   virtual double GetValue( double x, double y ) = 0;
 
   protected:
-    // class constant
-    const static int  interpolatorType = kInterpolator_Base;
+    int  interpolatorType = kInterpolator_Base;
     // data members proper
     int  nColumns, nRows;
     long  nPixelsTot;
@@ -45,10 +54,6 @@ class PsfInterpolator_bicubic : public PsfInterpolator
   
   double GetValue( double x, double y );
 
-  protected:
-    // class constant
-    const static int  interpolatorType = kInterpolator_bicubic;
-    
   private:
     // new data members
     gsl_spline2d *splineInterp;
@@ -56,6 +61,24 @@ class PsfInterpolator_bicubic : public PsfInterpolator
     gsl_interp_accel *yacc;
     double *xArray;
     double *yArray;
+};
+
+
+// Derived class using Lanczos2 kernel
+class PsfInterpolator_lanczos2 : public PsfInterpolator
+{
+  public:
+  PsfInterpolator_lanczos2( double *inputImage, int nCols_image, int nRows_image );
+  
+  ~PsfInterpolator_lanczos2( );
+  
+  double GetValue( double x, double y );
+
+  private:
+    // new data members
+    double *xArray;
+    double *yArray;
+    double *psfDataArray;
 };
 
 #endif   // _PSF_INTERPOLATORS_H_

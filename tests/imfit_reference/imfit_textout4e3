@@ -25,13 +25,13 @@ Estimated memory use: 14275339 bytes (13.6 MB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 19349.480631
-	mpfit iteration 2: fit statistic = 14100.700154
-	mpfit iteration 3: fit statistic = 11225.390293
-	mpfit iteration 4: fit statistic = 7809.597849
-	mpfit iteration 5: fit statistic = 5256.016740
-	mpfit iteration 6: fit statistic = 2806.755625
-	mpfit iteration 7: fit statistic = 2494.671440
+	mpfit iteration 1: fit statistic = 19349.479586
+	mpfit iteration 2: fit statistic = 14100.700133
+	mpfit iteration 3: fit statistic = 11225.390212
+	mpfit iteration 4: fit statistic = 7809.597853
+	mpfit iteration 5: fit statistic = 5256.016522
+	mpfit iteration 6: fit statistic = 2806.755544
+	mpfit iteration 7: fit statistic = 2494.671443
 	mpfit iteration 8: fit statistic = 2491.977778
 	mpfit iteration 9: fit statistic = 2491.977492
 	mpfit iteration 10: fit statistic = 2491.977492
@@ -68,6 +68,6 @@ I_sky		    100 # +/- 0
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 2.401899 sec for fit, 2.499505 sec total)
+(Elapsed time: 1.296514 sec for fit, 1.379201 sec total)
 Done!
 

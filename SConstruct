@@ -5,6 +5,9 @@
 # where <target-name> is, e.g., "imft", "makeimage", etc.
 # "scons" by itself will build *all* targets
 # 
+# To run unit tests (if you have the full Github-based distribution)
+#    $ scons unit
+#
 # To clean up files associated with a given target:
 #    $ scons -c <target-name>
 # To clean up all targets (including programs):
@@ -33,12 +36,12 @@
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
-# To build export version ("fat" binaries, all libraries statically linked):
-#    $ scons --fat --static <target-name>
+# To build export version (all libraries statically linked):
+#    $ scons --static <target-name>
 #
 
 # *** EXPORT CONFIGURATIONS ***
-# macOS static binaries
+# macOS static binaries (including static linking of libgcc and libstdc++)
 # $ scons --allstatic --mac-distribution
 
 # OLD: MacOS X fat binaries
@@ -51,7 +54,7 @@
 # etc.
 
 
-# Copyright 2010--2017 by Peter Erwin.
+# Copyright 2010--2018 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -86,6 +89,8 @@ import os, subprocess, platform, getpass, pwd
 # We assume that FFTW library is static-only (since that's the default installation).
 
 STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/libcfitsio.a")
+STATIC_FFTW_LIBRARY_FILE = File("/usr/local/lib/libfftw3.a")
+STATIC_FFTW_THREADED_LIBRARY_FILE = File("/usr/local/lib/libfftw3_threads.a")
 
 # The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
@@ -100,6 +105,7 @@ STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit
 STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 
+# locations of source-code files (including header files)
 CORE_SUBDIR = "core/"
 FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
@@ -129,8 +135,6 @@ os_type = os.uname()[0]
 #    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
 #    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2106 onward)
 
-# cflags_opt = ["-O3", "-g0", "-msse2"]
-# cflags_db = ["-Wall", "-g3"]
 cflags_opt = ["-O3", "-g0", "-msse2", "-std=c++11"]
 cflags_db = ["-Wall", "-g3", "-O0", "-std=c++11", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith"]
 
@@ -144,7 +148,6 @@ lib_list_1d = ["fftw3", "m"]
 
 include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, CDREAM_SUBDIR,
 				CDREAM_INCLUDE_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
-#lib_path = ["/Users/erwin/coding/imfit/local_libs/fftw_nosse","/usr/local/lib"]
 lib_path = ["/usr/local/lib"]
 link_flags = []
 
@@ -231,7 +234,7 @@ AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true",
 	default=False, help="compile additional FunctionObject classes for testing")
 AddOption("--extra-checks", dest="doExtraChecks", action="store_true", 
 	default=False, help="turn on additional error-checking and warning flags during compilation")
-# options for non-default compilers
+# options to specify use of non-default compilers, extra checks, loggin
 AddOption("--cc", dest="cc_compiler", type="string", action="store", default=None,
 	help="C compiler to use instead of system default")
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
@@ -256,10 +259,10 @@ AddOption("--mac-distribution", dest="compileForMacDistribution", action="store_
 	default=False, help="use this to make macOS binaries for public distribution")
 # AddOption("--fat", dest="makeFatBinaries", action="store_true", 
 # 	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
-AddOption("--32bit", dest="make32bit", action="store_true", 
-	default=False, help="generate a 32-bit binary for Mac OS X")
-AddOption("--old-mac", dest="buildForOldMac", action="store_true", 
-	default=False, help="compile for Mac OS 10.6 and 10.7")
+# AddOption("--32bit", dest="make32bit", action="store_true", 
+# 	default=False, help="generate a 32-bit binary for Mac OS X")
+# AddOption("--old-mac", dest="buildForOldMac", action="store_true", 
+# 	default=False, help="compile for Mac OS 10.6 and 10.7")
 
 
 # * Check to see if user actually specified something, and implement it
@@ -324,10 +327,10 @@ if GetOption("useTotalStaticLinking") is True:
 	totalStaticLinking = True
 # if GetOption("makeFatBinaries") is True:
 # 	buildFatBinary = True
-if GetOption("make32bit") is True:
-	build32bit = True
-if GetOption("buildForOldMac") is True:
-	buildForOldMacOS = True
+# if GetOption("make32bit") is True:
+# 	build32bit = True
+# if GetOption("buildForOldMac") is True:
+# 	buildForOldMacOS = True
 
 if GetOption("compileForMacDistribution") is True:
 	print("DOING MAC DISTRIBUTION COMPILE!")
@@ -339,7 +342,7 @@ if GetOption("compileForMacDistribution") is True:
 
 
 # OK, let's check to see if we're trying to compile with OpenMP *and* using Apple's
-# fake GCC, which won't work
+# fake GCC -- this won't work, so we need to print a warning and exit
 if useOpenMP and (os_type == "Darwin") and (CPP_COMPILER in ["g++", "clang++"]):
 	result_str = str(subprocess.check_output("g++ --version", shell=True))
 	if result_str.find("Apple LLVM") >= 0:
@@ -353,15 +356,20 @@ if setOptToDebug:
 	print("** Turning off optimizations!")
 	cflags_opt = cflags_db
 
-if useStaticLibs and (os_type == "Linux"):
+if useStaticLibs:
 	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
+	lib_list.append(STATIC_FFTW_LIBRARY_FILE)
 else:
 	# append to standard library list, which means linker will look for
 	# library in standard or specified locations (and will link with dynamic
 	# version in preference to static version, if dynamic version exists)
 	lib_list.append("cfitsio")
+	# we assume that FFTW only exists in static form, so we don't worry
+	# about appending them
 
-if useFFTWThreading:   # default is to do this
+if useFFTWThreading:   # true by default
+	if useStaticLibs:
+		lib_list.insert(0, STATIC_FFTW_THREADED_LIBRARY_FILE)
 	lib_list.insert(0, "fftw3_threads")
 	lib_list_1d.insert(0, "fftw3_threads")
 	if (os_type == "Linux"):
@@ -369,7 +377,7 @@ if useFFTWThreading:   # default is to do this
 		lib_list_1d.append("pthread")
 	extra_defines.append("FFTW_THREADING")
 
-if useGSL:   # default is to do this
+if useGSL:   # true by default
 	if useStaticLibs and (os_type == "Linux"):
 		lib_list.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
 		lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
@@ -453,23 +461,23 @@ if allSanitize is True:
 # *** Special distribution-building options
 # This particular approach is deprecated, bcs it's easier to use GCC 5 and lipo rather 
 # than rely on existence of pre-existing llvm-gcc-4.2 installation
-if buildFatBinary and (os_type == "Darwin"):
-	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
-	# passes "-arch xxx" wrapped in quotation marks, which gcc/g++ chokes on.
-	cflags_opt += ["-arch", "i686", "-arch", "x86_64"]
-	cflags_db += ["-arch", "i686", "-arch", "x86_64"]
-	link_flags += ["-arch", "i686", "-arch", "x86_64"]
+# if buildFatBinary and (os_type == "Darwin"):
+# 	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
+# 	# passes "-arch xxx" wrapped in quotation marks, which gcc/g++ chokes on.
+# 	cflags_opt += ["-arch", "i686", "-arch", "x86_64"]
+# 	cflags_db += ["-arch", "i686", "-arch", "x86_64"]
+# 	link_flags += ["-arch", "i686", "-arch", "x86_64"]
 
 # Preferred approach for fat binaries: build normal 64-bit version, then build
 # 32-bit version (and then use lipo to merge them)
-if build32bit and (os_type == "Darwin"):
-	cflags_opt += ["-m32", "-ansi"]
-	link_flags += ["-m32", "-ansi"]
+# if build32bit and (os_type == "Darwin"):
+# 	cflags_opt += ["-m32", "-ansi"]
+# 	link_flags += ["-m32", "-ansi"]
 
-if buildForOldMacOS and (os_type == "Darwin"):
-	cflags_opt += ["-mmacosx-version-min=10.6"]
-	cflags_db += ["-mmacosx-version-min=10.6"]
-	link_flags += ["-mmacosx-version-min=10.6"]
+# if buildForOldMacOS and (os_type == "Darwin"):
+# 	cflags_opt += ["-mmacosx-version-min=10.6"]
+# 	cflags_db += ["-mmacosx-version-min=10.6"]
+# 	link_flags += ["-mmacosx-version-min=10.6"]
 
 
 # * Collect together all the updated preprocessor definitions
@@ -572,6 +580,10 @@ if useExtraFuncs:
 		functionobject_obj_string += " func_triaxbar3d_sq"
 		functionobject_obj_string += " func_triaxbar3d_gengauss_sq"
 		functionobject_obj_string += " func_exp-higher-mom"
+# ADD CODE FOR NEW FUNCTIONS HERE
+# (NOTE: be sure to include one or more spaces before the file name!)
+# e.g.,
+# functionobject_obj_string += " func_mynewfunction"
 
 functionobject_objs = [ FUNCTION_SUBDIR + name for name in functionobject_obj_string.split() ]
 functionobject_sources = [name + ".cpp" for name in functionobject_objs]
@@ -597,15 +609,18 @@ base_obj_string = """mp_enorm statistics mersenne_twister commandline_parser uti
 image_io getimages config_file_parser add_functions"""
 base_objs = [ CORE_SUBDIR + name for name in base_obj_string.split() ]
 
+# Main set of files for imfit
 imfit_obj_string = """print_results bootstrap_errors estimate_memory 
 imfit_main"""
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
 imfit_base_objs = base_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
+# Main set of files for makeimage
 makeimage_base_objs = base_objs + [CORE_SUBDIR + "makeimage_main"]
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
+# Main set of files for imfit-mcmc
 mcmc_obj_string = """estimate_memory mcmc_main"""
 mcmc_base_objs = [ CORE_SUBDIR + name for name in mcmc_obj_string.split() ]
 mcmc_base_objs = mcmc_base_objs + base_objs + cdream_objs

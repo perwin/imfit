@@ -55,13 +55,17 @@
 #include <math.h>
 #include <iostream>
 #include <tuple>
+
+using namespace std;
+
 #include "mersenne_twister.h"
 
 #include "definitions.h"
-#include "function_objects/function_object.h"
+#include "function_object.h"
 #include "model_object.h"
 #include "oversampled_region.h"
 #include "psf_oversampling_info.h"
+#include "psf_interpolators.h"
 #include "mp_enorm.h"
 #include "param_struct.h"
 #include "utilities_pub.h"
@@ -96,8 +100,15 @@ const int  DOUBLE_SIZE = 8;
 // Core i7 in MacBook Pro, under Mac OS X 10.6 and 10.7)
 #define DEFAULT_OPENMP_CHUNK_SIZE  10
 
+// for use in ModelObject::AddFunction()
+map<string, int> interpolationMap{ {string("bicubic"), kInterpolator_bicubic}, 
+									{string("lanczos2"), kInterpolator_lanczos2}, 
+									{string("lanczos3"), kInterpolator_lanczos3} };
+
 
 void NormalizePSF( double *psfPixels, long nPixels_psf );
+
+
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -270,7 +281,9 @@ int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
   // handle optional case of PointSource function
   if (newFunctionObj_ptr->IsPointSource()) {
     if (! psfInterpolator_allocated) {
-      result = SetupPsfInterpolation();
+      string interpName = newFunctionObj_ptr->GetInterpolationType();
+      int interpType = interpolationMap[interpName];
+      result = SetupPsfInterpolation(interpType);
       if (result < 0)
       	return -1;
     }
@@ -283,7 +296,7 @@ int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
 
 
 /* ---------------- PUBLIC METHOD: SetupPsfInterpolation -------------- */
-int ModelObject::SetupPsfInterpolation( )
+int ModelObject::SetupPsfInterpolation( int interpolationType )
 {
   // instantiate PsfInterpolator object for possible use by PointSource image functions
   // default case of GSL bicubic interpolation
@@ -292,14 +305,25 @@ int ModelObject::SetupPsfInterpolation( )
     fprintf(stderr, "PSF image was supplied!\n");
     return -1;
   }
-  if ((nPSFColumns >= 4) && (nPSFRows >= 4)) {
-    psfInterpolator = new PsfInterpolator_bicubic(localPsfPixels, nPSFColumns, nPSFRows);
-    psfInterpolator_allocated = true;
-  }
-  else {
-    fprintf(stderr, "** ERROR: PSF image is too small for interpolation with PointSource functions!\n");
-    fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
-    return -2;
+  
+  switch (interpolationType) {
+    case kInterpolator_bicubic:
+      if ((nPSFColumns >= 4) && (nPSFRows >= 4)) {
+        psfInterpolator = new PsfInterpolator_bicubic(localPsfPixels, nPSFColumns, nPSFRows);
+        psfInterpolator_allocated = true;
+      }
+      else {
+        fprintf(stderr, "** ERROR: PSF image is too small for interpolation with PointSource functions!\n");
+        fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
+        return -2;
+      }
+      break;
+    case kInterpolator_lanczos2:
+      printf("ERROR: Lanczos2 interpolation not yet implemented!\n");
+      return -2;
+    case kInterpolator_lanczos3:
+      printf("ERROR: Lanczos3 interpolation not yet implemented!\n");
+      return -2;
   }
   
   return 0;
@@ -1145,7 +1169,11 @@ void ModelObject::CreateModelImage( double params[] )
   // 2.B Add flux from PointSource functions, if present 
   // (must be done *after* PSF convolution!)
   if (pointSourcesPresent) {
-    // Re-assign psfInterpolator object
+    // Re-assign psfInterpolator object (bcs. calls made to
+    // OversampledRegion::ComputeRegionAndDownsample result
+    // in PointSource objects getting assigned alternate psfInterpolators),
+    // so we have to reset PointSource objects to use the standard-resolution
+    // psfInterpolator object held by ModelObject
     for (n = 0; n < nFunctions; n++)
       if (functionObjects[n]->IsPointSource())
         functionObjects[n]->AddPsfInterpolator(psfInterpolator);
@@ -1219,11 +1247,9 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
     exit(-1);
   }
 
-  // Separate out the individual-component parameters and tell the
-  // associated function objects to do setup work.
-  // The first component's parameters start at params[0]; the second's
-  // start at params[paramSizes[0]], the third at 
-  // params[paramSizes[0] + paramSizes[1]], and so forth...
+  // Separate out individual-component parameters and tell associated function objects 
+  // to do setup. The first component's parameters start at params[0]; the second's 
+  // at params[paramSizes[0]], the third at params[paramSizes[0] + paramSizes[1]], etc.
   for (int np = 0; np < nFunctions; np++) {
     if (fblockStartFlags[np] == true) {
       // start of new function block: extract x0,y0 and then skip over them
@@ -1237,6 +1263,7 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   
   
   // If requested function is PointSource, re-assign the PsfInterpolator object
+  // (see comments in CreateModelImage for why we need to do this)
   if (functionObjects[functionIndex]->IsPointSource())
     functionObjects[functionIndex]->AddPsfInterpolator(psfInterpolator);
 
@@ -1282,7 +1309,7 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
       outputModelVectorAllocated = true;
     }
     // Step through model image so that we correctly match its pixels with corresponding
-    // pixels output image
+    // pixels in output image
     for (z = 0; z < nDataVals; z++) {
       iDataRow = z / nDataColumns;
       iDataCol = z - (long)iDataRow * (long)nDataColumns;

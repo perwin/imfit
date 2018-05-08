@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2010--2017 by Peter Erwin.
+// Copyright 2010--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -61,6 +61,10 @@
 #include "func_ferrersbar3d.h"
 #include "func_pointsource.h"
 #endif
+
+// ADD INCLUDE FILE FOR NEW FUNCTIONS HERE
+// e.g.
+//#include "func_mynewfunction.h"
 
 // extra functions
 #ifdef USE_EXTRA_FUNCS
@@ -201,6 +205,11 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   PointSource::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<PointSource>();
 #endif
+
+// ADD CODE FOR NEW FUNCTIONS HERE
+// e.g.
+// MyNewFunction::GetClassShortName(classFuncName);
+// input_factory_map[classFuncName] = new funcobj_factory<MyNewFunction>();
 
 // extra functions
 #ifdef USE_EXTRA_FUNCS
