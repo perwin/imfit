@@ -15,7 +15,7 @@ documentation, via the "breathe" extension for Sphinx. This is done via a
 few lines in index.rst and the explicit use of breathe-defined "directives"
 in the .rst files in the api_ref/ directory.
 
-See https://breathe.readthedocs.io/en/latest/class.html#class-example
+See for example https://breathe.readthedocs.io/en/latest/class.html#class-example
 for the various breathe-defined directives.
 
 

@@ -11,7 +11,7 @@ To run the tests, you will need to install the
 [CxxTest](http://cxxtest.com) unit-test framework. You should also
 modify the shell script `define_unittest_vars.sh` (in the top-level
 directory), which specifies the paths for CxxTest and also which
-compilers are used. (Unlike the case for compiling imfit and makeimage,
+compilers are used. (Unlike the case for compiling imfit, imfit-mcmc, or makeimage,
 the unit tests can be compiled with LLVM/clang as well as with GCC, since
 they don't use OpenMP.)
 

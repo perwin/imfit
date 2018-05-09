@@ -21,14 +21,28 @@ Computer Modern as your typeface....)
 imfit_howto.tex which probably won't work if for some reason you *aren't* using
 pdflatex.)
 
+
+## Files for Sphinx Documentation on Readthedocs.org
+
+Most of the files in this directory (and in the api_ref/ subdirectory)
+are meant to be processed with Sphinx (via the ``make html`` command) to
+generate pretty HTML documentation (mainly intended to be done on
+readthedocs.org, to produce [the main online docs](https://imfit.readthedocs.io).)
+
+Most of the .rst files are generated from the corresponding Markdown files
+via the shell script `convert_md_to_rst.sh`.
+
+
 ## Doxygen Files for API Documentation
 
-Most of the files in this directory are for generating API documentation with Doxygen.
+Other files in this directory are for generating API documentation with Doxygen.
 In order to actually generate the files, the doxygen command should be run from the
 *parent* directory thus:
 
 `$ doxygen docs/Doxyfile`
 
+
 ## Other Files
-imfit_tutorial.md is a Markdown file used for generating the online [Tutorial webpage](http://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html);
-currently, the figures for that page are not in the repository.
+
+imfit_tutorial.md is a Markdown file used for generating the 
+online [Tutorial webpage](https://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html).

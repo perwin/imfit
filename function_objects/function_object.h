@@ -30,14 +30,22 @@ class FunctionObject
 
     // override in derived classes only if said class *does* have user-settable
     // extra parameters
+    /// Boolean function: returns true if function can accept optional extra parameters
+    /// (default = false)
     virtual bool HasExtraParams( ) { return(false); }
+    /// Set optional extra parameters
     virtual int SetExtraParams( map<string, string>& )  { return -1; }
+    /// Boolean function: returns true if optional extra parameters have been set
     virtual bool ExtraParamsSet( ) { return(extraParamsSet); }
 
     // override in derived classes only if said class is PointSource or similar
+    /// Returns true if function models point sources (e.g., PointSource class)
     virtual bool IsPointSource( ) { return(false); };
+    /// Tell point-source function about PSF image data
     virtual void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf ) { ; };
+    /// Pass in pointer to PsfInterpolator object (for point-source classes only)
     virtual void AddPsfInterpolator( PsfInterpolator *theInterpolator ) { ; };
+    /// Returns string with name of interpolation type (point-source classes only)
     virtual string GetInterpolationType( ) { return string(""); };
 
     // probably no need to modify this:
@@ -60,8 +68,10 @@ class FunctionObject
     virtual double GetValue( double x );
 
     // override in derived classes only if said class *can* calcluate total flux
+    /// Returns true if class can calculate total flux internally
     virtual bool CanCalculateTotalFlux(  ) { return(false); }
     // override in derived classes only if said class *can* calcluate total flux
+    /// Returns total flux of image function, given most recent parameter values
     virtual double TotalFlux( ) { return -1.0; }
 
     // no need to modify this:
@@ -85,8 +95,8 @@ class FunctionObject
 
   private:
   
-  protected:  // same as private, except accessible to derived classes
-    int  nParams;
+  protected:
+    int  nParams;  ///< number of input parameters that image-function uses
     bool  doSubsampling;
     bool  extraParamsSet;
     vector<string>  parameterLabels;

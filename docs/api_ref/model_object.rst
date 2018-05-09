@@ -67,6 +67,8 @@ The main functionality of the class includes:
 API
 ---
 
+[**Warning**: This is currently somewhat incomplete!]
+
 **Files:** ``core/model_object.h``, ``core/model_object.cpp``
 
 

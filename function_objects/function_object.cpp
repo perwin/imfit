@@ -57,6 +57,7 @@ using namespace std;
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
+/// Basic constructor: sets functionName and shortFunctionName
 FunctionObject::FunctionObject( )
 {
   functionName = "Base (undefined) function";
