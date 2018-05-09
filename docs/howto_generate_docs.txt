@@ -19,6 +19,40 @@ See https://breathe.readthedocs.io/en/latest/class.html#class-example
 for the various breathe-defined directives.
 
 
+
+MAKING THIS WORK ON READTHEDOCS:
+
+We needed to do *two* things to get this to work on readthedocs.org:
+
+1. Edit the conf.py file (as suggested in the breathe docs) to include:
+
+A. Have doxygen run *if* we're building the docs on readthedocs (don't
+include the initial two spaces)
+
+  import subprocess, os
+
+  read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+  if read_the_docs_build:
+      subprocess.call('cd ../; doxygen docs/Doxyfile', shell=True)
+
+B. Add "breathe" to the the "extensions" list, and a couple of extra
+lines with breathe-specific setupL: (the "sphinx.ext.imgmath" is
+just some extra stuff to potentially make math coding work)
+
+  extensions = ["breathe", "sphinx.ext.imgmath"]
+  breathe_projects = {"Imfit": "./xml/" }
+  breathe_default_project = "Imfit"
+
+
+2. Add a minimalist "requirements.txt" file with the line
+
+breathe
+
+so that readthedocs knows we actually need the breathe library...
+
+
+
 GENERAL WORKFLOW OUTLINE:
 
 1. Update Markdown files; use BBEdit Markup->Preview to check on how it looks
