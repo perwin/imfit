@@ -1,5 +1,5 @@
-Getting Started with Imfit
-==========================
+Getting Started with Imfit: Tutorial
+====================================
 
 Contents:
 ---------

@@ -14,10 +14,12 @@ or functions.
 
 This document provides some guidelines on how to write new image
 functions (see also the "Rolling Your Own Image Functions" section of
-the Imfit manual, from which this document is excerpted). Even if you're
-not very familiar with C++, it should hopefully not be too difficult to
-write a new image function, since it can be done by copying and
-modifying one of the existing image functions.
+the `Imfit
+manual <https://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf>`__,
+from which this document is excerpted). Even if you're not very familiar
+with C++, it should hopefully not be too difficult to write a new image
+function, since it can be done by copying and modifying one of the
+existing image functions.
 
 A new image function is written in C++ as a subclass of the
 FunctionObject base class, which is declared and defined in the
@@ -35,9 +37,11 @@ are defined as virtual methods in the base class:
 -  ``Setup()`` -- this is used by the calling program to supply the
    current set of function parameters (including the (*x*\ 0,\ *y*\ 0)
    pixel values for the center) prior to determining intensity values
-   for individual pixels. This is a convenient place to do any general
-   calculations which don't depend on the exact pixel (*x*,\ *y*)
-   values.
+   for individual pixels. The parameter values in the input array should
+   be assigned to the appropriate data members of the class. This is
+   also a convenient place to do any general calculations which depend
+   on the parameter values but don't depend on the exact pixel
+   (*x*,\ *y*) values.
 
 -  ``GetValue()`` -- this is used by the calling program to obtain the
    surface brightness for a given pixel location (*x*,\ *y*). In
@@ -52,23 +56,25 @@ constants:
 
 -  ``N_PARAMS`` --- the number of input parameters (*excluding* the
    central pixel coordinates);
--  ``PARAM_LABELS`` --- a vector of string labels for the input
+-  ``PARAM_LABELS`` --- a vector of std::string labels for the input
    parameters;
--  ``FUNCTION_NAME`` --- a short string describing the function;
--  ``className`` --- a string (no spaces allowed) giving the official
-   name of the function.
+-  ``FUNCTION_NAME`` --- a short std::string describing the function;
+-  ``className`` --- a std::string (no spaces allowed) giving the
+   official name of the function.
 
 The ``add_functions.cpp`` file should then be updated by:
 
 -  including the header file for the new class;
 -  adding 2 lines to the ``PopulateFactoryMap()`` function to add the
-   ability to create an instance of the new class.
+   ability to create an instance of the new class. (Look for the comment
+   line "// ADD CODE FOR NEW FUNCTIONS HERE" in the file.)
 
 Finally, the name of the C++ implementation file for the new class
 should be added to the ``SConstruct`` file to ensure it gets included in
 the compilation; the easiest thing is to add the file's name (without
 the ``.cpp`` suffix) to the multi-line ``functionobject_obj_string``
-string definition.
+string definition. (Or look for the comment line "# ADD CODE FOR NEW
+FUNCTIONS HERE" in the ``SConstruct`` file.)
 
 Existing examples of FunctionObject subclasses can be found in the
 ``function_objects/`` subdirectory of the source-code distribution, and

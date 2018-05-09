@@ -128,7 +128,7 @@ makeimage.
 
 ## Examples
 
-### Example: Single-function image
+### Single-function image
 
 This is based on configuration file in the `examples/` subdirectory, where
 it is meant to be used to fit a single Sersic function to a 256 by 256-pixel
@@ -147,7 +147,7 @@ for use with imfit.
     r_e    25     0,100
 
 
-### Example: Single function block with two functions
+### Single function block with two functions
 
 This is a modification of the previous configuration file, using an Exponential function
 along with the Sersic function. In addition, the Sersic index *n* is held fixed with a
@@ -173,7 +173,7 @@ an image-description prelude.
     I_0   100     1,500
     h     50      5,500
 
-### Example: Multiple function blocks
+### Multiple function blocks
 
 Multiple function blocks can be included in a configuration file; these indicate
 different sets of image functions which share common centers (i.e, x0,y0 locations

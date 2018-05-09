@@ -6,10 +6,10 @@
 Imfit
 =================================
 
-`Imfit <https://www.mpe.mpg.de/~erwin/code/imfit/>`_ is an open-source C++ program for fitting astronomical images
-(primarily of galaxies) in FITS format. It is fast, flexible, and
-designed to be easily extended with new functions for model image
-components.
+`Imfit <https://www.mpe.mpg.de/~erwin/code/imfit/>`_ is an open-source
+C++ program for fitting astronomical images (primarily of galaxies) in
+FITS format. It is fast, flexible, and designed to be easily extended
+with new functions for model image components.
 
 
 **Examples of Use:**
