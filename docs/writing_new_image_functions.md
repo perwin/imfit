@@ -8,11 +8,11 @@ describe objects or substructures which are not well modeled by the existing fun
 This is done by writing additional C++ code and re-compiling the various Imfit programs
 (`imfit`, `imfit-mcmc`, `makeimage`) to include the new function or functions.
 
-This document provides some guidelines on how to write new image
+This page provides some guidelines on how to write new image
 functions (see also the "Rolling Your Own Image Functions" section of
 the [Imfit
 manual](https://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf),
-from which this document is excerpted). Even if you're not very familiar
+from which this page is excerpted). Even if you're not very familiar
 with C++, it should hopefully not be too difficult to write a new image
 function, since it can be done by copying and modifying one of the
 existing image functions.
@@ -31,11 +31,11 @@ existing FunctionObject subclasses, unless some special extra initialization is 
 
 - `Setup()` -- this is used by the calling program to supply the current
 set of function parameters (including the (*x*0,*y*0) pixel values for
-the center) prior to determining intensity values for individual pixels.
-The parameter values in the input array should be assigned to the
-appropriate data members of the class. This is also a convenient place
-to do any general calculations which depend on the parameter values but
-don't depend on the exact pixel (*x*,*y*) values.
+the center of the function block) prior to determining intensity values
+for individual pixels. The parameter values in the input array should be
+assigned to the appropriate data members of the class. This is also a
+convenient place to do any general calculations which depend on the
+parameter values but don't depend on the exact pixel (*x*,*y*) values.
 
 - `GetValue()` -- this is used by the calling program to obtain the surface
 brightness for a given pixel location (*x*,*y*). In existing FunctionObject subclasses,
@@ -49,12 +49,12 @@ The new class should also redefine the following internal class constants:
 
 -  `N_PARAMS` --- the number of input parameters (*excluding* the
 central pixel coordinates);
--  `PARAM_LABELS` --- a vector of std::string labels for the input parameters;
--  `FUNCTION_NAME` --- a short std::string describing the function;
--  `className` --- a std::string (no spaces allowed) giving the official name
+-  `PARAM_LABELS` --- a vector of string labels for the input parameters;
+-  `FUNCTION_NAME` --- a short string describing the function;
+-  `className` --- a string (no spaces allowed) giving the official name
 of the function.
 
-The `add_functions.cpp` file should then be updated by:
+The ``add_functions.cpp`` file should then be updated by:
 
 - including the header file for the new class;
 - adding 2 lines to the `PopulateFactoryMap()` function to add the ability to create an instance of
@@ -93,7 +93,7 @@ Three basic changes to the existing `func_gauss.h/cpp` files are needed:
 
 Assuming we're in the Imfit source code directory, `cd` to the `function_objects/`
 subdirectory, copy the header file `func_gaussian.h` to `func_new-moffat.h`, and
-end the file to change the following lines:
+edit the file to change the following lines:
 
     #define CLASS_SHORT_NAME "Gaussian"
     
@@ -120,7 +120,7 @@ A. Change the following lines in the beginning of the file:
 
     #include "func_gaussian.h"
     
-    const in N_PARAMS = 4;
+    const int N_PARAMS = 4;
     const char PARAM_LABELS[][20] = {"PA", "ell", "I_0", "sigma"};
     const char FUNCTION_NAME[] = "Gaussian function";
     
@@ -129,7 +129,7 @@ to
 
     #include "func_new-moffat.h"
     
-    const in N_PARAMS = 5;
+    const int N_PARAMS = 5;
     const char PARAM_LABELS[][20] = {"PA", "ell", "I_0", "fwhm", "beta"};
     const char FUNCTION_NAME[] = "Moffat function";
 
@@ -214,8 +214,8 @@ to say
 
 
 At this point, most of the work is done.  We only need to update the code
-in add\_functions.cpp so it knows about the new function and
-update the SConstruct file so that the new function is included in the
+in ``add_functions.cpp`` so it knows about the new function and
+update the ``SConstruct`` file so that the new function is included in the
 compilation.
 
 

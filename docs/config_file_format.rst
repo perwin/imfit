@@ -1,11 +1,16 @@
 Configuration File Format
 =========================
 
-Imfit, imfit-mcmc, and makeimage *always* require a configuration file,
-a text file which describes the model to be fit to or compared with the
-data (in the case of imfit or imfit-mcmc) or to be generated (in the
-case of makeimage), plus some optional information about the image
-itself.
+Imfit, imfit-mcmc, and makeimage *always* require a configuration file
+("config file" for short), a text file which describes the model to be
+fit to or compared with the data (in the case of imfit or imfit-mcmc) or
+to be generated (in the case of makeimage), plus some optional
+information about the image itself.
+
+Note that you can use the ``--sample-config`` command-line option with
+``imfit`` or ``makeimage`` to have an example of a config file saved to
+the current directory; this can then be edited to taste and used with
+the appropriate program.
 
 This page provides a basic description of the configuration file format.
 
@@ -240,3 +245,31 @@ pixels away in the X direction and 45 pixels away in Y:
     n      1      0.5,2.0
     I_e    5     0,520
     r_e    10     0,20
+
+Using Imfit Output Files with Makeimage
+---------------------------------------
+
+When ``imfit`` successfully fits a model to an image, it saves the
+best-fitting parameters to an output file (by default this file is
+called ``bestfit_parameters_imfit.dat``). This file has the same basic
+format as a config file, and can in fact be used as a config file by
+``makeimage`` (though it will be missing the ``NCOLS`` and ``NROWS``
+parameters, so you will have to add those to the file or else specify
+them with command-line options).
+
+An ``imfit`` best-fit output file can even be used as input to another
+invocation of ``imfit`` itself, though it will lack any prelude
+parameters describing the data image (``GAIN``, etc.) and any parameter
+limits or "fixed" specifications.
+
+Quick and Dirty Generation of Config Files
+------------------------------------------
+
+As noted above, you can always generate a bare-bones sample config file
+using the ``--sample-config`` command-line option.
+
+Calling ``imfit`` or ``makeimage`` with the ``--list-parameters`` option
+will print a list of all the functions and their parameters. You can
+copy and paste the relevant parts of this output into a config file to
+make function entries (aside from needing to fill in the initial values
+and possible limits, of course!).

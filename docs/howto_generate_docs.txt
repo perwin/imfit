@@ -2,10 +2,33 @@ WARNING: This is primarily intended for personal use by PE within my local
 copy of the repository; it is *not* a general guideline for building the
 docs.
 
-1. Update Markdown files; use BBEdit Markup->Preview to check on how it looks.
+The general logic of our current approach is as follows:
 
-2. Generate rST versions of the Markdown files by running convert_md_to_rst.sh
-script, then test the Sphinx HTML generatio by running Sphinx via the
+A. We use doxygen to generate XML files with info from comments in the actual
+source code; these are written to docs/xml/
+
+B. We use Sphinx to generate pretty HTML files for the online documentation
+(including auto-generation of same on readthedocs.org).
+
+C. We include (some of) the doxygen-generated documentation in the Sphinx
+documentation, via the "breathe" extension for Sphinx. This is done via a
+few lines in index.rst and the explicit use of breathe-defined "directives"
+in the .rst files in the api_ref/ directory.
+
+See https://breathe.readthedocs.io/en/latest/class.html#class-example
+for the various breathe-defined directives.
+
+
+GENERAL WORKFLOW OUTLINE:
+
+1. Update Markdown files; use BBEdit Markup->Preview to check on how it looks
+while editing them.
+
+2. Update rST files if needed: index.rst; api_ref/api_index.rst, other
+api-related .rst files in that directory.
+
+3. Generate rST versions of the Markdown files (by running convert_md_to_rst.sh
+script) and test the Sphinx HTML generation by running Sphinx via the
 Makefile
 
 	$ ./convert_md_to_rst.sh && make html

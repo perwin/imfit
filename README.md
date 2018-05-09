@@ -34,6 +34,9 @@ making your own modifications.
 
 A basic [tutorial](http://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html) is also available.
 
+General online documentation (including the tutorial) can be found 
+[here](https://imfit.readthedocs.io).
+
 The paper describing Imfit can be found here: 
 [Erwin 2015](http://adsabs.harvard.edu/abs/2015ApJ...799..226E).
 
@@ -57,6 +60,7 @@ DOI for current release (v1.6), archived at Zenodo:
 ## About the code at this Github site
 
 [![Build Status](https://travis-ci.org/perwin/imfit.svg?branch=master)](https://travis-ci.org/perwin/imfit)
+[![Documentation Status](https://readthedocs.org/projects/imfit/badge/?version=latest)](http://imfit.readthedocs.io/en/latest/?badge=latest)
 
 
 
@@ -82,8 +86,8 @@ Building Imfit requires the following libraries:
 * [GSL](http://www.gnu.org/software/gsl/) (GNU Scientific Library, version 2.0 or later) -- optional, but strongly recommended
 
 Imfit uses [SCons](http://scons.org) as the build tool,
-and should build under any version of GCC from 4.8.1 onward, as well as any version of Clang/LLVM
-that includes OpenMP support.
+and should build under any version of GCC from 4.8.1 onward, as well as any 
+C++-11-aware version of Clang/LLVM that includes OpenMP support.
 
 See the "Getting and Installing Imfit" chapter of the documentation
 -- [imfit_howto.pdf](http://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf) -- for more details. 

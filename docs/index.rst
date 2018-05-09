@@ -16,7 +16,7 @@ with new functions for model image components.
 
 **Examples of Use:**
 
-Fitting an image:
+Fitting an image (with a model specified in the configuration file ``model_description.txt``):
 
     ``$ imfit someimage.fits --config model_description.txt``
 
@@ -28,6 +28,16 @@ using Differential Evolution as the solver:
 Markov Chain Monte Carlo (MCMC) analysis of the same image + model:
 
     ``$ imfit-mcmc someimage.fits[500:750,600:800] --config model_description.txt --psf psf.fits``
+
+Useful things:
+
+* ``imfit -h`` -- lists command-line flags and options
+   
+* ``imfit --list-functions`` -- lists all available image functions for models
+   
+* ``imfit --list-parameters`` -- lists the individual parameters for all image functions
+   
+* ``imfit --sample-config`` -- writes a sample configuration file to the current directory
 
 The main documentation for Imfit is in the PDF file 
 `imfit_howto.pdf <https://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf>`_.
@@ -45,13 +55,19 @@ The full source-code distribution is available at
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: User Documentation:
 
    imfit_tutorial
    config_file_format
    fitting_images
-   design-and-architecture
    writing_new_image_functions
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Documentation:
+
+   api_ref/api_index
 
 
 Indices and tables

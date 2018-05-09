@@ -22,7 +22,11 @@ do
   # rm $f
 done
 
-# we don't need this file
+# we don't need this file in rST format
 rm README.rst
+
+# separate files in api_ref/
+
+pandoc api_ref/design-and-architecture.md -t rst -o api_ref/design-and-architecture.rst
 
 # see https://gist.github.com/ldong/afeb267a772d3a466628 for converting rst to md files

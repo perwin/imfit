@@ -217,8 +217,7 @@ computations which don't depend on actual location within the image.
 
 The value of an individual pixel in the model image is obtained by
 iterating over the individual FunctionObjects, calling its GetValue()
-method with the current pixel coordinates
-:raw-latex:`\f`\ :math:`(x,y)\f`, and adding up all the return values.
-This all takes place within a loop which iterates over all the pixels in
-the model image; this loop is wrapped in OpenMP directives to allow
-parallelization across multiple CPU cores.
+method with the current pixel coordinates (*x*,\ *y*), and adding up all
+the return values. This all takes place within a loop which iterates
+over all the pixels in the model image; this loop is wrapped in OpenMP
+directives to allow parallelization across multiple CPU cores.
