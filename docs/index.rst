@@ -3,7 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Imfit
+.. figure:: ./logo_for_README.png
+   :alt: Imfit
+
 =================================
 
 `Imfit <https://www.mpe.mpg.de/~erwin/code/imfit/>`_ is an open-source
@@ -30,6 +32,15 @@ Markov Chain Monte Carlo (MCMC) analysis of the same image + model:
 The main documentation for Imfit is in the PDF file 
 `imfit_howto.pdf <https://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf>`_.
 
+
+**Where to Get It:**
+
+Pre-compiled binaries for Linux and macOS, along with the source code
+for compilation, are available 
+`here <https://www.mpe.mpg.de/~erwin/code/imfit/>`_.
+
+The full source-code distribution is available at 
+`Imfit's Github page <https://github.com/perwin/imfit/>`_.
 
 
 .. toctree::
