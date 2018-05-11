@@ -118,8 +118,74 @@ public:
     int returnVal = psfInterp->GetInterpolatorType();
     TS_ASSERT_EQUALS( returnVal, kInterpolator_lanczos2 );
   }
+
+  void testGetValues_noshift( void )
+  {
+    double returnVal0, returnVal1, returnVal2;
+    
+    // central pixel
+    returnVal0 = psfInterp->GetValue(0.0,0.0);
+    TS_ASSERT_DELTA( returnVal0, 0.73212016, 1.0e-8 );
+    // 1 pixel to right of center
+    returnVal1 = psfInterp->GetValue(1.0,0.0);
+    TS_ASSERT_DELTA( returnVal1, 0.16868566, 1.0e-8 );
+    // 1 pixel above center
+    returnVal1 = psfInterp->GetValue(0.0,1.0);
+    TS_ASSERT_DELTA( returnVal1, 0.16868566, 1.0e-8 );
+    // 2 pixels below center
+    returnVal2 = psfInterp->GetValue(0.0,-2.0);
+    TS_ASSERT_DELTA( returnVal2, 0.0014417765, 1.0e-8 );
+  }
+
+
+// Python code for generating reference values
+// In [0]: from astropy.io import fits
+// In [1]: import lanczos_test
+// In [2]: psfImage_filename = <path-to-imfit> + "unit_tests/psf_gauss_sigma0.5_5.fits"
+// In [3]: psfim = fits.getdata(psfImage_filename)
+// In [4]: ny,nx = psfim.shape
+// In [5]: x_arr = np.arange(1,nx + 1)
+// In [6]: y_arr = np.arange(1,ny + 1)
+// # center of image is at [2,2] in numpy access, but at x=3,y=3 in our code
+// # center of PSF image (no shift)
+// In [7]: lanczos_test.LanczosInterp2D(x_arr,y_arr,psfim, 2, 3.0, 3.0)
+// Out[8]: 0.732120156288147
+// # interpolated value at center + 0.5 pixels in x
+// In [9]: lanczos_test.LanczosInterp2D(x_arr,y_arr,psfim, 2, 3.5, 3.0)
+// Out[10]: 0.5054706567431267
+// # interpolated value at center + 1.5 pixels in x, + 0.5 pixels in y
+// In [11]: lanczos_test.LanczosInterp2D(x_arr,y_arr,psfim, 2, 4.5, 3.5)
+// Out[12]: 0.035119419221815946
+// # interpolated value at center + 1.5 pixels in y
+// In [13]: lanczos_test.LanczosInterp2D(x_arr,y_arr,psfim, 2, 3.0, 4.5)
+// Out[14]: 0.050885502118477165
+// # interpolated value at center - 1.5 pixels in x and y
+// In [15]: lanczos_test.LanczosInterp2D(x_arr,y_arr,psfim, 2, 1.5, 1.5)
+// Out[16]: 0.00352206909108757
+
+  void testGetValues_shifted( void )
+  {
+    double returnVal0, returnVal1, returnVal2;
+    
+    // 0.5 pixels to right of central pixel
+    returnVal0 = psfInterp->GetValue(0.5,0.0);
+    TS_ASSERT_DELTA( returnVal0, 0.5054706567431267, 1.0e-8 );
+    // 1.5 pixels to right of center, 0.5 above
+    returnVal1 = psfInterp->GetValue(1.5,0.5);
+    TS_ASSERT_DELTA( returnVal1, 0.035119419221815946, 1.0e-8 );
+    // 1.5 pixels above center
+    returnVal1 = psfInterp->GetValue(0.0,1.5);
+    TS_ASSERT_DELTA( returnVal1, 0.050885502118477165, 1.0e-8 );
+    // 1.5 pixels to left of center, 1.5 pixels below center
+    returnVal1 = psfInterp->GetValue(-1.5,-1.5);
+    TS_ASSERT_DELTA( returnVal1, 0.00352206909108757, 1.0e-8 );
+  }
+
 };
 
+
+
+// Tests for auxiliary functions
 
 class TestLanczosFunction : public CxxTest::TestSuite
 {
