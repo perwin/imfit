@@ -125,6 +125,7 @@
 			
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
+/// Constructor for Convolver class
 Convolver::Convolver( )
 {
   psfInfoSet = false;
@@ -138,6 +139,7 @@ Convolver::Convolver( )
 
 /* ---------------- DESTRUCTOR ----------------------------------------- */
 
+/// Destructor for Convolver class
 Convolver::~Convolver( )
 {
 
@@ -168,7 +170,7 @@ void Convolver::SetMaxThreads( int maximumThreadNumber )
 
 /* ---------------- SetupPSF ------------------------------------------- */
 /// Pass in a pointer to the pixel vector for the input PSF image, as well as
-/// the image dimensions
+/// the image dimensions and whether PSF needs to be normalized.
 void Convolver::SetupPSF( double *psfPixels_input, int nColumns, int nRows,
 							bool normalize )
 {
@@ -183,7 +185,7 @@ void Convolver::SetupPSF( double *psfPixels_input, int nColumns, int nRows,
 
 
 /* ---------------- SetupImage ----------------------------------------- */
-//! Pass in the dimensions of the image we'll be convolving with the PSF
+/// Pass in the dimensions of the image we'll be convolving with the PSF.
 void Convolver::SetupImage( int nColumns, int nRows )
 {
 
@@ -436,6 +438,7 @@ void Convolver::ShiftAndWrapPSF( )
 
 
 
+/// For debugging purposes: prints the a real-valued image to the console.
 void PrintRealImage( double *image, int nColumns, int nRows )
 {
 
@@ -448,6 +451,7 @@ void PrintRealImage( double *image, int nColumns, int nRows )
 }
 
 
+/// For debugging purposes: prints the real part of a complex image to the console.
 void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nColumns, int nRows )
 {
 
@@ -460,6 +464,7 @@ void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nColumns, int nR
 }
 
 
+/// For debugging purposes: prints the absolute value of a complex image to the console.
 void PrintComplexImage_Absolute( fftw_complex *image_cmplx, int nColumns, int nRows )
 {
   double  absVal;

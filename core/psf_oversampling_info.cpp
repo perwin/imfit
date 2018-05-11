@@ -3,7 +3,7 @@
  * Class definition for PsfOversamplingInfo.
  */
 
-// Copyright 2017 by Peter Erwin.
+// Copyright 2017-2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -37,7 +37,7 @@ using namespace std;
 
 
 /* ---------------- CONSTRUCTOR (default) ------------------------------ */
-
+/// Default constructor for PsfOversamplingInfo class
 PsfOversamplingInfo::PsfOversamplingInfo( )
 {
   psfPixels = NULL;
@@ -51,7 +51,7 @@ PsfOversamplingInfo::PsfOversamplingInfo( )
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
-
+/// Constructor (with inputs) for PsfOversamplingInfo class
 PsfOversamplingInfo::PsfOversamplingInfo( double *inputPixels, int nCols, int nRows, 
 										int scale, string inputRegionString,
 										int xOffset, int yOffset, bool isUnique,
@@ -73,6 +73,7 @@ PsfOversamplingInfo::PsfOversamplingInfo( double *inputPixels, int nCols, int nR
 // Free the pixel-data array if we're an instance pointing to a unique
 // array (or if we're the first instance pointing to a shared array)
 
+/// Destructor for PsfOversamplingInfo class
 PsfOversamplingInfo::~PsfOversamplingInfo( )
 {
   if (pixelsArrayIsUnique)
@@ -82,6 +83,8 @@ PsfOversamplingInfo::~PsfOversamplingInfo( )
 
 
 /* ---------------- AddRegionString ------------------------------------ */
+/// Add a region string (e.g., "[500:600,1080:1422]") defining a subsection
+/// of an image that will be oversampled
 void PsfOversamplingInfo::AddRegionString( string inputRegionString )
 {
   regionString = inputRegionString;
@@ -89,6 +92,7 @@ void PsfOversamplingInfo::AddRegionString( string inputRegionString )
 
 
 /* ---------------- AddPsfPixels --------------------------------------- */
+/// Add data describing a PSF image
 void PsfOversamplingInfo::AddPsfPixels( double *inputPixels, int nCols, int nRows,
 										bool isUnique )
 {
@@ -100,6 +104,8 @@ void PsfOversamplingInfo::AddPsfPixels( double *inputPixels, int nCols, int nRow
 
 
 /* ---------------- AddOversamplingScale ------------------------------- */
+/// Specify the pixel oversampling scale for an oversampling region (must
+/// be an integer >= 1)
 void PsfOversamplingInfo::AddOversamplingScale( int scale )
 {
   oversamplingScale = scale;
@@ -107,6 +113,8 @@ void PsfOversamplingInfo::AddOversamplingScale( int scale )
 
 
 /* ---------------- AddImageOffset ------------------------------------- */
+/// Specify the offset of an overampling region (the location of its lower-left
+/// corner within the full image)
 void PsfOversamplingInfo::AddImageOffset( int X0, int Y0 )
 {
   X0_offset = X0;
@@ -115,6 +123,7 @@ void PsfOversamplingInfo::AddImageOffset( int X0, int Y0 )
 
 
 /* ---------------- SetNormalizationFlag ------------------------------- */
+/// Whether PSF image should be normalized or not
 void PsfOversamplingInfo::SetNormalizationFlag( bool normalize )
 {
   normalizePSF = normalize;
@@ -122,6 +131,7 @@ void PsfOversamplingInfo::SetNormalizationFlag( bool normalize )
 
 
 /* ---------------- GetNColumns ---------------------------------------- */
+/// Returns x-size of PSF image
 int PsfOversamplingInfo::GetNColumns( )
 {
   return nColumns_psf;
@@ -129,6 +139,7 @@ int PsfOversamplingInfo::GetNColumns( )
 
 
 /* ---------------- GetNRows ------------------------------------------- */
+/// Returns y-size of PSF image
 int PsfOversamplingInfo::GetNRows( )
 {
   return nRows_psf;
@@ -136,15 +147,18 @@ int PsfOversamplingInfo::GetNRows( )
 
 
 /* ---------------- pixelsArrayIsUnique -------------------------------- */
+/// Returns true if PSF image is unique to this oversampling region; returns
+/// false if PSF image is shared with other oversampling regions
 bool PsfOversamplingInfo::PixelsArrayIsUnique( )
 {
   return pixelsArrayIsUnique;
 }
 
-
-    bool pixelsArrayIsUnique( );
+// 
+//     bool pixelsArrayIsUnique( );
 
 /* ---------------- GetPsfPixels --------------------------------------- */
+/// Returns a pointer to the PSF image pixel array
 double * PsfOversamplingInfo::GetPsfPixels( )
 {
   return psfPixels;
@@ -188,6 +202,7 @@ std::tuple<int, int, int, int> PsfOversamplingInfo::GetCorrectedRegionCoords( )
 
 
 /* ---------------- GetNormalizationFlag ------------------------------- */
+/// Returns true if PSF is meant to be normalized
 bool PsfOversamplingInfo::GetNormalizationFlag( )
 {
   return normalizePSF;

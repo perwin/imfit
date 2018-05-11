@@ -1685,6 +1685,8 @@ double ModelObject::ChiSquared( double params[] )
 
 
 /* ---------------- PUBLIC METHOD: CashStatistic ----------------------- */
+/// Computes and returns the Cash statistic for the current set of model parameters
+/// (computes model image and compares it with the data image)
 // Function for calculating Cash statistic for a model
 //
 // Note that weightVector is used here *only* for its masking purposes
@@ -1769,7 +1771,7 @@ double ModelObject::CashStatistic( double params[] )
 
 
 /* ---------------- PUBLIC METHOD: PrintDescription ------------------- */
-
+/// Prints the number of data values (pixels) in the data image
 void ModelObject::PrintDescription( )
 {
   // Don't test for verbose level, since we assume user only calls this method
@@ -1779,7 +1781,8 @@ void ModelObject::PrintDescription( )
 
 
 /* ---------------- PUBLIC METHOD: GetFunctionNames ------------------- */
-
+/// Adds the names of image functions in the model (calling each function's 
+/// GetShortName method) to the input vector of strings
 void ModelObject::GetFunctionNames( vector<string>& functionNames )
 {
   functionNames.clear();

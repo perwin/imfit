@@ -22,9 +22,9 @@ of individual intensity value recorded for each pixel.
 
 If your data processing pipeline has produced some kind of error image
 (sigma or variance values) which you trust, then you can go ahead and
-tell imfit about the error image (via the --noise command-line option,
-plus the --errors-are-variances flag if the pixel values in the error
-image are variances instead of sigmas).
+tell imfit about the error image (via the ``--noise`` command-line
+option, plus the ``--errors-are-variances`` flag if the pixel values in
+the error image are variances instead of sigmas).
 
 For the common case where you do *not* have an error image, you can have
 imfit estimate the per-pixel uncertainties for you, either from the data
@@ -55,7 +55,7 @@ original values, at least in a general, image-wide sense. (It's probably
 overkill to worry about the effects of flat-fielding.)
 
 The simple way to do this is to give imfit an effective gain factor, via
-the GAIN parameter in the config file, or the --gain command-line
+the GAIN parameter in the config file, or the ``--gain`` command-line
 option. The effective gain is whatever number will convert pixel values
 back to photo-electrons. For a processed (but not photometrically
 calibrated) image, where the pixel values are in ADUs, this is simply
@@ -152,5 +152,5 @@ from the second FITS extension.
 
 Alternately, you could combine the NMGY value with the gain to get an
 effective-gain value that converts the nanomaggie values directly to
-photo-electrons ("gain" = A/D gain / NMGY)-- but then you will have to
+photo-electrons ("gain" = A/D gain / NMGY) -- but then you will have to
 convert the sky value from counts to nanomaggies.

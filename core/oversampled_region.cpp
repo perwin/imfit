@@ -88,6 +88,7 @@ using namespace std;
 			
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
+/// Constructor for OversampledRegion class
 OversampledRegion::OversampledRegion( )
 {
 
@@ -106,6 +107,7 @@ OversampledRegion::OversampledRegion( )
 
 /* ---------------- DESTRUCTOR ----------------------------------------- */
 
+/// Destructor for OversampledRegion class
 OversampledRegion::~OversampledRegion( )
 {
   if (modelVectorAllocated)
@@ -134,8 +136,8 @@ void OversampledRegion::SetDebugLevel( int debuggingLevel )
 
 
 /* ---------------- SetMaxThreads -------------------------------------- */
-// User specifies maximum number of FFTW threads to use (ignored if not compiled
-// with multithreaded FFTW library)
+/// User specifies maximum number of FFTW threads to use (ignored if not compiled
+/// with multithreaded FFTW library)
 void OversampledRegion::SetMaxThreads( int maximumThreadNumber )
 {
   maxRequestedThreads = maximumThreadNumber;
@@ -143,10 +145,10 @@ void OversampledRegion::SetMaxThreads( int maximumThreadNumber )
 
 
 /* ---------------- SetupPSF ------------------------------------------- */
-// Pass in a pointer to the pixel vector for the input PSF image, as well as
-// the image dimensions.
-// We assume this is an oversampled PSF, with the same oversampling scale as
-// specified in the input to SetupModelImage(), below
+/// Pass in a pointer to the pixel vector for the input PSF image, as well as
+/// the image dimensions.
+/// We assume this is an oversampled PSF, with the same oversampling scale as
+/// specified in the input to SetupModelImage(), below
 void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int nRows_psf, 
 										bool normalizePSF )
 {
@@ -179,10 +181,10 @@ void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int n
 
 
 /* ---------------- SetupModelImage ------------------------------------ */
-// Pass in the dimensions of the image region, oversample scale, etc.
-//    x1,y1 = x,y location of lower-left corner of image region w/in main image (IRAF-numbering)
-//    nBaseColumns,nBaseRows = x,y size of region in main ("base") image
-//    nColumnsMain, nRowsMain = x,y size of full main model ("base") image
+/// Pass in the dimensions of the image region, oversample scale, etc.
+///    x1,y1 = x,y location of lower-left corner of image region w/in main image (IRAF-numbering)
+///    nBaseColumns,nBaseRows = x,y size of region in main ("base") image
+///    nColumnsMain, nRowsMain = x,y size of full main model ("base") image
 int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nBaseRows, 
 						int nColumnsMain, int nRowsMain, int nColumnsPSF_main,
 						int nRowsPSF_main, int oversampScale )
@@ -249,14 +251,13 @@ int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nB
 
 
 /* ---------------- ComputeRegionAndDownsample ------------------------- */
-// This is the main method, which computes the oversampled (sub-region) model image,
-// then downsamples it to the main image pixel scale and copies it into the main
-// image (mainImageVector).
-// We assume that the FunctionObjects pointed to by functionObjectVect have
-// already been set up with the current parameter values by calling their
-// individual Setup() methods -- e.g., by the method or function that is calling
-// *this* method.
-
+/// This is the main method, which computes the oversampled (sub-region) model image,
+/// then downsamples it to the main image pixel scale and copies it into the main
+/// image (mainImageVector).
+/// We assume that the FunctionObjects pointed to by functionObjectVect have
+/// already been set up with the current parameter values by calling their
+/// individual Setup() methods -- e.g., by the method or function that is calling
+/// *this* method.
 void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector, 
 					vector<FunctionObject *> functionObjectVect, int nFunctions  )
 {

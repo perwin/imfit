@@ -76,12 +76,12 @@ The key difference in terms of generating the model image is that the
 user must specify the *size* of the output image, since there is no data
 image to use as a reference. There are three ways to do this:
 
-1. Command-line options (--ncols, --nrows)
+1. Command-line options (``--ncols``, ``--nrows``)
 
 2. Specification within the configuration file (lines beginning NROWS
    and NCOLS)
 
-3. Use a reference image (--refimage command-line option)
+3. Use a reference image (``--refimage`` command-line option)
 
 The basic operation of makeimage, as implemented in makeimage\_main.cpp,
 is:
@@ -161,7 +161,7 @@ The main functionality of the class includes:
    current array of parameter values
 
 -  Generating individual-function model images (i.e., the
-   --output-functions option of makeimage)
+   ``--output-functions`` option of makeimage)
 
 -  Computing individual-function and total fluxes for current model
 

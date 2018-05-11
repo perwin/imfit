@@ -55,7 +55,7 @@ The full source-code distribution is available at
 
 .. toctree::
    :maxdepth: 2
-   :caption: User Documentation:
+   :caption: USER DOCUMENTATION:
 
    imfit_tutorial
    config_file_format
@@ -65,7 +65,7 @@ The full source-code distribution is available at
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Documentation:
+   :caption: API DOCUMENTATION:
 
    api_ref/api_index
 

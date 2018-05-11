@@ -7,3 +7,6 @@ Imfit Design and API
    design-and-architecture
    model_object
    function_object
+   convolver
+   oversampled_region
+   psf_oversampling_info

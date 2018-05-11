@@ -22,6 +22,12 @@ tests/galfit_tests/*
 tests/n7457/*
 tests/n1332/*
 temptest/*
+docs/_build/*
+docs/_static/*
+docs/_templates/*
+docs/html/*
+docs/latex/*
+docs/xml/*
 .deps
 .libs
 autom4te.cache
