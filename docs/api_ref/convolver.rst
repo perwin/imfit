@@ -1,5 +1,8 @@
-The Convolver Class
-===================
+Convolver
+=========
+
+Overview
+--------
 
 This class holds data and functions relating to FFT-based convolution of
 a point-spread-function (PSF) image with an input image (e.g., the model

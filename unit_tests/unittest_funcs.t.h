@@ -1240,7 +1240,7 @@ public:
 
 class TestPointSource : public CxxTest::TestSuite 
 {
-  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  FunctionObject  *thisFunc, *thisFunc2;
   
 public:
   void setUp()
@@ -1249,11 +1249,14 @@ public:
     bool  subsampleFlag = false;
     thisFunc = new PointSource();
     thisFunc->SetSubsampling(subsampleFlag);
+    thisFunc2 = new PointSource();
+    thisFunc2->SetSubsampling(subsampleFlag);
   }
   
   void tearDown()
   {
     delete thisFunc;
+    delete thisFunc2;
   }
 
 
@@ -1286,6 +1289,90 @@ public:
   {
     bool result = thisFunc->CanCalculateTotalFlux();
     TS_ASSERT_EQUALS(result, true);
+  }
+
+  void testHasExtraParams( void )
+  {
+    bool  returnVal = thisFunc->HasExtraParams();
+    TS_ASSERT_EQUALS( returnVal, true );
+  }
+  
+  void testSetExtraParams1_GoodNameAndValues( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "method";
+    string  value_bicubic = "bicubic";
+    string  value_lanczos2 = "lanczos2";
+    
+    theMap[keyword] = value_bicubic;
+    int  status = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, 1 );
+
+    bool  returnVal = thisFunc->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, true );
+    
+    string  returnVal2 = thisFunc->GetInterpolationType();
+    TS_ASSERT_EQUALS( returnVal2, value_bicubic );
+
+
+    theMap[keyword] = value_lanczos2;
+    status = thisFunc->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, 1 );
+
+    returnVal = thisFunc->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, true );
+    
+    returnVal2 = thisFunc->GetInterpolationType();
+    TS_ASSERT_EQUALS( returnVal2, value_lanczos2 );
+  }
+
+  void testSetExtraParams2_EmptyMap( void )
+  {
+    map<string, string> theMap;
+
+    int  status = thisFunc2->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, -1 );
+
+    bool  returnVal = thisFunc2->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, false );
+
+    bool  returnVal2 = thisFunc2->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal2, false );
+  }
+
+  void testSetExtraParams2_BadName( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "interp";
+    string  value = "100";
+    theMap[keyword] = value;
+    
+    int  status = thisFunc2->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, 0 );
+
+    bool  returnVal = thisFunc2->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, false );
+
+    bool  returnVal2 = thisFunc2->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal2, false );
+  }
+
+  // non-numeric value for parameter expecting a number
+  void testSetExtraParams2_BadValue( void )
+  {
+    map<string, string> theMap;
+    string  keyword = "method";
+    string  value = "bob";
+    theMap[keyword] = value;
+    
+    int  status = thisFunc2->SetExtraParams(theMap);
+    TS_ASSERT_EQUALS( status, -3 );
+
+    bool  returnVal = thisFunc2->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, false );
+
+    bool  returnVal2 = thisFunc2->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal2, false );
   }
 };
 

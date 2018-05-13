@@ -1,11 +1,18 @@
-The PsfOversamplingInfo Class
-=============================
+PsfOversamplingInfo
+===================
+
+Overview
+--------
 
 This is a data-container class meant to assist in the setup phase of
 imfit, makeimage, etc. It holds information about a single
 user-specified oversampling region: the location and of the region
 within the image, its size, the desired pixel oversampling scale, and
-the oversampled PSF image to be used with that region.
+the oversampled PSF image to be used with that region. In effect, it
+packages up the information provided by the following command-line
+options:
+
+    ``--overpsf, --overpsf_region, --overpsf_scale``
 
 In practice, a vector of one or more PsfOversamplingInfo objects is set
 up in main() based on the user inputs and is then passed to the

@@ -9,9 +9,9 @@
 =================================
 
 `Imfit <https://www.mpe.mpg.de/~erwin/code/imfit/>`_ is an open-source
-C++ program for fitting astronomical images (primarily of galaxies) in
-FITS format. It is fast, flexible, and designed to be easily extended
-with new functions for model image components.
+C++ program for fitting models to astronomical images (primarily of
+galaxies). It is fast, flexible, and designed to be easily extended with
+new functions for components of the model image.
 
 
 **Examples of Use:**
@@ -20,12 +20,12 @@ Fitting an image (with a model specified in the configuration file ``model_descr
 
     ``$ imfit someimage.fits --config model_description.txt``
 
-Fitting a subsection of the image + convolving the model with a Point-Spread-Function image,
+Fitting a subsection of the image and convolving the model with a Point-Spread-Function image,
 using Differential Evolution as the solver:
 
     ``$ imfit someimage.fits[500:750,600:800] --config model_description.txt --psf psf.fits --de``
 
-Markov Chain Monte Carlo (MCMC) analysis of the same image + model:
+Markov Chain Monte Carlo (MCMC) analysis of the same image and model:
 
     ``$ imfit-mcmc someimage.fits[500:750,600:800] --config model_description.txt --psf psf.fits``
 

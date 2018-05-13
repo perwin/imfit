@@ -156,15 +156,30 @@ int PointSource::SetExtraParams( map<string,string>& inputMap )
   map<string,string>::iterator iter;
   for( iter = inputMap.begin(); iter != inputMap.end(); iter++) {
     if (iter->first == "method") {
-      interpolationType = iter->second;
-      // FIXME: do additional checks & setup here
-      printf("   PointSource::SetExtraParams -- setting method = %s\n", 
-       		interpolationType.c_str());
-      extraParamsSet = true;
-      return 1;
+      if ((iter->second == "bicubic") || (iter->second == "Bicubic")) {
+        interpolationType = "bicubic";
+        break;
+      }
+      if ((iter->second == "lanczos2") || (iter->second == "Lanczos2")) {
+        interpolationType = "lanczos2";
+        break;
+      }
+      fprintf(stderr, "ERROR: unidentified interpolation type in PointSource::SetExtraParams!\n");
+      fprintf(stderr, "(\"%s\" is not a recognized interpolation type)\n",
+      			iter->second.c_str());
+      return -3;
+    }
+    else {
+      fprintf(stderr, "ERROR: unrecognized extra-parameter name (\"%s\") ", iter->first.c_str());
+      fprintf(stderr, " in PointSource::SetExtraParams!\n");
+      return 0;
     }
   }
-  return 0;
+  interpolationType = iter->second;
+  extraParamsSet = true;
+  printf("   PointSource::SetExtraParams -- setting method = %s\n", 
+       		interpolationType.c_str());
+  return 1;
 }
 
 

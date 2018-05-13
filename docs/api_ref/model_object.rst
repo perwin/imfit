@@ -1,5 +1,5 @@
-The ModelObject Class
-=====================
+ModelObject
+===========
 
 Overview
 --------

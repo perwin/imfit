@@ -1,5 +1,8 @@
-The OversampledRegion Class
-===========================
+OversampledRegion
+=================
+
+Overview
+--------
 
 This class handles computation of oversampled regions in the model
 image; there will be one instance for each oversampled region requested

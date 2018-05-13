@@ -1,5 +1,5 @@
-The FunctionObject Class and Its Subclasses
-===========================================
+FunctionObject (and Subclasses)
+===============================
 
 Overview
 --------

@@ -15,9 +15,8 @@ using namespace std;
 #include "function_objects/psf_interpolators.h"
 
 
-#define DELTA  1.0e-10
+#define DELTA  1.0e-8
 
-// Need multiple PSFs, one for each oversampling scale
 // These files are assumed to exist
 string  psfImage_filename = string("unit_tests/psf_gauss_sigma0.5_5.fits");
 
@@ -60,16 +59,16 @@ public:
     
     // central pixel
     returnVal0 = psfInterp->GetValue(0.0,0.0);
-    TS_ASSERT_DELTA( returnVal0, 0.73212016, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal0, 0.73212016, DELTA );
     // 1 pixel to right of center
     returnVal1 = psfInterp->GetValue(1.0,0.0);
-    TS_ASSERT_DELTA( returnVal1, 0.16868566, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.16868566, DELTA );
     // 1 pixel above center
     returnVal1 = psfInterp->GetValue(0.0,1.0);
-    TS_ASSERT_DELTA( returnVal1, 0.16868566, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.16868566, DELTA );
     // 2 pixels below center
     returnVal2 = psfInterp->GetValue(0.0,-2.0);
-    TS_ASSERT_DELTA( returnVal2, 0.0014417765, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal2, 0.0014417765, DELTA );
   }
 
   void testGetValues_shifted( void )
@@ -78,13 +77,13 @@ public:
     
     // 0.5 pixels to right of central pixel
     returnVal0 = psfInterp->GetValue(0.5,0.0);
-    TS_ASSERT_DELTA( returnVal0, 0.51973038, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal0, 0.51973038, DELTA );
     // 1.5 pixels to right of center, 0.5 above
     returnVal1 = psfInterp->GetValue(1.5,0.5);
-    TS_ASSERT_DELTA( returnVal1, 0.00880937, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.00880937, DELTA );
     // 1.5 pixels above center
     returnVal1 = psfInterp->GetValue(0.0,1.5);
-    TS_ASSERT_DELTA( returnVal1, 0.01243073, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.01243073, DELTA );
   }
 };
 
@@ -125,16 +124,16 @@ public:
     
     // central pixel
     returnVal0 = psfInterp->GetValue(0.0,0.0);
-    TS_ASSERT_DELTA( returnVal0, 0.73212016, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal0, 0.73212016, DELTA );
     // 1 pixel to right of center
     returnVal1 = psfInterp->GetValue(1.0,0.0);
-    TS_ASSERT_DELTA( returnVal1, 0.16868566, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.16868566, DELTA );
     // 1 pixel above center
     returnVal1 = psfInterp->GetValue(0.0,1.0);
-    TS_ASSERT_DELTA( returnVal1, 0.16868566, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.16868566, DELTA );
     // 2 pixels below center
     returnVal2 = psfInterp->GetValue(0.0,-2.0);
-    TS_ASSERT_DELTA( returnVal2, 0.0014417765, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal2, 0.0014417765, DELTA );
   }
 
 
@@ -162,6 +161,9 @@ public:
 // # interpolated value at center - 1.5 pixels in x and y
 // In [15]: lanczos_test.LanczosInterp2D(x_arr,y_arr,psfim, 2, 1.5, 1.5)
 // Out[16]: 0.00352206909108757
+// # interpolated value at center - 1.9 pixels in x and y
+// In [92]: lanczos_test.LanczosInterp2D(x_arr,y_arr,psfim, 2, 1.1, 1.1)
+// Out[92]: 0.0002065470426474115
 
   void testGetValues_shifted( void )
   {
@@ -169,16 +171,19 @@ public:
     
     // 0.5 pixels to right of central pixel
     returnVal0 = psfInterp->GetValue(0.5,0.0);
-    TS_ASSERT_DELTA( returnVal0, 0.5054706567431267, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal0, 0.5054706567431267, DELTA );
     // 1.5 pixels to right of center, 0.5 above
     returnVal1 = psfInterp->GetValue(1.5,0.5);
-    TS_ASSERT_DELTA( returnVal1, 0.035119419221815946, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.035119419221815946, DELTA );
     // 1.5 pixels above center
     returnVal1 = psfInterp->GetValue(0.0,1.5);
-    TS_ASSERT_DELTA( returnVal1, 0.050885502118477165, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.050885502118477165, DELTA );
     // 1.5 pixels to left of center, 1.5 pixels below center
     returnVal1 = psfInterp->GetValue(-1.5,-1.5);
-    TS_ASSERT_DELTA( returnVal1, 0.00352206909108757, 1.0e-8 );
+    TS_ASSERT_DELTA( returnVal1, 0.00352206909108757, DELTA );
+    // 1.9 pixels to left of center, 1.9 pixels below center
+    returnVal1 = psfInterp->GetValue(-1.9,-1.9);
+    TS_ASSERT_DELTA( returnVal1, 0.0002065470426474115, DELTA );
   }
 
 };
@@ -206,9 +211,9 @@ public:
     // as |x|)
     for (int i = 0; i < nVals; i++) {
       returnVal1 = Lanczos(inputVals[i], n);
-      TS_ASSERT_DELTA( returnVal1, correctVals[i], 1.0e-8 );
+      TS_ASSERT_DELTA( returnVal1, correctVals[i], DELTA );
       returnVal2 = Lanczos(-inputVals[i], n);
-      TS_ASSERT_DELTA( returnVal2, correctVals[i], 1.0e-8 );
+      TS_ASSERT_DELTA( returnVal2, correctVals[i], DELTA );
     }
   }
 
@@ -225,9 +230,9 @@ public:
     // as |x|)
     for (int i = 0; i < nVals; i++) {
       returnVal1 = Lanczos(inputVals[i], n);
-      TS_ASSERT_DELTA( returnVal1, correctVals[i], 1.0e-8 );
+      TS_ASSERT_DELTA( returnVal1, correctVals[i], DELTA );
       returnVal2 = Lanczos(-inputVals[i], n);
-      TS_ASSERT_DELTA( returnVal2, correctVals[i], 1.0e-8 );
+      TS_ASSERT_DELTA( returnVal2, correctVals[i], DELTA );
     }
   }
 };
