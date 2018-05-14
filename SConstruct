@@ -673,6 +673,20 @@ env_opt.Command("alltests", None,
 
 
 
+# Library testing
+base_for_lib_objstring = """mp_enorm statistics mersenne_twister utilities 
+config_file_parser add_functions"""
+base_for_lib_objs = [ CORE_SUBDIR + name for name in base_for_lib_objstring.split() ]
+imfit_lib_objs = modelobject_objs + functionobject_objs + solver_objs
+imfit_lib_objs += base_for_lib_objs
+imfit_lib_sourcelist = [name + ".cpp" for name in imfit_lib_objs]
+#print(imfit_lib_sourcelist)
+# Note that for some reason we have to give the library name with its
+# "lib" prefix: "libimfit"
+# invoke the following as "scons libimfit.a" and "scons libimfit.dylib"
+staticlib = env_opt.StaticLibrary(target="libimfit", source=imfit_lib_sourcelist)
+sharedlib = env_opt.SharedLibrary(target="libimfit", source=imfit_lib_sourcelist)
+
 
 
 

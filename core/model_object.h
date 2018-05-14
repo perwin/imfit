@@ -300,7 +300,6 @@ class ModelObject
     int  nOversampledModelColumns, nOversampledModelRows;
     long  nOversampledModelVals;
     bool  oversampledRegionsExist;
-    bool  oversampledRegionAllocated;
     int  nOversampledRegions;
     vector<OversampledRegion *>oversampledRegionsVect;
 

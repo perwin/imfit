@@ -116,10 +116,13 @@ void NormalizePSF( double *psfPixels, long nPixels_psf );
 ModelObject::ModelObject( )
 {
   dataValsSet = weightValsSet = false;
-  
-  modelVector = NULL;
-  residualVector = NULL;
-  outputModelVector = NULL;
+
+  dataVector = modelVector = weightVector = standardWeightVector = NULL;
+  residualVector = maskVector = deviatesVector = NULL;
+  outputModelVector = extraCashTermsVector = NULL;
+  bootstrapIndices = NULL;
+  fblockStartFlags = NULL;
+
   localPsfPixels = nullptr;
   psfInterpolator = nullptr;
   psfInterpolator_allocated = false;
@@ -134,8 +137,6 @@ ModelObject::ModelObject( )
   extraCashTermsVectorAllocated = false;
   localPsfPixels_allocated = false;
   
-  doBootstrap = false;
-  bootstrapIndicesAllocated = false;
   fblockStartFlags_allocated = false;
   
   // default setup = use data-based Gaussian errors + chi^2 minimization
@@ -144,14 +145,16 @@ ModelObject::ModelObject( )
   modelErrors = false;
   useCashStatistic = false;
   poissonMLR = false;
-  
+  doBootstrap = false;
+  bootstrapIndicesAllocated = false;
+
   modelImageSetupDone = false;
   
   modelImageComputed = false;
   maskExists = false;
+  weightValsSet = false;
   doConvolution = false;
   oversampledRegionsExist = false;
-  oversampledRegionAllocated = false;
   zeroPointSet = false;
   pointSourcesPresent = false;
   
@@ -165,19 +168,17 @@ ModelObject::ModelObject( )
   
   // default image characteristics
   gain = 1.0;
-  exposureTime = 1.0;
+  exposureTime = effectiveGain = 1.0;
   nCombined = 1;
-  effectiveGain = 1.0;
-  readNoise_adu_squared = 0.0;
-  originalSky = 0.0;
+  originalSky = readNoise = readNoise_adu_squared = 0.0;
   
   imageOffset_X0 = imageOffset_Y0 = 0;
   
   maxRequestedThreads = 0;   // default value --> use all available processors/cores
   ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
   
-  nDataColumns = nDataRows = 0;
-  nModelColumns = nModelRows = 0;
+  nDataVals = nDataColumns = nDataRows = 0;
+  nModelVals = nModelColumns = nModelRows = 0;
   nPSFColumns = nPSFRows = 0;
 }
 
@@ -224,7 +225,6 @@ ModelObject::~ModelObject()
     oversampledRegionsVect.clear();
     nOversampledRegions = 0;
     oversampledRegionsExist = false;
-    oversampledRegionAllocated = false;
   }
   
   if (bootstrapIndicesAllocated) {
@@ -856,7 +856,6 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
   oversampledRegion->SetDebugLevel(debugLevel);
   oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp,
   									normalizePSF);
-  oversampledRegionAllocated = true;
   status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
   									nPSFColumns, nPSFRows, oversampleScale);
   if (status < 0) {
@@ -935,7 +934,6 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   oversampledRegion->SetDebugLevel(debugLevel);
   oversampledRegion->AddPSFVector(psfPixels_osamp, nPSFColumns_osamp, nPSFRows_osamp,
   									oversampledPsfInfo->GetNormalizationFlag());
-  oversampledRegionAllocated = true;
   status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
   									nPSFColumns, nPSFRows, oversampleScale);
   if (status < 0) {
