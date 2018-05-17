@@ -24,7 +24,7 @@
  * cases, as suggested by André Luiz de Amorim.
  */
 
-// Copyright 2010--2017 by Peter Erwin.
+// Copyright 2010--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -112,7 +112,7 @@ void NormalizePSF( double *psfPixels, long nPixels_psf );
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
-
+/// Constructor
 ModelObject::ModelObject( )
 {
   dataValsSet = weightValsSet = false;
@@ -184,7 +184,7 @@ ModelObject::ModelObject( )
 
 
 /* ---------------- DESTRUCTOR ----------------------------------------- */
-
+/// Destructor
 ModelObject::~ModelObject()
 {
   if (modelVectorAllocated)
@@ -236,7 +236,7 @@ ModelObject::~ModelObject()
 
 
 /* ---------------- PUBLIC METHOD: SetDebugLevel ----------------------- */
-
+/// Set the debugging level (must be 0 [default] or larger).
 void ModelObject::SetDebugLevel( int debuggingLevel )
 {
   if (debuggingLevel < 0) {
@@ -249,6 +249,8 @@ void ModelObject::SetDebugLevel( int debuggingLevel )
 
 
 /* ---------------- PUBLIC METHOD: SetMaxThreads ----------------------- */
+/// Specify the maximum number of OpenMP threads to use in computations;
+/// also sets maximum number FFTW threads for convolutions.
 void ModelObject::SetMaxThreads( int maxThreadNumber )
 {
   assert( (maxThreadNumber >= 1) );
@@ -260,6 +262,7 @@ void ModelObject::SetMaxThreads( int maxThreadNumber )
 
 
 /* ---------------- PUBLIC METHOD: SetOMPChunkSize --------------------- */
+/// Sets the chunk size for OpenMP
 void ModelObject::SetOMPChunkSize( int chunkSize )
 {
   assert( (chunkSize >= 1) );
@@ -268,6 +271,7 @@ void ModelObject::SetOMPChunkSize( int chunkSize )
 
 
 /* ---------------- PUBLIC METHOD: AddFunction ------------------------- */
+/// Adds a FunctionObject subclass to the model
 int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
 {
   int  nNewParams, result;
@@ -296,6 +300,11 @@ int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
 
 
 /* ---------------- PUBLIC METHOD: SetupPsfInterpolation -------------- */
+/// Specify that PSF interpolation (by PointSource functions) will be used;
+/// causes an internal PsfInterpolator object of the appropriate subclass
+/// to be allocated and set up with previously supplied PSF data.
+/// This should only be called *after* AddPSFVector has been called to supply the
+/// PSF data.
 int ModelObject::SetupPsfInterpolation( int interpolationType )
 {
   // instantiate PsfInterpolator object for possible use by PointSource image functions
@@ -2025,6 +2034,7 @@ void ModelObject::PrintImage( double *pixelVector, int nColumns, int nRows )
 
 
 /* ---------------- PUBLIC METHOD: PrintInputImage -------------------- */
+/// Prints the input data image to stdout (for debugging purposes).
 void ModelObject::PrintInputImage( )
 {
 
@@ -2039,7 +2049,7 @@ void ModelObject::PrintInputImage( )
 
 
 /* ---------------- PUBLIC METHOD: PrintModelImage -------------------- */
-
+/// Prints the current computed model image to stdout (for debugging purposes).
 void ModelObject::PrintModelImage( )
 {
 
@@ -2053,7 +2063,7 @@ void ModelObject::PrintModelImage( )
 
 
 /* ---------------- PUBLIC METHOD: PrintMask ------------------------- */
-
+/// Prints the input mask image to stdout (for debugging purposes).
 void ModelObject::PrintMask( )
 {
 
@@ -2067,7 +2077,7 @@ void ModelObject::PrintMask( )
 
 
 /* ---------------- PUBLIC METHOD: PrintWeights ----------------------- */
-
+/// Prints the current weight image to stdout (for debugging purposes).
 void ModelObject::PrintWeights( )
 {
 
@@ -2110,6 +2120,8 @@ string& ModelObject::GetParameterName( int i )
 
 
 /* ---------------- PUBLIC METHOD: GetNFunctions ----------------------- */
+/// Prints the total number of image functions (instances of FunctionObject 
+/// subclasses) making up the model.
 
 int ModelObject::GetNFunctions( )
 {
@@ -2118,7 +2130,7 @@ int ModelObject::GetNFunctions( )
 
 
 /* ---------------- PUBLIC METHOD: GetNParams -------------------------- */
-
+/// Prints the total number of parameters making up the model.
 int ModelObject::GetNParams( )
 {
   return nParamsTot;
@@ -2126,7 +2138,7 @@ int ModelObject::GetNParams( )
 
 
 /* ---------------- PUBLIC METHOD: GetNDataValues ---------------------- */
-
+/// Prints the number of data values (pixels, masked or unmasked) in the data image.
 long ModelObject::GetNDataValues( )
 {
   return nDataVals;
@@ -2134,7 +2146,7 @@ long ModelObject::GetNDataValues( )
 
 
 /* ---------------- PUBLIC METHOD: GetNValidPixels --------------------- */
-
+/// Prints the number of *valid* (i.e., unmasked) data values (pixels) in the data image.
 long ModelObject::GetNValidPixels( )
 {
   return nValidDataVals;
@@ -2142,14 +2154,14 @@ long ModelObject::GetNValidPixels( )
 
 
 /* ---------------- PUBLIC METHOD: HasPSF ------------------------------ */
-
+/// Returns true if the model has a PSF image
 bool ModelObject::HasPSF( )
 {
   return doConvolution;
 }
 
 /* ---------------- PUBLIC METHOD: HasOversampledPSF ------------------- */
-
+/// Returns true if the model has one or more oversampled regions (with oversampled PSFs).
 bool ModelObject::HasOversampledPSF( )
 {
   return oversampledRegionsExist;
@@ -2157,7 +2169,7 @@ bool ModelObject::HasOversampledPSF( )
 
 
 /* ---------------- PUBLIC METHOD: HasMask ----------------------------- */
-
+/// Returns true if a mask image exists.
 bool ModelObject::HasMask( )
 {
   return maskExists;
@@ -2165,7 +2177,9 @@ bool ModelObject::HasMask( )
 
 
 /* ---------------- PUBLIC METHOD: GetModelImageVector ----------------- */
-
+/// Returns a pointer to the model image (matching the data image in size if
+/// convolution is being done).
+/// If the model image has not yet been computed, returns NULL.
 double * ModelObject::GetModelImageVector( )
 {
   int  iDataRow, iDataCol;
@@ -2292,7 +2306,7 @@ double * ModelObject::GetWeightImageVector( )
 
 
 /* ---------------- PUBLIC METHOD: GetDataVector ----------------------- */
-
+/// Returns a pointer to the data image.
 double * ModelObject::GetDataVector( )
 {
   if (! dataValsSet) {
@@ -2465,6 +2479,7 @@ bool ModelObject::CheckWeightVector( )
 
 // Extra stuff
 
+/// Given an input PSF-image vector, this function normalizes it in place.
 void NormalizePSF( double *psfPixels, long nPixels_psf )
 {
   // Use Kahan summation to avoid underflow

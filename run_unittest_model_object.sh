@@ -12,7 +12,8 @@ NC='\033[0m' # No Color
 echo
 echo "Generating and compiling unit tests for model_object..."
 $CXXTESTGEN --error-printer -o test_runner_modelobj.cpp unit_tests/unittest_model_object.t.h
-$CPP -std=c++11 -fsanitize=address -DDEBUG -DUSE_TEST_FUNCS -o test_runner_modelobj \
+$CPP -std=c++11 -fsanitize=address -Wl,-no_compact_unwind -DDEBUG -DUSE_TEST_FUNCS \
+-o test_runner_modelobj \
 test_runner_modelobj.cpp core/model_object.cpp core/utilities.cpp core/convolver.cpp \
 core/add_functions.cpp core/config_file_parser.cpp core/mersenne_twister.cpp \
 core/mp_enorm.cpp core/oversampled_region.cpp core/downsample.cpp \

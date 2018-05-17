@@ -595,6 +595,75 @@ public:
     TS_ASSERT_EQUALS(outputString, correctString);
   }
 
+  void testPrintParamsToString_with_errors( void )
+  {
+    int nParamsTot = 7;
+    double params[7] = {21.0, 22.0, 0.0, 0.5, 50.0, 10.0, 100.0};   // X0, Y0, PA, ell, I_0, h, I_sky
+    double errors[7] = {0.1,  0.2 , 0.001, 0.002, 2.5, 1.09, 3.3};   // X0, Y0, PA, ell, I_0, h, I_sky
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    int  retVal;
+    vector<string> outputVect;
+  
+    vector<string> correctStrings1, correctStrings2;
+    correctStrings1.push_back("#\n");
+    correctStrings1.push_back("#X0\t\t21.0000\n");
+    correctStrings1.push_back("#Y0\t\t22.0000\n");
+    correctStrings1.push_back("#FUNCTION Exponential\n");
+    correctStrings1.push_back("#PA\t\t      0\n");
+    correctStrings1.push_back("#ell\t\t    0.5\n");
+    correctStrings1.push_back("#I_0\t\t     50\n");
+    correctStrings1.push_back("#h\t\t     10\n");
+    correctStrings1.push_back("#FUNCTION FlatSky\n");
+    correctStrings1.push_back("#I_sky\t\t    100\n");
+    correctStrings2.push_back("#\n");
+    correctStrings2.push_back("#X0\t\t21.0000 # +/- 0.1000\n");
+    correctStrings2.push_back("#Y0\t\t22.0000 # +/- 0.2000\n");
+    correctStrings2.push_back("#FUNCTION Exponential\n");
+    correctStrings2.push_back("#PA\t\t      0 # +/- 0.001\n");
+    correctStrings2.push_back("#ell\t\t    0.5 # +/- 0.002\n");
+    correctStrings2.push_back("#I_0\t\t     50 # +/- 2.5\n");
+    correctStrings2.push_back("#h\t\t     10 # +/- 1.09\n");
+    correctStrings2.push_back("#FUNCTION FlatSky\n");
+    correctStrings2.push_back("#I_sky\t\t    100 # +/- 3.3000\n");
+
+    string prefix = "#";
+    vector<mp_par> parameterInfo_empty;
+    vector<mp_par> parameterInfo;
+
+    // kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 1;
+      currentParameterInfo.limited[1] = 1;
+      currentParameterInfo.limits[0] = 0.0 + i;
+      currentParameterInfo.limits[1] = 200.0 + i;
+      currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+    // specify that Y0 and Exponential h are fixed
+    parameterInfo[1].fixed = 1;
+    parameterInfo[5].fixed = 1;
+
+    modelObj1->SetupModelImage(nSmallDataCols, nSmallDataRows);  
+    modelObj1->AddParameterInfo(parameterInfo);
+
+    // output without parameter limits
+    retVal = modelObj1->PrintModelParamsToStrings(outputVect, params, NULL, prefix.c_str(), false);
+    TS_ASSERT_EQUALS(retVal, 0);
+    for (int i = 0; i < 9; i++) {
+      TS_ASSERT_EQUALS(outputVect[i], correctStrings1[i]);
+    }
+
+    // output *with* erros
+    outputVect.clear();
+    retVal = modelObj1->PrintModelParamsToStrings(outputVect, params, errors, prefix.c_str(), false);
+    TS_ASSERT_EQUALS(retVal, 0);
+    for (int i = 0; i < 9; i++) {
+      TS_ASSERT_EQUALS(outputVect[i], correctStrings2[i]);
+    }
+  }
+
   void testPrintModelParamsHorizontalString_withOffset( )
   {
     int nParamsTot = 7;

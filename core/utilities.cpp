@@ -161,6 +161,8 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
 
 
 /* ---------------- FUNCTION: PrintParametersSimple() -------------- */
+// Used in solver code (e.g., mpfit.cpp, nmsimplex_fit.cpp, etc.) for in-progress
+// reporting of current fit parameters
 void PrintParametersSimple( ModelObject *model, double *parameters )
 {
     vector<string> outputLines;
