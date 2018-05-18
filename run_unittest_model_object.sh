@@ -9,7 +9,9 @@ GREEN='\033[0;0;32m'
 NC='\033[0m' # No Color
 
 # Unit tests for model_object (includes extra -lgslcblas in case we compile on Linux)
-# -Wl,-no_compact_unwind 
+# NOTE: adding "-Wl,-no_compact_unwind" solves the cosmetic issue of silly
+# "unwinding" warning messages when compiling on macOS, but causes Travis CI
+# compilation to fail (linker decides it can't find gcc_s library for some reason)
 echo
 echo "Generating and compiling unit tests for model_object..."
 $CXXTESTGEN --error-printer -o test_runner_modelobj.cpp unit_tests/unittest_model_object.t.h
