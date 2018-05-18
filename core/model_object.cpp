@@ -81,17 +81,6 @@ static string  UNDEFINED = "<undefined>";
 const int  FFTW_SIZE = 16;
 const int  DOUBLE_SIZE = 8;
 
-// output formatting for printing parameters
-#define XY_FORMAT_WITH_ERRS "%s%s\t\t%.4f # +/- %.4f\n"
-#define XY_FORMAT "%s%s\t\t%.4f\n"
-#define XY_FORMAT_WITH_LIMITS "%s%s\t\t%.4f\t\t%g,%g\n"
-#define XY_FORMAT_WITH_FIXED "%s%s\t\t%.4f\t\tfixed\n"
-//#define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%7g # +/- %7g\n"
-#define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%7g # +/- %.5g\n"
-#define PARAM_FORMAT "%s%s\t\t%7g\n"
-#define PARAM_FORMAT_WITH_LIMITS "%s%s\t\t%7g\t\t%g,%g\n"
-#define PARAM_FORMAT_WITH_FIXED "%s%s\t\t%7g\t\tfixed\n"
-
 // very small value for Cash statistic calculations (replaces log(m) if m <= 0)
 // Based on http://cxc.harvard.edu/sherpa/ahelp/cstat.html
 #define LOG_SMALL_VALUE 1.0e-25

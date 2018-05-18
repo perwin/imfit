@@ -67,4 +67,17 @@ const int  MASK_ZERO_IS_GOOD =       10;  /// "standard" input mask format (good
 const int  MASK_ZERO_IS_BAD  =       20;  /// alternate input mask format (good pixels = 1)
 
 
+
+/* Output string formats for printing parameter values */
+#define XY_FORMAT "%s%s\t\t%.4f\n"
+#define XY_FORMAT_WITH_ERRS "%s%s\t\t%.4f # +/- %.4f\n"
+#define XY_FORMAT_WITH_LIMITS "%s%s\t\t%.4f\t\t%g,%g\n"
+#define XY_FORMAT_WITH_FIXED "%s%s\t\t%.4f\t\tfixed\n"
+#define PARAM_FORMAT "%s%s\t\t%7g\n"
+#define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%7g # +/- %.5g\n"
+#define PARAM_FORMAT_WITH_LIMITS "%s%s\t\t%7g\t\t%g,%g\n"
+#define PARAM_FORMAT_WITH_FIXED "%s%s\t\t%7g\t\tfixed\n"
+
+
+
 #endif /* _DEFINITIONS_H_ */
