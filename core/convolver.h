@@ -14,17 +14,18 @@
 using namespace std;
 
 
-/// Utility function for debugging use: print a real-valued image to stdout
+/// For debugging use: print a real-valued image to stdout
 void PrintRealImage( double *image, int nColumns, int nRows );
 
-/// Utility function for debugging use: print a complex-valued image to stdout
+/// For debugging use: print a complex-valued image to stdout
 void PrintComplexImage_RealPart( fftw_complex *image_cmplx, int nColumns, int nRows );
 
-/// Utility function for debugging use: print absolute value of complex-valued image to stdout
+/// For debugging use: print absolute value of complex-valued image to stdout
 void PrintComplexImage_Absolute( fftw_complex *image_cmplx, int nColumns, int nRows );
 
 
-/// Class for handling PSF convolution (stores PSF, performs convolutions with input model images)
+/// Class for handling PSF convolution (stores PSF, performs convolutions 
+/// with input model images)
 class Convolver
 {
   public:

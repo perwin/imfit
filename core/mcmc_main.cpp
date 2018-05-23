@@ -96,11 +96,6 @@ void MakeMCMCOutputHeader( vector<string> *headerLines, const string& programNam
 						const int argc, char *argv[] );
 
 
-/* ------------------------ Global Variables --------------------------- */
-
-/* ------------------------ Module Variables --------------------------- */
-
-
 
 
 
@@ -199,7 +194,7 @@ int main(int argc, char *argv[])
   nPixels_tot = (long)nColumns * (long)nRows;
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
            nColumns, nRows, nPixels_tot);
-  // // Determine X0,Y0 pixel offset values if user specified an image section
+  // Determine X0,Y0 pixel offset values if user specified an image section
   std::tie(X0_offset, Y0_offset) = DetermineImageOffset(options->imageFileName);
 
 
@@ -450,7 +445,6 @@ int main(int argc, char *argv[])
 
 
   // OK, now we execute the MCMC process
-  // DO THE MCMC!
   printf("\nStart of MCMC processing...\n");
   dream(&dreamPars, &rng);
   printf("\nMCMC chains written to output files %s.1.txt through %s.%d.txt", 

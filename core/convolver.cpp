@@ -10,7 +10,7 @@
  *     [v0.01]: 26 Mar 2010: Created.
  */
 
-// Copyright 2010--2017 by Peter Erwin.
+// Copyright 2010--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

@@ -71,17 +71,10 @@ static string  kNRows = "NROWS";
 
 
 /* ------------------- Function Prototypes ----------------------------- */
-/* External functions: */
 
-/* Local Functions: */
 void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								MakeimageOptions *mainOptions );
-
-
-/* ------------------------ Global Variables --------------------------- */
-
-/* ------------------------ Module Variables --------------------------- */
 
 
 

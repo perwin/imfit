@@ -41,36 +41,11 @@ class OptionObject
     virtual int NTargetsStored( );
 
   protected:
-    // Private member functions:
-    
     // Data members:
     bool  isFlag, flagSet, targetSet, isQueue;
     vector<string>  targetStrings;
     int  nStrings;
 };
-
-
-
-/// \brief Derived class holding info about an individual command-line option/flag,
-/// which can handle multiple instances, storing target strings in a vector.
-// class QueueOptionObject : public OptionObject
-// {
-//   public:
-//     // Constructors and Destructors:
-//     QueueOptionObject( );
-//     ~QueueOptionObject( );
-//     
-//     // Overridden public member functions:
-//     int NTargetsStored( );
-// 
-//   private:
-//     // Private member functions:
-//     
-//     // New data members:
-//     int  nStrings;
-// };
-
-
 
 
 
@@ -102,18 +77,16 @@ class CLineParser
     string& GetArgument( const int n );
 
   private:
-  // Private member functions:
-
-  // Data members:
-  map<string, OptionObject *>  optMap;   //!< 	data: map<string, *optObject> of option-objects
-  vector<OptionObject *> optObjPointers;   //!< keep track of all discrete OptionObject pointers
-  vector<string>  usageStrings;   //!< 	data: map<string, *optObject> of option-objects
-  vector<string>  argStrings;     //!< 	data: vector<string> of argument strings
-  int  verboseLevel;
-  bool  commandLineEmpty;        //!< true if user supplied *no* options/flags *or* arguments
-  bool  ignoreUnrecognized;      //!< if we encounter an unrecognized option/flag, do we
-                                 //!< ignore it (= just print a warning & continue processing)?
-  string  errorString1;
+    // Data members:
+    map<string, OptionObject *>  optMap;   //!< 	data: map<string, *optObject> of option-objects
+    vector<OptionObject *> optObjPointers;   //!< keep track of all discrete OptionObject pointers
+    vector<string>  usageStrings;   //!< 	data: map<string, *optObject> of option-objects
+    vector<string>  argStrings;     //!< 	data: vector<string> of argument strings
+    int  verboseLevel;
+    bool  commandLineEmpty;        //!< true if user supplied *no* options/flags *or* arguments
+    bool  ignoreUnrecognized;      //!< if we encounter an unrecognized option/flag, do we
+                                   //!< ignore it (= just print a warning & continue processing)?
+    string  errorString1;
 };
 
 

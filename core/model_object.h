@@ -140,7 +140,7 @@ class ModelObject
 
     virtual void UsePoissonMLR( );
  
-    virtual bool UsingCashStatistic( );
+//     virtual bool UsingCashStatistic( );
  
     virtual int WhichFitStatistic( bool verbose=false );
  

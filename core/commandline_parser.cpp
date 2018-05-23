@@ -6,7 +6,7 @@
  *
  */
 
-// Copyright 2011--2017 by Peter Erwin.
+// Copyright 2011--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -39,9 +39,8 @@ using namespace std;
 /* UTILITY FUNCTIONS */
 
 /* ---------------- FUNCTION: StripLeadingDashes() ---------------------- */
-/// This function removes leading and trailing whitespace from a string; if
-/// the string is *all* whitespace, then it converts the input string to an
-/// empty string.  ("Whitespace" = spaces or tabs)
+/// This function returns a string minus any leading dashes; it returns an 
+/// empty string if the input was all dashes.
 void StripLeadingDashes( string& stringToModify )
 {
   if (stringToModify.empty())

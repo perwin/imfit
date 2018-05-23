@@ -9,7 +9,7 @@
  * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
-// Copyright 2013-2017 by Peter Erwin.
+// Copyright 2013-2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -69,8 +69,8 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
 /// If saving of all best-fit parameters to file is requested, then outputFile_ptr
 /// should be non-NULL (i.e., should point to a file object opened for writing, possibly
 /// with header information already written).
-/// Returns the number of (successful) bootstrap iterations (returns -1 if error
-/// encountered).
+/// Returns the number of (successful) bootstrap iterations, or returns -1 if error
+/// encountered.
 int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
@@ -107,17 +107,15 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
     // Calculate sigmas and 68% confidence intervals for the parameters
     // vector to hold estimated sigmas for each parameter
     paramSigmas = (double *)calloc( (size_t)nParams, sizeof(double) );
-    /* Determine dispersions for parameter values */
     for (i = 0; i < nParams; i++)
       paramSigmas[i] = StandardDeviation(outputParamArray[i], nSuccessfulIterations);
-    /* Print parameter values + standard deviations: */
-    /* (note that calling ConfidenceInterval() sorts the vectors in place!) */
+    // Print parameter values + standard deviations, for non-fixed parameters
+    // (note that calling ConfidenceInterval() sorts the vectors in place!)
     printf("\nStatistics for parameter values from bootstrap resampling");
     printf(" (%d successful iterations):\n", nSuccessfulIterations);
     printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
     for (i = 0; i < nParams; i++) {
       if (parameterLimits[i].fixed == 0) {
-        // OK, this parameter was not fixed
         ConfidenceInterval(outputParamArray[i], nSuccessfulIterations, &lower, &upper);
         plus = upper - bestfitParams[i];
         minus = bestfitParams[i] - lower;
@@ -195,7 +193,6 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
   if (outputFile_ptr != NULL)
     saveToFile = true;
   
-  /* seed random number generators with current time */
   if (rngSeed > 0)
     init_genrand(rngSeed);
   else

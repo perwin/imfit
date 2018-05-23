@@ -68,7 +68,7 @@
  * include SaveVectorAsImage().
  */
 
-// Copyright 2010--2017 by Peter Erwin.
+// Copyright 2010--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -93,7 +93,6 @@
 #include <string>
 #include <vector>
 #include "fftw3.h"
-
 #include "fitsio.h"
 
 #include "image_io.h"
@@ -150,7 +149,6 @@ int CheckForImage( const std::string filename, const bool verbose )
   int  validHDU = -1;   // meaningless bad value (for possible test purposes)
   int  currentHDU = -1;
 
-   /* Open the FITS file: */
   problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
@@ -187,7 +185,6 @@ int GetImageSize( const std::string filename, int *nColumns, int *nRows, const b
   long  naxes[2];
   int  n_rows, n_columns;
   
-   /* Open the FITS file: */
   problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
@@ -197,7 +194,6 @@ int GetImageSize( const std::string filename, int *nColumns, int *nRows, const b
 
   // Check to make sure primary HDU is an image, and is actually a 2D array
   int  currentHDU = -1;
-  
   fits_get_hdu_num(imfile_ptr, &currentHDU);
   if (! CheckHDUForImage(imfile_ptr, currentHDU, &status)) {
     fprintf(stderr, "\n*** WARNING: Unable to find valid 2D image in extension %d (HDU %d) of %s!\n", 
@@ -283,9 +279,8 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   *nRows = n_rows;
   nPixelsTot = (long)n_columns * (long)n_rows;      // number of pixels in the image
   
-  // Allocate memory for the image-data vector:
-  imageVector = fftw_alloc_real(nPixelsTot);
   // Read in the image data
+  imageVector = fftw_alloc_real(nPixelsTot);
   problems = fits_read_pix(imfile_ptr, TDOUBLE, firstPixel, nPixelsTot, NULL, imageVector,
                             NULL, &status);
   if ( problems ) {

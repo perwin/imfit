@@ -90,16 +90,10 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 /* ------------------- Function Prototypes ----------------------------- */
+
 void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions );
 bool RequestedFilesPresent( ImfitOptions *theOptions );
-void HandleConfigFileOptions( configOptions *configFileOptions, 
-								ImfitOptions *mainOptions );
-
-
-/* ------------------------ Global Variables --------------------------- */
-
-/* ------------------------ Module Variables --------------------------- */
-
+void HandleConfigFileOptions( configOptions *configFileOptions, ImfitOptions *mainOptions );
 
 
 

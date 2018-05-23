@@ -1,4 +1,4 @@
-// Copyright 2017 by Peter Erwin.
+// Copyright 2017--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -103,41 +103,6 @@ std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRo
   return std::make_tuple(maskPixels, errorPixels, returnVal);
 }
 
-// std::tuple<double *, double *, int> GetMaskAndErrorImages( int nColumns, int nRows, 
-// 										const OptionsBase *options, bool &maskPixelsAllocated, 
-// 										bool &errorPixelsAllocated )
-// {
-//   int  status = 0;
-//   int  returnVal = 0;
-//   double *maskPixels = nullptr;
-//   double *errorPixels = nullptr;
-//   
-//   maskPixelsAllocated = false;
-//   errorPixelsAllocated = false;
-// 
-//   /* Get and check mask image */
-//   if (options->maskImagePresent) {
-//     printf("Reading mask image (\"%s\") ...\n", options->maskFileName.c_str());
-//     std::tie(maskPixels, status) = GetAndCheckImage(options->maskFileName, "mask",
-//     												nColumns, nRows);
-//     if (status < 0)
-//       return std::make_tuple(maskPixels, errorPixels, -1);
-//     maskPixelsAllocated = true;
-//     returnVal += 1;
-//   }
-//   /* Get and check error image, if supplied */
-//   if (options->noiseImagePresent) {
-//     printf("Reading noise image (\"%s\") ...\n", options->noiseFileName.c_str());
-//     std::tie(errorPixels, status) = GetAndCheckImage(options->noiseFileName, "noise",
-//     												nColumns, nRows);
-//     if (status < 0)
-//       return std::make_tuple(maskPixels, errorPixels, -1);
-//     errorPixelsAllocated = true;
-//     returnVal += 2;
-//   }
-//   
-//   return std::make_tuple(maskPixels, errorPixels, returnVal);
-// }
 
 
 /// Function which reads and returns data corresponding to requested PSF image,
@@ -164,26 +129,6 @@ std::tuple<double *, int, int, int> GetPsfImage( const string &psfFileName )
 
   return std::make_tuple(psfPixels, nColumns_psf, nRows_psf, 0);
 }
-
-// std::tuple<double *, int, int, int> GetPsfImage( const OptionsBase *options )
-// {
-//   int  status;
-//   int  nColumns_psf, nRows_psf;
-//   double *psfPixels = nullptr;
-//   
-//   // Read in PSF image
-//   printf("Reading PSF image (\"%s\") ...\n", options->psfFileName.c_str());
-//   std::tie(psfPixels, status) = GetAndCheckImage(options->psfFileName.c_str(), "PSF", 0,0);
-//   if (status < 0)
-//     return std::make_tuple(psfPixels, 0,0, -1);
-// 
-//   GetImageSize(options->psfFileName, &nColumns_psf, &nRows_psf);
-//   long nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
-//   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
-//          nColumns_psf, nRows_psf, nPixels_psf);
-// 
-//   return std::make_tuple(psfPixels, nColumns_psf, nRows_psf, 0);
-// }
 
 
 

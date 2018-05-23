@@ -34,7 +34,6 @@
 #include "model_object.h"
 #include "add_functions.h"
 
-// CHANGE WHEN ADDING FUNCTION -- add corresponding header file
 #include "function_objects/function_object.h"
 #include "func_gaussian.h"
 #include "func_sersic.h"
@@ -66,7 +65,7 @@
 // e.g.
 //#include "func_mynewfunction.h"
 
-// extra functions
+// extra functions -- in developement/experimental, for testing purposes, etc.
 #ifdef USE_EXTRA_FUNCS
 #include "func_broken-exp-bar.h"
 #include "func_brokenexpbar3d.h"
@@ -268,7 +267,7 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 }
 
 
-
+/// Add instances of FunctionObject classes to the input ModelObject
 int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
                   vector<int> &functionBlockIndices, const bool subsamplingFlag, 
                   const int verboseLevel, vector< map<string, string> > &extraParams )
@@ -337,6 +336,9 @@ void FreeFactories( map<string, factory*>& factory_map )
 }
 
 
+/// Print names of all included image functions to console.
+/// (Meant to be called by ProcessInput() function in main module when
+/// "--list-functions" command-line option is given.)
 void PrintAvailableFunctions( )
 {
   vector<string>  functionNames;
@@ -349,9 +351,11 @@ void PrintAvailableFunctions( )
 }
 
 
-// Prints a list of function names, along with the ordered list of
-// parameter names for each function (suitable for copying and pasting
-// into a config file for makeimage or imfit).
+/// Prints a list of function names, along with the ordered list of
+/// parameter names for each function, to console (suitable for copying 
+/// and pasting into a config file for makeimage or imfit).
+/// (Meant to be called by ProcessInput() function in main module when
+/// "--list-parameters" command-line option is given.)
 void ListFunctionParameters( )
 {
   
@@ -384,16 +388,15 @@ void ListFunctionParameters( )
 
 
 
-// Gets the ordered list of parameter names for the specified function and returns them
-// in the input vector parameterNameList
-//
-// Returns -1 if functionName is not the name of a valid Function Object class
-// (Based on code from André Luiz de Amorim.)
+/// Gets the ordered list of parameter names for the specified function and returns them
+/// in the input vector parameterNameList
+///
+/// Returns -1 if functionName is not the name of a valid Function Object class
+/// (Based on code from André Luiz de Amorim.)
 int GetFunctionParameterNames(string &functionName, vector<string> &parameterNameList)
 {
   FunctionObject  *thisFunctionObj;
   map<string, factory*>  factory_map;
-//  vector<string> factory_map_names;
 
   PopulateFactoryMap(factory_map);
 
@@ -413,10 +416,10 @@ int GetFunctionParameterNames(string &functionName, vector<string> &parameterNam
 }
 
 
-// Gets the list of names of known functions and returns them
-// in the input vector functionNameList
-//
-// (Based on code from André Luiz de Amorim.)
+/// Gets the list of names of known functions and returns them
+/// in the input vector functionNameList
+///
+/// (Based on code from André Luiz de Amorim.)
 void GetFunctionNames( vector<string> &functionNameList )
 {
   string  currentName;

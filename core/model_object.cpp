@@ -59,7 +59,6 @@
 using namespace std;
 
 #include "mersenne_twister.h"
-
 #include "definitions.h"
 #include "function_object.h"
 #include "model_object.h"
@@ -89,16 +88,21 @@ const int  DOUBLE_SIZE = 8;
 // Core i7 in MacBook Pro, under Mac OS X 10.6 and 10.7)
 #define DEFAULT_OPENMP_CHUNK_SIZE  10
 
+
 // for use in ModelObject::AddFunction()
 map<string, int> interpolationMap{ {string("bicubic"), kInterpolator_bicubic}, 
 									{string("lanczos2"), kInterpolator_lanczos2}, 
 									{string("lanczos3"), kInterpolator_lanczos3} };
 
 
+
+/* ------------------- Function Prototypes ----------------------------- */
+
 void NormalizePSF( double *psfPixels, long nPixels_psf );
 
 
 
+// ModelObject class
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 /// Constructor
@@ -296,8 +300,7 @@ int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
 /// PSF data.
 int ModelObject::SetupPsfInterpolation( int interpolationType )
 {
-  // instantiate PsfInterpolator object for possible use by PointSource image functions
-  // default case of GSL bicubic interpolation
+
   if (! localPsfPixels_allocated) {
     fprintf(stderr, "** ERROR: PointSource image function being used, but no ");
     fprintf(stderr, "PSF image was supplied!\n");
@@ -329,7 +332,8 @@ int ModelObject::SetupPsfInterpolation( int interpolationType )
 
 
 /* ---------------- PUBLIC METHOD: DefineFunctionBlocks --------------- */
-
+/// Given a vector of indices specifying the start of individual function
+/// blocks, set up the internal fblockStartFlags array; also compute nParamsTot
 void ModelObject::DefineFunctionBlocks( vector<int>& functionStartIndices )
 {
   int  nn, i;
@@ -363,7 +367,7 @@ void ModelObject::DefineFunctionBlocks( vector<int>& functionStartIndices )
 
 
 /* ---------------- PUBLIC METHOD: SetZeroPoint ----------------------- */
-
+/// Set the internal zero-point (for printing flux values)
 void ModelObject::SetZeroPoint( double zeroPointValue )
 {
 
@@ -373,12 +377,6 @@ void ModelObject::SetZeroPoint( double zeroPointValue )
 
 
 /* ---------------- PUBLIC METHOD: PrintParameterInfoLine ------------- */
-
-// void PrintParameterInfoLine( int i, SimpleParameterInfo p )
-// {
-//   printf("i = %d: %d, (%d,%d), (%f,%f), %f\n", i, p.fixed, p.limited[0],p.limited[1],
-//   		p.limits[0],p.limits[1], p.offset);
-// }
 
 void ModelObject::AddParameterInfo( mp_par  *inputParameterInfo )
 {
@@ -816,7 +814,6 @@ int ModelObject::AddOversampledPSFVector( long nPixels, int nColumns_psf,
   // assertion to check that nModelColumns and nModelRows *have* been set to good values
   assert( (nModelColumns > 0) && (nModelRows > 0) );
 
-  // check for bad values
   for (long i = 0; i < nPixels; i++) {
     if (! isfinite(psfPixels_osamp[i])) {
       fprintf(stderr, "** ERROR: Oversampled PSF image has one or more non-finite values!\n");
@@ -891,7 +888,6 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   // assertion to check that nModelColumns and nModelRows *have* been set to good values
   assert( (nModelColumns > 0) && (nModelRows > 0) );
 
-  // check for bad values
   for (long i = 0; i < nPixels; i++) {
     if (! isfinite(psfPixels_osamp[i])) {
       fprintf(stderr, "** ERROR: Oversampled PSF image has one or more non-finite values!\n");
@@ -909,7 +905,6 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   if (y2 > nDataRows)
     y2 = nDataRows;
   // size of oversampling region
-  //oversamplingScale = oversampleScale;
   deltaX = x2 - x1 + 1;
   deltaY = y2 - y1 + 1;
   assert( deltaX > 0 );
@@ -1039,13 +1034,7 @@ int ModelObject::FinalSetupForFitting( )
   PrintWeights();
 #endif
 
-  // Apply mask to weight vector (i.e., weight -> 0 for masked pixels)
-//   if (CheckWeightVector())
-//     ApplyMask();
-//   else {
-//     fprintf(stderr, "** ModelObject::FinalSetup -- bad values detected in weight vector!\n");
-//     returnStatus = -1;
-//   }
+  // Apply mask to weight vector (i.e., set weight -> 0 for masked pixels)
   ApplyMask();
   if (! CheckWeightVector()) {
     fprintf(stderr, "** ModelObject::FinalSetup -- bad values detected in weight vector!\n");
@@ -1144,7 +1133,7 @@ void ModelObject::CreateModelImage( double params[] )
     storedError = 0.0;
     for (n = 0; n < nFunctions; n++) {
       if (! functionObjects[n]->IsPointSource()) {
-        // Use Kahan summation algorithm
+        // Kahan summation algorithm
         adjVal = functionObjects[n]->GetValue(x, y) - storedError;
         tempSum = newValSum + adjVal;
         storedError = (tempSum - newValSum) - adjVal;
@@ -1383,6 +1372,7 @@ double ModelObject::ComputePoissonMLRDeviate( long i, long i_model )
   return deviateVal;
 }
 
+
 /* ---------------- PUBLIC METHOD: ComputeDeviates --------------------- */
 /* This function computes the vector of weighted deviates (differences between
  * model and data pixel values).  Note that a proper chi^2 sum requires *squaring*
@@ -1572,10 +1562,10 @@ void ModelObject::UsePoissonMLR( )
 /* ---------------- PUBLIC METHOD: UsingCashStatistic ------------------ */
 // DEPRECATED! (Use WhichStatistic instead)
 
-bool ModelObject::UsingCashStatistic( )
-{
-  return useCashStatistic;
-}
+// bool ModelObject::UsingCashStatistic( )
+// {
+//   return useCashStatistic;
+// }
 
 
 /* ---------------- PUBLIC METHOD: WhichStatistic ---------------------- */
