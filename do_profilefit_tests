@@ -28,54 +28,54 @@ echo "Running tests for profilefit (L-M solver only)..."
 echo ""
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit... "
-if (diff --brief test_dump1 tests/profilefit_textout1)
+if (diff --brief test_dump1 tests/profilefit_reference/profilefit_textout1)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}Diff output:"
-  diff test_dump1 tests/profilefit_textout1
+  diff test_dump1 tests/profilefit_reference/profilefit_textout1
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: NGC 3348 Core-Sersic fit... "
-if (diff --brief test_dump2 tests/profilefit_textout2)
+if (diff --brief test_dump2 tests/profilefit_reference/profilefit_textout2)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}Diff output:"
-  diff test_dump2 tests/profilefit_textout2
+  diff test_dump2 tests/profilefit_reference/profilefit_textout2
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Nelder-Mead Simplex)... "
 tail -n 11 test_dump3a > test_dump3a_tail
-if (diff --brief test_dump3a_tail tests/profilefit_textout3a)
+if (diff --brief test_dump3a_tail tests/profilefit_reference/profilefit_textout3a)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}Diff output:"
-  diff test_dump3a_tail tests/profilefit_textout3a
+  diff test_dump3a_tail tests/profilefit_reference/profilefit_textout3a
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Differential Evoln.)... "
 tail -n 11 test_dump3b > test_dump3b_tail
-if (diff --brief test_dump3b_tail tests/profilefit_textout3b)
+if (diff --brief test_dump3b_tail tests/profilefit_reference/profilefit_textout3b)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}Diff output:"
-  diff test_dump3b_tail tests/profilefit_textout3b
+  diff test_dump3b_tail tests/profilefit_reference/profilefit_textout3b
   STATUS+=1
 fi
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit -- print initial chi^2 only... "
-if (diff --brief test_dump4 tests/profilefit_textout4)
+if (diff --brief test_dump4 tests/profilefit_reference/profilefit_textout4)
 then
   echo " OK"
 else
   echo -e "   ${RED}Failed:${NC}Diff output:"
-  diff test_dump4 tests/profilefit_textout4
+  diff test_dump4 tests/profilefit_reference/profilefit_textout4
   STATUS+=1
 fi
 

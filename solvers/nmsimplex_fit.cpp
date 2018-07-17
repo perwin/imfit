@@ -1,6 +1,6 @@
 /* FILE: nmsimplex_fit.cpp ----------------------------------------------- */
 
-// Copyright 2012--2017 by Peter Erwin.
+// Copyright 2012--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -74,10 +74,10 @@ nlopt_opt  optimizer;
 
 
 
-// Objective function: calculates the objective value (ignore gradient calculation)
-// Keep track of how many times this function has been called, and report current
-// chi^2 (or other objective-function value) every 20 calls
-// Note that parameters n and grad are unused, but required by the NLopt interface.
+/// Objective function: calculates the objective value (ignore gradient calculation)
+/// Keep track of how many times this function has been called, and report current
+/// chi^2 (or other objective-function value) every 20 calls
+/// Note that parameters n and grad are unused, but required by the NLopt interface.
 double myfunc_nlopt( unsigned n, const double *x, double *grad, void *my_func_data )
 {
   ModelObject *theModel = (ModelObject *)my_func_data;

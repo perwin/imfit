@@ -1,6 +1,6 @@
 /* FILE: solver_results.cpp ---------------------------------------------- */
 
-// Copyright 2015, 2017 by Peter Erwin.
+// Copyright 2015, 2017, 2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

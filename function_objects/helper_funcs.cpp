@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "helper_funcs.h"
 
 
@@ -23,4 +25,29 @@ double Calculate_bn( double n )
     b_n = A0_M03 + A1_M03*n + A2_M03*n2 + A3_M03*n2*n + A4_M03*n2*n2;
   }
   return b_n;
+}
+
+
+double GeneralizedRadius( double deltaX, double deltaY, double cosPA, double sinPA,
+							double q, double ellExponent, double invEllExponent )
+{
+  double  xp, yp_scaled, powerSum;
+  // Calculate x,y in component reference frame, and scale y by 1/axis_ratio;
+  // convert both to absolute values
+  xp = fabs(deltaX*cosPA + deltaY*sinPA);
+  yp_scaled = fabs((-deltaX*sinPA + deltaY*cosPA)/q);
+  // Compute radius for generalized ellipse
+  powerSum = pow(xp, ellExponent) + pow(yp_scaled, ellExponent);
+  return pow(powerSum, invEllExponent);
+}
+
+
+double LinearInterp( double r, double r1, double r2, double c01, double c02 )
+{
+  if (r < r1)
+    return c01;
+  if (r > r2)
+    return c02;
+  double m = (c02 - c01) / (r2 - r1);
+  return c01 + m*(r - r1);
 }

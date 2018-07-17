@@ -67,6 +67,7 @@
 
 // extra functions -- in developement/experimental, for testing purposes, etc.
 #ifdef USE_EXTRA_FUNCS
+#include "func_gen-exp2.h"
 #include "func_broken-exp-bar.h"
 #include "func_brokenexpbar3d.h"
 #include "func_boxytest3d.h"
@@ -212,6 +213,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 // extra functions
 #ifdef USE_EXTRA_FUNCS
+  GenExponential2::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GenExponential2>();
+
   BrokenExponentialBar::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BrokenExponentialBar>();
 

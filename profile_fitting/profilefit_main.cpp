@@ -397,7 +397,8 @@ int main(int argc, char *argv[])
     							paramsVect, parameterInfo, theModel, options.ftol, paramLimitsExist, 
     							options.verbose, &resultsFromSolver, options.nloptSolverName);
     							
-    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
+//    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
+    PrintResults(paramsVect, theModel, nFreeParams, fitStatus, resultsFromSolver);
   }
 
 
@@ -417,9 +418,12 @@ int main(int argc, char *argv[])
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
     string  progNameVer = "profilefit ";
     progNameVer += VERSION_STRING;
-    SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
+//     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
+//                     programHeader, nFreeParams, options.solver, fitStatus, resultsFromSolver);
+    SaveParameters(paramsVect, theModel, options.outputParameterFileName,
                     programHeader, nFreeParams, options.solver, fitStatus, resultsFromSolver);
   }
+
 
   if (options.saveBestProfile) {
     theModel->CreateModelImage(paramsVect);

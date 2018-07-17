@@ -23,15 +23,14 @@ Calling Levenberg-Marquardt solver ...
 
 Reduced Chi^2 = 0.001692
 AIC = 14.395933, BIC = 22.629800
-
 X0		0.000000 # +/- 0.000000
 FUNCTION Core-Sersic-1D
-n		3.860567 # +/- 2.145624
-mu_b		15.231779 # +/- 1.212632
-r_e		22.370948 # +/- 10.836318
-r_b		0.344099 # +/- 0.770046
-alpha		3.790030 # +/- 40.116852
-gamma		0.139916 # +/- 0.554908
+n		3.860567 # +/- 2.145627
+mu_b		15.231779 # +/- 1.212631
+r_e		22.370947 # +/- 10.836320
+r_b		0.344099 # +/- 0.770047
+alpha		3.790036 # +/- 40.116430
+gamma		0.139916 # +/- 0.554909
 
 Saving best-fit parameters in file "bestfit_parameters_profilefit.dat"
 All done!

@@ -24,13 +24,14 @@
 #include <gsl/gsl_spline.h>
 
 #include "func1d_spline.h"
+#include "utilities_pub.h"
 
 using namespace std;
 
 
 /* ---------------- Definitions ---------------------------------------- */
 // maximum number of data points (always >= 2)
-const int  N_PARAMS = MAX_POINTS + 3;  // MAX_POINTS is defined in func1d_spline.h
+//const int  N_PARAMS = MAX_POINTS + 3;  // MAX_POINTS is defined in func1d_spline.h
 const char  PARAM_LABELS[][20] = {"I_0", "r_1", "I_1", "r_2", "I_2", "r_3", "I_3"};
 const char FUNCTION_NAME[] = "Spline-1D function";
 #define CLASS_SHORT_NAME  "Spline-1D"
@@ -45,11 +46,14 @@ Spline1D::Spline1D( )
 {
   string  paramName;
   
-  nParams = N_PARAMS;
+//  nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
   shortFunctionName = CLASS_SHORT_NAME;
+  
+  maxInterpPoints = MAX_POINTS;   // may be modified by SetExtraParams()
+  nParams = maxInterpPoints + 3;  // may be modified by SetExtraParams()
 
-  // Set up the vector of parameter labels
+  // Set up the (maximum-sized) vector of parameter labels
   for (int i = 0; i < nParams; i++) {
     paramName = PARAM_LABELS[i];
     parameterLabels.push_back(paramName);
@@ -97,8 +101,8 @@ void Spline1D::Setup( double params[], int offsetIndex, double xc )
   yInterp[0] = I_0;
   xInterp[1] = r_1;
   yInterp[1] = I_1;
-  nInterpPoints = MAX_POINTS;
-  for (int i = 2; i < MAX_POINTS; i++) {
+  nInterpPoints = maxInterpPoints;
+  for (int i = 2; i < maxInterpPoints; i++) {
     paramIndex = 2*i - 1 + offsetIndex;
     currentRVal = params[paramIndex];
 //     printf("i = %d: paramIndex = %d, currentRVal = %f\n", i, paramIndex, currentRVal);
@@ -124,6 +128,47 @@ void Spline1D::Setup( double params[], int offsetIndex, double xc )
 //     printf("(i,r,y) = (%d,%.3f,%.3f)", i, xInterp[i], yInterp[i]);
   gsl_spline_init(splineFunc, xInterp, yInterp, nInterpPoints);
 }
+
+
+/* ---------------- PUBLIC METHOD: HasExtraParams ---------------------- */
+
+bool Spline1D::HasExtraParams( )
+{
+  return true;
+}
+
+
+/* ---------------- PUBLIC METHOD: SetExtraParams ---------------------- */
+// Returns -1 if map is empty, 0 if map is not empty but no valid parameter
+// name is found. If map has valid parameter name, returns 1 if parameter
+// value is OK, -3 if not.
+int Spline1D::SetExtraParams( map<string,string>& inputMap )
+{
+  // check for empty map
+  if (inputMap.empty()) {
+    printf("   GaussianExtraParams::SetExtraParams: input map is empty!\n");
+    return -1;
+  }
+  // only one possible parameter for this function, so no need to loop
+  map<string,string>::iterator iter;
+  for( iter = inputMap.begin(); iter != inputMap.end(); iter++) {
+    if (iter->first == "N") {
+      if (NotANumber(iter->second.c_str(), 0, kPosInt))
+        return -3;
+      else {
+        maxInterpPoints = atoi(iter->second.c_str());
+        if (maxInterpPoints > MAX_POINTS)
+          return -3;
+        printf("   Spline1D::SetExtraParams -- setting maxInterpPoints = %d\n", maxInterpPoints);
+        extraParamsSet = true;
+        nParams = maxInterpPoints + 3;
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */

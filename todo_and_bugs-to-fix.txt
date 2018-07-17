@@ -505,6 +505,12 @@ image (accounting for data image subset, if any)
 	when parameter vector is passed to image function in Setup(),
 	*sort* the parameters by radius, then do interpolation with the sorted
 	vector of r,I
+	
+	-- Use optional parameter to set maximum number of possible interpolation
+	points?
+		-- would require changing modifying SetExtraParams to set up
+		parameter names vector properly, reset nParams; maybe also modfiy
+		GetParameterNames?
 
 
 [] Modify handling of oversampled PSF to catch case where user wants entire

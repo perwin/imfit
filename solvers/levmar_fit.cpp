@@ -1,6 +1,6 @@
 /* FILE: levmar_fit.cpp -------------------------------------------------- */
 
-// Copyright 2012, 2013, 2015, 2017 by Peter Erwin.
+// Copyright 2012-2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -41,18 +41,16 @@ const double  XTOL = 1.0e-8;
 
 
 /* ------------------- Function Prototypes ----------------------------- */
-/* External functions: */
 
-/* Local Functions: */
 int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *aModel );
 
 
 
 
-/* This is the function used by mpfit() to compute the vector of deviates.
- * In our case, it's a wrapper which tells the ModelObject to compute the deviates.
- */
+/// This is the function used by mpfit() to compute the vector of deviates.
+/// In our case, it's a wrapper which tells the ModelObject to compute 
+/// and return the deviates.
 int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
            double **derivatives, ModelObject *theModel )
 {

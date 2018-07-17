@@ -1,6 +1,6 @@
 // Code for setting up ModelObject instances with data
 
-// Copyright 2017 by Peter Erwin.
+// Copyright 2017-2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

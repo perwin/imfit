@@ -39,7 +39,7 @@
 //   }
 
 
-// Copyright 2014, 2015, 2017 by Peter Erwin.
+// Copyright 2014-2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -191,8 +191,6 @@ int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nB
 {
   int  result = 0;
 
-//   printf("   OversampledRegion::SetupModelImage: nBaseColumns, nBaseRows, oversampScale =");
-//   printf(" %d, %d, %d\n", nBaseColumns, nBaseRows, oversampScale);
   assert( (nBaseColumns >= 1) && (nBaseRows >= 1) && (oversampScale >= 1) );
   assert( (nColumnsMain >= 1) && (nRowsMain >= 1) );
   assert( (nColumnsPSF_main >= 0) && (nRowsPSF_main >= 0) );
@@ -286,7 +284,7 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
     storedError = 0.0;
     for (n = 0; n < nFunctions; n++) {
       if (! functionObjectVect[n]->IsPointSource()) {
-        // Use Kahan summation algorithm
+        // Kahan summation algorithm
         adjVal = functionObjectVect[n]->GetValue(x, y) - storedError;
         tempSum = newValSum + adjVal;
         storedError = (tempSum - newValSum) - adjVal;

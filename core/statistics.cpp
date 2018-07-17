@@ -1,4 +1,4 @@
-// Copyright 2010--2017 by Peter Erwin.
+// Copyright 2010--2018 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -74,12 +74,11 @@ double StandardDeviation( double *vector, int nVals )
 
 
 /* ---------------- ConfidenceInterval --------------------------------- */
-/*    Returns lower and upper bounds of a confidence interval for a range
- * of values.  For now, we assume a 68.3% confidence interval (which for
- * a Gaussian distribution is the +/- 1-sigma interval), though in the future
- * this could be an input parameter.
- *    Note that the input vector is sorted in place!
- */
+///    Returns lower and upper bounds of a confidence interval for a range
+/// of values.  For now, we assume a 68.3% confidence interval (which for
+/// a Gaussian distribution is the +/- 1-sigma interval), though in the future
+/// this could be an input parameter.
+///   Note that the input vector is sorted in place!
 void ConfidenceInterval( double *vector, int nVals, double *lower, double *upper )
 {
   int  lower_ind, upper_ind;
@@ -103,9 +102,8 @@ void ConfidenceInterval( double *vector, int nVals, double *lower, double *upper
 
 
 /* ---------------- SortComp ------------------------------------------- */
-/* Callback function used by qsort() in ConfidenceInterval() to sort a
- * vector of doubles
- */
+/// Callback function used by qsort() in ConfidenceInterval() to sort a
+/// vector of doubles
 int SortComp( const void *x, const void *y )
 {
   const double  *xx = (const double *)x;
@@ -124,18 +122,17 @@ int SortComp( const void *x, const void *y )
 
 
 /* ---------------- AIC_corrected -------------------------------------- */
-/* Calculate the bias-corrected Akaike Information Criterion for a model fit
- * to data, given the ln(likelihood) of the best-fit model, the number of model
- * parameters nParams, and the number of data points nData (the latter is used
- * to correct the 2*nParams part of AIC for small sample size).
- *
- * If chiSquareUsed is nonzero, then the input logLikelihood is assumed to be
- * the chi^2 value of the fit, and that is used for -2 ln(likelihood)
- * in the calculation.
- *
- * Formula from Burnham & Anderson, Model selection and multimodel inference: 
- * a practical information-theoretic approach (2002), p.66.
- */
+/// Calculate the bias-corrected Akaike Information Criterion for a model fit
+/// to data, given the ln(likelihood) of the best-fit model, the number of model
+/// parameters nParams, and the number of data points nData (the latter is used
+/// to correct the 2*nParams part of AIC for small sample size).
+///
+/// If chiSquareUsed is nonzero, then the input logLikelihood is assumed to be
+/// the chi^2 value of the fit, and that is used for -2 ln(likelihood)
+/// in the calculation.
+///
+/// Formula from Burnham & Anderson, Model selection and multimodel inference: 
+/// a practical information-theoretic approach (2002), p.66.
 double AIC_corrected( double logLikelihood, int nParams, long nData, int chiSquareUsed )
 {
   double  twok, aic, correctionTerm;
@@ -153,14 +150,13 @@ double AIC_corrected( double logLikelihood, int nParams, long nData, int chiSqua
 
 
 /* ---------------- BIC ------------------------------------------------ */
-/* Calculate the Bayesian Information Criterion for a model fit to data,
- * given the ln(likelihood) of the best-fit model, the number of model 
- * parameters nParams, and the number of data points nData.
- *
- * If chiSquareUsed is nonzero, then the input logLikelihood is assumed to be
- * the chi^2 value of the fit, and that is used for -2 ln(likelihood)
- * in the calculation.
- */
+/// Calculate the Bayesian Information Criterion for a model fit to data,
+/// given the ln(likelihood) of the best-fit model, the number of model 
+/// parameters nParams, and the number of data points nData.
+///
+/// If chiSquareUsed is nonzero, then the input logLikelihood is assumed to be
+/// the chi^2 value of the fit, and that is used for -2 ln(likelihood)
+/// in the calculation.
 double BIC( double logLikelihood, int nParams, long nData, int chiSquareUsed )
 {
   double  minustwo_logLikelihood, bic;

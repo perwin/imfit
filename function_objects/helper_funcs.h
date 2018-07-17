@@ -7,7 +7,26 @@
 
 // Sersic-related
 
+/// Calculate the b_n parameter for a Sersic function
 double Calculate_bn( double n );
 
+
+
+// Generalized ellipse shapes
+
+/// Calculate equivalent radius for a generalized ellipse
+///   deltaX = x - x0, deltaY = y - y0
+///   cosPA, sinPA = cosine and sine of PA_rad, where
+///      PA_rad = (PA + 90.0) converted to radians
+///   q = axis ratio b/a of ellipse
+///   ellExponent = c0 + 2, invEllExponent = 1/ellExponent
+double GeneralizedRadius( double deltaX, double deltaY, double cosPA, double sinPA,
+							double q, double ellExponent, double invEllExponent );
+
+
+
+// Experimental functions for interpolating c0 values
+
+double LinearInterp( double r, double r1, double r2, double c01, double c02 );
 
 #endif  // _HELPER_H_

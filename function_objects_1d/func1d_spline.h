@@ -34,6 +34,8 @@ class Spline1D : public FunctionObject
     Spline1D( );
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc );
+    bool HasExtraParams( );
+    int SetExtraParams( map<string, string>& inputMap );
     double  GetValue( double x );
     // Destructor (handles deallocation of GSL spline structures)
     ~Spline1D( );
@@ -46,7 +48,7 @@ class Spline1D : public FunctionObject
     double  x0, I_0, r_1, I_1;   // parameters
     double  xInterp[MAX_POINTS];
     double  yInterp[MAX_POINTS];
-    int  nInterpPoints;
+    int  nInterpPoints, maxInterpPoints;
     bool  splineFuncAllocated;
     bool  splineCacheAllocated;
     gsl_interp_accel *splineCache;

@@ -170,8 +170,8 @@ cpp_compiler_changed = False
 # Lee Kelvin, who contributed the new version)
 userName = pwd.getpwuid(os.getuid())[0]
 if (os_type == "Darwin") and (userName == "erwin"): 
-	CC_COMPILER = "gcc-7"
-	CPP_COMPILER = "g++-7"
+	CC_COMPILER = "gcc-8"
+	CPP_COMPILER = "g++-8"
 	c_compiler_changed = True
 	cpp_compiler_changed = True
 
@@ -298,8 +298,8 @@ if GetOption("cpp_compiler") is not None:
 	print("using %s for C++ compiler" % CPP_COMPILER)
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
-	CC_COMPILER = "gcc-7"
-	CPP_COMPILER = "g++-7"
+	CC_COMPILER = "gcc-8"
+	CPP_COMPILER = "g++-8"
 	print("using %s for C compiler" % CC_COMPILER)
 	print("using %s for C++ compiler" % CPP_COMPILER)
 	c_compiler_changed = True
@@ -568,6 +568,7 @@ if useExtraFuncs:
 	# experimental extra functions for personal testing
 	functionobject_obj_string += " func_broken-exp-bar"
 	functionobject_obj_string += " func_double-broken-exp"
+	functionobject_obj_string += " func_gen-exp2"
 	if useGSL:
 		functionobject_obj_string += " func_brokenexpbar3d"
 		functionobject_obj_string += " func_boxytest3d"
@@ -719,7 +720,8 @@ functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 # Base files for profilefit:
 profilefit_base_obj_string = """core/commandline_parser core/utilities profile_fitting/read_profile 
 		core/config_file_parser core/print_results profile_fitting/add_functions_1d core/convolver 
-		core/mp_enorm core/statistics core/mersenne_twister
+		core/mp_enorm core/statistics core/mersenne_twister 
+		function_objects/psf_interpolators
 		profile_fitting/convolver1d profile_fitting/model_object_1d 
 		profile_fitting/bootstrap_errors_1d profile_fitting/profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()

@@ -49,8 +49,6 @@ class OversampledRegion
 
 
   private:
-  // Private member functions:
-
   // Data members:
     Convolver  *psfConvolver;
     int  ompChunkSize, maxRequestedThreads, debugLevel;
