@@ -30,6 +30,7 @@ using namespace std;
 #include "function_objects/func_broken-exp2d.h"
 #include "function_objects/func_edge-on-disk.h"
 #include "function_objects/func_double-broken-exp.h"
+//#include "function_objects/func_spline-profile.h"
 
 const double  DELTA = 1.0e-9;
 const double  DELTA_e9 = 1.0e-9;
@@ -1774,3 +1775,119 @@ public:
     TS_ASSERT_EQUALS(result, false);
   }
 };
+
+
+// class TestSplineProfile : public CxxTest::TestSuite 
+// {
+// 
+// public:
+// 
+//   // and now the actual tests
+//   void testFuncCreation( void )
+//   {
+//     FunctionObject *theFunc;
+//     string funcName, correctName;
+//     
+//     theFunc = new SplineProfile;
+//     
+//     TS_ASSERT_EQUALS( theFunc->HasExtraParams(), true );
+//     TS_ASSERT_EQUALS( theFunc->CanCalculateTotalFlux(), false );
+//     TS_ASSERT_EQUALS( theFunc->IsPointSource(), false );
+// 
+//     // MAX_SPLINE_POINTS + PA, ell, 
+//     int  correctNParams = MAX_SPLINE_POINTS + 5;
+//     TS_ASSERT_EQUALS( theFunc->GetNParams(), correctNParams );
+//     
+//     funcName = theFunc->GetShortName();
+//     correctName = "SplineProfile";
+//     TS_ASSERT_EQUALS( funcName, correctName );
+// 
+//     delete theFunc;
+//   }
+// 
+//   void testExtraParams_goodInput( void )
+//   {
+//     FunctionObject *theFunc;
+//     int  retVal;
+//     map<string,string> extraParamsMap;
+//     
+//     extraParamsMap["N"] = "3";
+//     
+//     theFunc = new SplineProfile;
+//     
+//     TS_ASSERT_EQUALS( theFunc->HasExtraParams(), true );
+//     TS_ASSERT_EQUALS( theFunc->ExtraParamsSet(), false );
+//     int  correctNParams = MAX_SPLINE_POINTS + 3;
+//     TS_ASSERT_EQUALS( theFunc->GetNParams(), correctNParams );
+//     
+//     retVal = theFunc->SetExtraParams(extraParamsMap);
+//     TS_ASSERT_EQUALS( retVal, 1 );
+//     TS_ASSERT_EQUALS( theFunc->ExtraParamsSet(), true );
+//     correctNParams = 3 + 3;
+//     TS_ASSERT_EQUALS( theFunc->GetNParams(), correctNParams );
+//     
+//     delete theFunc;
+//   }
+// 
+//   void testExtraParams_badInput( void )
+//   {
+//     FunctionObject *theFunc;
+//     int  retVal;
+//     map<string,string> extraParamsMap;
+//     
+//     theFunc = new SplineProfile;
+//     
+//     TS_ASSERT_EQUALS( theFunc->HasExtraParams(), true );
+//     TS_ASSERT_EQUALS( theFunc->ExtraParamsSet(), false );
+//     int  correctNParams = 4 + 3;
+//     TS_ASSERT_EQUALS( theFunc->GetNParams(), correctNParams );
+//     
+//     // empty map --> -1
+//     retVal = theFunc->SetExtraParams(extraParamsMap);
+//     TS_ASSERT_EQUALS( retVal, -1 );
+//     
+//     // map with invalid keyword --> 0
+//     extraParamsMap["alpha"] = "3";
+//     retVal = theFunc->SetExtraParams(extraParamsMap);
+//     TS_ASSERT_EQUALS( retVal, 0 );
+// 
+//     // map with invalid value --> -3
+//     extraParamsMap.erase("alpha");
+//     extraParamsMap["N"] = "bob";
+//     retVal = theFunc->SetExtraParams(extraParamsMap);
+//     TS_ASSERT_EQUALS( retVal, -3 );
+//     
+//     delete theFunc;
+//   }
+//   
+//   void testCalculations( void )
+//   {
+//     FunctionObject *theFunc;
+// 
+// //  * I_0 = params[0 + offsetIndex ]; -- position angle of major axis
+// //  * I_0 = params[1 + offsetIndex ]; -- ellipticity of isophotes
+// //  * I_0 = params[2 + offsetIndex ]; -- central surf. brightness
+// //  * r_1 = params[3 + offsetIndex ];    -- radius of 2nd interpolation data point
+// //  * I_1 = params[4 + offsetIndex ];    -- surf. brightness of 2nd interpolation data point
+// //  * r_2 = params[5 + offsetIndex ];    -- radius of 3rd interpolation data point
+// //  * I_2 = params[6 + offsetIndex ];    -- surf. brightness of 3rd interpolation data point
+// //  * r_3 = params[7 + offsetIndex ];    -- radius of 4th interpolation data point
+// //  * I_3 = params[8 + offsetIndex ];    -- surf. brightness of 4th interpolation data point
+//     double  inputParams[MAX_SPLINE_POINTS + 3] = {100.0, 10.0, 50.0, 20.0, 0.0, 30.0, 0.0};
+// 
+//     theFunc = new SplineProfile;
+//     theFunc->SetSubsampling(false);
+//     theFunc->Setup(inputParams, 0, 0.0);
+// 
+//     // check that we recover interpolation reference values
+//     TS_ASSERT_DELTA( theFunc->GetValue(0.0), 100.0, DELTA );
+//     TS_ASSERT_DELTA( theFunc->GetValue(10.0), 50.0, DELTA );
+//     TS_ASSERT_DELTA( theFunc->GetValue(20.0), 0.0, DELTA );
+//     TS_ASSERT_DELTA( theFunc->GetValue(30.0), 0.0, DELTA );
+// 
+//     // check that we recover interpolated values
+//     TS_ASSERT_DELTA( theFunc->GetValue(5.0), 76.25, DELTA );
+//     TS_ASSERT_DELTA( theFunc->GetValue(15.0), 21.25, DELTA );
+//     TS_ASSERT_DELTA( theFunc->GetValue(25.0), -5.0, DELTA );
+//   }
+// };

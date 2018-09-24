@@ -83,6 +83,8 @@
 #include "func_triaxbar3d_gengauss_sq.h"
 #include "func_exp-higher-mom.h"
 #include "func_double-broken-exp.h"
+#include "func_flatbar.h"
+#include "func_gen-flatbar.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -261,6 +263,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   DoubleBrokenExponential::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<DoubleBrokenExponential>();
+
+  FlatBar::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FlatBar>();
+
+  GenFlatBar::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GenFlatBar>();
 #endif
 
 #ifdef USE_TEST_FUNCS

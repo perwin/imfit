@@ -376,14 +376,14 @@ image (accounting for data image subset, if any)
 			[] Write code to pass unit tests
 
 		
-		[] Add optional-parameter processing code to func1d_spline.cpp
+		[X] Add optional-parameter processing code to func1d_spline.cpp
 			-- additive constant
-			[] Write unit test to check input and processing
-			[] Write code to pass test
-			[] Generate and check output
-				[] config file without optional parameter
-				[] config file with optional parameter
-				[] config file with optional parameter (different value)
+			[X] Write unit test to check input and processing
+			[X] Write code to pass test
+			[X] Generate and check output
+				[X] config file without optional parameter
+				[X] config file with optional parameter
+				[X] config file with optional parameter (different value)
 
 
 
@@ -509,7 +509,7 @@ image (accounting for data image subset, if any)
 	-- Use optional parameter to set maximum number of possible interpolation
 	points?
 		-- would require changing modifying SetExtraParams to set up
-		parameter names vector properly, reset nParams; maybe also modfiy
+		parameter names vector properly, reset nParams; maybe also modifiy
 		GetParameterNames?
 
 

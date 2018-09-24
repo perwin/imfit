@@ -31,7 +31,6 @@ using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
 // maximum number of data points (always >= 2)
-//const int  N_PARAMS = MAX_POINTS + 3;  // MAX_POINTS is defined in func1d_spline.h
 const char  PARAM_LABELS[][20] = {"I_0", "r_1", "I_1", "r_2", "I_2", "r_3", "I_3"};
 const char FUNCTION_NAME[] = "Spline-1D function";
 #define CLASS_SHORT_NAME  "Spline-1D"
@@ -46,12 +45,13 @@ Spline1D::Spline1D( )
 {
   string  paramName;
   
-//  nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
   shortFunctionName = CLASS_SHORT_NAME;
   
-  maxInterpPoints = MAX_POINTS;   // may be modified by SetExtraParams()
-  nParams = maxInterpPoints + 3;  // may be modified by SetExtraParams()
+  maxInterpPoints = MAX_SPLINE_POINTS;   // may be modified by SetExtraParams()
+  nParams = 2*maxInterpPoints - 1;  // r,I values for each interpolation point, with first
+                                    // point r = 0 by definition (and so not an input parameter)
+                                    //  may be modified by SetExtraParams()
 
   // Set up the (maximum-sized) vector of parameter labels
   for (int i = 0; i < nParams; i++) {
@@ -61,7 +61,7 @@ Spline1D::Spline1D( )
   
   splineFuncAllocated = false;
   splineCacheAllocated = false;
-  for (int i = 0; i < MAX_POINTS; i++) {
+  for (int i = 0; i < MAX_SPLINE_POINTS; i++) {
     xInterp[i] = 0.0;
     yInterp[i] = 0.0;
   }
@@ -157,11 +157,11 @@ int Spline1D::SetExtraParams( map<string,string>& inputMap )
         return -3;
       else {
         maxInterpPoints = atoi(iter->second.c_str());
-        if (maxInterpPoints > MAX_POINTS)
+        if (maxInterpPoints > MAX_SPLINE_POINTS)
           return -3;
         printf("   Spline1D::SetExtraParams -- setting maxInterpPoints = %d\n", maxInterpPoints);
         extraParamsSet = true;
-        nParams = maxInterpPoints + 3;
+        nParams = 2*maxInterpPoints - 1;
         return 1;
       }
     }
