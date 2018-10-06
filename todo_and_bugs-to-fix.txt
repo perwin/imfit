@@ -32,6 +32,11 @@
 [ ] Unit tests for FerrersBar3D
 
 
+[ ] 2D Ferrers bar model
+	-- for comparison with GALFIT; also with Laurikainen et al. models?
+	[ ] Check Laurikainen et al. models to see if it's same as GALFIT
+	
+
 [ ] Test image convolution with overpsf_scale = even number
 	-- e.g., current WFC/IR empirical PSF images are 101x101 with 4x4 oversampling;
 	PSF center is at 51,51, like it should be
@@ -74,15 +79,82 @@ image (accounting for data image subset, if any)
 			be merely a change, not an addition
 	
 	Things taking mp_par * as parameters:
-		bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
+		[x]bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
 		print_results.h: PrintResults; SaveParameters; SaveParameters2
-		diff_evoln_fit.h: DiffEvolnFit [not used]
-		dispatch_solver.h: DispatchToSolver
-		levmar_fit.h: LevMarFit
-		mpfit.h: mpfit
-		nlopt_fit.h: NLOptFit
-		nmsimplex_fit.h: NMSimplexFit
+		[x]diff_evoln_fit.h: DiffEvolnFit [not used]
+		[x]dispatch_solver.h: DispatchToSolver
+		[x]levmar_fit.h: LevMarFit
+		[-]mpfit.h: mpfit
+		[x]nlopt_fit.h: NLOptFit
+		[x]nmsimplex_fit.h: NMSimplexFit
+		[x]model_object.h: ModelObject->AddParameterInfo
+			note that this has two versions, one for mp_par * and the other for vector<mp_par>
+		
+	[x] Figure out how to handle mp_par * = NULL cases
+		-- in most or all of the solver-wrapper algorithms (NMSimplexFit, etc.),
+		we test to see if parameterLimits == NULL to see if there are *any* parameter
+		limits.
+		-- OK, imfit_main *always* allocates memory for mp_par *parameterInfo, so
+		all the parameterLimits == NULL tests will *always* fail!
+		
+		
+	[x] Switch mp_par * to vector<mp_par> in solvers
+		[x] Switch use in dispatch_solver.h: DispatchToSolver
+		[x] Switch use in calls to DispatchToSolver in imfit_main.cpp: main
+			-- paramLimits = vector<mp_par>
+			-- parameterInfo = mp_par *
+		[x] Switch use in diff_evoln_fit.h: DiffEvolnFit
+		[x] Switch use in nmsimplex_fit.h: NMSimplexFit
+		[x] Switch use in nlopt_fit.h: NLOptFit
+		[x] Switch use in levmar_fit.h: LevMarFit
+			[x] Investigate how mpfit() requires mp_par structures
+			[x] Add generation of mp_par * data structure
+		[-] Switch use in mpfit.h: mpfit
+			-- mpfit() uses mp_par *pars
+		[x] Switch use in calls to DispatchSolver in main
+		[x] Switch mp_par * to vector<mp_par> in bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
+		[x] Switch mp_par * to vector<mp_par> in bootstrap_errors.cpp: BootstrapErrors; BootstrapErrorsArrayOnly
+			line 50: NMSimplexFit()
+			line 74: LevMarFit()
+			
+		[x] TEST: Compile and run regression tests
 
+
+	[x] Switch mp_par * to vector<mp_par> in call to ModelObject::AddParameterInfo() in main()
+		[x] Investigate use of parameterInfo in model_object [AddParameterInfo method]
+		[x] Investigate whether X0_offset/Y0_offset info is *needed* in parameterInfo
+			-- updating of .limits *is* necessary
+			-- updating of .offset is not necessary, but maybe we should keep it for
+			consistency
+		[x] Add X0_offset and Y0_offset info to paramLimits
+		[x] Change "theModel->AddParameterInfo(parameterInfo);" to
+				"theModel->AddParameterInfo(paramLimits);"
+		[x] TEST!
+		[x] move nFreeParams-- updating code from loop that populations parameterInfo
+			to loop which add X0_offset/Y0_offset info to paramLimits
+		[x] TEST!
+		
+	
+	[ ] Update tests to account for now-missing "Setting up parameter information array" line in output
+		[ ] Make list of reference output files with that line
+		[ ] Write shell script to do mass copying of test_dump files to reference files
+
+	[ ] Switch mp_par * to vector<mp_par> in print_results.h: PrintResults; SaveParameters; SaveParameters2
+		[ ]  
+		
+	[x] Comment out use of parameterInfo in main()
+		[x] Comment out use of parameterInfo
+		[x] TEST!
+
+	[ ] Rename paramLimits to parameterInfo in main()
+		-- slightly more accurate name now
+		[ ] Apply renaming
+		[ ] TEST!
+	
+	[ ] Switch mp_par * to vector<mp_par> in mcmc_main.cpp
+		[ ] Locate places where mp_par * is used
+		[ ] Copy in relevant replacement code from imfit_main.cpp
+		[ ] TEST!
 
 
 [ ] Check vectorization of mpfit.cpp

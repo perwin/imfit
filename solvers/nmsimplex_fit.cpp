@@ -153,7 +153,7 @@ void GetInterpretation_NM( const int resultValue, string& outputString )
 
 
 
-int NMSimplexFit( const int nParamsTot, double *paramVector, mp_par *parameterLimits, 
+int NMSimplexFit( const int nParamsTot, double *paramVector, vector<mp_par> parameterLimits, 
                   ModelObject *theModel, const double ftol, const int verbose, SolverResults *solverResults )
 {
   nlopt_result  result;
@@ -161,29 +161,25 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, mp_par *parameterLi
   double  initialStatisticVal, finalStatisticVal;
   double  *minParamValues;
   double  *maxParamValues;
-  bool  paramLimitsExist = true;
+//  bool  paramLimitsExist = true;
   
   minParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
   maxParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
 
-  // Check for possible parameter limits
-  if (parameterLimits == NULL)
-    paramLimitsExist = false;
-  else {
-    for (int i = 0; i < nParamsTot; i++) {
-      // default state is to have no limits on a parameter
-      minParamValues[i] = -HUGE_VAL;
-      maxParamValues[i] = HUGE_VAL;
-      // check to see if user specified a fixed value for this parameter
-      if (parameterLimits[i].fixed == 1) {
-        minParamValues[i] = paramVector[i];
-        maxParamValues[i] = paramVector[i];
-      }
-      else if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
-        // user specified parameter limits for this parameter
-        minParamValues[i] = parameterLimits[i].limits[0];
-        maxParamValues[i] = parameterLimits[i].limits[1];
-      }
+  // Extract and store parameter limits, if any
+  for (int i = 0; i < nParamsTot; i++) {
+    // default state is to have no limits on a parameter
+    minParamValues[i] = -HUGE_VAL;
+    maxParamValues[i] = HUGE_VAL;
+    // check to see if user specified a fixed value for this parameter
+    if (parameterLimits[i].fixed == 1) {
+      minParamValues[i] = paramVector[i];
+      maxParamValues[i] = paramVector[i];
+    }
+    else if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
+      // user specified parameter limits for this parameter
+      minParamValues[i] = parameterLimits[i].limits[0];
+      maxParamValues[i] = parameterLimits[i].limits[1];
     }
   }
   
@@ -204,10 +200,12 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, mp_par *parameterLi
   // Set up the optimizer for minimization
   nlopt_set_min_objective(optimizer, myfunc_nlopt, theModel);  
   // Specify parameter boundaries, if they exist
-  if (paramLimitsExist) {
-    nlopt_set_lower_bounds(optimizer, minParamValues);
-    nlopt_set_upper_bounds(optimizer, maxParamValues);
-  }
+//   if (paramLimitsExist) {
+//     nlopt_set_lower_bounds(optimizer, minParamValues);
+//     nlopt_set_upper_bounds(optimizer, maxParamValues);
+//   }
+  nlopt_set_lower_bounds(optimizer, minParamValues);
+  nlopt_set_upper_bounds(optimizer, maxParamValues);
   
   // record initial fit-statistic value, if we're going to save it
   if (solverResults != NULL)

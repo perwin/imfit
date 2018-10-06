@@ -20,7 +20,7 @@
     should be non-NULL (i.e., should point to a file object opened for writing, possibly
     with header information already written).
 */
-int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits, 
+int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits, 
 				const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 				const int nIterations, const int nFreeParams, const int whichStatistic, 
 				FILE *outputFile_ptr, unsigned long rngSeed=0 );
@@ -30,7 +30,7 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
            
     Note that outputParamArray will be allocated here; it should be de-allocated by 
     whatever function is calling this function. */
-int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimits, 
+int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
 					double **outputParamArray, unsigned long rngSeed=0 );

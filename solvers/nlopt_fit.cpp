@@ -236,7 +236,7 @@ void GetInterpretation_NLOpt( int resultValue, string& outputString )
 
 
 
-int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
+int NLOptFit( int nParamsTot, double *paramVector, vector<mp_par> parameterLimits, 
                   ModelObject *theModel, double ftol, int verbose, string solverName,
                   SolverResults *solverResults )
 {
@@ -245,7 +245,7 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   double  initialStatisticVal, finalStatisticVal;
   double  *minParamValues;
   double  *maxParamValues;
-  bool  paramLimitsExist = true;
+//  bool  paramLimitsExist = true;
   nlopt_algorithm  algorithmName;
   map<string, nlopt_algorithm>  algorithmMap;
 
@@ -265,24 +265,20 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   minParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
   maxParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
 
-  // Check for possible parameter limits
-  if (parameterLimits == NULL)
-    paramLimitsExist = false;
-  else {
-    for (int i = 0; i < nParamsTot; i++) {
-      // default state is to have no limits on a parameter
-      minParamValues[i] = -HUGE_VAL;
-      maxParamValues[i] = HUGE_VAL;
-      // check to see if user specified a fixed value for this parameter
-      if (parameterLimits[i].fixed == 1) {
-        minParamValues[i] = paramVector[i];
-        maxParamValues[i] = paramVector[i];
-      }
-      else if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
-        // user specified parameter limits for this parameter
-        minParamValues[i] = parameterLimits[i].limits[0];
-        maxParamValues[i] = parameterLimits[i].limits[1];
-      }
+  // Extract and store parameter limits, if any
+  for (int i = 0; i < nParamsTot; i++) {
+    // default state is to have no limits on a parameter
+    minParamValues[i] = -HUGE_VAL;
+    maxParamValues[i] = HUGE_VAL;
+    // check to see if user specified a fixed value for this parameter
+    if (parameterLimits[i].fixed == 1) {
+      minParamValues[i] = paramVector[i];
+      maxParamValues[i] = paramVector[i];
+    }
+    else if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
+      // user specified parameter limits for this parameter
+      minParamValues[i] = parameterLimits[i].limits[0];
+      maxParamValues[i] = parameterLimits[i].limits[1];
     }
   }
 
@@ -303,10 +299,12 @@ int NLOptFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   // Set up the optimizer for minimization
   nlopt_set_min_objective(theOptimizer, myfunc_nlopt_gen, theModel);  
   // Specify parameter boundaries, if they exist
-  if (paramLimitsExist) {
-    nlopt_set_lower_bounds(theOptimizer, minParamValues);
-    nlopt_set_upper_bounds(theOptimizer, maxParamValues);
-  }
+//   if (paramLimitsExist) {
+//     nlopt_set_lower_bounds(theOptimizer, minParamValues);
+//     nlopt_set_upper_bounds(theOptimizer, maxParamValues);
+//   }
+  nlopt_set_lower_bounds(theOptimizer, minParamValues);
+  nlopt_set_upper_bounds(theOptimizer, maxParamValues);
   
   // record initial fit-statistic value
   initialStatisticVal = theModel->GetFitStatistic(paramVector);

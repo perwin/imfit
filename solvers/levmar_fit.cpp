@@ -64,22 +64,34 @@ int myfunc_mpfit( int nDataVals, int nParams, double *params, double *deviates,
 
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
-				mp_par *parameterLimits, ModelObject *theModel, const double ftol, 
+				vector<mp_par> parameterLimits, ModelObject *theModel, const double ftol, 
 				const bool paramLimitsExist, const int verbose, SolverResults *solverResults )
 {
   double  *paramErrs;
   mp_par  *mpfitParameterConstraints;
+  bool  parameterConstraintsAllocated = false;
   mp_result  mpfitResult;
   mp_config  mpConfig;
   int  status;
 
+
+  // Since we now use vector<mp_par> in main and elsewhere, we need to allocate
+  // and construct a corresponding mp_par * array, if parameter limits actually exist
   if (! paramLimitsExist) {
     // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
     mpfitParameterConstraints = NULL;
   } else {
-    mpfitParameterConstraints = parameterLimits;
+    mpfitParameterConstraints = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
+    parameterConstraintsAllocated = true;
+    for (int i = 0; i < nParamsTot; i++) {
+      mpfitParameterConstraints[i].fixed = parameterLimits[i].fixed;
+      mpfitParameterConstraints[i].limited[0] = parameterLimits[i].limited[0];
+      mpfitParameterConstraints[i].limited[1] = parameterLimits[i].limited[1];
+      mpfitParameterConstraints[i].limits[0] = parameterLimits[i].limits[0];
+      mpfitParameterConstraints[i].limits[1] = parameterLimits[i].limits[1];
+    }
   }
-
+  
   paramErrs = (double *) malloc(nParamsTot * sizeof(double));
   bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
   mpfitResult.xerror = paramErrs;
@@ -97,6 +109,8 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
     solverResults->AddMPResults(mpfitResult);
   }
 
+  if (parameterConstraintsAllocated)
+    free(mpfitParameterConstraints);
   free(paramErrs);
   return status;
 }

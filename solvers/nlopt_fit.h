@@ -31,7 +31,7 @@ using namespace std;
 
 bool ValidNLOptSolverName( string solverName );
 
-int NLOptFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
+int NLOptFit( int nParamsTot, double *initialParams, vector<mp_par> parameterLimits, 
 					ModelObject *theModel, double ftol, int verbose, string solverName,
 					SolverResults *solverResults=0 );
 

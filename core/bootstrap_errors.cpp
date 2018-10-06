@@ -56,7 +56,7 @@ const int MIN_ITERATIONS_FOR_STATISTICS = 3;
 
 /* ------------------- Function Prototypes ----------------------------- */
 
-int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits, 
+int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
 					double **outputParamArray, FILE *outputFile_ptr, unsigned long rngSeed=0 );
@@ -71,7 +71,7 @@ int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits,
 /// with header information already written).
 /// Returns the number of (successful) bootstrap iterations, or returns -1 if error
 /// encountered.
-int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits, 
+int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
 					FILE *outputFile_ptr, unsigned long rngSeed )
@@ -148,7 +148,7 @@ int BootstrapErrors( const double *bestfitParams, mp_par *parameterLimits,
 /// * Note that outputParamArray will be allocated here; it should be de-allocated by 
 /// whatever function is calling this function.
 /// CURRENTLY UNUSED (UNLESS BY SOMEONE ELSE) -- REMOVE?
-int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimits, 
+int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
 					double **outputParamArray, unsigned long rngSeed )
@@ -177,7 +177,7 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, mp_par *parameterLimi
 /// Saving individual best-fit vales to file is done *if* outputFile_ptr != NULL.
 /// Returns the number of successful iterations performed (-1 if an error was
 /// encountered)
-int BootstrapErrorsBase( const double *bestfitParams, mp_par *parameterLimits, 
+int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
 					double **outputParamArray, FILE *outputFile_ptr, unsigned long rngSeed )

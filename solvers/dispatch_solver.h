@@ -16,7 +16,7 @@
 
 /// Function which handles selecting and calling appropriate solver
 int DispatchToSolver( int solverID, int nParametersTot, int nFreeParameters, int nPixelsTot,
-					double *parameters, mp_par *parameterInfo, ModelObject *modelObj, double fracTolerance,
+					double *parameters, vector<mp_par> parameterInfo, ModelObject *modelObj, double fracTolerance,
 					bool paramLimitsExist, int verboseLevel, SolverResults *solverResults,
 					string& solverName, unsigned long rngSeed=0 );
 

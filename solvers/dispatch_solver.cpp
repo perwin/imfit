@@ -33,7 +33,7 @@
 
 #include "definitions.h"
 #include "model_object.h"
-#include "param_struct.h"   // for mp_par structure
+#include "param_struct.h"   // for vector<mp_par>
 #include "solver_results.h"
 #include "dispatch_solver.h"
 
@@ -46,9 +46,9 @@
 #endif
 
 int DispatchToSolver( int solverID, int nParametersTot, int nFreeParameters, int nPixelsTot,
-					double *parameters, mp_par *parameterInfo, ModelObject *modelObj, double fracTolerance,
-					bool paramLimitsExist, int verboseLevel, SolverResults *solverResults,
-					string& solverName, unsigned long rngSeed )
+					double *parameters, vector<mp_par> parameterInfo, ModelObject *modelObj, 
+					double fracTolerance, bool paramLimitsExist, int verboseLevel, 
+					SolverResults *solverResults, string& solverName, unsigned long rngSeed )
 {
   int  fitStatus = -100;
   

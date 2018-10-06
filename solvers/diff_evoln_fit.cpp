@@ -98,7 +98,7 @@ double ImfitSolver::EnergyFunction( double *trial, bool &bAtSolution )
 
 
 // main function called by exterior routines to set up and run the minimization
-int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits, 
+int DiffEvolnFit( int nParamsTot, double *paramVector, vector<mp_par> parameterLimits, 
                   ModelObject *theModel, const double ftol, const int verbose, 
                   SolverResults *solverResults, unsigned long rngSeed )
 {
@@ -116,27 +116,23 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, mp_par *parameterLimits,
   maxParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
   
   // Check for valid parameter limits
-  if (parameterLimits == NULL)
-    paramLimitsOK = false;
-  else {
-    for (int i = 0; i < nParamsTot; i++) {
-      // user specified a fixed value for this parameter
-      if (parameterLimits[i].fixed == 1) {
-        minParamValues[i] = paramVector[i];
-        maxParamValues[i] = paramVector[i];
-        nFreeParameters--;
+  for (int i = 0; i < nParamsTot; i++) {
+    // user specified a fixed value for this parameter
+    if (parameterLimits[i].fixed == 1) {
+      minParamValues[i] = paramVector[i];
+      maxParamValues[i] = paramVector[i];
+      nFreeParameters--;
+    }
+    else {
+      // OK, either we have actual parameter limits, or nothing at all
+      if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
+        // parameter limits for this parameter
+        minParamValues[i] = parameterLimits[i].limits[0];
+        maxParamValues[i] = parameterLimits[i].limits[1];
       }
       else {
-        // OK, either we have actual parameter limits, or nothing at all
-        if ((parameterLimits[i].limited[0] == 1) && (parameterLimits[i].limited[1] == 1)) {
-          // parameter limits for this parameter
-          minParamValues[i] = parameterLimits[i].limits[0];
-          maxParamValues[i] = parameterLimits[i].limits[1];
-        }
-        else {
-          // oops -- no parameter limits for this parameter!
-          paramLimitsOK = false;
-        }
+        // oops -- no parameter limits for this parameter!
+        paramLimitsOK = false;
       }
     }
   }

@@ -20,7 +20,7 @@
 //    value = 1   --> generic success
 //    value = 5   --> max iterations reached
 
-int DiffEvolnFit( int nParamsTot, double *initialParams, mp_par *parameterLimits, 
+int DiffEvolnFit( int nParamsTot, double *initialParams, vector<mp_par> parameterLimits, 
 									ModelObject *theModel, const double ftol, const int verbose,
 									SolverResults *solverResults=0, unsigned long rngSeed=0 );
 
