@@ -28,8 +28,10 @@
 		[X] Check 1D minor-axis image, using commands above
 
 
-[ ] Add suggested pandas-related code to Python utilities
-	-- see email from Justus Neumann, 14 May 2018
+[ ] Improvements to imfit.py:
+	[x] Add suggested pandas-related code to Python utilities
+		-- see email from Justus Neumann, 14 May 2018
+	[ ] Add file-existence checking
 
 	
 [ ] Unit tests for FerrersBar3D
@@ -70,91 +72,6 @@ image (accounting for data image subset, if any)
 	-- So: sanity-check the input PSF image to make sure the sum of its pixels is > 0
 	*if* we're doing normalization (if user requested --no-normalize, then assume they
 	know what they're doing...)
-
-
-[ ] Standardize on vector<mp_par> for parameter info/limits
-	-- currently, we use a mixture of mp_par * and vector<mp_par>; the latter is
-	preferable given that we don't have to worry about memory cleanup
-	-- need to modify solver-wrapper functions to handle this
-		-- test for empty vector<mp_par> instead of NULL
-		-- convert vector<mp_par> into suitable form
-			-- note that this conversion already happens in nlopt_fit, so this would
-			be merely a change, not an addition
-	
-	Things taking mp_par * as parameters:
-		[x]bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
-		[x]diff_evoln_fit.h: DiffEvolnFit [not used]
-		[x]dispatch_solver.h: DispatchToSolver
-		[x]levmar_fit.h: LevMarFit
-		[-]mpfit.h: mpfit
-		[x]nlopt_fit.h: NLOptFit
-		[x]nmsimplex_fit.h: NMSimplexFit
-		[x]model_object.h: ModelObject->AddParameterInfo
-			note that this has two versions, one for mp_par * and the other for vector<mp_par>
-		
-	[x] Figure out how to handle mp_par * = NULL cases
-		-- in most or all of the solver-wrapper algorithms (NMSimplexFit, etc.),
-		we test to see if parameterLimits == NULL to see if there are *any* parameter
-		limits.
-		-- OK, imfit_main *always* allocates memory for mp_par *parameterInfo, so
-		all the parameterLimits == NULL tests will *always* fail!
-		
-		
-	[x] Switch mp_par * to vector<mp_par> in solvers
-		[x] Switch use in dispatch_solver.h: DispatchToSolver
-		[x] Switch use in calls to DispatchToSolver in imfit_main.cpp: main
-			-- paramLimits = vector<mp_par>
-			-- parameterInfo = mp_par *
-		[x] Switch use in diff_evoln_fit.h: DiffEvolnFit
-		[x] Switch use in nmsimplex_fit.h: NMSimplexFit
-		[x] Switch use in nlopt_fit.h: NLOptFit
-		[x] Switch use in levmar_fit.h: LevMarFit
-			[x] Investigate how mpfit() requires mp_par structures
-			[x] Add generation of mp_par * data structure
-		[-] Switch use in mpfit.h: mpfit
-			-- mpfit() uses mp_par *pars
-		[x] Switch use in calls to DispatchSolver in main
-		[x] Switch mp_par * to vector<mp_par> in bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
-		[x] Switch mp_par * to vector<mp_par> in bootstrap_errors.cpp: BootstrapErrors; BootstrapErrorsArrayOnly
-			line 50: NMSimplexFit()
-			line 74: LevMarFit()
-			
-		[x] TEST: Compile and run regression tests
-
-
-	[x] Switch mp_par * to vector<mp_par> in call to ModelObject::AddParameterInfo() in main()
-		[x] Investigate use of parameterInfo in model_object [AddParameterInfo method]
-		[x] Investigate whether X0_offset/Y0_offset info is *needed* in parameterInfo
-			-- updating of .limits *is* necessary
-			-- updating of .offset is not necessary, but maybe we should keep it for
-			consistency
-		[x] Add X0_offset and Y0_offset info to paramLimits
-		[x] Change "theModel->AddParameterInfo(parameterInfo);" to
-				"theModel->AddParameterInfo(paramLimits);"
-		[x] TEST!
-		[x] move nFreeParams-- updating code from loop that populations parameterInfo
-			to loop which add X0_offset/Y0_offset info to paramLimits
-		[x] TEST!
-		
-		
-	[x] Update tests to account for now-missing "Setting up parameter information array" line in output
-		[x] Make list of reference output files with that line
-		[x] Write shell script to do mass copying of test_dump files to reference files
-
-
-	[x] Comment out use of parameterInfo in main()
-		[x] Comment out use of parameterInfo
-		[x] TEST!
-
-	[x] Rename paramLimits to parameterInfo in main()
-		-- slightly more accurate name now
-		[x] Apply renaming
-		[x] TEST!
-	
-	[x] Switch mp_par * to vector<mp_par> in mcmc_main.cpp
-		[x] Locate places where mp_par * is used
-		[x] Copy in relevant replacement code from imfit_main.cpp
-		[x] TEST!
 
 
 [ ] Check vectorization of mpfit.cpp
@@ -827,6 +744,98 @@ OK, here is the problem:
 	
 	[X] SOLUTION: Remove parameterLimitsExist test when determining whether to
 	print conf. intervals
+
+
+
+
+** REFACTORING
+
+[X] Standardize on vector<mp_par> for parameter info/limits
+	-- currently, we use a mixture of mp_par * and vector<mp_par>; the latter is
+	preferable given that we don't have to worry about memory cleanup
+	-- need to modify solver-wrapper functions to handle this
+		-- test for empty vector<mp_par> instead of NULL
+		-- convert vector<mp_par> into suitable form
+			-- note that this conversion already happens in nlopt_fit, so this would
+			be merely a change, not an addition
+	
+	Things taking mp_par * as parameters:
+		[x]bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
+		[x]diff_evoln_fit.h: DiffEvolnFit [not used]
+		[x]dispatch_solver.h: DispatchToSolver
+		[x]levmar_fit.h: LevMarFit
+		[-]mpfit.h: mpfit
+		[x]nlopt_fit.h: NLOptFit
+		[x]nmsimplex_fit.h: NMSimplexFit
+		[x]model_object.h: ModelObject->AddParameterInfo
+			note that this has two versions, one for mp_par * and the other for vector<mp_par>
+		
+	[x] Figure out how to handle mp_par * = NULL cases
+		-- in most or all of the solver-wrapper algorithms (NMSimplexFit, etc.),
+		we test to see if parameterLimits == NULL to see if there are *any* parameter
+		limits.
+		-- OK, imfit_main *always* allocates memory for mp_par *parameterInfo, so
+		all the parameterLimits == NULL tests will *always* fail!
+		
+		
+	[x] Switch mp_par * to vector<mp_par> in solvers
+		[x] Switch use in dispatch_solver.h: DispatchToSolver
+		[x] Switch use in calls to DispatchToSolver in imfit_main.cpp: main
+			-- paramLimits = vector<mp_par>
+			-- parameterInfo = mp_par *
+		[x] Switch use in diff_evoln_fit.h: DiffEvolnFit
+		[x] Switch use in nmsimplex_fit.h: NMSimplexFit
+		[x] Switch use in nlopt_fit.h: NLOptFit
+		[x] Switch use in levmar_fit.h: LevMarFit
+			[x] Investigate how mpfit() requires mp_par structures
+			[x] Add generation of mp_par * data structure
+		[-] Switch use in mpfit.h: mpfit
+			-- mpfit() uses mp_par *pars
+		[x] Switch use in calls to DispatchSolver in main
+		[x] Switch mp_par * to vector<mp_par> in bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
+		[x] Switch mp_par * to vector<mp_par> in bootstrap_errors.cpp: BootstrapErrors; BootstrapErrorsArrayOnly
+			line 50: NMSimplexFit()
+			line 74: LevMarFit()
+			
+		[x] TEST: Compile and run regression tests
+
+
+	[x] Switch mp_par * to vector<mp_par> in call to ModelObject::AddParameterInfo() in main()
+		[x] Investigate use of parameterInfo in model_object [AddParameterInfo method]
+		[x] Investigate whether X0_offset/Y0_offset info is *needed* in parameterInfo
+			-- updating of .limits *is* necessary
+			-- updating of .offset is not necessary, but maybe we should keep it for
+			consistency
+		[x] Add X0_offset and Y0_offset info to paramLimits
+		[x] Change "theModel->AddParameterInfo(parameterInfo);" to
+				"theModel->AddParameterInfo(paramLimits);"
+		[x] TEST!
+		[x] move nFreeParams-- updating code from loop that populations parameterInfo
+			to loop which add X0_offset/Y0_offset info to paramLimits
+		[x] TEST!
+		
+		
+	[x] Update tests to account for now-missing "Setting up parameter information array" line in output
+		[x] Make list of reference output files with that line
+		[x] Write shell script to do mass copying of test_dump files to reference files
+
+
+	[x] Comment out use of parameterInfo in main()
+		[x] Comment out use of parameterInfo
+		[x] TEST!
+
+	[x] Rename paramLimits to parameterInfo in main()
+		-- slightly more accurate name now
+		[x] Apply renaming
+		[x] TEST!
+	
+	[x] Switch mp_par * to vector<mp_par> in mcmc_main.cpp
+		[x] Locate places where mp_par * is used
+		[x] Copy in relevant replacement code from imfit_main.cpp
+		[x] TEST!
+
+
+
 
 
 

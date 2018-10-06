@@ -5,6 +5,19 @@ import numpy as np
 
 import imfit_funcs as imfuncs
 
+# If pandas is available, use its (much faster) file-reading code
+usingPandas = False
+try:
+	import pandas as pd
+	usingPandas = True
+	def GetDataColumns( filename, usecols=None ):
+		df = pd.read_csv(filename, delim_whitespace=True, comment='#', dtype=np.float64,
+						usecols=usecols, header=None)
+		return df.values
+except:
+	def GetDataColumns( filename, usecols=None ):
+		return np.loadtxt(filename, usecols=usecols)
+
 
 # dictionary mapping imfit function short names (as found in the config/parameter file) to
 # corresponding 1-D Python functions in imfit_funcs.py, along with some useful information:
@@ -61,7 +74,6 @@ def ReadImfitConfigFile( fileName, minorAxis=False, pix=1.0, getNames=False, X0=
 	nLines = len(dlines)
 	for line in dlines:
 		trimmedLine = ChopComments(line)
-		#print(trimmedLine)
 		if trimmedLine.find("X0") == 0:
 			continue
 		if trimmedLine.find("Y0") == 0:
@@ -95,14 +107,11 @@ def ReadImfitConfigFile( fileName, minorAxis=False, pix=1.0, getNames=False, X0=
 		fullParams = paramMetaList[i]
 		# calculate scaling factor for minor-axis values, if needed
 		if minorAxis is True:
-			print fname
 			ellIndex = imfitFunctionMap[fname]["ell"]
-			print ellIndex
 			ell = fullParams[ellIndex+1]
 			q = 1.0 - ell
 		else:
 			q = 1.0
-		print i, fname
 		smaIndices = imfitFunctionMap[fname]["a"]
 		# convert length values to arcsec and/or minor-axis, if needed,
 		for smaIndex in smaIndices:
@@ -160,9 +169,10 @@ def GetBootstrapOutput( filename ):
 			break
 	
 	# get the data
-	d = np.loadtxt(filename)
+	d = GetDataColumns(filename)
 	
 	return (columnNames, d)
+
 
 
 def GetSingleChain( filename, getAllColumns=False ):
@@ -213,7 +223,7 @@ def GetSingleChain( filename, getAllColumns=False ):
 		outputColumnNames = columnNames
 	
 	# get the data
-	d = np.loadtxt(filename, usecols=whichCols)
+	d = GetDataColumns(filename, usecols=whichCols)
 	
 	return (outputColumnNames, d)
 
@@ -266,6 +276,10 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 		filenames = ["{0}.{1}.txt".format(fname_root, n) for n in range(maxChains)]
 	nFiles = len(filenames)
 	
+	if (nFiles < 1):
+		print("ERROR: No MCMC output files found using pattern \"{0}\"".format(globPattern))
+		return None
+	
 	# get the first chain so we can tell how long the chains are
 	(colNames, dd) = GetSingleChain(filenames[0], getAllColumns=getAllColumns)
 	nGenerations = dd.shape[0]
@@ -296,7 +310,7 @@ def MergeChains( fname_root, maxChains=None, getAllColumns=False, start=10000, l
 	# get and append rest of chains if more than 1 chain-file was requested
 	if nFiles > 1:
 		for i in range(1, nFiles):
-			dd_next = np.loadtxt(filenames[i], usecols=whichCols)
+			dd_next = GetDataColumns(filenames[i], usecols=whichCols)
 			dd_final = np.concatenate((dd_final, dd_next[startTime:,:]))
 
 	return (colNames, dd_final)
