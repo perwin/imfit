@@ -124,12 +124,12 @@ int main(int argc, char *argv[])
   ModelObject  *theModel;
   vector<string>  functionList;
   vector<double>  parameterList;
-  vector<mp_par>  paramLimits;
+  vector<mp_par>  parameterInfo;
   vector<int>  FunctionBlockIndices;
   vector< map<string, string> > optionalParamsMap;
   bool  paramLimitsExist = false;
-  bool  parameterInfo_allocated = false;
-  mp_par  *parameterInfo;
+//   bool  parameterInfo_allocated = false;
+//   mp_par  *parameterInfo;
   int  status;
   vector<string>  imageCommentsList;
   OptionsBase *commandOpts;
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 
   // Read configuration file, parse & process user-supplied (non-function-related) values
   status = ReadConfigFile(options->configFileName, true, functionList, parameterList, 
-  							paramLimits, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
+  							parameterInfo, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
   	exit(-1);
   }
   for (int i = 0; i < nParamsTot; i++) {
-    if (paramLimits[i].fixed == 1)
+    if (parameterInfo[i].fixed == 1)
       nFreeParams--;
   }
   nDegFreedom = (long)(theModel->GetNValidPixels() - nFreeParams);
@@ -280,8 +280,8 @@ int main(int argc, char *argv[])
   // parameter limits
   bool  paramLimitsOK = true;
   for (int i = 0; i < nParamsTot; i++) {
-    if ( (paramLimits[i].fixed == 0) && 
-    	( (paramLimits[i].limited[0] == 0) || (paramLimits[i].limited[1] == 0) ) )
+    if ( (parameterInfo[i].fixed == 0) && 
+    	( (parameterInfo[i].limited[0] == 0) || (parameterInfo[i].limited[1] == 0) ) )
       paramLimitsOK = false;
   }
   if (! paramLimitsOK) {
@@ -297,19 +297,36 @@ int main(int argc, char *argv[])
     fprintf(stderr, "*** ERROR: nParamsTot was not set correctly!\n\n");
     exit(-1);
   }
-  parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
-  parameterInfo_allocated = true;
+//   parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
+//   parameterInfo_allocated = true;
+//   for (int i = 0; i < nParamsTot; i++) {
+//     parameterInfo[i].fixed = paramLimits[i].fixed;
+//     if (parameterInfo[i].fixed == 1) {
+//       nFreeParams--;
+//     }
+//     parameterInfo[i].limited[0] = paramLimits[i].limited[0];
+//     parameterInfo[i].limited[1] = paramLimits[i].limited[1];
+//     parameterInfo[i].limits[0] = paramLimits[i].limits[0];
+//     parameterInfo[i].limits[1] = paramLimits[i].limits[1];
+//     // specify different offsets if using image subsection, and apply them to
+//     // user-specified X0,Y0 limits
+//     if (theModel->GetParameterName(i) == X0_string) {
+//       parameterInfo[i].offset = X0_offset;
+//       parameterInfo[i].limits[0] -= X0_offset;
+//       parameterInfo[i].limits[1] -= X0_offset;
+//     } else if (theModel->GetParameterName(i) == Y0_string) {
+//       parameterInfo[i].offset = Y0_offset;
+//       parameterInfo[i].limits[0] -= Y0_offset;
+//       parameterInfo[i].limits[1] -= Y0_offset;
+//     }
+//   }
+
+  // Final processing of parameter info/limits:
+  //   Decrement nFreeParams for each fixed parameter
+  //   Add X0_offset and Y0_offset
   for (int i = 0; i < nParamsTot; i++) {
-    parameterInfo[i].fixed = paramLimits[i].fixed;
-    if (parameterInfo[i].fixed == 1) {
+    if (parameterInfo[i].fixed == 1)
       nFreeParams--;
-    }
-    parameterInfo[i].limited[0] = paramLimits[i].limited[0];
-    parameterInfo[i].limited[1] = paramLimits[i].limited[1];
-    parameterInfo[i].limits[0] = paramLimits[i].limits[0];
-    parameterInfo[i].limits[1] = paramLimits[i].limits[1];
-    // specify different offsets if using image subsection, and apply them to
-    // user-specified X0,Y0 limits
     if (theModel->GetParameterName(i) == X0_string) {
       parameterInfo[i].offset = X0_offset;
       parameterInfo[i].limits[0] -= X0_offset;
@@ -377,7 +394,7 @@ int main(int argc, char *argv[])
   double lowVals[nParamsTot];
   double highVals[nParamsTot];
   for (int i = 0; i < nParamsTot; i++) {
-    if (paramLimits[i].fixed == 1) {
+    if (parameterInfo[i].fixed == 1) {
       printf("Fixed parameter detected (i = %d)\n", i);
       lockFlags[i] = 1;
       // cdream stores parameter value for fixed params in lowVals; we'll also
@@ -387,8 +404,8 @@ int main(int argc, char *argv[])
     }
     else {
       lockFlags[i] = 0;
-      lowVals[i] = paramLimits[i].limits[0];
-      highVals[i] = paramLimits[i].limits[1];
+      lowVals[i] = parameterInfo[i].limits[0];
+      highVals[i] = parameterInfo[i].limits[1];
     }
     paramNames[i] = theModel->GetParameterName(i);
   }
@@ -465,8 +482,8 @@ int main(int argc, char *argv[])
     psfOversamplingInfoVect.clear();
   }
   free(paramsVect);
-  if (parameterInfo_allocated)
-    free(parameterInfo);
+//   if (parameterInfo_allocated)
+//     free(parameterInfo);
   delete theModel;
 
   FreeVarsDreamParams(&dreamPars);

@@ -28,6 +28,9 @@
 		[X] Check 1D minor-axis image, using commands above
 
 
+[ ] Add suggested pandas-related code to Python utilities
+	-- see email from Justus Neumann, 14 May 2018
+
 	
 [ ] Unit tests for FerrersBar3D
 
