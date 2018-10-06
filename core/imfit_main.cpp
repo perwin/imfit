@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
   MakeOutputHeader(&programHeader, progNameVersion, argc, argv);
 
  
-  /* Define default options, then process the command line */
+  // Define default options, then process the command line
   // Use a pointer to OptionsBase so we can use it in calls to SetupModelImage
   commandOpts = new ImfitOptions();
   // Use a pointer to ImfitOptions so we can access all the extra, imfit-specific
@@ -158,8 +158,7 @@ int main(int argc, char *argv[])
   
   ProcessInput(argc, argv, options);
 
-  // Check for presence of user-requested files; if any are missing, quit.
-  // (Appropriate error messages regarding which files are missing will be printed
+  // (Appropriate error messages regarding any missing files will be printed
   // to stderr by RequestedFilesPresent)
   if (! RequestedFilesPresent(options)) {
     fprintf(stderr, "\n");
@@ -267,26 +266,15 @@ int main(int argc, char *argv[])
     fprintf(stderr, "*** ERROR: Failure in ModelObject::FinalSetupForFitting!\n\n");
     exit(-1);
   }
-    
 
-
-  
-  /* START OF MINIMIZATION-ROUTINE-RELATED CODE */
-  // Parameter limits and other info:
-  // First we create a C-style array of mp_par structures, containing parameter constraints
-  // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
-  // by DiffEvolnFit (if called) and by PrintResults.  We also decrement nFreeParams for
-  // each *fixed* parameter.
-  
-  printf("Setting up parameter information array ...\n");
-  if (nParamsTot <= 0) {
-    fprintf(stderr, "*** ERROR: nParamsTot was not set correctly!\n\n");
-    exit(-1);
-  }
   
   // Final processing of parameter info/limits:
   //   Decrement nFreeParams for each fixed parameter
   //   Add X0_offset and Y0_offset
+  if (nParamsTot <= 0) {
+    fprintf(stderr, "*** ERROR: nParamsTot was not set correctly!\n\n");
+    exit(-1);
+  }
   for (int i = 0; i < nParamsTot; i++) {
     if (parameterInfo[i].fixed == 1)
       nFreeParams--;
@@ -342,7 +330,7 @@ int main(int argc, char *argv[])
   }
 
   
-  /* Copy initial parameter values into C array, correcting for X0,Y0 offsets */
+  // Copy initial parameter values into C array, correcting for X0,Y0 offsets
   paramsVect = (double *) calloc(nParamsTot, sizeof(double));
   for (int i = 0; i < nParamsTot; i++) {
     if (theModel->GetParameterName(i) == X0_string) {

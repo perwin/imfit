@@ -9,7 +9,6 @@ Function: Gaussian
 6 total parameters
 Model Object: 64 data values (pixels)
 ModelObject: mask vector applied to weight vector. (64 valid pixels remain)
-Setting up parameter information array ...
 4 free parameters (60 degrees of freedom)
 Estimated memory use: 5632 bytes (5.5 KB)
 
@@ -43,6 +42,6 @@ sigma		 2.4924 # +/- 0.028551
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.006977 sec for fit, 0.009850 sec total)
+(Elapsed time: 0.006020 sec for fit, 0.008252 sec total)
 Done!
 

@@ -10,7 +10,6 @@ Function: Exponential
 6 total parameters
 Model Object: 1024 data values (pixels)
 ModelObject: mask vector applied to weight vector. (1024 valid pixels remain)
-Setting up parameter information array ...
 6 free parameters (1018 degrees of freedom)
 Estimated memory use: 106496 bytes (104.0 KB)
 
@@ -45,6 +44,6 @@ h		     20 # +/- 0.072772
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.003328 sec for fit, 0.013096 sec total)
+(Elapsed time: 0.006997 sec for fit, 0.009236 sec total)
 Done!
 

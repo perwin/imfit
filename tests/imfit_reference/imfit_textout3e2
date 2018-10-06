@@ -12,7 +12,6 @@ Function: Sersic
 7 total parameters
 Model Object: 4096 data values (pixels)
 ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
-Setting up parameter information array ...
 6 free parameters (4090 degrees of freedom)
 Estimated memory use: 425984 bytes (416.0 KB)
 
@@ -54,6 +53,6 @@ r_e		60.7483 # +/- 0.24714
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.121537 sec for fit, 0.124341 sec total)
+(Elapsed time: 0.045969 sec for fit, 0.048199 sec total)
 Done!
 

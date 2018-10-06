@@ -11,7 +11,6 @@ Function: FlatSky
 3 total parameters
 Model Object: 9 data values (pixels)
 ModelObject: mask vector applied to weight vector. (8 valid pixels remain)
-Setting up parameter information array ...
 3 free parameters (5 degrees of freedom)
 Estimated memory use: 720 bytes (0.7 KB)
 
@@ -37,6 +36,6 @@ I_sky		      1 # +/- 0.35355
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.000152 sec for fit, 0.003395 sec total)
+(Elapsed time: 0.001060 sec for fit, 0.002914 sec total)
 Done!
 

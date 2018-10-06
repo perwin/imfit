@@ -18,7 +18,6 @@ Function: Exponential
 11 total parameters
 Model Object: 30000 data values (pixels)
 ModelObject: mask vector applied to weight vector. (28754 valid pixels remain)
-Setting up parameter information array ...
 11 free parameters (28743 degrees of freedom)
 Estimated memory use: 8747785 bytes (8.3 MB)
 
@@ -29,6 +28,6 @@ AIC = 235628.155855, BIC = 235719.078524
 
 
 
-(Elapsed time: 0.020692 sec)
+(Elapsed time: 0.015009 sec)
 Done!
 

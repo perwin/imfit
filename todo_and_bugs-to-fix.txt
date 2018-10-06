@@ -83,7 +83,6 @@ image (accounting for data image subset, if any)
 	
 	Things taking mp_par * as parameters:
 		[x]bootstrap_errors.h: BootstrapErrors; BootstrapErrorsArrayOnly
-		print_results.h: PrintResults; SaveParameters; SaveParameters2
 		[x]diff_evoln_fit.h: DiffEvolnFit [not used]
 		[x]dispatch_solver.h: DispatchToSolver
 		[x]levmar_fit.h: LevMarFit
@@ -137,27 +136,25 @@ image (accounting for data image subset, if any)
 			to loop which add X0_offset/Y0_offset info to paramLimits
 		[x] TEST!
 		
-	
-	[ ] Update tests to account for now-missing "Setting up parameter information array" line in output
-		[ ] Make list of reference output files with that line
-		[ ] Write shell script to do mass copying of test_dump files to reference files
-
-	[ ] Switch mp_par * to vector<mp_par> in print_results.h: PrintResults; SaveParameters; SaveParameters2
-		[ ]  
 		
+	[x] Update tests to account for now-missing "Setting up parameter information array" line in output
+		[x] Make list of reference output files with that line
+		[x] Write shell script to do mass copying of test_dump files to reference files
+
+
 	[x] Comment out use of parameterInfo in main()
 		[x] Comment out use of parameterInfo
 		[x] TEST!
 
-	[ ] Rename paramLimits to parameterInfo in main()
+	[x] Rename paramLimits to parameterInfo in main()
 		-- slightly more accurate name now
-		[ ] Apply renaming
-		[ ] TEST!
+		[x] Apply renaming
+		[x] TEST!
 	
-	[ ] Switch mp_par * to vector<mp_par> in mcmc_main.cpp
-		[ ] Locate places where mp_par * is used
-		[ ] Copy in relevant replacement code from imfit_main.cpp
-		[ ] TEST!
+	[x] Switch mp_par * to vector<mp_par> in mcmc_main.cpp
+		[x] Locate places where mp_par * is used
+		[x] Copy in relevant replacement code from imfit_main.cpp
+		[x] TEST!
 
 
 [ ] Check vectorization of mpfit.cpp
