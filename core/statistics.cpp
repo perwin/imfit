@@ -18,6 +18,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <tuple>
 
 #include "statistics.h"
 
@@ -78,8 +79,9 @@ double StandardDeviation( double *vector, int nVals )
 /// of values.  For now, we assume a 68.3% confidence interval (which for
 /// a Gaussian distribution is the +/- 1-sigma interval), though in the future
 /// this could be an input parameter.
+///   Return value is tuple of (lower_bound, upper_bound).
 ///   Note that the input vector is sorted in place!
-void ConfidenceInterval( double *vector, int nVals, double *lower, double *upper )
+std::tuple<double, double> ConfidenceInterval( double *vector, int nVals )
 {
   int  lower_ind, upper_ind;
   
@@ -94,8 +96,7 @@ void ConfidenceInterval( double *vector, int nVals, double *lower, double *upper
   
   /* Sort the vector into increasing order: */
   qsort((void*)vector, (size_t)nVals, sizeof(vector[0]), SortComp);
-  *lower = vector[lower_ind];
-  *upper = vector[upper_ind];
+  return std::make_tuple(vector[lower_ind], vector[upper_ind]);
 }
 
 

@@ -2,6 +2,18 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.7.0 -- 20xx-xx-xx
+### Added:
+
+### Changed:
+
+- The output-file-reading code in imfit.py will now use pandas.read_csv instead of
+numpy.loadtxt, if pandas is installed. This is significantly faster when reading in
+large MCMC output files. (Thanks to Justus Neumann and Iskren Georgiev for
+suggesting this.)
+
+
+
 ## 1.6.0 -- 2018-03-24
 ### Added:
 

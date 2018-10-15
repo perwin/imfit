@@ -79,6 +79,9 @@ class ModelObject
     // 2D only
     void AddImageOffsets( int offset_X0, int offset_Y0 );
     
+    // 2D only
+    std::tuple<int, int> GetImageOffsets( );
+
 	// 2D only
     int SetupModelImage( int nImageColumns, int nImageRows );
     
@@ -140,8 +143,6 @@ class ModelObject
 
     virtual void UsePoissonMLR( );
  
-//     virtual bool UsingCashStatistic( );
- 
     virtual int WhichFitStatistic( bool verbose=false );
  
     virtual double GetFitStatistic( double params[] );
@@ -159,7 +160,7 @@ class ModelObject
 
     void GetFunctionNames( vector<string>& functionNames );
 
-    string GetParamHeader( );
+    virtual string GetParamHeader( );
 
     // common, but Specialized by ModelObject1D
     virtual int PrintModelParamsToStrings( vector<string> &stringVector, double params[], 
@@ -230,6 +231,10 @@ class ModelObject
 
     // 1D only
     virtual int GetModelVector( double *profileVector ) { return -1; };
+
+
+    // mainly for use by ModelObjectMultImage
+    virtual int GetNImages( ) { return 1; };
 
 
     virtual int UseBootstrap( );

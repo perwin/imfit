@@ -32,14 +32,6 @@ page](http://www.mpe.mpg.de/~erwin/code/imfit/index.html#downloads), as
 can a condensed source-code distribution suitable for local compilations and for
 making your own modifications.
 
-A basic [tutorial](http://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html) is also available.
-
-General online documentation (including the tutorial) can be found 
-[here](https://imfit.readthedocs.io).
-
-The paper describing Imfit can be found here: 
-[Erwin 2015](http://adsabs.harvard.edu/abs/2015ApJ...799..226E).
-
 <!-- 
 ArXiv version:
 [![arxiv](http://img.shields.io/badge/arXiv-1408.1097-orange.svg?style=flat)](http://arxiv.org/abs/1408.1097)
@@ -56,6 +48,23 @@ DOI for current release (v1.6), archived at Zenodo:
 <!--
 [![DOI](https://zenodo.org/badge/20940/perwin/imfit.svg)](https://zenodo.org/badge/latestdoi/20940/perwin/imfit)
 -->
+
+## Documentation
+
+General online documentation is
+[here](https://imfit.readthedocs.io).
+
+The main manual in PDF format:
+[imfit_howto.pdf](http://www.mpe.mpg.de/~erwin/resources/imfit/imfit_howto.pdf)
+
+A basic [tutorial](http://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html) is also available.
+
+Finally, the paper describing Imfit can be found here: 
+[Erwin 2015](http://adsabs.harvard.edu/abs/2015ApJ...799..226E).
+
+
+
+
 
 ## About the code at this Github site
 

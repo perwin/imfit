@@ -6,11 +6,14 @@
 #ifndef _STATISTICS_H_
 #define _STATISTICS_H_
 
+#include <tuple>
+
+
 double Mean( double *vector, int nVals );
 
 double StandardDeviation( double *vector, int nVals );
 
-void ConfidenceInterval( double *vector, int nVals, double *lower, double *upper );
+std::tuple<double, double> ConfidenceInterval( double *vector, int nVals );
 
 double AIC_corrected( double logLikelihood, int nParams, long nData, int chiSquareUsed );
 

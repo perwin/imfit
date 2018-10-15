@@ -508,6 +508,14 @@ void ModelObject::AddImageOffsets( int offset_X0, int offset_Y0 )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetImageOffsets --------------------- */
+
+std::tuple<int, int> ModelObject::GetImageOffsets( )
+{
+  return std::make_tuple(imageOffset_X0, imageOffset_Y0);
+}
+
+
 /* ---------------- PUBLIC METHOD: AddErrorVector ---------------------- */
 
 void ModelObject::AddErrorVector( long nDataValues, int nImageColumns,
@@ -1887,12 +1895,12 @@ string ModelObject::PrintModelParamsHorizontalString( const double params[], con
       k = indexOffset;
       x0 = params[k] + imageOffset_X0;
       y0 = params[k + 1] + imageOffset_Y0;
-//       x0 += parameterInfoVect[k].offset;
-//       y0 += parameterInfoVect[k + 1].offset;
-      if (n > 0)
-        outputString += PrintToString("%s%#.10g%s%#.10g", separator.c_str(), x0, separator.c_str(), y0);
-      else
+      // Very first parameter on the line (X0 for first function block) should *not* 
+      // be preceded by separator
+      if (n == 0)
         outputString += PrintToString("%#.10g%s%#.10g", x0, separator.c_str(), y0);
+      else
+        outputString += PrintToString("%s%#.10g%s%#.10g", separator.c_str(), x0, separator.c_str(), y0);
       indexOffset += 2;
     }
 
@@ -1954,6 +1962,10 @@ int ModelObject::UseBootstrap( )
   int  status = 0;
   
   doBootstrap = true;
+  // Note that this is slightly inefficient: we don't really *need* to generate
+  // a bootstrap sample right now, since we will call MakeBootstrapSample directly
+  // later on, every time we need a new sample. But calling this now *does* force
+  // allocation of the bootstrapIndices array....
   status = MakeBootstrapSample();
   return status;
 }
@@ -2070,6 +2082,7 @@ void ModelObject::PrintWeights( )
 
 
 /* ---------------- PUBLIC METHOD: PopulateParameterNames -------------- */
+/// Note that this is usually called by AddFunctions() in add_functions.cpp.
 
 void ModelObject::PopulateParameterNames( )
 {

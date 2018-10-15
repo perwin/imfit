@@ -35,6 +35,7 @@
 #include <assert.h>
 #include <math.h>
 #include <time.h>
+#include <tuple>
 
 #include "definitions.h"
 #include "model_object.h"
@@ -116,7 +117,7 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
     printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
     for (i = 0; i < nParams; i++) {
       if (parameterLimits[i].fixed == 0) {
-        ConfidenceInterval(outputParamArray[i], nSuccessfulIterations, &lower, &upper);
+        std::tie(lower, upper) = ConfidenceInterval(outputParamArray[i], nSuccessfulIterations);
         plus = upper - bestfitParams[i];
         minus = bestfitParams[i] - lower;
         halfwidth = (upper - lower)/2.0;
