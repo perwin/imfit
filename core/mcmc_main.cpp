@@ -325,8 +325,6 @@ int main(int argc, char *argv[])
   //   Decrement nFreeParams for each fixed parameter
   //   Add X0_offset and Y0_offset
   for (int i = 0; i < nParamsTot; i++) {
-    if (parameterInfo[i].fixed == 1)
-      nFreeParams--;
     if (theModel->GetParameterName(i) == X0_string) {
       parameterInfo[i].offset = X0_offset;
       parameterInfo[i].limits[0] -= X0_offset;

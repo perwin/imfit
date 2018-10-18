@@ -2,9 +2,6 @@
 ** BUGS TO FIX:
 
 
-
-
-
 ** NEAR-TERM FUTURE TODO:
 
 [X] Double-broken exponential (for Nacho)
@@ -583,6 +580,26 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 
 ** BUGS FIXED
+
+[X] MCMC restarts with --append turn fixed parameters into free?
+
+	Iskren Georgiev reports that restarting an MCMC run with --append
+	seems to have set fixed X0,Y0 into free.
+	
+	[ ] Set up trial run with --append and fixed parameter(s)
+
+  ./imfit-mcmc tests/faintstar.fits -c tests/imfit-mcmc_reference/config_imfit_faintstar.dat --no-subsampling --seed=1 -o temptest/mcmc_test_short --append &> temptest/test_dump_mcmc1c
+  
+  Use existing config_imfit_faintstar_fixed.dat
+
+  ./imfit-mcmc tests/faintstar.fits -c config_imfit_faintstar_fixed.dat --no-subsampling --seed=1 -o temptest/mcmc_test_short --max-chain-length=10000
+
+  ./imfit-mcmc tests/faintstar.fits -c config_imfit_faintstar_fixed.dat --no-subsampling --seed=1 -o temptest/mcmc_test_short --append  --max-chain-length=15000
+
+	Can't reproduce this -- everything behaves the way it should...
+	
+	CONCLUSION: No bug present.
+
 
 [X] Add oversampling to computation of single-function images
 	This was a long-standing bug I noticed when inspecting the code for other reasons;

@@ -499,6 +499,10 @@ void ModelObject::AddImageCharacteristics( double imageGain, double readoutNoise
 }
 
 
+// Image offsets are defined as offset_X0 = x_ll - 1, y_ll - offset_Y0,
+// where the IRAF-coordinate of the image-subsection's lower-left corner
+// is (x_ll,y_ll). When the entire image is being used, (x_ll,y_ll) = (1,1),
+// and offset_X0 = offset_Y0 = 0.
 /* ---------------- PUBLIC METHOD: AddImageOffsets --------------------- */
 
 void ModelObject::AddImageOffsets( int offset_X0, int offset_Y0 )
