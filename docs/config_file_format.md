@@ -38,7 +38,7 @@ containing single "NAME value" pairs, e.g.
 
 These do not *have* to be provided, and you can provide as many or as few of
 these as are needed (the exception being the NCOLS and NROWS entries for a
-makeimage configuration file -- both of those should be provided).
+makeimage configuration file -- both of those *should* be provided).
 
 The allowed entries for an imfit configuration file are:
 

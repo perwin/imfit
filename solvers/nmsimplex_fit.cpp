@@ -161,7 +161,6 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, vector<mp_par> para
   double  initialStatisticVal, finalStatisticVal;
   double  *minParamValues;
   double  *maxParamValues;
-//  bool  paramLimitsExist = true;
   
   minParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
   maxParamValues = (double *)calloc( (size_t)nParamsTot, sizeof(double) );
@@ -200,10 +199,6 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, vector<mp_par> para
   // Set up the optimizer for minimization
   nlopt_set_min_objective(optimizer, myfunc_nlopt, theModel);  
   // Specify parameter boundaries, if they exist
-//   if (paramLimitsExist) {
-//     nlopt_set_lower_bounds(optimizer, minParamValues);
-//     nlopt_set_upper_bounds(optimizer, maxParamValues);
-//   }
   nlopt_set_lower_bounds(optimizer, minParamValues);
   nlopt_set_upper_bounds(optimizer, maxParamValues);
   

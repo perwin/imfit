@@ -142,7 +142,8 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
   parameterList.push_back(paramVal);
 
   // OK, now we create a new mp_par structure and check for possible parameter limits
-  bzero(&newParamLimit, sizeof(mp_par));
+//  bzero(&newParamLimit, sizeof(mp_par));
+  memset(&newParamLimit, 0, sizeof(mp_par));
   if (stringPieces.size() > 2) {
     // parse and store parameter limits, if any
     paramLimitsFound = 1;

@@ -228,6 +228,14 @@ ModelObject::~ModelObject()
 
 
 
+/* ---------------- PUBLIC METHOD: SetVerboseLevel ---------------------- */
+/// Set the verbosity level
+void ModelObject::SetVerboseLevel( int verbosity )
+{
+  verboseLevel = verbosity;
+}
+
+
 /* ---------------- PUBLIC METHOD: SetDebugLevel ----------------------- */
 /// Set the debugging level (must be 0 [default] or larger).
 void ModelObject::SetDebugLevel( int debuggingLevel )
@@ -763,7 +771,7 @@ void ModelObject::ApplyMask( )
 // prep work such as computing the FFT of the PSF).
 // This function must be called *before* SetupModelImage() is called (to ensure
 // that we know the proper model-image dimensions), so we return an error if 
-// SetupModelImage() hasn't been called yet.
+// SetupModelImage() has previously been called.
 int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf,
                          	double *psfPixels, bool normalizePSF )
 {

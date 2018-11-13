@@ -24,7 +24,7 @@
 //  conf.ftol = 1e-10;   [relative changes in chi^2]
 //  conf.xtol = 1e-10;   [relative changes in parameter values]
 
-#include <strings.h>   // for bzero
+#include <strings.h>   // for memset
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -93,9 +93,9 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
   }
   
   paramErrs = (double *) malloc(nParamsTot * sizeof(double));
-  bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero results structure */
+  memset(&mpfitResult, 0, sizeof(mpfitResult));       /* Zero results structure */
   mpfitResult.xerror = paramErrs;
-  bzero(&mpConfig, sizeof(mpConfig));
+  memset(&mpConfig, 0, sizeof(mpConfig));
   mpConfig.maxiter = MAX_ITERATIONS;
   mpConfig.ftol = ftol;
   mpConfig.verbose = verbose;

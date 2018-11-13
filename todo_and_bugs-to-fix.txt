@@ -575,6 +575,203 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 
 
+[] Ability to update ModelObject with new data/error/mask/PSF images
+	-- Mainly so we can be more flexible with Python wrapper
+	
+	ModelObject does two main things:
+		Computes a model image (w/ optional PSF convolution)
+			-- optionally computes individual-function images, etc.
+		Compares model image with data image and computes fit statistic
+
+	
+	Model specification:
+		General model:  (e.g., most of makeimage config file)
+			list of FunctionObjects
+			function-block indices
+			parameter vector
+		Image-specific details:
+			output image size/shape -- may be set by data-image size
+			[PSF image]
+			[oversampled PSF images -- including region specifications]
+	
+	Things needed for fitting an image, including statistical computations:
+		data image (nCols, nRows)
+		image characteristics: gain, readnoise, original_sky, exptime, ncombined
+		[error image]
+		[mask image]
+		
+	Possible updates user might want
+		New Data and/or Error and/or Mask image
+			New Data --> updated model image and internal weight sizes?
+					 --> new psfConvolver if PSF being used
+			New Error --> update internal weight vector
+				ModelObject::AddErrorVector is "re-entrant"
+					weightVector is freed *if* already allocated
+					weightVector then points to external error image
+			New Mask --> update internal weight vector
+				maskVector then points to external mask image (NOT allocated/dealloc. w/in ModelObject)
+			
+		New PSF (no PSF; add PSF)
+			If same size as old, we just need to update Convolver objects
+			If different size, we *also* need to change model image size
+		Switch statistical mode (chi^2 <--> MLR, data-based chi^2 <--> model-based, ...)
+			IF use-model-errors
+			
+			
+	Dependencies:
+		(Output) model image size affects:
+			nModelVals, nModelColumns, nModelRows
+			modelVector
+			oversampledRegions [via nModelColumns, nModelRows]
+		data image size affects:
+			nDataVals, nDataColumns, nDataRows
+			weightVector, extraCashTermsVector, maskVector
+			outputModelVector, deviatesVector, residualVector, standardWeightVector
+			[and, if doing fits, model image size, above!]
+		PSF image size affects:
+			psfInterpolator, psfConvolver, oversampledRegion objects
+			[and, of course, model image size, above!]
+
+
+	IMAGE VARIABLES AND OTHER ARRAYS:
+		Assume that arrays are allocated and freed by ModelObject unless stated
+		otherwise
+		
+		<> modelVector
+			allocated in ModelObject::SetupModelImage; used all over the place
+			RETURNED by ModelObject::GetModelImageVector
+			
+		<> outputModelVector -- modelVectorAllocated is set
+			allocated in ModelObject::GetSingleFunctionImage and in
+			ModelObject::GetModelImageVector *if* convolution is done
+			RETURNED by ModelObject::GetModelImageVector
+			RETURNED by ModelObject::GetModelImageVector (which fills it
+			with different data every time that method is called)
+		
+		<> localPsfPixels -- localPsfPixels_allocated is set
+			allocated in ModelObject::AddPSFVector (copied from input pointer)
+			immediately passed to: psfInterpolator = new PsfInterpolator_bicubic(localPsfPixels, nPSFColumns, nPSFRows)
+			not used elsewhere
+		
+		<> dataVector [external]
+			NOT allocated OR freed by ModelObject
+			pointer passed in via ModelObject::AddImageDataVector
+		
+		<> weightVector
+			This has *two* modes:
+			1. Internally generated (& freed) -- weightVectorAllocated is set
+			
+			2. Externally supplied (via --noise or --weight)
+			In ModelObject::AddErrorVector, weightVector is assigned to point
+			to the input error-image vector --> NOT freed by ModelObject
+	
+		<> standardWeightVector -- standardWeightVectorAllocated is set
+			allocated in ModelObject::GetWeightImageVector, not used elsewhere
+			RETURNED by ModelObject::GetWeightImageVector
+			
+		<> maskVector
+			This has *two* modes
+			1. Internally generated (& freed) -- maskVectorAllocated is set
+			In ModelObject::FinalSetupForFitting
+			
+			2. Externally supplied (via --mask)
+			In ModelObject::AddMaskVector, maskVector is assigned to point
+			to the input mask-image vector --> NOT freed by ModelObject
+			
+		<> residualVector -- residualVectorAllocated is set
+			allocated in ModelObject::GetResidualImageVector
+			RETURNED by ModelObject::GetResidualImageVector
+			
+		<> deviatesVector -- deviatesVectorAllocated is set
+			allocated in ModelObject::ChiSquared
+			not used elsewhere (though it is passed to mp_enorm)
+		
+		extraCashTermsVector
+		
+		fblockStartFlags
+		bootstrapIndices
+		
+			maskVectorAllocated
+			standardWeightVectorAllocated
+			residualVectorAllocated
+			outputModelVectorAllocated
+			deviatesVectorAllocated
+			extraCashTermsVectorAllocated
+			localPsfPixels_allocated
+			fblockStartFlags_allocated
+			
+		PROBLEM: ModelObject::GetModelImageVector returns a ponter to either
+			modelVector or (if PSF convolution was done) outputModelVector.
+			Currently, imfit_main and makeimage_main merely pass these pointers
+			to SaveVectorAsImage and do nothing else, so neither is freed
+			outside of ModelObject.
+				modelVector is freed when ModelObject is destroyed
+					-- this will be bad for Python wrapper if user wants to
+					actually keep the model image (e.g, in numpy form)!
+					-- OK, Andre's code (ModelObjectWrapper.getModelImage,
+					used by me in imfit_lib.pyx) copies the data to an empty numpy array
+
+				outputModelVector is freed when ModelObject is destroyed
+		
+		
+	
+  dataVector = modelVector = weightVector = standardWeightVector = NULL;
+  residualVector = maskVector = deviatesVector = NULL;
+  outputModelVector = extraCashTermsVector = NULL;
+  bootstrapIndices = NULL;
+  fblockStartFlags = NULL;
+
+  localPsfPixels = nullptr;
+  psfInterpolator = nullptr;
+  psfInterpolator_allocated = false;
+
+
+
+	ModelObject modifications:
+		Add PSF:
+			If pre-existing PSF and Convolver:
+				deallocate PSF and Convolver
+			If model-image size previously set:
+				trigger image-resizing/re-allocation
+		
+
+	Same problem as for ModelObject: how to handle variable order of
+	supplying data images/model-image spec and PSF?
+		-- internal flags
+			data/model image size specified?
+			PSF size specified?
+		
+		ModelObject::FinalSetupForFitting
+			Create a default all-pixels-valid mask if no mask already exists
+			Identify currently unmasked data pixels which have non-finite values and 
+  				add those pixels to the mask
+  			Generate weight vector from data-based Gaussian errors, if using chi^2 + data errors
+  				and no external error map was supplied
+			Generate extra terms vector from data for modified Cash statistic, if using latter
+			If an external error map was supplied, identify currently unmasked *error* pixels 
+				which have non-finite values and add those pixels to the mask
+			Apply mask to weight vector (i.e., set weight -> 0 for masked pixels)
+			VetDataVector() [look for non-masked bad data values]
+			Final check that nValidDataVals >= 1
+
+
+	Python equivalents to SetupModelObject?
+		object.SetupForFitting( dataImage, maskImage, errorImage, psfImage, ... )
+		[or "AddDataForFitting?"]
+		
+		.SetPSF( psfImage )
+			-- adds new PSF image (may be first, or replacement for previous)
+			
+		.SetupForModelImage(nCols, nRows, psfImage, ...)
+
+		.ComputeModelImage( usePSF=True/False )
+			-- i.e., might be convenient to allow use to easily turn on/off
+			PSF convolution for testing/comparison purposes
+				
+		.SetFitStatistic( ... )
+			-- specifies which fitting statistic to compute
+			-- may trigger GenerateExtraCashTerms(); allocation/deallocation
+			of extraCashTermsVector
 
 
 

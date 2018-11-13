@@ -40,6 +40,8 @@ class ModelObject
     virtual ~ModelObject();
 
 
+    void SetVerboseLevel( int verbosity );
+
     void SetDebugLevel( int debuggingLevel );
     
     void SetMaxThreads( int maxThreadNumber );

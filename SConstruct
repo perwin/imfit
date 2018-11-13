@@ -44,9 +44,6 @@
 # macOS static binaries (including static linking of libgcc and libstdc++)
 # $ scons --allstatic --mac-distribution
 
-# OLD: MacOS X fat binaries
-# $ scons --static --fat
-
 # To add one or more directories to the header or library search paths:
 #    $ scons --header-path=/path/to/header/dir
 # OR $ scons --header-path=/path/to/header/dir:/alt/path:/another/path
@@ -101,7 +98,7 @@ STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/local/lib/libgslcblas.a")
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
 # STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/local_libs/nlopt_nothreadlocal/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/static_libs/nlopt_nothreadlocal/libnlopt.a")
 STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
 
 
@@ -141,7 +138,7 @@ cflags_db = ["-Wall", "-g3", "-O0", "-std=c++11", "-Wshadow", "-Wredundant-decls
 base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-lib_list = ["fftw3", "m"]
+lib_list = ["fftw3", "m", "curl"]
 # libraries needed for profilefit and psfconvolve1d compilation
 lib_list_1d = ["fftw3", "m"]
 
@@ -162,8 +159,8 @@ c_compiler_changed = False
 cpp_compiler_changed = False
 
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v7 is installed and
-# callable via gcc-7 and g++-7)
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v8 is installed and
+# callable via gcc-8 and g++-8)
 # Comment this out otherwise!
 # Note that the following way of determining the username seems to be a bit more 
 # portable than "getpass.getuser()", which fails for "Ubuntu on Windows" (acc. to 
@@ -185,9 +182,6 @@ if (os_type == "Darwin") and (userName == "erwin"):
 if (os_type == "Linux"):
 	# change the following path definitions as needed
 	include_path.append("/usr/include")
-	#if os.getlogin() == "erwin":
-	# the following seems to be more portable; os.getlogin doesn't work in Ubuntu 16.04,
-	# for example, but this does
 	if userName == "erwin":
 		include_path.append("/home/erwin/include")
 		lib_path.append("/home/erwin/lib")
@@ -257,12 +251,6 @@ AddOption("--allstatic", dest="useTotalStaticLinking", action="store_true",
 	default=False, help="force static library linking, *including* system libraries if possible")
 AddOption("--mac-distribution", dest="compileForMacDistribution", action="store_true", 
 	default=False, help="use this to make macOS binaries for public distribution")
-# AddOption("--fat", dest="makeFatBinaries", action="store_true", 
-# 	default=False, help="generate a \"fat\" (32-bit + 64-bit Intel) binary for Mac OS X")
-# AddOption("--32bit", dest="make32bit", action="store_true", 
-# 	default=False, help="generate a 32-bit binary for Mac OS X")
-# AddOption("--old-mac", dest="buildForOldMac", action="store_true", 
-# 	default=False, help="compile for Mac OS 10.6 and 10.7")
 
 
 # * Check to see if user actually specified something, and implement it
@@ -325,12 +313,6 @@ if GetOption("useStaticLibs") is True:
 if GetOption("useTotalStaticLinking") is True:
 	useStaticLibs = True
 	totalStaticLinking = True
-# if GetOption("makeFatBinaries") is True:
-# 	buildFatBinary = True
-# if GetOption("make32bit") is True:
-# 	build32bit = True
-# if GetOption("buildForOldMac") is True:
-# 	buildForOldMacOS = True
 
 if GetOption("compileForMacDistribution") is True:
 	print("DOING MAC DISTRIBUTION COMPILE!")
@@ -338,7 +320,7 @@ if GetOption("compileForMacDistribution") is True:
 	totalStaticLinking = True
 	# reset lib_path so linker only looks where we want it to -- i.e., in the 
 	# directory with static library files
-	lib_path = ["/Users/erwin/coding/imfit/local_libs"]
+	lib_path = ["/Users/erwin/coding/imfit/static_libs"]
 
 
 # OK, let's check to see if we're trying to compile with OpenMP *and* using Apple's
@@ -392,12 +374,6 @@ else:
 	extra_defines.append("NO_GSL")
 
 if useNLopt:   # default is to do this
-# 			if buildForOldMacOS is True:
-# 				# Special case compiling for Mac OS 10.6 and 10.7 -- use local path
-# 				# to NLopt library built *without* thread-local storage
-# 				lib_list.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
-# 				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL)
-#				lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE_MACOSX)
 	if useStaticLibs and (os_type == "Linux"):
 		lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
 		lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
@@ -492,9 +468,11 @@ defines_opt = defines_opt + extra_defines
 # "env_opt" is an environment for optimized compiling
 
 env_opt = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
-					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, CPPDEFINES=defines_opt )
+					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, 
+					CPPDEFINES=defines_opt )
 env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
-					LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
+					LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
+					CPPDEFINES=defines_db )
 
 
 # Checks for libraries and headers -- if we're not doing scons -c:
@@ -673,6 +651,7 @@ env_opt.Command("unit", None, "./run_unit_tests.sh")
 # All tests:
 env_opt.Command("alltests", None, 
 	"./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests ; ./do_mcmc_tests")
+
 
 
 

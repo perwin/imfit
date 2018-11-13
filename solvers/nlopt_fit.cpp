@@ -245,7 +245,6 @@ int NLOptFit( int nParamsTot, double *paramVector, vector<mp_par> parameterLimit
   double  initialStatisticVal, finalStatisticVal;
   double  *minParamValues;
   double  *maxParamValues;
-//  bool  paramLimitsExist = true;
   nlopt_algorithm  algorithmName;
   map<string, nlopt_algorithm>  algorithmMap;
 
@@ -299,10 +298,6 @@ int NLOptFit( int nParamsTot, double *paramVector, vector<mp_par> parameterLimit
   // Set up the optimizer for minimization
   nlopt_set_min_objective(theOptimizer, myfunc_nlopt_gen, theModel);  
   // Specify parameter boundaries, if they exist
-//   if (paramLimitsExist) {
-//     nlopt_set_lower_bounds(theOptimizer, minParamValues);
-//     nlopt_set_upper_bounds(theOptimizer, maxParamValues);
-//   }
   nlopt_set_lower_bounds(theOptimizer, minParamValues);
   nlopt_set_upper_bounds(theOptimizer, maxParamValues);
   

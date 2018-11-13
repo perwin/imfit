@@ -138,8 +138,8 @@ Alternate interpolation
   	[X] Add overridden method to PointSource
   
   [ ] Add in Lanczsos2 interpolator
-  	[ ] Write PsfInterpolator subclass to do Lanczos2 interpolation
-  	[ ] Write unit tests for PsfInterpolator classes
+  	[X] Write PsfInterpolator subclass to do Lanczos2 interpolation
+  	[X] Write unit tests for PsfInterpolator class
 
 
 	POSSIBLE SOLUTION: Give PointSource a method that tells caller what type

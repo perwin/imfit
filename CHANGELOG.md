@@ -2,15 +2,24 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.7.0 -- 20xx-xx-xx
-### Added:
-
+## 1.6.1 -- 2018-11-xx
 ### Changed:
 
 - The output-file-reading code in imfit.py will now use pandas.read_csv instead of
 numpy.loadtxt, if pandas is installed. This is significantly faster when reading in
 large MCMC output files. (Thanks to Justus Neumann and Iskren Georgiev for
 suggesting this.)
+
+- Library code included in the compiled binaries has been updated to version 2.5 of
+the GNU Scientific Library, version 3.450 of cfitsio, and version 2.5.0 of NLopt.
+
+### Fixed:
+
+- imfit-mcmc would use the wrong parameter limits for X0 and Y0
+parameters if an image section was specified (e.g.,
+"<data-file>.fits[x1:x2,y1:2]"); in some cases this could result in
+failed convergence or mis-constrained results. (Thanks to Iskren Georgiev for
+spotting the problem.)
 
 
 

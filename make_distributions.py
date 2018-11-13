@@ -18,7 +18,7 @@ MAC_DEST_BIN = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/bina
 MAC_CHANGELOG_MD = "CHANGELOG.md"
 MAC_CHANGELOG_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/CHANGELOG.html"
 
-VERSION_STRING = "1.6.0"
+VERSION_STRING = "1.6.1"
 
 os_type = os.uname()[0]   # "Darwin", "Linux", etc.
 os_machine_type = os.uname()[4]   # "x86-64", etc.

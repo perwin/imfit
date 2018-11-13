@@ -51,6 +51,18 @@ else
   echo "   (-- skipping test 3 --)"
 fi
 
+if [ "$1" == "--all" ]
+then
+  # 4: testing that we handle image sections OK
+  echo -n "   (now running MCMC chain (test 4: using image section)...)"
+  # note that we only do 2000 steps, since we just want to see if things trend
+  # in the right direction
+  ./imfit-mcmc examples/ic3478rss_256.fits[60:195,70:185] -c examples/config_sersic_ic3478_256.dat  --gain=4.725 --readnoise=4.3 --sky=130.14 --output=mcmc_test4 --max-chain-length=2000 --seed=1001 &> temptest/test_dump_mcmc1d
+  echo ""
+else
+  echo "   (-- skipping test 4 --)"
+fi
+
 
 
 
@@ -125,6 +137,23 @@ then
     STATUS+=1
   fi
 fi
+
+if [ "$1" == "--all" ]
+then
+  printf "    Comparing first output chain file from test 4 (fitting ic3478rss_256.fits[60:195,70:185])... "
+  # skip first two lines of output file to avoid comparing timestamps
+  # note that reference file was generated using imfit-mcmc and a cutout of the
+  # data image (corresponding to the specified image section)
+  tail -n +3 temptest/mcmc_test4.1.txt > temptest/mcmc_test4.1.txt_skip3
+  if (diff --brief temptest/mcmc_test4.1.txt_skip3 tests/imfit-mcmc_reference/mcmc_ref4.1.txt_skip3)
+  then
+    printf " OK\n"
+  else
+    echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test4.1.txt differs from reference file tests/mcmc_ref4.1.txt_skip3"
+    STATUS+=1
+  fi
+fi
+
 
 echo -n "*** Diff comparison with archives: catching the case of all data pixels masked... "
 ./python/diff_printouts.py tests/test_dump_mcmc2a temptest/test_dump2a

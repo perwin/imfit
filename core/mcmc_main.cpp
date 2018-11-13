@@ -77,9 +77,9 @@ const char *  LOG_FILENAME = "log_imfit-mcmc.txt";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.6.0 (OpenMP-enabled)"
+#define VERSION_STRING      "1.6.1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.6.0"
+#define VERSION_STRING      "1.6.1"
 #endif
 
 
@@ -95,6 +95,7 @@ double LikelihoodFuncForDREAM( int chain, int gen, const double* state,
 void MakeMCMCOutputHeader( vector<string> *headerLines, const string& programName, 
 						const int argc, char *argv[] );
 
+void PrintParamLimits( vector<mp_par> &parameterInfo, int nParams );
 
 
 
@@ -128,8 +129,6 @@ int main(int argc, char *argv[])
   vector<int>  FunctionBlockIndices;
   vector< map<string, string> > optionalParamsMap;
   bool  paramLimitsExist = false;
-//   bool  parameterInfo_allocated = false;
-//   mp_par  *parameterInfo;
   int  status;
   vector<string>  imageCommentsList;
   OptionsBase *commandOpts;
@@ -297,29 +296,6 @@ int main(int argc, char *argv[])
     fprintf(stderr, "*** ERROR: nParamsTot was not set correctly!\n\n");
     exit(-1);
   }
-//   parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
-//   parameterInfo_allocated = true;
-//   for (int i = 0; i < nParamsTot; i++) {
-//     parameterInfo[i].fixed = paramLimits[i].fixed;
-//     if (parameterInfo[i].fixed == 1) {
-//       nFreeParams--;
-//     }
-//     parameterInfo[i].limited[0] = paramLimits[i].limited[0];
-//     parameterInfo[i].limited[1] = paramLimits[i].limited[1];
-//     parameterInfo[i].limits[0] = paramLimits[i].limits[0];
-//     parameterInfo[i].limits[1] = paramLimits[i].limits[1];
-//     // specify different offsets if using image subsection, and apply them to
-//     // user-specified X0,Y0 limits
-//     if (theModel->GetParameterName(i) == X0_string) {
-//       parameterInfo[i].offset = X0_offset;
-//       parameterInfo[i].limits[0] -= X0_offset;
-//       parameterInfo[i].limits[1] -= X0_offset;
-//     } else if (theModel->GetParameterName(i) == Y0_string) {
-//       parameterInfo[i].offset = Y0_offset;
-//       parameterInfo[i].limits[0] -= Y0_offset;
-//       parameterInfo[i].limits[1] -= Y0_offset;
-//     }
-//   }
 
   // Final processing of parameter info/limits:
   //   Decrement nFreeParams for each fixed parameter
@@ -480,8 +456,6 @@ int main(int argc, char *argv[])
     psfOversamplingInfoVect.clear();
   }
   free(paramsVect);
-//   if (parameterInfo_allocated)
-//     free(parameterInfo);
   delete theModel;
 
   FreeVarsDreamParams(&dreamPars);
@@ -1059,6 +1033,17 @@ void MakeMCMCOutputHeader( vector<string> *headerLines, const string& programNam
   headerLines->push_back(tempString + "\n");
 }
 
+
+
+void PrintParamLimits( vector<mp_par> &parameterInfo, int nParams )
+{
+  for (int i = 0; i < nParams; i++) {
+    if ( (parameterInfo[i].fixed == 1) )
+      printf("%d: fixed\n", i);
+    else
+      printf("%d: %.1f,%.1f\n", i, parameterInfo[i].limits[0], parameterInfo[i].limits[1]);
+  }
+}
 
 
 /* END OF FILE: mcmc_main.cpp -------------------------------------------- */

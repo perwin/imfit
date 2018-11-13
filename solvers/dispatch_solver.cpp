@@ -54,24 +54,28 @@ int DispatchToSolver( int solverID, int nParametersTot, int nFreeParameters, int
   
   switch (solverID) {
     case MPFIT_SOLVER:
-      printf("Calling Levenberg-Marquardt solver ...\n");
+      if (verboseLevel >= 0)
+        printf("Calling Levenberg-Marquardt solver ...\n");
       fitStatus = LevMarFit(nParametersTot, nFreeParameters, nPixelsTot, parameters, parameterInfo, 
       						modelObj, fracTolerance, paramLimitsExist, verboseLevel, solverResults);
       break;
     case DIFF_EVOLN_SOLVER:
-      printf("Calling Differential Evolution solver ..\n");
+      if (verboseLevel >= 0)
+        printf("Calling Differential Evolution solver ..\n");
       fitStatus = DiffEvolnFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
       							verboseLevel, solverResults, rngSeed);
 
       break;
 #ifndef NO_NLOPT
     case NMSIMPLEX_SOLVER:
-      printf("Calling Nelder-Mead Simplex solver ..\n");
+      if (verboseLevel >= 0)
+        printf("Calling Nelder-Mead Simplex solver ..\n");
       fitStatus = NMSimplexFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
       							verboseLevel, solverResults);
       break;
     case GENERIC_NLOPT_SOLVER:
-      printf("\nCalling NLOpt solver %s ..\n", solverName.c_str());
+      if (verboseLevel >= 0)
+        printf("\nCalling NLOpt solver %s ..\n", solverName.c_str());
       fitStatus = NLOptFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
       						verboseLevel, solverName, solverResults);
       break;
