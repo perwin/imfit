@@ -24,7 +24,7 @@
 //  conf.ftol = 1e-10;   [relative changes in chi^2]
 //  conf.xtol = 1e-10;   [relative changes in parameter values]
 
-#include <strings.h>   // for memset
+#include <string.h>   // for memset
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

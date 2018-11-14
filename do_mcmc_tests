@@ -57,7 +57,7 @@ then
   echo -n "   (now running MCMC chain (test 4: using image section)...)"
   # note that we only do 2000 steps, since we just want to see if things trend
   # in the right direction
-  ./imfit-mcmc examples/ic3478rss_256.fits[60:195,70:185] -c examples/config_sersic_ic3478_256.dat  --gain=4.725 --readnoise=4.3 --sky=130.14 --output=mcmc_test4 --max-chain-length=2000 --seed=1001 &> temptest/test_dump_mcmc1d
+  ./imfit-mcmc examples/ic3478rss_256.fits[60:195,70:185] -c examples/config_sersic_ic3478_256.dat  --gain=4.725 --readnoise=4.3 --sky=130.14 --output=temptest/mcmc_test4 --max-chain-length=2000 --seed=1001 &> temptest/test_dump_mcmc1d
   echo ""
 else
   echo "   (-- skipping test 4 --)"
