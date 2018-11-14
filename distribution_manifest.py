@@ -284,6 +284,7 @@ mcmc_textout1
 mcmc_ref1.1.txt_skip3
 mcmc_ref2.1.txt_skip3
 mcmc_test_short_ref.1.txt_last100
+mcmc_ref4.1.txt_skip3
 """
 
 # for tests/

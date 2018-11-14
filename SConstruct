@@ -29,7 +29,7 @@
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
 #    $ scons --cc=gcc-4.9 --cpp=g++-4.9 <target-name>
-# shorthand for using GCC 7
+# shorthand for using GCC 8
 #    $ scons --use-gcc <target-name>
 #
 #
@@ -234,7 +234,7 @@ AddOption("--cc", dest="cc_compiler", type="string", action="store", default=Non
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v7 compilers")
+	default=False, help="use gcc and g++ v8 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 AddOption("--sanitize", dest="useAllSanitize", action="store_true", 

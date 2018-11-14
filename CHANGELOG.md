@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.6.1 -- 2018-11-xx
+## 1.6.1 -- 2018-11-15
 ### Changed:
 
 - The output-file-reading code in imfit.py will now use pandas.read_csv instead of
@@ -11,7 +11,8 @@ large MCMC output files. (Thanks to Justus Neumann and Iskren Georgiev for
 suggesting this.)
 
 - Library code included in the compiled binaries has been updated to version 2.5 of
-the GNU Scientific Library, version 3.450 of cfitsio, and version 2.5.0 of NLopt.
+the GNU Scientific Library, version 3.3.8 of FFTW, version 3.450 of cfitsio, and 
+version 2.5.0 of NLopt.
 
 ### Fixed:
 

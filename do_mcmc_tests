@@ -106,7 +106,7 @@ if (diff --brief temptest/mcmc_test.1.txt_skip3 tests/imfit-mcmc_reference/mcmc_
 then
   printf " OK\n"
 else
-  echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test.1.txt differs from reference file tests/imfit-mcmc_reference/mcmc_ref1.1.txt_skip3"
+  echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test.1.txt differs from reference file tests/imfit-mcmc_reference/imfit-mcmc_reference/mcmc_ref1.1.txt_skip3"
   STATUS+=1
 fi
 
@@ -119,7 +119,7 @@ then
   then
     printf " OK\n"
   else
-    echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test2.1.txt differs from reference file tests/mcmc_ref2.1.txt_skip3"
+    echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test2.1.txt differs from reference file tests/imfit-mcmc_reference/mcmc_ref2.1.txt_skip3"
     STATUS+=1
   fi
 fi
@@ -133,7 +133,7 @@ then
   then
     printf " OK\n"
   else
-    echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test2.1.txt differs from reference file tests/mcmc_ref2.1.txt_skip3"
+    echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test2.1.txt differs from reference file tests/imfit-mcmc_reference/mcmc_test_short_ref.1.txt_last100"
     STATUS+=1
   fi
 fi
@@ -149,7 +149,7 @@ then
   then
     printf " OK\n"
   else
-    echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test4.1.txt differs from reference file tests/mcmc_ref4.1.txt_skip3"
+    echo -e "   ${RED}Failed:${NC}  Output MCMC chain file temptest/mcmc_test4.1.txt differs from reference file tests/imfit-mcmc_reference/mcmc_ref4.1.txt_skip3"
     STATUS+=1
   fi
 fi

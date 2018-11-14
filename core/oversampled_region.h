@@ -13,8 +13,10 @@
 #include <vector>
 
 #include "convolver.h"
-#include "function_objects/function_object.h"
-#include "function_objects/psf_interpolators.h"
+// #include "function_objects/function_object.h"
+// #include "function_objects/psf_interpolators.h"
+#include "function_object.h"
+#include "psf_interpolators.h"
 
 using namespace std;
 
