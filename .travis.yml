@@ -41,7 +41,7 @@ addons:
 # actually works. For Python 2.7, it adds about 30s to the build time (for installing pyfits, 
 # because pip detects that numpy is already installed[?!]); if we use Python 3.4, it adds about 
 # 3 minutes (needs to install numpy as well as pyfits)
-# This needs to go *after* the C++ setup, otherwise the numpy intall doesn't work...
+# This needs to go *after* the C++ setup, otherwise the numpy install doesn't work...
 language: python
 python:
   # OK, the "2.7_with_system_site_packages" sort of works, except that importing numpy fails due to Unicode 
@@ -64,14 +64,12 @@ script:
   - scons makeimage
   - scons imfit
   - scons imfit-mcmc
+  - ./do_makeimage_tests
 
 # Note that running do_imfit_tests tends to produce the usual Linux-vs-OSX output mismatches
 # in the final decimal places for some of the outputs (probably due to subtle
 # floating-point issues), and sometimes mysterious segfaults.
-# Also, do_makeimage_tests finds image mismatches for the oversampled PSF case which
-# don't appear on OS X.
 after_success:
-  - ./do_makeimage_tests
   - ./do_imfit_tests
   - ./do_mcmc_tests
 
