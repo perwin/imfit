@@ -34,6 +34,34 @@
 [ ] Unit tests for FerrersBar3D
 
 
+[ ] Fix image-comparison regression tests
+	OK, the weird case is biggertest.fits, which has two (and only two) pixels
+	which differ by ~ 0.0167 between the Mac and Linux versions; all other
+	pixels appear to be identical. The discrepant pixels are at (x,y) = (31,23)
+	and (31,39)
+		The first function-block has center at 31,31; the two discrepant pixels
+		are at y = 31 +/- 8
+	
+	The difference shows up in the first Sersic function of the first function-block:
+	the mac version has I = 10.0, while the Linux version has I = 10.0167
+	
+	OK, what seems to be happening is this:
+	1. The image created on the Linux VM is fine.
+	2. *Sometimes*, when the image is copied from the VM to the Mac side,
+	one or more pixels (minor-axis only, for some reason) with values of 10.0
+	get converted to 10.016664.
+	
+	
+	All *other* files agree to w/in 1e-13
+	
+	[ ] Update compare_fits_files.py to use numpy.allclose
+		[X] Update to use np.allclose( rtol=0, atol=1e-12)
+		[ ] Test atol=1e-12 on existing Mac images
+			[ ] write Python or shell script to do image comparisons from
+				makeimage regression tests
+		[ ] Test atol=1e-12 on Linux images (on Mac)
+
+
 [ ] 2D Ferrers bar model
 	-- for comparison with GALFIT; also with Laurikainen et al. models?
 	[ ] Check Laurikainen et al. models to see if it's same as GALFIT

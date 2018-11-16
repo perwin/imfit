@@ -26,7 +26,13 @@ NC = '\033[0m' # No Color
 
 
 TOLERANCE = 1e-6
+TOERLANCE_ALLCLOSE = 1.0e-12
 
+
+def CompareImagesNew( fname1, fname2, tol=TOERLANCE_ALLCLOSE ):
+	imdata1 = fits_open(fname1)[0].data
+	imdata2 = fits_open(fname2)[0].data
+	return np.allclose(imdata1, imdata2, rtol=0, atol=tol)
 
 
 # we assume that the original/reference image is the *second* one
@@ -66,7 +72,7 @@ def CompareSum( fname1, fname2, referenceSum_fname, minValue=0.0 ):
 def main(argv=None):
 
 	usageString = "%prog FITS_file_1 FITS_file_2\n"
-	usageString = "OR: %prog --compare-sum FITS_file_1 FITS_file_2 reference_sum_FITS_file\n"
+	usageString += "OR: %prog --compare-sum FITS_file_1 FITS_file_2 reference_sum_FITS_file\n"
 	parser = optparse.OptionParser(usage=usageString, version="%prog ")
 	parser.add_option("--compare-sum", action="store_true", dest="compareSum", default=False, help="test that sum of first two images matches third image within tolerances")
 	parser.add_option("--min-value", type="float", dest="minValue", default=0.0, help="only test pixels with values > min-value in original image")
@@ -107,7 +113,8 @@ def main(argv=None):
 	else:
 		txt = "\tComparing images %s and %s... " % (fitsFile1, fitsFile2)
 		print(txt, end="")
-		result = CompareImagesEqual(fitsFile1, fitsFile2, minValue=options.minValue)
+#		result = CompareImagesEqual(fitsFile1, fitsFile2, minValue=options.minValue)
+		result = CompareImagesNew(fitsFile1, fitsFile2)
 		if (result is False):
 			txt = "\n\t" + RED + ">>> WARNING:" + NC
 			print(txt + " images %s and %s DO NOT match!\n" % (fitsFile1, fitsFile2))

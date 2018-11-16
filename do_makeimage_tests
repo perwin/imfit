@@ -29,11 +29,11 @@ if [ ! -f ./makeimage ]
     exit 2
 fi
 
-case "$OSTYPE" in
-  darwin*)  osname="osx" ;; 
-  linux*)   osname="linux" ;;
-  *)        echo "unknown: $OSTYPE" ;;
-esac
+# case "$OSTYPE" in
+#   darwin*)  osname="osx" ;; 
+#   linux*)   osname="linux" ;;
+#   *)        echo "unknown: $OSTYPE" ;;
+# esac
 
 # create output directory for test_dump*, etc. files (will do nothing if
 # directory already exists)
@@ -183,7 +183,7 @@ if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that convolution with oversampled PSF works (single region)... "
   echo ""
 then
-  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled.fits tests/${osname}/oversampled_orig.fits
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled.fits tests/oversampled_orig.fits
   STATUS+=$?
 fi
 
@@ -191,7 +191,7 @@ if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that convolution with oversampled PSF works for single-function output (single region)... "
   echo ""
 then
-  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled_single1_Gaussian.fits tests/${osname}/oversampled_orig.fits
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled_single1_Gaussian.fits tests/oversampled_orig.fits
   STATUS+=$?
 fi
 
@@ -199,7 +199,7 @@ if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that convolution with oversampled PSF works (two regions, same PSF)... "
   echo ""
 then
-  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled2both.fits tests/${osname}/oversampled2both_orig.fits
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled2both.fits tests/oversampled2both_orig.fits
   STATUS+=$?
 fi
 
@@ -215,7 +215,7 @@ if [ $do_fits_tests = "1" ]
   echo -n "*** Testing that convolution with oversampled PSF works (two regions, 2 PSFs)... "
   echo ""
 then
-  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled2both_2psf.fits tests/${osname}/oversampled2both_orig.fits
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/oversampled2both_2psf.fits tests/oversampled2both_orig.fits
   STATUS+=$?
 fi
 
