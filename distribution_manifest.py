@@ -331,9 +331,8 @@ psf_moffat_fwhm2.fits
 psf_moffat_fwhm2_35x35.fits
 test_dump_mcmc2a
 test_dump_mcmc2b
-osx/oversampled_orig.fits
-osx/oversampled2both_orig.fits
-linux/oversampled_orig.fits
+oversampled_orig.fits
+oversampled2both_orig.fits
 mcmc_data/mcmc_test_short.1.txt
 mcmc_data/mcmc_test_short.2.txt
 mcmc_data/mcmc_test_short.3.txt

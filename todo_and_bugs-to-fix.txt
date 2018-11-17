@@ -34,7 +34,7 @@
 [ ] Unit tests for FerrersBar3D
 
 
-[ ] Fix image-comparison regression tests
+[X] Fix image-comparison regression tests
 	OK, the weird case is biggertest.fits, which has two (and only two) pixels
 	which differ by ~ 0.0167 between the Mac and Linux versions; all other
 	pixels appear to be identical. The discrepant pixels are at (x,y) = (31,23)
@@ -54,12 +54,17 @@
 	
 	All *other* files agree to w/in 1e-13
 	
-	[ ] Update compare_fits_files.py to use numpy.allclose
+	[X] Update compare_fits_files.py to use numpy.allclose
 		[X] Update to use np.allclose( rtol=0, atol=1e-12)
-		[ ] Test atol=1e-12 on existing Mac images
-			[ ] write Python or shell script to do image comparisons from
+		[X] Test atol=1e-12 on existing Mac images
+			[X] write Python or shell script to do image comparisons from
 				makeimage regression tests
-		[ ] Test atol=1e-12 on Linux images (on Mac)
+		[X] Convert do_makeimage_tests to use new function
+		[X] Test atol=1e-12 on Linux images (on Mac)
+		[X] Move osx/*.fits images up one level
+		[X] Rewrite do_makeimage_tests to skip the OS testing and subdirectory use
+	
+	[X] Add do_makeimage_tests to travis.yml
 
 
 [ ] 2D Ferrers bar model
