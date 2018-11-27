@@ -93,6 +93,7 @@ typedef struct {
   bool  doBootstrap;
   int  bootstrapIterations;
   int  verbose;
+  unsigned long  rngSeed;
 } commandOptions;
 
 
@@ -142,11 +143,10 @@ int main(int argc, char *argv[])
   vector<int>  FunctionBlockIndices;
   bool  maskAllocated = false;
   bool  paramLimitsExist = false;
-  bool  parameterInfo_allocated = false;
+  vector<mp_par>  parameterInfo;
   int  status, fitStatus;
   vector<string>  functionList;
   vector<double>  parameterList;
-  mp_par  *parameterInfo;
   commandOptions  options;
   configOptions  userConfigOptions;
   SolverResults  resultsFromSolver;
@@ -183,6 +183,7 @@ int main(int argc, char *argv[])
   options.outputParameterFileName = DEFAULT_1D_OUTPUT_PARAMETER_FILE;
   options.verbose = 1;
   options.nloptSolverName = "";
+  options.rngSeed = 0;
 
   progNameVersion += VERSION_STRING;
   MakeOutputHeader(&programHeader, progNameVersion, argc, argv);
@@ -353,26 +354,20 @@ int main(int argc, char *argv[])
 
 
   // Parameter limits and other info:
-  // OK, first we create a C-style array of mp_par structures, containing parameter constraints
-  // (if any) *and* any other useful info (like X0,Y0 offset values).  This will be used
-  // by DiffEvolnFit (if called) and by PrintResults.  We also decrement nFreeParams for
-  // each *fixed* parameter.
-  // Then we point the mp_par-array variable mpfitParameterConstraints to this array *if*
-  // there are actual parameter constraints; if not, mpfitParameterConstraints is set = NULL,
-  // since that's what mpfit() expects when there are no constraints.
-  printf("Setting up parameter information array ...\n");
-  parameterInfo = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
-  parameterInfo_allocated = true;
+  printf("Setting up parameter information vector ...\n");
+  mp_par newParamLimit;
   for (int i = 0; i < nParamsTot; i++) {
-    parameterInfo[i].fixed = paramLimits[i].fixed;
-    if (parameterInfo[i].fixed == 1) {
+    memset(&newParamLimit, 0, sizeof(mp_par));
+    newParamLimit.fixed = paramLimits[i].fixed;
+    if (paramLimits[i].fixed == 1) {
       printf("Fixed parameter detected (i = %d)\n", i);
       nFreeParams--;
     }
-    parameterInfo[i].limited[0] = paramLimits[i].limited[0];
-    parameterInfo[i].limited[1] = paramLimits[i].limited[1];
-    parameterInfo[i].limits[0] = paramLimits[i].limits[0];
-    parameterInfo[i].limits[1] = paramLimits[i].limits[1];
+    newParamLimit.limited[0] = paramLimits[i].limited[0];
+    newParamLimit.limited[1] = paramLimits[i].limited[1];
+    newParamLimit.limits[0] = paramLimits[i].limits[0];
+    newParamLimit.limits[1] = paramLimits[i].limits[1];
+    parameterInfo.push_back(newParamLimit);
   }
   nDegFreedom = theModel->GetNValidPixels() - nFreeParams;
   printf("%d free parameters (%d degrees of freedom)\n", nFreeParams, nDegFreedom);
@@ -395,9 +390,9 @@ int main(int argc, char *argv[])
     // DO THE FIT!
     fitStatus = DispatchToSolver(options.solver, nParamsTot, nFreeParams, nStoredDataVals, 
     							paramsVect, parameterInfo, theModel, options.ftol, paramLimitsExist, 
-    							options.verbose, &resultsFromSolver, options.nloptSolverName);
+    							options.verbose, &resultsFromSolver, options.nloptSolverName,
+    							options.rngSeed);
     							
-//    PrintResults(paramsVect, theModel, nFreeParams, parameterInfo, fitStatus, resultsFromSolver);
     PrintResults(paramsVect, theModel, nFreeParams, fitStatus, resultsFromSolver);
   }
 
@@ -409,7 +404,7 @@ int main(int argc, char *argv[])
            options.bootstrapIterations);
     printf("[NOT YET PROPERLY IMPLEMENTED!]\n");
     BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, theModel,
-                    options.bootstrapIterations, nFreeParams);
+                    options.ftol, options.bootstrapIterations, nFreeParams);
   }
   
   
@@ -418,8 +413,6 @@ int main(int argc, char *argv[])
     printf("Saving best-fit parameters in file \"%s\"\n", options.outputParameterFileName.c_str());
     string  progNameVer = "profilefit ";
     progNameVer += VERSION_STRING;
-//     SaveParameters(paramsVect, theModel, parameterInfo, options.outputParameterFileName,
-//                     programHeader, nFreeParams, options.solver, fitStatus, resultsFromSolver);
     SaveParameters(paramsVect, theModel, options.outputParameterFileName,
                     programHeader, nFreeParams, options.solver, fitStatus, resultsFromSolver);
   }
@@ -457,8 +450,6 @@ int main(int argc, char *argv[])
   }
   free(paramsVect);
   free(paramErrs);
-  if (parameterInfo_allocated)
-    free(parameterInfo);
   delete theModel;
   
   printf("All done!\n\n");
@@ -500,6 +491,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddUsageLine(" --bootstrap <int>            do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine(" --save-params <output-file>  Save best-fit parameters in config-file format");
   optParser->AddUsageLine(" --save-best-fit <output-file>  Save best-fit profile");
+  optParser->AddUsageLine(" --seed <int>                 RNG seed (for testing purposes)");
   optParser->AddUsageLine(" --quiet                      Turn off printing of mpfit interation updates");
   optParser->AddUsageLine("");
 
@@ -529,6 +521,7 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
   optParser->AddOption("save-best-fit");
   optParser->AddFlag("verbose");
   optParser->AddFlag("quiet");
+  optParser->AddOption("seed");
 
   // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
   // to be ignored only, rather than causing program to exit
@@ -687,7 +680,15 @@ void ProcessInput( int argc, char *argv[], commandOptions *theOptions )
     theOptions->saveBestProfile = true;
     printf("\toutput best-fit profile to file = %s\n", theOptions->modelOutputFileName.c_str());
   }
-
+  if (optParser->OptionSet("seed")) {
+    if (NotANumber(optParser->GetTargetString("seed").c_str(), 0, kPosInt)) {
+      printf("*** WARNING: RNG seed should be a positive integer!\n");
+      delete optParser;
+      exit(1);
+    }
+    theOptions->rngSeed = atol(optParser->GetTargetString("seed").c_str());
+    printf("\tRNG seed = %ld\n", theOptions->rngSeed);
+  }
 
   delete optParser;
 

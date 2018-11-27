@@ -413,7 +413,7 @@ Chi-Squared and All That: Using Different Fit Statistics
 
 Fitting a model to an image involves some assumptions about the
 underlying *statistical* model that generated your data -- i.e., what
-kind of statistical sampling the individual pixel values are drawn from.
+kind of statistical distributions the individual pixel values are drawn from.
 This in turn affects how the "fit statistic" -- the quantity you are
 trying to minimize in order to get the best fit -- is calculated.
 

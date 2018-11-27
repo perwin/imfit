@@ -815,7 +815,7 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->originalSky = atof(optParser->GetTargetString("sky").c_str());
+    theOptions->originalSky = strtod(optParser->GetTargetString("sky").c_str(), NULL);
     theOptions->originalSkySet = true;
     printf("\toriginal sky level = %g ADU\n", theOptions->originalSky);
   }
@@ -825,7 +825,7 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->gain = atof(optParser->GetTargetString("gain").c_str());
+    theOptions->gain = strtod(optParser->GetTargetString("gain").c_str(), NULL);
     theOptions->gainSet = true;
     printf("\tgain = %g e-/ADU\n", theOptions->gain);
   }
@@ -835,7 +835,7 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->readNoise = atof(optParser->GetTargetString("readnoise").c_str());
+    theOptions->readNoise = strtod(optParser->GetTargetString("readnoise").c_str(), NULL);
     theOptions->readNoiseSet = true;
     printf("\tread noise = %g e-\n", theOptions->readNoise);
   }
@@ -845,7 +845,7 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->expTime = atof(optParser->GetTargetString("exptime").c_str());
+    theOptions->expTime = strtod(optParser->GetTargetString("exptime").c_str(), NULL);
     theOptions->expTimeSet = true;
     printf("\texposure time = %g sec\n", theOptions->expTime);
   }
@@ -865,7 +865,7 @@ void ProcessInput( int argc, char *argv[], ImfitOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->ftol = atof(optParser->GetTargetString("ftol").c_str());
+    theOptions->ftol = strtod(optParser->GetTargetString("ftol").c_str(), NULL);
     theOptions->ftolSet = true;
     printf("\tfractional tolerance ftol for fit-statistic convergence = %g\n", theOptions->ftol);
   }

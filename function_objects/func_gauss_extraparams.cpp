@@ -124,7 +124,7 @@ int GaussianExtraParams::SetExtraParams( map<string,string>& inputMap )
   for( iter = inputMap.begin(); iter != inputMap.end(); iter++) {
     if (iter->first == "floor") {
       if (IsNumeric(iter->second.c_str())) {
-        floorValue = atof(iter->second.c_str());
+        floorValue = strtod(iter->second.c_str(), NULL);
         printf("   GaussianExtraParams::SetExtraParams -- setting floor = %f\n", floorValue);
         extraParamsSet = true;
         return 1;

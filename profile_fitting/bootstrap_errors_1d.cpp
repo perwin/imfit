@@ -15,11 +15,14 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <tuple>
+#include <vector>
 #include "strings.h"  // for bzero on Linux systems
 
 #include "definitions.h"
 #include "model_object_1d.h"
 #include "mpfit.h"
+#include "levmar_fit.h"
 #include "mersenne_twister.h"
 #include "bootstrap_errors_1d.h"
 #include "statistics.h"
@@ -34,19 +37,20 @@ int myfunc( int nDataVals, int nParams, double *params, double *deviates,
 
 
 
-void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits, 
-									bool paramLimitsExist, ModelObject *theModel, int nIterations,
-									int nFreeParams )
+void BootstrapErrors( double *bestfitParams, std::vector<mp_par> parameterLimits, 
+						bool paramLimitsExist, ModelObject *theModel, double ftol,
+						int nIterations, int nFreeParams )
 {
   mp_config  mpConfig;
   mp_result  mpfitResult;
-  mp_par  *mpfitParameterConstraints;
+//   mp_par  *mpfitParameterConstraints;
   double  *paramsVect, *paramSigmas;
   double  **paramArray;
   double  lower, upper, plus, minus, halfwidth;
   int  i, status, nIter;
   int  nParams = theModel->GetNParams();
   int  nStoredDataVals = theModel->GetNDataValues();
+  int  verboseLevel = -1;   // ensure minimizer stays silent
   
   /* seed random number generators with current time */
   init_genrand( (unsigned long)time(NULL) );
@@ -64,10 +68,10 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits,
 
 
   // Set up things for L-M minimization
-  if (paramLimitsExist)
-    mpfitParameterConstraints = parameterLimits;
-  else
-    mpfitParameterConstraints = NULL;
+//   if (paramLimitsExist)
+//     mpfitParameterConstraints = parameterLimits;
+//   else
+//     mpfitParameterConstraints = NULL;
   bzero(&mpfitResult, sizeof(mpfitResult));       /* Zero the results structure */
   bzero(&mpConfig, sizeof(mpConfig));
   mpConfig.maxiter = 1000;
@@ -80,8 +84,10 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits,
     theModel->MakeBootstrapSample();
     for (i = 0; i < nParams; i++)
       paramsVect[i] = bestfitParams[i];
-    status = mpfit(myfunc, nStoredDataVals, nParams, paramsVect, mpfitParameterConstraints,
-                      &mpConfig, theModel, &mpfitResult);
+//     status = mpfit(myfunc, nStoredDataVals, nParams, paramsVect, mpfitParameterConstraints,
+//                       &mpConfig, theModel, &mpfitResult);
+    status = LevMarFit(nParams, nFreeParams, nStoredDataVals, paramsVect, parameterLimits, 
+	   					theModel, ftol, paramLimitsExist, verboseLevel);
     for (i = 0; i < nParams; i++) {
       paramArray[i][nIter] = paramsVect[i];
     }
@@ -95,16 +101,14 @@ void BootstrapErrors( double *bestfitParams, mp_par *parameterLimits,
   
   /* Print parameter values + standard deviations: */
   /* (note that calling ConfidenceInterval() sorts the vectors in place!) */
-//   if (doMonteCarlo == 1)
-//     printf("\nStatistics for parameter values from bootstrap + Monte Carlo");
-//   else
   printf("\nStatistics for parameter values from bootstrap resampling");
   printf(" (%d rounds):\n", nIterations);
   printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
   for (i = 0; i < nParams; i++) {
-    if ((paramLimitsExist) && (mpfitParameterConstraints[i].fixed == 0)) {
+    if ((paramLimitsExist) && (parameterLimits[i].fixed == 0)) {
       // OK, this parameter was not fixed
-      ConfidenceInterval(paramArray[i], nIterations, &lower, &upper);
+      //ConfidenceInterval(paramArray[i], nIterations, &lower, &upper);
+      std::tie(lower, upper) = ConfidenceInterval(paramArray[i], nIterations);
       plus = upper - bestfitParams[i];
       minus = bestfitParams[i] - lower;
       halfwidth = (upper - lower)/2.0;

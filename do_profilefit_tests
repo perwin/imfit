@@ -19,7 +19,7 @@ echo "Running tests for profilefit (L-M solver only)..."
 # reference output
 ./profilefit profile_data/n3348_total_fix.dat tests/config_profilefit_core-sersic.dat --ftol=1.0e-10 --quiet &> test_dump2
 ./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --nm &> test_dump3a
-./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --de &> test_dump3b
+./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --de --seed=101 &> test_dump3b
 ./profilefit profile_data/n5831_total.dat tests/config_profilefit_sersic.dat --chisquare-only &> test_dump4
 
 

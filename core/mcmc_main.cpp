@@ -732,7 +732,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->originalSky = atof(optParser->GetTargetString("sky").c_str());
+    theOptions->originalSky = strtod(optParser->GetTargetString("sky").c_str(), NULL);
     theOptions->originalSkySet = true;
     printf("\toriginal sky level = %g ADU\n", theOptions->originalSky);
   }
@@ -742,7 +742,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->gain = atof(optParser->GetTargetString("gain").c_str());
+    theOptions->gain = strtod(optParser->GetTargetString("gain").c_str(), NULL);
     theOptions->gainSet = true;
     printf("\tgain = %g e-/ADU\n", theOptions->gain);
   }
@@ -752,7 +752,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->readNoise = atof(optParser->GetTargetString("readnoise").c_str());
+    theOptions->readNoise = strtod(optParser->GetTargetString("readnoise").c_str(), NULL);
     theOptions->readNoiseSet = true;
     printf("\tread noise = %g e-\n", theOptions->readNoise);
   }
@@ -762,7 +762,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->expTime = atof(optParser->GetTargetString("exptime").c_str());
+    theOptions->expTime = strtod(optParser->GetTargetString("exptime").c_str(), NULL);
     theOptions->expTimeSet = true;
     printf("\texposure time = %g sec\n", theOptions->expTime);
   }
@@ -825,7 +825,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->GRScaleReductionLimit = atof(optParser->GetTargetString("gelman-rubin-limit").c_str());
+    theOptions->GRScaleReductionLimit = strtod(optParser->GetTargetString("gelman-rubin-limit").c_str(), NULL);
     printf("\tGelman-Rubin scale reduction limit = %f\n", theOptions->GRScaleReductionLimit);
   }
   if (optParser->OptionSet("uniform-offset")) {
@@ -834,7 +834,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->mcmcNoise = atof(optParser->GetTargetString("uniform-offset").c_str());
+    theOptions->mcmcNoise = strtod(optParser->GetTargetString("uniform-offset").c_str(), NULL);
     printf("\tMCMC uniform-offset parameter = %f\n", theOptions->mcmcNoise);
   }
   if (optParser->OptionSet("gaussian-offset")) {
@@ -843,7 +843,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->mcmc_bstar = atof(optParser->GetTargetString("gaussian-offset").c_str());
+    theOptions->mcmc_bstar = strtod(optParser->GetTargetString("gaussian-offset").c_str(), NULL);
     printf("\tMCMC Gaussian-offset sigma = %f\n", theOptions->mcmc_bstar);
   }
   if (optParser->OptionSet("max-threads")) {
