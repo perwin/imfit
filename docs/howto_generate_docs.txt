@@ -70,5 +70,5 @@ Makefile
 View the resulting docs in a web browser pointed at 
 	file:///Users/erwin/coding/imfit/docs/_build/html/index.html
 
-If things look good, commit the changes to the Mercurial repo and pushd
+If things look good, commit the changes to the Mercurial repo and push
 to Github.

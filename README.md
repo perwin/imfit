@@ -49,6 +49,10 @@ DOI for current release (v1.6.1), archived at Zenodo:
 [![DOI](https://zenodo.org/badge/20940/perwin/imfit.svg)](https://zenodo.org/badge/latestdoi/20940/perwin/imfit)
 -->
 
+Astronomy Source Code Library entry:
+
+<a href="http://ascl.net/1408.001"><img src="https://img.shields.io/badge/ascl-1408.001-blue.svg?colorB=262255" alt="ascl:1408.001" /></a>
+
 ## Documentation
 
 General online documentation is

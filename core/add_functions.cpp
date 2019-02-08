@@ -85,6 +85,7 @@
 #include "func_double-broken-exp.h"
 #include "func_flatbar.h"
 #include "func_gen-flatbar.h"
+#include "func_bp-cross-section.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -269,6 +270,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   GenFlatBar::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GenFlatBar>();
+
+  BPCrossSection::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<BPCrossSection>();
 #endif
 
 #ifdef USE_TEST_FUNCS

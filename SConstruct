@@ -549,6 +549,7 @@ if useExtraFuncs:
 	functionobject_obj_string += " func_gen-exp2"
 	functionobject_obj_string += " func_flatbar"
 	functionobject_obj_string += " func_gen-flatbar"
+	functionobject_obj_string += " func_bp-cross-section"
 	if useGSL:
 		functionobject_obj_string += " func_brokenexpbar3d"
 		functionobject_obj_string += " func_boxytest3d"
