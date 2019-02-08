@@ -12,10 +12,14 @@ NC='\033[0m' # No Color
 # NOTE: adding "-Wl,-no_compact_unwind" solves the cosmetic issue of silly
 # "unwinding" warning messages when compiling on macOS, but causes Travis CI
 # compilation to fail (linker decides it can't find gcc_s library for some reason)
+# We have eliminated previous use of "-fsanitize=address" with clang because on
+# Travis CI (using Ubuntu 16.04) this triggered "leak of 8 bytes" messages for
+# each call to PopulateFactoryMap in AddFunctions made by 
+# TestPsfUsage::testCatchBadPSF_forPointSource -- but not on macOS.
 echo
 echo "Generating and compiling unit tests for model_object..."
 $CXXTESTGEN --error-printer -o test_runner_modelobj.cpp unit_tests/unittest_model_object.t.h
-$CPP -std=c++11 -fsanitize=address -DDEBUG -DUSE_TEST_FUNCS \
+$CPP -std=c++11  -DDEBUG -DUSE_TEST_FUNCS \
 -o test_runner_modelobj \
 test_runner_modelobj.cpp core/model_object.cpp core/utilities.cpp core/convolver.cpp \
 core/add_functions.cpp core/config_file_parser.cpp core/mersenne_twister.cpp \
