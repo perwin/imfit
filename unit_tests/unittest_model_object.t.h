@@ -912,42 +912,7 @@ public:
   }
 
   // make sure ModelObject complains if we add oversampled PSF with NaN pixel values
-  void testCatchBadOversampledPSF( void )
-  {
-    int  nColumns = 10;
-    int  nRows = 10;
-    int  nColumns_psf = 3;
-    int  nRows_psf = 3;
-    int  nPixels_psf = 9;
-    double  goodPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
-    double  badPSFImage[9] = {sqrt(-1.0), 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
-    int  status;
-
-    ModelObject *modelObj5b;
-    // Initialize modelObj5b and add model function & params (Exp + FlatSky)
-    modelObj5b = new ModelObject();
-    status = AddFunctions(modelObj5b, functionList1, FunctionBlockIndices1, true, -1);
-    
-    // This is the correct order
-    // add PSF pixels first
-    status = modelObj5b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, goodPSFImage);
-    TS_ASSERT_EQUALS(status, 0);
-    // final setup for modelObj5b
-    modelObj5b->SetupModelImage(nColumns, nRows);
-
-    bool  overPsfPresent = modelObj5b->HasOversampledPSF();
-    TS_ASSERT_EQUALS(overPsfPresent, false);
-    
-    // now add the bad PSF as an oversampled PSF
-    status = modelObj5b->AddOversampledPSFVector(nPixels_psf, nColumns_psf, nRows_psf, 
-    					badPSFImage, 1, 1,2, 1,2);
-    TS_ASSERT_EQUALS(status, -1);
-
-    delete modelObj5b;
-  }
-//   
-//   
-//   void testOversampledPSF( void )
+//   void testCatchBadOversampledPSF( void )
 //   {
 //     int  nColumns = 10;
 //     int  nRows = 10;
@@ -955,22 +920,30 @@ public:
 //     int  nRows_psf = 3;
 //     int  nPixels_psf = 9;
 //     double  goodPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
-//     double  overPSFImage[9] = {0.0, 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
+//     double  badPSFImage[9] = {sqrt(-1.0), 0.5, 0.0, 0.5, 1.0, 0.5, 0.0, 0.5, 0.0};
 //     int  status;
-//   
+// 
+//     ModelObject *modelObj5b;
+//     // Initialize modelObj5b and add model function & params (Exp + FlatSky)
+//     modelObj5b = new ModelObject();
+//     status = AddFunctions(modelObj5b, functionList1, FunctionBlockIndices1, true, -1);
+//     
 //     // This is the correct order
 //     // add PSF pixels first
-//     status = modelObj5c->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, goodPSFImage);
+//     status = modelObj5b->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, goodPSFImage);
 //     TS_ASSERT_EQUALS(status, 0);
-//     // final setup for modelObj5c
-//     modelObj5c->SetupModelImage(nColumns, nRows);
+//     // final setup for modelObj5b
+//     modelObj5b->SetupModelImage(nColumns, nRows);
 // 
-//     status = modelObj5c->AddOversampledPSFVector(nPixels_psf, nColumns_psf, nRows_psf, 
-//     					overPSFImage, 1, 1,2, 1,2);
-//     TS_ASSERT_EQUALS(status, 0);
+//     bool  overPsfPresent = modelObj5b->HasOversampledPSF();
+//     TS_ASSERT_EQUALS(overPsfPresent, false);
+//     
+//     // now add the bad PSF as an oversampled PSF
+//     status = modelObj5b->AddOversampledPSFVector(nPixels_psf, nColumns_psf, nRows_psf, 
+//     					badPSFImage, 1, 1,2, 1,2);
+//     TS_ASSERT_EQUALS(status, -1);
 // 
-//     int  overPsfPresent = modelObj5c->HasOversampledPSF();
-//     TS_ASSERT_EQUALS(overPsfPresent, true);
+//     delete modelObj5b;
 //   }
   
   

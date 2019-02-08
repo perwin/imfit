@@ -877,7 +877,7 @@ int ModelObject::AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo 
   status = oversampledRegion->SetupModelImage(x1, y1, deltaX, deltaY, nModelColumns, nModelRows, 
   									nPSFColumns, nPSFRows, oversampleScale);
   if (status < 0) {
-    fprintf(stderr, "*** ERROR: AddOversampledPSFVector: Call to oversampledRegion->SetupModelImage failed!n");
+    fprintf(stderr, "*** ERROR: AddOversampledPsfInfo: Call to oversampledRegion->SetupModelImage failed!n");
     return -1;
   }
   oversampledRegionsVect.push_back(oversampledRegion);
