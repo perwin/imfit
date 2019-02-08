@@ -1,6 +1,3 @@
-# In order to be able to install the NLopt package, we need to use the "beta"
-# Ubntu 14.04 ("trusty") build environment. This also needs to have "sudo: required".
-# (https://docs.travis-ci.com/user/trusty-ci-environment/)
 
 sudo: required
 dist: xenial
@@ -13,15 +10,8 @@ os:
 env:
   - OMP_NUM_THREADS=4
 
-# experimental stuff (Oct 2017)
-# we need to do this because we now require GSL 2.0 or later (for 2D bicubic interpolation), and 
-# the default Ubuntu 14.04 package (libgls0-dev) is 1.16
-# (Note that the "trusty-backports" PPA claims that "it will stay online until Ubuntu 14.04 reaches 
-# its end of life (April 2019)")
 before_install:
-#  - sudo add-apt-repository ppa:tsvetko.tsvetkov/trusty-backports -y
   - sudo apt-get -qq update
-#  - sudo apt-get install libgsl-dev -y
 # end
 
 addons:
@@ -33,26 +23,12 @@ addons:
     - libnlopt-dev
     - cxxtest
     - scons
-# the following are not useful, bcs the Python virtualenv can't see them (see above for why
-# "_with_system_site_packages" options don't seem to work)
-#    - python-pyfits
-#    - python-numpy
 
-# Python stuff so we can run python-using scripts in regression tests. The following
-# actually works. For Python 2.7, it adds about 30s to the build time (for installing pyfits, 
-# because pip detects that numpy is already installed[?!]); if we use Python 3.4, it adds about 
-# 3 minutes (needs to install numpy as well as pyfits)
+# Python stuff so we can run python-using scripts in regression tests.
 # This needs to go *after* the C++ setup, otherwise the numpy install doesn't work...
 language: python
 python:
-  # OK, the "2.7_with_system_site_packages" sort of works, except that importing numpy fails due to Unicode 
-  # incompatibilities between Travis Python 2.7 and the numpy library in 2.7_with_system_site_packages
-  # (/home/travis/virtualenv/python2.7_with_system_site_packages/local/lib/python2.7/site-packages/numpy/)
-  #- "2.7_with_system_site_packages"
-  # the following seems to work, but numpy isn't available for some reason
-  #- "3.4_with_system_site_packages"
-  
-  # So we'll just stick with Python 2.7 for now...
+  # For simplicity we'll just stick with Python 2.7 for now...
   - 2.7
 cache: pip
 
