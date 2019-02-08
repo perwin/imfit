@@ -3,7 +3,7 @@
 # (https://docs.travis-ci.com/user/trusty-ci-environment/)
 
 sudo: required
-dist: trusty
+dist: xenial
 
 language: cpp
 compiler: gcc
@@ -19,9 +19,9 @@ env:
 # (Note that the "trusty-backports" PPA claims that "it will stay online until Ubuntu 14.04 reaches 
 # its end of life (April 2019)")
 before_install:
-  - sudo add-apt-repository ppa:tsvetko.tsvetkov/trusty-backports -y
+#  - sudo add-apt-repository ppa:tsvetko.tsvetkov/trusty-backports -y
   - sudo apt-get -qq update
-  - sudo apt-get install libgsl-dev -y
+#  - sudo apt-get install libgsl-dev -y
 # end
 
 addons:
@@ -29,7 +29,7 @@ addons:
     packages:
     - libfftw3-dev
     - libcfitsio3-dev
-#    - libgsl0-dev   # [commented-out bcs this is GSL version 1.16, which is too old]
+    - libgsl-dev
     - libnlopt-dev
     - cxxtest
 # the following are not useful, bcs the Python virtualenv can't see them (see above for why
