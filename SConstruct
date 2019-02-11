@@ -132,8 +132,9 @@ os_type = os.uname()[0]
 #    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
 #    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2106 onward)
 
-cflags_opt = ["-O3", "-g0", "-msse2", "-std=c++11"]
-cflags_db = ["-Wall", "-g3", "-O0", "-std=c++11", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith"]
+cflags_opt = ["-O3", "-g0", "-fPIC", "-msse2", "-std=c++11"]
+cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow", 
+				"-Wredundant-decls", "-Wpointer-arith"]
 
 base_defines = ["ANSI", "USING_SCONS"]
 
@@ -174,7 +175,7 @@ if (os_type == "Darwin") and (userName == "erwin"):
 
 
 # *** System-specific setup
-# if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
+# if (os_type == "Darwin"):   # OK, we're compiling on macOS (a.k.a. Mac OS X)
 # 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
 # 	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
 # 	# are 32-bit, use the following
@@ -434,28 +435,6 @@ if allSanitize is True:
 	link_flags.append("-fno-omit-frame-pointer")
 
 
-# *** Special distribution-building options
-# This particular approach is deprecated, bcs it's easier to use GCC 5 and lipo rather 
-# than rely on existence of pre-existing llvm-gcc-4.2 installation
-# if buildFatBinary and (os_type == "Darwin"):
-# 	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
-# 	# passes "-arch xxx" wrapped in quotation marks, which gcc/g++ chokes on.
-# 	cflags_opt += ["-arch", "i686", "-arch", "x86_64"]
-# 	cflags_db += ["-arch", "i686", "-arch", "x86_64"]
-# 	link_flags += ["-arch", "i686", "-arch", "x86_64"]
-
-# Preferred approach for fat binaries: build normal 64-bit version, then build
-# 32-bit version (and then use lipo to merge them)
-# if build32bit and (os_type == "Darwin"):
-# 	cflags_opt += ["-m32", "-ansi"]
-# 	link_flags += ["-m32", "-ansi"]
-
-# if buildForOldMacOS and (os_type == "Darwin"):
-# 	cflags_opt += ["-mmacosx-version-min=10.6"]
-# 	cflags_db += ["-mmacosx-version-min=10.6"]
-# 	link_flags += ["-mmacosx-version-min=10.6"]
-
-
 # * Collect together all the updated preprocessor definitions
 defines_db = defines_db + extra_defines
 defines_opt = defines_opt + extra_defines
@@ -516,9 +495,7 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 
 
 # We have separate lists of object names (what we want the .o files to be called) and
-# source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
-
-# C++ code
+# source names (.cpp) so that we can specify separate debugging and optimized compilations.
 
 # ModelObject and related classes/files:
 modelobject_obj_string = """model_object convolver oversampled_region downsample
@@ -656,7 +633,7 @@ env_opt.Command("alltests", None,
 
 
 
-# Library testing
+# Build Imfit library
 base_for_lib_objstring = """mp_enorm statistics mersenne_twister utilities 
 config_file_parser add_functions"""
 base_for_lib_objs = [ CORE_SUBDIR + name for name in base_for_lib_objstring.split() ]
@@ -666,7 +643,9 @@ imfit_lib_sourcelist = [name + ".cpp" for name in imfit_lib_objs]
 #print(imfit_lib_sourcelist)
 # Note that for some reason we have to give the library name with its
 # "lib" prefix: "libimfit"
-# invoke the following as "scons libimfit.a" and "scons libimfit.dylib"
+# invoke the following as "scons libimfit.a" for the static-library version
+# and "scons libimfit.dylib" (macOS) or "scons libimfit.so" (Linux) for the
+# dynamic-library version
 staticlib = env_opt.StaticLibrary(target="libimfit", source=imfit_lib_sourcelist)
 sharedlib = env_opt.SharedLibrary(target="libimfit", source=imfit_lib_sourcelist)
 
@@ -718,12 +697,6 @@ psfconvolve1d_objs = ["profile_fitting/psfconvolve1d_main", "core/commandline_pa
 					"profile_fitting/read_profile", "profile_fitting/convolver1d"]
 psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 
-
-
-# test_commandline: put all the object and source-code lists together
-# test_commandline_objs = ["test_commandline_parser", "anyoption", 
-# 			"commandline_parser", "utilities"]
-# test_commandline_sources = [name + ".cpp" for name in test_commandline_objs]
 
 
 # source+obj lists for older or less-used programs:
