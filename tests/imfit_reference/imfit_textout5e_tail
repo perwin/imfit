@@ -1,0 +1,18 @@
+Now doing bootstrap resampling (5 iterations) to estimate errors...
+
+Starting bootstrap iterations (L-M solver): 1...  2...  3...  4...  5...  
+Statistics for parameter values from bootstrap resampling (5 successful iterations):
+Best-fit		 Bootstrap      [68% conf.int., half-width]; (mean +/- standard deviation)
+X0 = 32.9497  +0.0547039, -0.00239716    [32.9473 -- 33.0044, 0.0285506];  (32.9758 +/- 0.0255166)
+Y0 = 34.0986  +0.027661, -0.0277509    [34.0708 -- 34.1262, 0.0277059];  (34.0966 +/- 0.026632)
+PA = 18.1649  +0.494975, -0.188545    [17.9763 -- 18.6599, 0.34176];  (18.2134 +/- 0.268773)
+ell = 0.234412  +0.00191483, -0.00276547    [0.231646 -- 0.236326, 0.00234015];  (0.234211 +/- 0.00179863)
+n = 2.35479  +0.0768108, -0.0337531    [2.32104 -- 2.4316, 0.0552819];  (2.36315 +/- 0.0426835)
+I_e = 21.2168  +0.830047, -1.62082    [19.596 -- 22.0468, 1.22544];  (21.0916 +/- 0.953874)
+r_e = 58.0709  +3.24553, -1.56195    [56.509 -- 61.3164, 2.40374];  (58.3155 +/- 1.88679)
+Bootstrap-resampling output saved to file "temptest/temp_bootstrap_output2.dat".
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.049036 sec for fit, 0.068760 for bootstrap, 0.121389 sec total)
+Done!
+
