@@ -10,6 +10,11 @@
 	BootstrapErrorsBase() has the (correct!) code for writing results to file
 	by calling theModel->PrintModelParamsHorizontalString(paramsVect)
 	
+	[x] Update BootstrapErrors() to use a modified (corrected) copy of bestfitParams
+	[input] with image offsets applied.
+	
+	[ ] Add checking of bootstrap output to do_imfit_tests
+	
 
 
 ** NEAR-TERM FUTURE TODO:

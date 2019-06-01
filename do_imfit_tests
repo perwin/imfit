@@ -118,7 +118,7 @@ echo ""
 # in the saved-iterations output file)
 $IMFIT tests/ic3478rss_64x64.fits -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --bootstrap 3 &> /dev/null
 $IMFIT tests/ic3478rss_64x64.fits -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --seed 10 --bootstrap 5 --save-bootstrap temptest/temp_bootstrap_output.dat &> /dev/null
-$IMFIT tests/ic3478rss_64x64.fits[10:64,10:64] -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --seed 10 --bootstrap 5 --save-bootstrap temptest/temp_bootstrap_output2.dat &> /dev/null
+$IMFIT tests/ic3478rss_64x64.fits[10:64,10:64] -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --seed 10 --bootstrap 5 --save-bootstrap temptest/temp_bootstrap_output2.dat &> temptest/test_dump5e
 
 # testing error-image generation and saving
 # first using data values for errors, then using model values (should be identical)
@@ -283,6 +283,11 @@ STATUS+=$?
 echo -n "*** Diff comparison with archives: bootstrap-resampling output... "
 tail -n 7 temptest/temp_bootstrap_output.dat > temptest/temp_bootstrap_output_tail
 ./python/diff_printouts.py tests/bootstrap_output_seed10_tail.dat temptest/temp_bootstrap_output_tail
+STATUS+=$?
+
+echo -n "*** Diff comparison with archives: bootstrap-resampling printout (with image offset)... "
+tail -n 18 temptest/test_dump5e > temptest/test_dump5e_tail
+./python/diff_printouts.py tests/imfit_reference/imfit_textout5e_tail temptest/test_dump5e_tail --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: bootstrap-resampling output (with image offset)... "
