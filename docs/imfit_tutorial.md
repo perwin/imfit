@@ -398,11 +398,11 @@ By default, imfit uses a "data-based" &chi;<sup>2</sup> approach, which assumes 
 individual pixel values are drawn from the Gaussian approximation of a 
 Poisson distribution. To compare a model pixel value to the data value, we
 assume that the Gaussian distribution has a mean equal to the model value, with
-the dispersion equal the square root of the <i>data</i> value. (If you provide
+the dispersion equal the square root of the *data* value. (If you provide
 a read-noise value, this is added in quadrature to the data-based dispersion.)
 
 One alternative is to take the dispersion from the square root of the (current)
-<i>model</i> value, which you can do with the `--model-errors` flag:
+*model* value, which you can do with the `--model-errors` flag:
  
 	imfit ic3478rss_256.fits -c config_sersic_ic3478_256.dat 
 	  --mask ic3478rss_256_mask.fits --gain=4.725 --readnoise=4.3 
@@ -521,7 +521,7 @@ values in the file bootstrap\_output.dat.
 This file has one column per parameter; the column names are the parameters with
 numbers appended (e.g., `X0_1`, `n_1`) to make it possible to distinguish different
 parameters when multiple versions of the same function, or just multiple functions
-that have the same parameter names, are used in the model. (E.g.,
+that have the same parameter names, are used in the model. (I.e.,
 all parameters for the first function will have `_1` appended, all parameters
 from the second will have `_2` appended, etc.)
 

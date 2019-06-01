@@ -1856,6 +1856,31 @@ string ModelObject::PrintModelParamsHorizontalString( const double params[], con
 }
 
 
+/* ---------------- PUBLIC METHOD: GetImageOffsets --------------------- */
+/// Given an input array (all zeros), this method returns the array with
+/// locations corresponding to each function block's imageOffset_X0 and 
+/// imageOffset_Y0 values properly set (if there are no image offsets, then
+/// the corresponding values will remain zero).
+void ModelObject::GetImageOffsets( double params[] )
+{
+  int  indexOffset = 0;
+  int  k;
+  
+  // assume input array is all zeros to begin with; only
+  // modify it if there really are image offsets
+  if ((imageOffset_X0 != 0) || (imageOffset_Y0 != 0)) {
+    for (int n = 0; n < nFunctions; n++) {
+      if (fblockStartFlags[n] == true) {
+        k = indexOffset;
+        params[k] = imageOffset_X0;
+        params[k + 1] = imageOffset_Y0;
+        indexOffset += 2;
+      }
+      indexOffset += paramSizes[n];
+    }
+  }
+}
+
 
 /* ---------------- PUBLIC METHOD: GetParamHeader ---------------------- */
 /// Prints all function and parameter names in order all on one line; e.g., for use as 

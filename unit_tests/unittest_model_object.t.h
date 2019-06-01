@@ -734,6 +734,68 @@ public:
     outputString = modelObj3->PrintModelParamsHorizontalString(params);
     TS_ASSERT_EQUALS(outputString, correctString);    
   }
+
+  void testGetImageOffsets_zeroOffset( )
+  {
+    int nParamsTot = 7;
+    vector<mp_par> parameterInfo;
+    double paramOffsets[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    double paramOffsets_correct[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+    // OK, now kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 0;
+      currentParameterInfo.limited[1] = 0;
+      currentParameterInfo.limits[0] = 0.0;
+      currentParameterInfo.limits[1] = 0.0;
+      currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+
+    modelObj2b->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj2b->AddParameterInfo(parameterInfo);
+    
+    int nParams = modelObj2b->GetNParams();
+    TS_ASSERT_EQUALS(nParams, nParamsTot);
+
+    modelObj2b->GetImageOffsets(paramOffsets);
+    for (int i = 0; i < nParamsTot; i++)
+      TS_ASSERT_EQUALS(paramOffsets[i], paramOffsets_correct[i]);
+  }
+
+  void testGetImageOffsets_withOffset( )
+  {
+    int nParamsTot = 7;
+    vector<mp_par> parameterInfo;
+    double paramOffsets[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    double paramOffsets_correct[7] = {100.0, 200.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+    // OK, now kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 0;
+      currentParameterInfo.limited[1] = 0;
+      currentParameterInfo.limits[0] = 0.0;
+      currentParameterInfo.limits[1] = 0.0;
+      currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+
+    modelObj2b->SetupModelImage(nSmallDataCols, nSmallDataRows);
+    modelObj2b->AddParameterInfo(parameterInfo);
+    modelObj3->AddImageOffsets(100.0, 200.0);
+    
+    int nParams = modelObj2b->GetNParams();
+    TS_ASSERT_EQUALS(nParams, nParamsTot);
+
+    modelObj2b->GetImageOffsets(paramOffsets);
+    for (int i = 0; i < nParamsTot; i++)
+      TS_ASSERT_EQUALS(paramOffsets[i], paramOffsets_correct[i]);
+  }
+
 }; 
 
 

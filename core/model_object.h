@@ -81,7 +81,7 @@ class ModelObject
     // 2D only
     void AddImageOffsets( int offset_X0, int offset_Y0 );
     
-    // 2D only
+    // 2D only [used by model_object_multimage.cpp]
     std::tuple<int, int> GetImageOffsets( );
 
 	// 2D only
@@ -157,6 +157,8 @@ class ModelObject
 
     void GetFunctionNames( vector<string>& functionNames );
 
+    void  GetImageOffsets( double params[] );
+    
     virtual string GetParamHeader( );
 
     // common, but Specialized by ModelObject1D

@@ -72,9 +72,9 @@
 
 /// Function which handles selecting and calling appropriate solver
 int DispatchToSolver( int solverID, int nParametersTot, int nFreeParameters, int nPixelsTot,
-					double *parameters, vector<mp_par> parameterInfo, ModelObject *modelObj, double fracTolerance,
-					bool paramLimitsExist, int verboseLevel, SolverResults *solverResults,
-					string& solverName, unsigned long rngSeed=0 );
+					double *parameters, vector<mp_par> parameterInfo, ModelObject *modelObj, 
+					double fracTolerance, bool paramLimitsExist, int verboseLevel, 
+					SolverResults *solverResults, string& solverName, unsigned long rngSeed=0 );
 
 
 #endif /* _DISPATCH_SOLVER_H_ */

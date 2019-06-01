@@ -80,10 +80,10 @@ class FunctionObject
     // no need to modify this:
     virtual string& GetShortName( );
 
-    // no need to modify this:
+    // probably no need to modify this:
     virtual void GetParameterNames( vector<string> &paramNameList );
 
-    // no need to modify this:
+    // probably no need to modify this:
     virtual int GetNParams( );
 
     // Destructor (doesn't have to be modified, but MUST be declared

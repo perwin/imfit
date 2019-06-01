@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
   MakeOutputHeader(&programHeader, progNameVersion, argc, argv);
 
  
-  // Define default options, then process the command line
+  // ** Define default options, then process the command line
   // Use a pointer to OptionsBase so we can use it in calls to SetupModelImage
   commandOpts = new ImfitOptions();
   // Use a pointer to ImfitOptions so we can access all the extra, imfit-specific
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
   }
 
 
-  // Read configuration file, parse & process user-supplied (non-function-related) values
+  // ** Read configuration file, parse & process user-supplied (non-function-related) values
   status = ReadConfigFile(options->configFileName, true, functionList, parameterList, 
   							parameterInfo, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
   if (status != 0) {
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
   if (status < 0)
     exit(-1);
 
-  // Read in PSF image, if supplied
+  // * Read in PSF image, if supplied
   if (options->psfImagePresent) {
     std::tie(psfPixels, nColumns_psf, nRows_psf, status) = GetPsfImage(options->psfFileName);
     if (status < 0)
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
   else
     printf("* No PSF image supplied -- no image convolution will be done!\n");
 
-  // Read in oversampled PSF image(s), if supplied
+  // * Read in oversampled PSF image(s), if supplied
   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {
     status = GetOversampledPsfInfo(options, X0_offset, Y0_offset, psfOversamplingInfoVect);
 	if (status < 0)
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
     printf("* Pixel subsampling has been turned OFF.\n");
 
 
-  // Set up the model object
+  // ** Set up the model object
   // Populate the column-and-row-numbers vector
   vector<int> nColumnsRowsVect;
   nColumnsRowsVect.push_back(nColumns);
@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
   }
   
   
-  // OK, now we either print chi^2 value for the input parameters and quit, or
+  // ** OK, now we either print chi^2 value for the input parameters and quit, or
   // else call one of the solvers!
   if (options->printFitStatisticOnly) {
     printf("\n");
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
   }
 
 
-  // Optional bootstrap resampling
+  // ** Optional bootstrap resampling
   if ((options->doBootstrap) && (options->bootstrapIterations > 0)) {
     if (options->saveBootstrap) {
       bootstrapSaveFile_ptr = fopen(options->outputBootstrapFileName.c_str(), "w");
@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
   }
 
 
-  // Handle assorted output requests
+  // ** Handle assorted output requests
   // Note that from this point on, we handle failures reported by SaveVectorAsImage as
   // "warnings" and don't immediately exit, since we're close to the end of the program
   // anyway, and the user might just have given us a bad path for one of the output images

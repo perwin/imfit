@@ -86,6 +86,8 @@
 #include "func_flatbar.h"
 #include "func_gen-flatbar.h"
 #include "func_bp-cross-section.h"
+#include "func_gaussian-ring-az.h"
+#include "func_ferrersbar2d.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -273,6 +275,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   BPCrossSection::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BPCrossSection>();
+
+  GaussianRingAz::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz>();
+
+  FerrersBar2D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FerrersBar2D>();
 #endif
 
 #ifdef USE_TEST_FUNCS

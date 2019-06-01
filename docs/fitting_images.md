@@ -27,15 +27,15 @@ For the common case where you do *not* have an error image, you can have
 imfit estimate the per-pixel uncertainties for you, either from the data
 image or from the model. The question is then whether to use proper
 Poisson statistics or the usual Gaussian approximation of Poisson
-statistics.
+statistics (i.e., sigma ~ sqrt(intensity).
 
-If the original count levels (including background) were high (say, greater
+If the original count levels (including background) are high (say, greater
 than 100 photo-electrons per pixel), then you can probably assume the
 Gaussian approximation of Poisson statistics is OK, and use some variant
 of chi^2 as the fit statistic.
 
 
-### IMPORTANT NOTE: Converting your pixel values to photo-electrons
+### IMPORTANT NOTE: Converting your pixel values to photo-electrons (or particles, or...)
 
 In order for imfit to correctly estimate the per-pixel uncertainties, it
 is *very important* that the pixel values be convertible to units of the original
@@ -45,7 +45,7 @@ detector, or particles/pixel for an *N*-body simulation.
 Since the actual recording of an astronomical image almost always
 involves conversion of detected photo-electrons to counts (also called
 "data numbers" or ADUs) via an A/D converter, the output image is
-already no longer in 
+already no longer in the proper units.
 
 So you must tell imfit how to convert the pixel values back to the
 original values, at least in a general, image-wide sense. (It's probably
@@ -53,20 +53,21 @@ overkill to worry about the effects of flat-fielding.)
 
 The simple way to do this is to give imfit an effective gain factor, via
 the GAIN parameter in the config file, or the `--gain` command-line
-option. The effective gain is whatever number will convert pixel values
-back to photo-electrons. For a processed (but not photometrically
-calibrated) image, where the pixel values are in ADUs, this is simply
-the gain of the original A/D conversion, in units of electrons/ADU.
-Imfit will then multiply the pixel values by the GAIN parameter to turn
-them back into photo-electrons.  (Note that some data-taking setups will
-record an inverse "gain" in units of ADU/electrons; you will need to
-invert this before passing it to imfit!)
+option. The effective gain is whatever number will, when multiplied by
+the image's pixel values, convert them back to, e.g., photo-electrons.
+For a processed (but not photometrically calibrated) image, where the
+pixel values are in ADUs, this is simply the gain of the original A/D
+conversion, in units of electrons/ADU. Imfit will then multiply the
+pixel values by the GAIN parameter to turn them back into
+photo-electrons.  (Note that some data-taking setups will record an
+inverse "gain" in units of ADU/electrons; you will need to invert this
+before passing it to imfit!)
 
 If your image has photometrically calibrated flux units (Jy,
 nanomaggies, whatever), then the GAIN parameter must be a number that
-will convert these back to photo-electrons. XXX If an image happens
+will convert these back to photo-electrons. If an image happens
 to be in units of magnitudes per square arc second, then it must be
-converted to *linear* intensity values.
+converted to *linear* intensity values first.
 
 
 
@@ -87,7 +88,7 @@ of 1000 should be removed *and not included in any sky-background levels
 input to imfit*.
 
 Thus, if you determine that a particular image has a mean background
-level of 1210.7 counts/pixel, you can either:
+level of, say, 1210.7 counts/pixel, you can either:
 
 - Subtract 1210.7 from the image, and use 201.7 (*not* 1210.7) as the
 `ORIGINAL_SKY` (or `--sky` commandline option) parameter for

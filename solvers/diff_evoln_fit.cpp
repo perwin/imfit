@@ -100,7 +100,7 @@ double ImfitSolver::EnergyFunction( double *trial, bool &bAtSolution )
 // main function called by exterior routines to set up and run the minimization
 int DiffEvolnFit( int nParamsTot, double *paramVector, vector<mp_par> parameterLimits, 
                   ModelObject *theModel, const double ftol, const int verbose, 
-                  SolverResults *solverResults, unsigned long rngSeed )
+                  SolverResults *solverResults, unsigned long rngSeed, bool useLHS )
 {
   ImfitSolver  *solver;
   double  *minParamValues;

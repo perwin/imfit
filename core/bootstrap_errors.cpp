@@ -78,6 +78,7 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
 					FILE *outputFile_ptr, unsigned long rngSeed )
 {
   double  *paramSigmas;
+  double  *bestfitParams_offsetCorrected, *paramOffsets;
   double **outputParamArray;
   double  lower, upper, plus, minus, halfwidth;
   int  i, nSuccessfulIterations;
@@ -88,6 +89,9 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
   for (i = 0; i < nParams; i++)
     outputParamArray[i] = (double *)calloc( (size_t)nIterations, sizeof(double) );
 
+  paramOffsets = (double *) calloc(nParams, sizeof(double));
+  bestfitParams_offsetCorrected = (double *) calloc(nParams, sizeof(double));
+  
   // write column header info to file, if user requested saving to file
   if (outputFile_ptr != NULL) {
     string  headerLine = theModel->GetParamHeader();
@@ -99,12 +103,17 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
 					theModel, ftol, nIterations, nFreeParams, whichStatistic, 
 					outputParamArray, outputFile_ptr, rngSeed);
   
-  
   if (nSuccessfulIterations < MIN_ITERATIONS_FOR_STATISTICS) {
     printf("\nNot enough successful bootstrap iterations (%d) for meaningful statistics!\n",
     		nSuccessfulIterations);
   }
   else {
+    // Apply image-offset corrections to best-fit parameters, so their values
+    // get printed corrected
+    theModel->GetImageOffsets(paramOffsets);
+    for (i = 0; i < nParams; i++)
+      bestfitParams_offsetCorrected[i] = bestfitParams[i] + paramOffsets[i];
+    
     // Calculate sigmas and 68% confidence intervals for the parameters
     // vector to hold estimated sigmas for each parameter
     paramSigmas = (double *)calloc( (size_t)nParams, sizeof(double) );
@@ -118,17 +127,17 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
     for (i = 0; i < nParams; i++) {
       if (parameterLimits[i].fixed == 0) {
         std::tie(lower, upper) = ConfidenceInterval(outputParamArray[i], nSuccessfulIterations);
-        plus = upper - bestfitParams[i];
-        minus = bestfitParams[i] - lower;
+        plus = upper - bestfitParams_offsetCorrected[i];
+        minus = bestfitParams_offsetCorrected[i] - lower;
         halfwidth = (upper - lower)/2.0;
         printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", 
                theModel->GetParameterName(i).c_str(), 
-               bestfitParams[i], plus, minus, lower, upper, halfwidth,
+               bestfitParams_offsetCorrected[i], plus, minus, lower, upper, halfwidth,
                Mean(outputParamArray[i], nSuccessfulIterations), paramSigmas[i]);
       }
       else {
         printf("%s = %g     [fixed parameter]\n", theModel->GetParameterName(i).c_str(),
-                    bestfitParams[i]);
+                    bestfitParams_offsetCorrected[i]);
       }
     }
     free(paramSigmas);
@@ -137,6 +146,8 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
   for (i = 0; i < nParams; i++)
     free(outputParamArray[i]);
   free(outputParamArray);
+  free(paramOffsets);
+  free(bestfitParams_offsetCorrected);
 
   return nSuccessfulIterations;
 }
@@ -183,7 +194,7 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
 					double **outputParamArray, FILE *outputFile_ptr, unsigned long rngSeed )
 {
-  double  *paramsVect;
+  double  *paramsVect, *paramOffsets;
   int  i, status, nIter, nSuccessfulIters;
   int  nParams = theModel->GetNParams();
   int  nValidPixels = theModel->GetNValidPixels();
@@ -199,7 +210,8 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
   else
     init_genrand((unsigned long)time((time_t *)NULL));
 
-  paramsVect = (double *) malloc(nParams * sizeof(double));
+  paramsVect = (double *) calloc(nParams, sizeof(double));
+  paramOffsets = (double *) calloc(nParams, sizeof(double));
 
   status = theModel->UseBootstrap();
   if (status < 0) {
@@ -238,10 +250,16 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 #endif
     }
     // Store parameters in array (and optionally write them to file) if fit was successful
+    // Note that paramsVect has subsection-relative values of X0,Y0, so we need to
+    // correct them with paramOffsets
+    theModel->GetImageOffsets(paramOffsets);
     if (status > 0) {
-      for (i = 0; i < nParams; i++)
-        outputParamArray[i][nSuccessfulIters] = paramsVect[i];
+      for (i = 0; i < nParams; i++) {
+        outputParamArray[i][nSuccessfulIters] = paramsVect[i] + paramOffsets[i];
+      }
       if (saveToFile) {
+        // use paramsVect because PrintModelParamsHorizontalString will automatically
+        // apply image-offset corrections
         outputLine = theModel->PrintModelParamsHorizontalString(paramsVect);
         fprintf(outputFile_ptr, "%s\n", outputLine.c_str());
       }
@@ -251,6 +269,7 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 
  
   free(paramsVect);
+  free(paramOffsets);
 
   return nSuccessfulIters;
 }

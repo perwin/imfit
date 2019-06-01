@@ -1,7 +1,7 @@
 # Configuration File Format
 
-Imfit, imfit-mcmc, and makeimage *always* require a configuration file
-("config file" for short), a text file which describes the model to be
+The `imfit`, `imfit-mcmc`, and `makeimage` programs *always* require a configuration file
+("config file" for short): a text file which describes the model to be
 fit to or compared with the data (in the case of imfit or imfit-mcmc) or
 to be generated (in the case of makeimage), plus some optional
 information about the image itself.
@@ -13,7 +13,7 @@ the appropriate program.
 
 This page provides a basic description of the configuration file format.
 
-(In what follows, I generally use "imfit" to refer to both imfit *and* imfit-mcmc,
+(In what follows, I generally use "imfit" to refer to both `imfit` *and* `imfit-mcmc`,
 unless otherwise noted.)
 
 
@@ -38,7 +38,9 @@ containing single "NAME value" pairs, e.g.
 
 These do not *have* to be provided, and you can provide as many or as few of
 these as are needed (the exception being the NCOLS and NROWS entries for a
-makeimage configuration file -- both of those *should* be provided).
+makeimage configuration file -- both of those *should* be provided unless
+you know you will be supplying makimage with relevant info on the command
+line, via the `--nrows` and `--ncols` or `--refimage` options).
 
 The allowed entries for an imfit configuration file are:
 
@@ -117,12 +119,12 @@ A simple example:
     I_0   100
     h     15
 
-The optional limit specification for the parameters are exactly like those for the
+The optional limit specifications for the parameters are exactly like those for the
 X0 and Y0 values (see above):
 
-1. The word "fixed", which indicates that the parameter should be held fixed
+1. The word "fixed", which indicates that the parameter should be held fixed; or
 
-2. A comma-separated pair of numbers specifying lower and upper limits
+2. A comma-separated pair of numbers specifying lower and upper limits.
 
 Note that parameter-limit specifications are actually *required* by imfit-mcmc.
 They are also required when using imfit's Differential Evolution solver;

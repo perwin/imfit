@@ -1,8 +1,26 @@
 
 ** BUGS TO FIX:
 
+[ ] X0,Y0 coordinates in *printed* bootstrap output are *not* corrected for image sections
+	-- 17 April 2019 email from Chris Pritchet
+	-- see "Bootstrap and MCMC output" in "Bugs Fixed" section below for how I fixed this in MCMC
+	-- bootstrap results saved to (optional) output file *is* correct
+	
+	-- BootstrapErrors() has the code that prints summary statistics to screen;
+	BootstrapErrorsBase() has the (correct!) code for writing results to file
+	by calling theModel->PrintModelParamsHorizontalString(paramsVect)
+	
+
 
 ** NEAR-TERM FUTURE TODO:
+
+[ ] Add boolean flags to FunctionObject components to indicate total-flux computation
+should be skipped (e.g., for FlatSky component)
+	-- Add code to ModelObject::FindTotalFluxes to check FunctionObject for this
+	state and skip computing flux
+	-- Maybe add code to makeimage_main.cpp to check & skip over such functions
+	in --print-fluxes printout?
+
 
 [X] Double-broken exponential (for Nacho)
 	[X] Figure out what's causing minor-axis discontinuities
@@ -70,7 +88,39 @@
 [ ] 2D Ferrers bar model
 	-- for comparison with GALFIT; also with Laurikainen et al. models?
 	[ ] Check Laurikainen et al. models to see if it's same as GALFIT
-	
+
+
+[ ] Add Latin Hypercube Sampling as option for Differential Evolution
+	-- i.e., use LHS instead of current RandomUniform function
+	in DESolver::Setup (leave *other* uses of RandomUniform as they are!)
+	-- notes/note_on_differential-evolution_tuning.txt
+	-- MARCH 2019: This doesn't seem to make fits any faster (and might even
+	make some slightly slower)...
+	[x] Plan possible tests of DE fitting
+		[x] Look for possible notes on when I adjusted DE parameters?
+	[x] Write & test C++ code for LHS
+	[x] Incorporate LHS code into DESolver.cpp
+	[ ] Add command-line option to imfit_main.cpp for LHS with DE
+		"--de-lhs" ?
+		[ ] Add option to options_imfit.h structure
+		[ ] Add code to imfit_main.cpp: ProcessInput
+	[ ] Figure out how to pass LHS option into DiffEvolnFit()
+		-- Extra optional parameter for DispatchToSolver(), which that function
+		knows to pass on to DiffEvolnFit(), but not to others?
+		
+    case DIFF_EVOLN_SOLVER:
+      if (verboseLevel >= 0)
+        printf("Calling Differential Evolution solver ..\n");
+      fitStatus = DiffEvolnFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
+      							verboseLevel, solverResults, rngSeed);
+    case DIFF_EVOLN_SOLVER_LHS:
+      if (verboseLevel >= 0)
+        printf("Calling Differential Evolution solver (Latin hypercube sampling)..\n");
+      fitStatus = DiffEvolnFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
+      							verboseLevel, solverResults, rngSeed, true);
+
+
+
 
 [ ] Test image convolution with overpsf_scale = even number
 	-- e.g., current WFC/IR empirical PSF images are 101x101 with 4x4 oversampling;
