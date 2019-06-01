@@ -1,20 +1,6 @@
 
 ** BUGS TO FIX:
 
-[ ] X0,Y0 coordinates in *printed* bootstrap output are *not* corrected for image sections
-	-- 17 April 2019 email from Chris Pritchet
-	-- see "Bootstrap and MCMC output" in "Bugs Fixed" section below for how I fixed this in MCMC
-	-- bootstrap results saved to (optional) output file *is* correct
-	
-	-- BootstrapErrors() has the code that prints summary statistics to screen;
-	BootstrapErrorsBase() has the (correct!) code for writing results to file
-	by calling theModel->PrintModelParamsHorizontalString(paramsVect)
-	
-	[x] Update BootstrapErrors() to use a modified (corrected) copy of bestfitParams
-	[input] with image offsets applied.
-	
-	[ ] Add checking of bootstrap output to do_imfit_tests
-	
 
 
 ** NEAR-TERM FUTURE TODO:
@@ -865,6 +851,22 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 
 ** BUGS FIXED
+
+[X] X0,Y0 coordinates in *printed* bootstrap output are *not* corrected for image sections
+	-- 17 April 2019 email from Chris Pritchet
+	-- see "Bootstrap and MCMC output" in "Bugs Fixed" section below for how I fixed this in MCMC
+	-- bootstrap results saved to (optional) output file *is* correct
+	
+	-- BootstrapErrors() has the code that prints summary statistics to screen;
+	BootstrapErrorsBase() has the (correct!) code for writing results to file
+	by calling theModel->PrintModelParamsHorizontalString(paramsVect)
+	
+	[x] Update BootstrapErrors() to use a modified (corrected) copy of bestfitParams
+	[input] with image offsets applied.
+	
+	[x] Add checking of bootstrap output to do_imfit_tests
+	
+
 
 [X] MCMC restarts with --append turn fixed parameters into free?
 

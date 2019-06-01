@@ -4,7 +4,7 @@
 
 % Specify use of Minion Pro as the main typeface
 \usepackage[lf]{MinionPro}
-\usepackage{MnSymbol}
+%\usepackage{MnSymbol}
 % specify Inconsolata for tt (including verbatim environment)
 %\usepackage{inconsolata}
 
@@ -74,7 +74,7 @@
 \newcommand{\pmlr}{PMLR}
 
 % Other stuff, including version number
-\newcommand{\versionnum}{1.6.1}
+\newcommand{\versionnum}{1.7.0}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -396,9 +396,9 @@ Clang instead of \textsc{gcc} and so do \textit{not} support OpenMP.
 like ``Apple LLVM version'', then you know it's really the Clang
 compiler.)
 
-In order to compile \imfit{} with OpenMP, you will need either an
-old version of Xcode (e.g., from a prior installation) or, more plausibly, a
-separate installation of \textsc{gcc} 4.2 or later, such as those
+In order to compile \imfit{} with OpenMP, you will need a
+separate installation of \textsc{gcc} (for current versions of \imfit{},
+this should be version 4.9 or later), such as those
 available via package managers such as Fink, MacPorts, or Homebrew. Another
 alternative is to install a version of LLVM/Clang that \textit{does}
 support OpenMP, e.g., from one of the aforementioned package managers.
@@ -997,6 +997,7 @@ Gaussian for the radial profile and another Gaussian (with
 different $\sigma$) for the vertical profile.
 \item EdgeOnRing2Side -- like EdgeOnRing, but using an
 asymmetric Gaussian for the radial profile (see description of GaussianRing2Side).
+\item FerrersBar2D -- a 2D version of the Ferrers ellipsoid.
 
 \end{itemize}
 
@@ -2690,7 +2691,6 @@ Similar to the Exponential function, but using generalized ellipses (``boxy'' to
 the \texttt{c0} parameter, such that a generalized ellipse with ellipticity $= 1
 - b/a$ is described by
 \begin{equation}
-%\left( \frac{|x|}{a}^{c_{0} + 2} \right) + \left( \frac{|y|}{b}^{c_{0} + 2} \right) \; = \; 1,
 \left( \frac{|x|}{a} \right)^{c_{0} + 2} \! \! + \; \left( \frac{|y|}{b} \right)^{c_{0} + 2}  = \; 1,
 \end{equation}
 where $|x|$ and $|y|$ are distances from the ellipse center in the coordinate system
@@ -2955,6 +2955,45 @@ sigma_z
 \end{verbatim}
 
 
+\subsubsection{FerrersBar2D}
+
+This produces a 2D analog of the classic Ferrers ellipsoid (see
+FerrersBar3D in Section~\ref{sec:ferrersbar3d} for the original 3D
+version), where the intensity is constant on (generalized) ellipses,
+with the intensity going to zero outside a specified semi-major axis ($=
+a_{\mathrm{bar}}$ along the major axis).
+
+The surface-brightness function is
+\begin{equation}\label{eqn:ferrers2d}
+ I(m) = 
+  \begin{cases} 
+   \: I_0 \, (1 - m^{2})^{n} & \text{if } m < 1 \\
+   \: 0                      & \text{otherwise}
+  \end{cases}
+\end{equation}
+where $m$ is the elliptical radius, defined (assuming ellipticity $= 1
+- b/a$) by:
+\begin{equation}
+m^{2} =  \left( \frac{|x|}{a} \right)^{c_{0} + 2} \! \! + \; \left( \frac{|y|}{b} \right)^{c_{0} + 2} .
+\end{equation}
+
+%\left( \frac{|x|}{a} \right)^{c_{0} + 2} \! \! + \; \left( \frac{|y|}{b} \right)^{c_{0} + 2}  = \; 1,
+
+
+\begin{verbatim}
+FUNCTION FerrersBar2D
+PA
+ell
+c0
+I_0
+n
+a_bar
+\end{verbatim}
+%const char  PARAM_LABELS[][20] = {"PA", "ell", "c0", "n", "I_0", "a_bar"};
+
+
+
+
 \section{3D Functions}
 
 The following are image functions which use line-of-sight
@@ -3090,7 +3129,7 @@ h_z
 
 
 
-\subsubsection{FerrersBar3D}
+\subsubsection{FerrersBar3D}\label{sec:ferrersbar3d}
 
 This function does line-of-sight integration through a \citet{ferrers}
 ellipsoid, where the luminosity density is constant on concentric,

@@ -2,6 +2,25 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.7.0 -- 2019-xx-xxx
+### Added:
+
+- New image function: FerrersBar2D. This is an elliptical 2D image
+function (with boxy/disky generalized-ellipse isophotes) based on the
+Ferrers ellipsoid, but with the latter's 3D density value interpreted as 2D
+surface-brightness. (The true 3D Ferrers ellipsoid has been available as
+FerrersBar3D since version 1.5.)
+
+### Fixed:
+
+- The output of bootstrap-resampling for imfit for fits with image sections would
+not include the correct (full-image) X0,Y0 values at the beginning of each parameter
+line. Note that this was only a problem for the printed-to-screen information;
+the correct X0,Y0 values for the saved bootstrap-output file was fixed back in
+1.5.0. (Thanks to Chris Pritchett for spotting this.)
+
+
+
 ## 1.6.1 -- 2018-11-15
 ### Changed:
 
