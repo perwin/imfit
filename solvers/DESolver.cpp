@@ -33,6 +33,8 @@
 #include <algorithm>
 #include <iterator>
 
+using namespace std;
+
 #include "DESolver.h"
 #include "mersenne_twister.h"
 
@@ -103,16 +105,16 @@ void DESolver::Setup( double *min, double *max, int deStrategy, double diffScale
 
   int  sampleOffset;
   double  intervalSize, p;
-  std::vector< std::vector<int> >  sampleIndices;   // [nDim][nPop]
-  std::random_device rd;
-  std::mt19937 g(rd());
-  std::vector<int> singleParamSampleIndices(nPop);
+  vector< vector<int> >  sampleIndices;   // [nDim][nPop]
+  random_device rd;
+  mt19937 g(rd());
+  vector<int> singleParamSampleIndices(nPop);
   
   // set up the shuffled indices
   for (int j = 0; j < nDim; j++) {   // iterate over parameters
     for (int i = 0; i < nPop; i++)      // iterate over samples
       singleParamSampleIndices[i] = i;
-    std::shuffle(singleParamSampleIndices.begin(), singleParamSampleIndices.end(), g);
+    shuffle(singleParamSampleIndices.begin(), singleParamSampleIndices.end(), g);
     sampleIndices.push_back(singleParamSampleIndices);
   }
 
