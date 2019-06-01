@@ -786,7 +786,7 @@ public:
 
     modelObj2b->SetupModelImage(nSmallDataCols, nSmallDataRows);
     modelObj2b->AddParameterInfo(parameterInfo);
-    modelObj3->AddImageOffsets(100.0, 200.0);
+    modelObj2b->AddImageOffsets(100.0, 200.0);
     
     int nParams = modelObj2b->GetNParams();
     TS_ASSERT_EQUALS(nParams, nParamsTot);

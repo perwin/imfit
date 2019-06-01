@@ -20,6 +20,7 @@ echo
 echo "Generating and compiling unit tests for model_object..."
 $CXXTESTGEN --error-printer -o test_runner_modelobj.cpp unit_tests/unittest_model_object.t.h
 $CPP -std=c++11  -DDEBUG -DUSE_TEST_FUNCS \
+ -Wl,-no_compact_unwind \
 -o test_runner_modelobj \
 test_runner_modelobj.cpp core/model_object.cpp core/utilities.cpp core/convolver.cpp \
 core/add_functions.cpp core/config_file_parser.cpp core/mersenne_twister.cpp \
