@@ -6,14 +6,16 @@ User requested that no images be saved!
 * No PSF image supplied -- no image convolution will be done!
 Function: Sersic
 Function: Exponential
+Function: FlatSky
 Model Object: 262144 data values (pixels)
-11 total parameters
+12 total parameters
 
 Estimating fluxes on 5000 x 5000 image...
 
 Component                 Flux        Magnitude  Fraction
 Sersic                    2.2635e+06      ---     0.86495
 Exponential               3.5343e+05      ---     0.13505
+FlatSky                   0.0000e+00      ---   0.000e+00
 
 Total                     2.6169e+06
 

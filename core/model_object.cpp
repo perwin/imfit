@@ -2320,7 +2320,8 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
     else {
       if (functionObjects[n]->CanCalculateTotalFlux()) {
         totalComponentFlux = functionObjects[n]->TotalFlux();
-        printf("\tUsing %s.TotalFlux() method...\n", functionObjects[n]->GetShortName().c_str());
+        if (verboseLevel > 0)
+          printf("\tUsing %s.TotalFlux() method...\n", functionObjects[n]->GetShortName().c_str());
       } else {
         totalComponentFlux = 0.0;
         #pragma omp parallel private(i,j,x,y) reduction(+:totalComponentFlux)

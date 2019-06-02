@@ -301,7 +301,6 @@ int main( int argc, char *argv[] )
   if (options->printFluxes) {
     int  nComponents = theModel->GetNFunctions();
     double *fluxes = (double *) calloc(nComponents, sizeof(double));
-    double *fractions = (double *) calloc(nComponents, sizeof(double));
     double  fraction, totalFlux, magnitude;
     vector<string> functionNames;
     
@@ -318,7 +317,6 @@ int main( int argc, char *argv[] )
     printf("Component                 Flux        Magnitude  Fraction\n");
     for (int n = 0; n < nComponents; n++) {
       fraction = fluxes[n] / totalFlux;
-      fractions[n] = fraction;
       printf("%-25s %10.4e", functionNames[n].c_str(), fluxes[n]);
       if ( (options->magZeroPoint != NO_MAGNITUDES) && (fluxes[n] > 0.0) ) {
         magnitude = options->magZeroPoint - 2.5*log10(fluxes[n]);
@@ -326,7 +324,10 @@ int main( int argc, char *argv[] )
       }
       else
         printf("      ---");
-      printf("%10.5f\n", fraction);
+      if (fraction >= 0.0001)
+        printf("%12.5f\n", fraction);
+      else
+        printf("%12.3e\n", fraction);
     }
 
     printf("\nTotal                     %10.4e", totalFlux);
@@ -336,7 +337,6 @@ int main( int argc, char *argv[] )
     }
 
     free(fluxes);
-    free(fractions);
     printf("\n\n");
   }
 
