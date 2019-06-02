@@ -11,6 +11,11 @@ should be skipped (e.g., for FlatSky component)
 	state and skip computing flux
 	-- Maybe add code to makeimage_main.cpp to check & skip over such functions
 	in --print-fluxes printout?
+	
+	[ ] Add code to base FunctionObject [default = return True]
+		[ ] Add unit test for this in unittest_funcs.t.h (class TestExponential)
+	[ ] Add code to FlatSky to return False
+		[ ] Add unit test for this in unittest_funcs.t.h (class TestFlatSky)
 
 
 [X] Double-broken exponential (for Nacho)

@@ -271,6 +271,12 @@ public:
 
   }
 
+  void testIsBackground( void )
+  {
+    bool result = thisFunc->IsBackground();
+    TS_ASSERT_EQUALS(result, false);
+  }
+
   void testCanCalculateTotalFlux( void )
   {
     bool result = thisFunc->CanCalculateTotalFlux();
@@ -374,6 +380,12 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), 1.0, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), 1.0, DELTA );
 
+  }
+
+  void testIsBackground( void )
+  {
+    bool result = thisFunc->IsBackground();
+    TS_ASSERT_EQUALS(result, false);
   }
 
   void testCanCalculateTotalFlux( void )
@@ -506,6 +518,12 @@ public:
 
   }
   
+  void testIsBackground( void )
+  {
+    bool result = thisFunc->IsBackground();
+    TS_ASSERT_EQUALS(result, false);
+  }
+
   void testCanCalculateTotalFlux( void )
   {
     bool result = thisFunc->CanCalculateTotalFlux();
@@ -821,6 +839,12 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(11.0, 10.0), rEqualsOneValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(9.0, 10.0), rEqualsOneValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
+  }
+
+  void testIsBackground( void )
+  {
+    bool result = thisFunc->IsBackground();
+    TS_ASSERT_EQUALS(result, true);
   }
 
   void testCanCalculateTotalFlux( void )

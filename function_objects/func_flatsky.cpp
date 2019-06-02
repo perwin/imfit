@@ -83,5 +83,13 @@ double FlatSky::GetValue( double x, double y )
 }
 
 
+/* ---------------- PUBLIC METHOD: IsBackground ------------------------ */
+
+bool FlatSky::IsBackground( )
+{
+  return true;
+}
+
+
 
 /* END OF FILE: func_flatsky.cpp --------------------------------------- */

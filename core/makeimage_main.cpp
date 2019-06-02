@@ -320,7 +320,7 @@ int main( int argc, char *argv[] )
       fraction = fluxes[n] / totalFlux;
       fractions[n] = fraction;
       printf("%-25s %10.4e", functionNames[n].c_str(), fluxes[n]);
-      if (options->magZeroPoint != NO_MAGNITUDES) {
+      if ( (options->magZeroPoint != NO_MAGNITUDES) && (fluxes[n] > 0.0) ) {
         magnitude = options->magZeroPoint - 2.5*log10(fluxes[n]);
         printf("   %6.4f", magnitude);
       }

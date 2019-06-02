@@ -2315,25 +2315,29 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
   totalModelFlux = 0.0;
   // Integrate over the image, once per function
   for (n = 0; n < nFunctions; n++) {
-    if (functionObjects[n]->CanCalculateTotalFlux()) {
-      totalComponentFlux = functionObjects[n]->TotalFlux();
-      printf("\tUsing %s.TotalFlux() method...\n", functionObjects[n]->GetShortName().c_str());
-    } else {
+    if (functionObjects[n]->IsBackground())
       totalComponentFlux = 0.0;
-      #pragma omp parallel private(i,j,x,y) reduction(+:totalComponentFlux)
-      {
-      #pragma omp for schedule (static, ompChunkSize)
-      for (i = 0; i < ySize; i++) {   // step by row number = y
-        y = (double)(i + 1);              // Iraf counting: first row = 1
-        for (j = 0; j < xSize; j++) {   // step by column number = x
-          x = (double)(j + 1);                 // Iraf counting: first column = 1
-          totalComponentFlux += functionObjects[n]->GetValue(x, y);
+    else {
+      if (functionObjects[n]->CanCalculateTotalFlux()) {
+        totalComponentFlux = functionObjects[n]->TotalFlux();
+        printf("\tUsing %s.TotalFlux() method...\n", functionObjects[n]->GetShortName().c_str());
+      } else {
+        totalComponentFlux = 0.0;
+        #pragma omp parallel private(i,j,x,y) reduction(+:totalComponentFlux)
+        {
+        #pragma omp for schedule (static, ompChunkSize)
+        for (i = 0; i < ySize; i++) {   // step by row number = y
+          y = (double)(i + 1);              // Iraf counting: first row = 1
+          for (j = 0; j < xSize; j++) {   // step by column number = x
+            x = (double)(j + 1);                 // Iraf counting: first column = 1
+            totalComponentFlux += functionObjects[n]->GetValue(x, y);
+          }
         }
-      }
-    } // end omp parallel section
-    } // end else [integrate total flux for component]
-    individualFluxes[n] = totalComponentFlux;
-    totalModelFlux += totalComponentFlux;
+        } // end omp parallel section
+      } // end else [integrate total flux for component]
+      individualFluxes[n] = totalComponentFlux;
+      totalModelFlux += totalComponentFlux;
+    } // end else [calculate total flux for non-background component]
   }  // end for loop over functions
 
   return totalModelFlux;
