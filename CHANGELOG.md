@@ -11,12 +11,32 @@ Ferrers ellipsoid, but with the latter's 3D density value interpreted as 2D
 surface-brightness. (The true 3D Ferrers ellipsoid has been available as
 FerrersBar3D since version 1.5.)
 
+- You can now compile a static library file (`libimfit.a`) that
+potentially allows using most of Imfit's functionality from other
+programs (this does not include the MCMC bits, nor does it include the
+CFITSIO-based reading and writing of FITS files). This is primarily to
+support PyImfit (the Python wrapper for Imfit); there isn't any API
+documentation to speak of, so it's not really useful for anything else
+at this point.
+
+### Changed:
+
+- The SConstruct file has been updated to allow compiling on a Mac using
+Apple's Clang compiler, which (apparently since late 2017) finally has
+support for OpenMP! This *does* require installing`libomp` (e.g., `brew
+install libomp`) and using the `--clang-openmp` flag when compiling; the
+documentation has been updated to describe this.
+
+- The precompiled macOS binary is now built with Apple's Clang compiler,
+rather than GCC. (This makes the binaries somewhat smaller, since they don't
+have to include statically linked copies of the GCC libraries.)
+
 ### Fixed:
 
 - The output of bootstrap-resampling for imfit for fits with image sections would
 not include the correct (full-image) X0,Y0 values at the beginning of each parameter
 line. Note that this was only a problem for the printed-to-screen information;
-the correct X0,Y0 values for the saved bootstrap-output file was fixed back in
+saving the correct X0,Y0 values to the bootstrap-output file was fixed back in
 1.5.0. (Thanks to Chris Pritchett for spotting this.)
 
 

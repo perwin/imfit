@@ -26,8 +26,8 @@ function_objects/func_edge-on-disk_n4762v2.cpp function_objects/func_edge-on-rin
 function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.cpp \
 function_objects/integrator.cpp function_objects/func_expdisk3d.cpp function_objects/func_brokenexpdisk3d.cpp \
 function_objects/func_gaussianring3d.cpp function_objects/func_ferrersbar3d.cpp \
-function_objects/func_king.cpp function_objects/func_king2.cpp \
-function_objects/func_pointsource.cpp \
+function_objects/func_ferrersbar2d.cpp function_objects/func_king.cpp \
+function_objects/func_king2.cpp function_objects/func_pointsource.cpp \
 function_objects/helper_funcs.cpp function_objects/helper_funcs_3d.cpp \
 function_objects/psf_interpolators.cpp \
 core/mersenne_twister.cpp core/mp_enorm.cpp \

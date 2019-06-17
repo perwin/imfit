@@ -50,6 +50,7 @@
 #include "func_moffat.h"
 #include "func_king.h"
 #include "func_king2.h"
+#include "func_ferrersbar2d.h"
 #include "func_flatsky.h"
 // modules requiring GSL:
 #ifndef NO_GSL
@@ -87,7 +88,6 @@
 #include "func_gen-flatbar.h"
 #include "func_bp-cross-section.h"
 #include "func_gaussian-ring-az.h"
-#include "func_ferrersbar2d.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -187,6 +187,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   ModifiedKing2::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<ModifiedKing2>();
 
+  FerrersBar2D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FerrersBar2D>();
+
   FlatSky::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatSky>();
 
@@ -278,9 +281,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   GaussianRingAz::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz>();
-
-  FerrersBar2D::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<FerrersBar2D>();
 #endif
 
 #ifdef USE_TEST_FUNCS

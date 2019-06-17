@@ -15,7 +15,7 @@ from __future__ import print_function
 import sys, os, optparse
 import numpy as np
 try:
-	from astropy.fits.io import open as fits_open
+	from astropy.io.fits import open as fits_open
 except:
 	from pyfits import open as fits_open
 #import pyfits

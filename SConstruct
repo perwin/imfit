@@ -29,14 +29,14 @@
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
 #    $ scons --cc=gcc-4.9 --cpp=g++-4.9 <target-name>
-# shorthand for using GCC 8
+# shorthand for using GCC 9
 #    $ scons --use-gcc <target-name>
 #
 #
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
-# To build export version (all libraries statically linked):
+# To build export version (all non-system libraries statically linked):
 #    $ scons --static <target-name>
 #
 
@@ -78,28 +78,69 @@
 
 import os, subprocess, platform, getpass, pwd
 
+# possible values: "Darwin", "Linux"
+#os_type = os.uname()[0]
+os_type = platform.system()
 
+
+
+# LIBRARIES:
+# m
+# pthread [Linux]
+# cfitsio
+# 	-- if static, then on macOS we must link with curl [part of system]
+#   -- for Linux, we use out compiled static-library version of cfitsio
+#      (not Ubuntu's), so we don't need any extra libraries
+# fftw3, fftw3_threads
+# [gsl, gslcblas]
+# [nlopt]
 
 # *** Hard-coded paths to static libraries (to ensure static linking when that's what
 # we want to do; compilers sometimes insist on linking to shared library even when you 
 # don't specify that)
+
+# NOTE TO USERS: For normal compilation, don't use static linking, since it's
+# harder to set up and ensure the right library paths. The static-library stuff
+# here is primarily for use in preparing the binary distributions of Imfit.
+
 # We assume that FFTW library is static-only (since that's the default installation).
 
-STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/libcfitsio.a")
-STATIC_FFTW_LIBRARY_FILE = File("/usr/local/lib/libfftw3.a")
-STATIC_FFTW_THREADED_LIBRARY_FILE = File("/usr/local/lib/libfftw3_threads.a")
+MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
+# Debian/Ubuntu standard x86-64 package installation path
+LINUX_UBUNTU_STATIC_LIBS_PATH = "/usr/lib/x86_64-linux-gnu/"
+libDirs = {"Darwin": MAC_STATIC_LIBS_PATH, "Linux": LINUX_UBUNTU_STATIC_LIBS_PATH}
+#extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": ["z"]}
+extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": []}
+
+BASE_SHARED_LIBS = ["m"]
+if os_type == "Linux":
+	BASE_SHARED_LIBS.append("pthread")
+
+
+# cfitsio weirdness: if we link to the static-library version, then we
+# must also link to the (shared library) libcurl on Mac;
+# for Linux, we link to our pre-compiled static library in /usr/local/lib
+if os_type == "Darwin":
+	STATIC_CFITSIO_LIBRARY_FILE = File(libDirs[os_type] + "libcfitsio.a")
+else:
+	STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/" + "libcfitsio.a")
+BASE_SHARED_LIBS += extraSharedLibs_static_cfitsio[os_type]
+
+STATIC_FFTW_LIBRARY_FILE = File(libDirs[os_type] + "libfftw3.a")
+STATIC_FFTW_THREADED_LIBRARY_FILE = File(libDirs[os_type] + "libfftw3_threads.a")
 
 # The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
 # STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
-STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libgsl.a")
-STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/local/lib/libgslcblas.a")
+STATIC_GSL_LIBRARY_FILE1_LINUX = File(libDirs['Linux'] + "libgsl.a")
+STATIC_GSL_LIBRARY_FILE2_LINUX = File(libDirs['Linux'] + "libgslcblas.a")
 
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
 # STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
 STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/static_libs/nlopt_nothreadlocal/libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE1_LINUX = File(libDirs['Linux'] + "libnlopt.a")
+
 
 
 # locations of source-code files (including header files)
@@ -121,8 +162,6 @@ flag, or (ideally) use a different compiler (e.g., GCC, or a version of Clang/LL
 with OpenMP support).
 """
 
-os_type = os.uname()[0]
-
 
 # *** Set up compiler flags, library lists, include paths
 
@@ -139,9 +178,8 @@ cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow",
 base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-#lib_list = ["fftw3", "m", "curl"]
-lib_list = ["fftw3", "m"]
-lib_list_libimfit = ["fftw3", "m"]
+lib_list = BASE_SHARED_LIBS
+lib_list_libimfit = BASE_SHARED_LIBS
 # libraries needed for profilefit and psfconvolve1d compilation
 lib_list_1d = ["fftw3", "m"]
 
@@ -162,7 +200,7 @@ c_compiler_changed = False
 cpp_compiler_changed = False
 
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v8 is installed and
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v9 is installed and
 # callable via gcc-9 and g++-9)
 # Comment this out otherwise!
 # Note that the following way of determining the username seems to be a bit more 
@@ -200,8 +238,8 @@ extra_defines = []
 # Default settings for compilation
 useGSL = True
 useNLopt = True
-useFFTWThreading = True
 useOpenMP = True
+usingClangOpenMP = False
 useExtraFuncs = False
 useStaticLibs = False
 totalStaticLinking = False
@@ -227,6 +265,8 @@ AddOption("--no-nlopt", dest="useNLopt", action="store_false",
 	default=True, help="do *not* use NLopt library")
 AddOption("--no-openmp", dest="noOpenMP", action="store_true", 
 	default=False, help="compile *without* OpenMP support")
+AddOption("--clang-openmp", dest="useClangOpenMP", action="store_true", 
+	default=False, help="compile with clang++ on macOS")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
 	default=False, help="compile additional FunctionObject classes for testing")
 AddOption("--extra-checks", dest="doExtraChecks", action="store_true", 
@@ -237,7 +277,7 @@ AddOption("--cc", dest="cc_compiler", type="string", action="store", default=Non
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v8 compilers")
+	default=False, help="use gcc and g++ v9 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 AddOption("--sanitize", dest="useAllSanitize", action="store_true", 
@@ -265,14 +305,16 @@ if GetOption("libraryPath") is not None:
 	extraPaths = GetOption("libraryPath").split(":")
 	print("extra library search paths: ", extraPaths)
 	lib_path += extraPaths
-if GetOption("fftwThreading") is False:
-	useFFTWThreading = False
 if GetOption("useGSL") is False:
 	useGSL = False
 if GetOption("useNLopt") is False:
 	useNLopt = False
 if GetOption("noOpenMP") is True:
 	useOpenMP = False
+if GetOption("useClangOpenMP") is True:
+	usingClangOpenMP = True
+	CC_COMPILER = "clang"
+	CPP_COMPILER = "clang++"
 if GetOption("useExtraFuncs") is True:
 	useExtraFuncs = True
 doExtraChecks = False
@@ -326,14 +368,6 @@ if GetOption("compileForMacDistribution") is True:
 	lib_path = ["/Users/erwin/coding/imfit/static_libs"]
 
 
-# OK, let's check to see if we're trying to compile with OpenMP *and* using Apple's
-# fake GCC -- this won't work, so we need to print a warning and exit
-if useOpenMP and (os_type == "Darwin") and (CPP_COMPILER in ["g++", "clang++"]):
-	result_str = str(subprocess.check_output("g++ --version", shell=True))
-	if result_str.find("Apple LLVM") >= 0:
-		print(BAD_OPENMP_COMPILER_WARNING)
-		exit(1)
-
 
 # *** Setup for various options (either default, or user-altered)
 
@@ -341,29 +375,16 @@ if setOptToDebug:
 	print("** Turning off optimizations!")
 	cflags_opt = cflags_db
 
+
 if useStaticLibs:
 	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
 	lib_list.append(STATIC_FFTW_LIBRARY_FILE)
+	lib_list.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
 	lib_list_libimfit.append(STATIC_FFTW_LIBRARY_FILE)
+	lib_list_libimfit.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
 else:
-	# append to standard library list, which means linker will look for
-	# library in standard or specified locations (and will link with dynamic
-	# version in preference to static version, if dynamic version exists)
-	lib_list.append("cfitsio")
-	# we assume that FFTW only exists in static form, so we don't worry
-	# about appending a file static-library filename
-
-if useFFTWThreading:   # true by default
-	if useStaticLibs:
-		lib_list.insert(0, STATIC_FFTW_THREADED_LIBRARY_FILE)
-	lib_list.insert(0, "fftw3_threads")
-	lib_list_libimfit.insert(0, "fftw3_threads")
-	lib_list_1d.insert(0, "fftw3_threads")
-	if (os_type == "Linux"):
-		lib_list.append("pthread")
-		lib_list_libimfit.append("pthread")
-		lib_list_1d.append("pthread")
-	extra_defines.append("FFTW_THREADING")
+	lib_list += ["cfitsio", "fftw3", "fftw3_threads"]
+extra_defines.append("FFTW_THREADING")
 
 if useGSL:   # true by default
 	if useStaticLibs and (os_type == "Linux"):
@@ -408,9 +429,14 @@ if totalStaticLinking:
 	link_flags.append("-static-libstdc++")
 
 if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
-	cflags_opt.append("-fopenmp")
-	cflags_db.append("-fopenmp")
-	link_flags.append("-fopenmp")
+	if usingClangOpenMP:
+		# special flags for Apple clang++ (assumes libomp is installed)
+		link_flags.append("-Xpreprocessor")
+		link_flags.append("-fopenmp")
+		link_flags.append("-lomp")
+	else:
+		# flags for (real) g++
+		link_flags.append("-fopenmp")
 	extra_defines.append("USE_OPENMP")
 
 if useExtraFuncs:   # default is to NOT do this; user must specify with "--extra-funcs"
@@ -520,7 +546,7 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
 		func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
 		func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
 		func_edge-on-ring func_edge-on-ring2side func_king func_king2
-		helper_funcs helper_funcs_3d psf_interpolators"""
+		func_ferrersbar2d helper_funcs helper_funcs_3d psf_interpolators"""
 if useGSL:
 	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"
@@ -539,7 +565,7 @@ if useExtraFuncs:
 	functionobject_obj_string += " func_gen-flatbar"
 	functionobject_obj_string += " func_bp-cross-section"
 	functionobject_obj_string += " func_gaussian-ring-az"
-	functionobject_obj_string += " func_ferrersbar2d"
+#	functionobject_obj_string += " func_ferrersbar2d"
 	if useGSL:
 		functionobject_obj_string += " func_brokenexpbar3d"
 		functionobject_obj_string += " func_boxytest3d"

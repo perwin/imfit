@@ -6,10 +6,12 @@
 # C and C++ code.
 
 # optional specification if we're running on a Mac (currently, we allow use
-# of Clang/Clang++ because it provides nice error messages)
+# of Clang/Clang++ because it provides nice error messages).
+# "-Wl,-no_compact_unwind" is for suppressing the silly "no compact unwind"
+# warnings from the clang linker.
 if [[ $OSTYPE == darwin* ]]
 then
-  CPP=g++
+  CPP="g++ -Wl,-no_compact_unwind"
   CC=gcc
 #   CPP=g++-5
 #   CC=gcc-5
@@ -17,6 +19,9 @@ else
   CPP=g++
   CC=gcc
 fi
+
+# attempt to suppress annoying, pointless "compact unwind" warnings
+LDFLAGS="-Wl,-no_compact_unwind"
 
 # Set the path to CxxTest (and thus cxxtestgen)
 # (Travis CI defines TRAVIS=true)
@@ -35,3 +40,4 @@ export CPP
 export CC
 export CXXTEST
 export CCTESTGEN
+export LDFLAGS

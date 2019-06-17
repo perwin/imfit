@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # script for generating distribution tarballs
 
@@ -11,7 +11,8 @@ import distribution_manifest as dm
 # where to copy binary (or source) tarballs when completed (specialized for
 # Linux virtual machines on MacBook Pro and local web-site directory for Mac
 # versions)
-LINUX_DEST = "/media/sf_vbox_shared/"
+#LINUX_DEST = "/media/sf_vbox_shared/"
+LINUX_DEST = "/vagrant/transfer/"
 MAC_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/"
 MAC_DEST_BIN = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/binaries/"
 
@@ -135,7 +136,7 @@ def MakeDistributionDir( mode="binary" ):
 	else:
 		fileLists = allFileLists_source
 	for fileList in fileLists:
-		print fileList
+		print(fileList)
 		for fname in fileList:
 			print("%s -> %s" % (fname, distDir + fname))
 			shutil.copy(fname, distDir + fname)

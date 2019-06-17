@@ -36,6 +36,7 @@ function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.c
 function_objects/integrator.cpp function_objects/func_expdisk3d.cpp \
 function_objects/func_brokenexpdisk3d.cpp function_objects/func_gaussianring3d.cpp \
 function_objects/func_ferrersbar3d.cpp function_objects/func_king.cpp \
+function_objects/func_ferrersbar2d.cpp \
 function_objects/func_king2.cpp function_objects/func_gauss_extraparams.cpp \
 function_objects/func_pointsource.cpp \
 function_objects/helper_funcs.cpp function_objects/helper_funcs_3d.cpp \

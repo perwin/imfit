@@ -248,17 +248,21 @@ and \texttt{do\_makeimage\_tests}.
 
 \section{Building \Imfit{} from Source: Details}\label{sec:build}
 
-Assuming that \textsc{cfitsio} and \textsc{fftw} (and optionally NLopt
-and \textsc{gsl}) have already been installed on your system (steps 1--4
-from the outline in the previous section), unpack the source-code
-tarball (imfit-x.x-source.tar.gz) in some convenient location.
+Assuming that \textsc{cfitsio}, \textsc{fftw}, NLopt, and \textsc{gsl}
+have already been installed on your system (steps 1--4 from the outline
+in the previous section), unpack the source-code tarball
+(imfit-x.x-source.tar.gz) in some convenient location. (Or, if you
+prefer, use `git clone` to download the full repo from GitHub.)
 
 \subsubsection{Building with SCons}
 
 By default, \imfit{} uses SCons for the build process. SCons is a Python-based build system
 that is somewhat easier to use and more flexible than the traditional \texttt{make}
 system; it can be downloaded from \url{http://www.scons.org/} or installed via
-your favorite package manager, including Python's Pip.
+your favorite package manager, including Python's Pip, e.g.
+\begin{quote}
+\texttt{\$ pip install scons}
+\end{quote}
 
 If things are simple, you should be able to build \imfit{} and the companion
 program \makeimage{} with the following commands:
@@ -290,23 +294,6 @@ to look for library files; these are explained in the next
 subsections (note that all the SCons options can be combined on the command
 line).
 
-
-%\subsubsection{Alternative: Building with Make}
-%
-%As an alternative to using SCons, a preliminary version of a configure script and Makefile are
-%included; you can use them to build \imfit{} and \makeimage{} via
-%\begin{quote}
-%\texttt{\$ ./configure} \\
-%\texttt{\$ make all}
-%\end{quote}
-%The configure script will check for the presence of the various required and optional
-%libraries in standard locations; if it cannot find the \textsc{gsl} or NLopt libraries, then
-%compilation will be done without them (see below for specifying the path to the libraries
-%manually).
-%
-%As in the case of using SCons, this will produce two binary executable
-%files: \imfit{} and \makeimage{}. Copy these to some convenient place on
-%your path.
 
 \subsubsection{Tests}
 
@@ -383,36 +370,65 @@ with the following commands:
 \end{quote}
 
 
-\subsubsection{Peculiarities of Compiling on Mac OS X}
+\subsubsection{Compiling on macOS}
 
-The standard compiler tools for Mac OS~X are those which come with
-Apple's Xcode. Prior to version 5, Xcode included \textsc{gcc} 4.2 (or
-an LLVM-based equivalent called ``llvm-gcc''). Unfortunately, the
-command-line compilers which come with Xcode 5 and later are based on
-Clang instead of \textsc{gcc} and so do \textit{not} support OpenMP.
-(Confusingly, the Clang-based tools include ``\texttt{gcc}'' and
-``\texttt{g++}'' links which are wrappers around \texttt{clang} and
+The standard compiler tools for macOS (formerly Mac OS~X) are those
+which come with Apple's Xcode, which for C and C++ are based on LLVM's
+Clang. (Confusingly, the Clang-based tools include ``\texttt{gcc}'' and
+``\texttt{g++}'' aliases which are wrappers around \texttt{clang} and
 \texttt{clang++}. To be sure, try \texttt{gcc -v}; if you see something
 like ``Apple LLVM version'', then you know it's really the Clang
 compiler.)
 
-In order to compile \imfit{} with OpenMP, you will need a
-separate installation of \textsc{gcc} (for current versions of \imfit{},
-this should be version 4.9 or later), such as those
-available via package managers such as Fink, MacPorts, or Homebrew. Another
-alternative is to install a version of LLVM/Clang that \textit{does}
-support OpenMP, e.g., from one of the aforementioned package managers.
+Prior to version 9 of Xcode (introduced in late 2017), the
+Apple-supplied Clang compiler did \textit{not} support OpenMP (even though
+the general non-Apple version did); this meant
+that compiling \imfit{} with OpenMP required a separate installation
+of \textsc{gcc}. Now, there \textit{is} support for OpenMP, though
+you will still need to install an additional library (see below).
 
-To tell SCons to use a specific compiler, use with \texttt{--cc} and
-\texttt{--cpp} options:
+\bigskip
+
+Currently, there are two approaches for compiling \imfit{} on macOS:
+
+
+\paragraph{1. Use a Separate GCC (or LLVM) Installation}
+
+For current versions of \imfit{}, you can use a separate installation of
+GCC (this should be version 4.9 or later), such as those available via
+package managers such as Homebrew or MacPorts. (Note that Homebrew does
+not \textit{replace} the pseudo-``gcc'' and ``g++'' aliases provided by
+Xcode, which will still point to Apple's Clang compilers; instead, it
+installs version-specific names such as ``gcc-9'' and ``g++-9''.)
+Another alternative is to install a version of LLVM/Clang that
+\textit{does} support OpenMP, e.g., from one of the aforementioned
+package managers.
+
+To tell SCons to use a specific compiler, use the
+\texttt{--cpp} option:
 \begin{quote}
-\texttt{\$ scons --cc=<C\_COMPILER> --cpp=<C++\_COMPILE> ...}
+\texttt{\$ scons --cpp=<C++\_COMPILE> ...}
 \end{quote}
 
-(Current non-Apple-specific versions of LLVM and Clang include OpenMP, so
-future versions of Xcode \textit{might} hopefully restore support for
-OpenMP, though this is just speculation at the moment.)
 
+
+\paragraph{2. Use Apple's Clang}
+
+As mentioned above, versions of Apple's Clang from Xcode 9 or later provide
+support for OpenMP. However, this is not (quite) automatic: you still
+need to install a copy of \texttt{libomp}, which is the LLVM version of
+the OpenMP library. This can be done via a package manager like Homebrew
+or MacPorts. For example, to install it using Homebrew, just do this:
+\begin{quote}
+\texttt{\$ brew install libomp}
+\end{quote}
+
+Since supporting this in \imfit{} is still a bit experimental, you need
+to tell SCons to explicitly use this approach via the \texttt{--clang-openmp}
+option:
+\begin{quote}
+\texttt{\$ scons --clang-openmp ...}
+\end{quote}
 
 
 \subsubsection{Options: Compiling Without FFT Multithreading}
@@ -2957,7 +2973,7 @@ sigma_z
 
 \subsubsection{FerrersBar2D}
 
-This produces a 2D analog of the classic Ferrers ellipsoid (see
+This produces a 2D analog of the classic \citet{ferrers} ellipsoid (see
 FerrersBar3D in Section~\ref{sec:ferrersbar3d} for the original 3D
 version), where the intensity is constant on (generalized) ellipses,
 with the intensity going to zero outside a specified semi-major axis ($=
@@ -2979,6 +2995,9 @@ m^{2} =  \left( \frac{|x|}{a} \right)^{c_{0} + 2} \! \! + \; \left( \frac{|y|}{b
 
 %\left( \frac{|x|}{a} \right)^{c_{0} + 2} \! \! + \; \left( \frac{|y|}{b} \right)^{c_{0} + 2}  = \; 1,
 
+This is inspired by functions used in 2D decompositions by \citet{laurikainen05}
+and \citet{aguerri09}. It is similar to the ``Ferrer'' component in
+GALFIT, except that it lacks the latter's ``central slope'' parameter $\beta$.
 
 \begin{verbatim}
 FUNCTION FerrersBar2D
@@ -3168,7 +3187,7 @@ m^2 =  \frac{x^2}{a^2} + \frac{y^2}{b^2} + \frac{z^2}{c^2} ,
 with $a = \rbar$, $b = q \rbar$, and $c = q_{z} \rbar$. Typical values of $n$
 used in theoretical studies are 1 and 2.
 
-Note that this is related to but different from the ``Ferrers'' component
+Note that this is related to but different from the ``Ferrer'' component
 in GALFIT, which defines a 2D surface-brightness function using Eqn.~\ref{eqn:ferrers}.
 
 \begin{verbatim}
@@ -3251,6 +3270,12 @@ Static Analyzer.\footnote{\url{http://clang-analyzer.llvm.org}}
 \bibitem[Abazajian et al.(2009)]{abazajian09} Abazajian, K. N.., et al.\ 2009, ``The Seventh 
 Data Release of the Sloan Digital Sky Survey'', \textit{Astrophys.J. Supplement} \textbf{182}: 182.
 
+\bibitem[Aguerri, M{\'e}ndez-Abreu, \& Corsini(2009)]{aguerri09}
+Aguerri, J.~A.~L., M{\'e}ndez-Abreu, J., and Corsini, E.~M. 2009, ``The
+population of barred galaxies in the local universe. I. Detection and
+characterisation of bars'', \textit{Astron.\ Astrophys.} \textbf{495}:
+491.
+
 \bibitem[Athanassoula et al.(1990)]{athanassoula90} Athanassoula, E., Morin, S., Wozniak, H.,
 Puy, D., Pierce, M. J., Lombard, J., and Bosma, A. 1990, \textit{Monthly Notices of the Royal
 Astronomical Society} \textbf{245}: 130.
@@ -3311,6 +3336,11 @@ clusters. I. an empirical density law'', \textit{Astron.J.} \textbf{67}:
 Tiny Tim'', in \textit{Astronomical Data Analysis Software and Systems IV}, R.A.
 Shaw, H.E. Payne, and J.J.E. Hayes, eds., \textit{ASP Conference Series}
 \textbf{77}: 349.
+
+\bibitem[Laurikainen, Salo, \& Buta(2005)]{laurikainen05} Laurikainen,
+E., Salo, H., and Buta, R. 2005, ``Multicomponent decompositions for a
+sample of S0 galaxies'', \textit{Monthly Notices of the Royal
+Astronomical Society} \textbf{362}: 1319.
 
 \bibitem[MacArthur, Courteau, \& Holtzman(2003)]{macarthur03} MacArthur, L. A.,
 Courteau, S., and Holtzman, J. A. 2003, ``Structure of Disk-dominated Galaxies.

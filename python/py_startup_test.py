@@ -18,7 +18,7 @@ else:
 
 # check for FITS-reading modules
 try:
-	import astropy.fits.io
+	import astropy.io.fits
 except ImportError:
 	astropyPresent = False
 else:
