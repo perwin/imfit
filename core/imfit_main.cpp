@@ -82,9 +82,9 @@ static string  kOriginalSkyString = "ORIGINAL_SKY";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.6.1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.7.0b1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.6.1"
+#define VERSION_STRING      "1.7.0b1"
 #endif
 
 

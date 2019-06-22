@@ -18,7 +18,7 @@ declare -i STATUS=0
 FAILED_TEXT=" ** Test failed. **"
 
 do_fits_tests=$(./python/py_startup_test.py)
-if [ $do_fits_tests = "0" ]
+if [[ $do_fits_tests == "0" ]]
 then
   echo -n "Unable to load numpy and/or pyfits (and/or astropy.io.fits) Python modules"
   echo -n "Tests will skip comparison of FITS files"
@@ -297,14 +297,14 @@ STATUS+=$?
 
 
 # do output weight images agree?
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
 then
   ./python/compare_fits_files.py temptest/test_weights_data.fits temptest/test_weights_model.fits
   STATUS+=$?
 fi
 
 # Does residual + model = original image?
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
 then
   ./python/compare_fits_files.py --compare-sum temptest/test_residual_ic3478.fits temptest/test_model_ic3478.fits tests/ic3478rss_64x64.fits
   STATUS+=$?

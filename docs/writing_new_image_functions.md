@@ -228,3 +228,9 @@ total flux. (The default is to let `makeimage` estimate the total flux numerical
 by generating a large image using the image function and summing all the pixel
 values.)
 
+If your new image function is meant to represent the image *background* (as in the
+case of the built-in function FlatSky), then you may not want `makeimage` trying
+to calculate the "total flux" for the component. In this case, you can override
+the `IsBackground` method so that it returns `true` (as in `func_flatsky.h`
+and `func_flatsky.cpp`).
+

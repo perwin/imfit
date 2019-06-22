@@ -14,7 +14,7 @@ declare -i STATUS=0
 FAILED_TEXT=" ** Test failed. **"
 
 do_fits_tests=$(./python/py_startup_test.py)
-if [ $do_fits_tests = "0" ]
+if [[ $do_fits_tests == "0" ]]
 then
   echo -n "Unable to load numpy and/or pyfits Python modules"
   echo
@@ -109,7 +109,7 @@ else
   diff temptest/test_dump1 tests/makeimage_reference/makeimage_textout1
   STATUS+=1
 fi
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
 then
   ./python/compare_fits_files.py temptest/biggertest.fits tests/biggertest_orig.fits
   STATUS+=$?
@@ -124,7 +124,7 @@ else
   diff temptest/test_dump2 tests/makeimage_reference/makeimage_textout2
   STATUS+=1
 fi
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
 then
   ./python/compare_fits_files.py temptest/gensersictest.fits tests/gensersictest_orig.fits
   STATUS+=$?
@@ -139,12 +139,12 @@ else
   diff temptest/test_dump3 tests/makeimage_reference/makeimage_textout3
   STATUS+=1
 fi
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
 then
   ./python/compare_fits_files.py temptest/sersic+exp.fits tests/sersic+exp_orig.fits
   STATUS+=$?
 fi
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
 then
   ./python/compare_fits_files.py temptest/sersic+exp_b.fits tests/sersic+exp_orig.fits
   STATUS+=$?
@@ -161,13 +161,13 @@ else
   diff temptest/test_dump4 tests/makeimage_reference/makeimage_textout4
   STATUS+=1
 fi
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
 then
   ./python/compare_fits_files.py temptest/gensersictest_conv.fits tests/gensersictest612_conv_cutout512.fits
   STATUS+=$?
 fi
 
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
   echo -n "*** Testing that single-function images add up to combined-function image... "
   echo ""
 then
@@ -181,7 +181,7 @@ fi
 # Also, we only test pixels with values > 1.0e-7, since ~ zero-valued pixels in FFT
 # output tend to vary depending on SSE, etc., and we're really only interested in how
 # well the PSF convolution of the source reproduces.
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
   echo -n "*** Testing that convolution with oversampled PSF works (single region)... "
   echo ""
 then
@@ -189,7 +189,7 @@ then
   STATUS+=$?
 fi
 
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
   echo -n "*** Testing that convolution with oversampled PSF works for single-function output (single region)... "
   echo ""
 then
@@ -197,7 +197,7 @@ then
   STATUS+=$?
 fi
 
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
   echo -n "*** Testing that convolution with oversampled PSF works (two regions, same PSF)... "
   echo ""
 then
@@ -205,7 +205,7 @@ then
   STATUS+=$?
 fi
 
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
   echo -n "*** Testing that single-function images add up to combined-function image for convolution with oversampled PSF works... "
   echo ""
 then
@@ -213,7 +213,7 @@ then
   STATUS+=$?
 fi
 
-if [ $do_fits_tests = "1" ]
+if [[ $do_fits_tests == "1" ]]
   echo -n "*** Testing that convolution with oversampled PSF works (two regions, 2 PSFs)... "
   echo ""
 then

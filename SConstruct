@@ -69,17 +69,9 @@
 # with Imfit.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Operating-system determination via os.uname:
-# First element of tuple is basic OS; 3rd element is version number;
-# 5th element is processor architecture (e.g., "i386", "sun4u", "i686")
-#    os.uname()[0] = "Darwin" --> Mac OS X
-#    os.uname()[0] = "SunOS" --> Solaris
-#    os.uname()[0] = "Linux" --> Linux
-
 import os, subprocess, platform, getpass, pwd
 
 # possible values: "Darwin", "Linux"
-#os_type = os.uname()[0]
 os_type = platform.system()
 
 
@@ -94,6 +86,11 @@ os_type = platform.system()
 # fftw3, fftw3_threads
 # [gsl, gslcblas]
 # [nlopt]
+#   -- note that static-library version of this (libnlopt.a) should be the 
+#      *non*-C++ version (build with cmake ... -DNLOPT_CXX=OFF ...),
+#      otherwise there can be problems when compiler for these programs is
+#      different from compiler used to build libnlopt.a.
+
 
 # *** Hard-coded paths to static libraries (to ensure static linking when that's what
 # we want to do; compilers sometimes insist on linking to shared library even when you 
@@ -109,7 +106,6 @@ MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
 # Debian/Ubuntu standard x86-64 package installation path
 LINUX_UBUNTU_STATIC_LIBS_PATH = "/usr/lib/x86_64-linux-gnu/"
 libDirs = {"Darwin": MAC_STATIC_LIBS_PATH, "Linux": LINUX_UBUNTU_STATIC_LIBS_PATH}
-#extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": ["z"]}
 extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": []}
 
 BASE_SHARED_LIBS = ["m"]
@@ -117,13 +113,14 @@ if os_type == "Linux":
 	BASE_SHARED_LIBS.append("pthread")
 
 
+# The following definitions are for when we want to force static linking to
+# the cfitsio, FFTW3, GSL, and NLopt libraries.
+# (Change these if the locations are different on your system)
+
 # cfitsio weirdness: if we link to the static-library version, then we
 # must also link to the (shared library) libcurl on Mac;
 # for Linux, we link to our pre-compiled static library in /usr/local/lib
-if os_type == "Darwin":
-	STATIC_CFITSIO_LIBRARY_FILE = File(libDirs[os_type] + "libcfitsio.a")
-else:
-	STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/" + "libcfitsio.a")
+STATIC_CFITSIO_LIBRARY_FILE = File(libDirs[os_type] + "libcfitsio.a")
 BASE_SHARED_LIBS += extraSharedLibs_static_cfitsio[os_type]
 
 STATIC_FFTW_LIBRARY_FILE = File(libDirs[os_type] + "libfftw3.a")
@@ -131,19 +128,17 @@ STATIC_FFTW_THREADED_LIBRARY_FILE = File(libDirs[os_type] + "libfftw3_threads.a"
 
 # The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
-# STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
-STATIC_GSL_LIBRARY_FILE1_LINUX = File(libDirs['Linux'] + "libgsl.a")
-STATIC_GSL_LIBRARY_FILE2_LINUX = File(libDirs['Linux'] + "libgslcblas.a")
+STATIC_GSL_LIBRARY_FILE1 = File(libDirs[os_type] + "libgsl.a")
+STATIC_GSL_LIBRARY_FILE2 = File(libDirs[os_type] + "libgslcblas.a")
 
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
-# STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE = File(libDirs[os_type] + "libnlopt.a")
 STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/static_libs/nlopt_nothreadlocal/libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE1_LINUX = File(libDirs['Linux'] + "libnlopt.a")
 
 
 
-# locations of source-code files (including header files)
+# locations of source-code files (including our header files)
 CORE_SUBDIR = "core/"
 FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
@@ -179,7 +174,6 @@ base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
 lib_list = BASE_SHARED_LIBS
-lib_list_libimfit = BASE_SHARED_LIBS
 # libraries needed for profilefit and psfconvolve1d compilation
 lib_list_1d = ["fftw3", "m"]
 
@@ -380,38 +374,30 @@ if useStaticLibs:
 	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
 	lib_list.append(STATIC_FFTW_LIBRARY_FILE)
 	lib_list.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
-	lib_list_libimfit.append(STATIC_FFTW_LIBRARY_FILE)
-	lib_list_libimfit.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
 else:
 	lib_list += ["cfitsio", "fftw3", "fftw3_threads"]
 extra_defines.append("FFTW_THREADING")
 
 if useGSL:   # true by default
-	if useStaticLibs and (os_type == "Linux"):
-		lib_list.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
-		lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
-		lib_list_libimfit.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
-		lib_list_libimfit.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
-		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
-		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
+	if useStaticLibs:
+		lib_list.append(STATIC_GSL_LIBRARY_FILE1)
+		lib_list.append(STATIC_GSL_LIBRARY_FILE2)
+		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1)
+		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2)
 	else:
 		lib_list.append("gsl")
 		lib_list.append("gslcblas")		
-		lib_list_libimfit.append("gsl")
-		lib_list_libimfit.append("gslcblas")		
 		lib_list_1d.append("gsl")
 		lib_list_1d.append("gslcblas")		
 else:
 	extra_defines.append("NO_GSL")
 
 if useNLopt:   # default is to do this
-	if useStaticLibs and (os_type == "Linux"):
-		lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
-		lib_list_libimfit.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
-		lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
+	if useStaticLibs:
+		lib_list.append(STATIC_NLOPT_LIBRARY_FILE)
+		lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE)
 	else:
 		lib_list.append("nlopt")	
-		lib_list_libimfit.append("nlopt")	
 		lib_list_1d.append("nlopt")	
 else:
 	extra_defines.append("NO_NLOPT")
@@ -689,11 +675,11 @@ libimfit_sourcelist = [name + ".cpp" for name in libimfit_objs]
 # and "scons libimfit.dylib" (macOS) or "scons libimfit.so" (Linux) for the
 # dynamic-library version
 libimfit_objlist = [ env.Object(obj, src) for (obj,src) in zip(libimfit_objs, libimfit_sourcelist) ]
-staticlib = env.StaticLibrary(target="libimfit", source=libimfit_objlist, LIBS=lib_list_libimfit)
+staticlib = env.StaticLibrary(target="libimfit", source=libimfit_objlist)
 # THE FOLLOWING CURRENTLY DOES NOT WORK
 # ("Source file: core/model_object.o is static and is not compatible with shared target: libimfit.dylib")
-sharedlib = env.SharedLibrary(target="libimfit", source=libimfit_objlist,
-									LIBS=lib_list_libimfit)
+# sharedlib = env.SharedLibrary(target="libimfit", source=libimfit_objlist,
+# 									LIBS=lib_list_libimfit)
 
 
 

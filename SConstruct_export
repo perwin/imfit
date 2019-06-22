@@ -29,14 +29,14 @@
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
 # e.g.
 #    $ scons --cc=gcc-4.9 --cpp=g++-4.9 <target-name>
-# shorthand for using GCC 8
+# shorthand for using GCC 9
 #    $ scons --use-gcc <target-name>
 #
 #
 # To build a version with full debugging printouts:
 #    $ scons define=DEBUG <target-name>
 #
-# To build export version (all libraries statically linked):
+# To build export version (all non-system libraries statically linked):
 #    $ scons --static <target-name>
 #
 
@@ -51,7 +51,7 @@
 # etc.
 
 
-# Copyright 2010--2018 by Peter Erwin.
+# Copyright 2010--2019 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -78,28 +78,69 @@
 
 import os, subprocess, platform, getpass, pwd
 
+# possible values: "Darwin", "Linux"
+#os_type = os.uname()[0]
+os_type = platform.system()
 
+
+
+# LIBRARIES:
+# m
+# pthread [Linux]
+# cfitsio
+# 	-- if static, then on macOS we must link with curl [part of system]
+#   -- for Linux, we use out compiled static-library version of cfitsio
+#      (not Ubuntu's), so we don't need any extra libraries
+# fftw3, fftw3_threads
+# [gsl, gslcblas]
+# [nlopt]
 
 # *** Hard-coded paths to static libraries (to ensure static linking when that's what
 # we want to do; compilers sometimes insist on linking to shared library even when you 
 # don't specify that)
+
+# NOTE TO USERS: For normal compilation, don't use static linking, since it's
+# harder to set up and ensure the right library paths. The static-library stuff
+# here is primarily for use in preparing the binary distributions of Imfit.
+
 # We assume that FFTW library is static-only (since that's the default installation).
 
-STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/libcfitsio.a")
-STATIC_FFTW_LIBRARY_FILE = File("/usr/local/lib/libfftw3.a")
-STATIC_FFTW_THREADED_LIBRARY_FILE = File("/usr/local/lib/libfftw3_threads.a")
+MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
+# Debian/Ubuntu standard x86-64 package installation path
+LINUX_UBUNTU_STATIC_LIBS_PATH = "/usr/lib/x86_64-linux-gnu/"
+libDirs = {"Darwin": MAC_STATIC_LIBS_PATH, "Linux": LINUX_UBUNTU_STATIC_LIBS_PATH}
+#extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": ["z"]}
+extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": []}
+
+BASE_SHARED_LIBS = ["m"]
+if os_type == "Linux":
+	BASE_SHARED_LIBS.append("pthread")
+
+
+# cfitsio weirdness: if we link to the static-library version, then we
+# must also link to the (shared library) libcurl on Mac;
+# for Linux, we link to our pre-compiled static library in /usr/local/lib
+if os_type == "Darwin":
+	STATIC_CFITSIO_LIBRARY_FILE = File(libDirs[os_type] + "libcfitsio.a")
+else:
+	STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/" + "libcfitsio.a")
+BASE_SHARED_LIBS += extraSharedLibs_static_cfitsio[os_type]
+
+STATIC_FFTW_LIBRARY_FILE = File(libDirs[os_type] + "libfftw3.a")
+STATIC_FFTW_THREADED_LIBRARY_FILE = File(libDirs[os_type] + "libfftw3_threads.a")
 
 # The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
 # STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
-STATIC_GSL_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libgsl.a")
-STATIC_GSL_LIBRARY_FILE2_LINUX = File("/usr/local/lib/libgslcblas.a")
+STATIC_GSL_LIBRARY_FILE1_LINUX = File(libDirs['Linux'] + "libgsl.a")
+STATIC_GSL_LIBRARY_FILE2_LINUX = File(libDirs['Linux'] + "libgslcblas.a")
 
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
 # STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
 STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/static_libs/nlopt_nothreadlocal/libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE1_LINUX = File("/usr/local/lib/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE1_LINUX = File(libDirs['Linux'] + "libnlopt.a")
+
 
 
 # locations of source-code files (including header files)
@@ -116,12 +157,10 @@ BAD_OPENMP_COMPILER_WARNING = """
 while using Apple's (Xcode) clang++, which does NOT support OpenMP.
 (Note that clang++ may be aliased on a macOS system as /usr/bin/g++.)
 
-Either compile without OpenMP by calling scons with the --no-openmp flag,
-or (better) use a different compiler (e.g., GCC, or a version of Clang/LLVM
+Either go ahead and compile without OpenMP by calling scons with the --no-openmp 
+flag, or (ideally) use a different compiler (e.g., GCC, or a version of Clang/LLVM
 with OpenMP support).
 """
-
-os_type = os.uname()[0]
 
 
 # *** Set up compiler flags, library lists, include paths
@@ -132,13 +171,15 @@ os_type = os.uname()[0]
 #    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
 #    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2106 onward)
 
-cflags_opt = ["-O3", "-g0", "-msse2", "-std=c++11"]
-cflags_db = ["-Wall", "-g3", "-O0", "-std=c++11", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith"]
+cflags_opt = ["-O3", "-g0", "-fPIC", "-msse2", "-std=c++11"]
+cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow", 
+				"-Wredundant-decls", "-Wpointer-arith"]
 
 base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
-lib_list = ["fftw3", "m", "curl"]
+lib_list = BASE_SHARED_LIBS
+lib_list_libimfit = BASE_SHARED_LIBS
 # libraries needed for profilefit and psfconvolve1d compilation
 lib_list_1d = ["fftw3", "m"]
 
@@ -159,22 +200,22 @@ c_compiler_changed = False
 cpp_compiler_changed = False
 
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v8 is installed and
-# callable via gcc-8 and g++-8)
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v9 is installed and
+# callable via gcc-9 and g++-9)
 # Comment this out otherwise!
 # Note that the following way of determining the username seems to be a bit more 
 # portable than "getpass.getuser()", which fails for "Ubuntu on Windows" (acc. to 
 # Lee Kelvin, who contributed the new version)
 userName = pwd.getpwuid(os.getuid())[0]
 if (os_type == "Darwin") and (userName == "erwin"): 
-	CC_COMPILER = "gcc-8"
-	CPP_COMPILER = "g++-8"
+	CC_COMPILER = "gcc-9"
+	CPP_COMPILER = "g++-9"
 	c_compiler_changed = True
 	cpp_compiler_changed = True
 
 
 # *** System-specific setup
-# if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
+# if (os_type == "Darwin"):   # OK, we're compiling on macOS (a.k.a. Mac OS X)
 # 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
 # 	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
 # 	# are 32-bit, use the following
@@ -197,8 +238,8 @@ extra_defines = []
 # Default settings for compilation
 useGSL = True
 useNLopt = True
-useFFTWThreading = True
 useOpenMP = True
+usingClangOpenMP = False
 useExtraFuncs = False
 useStaticLibs = False
 totalStaticLinking = False
@@ -224,6 +265,8 @@ AddOption("--no-nlopt", dest="useNLopt", action="store_false",
 	default=True, help="do *not* use NLopt library")
 AddOption("--no-openmp", dest="noOpenMP", action="store_true", 
 	default=False, help="compile *without* OpenMP support")
+AddOption("--clang-openmp", dest="useClangOpenMP", action="store_true", 
+	default=False, help="compile with clang++ on macOS")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
 	default=False, help="compile additional FunctionObject classes for testing")
 AddOption("--extra-checks", dest="doExtraChecks", action="store_true", 
@@ -234,7 +277,7 @@ AddOption("--cc", dest="cc_compiler", type="string", action="store", default=Non
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
 	help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v8 compilers")
+	default=False, help="use gcc and g++ v9 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
 	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 AddOption("--sanitize", dest="useAllSanitize", action="store_true", 
@@ -262,14 +305,16 @@ if GetOption("libraryPath") is not None:
 	extraPaths = GetOption("libraryPath").split(":")
 	print("extra library search paths: ", extraPaths)
 	lib_path += extraPaths
-if GetOption("fftwThreading") is False:
-	useFFTWThreading = False
 if GetOption("useGSL") is False:
 	useGSL = False
 if GetOption("useNLopt") is False:
 	useNLopt = False
 if GetOption("noOpenMP") is True:
 	useOpenMP = False
+if GetOption("useClangOpenMP") is True:
+	usingClangOpenMP = True
+	CC_COMPILER = "clang"
+	CPP_COMPILER = "clang++"
 if GetOption("useExtraFuncs") is True:
 	useExtraFuncs = True
 doExtraChecks = False
@@ -286,8 +331,8 @@ if GetOption("cpp_compiler") is not None:
 	print("using %s for C++ compiler" % CPP_COMPILER)
 	cpp_compiler_changed = True
 if GetOption("useGCC") is True:
-	CC_COMPILER = "gcc-8"
-	CPP_COMPILER = "g++-8"
+	CC_COMPILER = "gcc-9"
+	CPP_COMPILER = "g++-9"
 	print("using %s for C compiler" % CC_COMPILER)
 	print("using %s for C++ compiler" % CPP_COMPILER)
 	c_compiler_changed = True
@@ -323,14 +368,6 @@ if GetOption("compileForMacDistribution") is True:
 	lib_path = ["/Users/erwin/coding/imfit/static_libs"]
 
 
-# OK, let's check to see if we're trying to compile with OpenMP *and* using Apple's
-# fake GCC -- this won't work, so we need to print a warning and exit
-if useOpenMP and (os_type == "Darwin") and (CPP_COMPILER in ["g++", "clang++"]):
-	result_str = str(subprocess.check_output("g++ --version", shell=True))
-	if result_str.find("Apple LLVM") >= 0:
-		print(BAD_OPENMP_COMPILER_WARNING)
-		exit(1)
-
 
 # *** Setup for various options (either default, or user-altered)
 
@@ -338,36 +375,30 @@ if setOptToDebug:
 	print("** Turning off optimizations!")
 	cflags_opt = cflags_db
 
+
 if useStaticLibs:
 	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
 	lib_list.append(STATIC_FFTW_LIBRARY_FILE)
+	lib_list.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
+	lib_list_libimfit.append(STATIC_FFTW_LIBRARY_FILE)
+	lib_list_libimfit.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
 else:
-	# append to standard library list, which means linker will look for
-	# library in standard or specified locations (and will link with dynamic
-	# version in preference to static version, if dynamic version exists)
-	lib_list.append("cfitsio")
-	# we assume that FFTW only exists in static form, so we don't worry
-	# about appending them
-
-if useFFTWThreading:   # true by default
-	if useStaticLibs:
-		lib_list.insert(0, STATIC_FFTW_THREADED_LIBRARY_FILE)
-	lib_list.insert(0, "fftw3_threads")
-	lib_list_1d.insert(0, "fftw3_threads")
-	if (os_type == "Linux"):
-		lib_list.append("pthread")
-		lib_list_1d.append("pthread")
-	extra_defines.append("FFTW_THREADING")
+	lib_list += ["cfitsio", "fftw3", "fftw3_threads"]
+extra_defines.append("FFTW_THREADING")
 
 if useGSL:   # true by default
 	if useStaticLibs and (os_type == "Linux"):
 		lib_list.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
 		lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
+		lib_list_libimfit.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
+		lib_list_libimfit.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
 		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
 	else:
 		lib_list.append("gsl")
 		lib_list.append("gslcblas")		
+		lib_list_libimfit.append("gsl")
+		lib_list_libimfit.append("gslcblas")		
 		lib_list_1d.append("gsl")
 		lib_list_1d.append("gslcblas")		
 else:
@@ -376,9 +407,11 @@ else:
 if useNLopt:   # default is to do this
 	if useStaticLibs and (os_type == "Linux"):
 		lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
+		lib_list_libimfit.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
 		lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
 	else:
 		lib_list.append("nlopt")	
+		lib_list_libimfit.append("nlopt")	
 		lib_list_1d.append("nlopt")	
 else:
 	extra_defines.append("NO_NLOPT")
@@ -396,9 +429,14 @@ if totalStaticLinking:
 	link_flags.append("-static-libstdc++")
 
 if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
-	cflags_opt.append("-fopenmp")
-	cflags_db.append("-fopenmp")
-	link_flags.append("-fopenmp")
+	if usingClangOpenMP:
+		# special flags for Apple clang++ (assumes libomp is installed)
+		link_flags.append("-Xpreprocessor")
+		link_flags.append("-fopenmp")
+		link_flags.append("-lomp")
+	else:
+		# flags for (real) g++
+		link_flags.append("-fopenmp")
 	extra_defines.append("USE_OPENMP")
 
 if useExtraFuncs:   # default is to NOT do this; user must specify with "--extra-funcs"
@@ -434,28 +472,6 @@ if allSanitize is True:
 	link_flags.append("-fno-omit-frame-pointer")
 
 
-# *** Special distribution-building options
-# This particular approach is deprecated, bcs it's easier to use GCC 5 and lipo rather 
-# than rely on existence of pre-existing llvm-gcc-4.2 installation
-# if buildFatBinary and (os_type == "Darwin"):
-# 	# note that we have to specify "-arch xxx" as "-arch", "xxx", otherwise SCons
-# 	# passes "-arch xxx" wrapped in quotation marks, which gcc/g++ chokes on.
-# 	cflags_opt += ["-arch", "i686", "-arch", "x86_64"]
-# 	cflags_db += ["-arch", "i686", "-arch", "x86_64"]
-# 	link_flags += ["-arch", "i686", "-arch", "x86_64"]
-
-# Preferred approach for fat binaries: build normal 64-bit version, then build
-# 32-bit version (and then use lipo to merge them)
-# if build32bit and (os_type == "Darwin"):
-# 	cflags_opt += ["-m32", "-ansi"]
-# 	link_flags += ["-m32", "-ansi"]
-
-# if buildForOldMacOS and (os_type == "Darwin"):
-# 	cflags_opt += ["-mmacosx-version-min=10.6"]
-# 	cflags_db += ["-mmacosx-version-min=10.6"]
-# 	link_flags += ["-mmacosx-version-min=10.6"]
-
-
 # * Collect together all the updated preprocessor definitions
 defines_db = defines_db + extra_defines
 defines_opt = defines_opt + extra_defines
@@ -465,9 +481,9 @@ defines_opt = defines_opt + extra_defines
 
 # *** Create Environments for compilation:
 # "env_debug" is environment with debugging options turned on
-# "env_opt" is an environment for optimized compiling
+# "env" is an environment for optimized compiling
 
-env_opt = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
+env = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
 					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, 
 					CPPDEFINES=defines_opt )
 env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
@@ -481,8 +497,8 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 #    2. It automatically inserts "-l<libname>" if it finds the libraries, which ends
 #       up forcing the linking of dynamic-library versions even if we're trying to
 #       do static compilation
-# if not env_opt.GetOption('clean'):
-# 	conf_opt = Configure(env_opt)
+# if not env.GetOption('clean'):
+# 	conf_opt = Configure(env)
 # 	cfitsioFound = conf_opt.CheckLibWithHeader('cfitsio', 'fitsio.h', 'c')
 # 	fftwFound = conf_opt.CheckLibWithHeader('fftw3', 'fftw3.h', 'c')
 # 	fftwThreadsFound = conf_opt.CheckLib('fftw3_threads')
@@ -511,14 +527,12 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 # 		print("\tSuggestion: include correct path to library with --lib-path option")
 # 		print("\tOR run SCons with --no-nlopt option")
 # 		exit(1)
-# 	env_opt = conf_opt.Finish()
+# 	env = conf_opt.Finish()
 
 
 
 # We have separate lists of object names (what we want the .o files to be called) and
-# source names (.cpp, .c) so that we can specify separate debugging and optimized compilations.
-
-# C++ code
+# source names (.cpp) so that we can specify separate debugging and optimized compilations.
 
 # ModelObject and related classes/files:
 modelobject_obj_string = """model_object convolver oversampled_region downsample
@@ -532,7 +546,7 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
 		func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
 		func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
 		func_edge-on-ring func_edge-on-ring2side func_king func_king2
-		helper_funcs helper_funcs_3d psf_interpolators"""
+		func_ferrersbar2d helper_funcs helper_funcs_3d psf_interpolators"""
 if useGSL:
 	# the following modules require GSL be present
 	functionobject_obj_string += " func_edge-on-disk"
@@ -549,6 +563,9 @@ if useExtraFuncs:
 	functionobject_obj_string += " func_gen-exp2"
 	functionobject_obj_string += " func_flatbar"
 	functionobject_obj_string += " func_gen-flatbar"
+	functionobject_obj_string += " func_bp-cross-section"
+	functionobject_obj_string += " func_gaussian-ring-az"
+#	functionobject_obj_string += " func_ferrersbar2d"
 	if useGSL:
 		functionobject_obj_string += " func_brokenexpbar3d"
 		functionobject_obj_string += " func_boxytest3d"
@@ -585,26 +602,29 @@ cdream_objs = [ CDREAM_SUBDIR + name for name in cdream_obj_string.split() ]
 cdream_sources = [name + ".cpp" for name in cdream_objs]
 
 
-# Base files for imfit, makeimage, and imfit-mcmc:
+# Base files for imfit, makeimage, imfit-mcmc, and libimfit:
 base_obj_string = """mp_enorm statistics mersenne_twister commandline_parser utilities 
-image_io getimages config_file_parser add_functions"""
+config_file_parser add_functions"""
 base_objs = [ CORE_SUBDIR + name for name in base_obj_string.split() ]
+# FITS image-file I/O
+image_io_obj_string = "image_io getimages"
+image_io_objs = [ CORE_SUBDIR + name for name in image_io_obj_string.split() ]
 
 # Main set of files for imfit
 imfit_obj_string = """print_results bootstrap_errors estimate_memory 
 imfit_main"""
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
-imfit_base_objs = base_objs + imfit_base_objs
+imfit_base_objs = base_objs + image_io_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
 # Main set of files for makeimage
-makeimage_base_objs = base_objs + [CORE_SUBDIR + "makeimage_main"]
+makeimage_base_objs = base_objs + image_io_objs + [CORE_SUBDIR + "makeimage_main"]
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 # Main set of files for imfit-mcmc
 mcmc_obj_string = """estimate_memory mcmc_main"""
 mcmc_base_objs = [ CORE_SUBDIR + name for name in mcmc_obj_string.split() ]
-mcmc_base_objs = mcmc_base_objs + base_objs + cdream_objs
+mcmc_base_objs = mcmc_base_objs + base_objs + image_io_objs + cdream_objs
 mcmc_base_sources = [name + ".cpp" for name in mcmc_base_objs]
 
 
@@ -632,42 +652,48 @@ if scanBuild is True:
 # specify ".do" as the suffix for "full-debug" object code
 imfit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
 env_debug.Program("imfit_db", imfit_dbg_objlist)
-imfit_opt_objlist = [ env_opt.Object(obj, src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
-env_opt.Program("imfit", imfit_opt_objlist)
+imfit_opt_objlist = [ env.Object(obj, src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
+env.Program("imfit", imfit_opt_objlist)
 
 makeimage_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(makeimage_objs, makeimage_sources) ]
 env_debug.Program("makeimage_db", makeimage_dbg_objlist)
-env_opt.Program("makeimage", makeimage_sources)
+env.Program("makeimage", makeimage_sources)
 
 mcmc_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(mcmc_objs, mcmc_sources) ]
 env_debug.Program("imfit-mcmc_db", mcmc_dbg_objlist)
-env_opt.Program("imfit-mcmc", mcmc_sources)
+env.Program("imfit-mcmc", mcmc_sources)
 
 
 # Run tests
 # Unit tests:
-env_opt.Command("unit", None, "./run_unit_tests.sh")
+env.Command("unit", None, "./run_unit_tests.sh")
 
 # All tests:
-env_opt.Command("alltests", None, 
+env.Command("alltests", None, 
 	"./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests ; ./do_mcmc_tests")
 
 
 
 
-# Library testing
+# Build Imfit library
 base_for_lib_objstring = """mp_enorm statistics mersenne_twister utilities 
 config_file_parser add_functions"""
 base_for_lib_objs = [ CORE_SUBDIR + name for name in base_for_lib_objstring.split() ]
-imfit_lib_objs = modelobject_objs + functionobject_objs + solver_objs
-imfit_lib_objs += base_for_lib_objs
-imfit_lib_sourcelist = [name + ".cpp" for name in imfit_lib_objs]
+libimfit_objs = modelobject_objs + functionobject_objs + solver_objs
+libimfit_objs += base_for_lib_objs
+libimfit_sourcelist = [name + ".cpp" for name in libimfit_objs]
 #print(imfit_lib_sourcelist)
 # Note that for some reason we have to give the library name with its
 # "lib" prefix: "libimfit"
-# invoke the following as "scons libimfit.a" and "scons libimfit.dylib"
-staticlib = env_opt.StaticLibrary(target="libimfit", source=imfit_lib_sourcelist)
-sharedlib = env_opt.SharedLibrary(target="libimfit", source=imfit_lib_sourcelist)
+# invoke the following as "scons libimfit.a" for the static-library version
+# and "scons libimfit.dylib" (macOS) or "scons libimfit.so" (Linux) for the
+# dynamic-library version
+libimfit_objlist = [ env.Object(obj, src) for (obj,src) in zip(libimfit_objs, libimfit_sourcelist) ]
+staticlib = env.StaticLibrary(target="libimfit", source=libimfit_objlist, LIBS=lib_list_libimfit)
+# THE FOLLOWING CURRENTLY DOES NOT WORK
+# ("Source file: core/model_object.o is static and is not compatible with shared target: libimfit.dylib")
+sharedlib = env.SharedLibrary(target="libimfit", source=libimfit_objlist,
+									LIBS=lib_list_libimfit)
 
 
 
