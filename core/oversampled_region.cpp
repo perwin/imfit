@@ -39,7 +39,7 @@
 //   }
 
 
-// Copyright 2014-2018 by Peter Erwin.
+// Copyright 2014-2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -68,10 +68,15 @@
 #include <string>
 #include <vector>
 
+#ifdef USE_LOGGING
+#include "loguru/loguru.hpp"
+#endif
+
 #include "convolver.h"
 #include "function_objects/function_object.h"
 #include "oversampled_region.h"
 #include "downsample.h"
+#include "utilities_pub.h"
 #ifdef DEBUG
 #include "image_io.h"
 #endif
@@ -102,6 +107,9 @@ OversampledRegion::OversampledRegion( )
   ompChunkSize = DEFAULT_OPENMP_CHUNK_SIZE;
   
   debugImageName = "oversampled_region_testoutput";
+#ifdef USE_LOGGING
+  LOG_F(2, "OversampledRegion allocated");
+#endif
 }
 
 
@@ -116,6 +124,9 @@ OversampledRegion::~OversampledRegion( )
     delete psfInterpolator;
   if (doConvolution)
     delete psfConvolver;
+#ifdef USE_LOGGING
+  LOG_F(2, "OversampledRegion (%s) destroyed", regionLabel.c_str());
+#endif
 }
 
 
@@ -157,7 +168,7 @@ void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int n
   if (setupComplete) {
     fprintf(stderr,"OverSampledRegion::SetupPSF -- WARNING: the function must be called");
     fprintf(stderr," *before* calling OversampledRegion::SetupModelImage()!\n");
-    fprintf(stderr,"Attempt add PSF ignored -- oversampled region calculations will NOT use PSF convolution!\n");
+    fprintf(stderr,"Attempt to add PSF ignored -- oversampled region calculations will NOT use PSF convolution!\n");
   } else {
     nPSFColumns = nColumns_psf;
     nPSFRows = nRows_psf;
@@ -172,6 +183,14 @@ void OversampledRegion::AddPSFVector( double *psfPixels, int nColumns_psf, int n
   if ((nColumns_psf >= 4) && (nRows_psf >= 4)) {
     psfInterpolator = new PsfInterpolator_bicubic(psfPixels, nColumns_psf, nRows_psf);
     psfInterpolator_allocated = true;
+    if (debugLevel > 0) {
+      printf("  OversampledRegion::AddPSFVector -- generating new PsfInterpolator\n");
+      printf("    with nColumns,nRows = %d,%d\n", nColumns_psf, nRows_psf);
+    }
+#ifdef USE_LOGGING
+    LOG_F(2, "OversampledRegion::AddPSFVector -- generating new PsfInterpolator (ncols,nrows = %d,%d)",
+    		nColumns_psf, nRows_psf);
+#endif
   }
   else {
     fprintf(stderr, "** ERROR: Oversampled PSF image is too small for interpolation with PointSource functions!\n");
@@ -198,6 +217,7 @@ int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nB
   // info about main image (including where LL corner of region is within main image)
   x1_region = x1;
   y1_region = y1;
+  regionLabel = PrintToString("x1,y2=%d,%d", x1_region,y1_region);
   nMainImageColumns = nColumnsMain;
   nMainImageRows = nRowsMain;
   nMainPSFColumns = nColumnsPSF_main;
@@ -244,6 +264,11 @@ int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nB
   modelVectorAllocated = true;
   setupComplete = true;
   
+#ifdef USE_LOGGING
+  LOG_F(2, "OversampledRegion (%s): model image (nCols,nRows=%d,%d, %d pixels) allocated", 
+  		regionLabel.c_str(), nModelColumns,nModelRows, nModelVals);
+#endif
+
   return 0;
 }
 
@@ -261,6 +286,7 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
 {
   int   i, j, n, status;
   double  x, y, newValSum, tempSum, adjVal, storedError;
+  bool pointSourcesPresent = false;
   string  outputName;
 
 // Compute oversampled-region image, using OpenMP for speed
@@ -268,6 +294,10 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
 // function will only take a small part of total runtime)
 
   // 1. Do main image computation (all non-PointSource functions)
+#ifdef USE_LOGGING
+  LOG_F(2, "OversampledRegion (%s): Generating non-PS image", 
+  		regionLabel.c_str());
+#endif
 #pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
   {
   #pragma omp for schedule (static, ompChunkSize)
@@ -309,6 +339,11 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
 
 
   // 2. Do PSF convolution, if requested
+#ifdef USE_LOGGING
+  if (doConvolution)
+    LOG_F(2, "OversampledRegion (%s): Convolving image with PSF", 
+  		regionLabel.c_str());
+#endif
   if (doConvolution)
     psfConvolver->ConvolveImage(modelVector);
 
@@ -325,11 +360,18 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
 
 
   // 3. Add flux from PointSource functions, if present (must be done *after* PSF convolution!)
-  // Re-assign psfInterpolator object
+  // Re-assign psfInterpolator object and set PointSource's oversampling scale
   for (n = 0; n < nFunctions; n++)
-    if (functionObjectVect[n]->IsPointSource())
+    if (functionObjectVect[n]->IsPointSource()) {
+      pointSourcesPresent = true;
       functionObjectVect[n]->AddPsfInterpolator(psfInterpolator);
+      functionObjectVect[n]->SetOversamplingScale(oversamplingScale);
+    }
 
+#ifdef USE_LOGGING
+  LOG_F(2, "OversampledRegion (%s): Generating PointSource image", 
+  		regionLabel.c_str());
+#endif
 #pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
   {
   #pragma omp for schedule (static, ompChunkSize)
@@ -342,6 +384,12 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
     storedError = 0.0;
     for (n = 0; n < nFunctions; n++) {
       if (functionObjectVect[n]->IsPointSource()) {
+#ifdef USE_LOGGING
+        if ((k == 0) || (k == (nModelVals - 1))) {
+          LOG_F(3, "   k = %d; i,j = %d,%d; x,y = %.2f,%.2f", k,i,j,x,y);
+          LOG_F(3, "      x1_region = %d, startX_offset = %.2f", x1_region,startX_offset);
+        }
+#endif
         // Use Kahan summation algorithm
         adjVal = functionObjectVect[n]->GetValue(x, y) - storedError;
         tempSum = newValSum + adjVal;
@@ -353,9 +401,23 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   }
   } // end omp parallel section
 
+#ifdef DEBUG
+  if ((debugLevel > 0) && (pointSourcesPresent)) {
+    vector<string>  imageCommentsList;
+    outputName = debugImageName + "_conv_with-point-sources.fits";
+    printf("\nOversampledRegion::ComputeRegionAndDownsample -- Saving PointSource-added output model image (\"%s\") ...\n", 
+    		outputName.c_str());
+    status = SaveVectorAsImage(modelVector, outputName, nModelColumns, nModelRows, 
+    							imageCommentsList);
+  }
+#endif
 
 
   // downsample & copy into main image
+#ifdef USE_LOGGING
+  LOG_F(2, "OversampledRegion (%s): Calling DownsampleAndReplace", 
+  		regionLabel.c_str());
+#endif
   DownsampleAndReplace(modelVector, nModelColumns,nModelRows,nPSFColumns,nPSFRows, 
   						mainImageVector, nMainImageColumns,nMainImageRows,nMainPSFColumns,
   						nMainPSFRows, x1_region,y1_region, oversamplingScale, debugLevel);

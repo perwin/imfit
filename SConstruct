@@ -79,6 +79,7 @@ os_type = platform.system()
 # LIBRARIES:
 # m
 # pthread [Linux]
+# dl [Linux, if using loguru for logging]
 # cfitsio
 # 	-- if static, then on macOS we must link with curl [part of system]
 #   -- for Linux, we use out compiled static-library version of cfitsio
@@ -279,7 +280,7 @@ AddOption("--sanitize", dest="useAllSanitize", action="store_true",
 AddOption("--address-sanitize", dest="useAddressSanitize", action="store_true", 
 	default=False, help="set this to generate binaries with -fsanitize-address")
 AddOption("--logging", dest="useLogging", action="store_true", 
-	default=False, help="compile with support for logging via plog")
+	default=False, help="compile with support for logging via loguru")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -433,7 +434,9 @@ if doExtraChecks:   # default is to NOT do this; user must specify with "--extra
 					"-Wextra", "-pedantic"])
 
 if useLogging:
-	extra_defines.append(["-DUSE_PLOG"])
+	extra_defines.append(["-DUSE_LOGGING"])
+	if os_type == "Linux":
+		lib_list.append("dl")
 	
 # Add any additional, user-specified preprocessor definitions (e.g., "define=DEBUG")
 for key, value in ARGLIST:
@@ -599,12 +602,16 @@ image_io_objs = [ CORE_SUBDIR + name for name in image_io_obj_string.split() ]
 # Main set of files for imfit
 imfit_obj_string = """print_results bootstrap_errors estimate_memory 
 imfit_main"""
+if useLogging:
+	imfit_obj_string += " loguru/loguru"
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
 imfit_base_objs = base_objs + image_io_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
 # Main set of files for makeimage
 makeimage_base_objs = base_objs + image_io_objs + [CORE_SUBDIR + "makeimage_main"]
+if useLogging:
+	makeimage_base_objs.append("loguru/loguru")
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 # Main set of files for imfit-mcmc

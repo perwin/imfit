@@ -19,7 +19,7 @@ bool CheckHDUForImage( fitsfile *imageFile_ptr, int hduNum, int *status_ptr );
 int CheckForImage( const std::string filename, const bool verbose=false );
 
 /// Gets dimensions (nColumns, nRows) of specified FITS image
-int GetImageSize( const std::string filename, int *nColumns, int *nRows, const bool verbose=false );
+std::tuple<int, int, int> GetImageSize( const std::string filename, const bool verbose=false );
 
 /// \brief Reads image data from specified FITS image, returning it as 1D array
 ///        (with image dimensions stored in nColumns, nRows)

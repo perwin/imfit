@@ -122,7 +122,7 @@ std::tuple<double *, int, int, int> GetPsfImage( const string &psfFileName )
   if (status < 0)
     return std::make_tuple(psfPixels, 0,0, -1);
 
-  GetImageSize(psfFileName, &nColumns_psf, &nRows_psf);
+  std::tie(nColumns_psf, nRows_psf, status) = GetImageSize(psfFileName);
   long nPixels_psf = (long)nColumns_psf * (long)nRows_psf;
   printf("naxis1 [# pixels/row] = %d, naxis2 [# pixels/col] = %d; nPixels_tot = %ld\n", 
          nColumns_psf, nRows_psf, nPixels_psf);

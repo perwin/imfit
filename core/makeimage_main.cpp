@@ -8,7 +8,7 @@
  * NAXIS2 = naxes[1] = nRows = sizeY.
 */
 
-// Copyright 2010--2018 by Peter Erwin.
+// Copyright 2010--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -37,6 +37,11 @@
 #include <sys/time.h>
 #include "fftw3.h"
 
+// logging
+#ifdef USE_LOGGING
+#include "loguru/loguru.hpp"
+#endif
+
 #include "definitions.h"
 #include "image_io.h"
 #include "getimages.h"
@@ -55,6 +60,8 @@
 /* ---------------- Definitions ---------------------------------------- */
 #define EST_SIZE_HELP_STRING "     --estimation-size <int>  Size of square image to use for estimating fluxes [default = 5000]"
 
+const char *  LOG_FILENAME = "log_makeimage.txt";
+
 
 // Option names for use in config files
 static string  kNCols1 = "NCOLS";
@@ -63,9 +70,9 @@ static string  kNRows = "NROWS";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.7.0b1 (OpenMP-enabled)"
+#define VERSION_STRING      "1.7.0b2 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.7.0b1"
+#define VERSION_STRING      "1.7.0b2"
 #endif
 
 
@@ -107,7 +114,18 @@ int main( int argc, char *argv[] )
   /* Process command line and parse config file: */
   options = new MakeimageOptions();    
   ProcessInput(argc, argv, options);
-  
+
+#ifdef USE_LOGGING
+  if (options->loggingOn) {
+    // turn off writing log output to stderr and remove "thread name" from outputs
+    loguru::g_stderr_verbosity = loguru::Verbosity_OFF;
+    loguru::g_preamble_thread = false;
+    // initialize logging
+    loguru::init(argc, argv);
+    loguru::add_file(LOG_FILENAME, loguru::Append, loguru::Verbosity_MAX);
+    LOG_F(INFO, "*** Starting up...");
+  }
+#endif
   
   if ((options->printFluxes) && (! options->saveImage) && (! options->printImages))
     printFluxesOnly = true;
@@ -156,7 +174,8 @@ int main( int argc, char *argv[] )
   }
   // Get image size from reference image, if necessary
   if ((! printFluxesOnly) && (options->noImageDimensions)) {
-    status = GetImageSize(options->referenceImageName, &nColumns, &nRows);
+    //status = GetImageSize(options->referenceImageName, &nColumns, &nRows);
+    std::tie(nColumns, nRows, status) = GetImageSize(options->referenceImageName);
     if (status != 0) {
       fprintf(stderr,  "\n*** ERROR: Failure determining size of image file \"%s\"!\n\n", 
       			options->referenceImageName.c_str());
@@ -232,6 +251,11 @@ int main( int argc, char *argv[] )
     paramsVect[i] = parameterList[i];
 
   if (! printFluxesOnly) {
+
+#ifdef USE_LOGGING
+    if (options->loggingOn)
+      LOG_F(INFO, "Creating model image...");
+#endif
     // OK, we're generating a normal model image
     theModel->CreateModelImage(paramsVect);
   
@@ -361,6 +385,13 @@ int main( int argc, char *argv[] )
   printf("Done!\n\n");
 
 
+#ifdef USE_LOGGING
+  if (options->loggingOn) {
+    LOG_F(INFO, "*** Freeing up memory...");
+    printf("\nInternal logging output saved to %s\n\n", LOG_FILENAME);
+  }
+#endif
+
   // Free up memory
   if (options->psfImagePresent)
     fftw_free(psfPixels);       // allocated in ReadImageAsVector()
@@ -421,6 +452,10 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --max-threads <int>      Maximum number of threads to use");
   optParser->AddUsageLine("");
+#ifdef USE_LOGGING
+  optParser->AddUsageLine("     --logging                Save logging outputs to file");
+  optParser->AddUsageLine("");
+#endif
   optParser->AddUsageLine("     --debug <n>              Set the debugging level (integer)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("EXAMPLES:");
@@ -454,7 +489,9 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
   optParser->AddOption("timing");
   optParser->AddOption("max-threads");
   optParser->AddOption("debug");
-
+#ifdef USE_LOGGING
+  optParser->AddFlag("logging");
+#endif
   // Comment this out if you want unrecognized (e.g., mis-spelled) flags and options
   // to be ignored only, rather than causing program to exit
   optParser->UnrecognizedAreErrors();
@@ -634,6 +671,11 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
     }
     theOptions->debugLevel = atol(optParser->GetTargetString("debug").c_str());
   }
+#ifdef USE_LOGGING
+  if (optParser->FlagSet("logging")) {
+    theOptions->loggingOn = true;
+  }
+#endif
 
   if ((theOptions->nColumns) && (theOptions->nRows))
     theOptions->noImageDimensions = false;

@@ -31,6 +31,7 @@ class PointSource : public FunctionObject
     void AddPsfInterpolator( PsfInterpolator *theInterpolator );
     void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf );
     string GetInterpolationType( );
+    void SetOversamplingScale( int oversampleScale );
     bool HasExtraParams( );
     int SetExtraParams( map<string, string>& inputMap );
 
@@ -48,6 +49,7 @@ class PointSource : public FunctionObject
     double  x0, y0, I_tot;   // parameters
     double  I_scaled;
     string  interpolationType = "bicubic";
+    int  oversamplingScale;
     PsfInterpolator *psfInterpolator;
     bool interpolatorAllocated = false;
 };

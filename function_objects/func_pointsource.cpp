@@ -77,6 +77,7 @@ PointSource::PointSource( )
     parameterLabels.push_back(paramName);
   }
   
+  oversamplingScale = 1;
   doSubsampling = false;
 }
 
@@ -102,6 +103,15 @@ bool PointSource::IsPointSource( )
 string PointSource::GetInterpolationType( )
 {
   return interpolationType;
+}
+
+
+
+/* ---------------- PUBLIC METHOD: SetOversamplingScale ---------------- */
+
+void PointSource::SetOversamplingScale( int oversampleScale )
+{
+  oversamplingScale = oversampleScale;
 }
 
 
@@ -186,11 +196,13 @@ int PointSource::SetExtraParams( map<string,string>& inputMap )
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
 // This function calculates and returns the intensity value for a pixel with
 // coordinates (x,y).
+// Note that we multiply x_diff and y_diff by oversamplingScale so that this
+// will work correctly when called from an OversampledRegion object.
 
 double PointSource::GetValue( double x, double y )
 {
-  double  x_diff = x - x0;
-  double  y_diff = y - y0;
+  double  x_diff = oversamplingScale*(x - x0);
+  double  y_diff = oversamplingScale*(y - y0);
   double  normalizedIntensity;
   
   normalizedIntensity = psfInterpolator->GetValue(x_diff, y_diff);

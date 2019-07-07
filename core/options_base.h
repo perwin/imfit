@@ -78,6 +78,8 @@ class OptionsBase
 
       verbose = 1;
       debugLevel = 0;
+
+      loggingOn = false;
     };
 
     // Data members:
@@ -136,6 +138,8 @@ class OptionsBase
 
     int  debugLevel;
     int  verbose;
+
+    bool  loggingOn;
 };
 
 

@@ -11,6 +11,7 @@ import distribution_manifest as dm
 # where to copy binary (or source) tarballs when completed (specialized for
 # Linux virtual machines on MacBook Pro and local web-site directory for Mac
 # versions)
+#    LINUX_DEST = local folder within Linux VM
 #LINUX_DEST = "/media/sf_vbox_shared/"
 LINUX_DEST = "/vagrant/transfer/"
 MAC_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/"

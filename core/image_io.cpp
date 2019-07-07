@@ -92,6 +92,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <tuple>
 #include "fftw3.h"
 #include "fitsio.h"
 
@@ -176,20 +177,21 @@ int CheckForImage( const std::string filename, const bool verbose )
 /// size of the image and returns the dimensions in nRows and nColumns.
 ///
 ///   Returns 0 for successful operation, -1 if a CFITSIO-related error occurred.
-int GetImageSize( const std::string filename, int *nColumns, int *nRows, const bool verbose )
+std::tuple<int, int, int> GetImageSize( const std::string filename, const bool verbose )
 {
   fitsfile  *imfile_ptr;
   int  status = 0;
   int  problems = 0;
   int  nfound;
   long  naxes[2];
-  int  n_rows, n_columns;
+  int  n_columns = 0;
+  int  n_rows = 0;
   
   problems = fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems opening FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
-    return -1;
+    return std::make_tuple(n_columns, n_rows, -1);
   }
 
   // Check to make sure primary HDU is an image, and is actually a 2D array
@@ -198,7 +200,7 @@ int GetImageSize( const std::string filename, int *nColumns, int *nRows, const b
   if (! CheckHDUForImage(imfile_ptr, currentHDU, &status)) {
     fprintf(stderr, "\n*** WARNING: Unable to find valid 2D image in extension %d (HDU %d) of %s!\n", 
     		currentHDU - 1, currentHDU, filename.c_str());
-    return -1;
+    return std::make_tuple(n_columns, n_rows, -1);
   }  
 
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
@@ -207,24 +209,22 @@ int GetImageSize( const std::string filename, int *nColumns, int *nRows, const b
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems reading FITS keywords from file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
-    return -1;
+    return std::make_tuple(n_columns, n_rows, -1);
   }
   if (verbose)
     printf("GetImageSize: Image keywords: NAXIS1 = %ld, NAXIS2 = %ld\n", naxes[0], naxes[1]);
-
-  n_columns = naxes[0];      // FITS keyword NAXIS1 = # columns
-  *nColumns = n_columns;
-  n_rows = naxes[1];         // FITS keyword NAXIS2 = # rows
-  *nRows = n_rows;
 
   problems = fits_close_file(imfile_ptr, &status);
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
-    return -1;
+    return std::make_tuple(n_columns, n_rows, -1);
   }
   
-  return 0;
+  n_columns = naxes[0];      // FITS keyword NAXIS1 = # columns
+  n_rows = naxes[1];         // FITS keyword NAXIS2 = # rows
+
+  return std::make_tuple(n_columns, n_rows, 0);
 }
 
 
