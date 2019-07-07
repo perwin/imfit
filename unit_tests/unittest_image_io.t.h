@@ -159,7 +159,8 @@ public:
     int  status;
     int  nCols, nRows;
 
-    status = GetImageSize(TEST_IMAGE_32x32, &nCols, &nRows);    
+//    status = GetImageSize(TEST_IMAGE_32x32, &nCols, &nRows);    
+    std::tie(nCols, nRows, status) = GetImageSize(TEST_IMAGE_32x32);    
     TS_ASSERT_EQUALS(nCols, 32);
     TS_ASSERT_EQUALS(nRows, 32);
   }
@@ -170,7 +171,7 @@ public:
     int  status;
     int  nCols, nRows;
 
-    status = GetImageSize(BAD_IMAGE_NAME, &nCols, &nRows);
+    std::tie(nCols, nRows, status) = GetImageSize(BAD_IMAGE_NAME);
     TS_ASSERT_EQUALS(-1, status);
   }
 
@@ -180,10 +181,10 @@ public:
     int  status;
     int  nCols, nRows;
 
-    status = GetImageSize(TEST_FILE_EMPTYHDU, &nCols, &nRows);
+    std::tie(nCols, nRows, status) = GetImageSize(TEST_FILE_EMPTYHDU);
     TS_ASSERT_EQUALS(-1, status);
 
-    status = GetImageSize(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU, &nCols, &nRows);
+    std::tie(nCols, nRows, status) = GetImageSize(TEST_IMAGE_MULTI_EMPTY_PRIMARYHDU);
     TS_ASSERT_EQUALS(-1, status);
   }
 
@@ -193,7 +194,7 @@ public:
     int  status;
     int  nCols, nRows;
 
-    status = GetImageSize(TEST_FILE_TABLE, &nCols, &nRows);
+    std::tie(nCols, nRows, status) = GetImageSize(TEST_FILE_TABLE);
     TS_ASSERT_EQUALS(-1, status);
   }
 
@@ -416,22 +417,22 @@ public:
     string  imageName;
 
 	imageName = TEST_IMAGE_MULTI_2IMAGEHDUS + "[0]";
-    status = GetImageSize(imageName, &nCols, &nRows);    
+    std::tie(nCols, nRows, status) = GetImageSize(imageName);    
     TS_ASSERT_EQUALS(nCols, 5);
     TS_ASSERT_EQUALS(nRows, 5);
 
 	imageName = TEST_IMAGE_MULTI_2IMAGEHDUS + "[1]";
-    status = GetImageSize(imageName, &nCols, &nRows);    
+    std::tie(nCols, nRows, status) = GetImageSize(imageName);    
     TS_ASSERT_EQUALS(nCols, 10);
     TS_ASSERT_EQUALS(nRows, 10);
 
 	imageName = TEST_IMAGE_MULTI_2IMAGEHDUS2 + "[0]";
-    status = GetImageSize(imageName, &nCols, &nRows);    
+    std::tie(nCols, nRows, status) = GetImageSize(imageName);    
     TS_ASSERT_EQUALS(nCols,64);
     TS_ASSERT_EQUALS(nRows, 64);
 
 	imageName = TEST_IMAGE_MULTI_2IMAGEHDUS2 + "[1]";
-    status = GetImageSize(imageName, &nCols, &nRows);    
+    std::tie(nCols, nRows, status) = GetImageSize(imageName);    
     TS_ASSERT_EQUALS(nCols, 64);
     TS_ASSERT_EQUALS(nRows, 64);
   }
