@@ -218,6 +218,7 @@ imfit_textout5a_tail
 imfit_textout5b_tail
 imfit_textout5c_tail
 imfit_textout5d_tail
+imfit_textout5e_tail
 imfit_textout6
 imfit_textout6b
 imfit_textout6c
@@ -249,6 +250,7 @@ imfit_textout_badnloptname
 test_files_makeimage = """
 config_biggertest_4c.dat
 config_makeimage_gensersic512.dat
+config_makeimage_sersic+exp512b.dat
 config_makeimage_sersic+exp512.dat
 config_makeimage_sersic+exp512_nosize.dat
 config_makeimage_gauss-oversample.dat
@@ -265,6 +267,7 @@ makeimage_textout2
 makeimage_textout3
 makeimage_textout4
 makeimage_textout5
+makeimage_textout5b
 makeimage_textout6
 makeimage_textout7
 makeimage_textout8
