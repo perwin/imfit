@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.7.0 -- 2019-07-xxx
+## 1.7.0 -- 2019-07-10
 ### Added:
 
 - New image function: FerrersBar2D. This is an elliptical 2D image

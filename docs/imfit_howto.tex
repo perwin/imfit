@@ -395,7 +395,7 @@ Currently, there are two approaches for compiling \imfit{} on macOS:
 \paragraph{1. Use a Separate GCC (or LLVM) Installation}
 
 For current versions of \imfit{}, you can use a separate installation of
-GCC (this should be version 4.9 or later), such as those available via
+GCC (this should be version 4.8.1 or later), such as those available via
 package managers such as Homebrew or MacPorts. (Note that Homebrew does
 not \textit{replace} the pseudo-``gcc'' and ``g++'' aliases provided by
 Xcode, which will still point to Apple's Clang compilers; instead, it
@@ -407,7 +407,7 @@ package managers.
 To tell SCons to use a specific compiler, use the
 \texttt{--cpp} option:
 \begin{quote}
-\texttt{\$ scons --cpp=<C++\_COMPILE> ...}
+\texttt{\$ scons --cpp=<C++\_COMPILER> ...}
 \end{quote}
 
 
