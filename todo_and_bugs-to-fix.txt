@@ -145,13 +145,6 @@ image (accounting for data image subset, if any)
 	-- maybe best to do this in main(), via a call to new method in PsfOversamplingInfo
 	(note that we already pass X0_offset,Y0_offset when setting up PsfOversamplingInfo)
 
-[ ] Check input: Catch cases of PSF images with all zeros
-	-- when PSF image is normalized, this will (silently) make PSF image have all NaN values
-	-- So: sanity-check the input PSF image to make sure the sum of its pixels is > 0
-	*if* we're doing normalization (if user requested --no-normalize, then assume they
-	know what they're doing...)
-
-
 [ ] Check vectorization of mpfit.cpp
 	-- $ g++-7 -o solvers/mpfit.o -c -O3 -g0 -msse2 -mavx -fopt-info-vec-optimized -std=c++11 -fopenmp -DANSI -DUSING_SCONS -DFFTW_THREADING -DUSE_OPENMP -I. -I/usr/local/include -Icore -Isolvers -Icdream -Icdream/include -Ifunction_objects -Ifunction_objects_1d -Iprofile_fitting solvers/mpfit.cpp
 	[ ] Compile code with -fopt-info-vec-optimized to see what was & wasn't vectorized
@@ -859,6 +852,27 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 ** BUGS FIXED
 
+[.] PointSource component is not generated correctly in oversampled regions
+	-- xx July 20189 email from Iskren Georgiev
+	-- Problem was that oversampling from -X to +X is handled by calling
+	functions' GetValue() methods with (e.g.) x0 = -X to +X in 1/oversamplingScale increments
+	(e.g., -10.0, -9.8, -9.6, ...). This is correct for all functions *except*
+	PointSource, where -- in the case of an oversampled PSF -- we really should
+	be calling its GetValue() methods from -(oversamplingScale*X) in one-pixel
+	increments (because overampled PSF is sampled at finer scale0>
+	
+	[x] Fixed by adding internal oversamplingScale data member to PointSource;
+	inside GetValue(), the x_diff and y_diff values are now computed by
+	multiplying (x - x0) and (y - y0) by oversamplingScale. Also added
+	SetOversamplingScale method to change internal oversamplingScale value.
+	-- OversampledRegion::ComputeRegionAndDownsample calls SetOversamplingScale
+	method of PointSource object to ensure correct oversamplingScale is being
+	used.
+	
+	[x] Added check with simple oversampled-region + PointSource to do_makeimage_tests
+	
+	
+	
 [X] X0,Y0 coordinates in *printed* bootstrap output are *not* corrected for image sections
 	-- 17 April 2019 email from Chris Pritchet
 	-- see "Bootstrap and MCMC output" in "Bugs Fixed" section below for how I fixed this in MCMC
@@ -1163,6 +1177,16 @@ should be skipped (e.g., for FlatSky component)
 		[X] Add unit test for this in unittest_funcs.t.h (class TestExponential)
 	[X] Add code to FlatSky to return true
 		[X] Add unit test for this in unittest_funcs.t.h (class TestFlatSky)
+
+
+(1.7)[X] Check input: Catch cases of PSF images with all zeros
+	-- when PSF image is normalized, this will (silently) make PSF image have all NaN values
+	-- So: sanity-check the input PSF image to make sure the sum of its pixels is > 0
+	*if* we're doing normalization (if user requested --no-normalize, then assume they
+	know what they're doing...)
+	[x] Make test in do_makeimage_tests
+	[x] Figure out where to insert check code
+	[x] Add code to catch bad PSF image
 
 
 

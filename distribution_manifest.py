@@ -274,6 +274,7 @@ makeimage_textout11
 makeimage_textout12
 makeimage_textout13
 makeimage_textout13b
+makeimage_textout13c
 makeimage_textout14
 makeimage_textout15
 """
@@ -298,6 +299,7 @@ uniform_image32.fits
 testimage_expdisk32.fits
 testimage_poisson_lowsn20.fits
 testimage_3x3_ones.fits
+testimage_3x3_allzeros.fits
 testimage_3x3_mask-with-nan.fits
 ic3478rss_64x64.fits
 ic3478rss_64x64_sigma.fits

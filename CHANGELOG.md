@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.7.0 -- 2019-xx-xxx
+## 1.7.0 -- 2019-07-xxx
 ### Added:
 
 - New image function: FerrersBar2D. This is an elliptical 2D image
@@ -42,6 +42,10 @@ not include the correct (full-image) X0,Y0 values at the beginning of each param
 line. Note that this was only a problem for the printed-to-screen information;
 saving the correct X0,Y0 values to the bootstrap-output file was fixed back in
 1.5.0. (Thanks to Chris Pritchett for spotting this.)
+
+- PSF images whose pixels values sum to <= 0 are now caught as input errors
+(in the default case of automatic PSF-image normalization; if the `--no-normalize`
+flag is used, then no checks of the PSF image other than for NaN values are done).
 
 
 

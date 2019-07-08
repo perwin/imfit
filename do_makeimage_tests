@@ -67,7 +67,7 @@ echo "Running tests for makeimage..."
 # tests of PSF oversampling: two regions, two PSFs
 ./makeimage tests/makeimage_reference/config_makeimage_gauss-oversample2.dat -o temptest/oversampled2both_2psf.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 100:110,100:110 --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 20:30,20:30  > temptest/test_dump_null
 # tests of PSF oversampling with PointSource model
-./makeimage tests/makeimage_reference/config_makeimage_pointsource-oversample.dat -o temptest/oversampled_pointsource.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 80:120,80:120
+./makeimage tests/makeimage_reference/config_makeimage_pointsource-oversample.dat -o temptest/oversampled_pointsource.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 80:120,80:120  > temptest/test_dump_null
 
 # testing that bad config files are caught (redirect stderr to temptest/test_dump* files):
 ./makeimage tests/makeimage_reference/config_makeimage_sersictest512_bad1.dat &> temptest/test_dump6
@@ -83,6 +83,7 @@ echo "Running tests for makeimage..."
 # (redirect stderr to temptest/test_dump* files):
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat --psf=tests/makeimage_reference/config_makeimage_gensersic512.dat  &> temptest/test_dump13
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat --psf=tests/testimage_3x3_nan.fits  &> temptest/test_dump13b
+./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat --psf=tests/testimage_3x3_allzeros.fits  &> temptest/test_dump13c
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> temptest/test_dump14
 
 ./makeimage tests/imfit_reference/config_imfit_badparamline.dat  &> temptest/test_dump15
@@ -338,6 +339,16 @@ then
 else
   echo -e "   ${RED}Failed:${NC}Diff output:"
   diff temptest/test_dump13b tests/makeimage_reference/makeimage_textout13b
+  STATUS+=1
+fi
+
+echo -n "*** Diff comparison with archives: PSF-image file with all-zero values... "
+if (diff --brief temptest/test_dump13c tests/makeimage_reference/makeimage_textout13c)
+then
+  echo " OK"
+else
+  echo -e "   ${RED}Failed:${NC}Diff output:"
+  diff temptest/test_dump13c tests/makeimage_reference/makeimage_textout13c
   STATUS+=1
 fi
 

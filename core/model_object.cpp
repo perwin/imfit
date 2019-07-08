@@ -775,24 +775,35 @@ void ModelObject::ApplyMask( )
 int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf,
                          	double *psfPixels, bool normalizePSF )
 {
+  double  pixVal;
+  double  tempSum = 0.0;
   int  returnStatus = 0;
   
   assert( (nPixels_psf >= 1) && (nColumns_psf >= 1) && (nRows_psf >= 1) );
 
   // store PSF pixels locally (and check for bad pixel values)
   localPsfPixels = (double *) calloc((size_t)nPixels_psf, sizeof(double));
+  localPsfPixels_allocated = true;
   for (long i = 0; i < nPixels_psf; i++) {
-    if (! isfinite(psfPixels[i])) {
+  	pixVal = psfPixels[i];
+    if (! isfinite(pixVal)) {
       fprintf(stderr, "** ERROR: PSF image has one or more non-finite values!\n");
       free(localPsfPixels);
       localPsfPixels_allocated = false;
       return -1;
     }
-    localPsfPixels[i] = psfPixels[i];
+    localPsfPixels[i] = pixVal;
+    tempSum += pixVal;
   }
-  localPsfPixels_allocated = true;
-  if (normalizePSF)
+  if (normalizePSF) {
+    if (tempSum <= 0.0) {
+      fprintf(stderr, "** ERROR: Sum of PSF pixel values is <= 0 -- PSF cannot be normalized!\n");
+      free(localPsfPixels);
+      localPsfPixels_allocated = false;
+      return -1;
+    }
     NormalizePSF(localPsfPixels, nPixels_psf);
+  }
 
   // Finally, set up Convolver object
   nPSFColumns = nColumns_psf;
