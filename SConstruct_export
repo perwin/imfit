@@ -69,17 +69,9 @@
 # with Imfit.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Operating-system determination via os.uname:
-# First element of tuple is basic OS; 3rd element is version number;
-# 5th element is processor architecture (e.g., "i386", "sun4u", "i686")
-#    os.uname()[0] = "Darwin" --> Mac OS X
-#    os.uname()[0] = "SunOS" --> Solaris
-#    os.uname()[0] = "Linux" --> Linux
-
 import os, subprocess, platform, getpass, pwd
 
 # possible values: "Darwin", "Linux"
-#os_type = os.uname()[0]
 os_type = platform.system()
 
 
@@ -87,6 +79,7 @@ os_type = platform.system()
 # LIBRARIES:
 # m
 # pthread [Linux]
+# dl [Linux, if using loguru for logging]
 # cfitsio
 # 	-- if static, then on macOS we must link with curl [part of system]
 #   -- for Linux, we use out compiled static-library version of cfitsio
@@ -94,6 +87,11 @@ os_type = platform.system()
 # fftw3, fftw3_threads
 # [gsl, gslcblas]
 # [nlopt]
+#   -- note that static-library version of this (libnlopt.a) should be the 
+#      *non*-C++ version (build with cmake ... -DNLOPT_CXX=OFF ...),
+#      otherwise there can be problems when compiler for these programs is
+#      different from compiler used to build libnlopt.a.
+
 
 # *** Hard-coded paths to static libraries (to ensure static linking when that's what
 # we want to do; compilers sometimes insist on linking to shared library even when you 
@@ -109,7 +107,6 @@ MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
 # Debian/Ubuntu standard x86-64 package installation path
 LINUX_UBUNTU_STATIC_LIBS_PATH = "/usr/lib/x86_64-linux-gnu/"
 libDirs = {"Darwin": MAC_STATIC_LIBS_PATH, "Linux": LINUX_UBUNTU_STATIC_LIBS_PATH}
-#extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": ["z"]}
 extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": []}
 
 BASE_SHARED_LIBS = ["m"]
@@ -117,13 +114,14 @@ if os_type == "Linux":
 	BASE_SHARED_LIBS.append("pthread")
 
 
+# The following definitions are for when we want to force static linking to
+# the cfitsio, FFTW3, GSL, and NLopt libraries.
+# (Change these if the locations are different on your system)
+
 # cfitsio weirdness: if we link to the static-library version, then we
 # must also link to the (shared library) libcurl on Mac;
 # for Linux, we link to our pre-compiled static library in /usr/local/lib
-if os_type == "Darwin":
-	STATIC_CFITSIO_LIBRARY_FILE = File(libDirs[os_type] + "libcfitsio.a")
-else:
-	STATIC_CFITSIO_LIBRARY_FILE = File("/usr/local/lib/" + "libcfitsio.a")
+STATIC_CFITSIO_LIBRARY_FILE = File(libDirs[os_type] + "libcfitsio.a")
 BASE_SHARED_LIBS += extraSharedLibs_static_cfitsio[os_type]
 
 STATIC_FFTW_LIBRARY_FILE = File(libDirs[os_type] + "libfftw3.a")
@@ -131,19 +129,17 @@ STATIC_FFTW_THREADED_LIBRARY_FILE = File(libDirs[os_type] + "libfftw3_threads.a"
 
 # The following is for when we want to force static linking to the GSL library
 # (Change these if the locations are different on your system)
-# STATIC_GSL_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libgsl.a")
-STATIC_GSL_LIBRARY_FILE1_LINUX = File(libDirs['Linux'] + "libgsl.a")
-STATIC_GSL_LIBRARY_FILE2_LINUX = File(libDirs['Linux'] + "libgslcblas.a")
+STATIC_GSL_LIBRARY_FILE1 = File(libDirs[os_type] + "libgsl.a")
+STATIC_GSL_LIBRARY_FILE2 = File(libDirs[os_type] + "libgslcblas.a")
 
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
-# STATIC_NLOPT_LIBRARY_FILE_MACOSX = File("/usr/local/lib/libnlopt.a")
+STATIC_NLOPT_LIBRARY_FILE = File(libDirs[os_type] + "libnlopt.a")
 STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/static_libs/nlopt_nothreadlocal/libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE1_LINUX = File(libDirs['Linux'] + "libnlopt.a")
 
 
 
-# locations of source-code files (including header files)
+# locations of source-code files (including our header files)
 CORE_SUBDIR = "core/"
 FUNCTION_SUBDIR = "function_objects/"
 FUNCTION_1D_SUBDIR = "function_objects_1d/"
@@ -179,7 +175,6 @@ base_defines = ["ANSI", "USING_SCONS"]
 
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
 lib_list = BASE_SHARED_LIBS
-lib_list_libimfit = BASE_SHARED_LIBS
 # libraries needed for profilefit and psfconvolve1d compilation
 lib_list_1d = ["fftw3", "m"]
 
@@ -198,6 +193,7 @@ CC_COMPILER = cc_default
 CPP_COMPILER = cpp_default
 c_compiler_changed = False
 cpp_compiler_changed = False
+usingGCC = True
 
 
 # ** Special setup for compilation by P.E. on Mac (assumes GCC v9 is installed and
@@ -212,6 +208,7 @@ if (os_type == "Darwin") and (userName == "erwin"):
 	CPP_COMPILER = "g++-9"
 	c_compiler_changed = True
 	cpp_compiler_changed = True
+	usingGCC = True
 
 
 # *** System-specific setup
@@ -285,7 +282,7 @@ AddOption("--sanitize", dest="useAllSanitize", action="store_true",
 AddOption("--address-sanitize", dest="useAddressSanitize", action="store_true", 
 	default=False, help="set this to generate binaries with -fsanitize-address")
 AddOption("--logging", dest="useLogging", action="store_true", 
-	default=False, help="compile with support for logging via plog")
+	default=False, help="compile with support for logging via loguru")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
@@ -296,7 +293,21 @@ AddOption("--mac-distribution", dest="compileForMacDistribution", action="store_
 	default=False, help="use this to make macOS binaries for public distribution")
 
 
+
 # * Check to see if user actually specified something, and implement it
+# special stuff for compiling Mac binary distribution
+if GetOption("compileForMacDistribution"):
+	print("DOING MAC DISTRIBUTION COMPILE!")
+	usingClangOpenMP = True
+	usingGCC = False
+	CC_COMPILER = "clang"
+	CPP_COMPILER = "clang++"
+	useStaticLibs = True
+#	totalStaticLinking = True
+	# reset lib_path so linker only looks where we want it to -- i.e., in the 
+	# directory with static library files
+	lib_path = ["/Users/erwin/coding/imfit/static_libs"]
+
 if GetOption("headerPath") is not None:
 	extraPaths = GetOption("headerPath").split(":")
 	print("extra header search paths: ", extraPaths)
@@ -309,16 +320,17 @@ if GetOption("useGSL") is False:
 	useGSL = False
 if GetOption("useNLopt") is False:
 	useNLopt = False
-if GetOption("noOpenMP") is True:
+if GetOption("noOpenMP"):
 	useOpenMP = False
-if GetOption("useClangOpenMP") is True:
+if GetOption("useClangOpenMP"):
 	usingClangOpenMP = True
+	usingGCC = False
 	CC_COMPILER = "clang"
 	CPP_COMPILER = "clang++"
-if GetOption("useExtraFuncs") is True:
+if GetOption("useExtraFuncs"):
 	useExtraFuncs = True
 doExtraChecks = False
-if GetOption("doExtraChecks") is True:
+if GetOption("doExtraChecks"):
 	doExtraChecks = True
 
 # change the compilers if user requests it
@@ -330,7 +342,11 @@ if GetOption("cpp_compiler") is not None:
 	CPP_COMPILER = GetOption("cpp_compiler")
 	print("using %s for C++ compiler" % CPP_COMPILER)
 	cpp_compiler_changed = True
-if GetOption("useGCC") is True:
+if GetOption("useGCC"):
+	if usingClangOpenMP:
+		print("ERROR: You cannot specify both Clang and GCC as the compiler!")
+		Exit(2)
+	usingGCC = True
 	CC_COMPILER = "gcc-9"
 	CPP_COMPILER = "g++-9"
 	print("using %s for C compiler" % CC_COMPILER)
@@ -338,34 +354,27 @@ if GetOption("useGCC") is True:
 	c_compiler_changed = True
 	cpp_compiler_changed = True
 
-if GetOption("doingScanBuild") is True:
+if GetOption("doingScanBuild"):
 	scanBuild = True
 	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
 
-if GetOption("useAddressSanitize") is True:
+if GetOption("useAddressSanitize"):
 	addressSanitize = True
 	useOpenMP = False
 	setOptToDebug = True
-if GetOption("useAllSanitize") is True:
+if GetOption("useAllSanitize"):
 	allSanitize = True
 	useOpenMP = False
 	setOptToDebug = True
-if GetOption("useLogging") is True:
+if GetOption("useLogging"):
 	useLogging = True
 
-if GetOption("useStaticLibs") is True:
+if GetOption("useStaticLibs"):
 	useStaticLibs = True
-if GetOption("useTotalStaticLinking") is True:
+if GetOption("useTotalStaticLinking"):
 	useStaticLibs = True
-	totalStaticLinking = True
-
-if GetOption("compileForMacDistribution") is True:
-	print("DOING MAC DISTRIBUTION COMPILE!")
-	useStaticLibs = True
-	totalStaticLinking = True
-	# reset lib_path so linker only looks where we want it to -- i.e., in the 
-	# directory with static library files
-	lib_path = ["/Users/erwin/coding/imfit/static_libs"]
+	if usingGCC:
+		totalStaticLinking = True
 
 
 
@@ -380,38 +389,30 @@ if useStaticLibs:
 	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
 	lib_list.append(STATIC_FFTW_LIBRARY_FILE)
 	lib_list.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
-	lib_list_libimfit.append(STATIC_FFTW_LIBRARY_FILE)
-	lib_list_libimfit.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
 else:
 	lib_list += ["cfitsio", "fftw3", "fftw3_threads"]
 extra_defines.append("FFTW_THREADING")
 
 if useGSL:   # true by default
-	if useStaticLibs and (os_type == "Linux"):
-		lib_list.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
-		lib_list.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
-		lib_list_libimfit.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
-		lib_list_libimfit.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
-		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1_LINUX)
-		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2_LINUX)
+	if useStaticLibs:
+		lib_list.append(STATIC_GSL_LIBRARY_FILE1)
+		lib_list.append(STATIC_GSL_LIBRARY_FILE2)
+		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1)
+		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2)
 	else:
 		lib_list.append("gsl")
 		lib_list.append("gslcblas")		
-		lib_list_libimfit.append("gsl")
-		lib_list_libimfit.append("gslcblas")		
 		lib_list_1d.append("gsl")
 		lib_list_1d.append("gslcblas")		
 else:
 	extra_defines.append("NO_GSL")
 
 if useNLopt:   # default is to do this
-	if useStaticLibs and (os_type == "Linux"):
-		lib_list.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
-		lib_list_libimfit.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
-		lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE1_LINUX)
+	if useStaticLibs:
+		lib_list.append(STATIC_NLOPT_LIBRARY_FILE)
+		lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE)
 	else:
 		lib_list.append("nlopt")	
-		lib_list_libimfit.append("nlopt")	
 		lib_list_1d.append("nlopt")	
 else:
 	extra_defines.append("NO_NLOPT")
@@ -419,7 +420,7 @@ else:
 
 
 # Special case where we try to link libstdc++, libgomp, and libgcc_s statically
-# (probably *won't* work with clang/clang++, only with GCC)
+# (probably *won't* work with clang/clang++, only useful with GCC)
 # Note that "-static-libstdc++" doesn't seem to accomplish anything; only
 # "-static-libgcc" does (and that statically links in libstdc++ and libgomp
 # in addition to libgcc_s). But we'll leave it in because it seems to be
@@ -433,7 +434,11 @@ if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
 		# special flags for Apple clang++ (assumes libomp is installed)
 		link_flags.append("-Xpreprocessor")
 		link_flags.append("-fopenmp")
-		link_flags.append("-lomp")
+		if useStaticLibs:
+			link_flags.append("/Users/erwin/coding/imfit/static_libs/libomp.a")
+		else:
+			# dynamic linking to libomp
+			link_flags.append("-lomp")
 	else:
 		# flags for (real) g++
 		link_flags.append("-fopenmp")
@@ -447,7 +452,9 @@ if doExtraChecks:   # default is to NOT do this; user must specify with "--extra
 					"-Wextra", "-pedantic"])
 
 if useLogging:
-	extra_defines.append(["-DUSE_PLOG"])
+	extra_defines.append(["-DUSE_LOGGING"])
+	if os_type == "Linux":
+		lib_list.append("dl")
 	
 # Add any additional, user-specified preprocessor definitions (e.g., "define=DEBUG")
 for key, value in ARGLIST:
@@ -455,7 +462,7 @@ for key, value in ARGLIST:
 		extra_defines.append(value)
 
 
-if addressSanitize is True:
+if addressSanitize:
 	cflags_opt.append("-fsanitize=address")
 	cflags_opt.append("-fno-omit-frame-pointer")
 	cflags_db.append("-fsanitize=address")
@@ -463,7 +470,7 @@ if addressSanitize is True:
 	link_flags.append("-fsanitize=address")
 	link_flags.append("-fno-omit-frame-pointer")
 
-if allSanitize is True:
+if allSanitize:
 	cflags_opt += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
 	cflags_opt.append("-fno-omit-frame-pointer")
 	cflags_db += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
@@ -613,12 +620,16 @@ image_io_objs = [ CORE_SUBDIR + name for name in image_io_obj_string.split() ]
 # Main set of files for imfit
 imfit_obj_string = """print_results bootstrap_errors estimate_memory 
 imfit_main"""
+if useLogging:
+	imfit_obj_string += " loguru/loguru"
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
 imfit_base_objs = base_objs + image_io_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
 # Main set of files for makeimage
 makeimage_base_objs = base_objs + image_io_objs + [CORE_SUBDIR + "makeimage_main"]
+if useLogging:
+	makeimage_base_objs.append("loguru/loguru")
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 # Main set of files for imfit-mcmc
@@ -642,7 +653,7 @@ mcmc_sources = mcmc_base_sources + modelobject_sources + functionobject_sources
 
 
 # import environment variables if we're doing scan-build static analysis
-if scanBuild is True:
+if scanBuild:
 	env_debug["CC"] = os.getenv("CC")
 	env_debug["CXX"] = os.getenv("CXX")
 	env_debug["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
@@ -689,11 +700,11 @@ libimfit_sourcelist = [name + ".cpp" for name in libimfit_objs]
 # and "scons libimfit.dylib" (macOS) or "scons libimfit.so" (Linux) for the
 # dynamic-library version
 libimfit_objlist = [ env.Object(obj, src) for (obj,src) in zip(libimfit_objs, libimfit_sourcelist) ]
-staticlib = env.StaticLibrary(target="libimfit", source=libimfit_objlist, LIBS=lib_list_libimfit)
+staticlib = env.StaticLibrary(target="libimfit", source=libimfit_objlist)
 # THE FOLLOWING CURRENTLY DOES NOT WORK
 # ("Source file: core/model_object.o is static and is not compatible with shared target: libimfit.dylib")
-sharedlib = env.SharedLibrary(target="libimfit", source=libimfit_objlist,
-									LIBS=lib_list_libimfit)
+# sharedlib = env.SharedLibrary(target="libimfit", source=libimfit_objlist,
+# 									LIBS=lib_list_libimfit)
 
 
 

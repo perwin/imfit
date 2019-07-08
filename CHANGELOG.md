@@ -13,7 +13,7 @@ FerrersBar3D since version 1.5.)
 
 - You can now compile a static library file (`libimfit.a`) that
 potentially allows using most of Imfit's functionality from other
-programs (this does not include the MCMC bits, nor does it include the
+programs (this does not include the MCMC code, nor does it include the
 CFITSIO-based reading and writing of FITS files). This is primarily to
 support PyImfit (the Python wrapper for Imfit); there isn't any API
 documentation to speak of, so it's not really useful for anything else
@@ -23,7 +23,7 @@ at this point.
 
 - The SConstruct file has been updated to allow compiling on a Mac using
 Apple's Clang compiler, which (apparently since late 2017) finally has
-support for OpenMP! This *does* require installing`libomp` (e.g., `brew
+support for OpenMP! This *does*, however, require installing`libomp` (e.g., `brew
 install libomp`) and using the `--clang-openmp` flag when compiling; the
 documentation has been updated to describe this.
 
@@ -32,6 +32,10 @@ rather than GCC. (This makes the binaries somewhat smaller, since they don't
 have to include statically linked copies of the GCC libraries.)
 
 ### Fixed:
+
+- The PointSource function was not producing the correct results *if* it was
+located within an oversampling region. This has been fixed. (Thanks to Iskren
+Georgiev for spotting this.)
 
 - The output of bootstrap-resampling for imfit for fits with image sections would
 not include the correct (full-image) X0,Y0 values at the beginning of each parameter

@@ -193,6 +193,7 @@ CC_COMPILER = cc_default
 CPP_COMPILER = cpp_default
 c_compiler_changed = False
 cpp_compiler_changed = False
+usingGCC = True
 
 
 # ** Special setup for compilation by P.E. on Mac (assumes GCC v9 is installed and
@@ -207,6 +208,7 @@ if (os_type == "Darwin") and (userName == "erwin"):
 	CPP_COMPILER = "g++-9"
 	c_compiler_changed = True
 	cpp_compiler_changed = True
+	usingGCC = True
 
 
 # *** System-specific setup
@@ -291,7 +293,21 @@ AddOption("--mac-distribution", dest="compileForMacDistribution", action="store_
 	default=False, help="use this to make macOS binaries for public distribution")
 
 
+
 # * Check to see if user actually specified something, and implement it
+# special stuff for compiling Mac binary distribution
+if GetOption("compileForMacDistribution"):
+	print("DOING MAC DISTRIBUTION COMPILE!")
+	usingClangOpenMP = True
+	usingGCC = False
+	CC_COMPILER = "clang"
+	CPP_COMPILER = "clang++"
+	useStaticLibs = True
+#	totalStaticLinking = True
+	# reset lib_path so linker only looks where we want it to -- i.e., in the 
+	# directory with static library files
+	lib_path = ["/Users/erwin/coding/imfit/static_libs"]
+
 if GetOption("headerPath") is not None:
 	extraPaths = GetOption("headerPath").split(":")
 	print("extra header search paths: ", extraPaths)
@@ -304,16 +320,17 @@ if GetOption("useGSL") is False:
 	useGSL = False
 if GetOption("useNLopt") is False:
 	useNLopt = False
-if GetOption("noOpenMP") is True:
+if GetOption("noOpenMP"):
 	useOpenMP = False
-if GetOption("useClangOpenMP") is True:
+if GetOption("useClangOpenMP"):
 	usingClangOpenMP = True
+	usingGCC = False
 	CC_COMPILER = "clang"
 	CPP_COMPILER = "clang++"
-if GetOption("useExtraFuncs") is True:
+if GetOption("useExtraFuncs"):
 	useExtraFuncs = True
 doExtraChecks = False
-if GetOption("doExtraChecks") is True:
+if GetOption("doExtraChecks"):
 	doExtraChecks = True
 
 # change the compilers if user requests it
@@ -325,7 +342,11 @@ if GetOption("cpp_compiler") is not None:
 	CPP_COMPILER = GetOption("cpp_compiler")
 	print("using %s for C++ compiler" % CPP_COMPILER)
 	cpp_compiler_changed = True
-if GetOption("useGCC") is True:
+if GetOption("useGCC"):
+	if usingClangOpenMP:
+		print("ERROR: You cannot specify both Clang and GCC as the compiler!")
+		Exit(2)
+	usingGCC = True
 	CC_COMPILER = "gcc-9"
 	CPP_COMPILER = "g++-9"
 	print("using %s for C compiler" % CC_COMPILER)
@@ -333,34 +354,27 @@ if GetOption("useGCC") is True:
 	c_compiler_changed = True
 	cpp_compiler_changed = True
 
-if GetOption("doingScanBuild") is True:
+if GetOption("doingScanBuild"):
 	scanBuild = True
 	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
 
-if GetOption("useAddressSanitize") is True:
+if GetOption("useAddressSanitize"):
 	addressSanitize = True
 	useOpenMP = False
 	setOptToDebug = True
-if GetOption("useAllSanitize") is True:
+if GetOption("useAllSanitize"):
 	allSanitize = True
 	useOpenMP = False
 	setOptToDebug = True
-if GetOption("useLogging") is True:
+if GetOption("useLogging"):
 	useLogging = True
 
-if GetOption("useStaticLibs") is True:
+if GetOption("useStaticLibs"):
 	useStaticLibs = True
-if GetOption("useTotalStaticLinking") is True:
+if GetOption("useTotalStaticLinking"):
 	useStaticLibs = True
-	totalStaticLinking = True
-
-if GetOption("compileForMacDistribution") is True:
-	print("DOING MAC DISTRIBUTION COMPILE!")
-	useStaticLibs = True
-	totalStaticLinking = True
-	# reset lib_path so linker only looks where we want it to -- i.e., in the 
-	# directory with static library files
-	lib_path = ["/Users/erwin/coding/imfit/static_libs"]
+	if usingGCC:
+		totalStaticLinking = True
 
 
 
@@ -406,7 +420,7 @@ else:
 
 
 # Special case where we try to link libstdc++, libgomp, and libgcc_s statically
-# (probably *won't* work with clang/clang++, only with GCC)
+# (probably *won't* work with clang/clang++, only useful with GCC)
 # Note that "-static-libstdc++" doesn't seem to accomplish anything; only
 # "-static-libgcc" does (and that statically links in libstdc++ and libgomp
 # in addition to libgcc_s). But we'll leave it in because it seems to be
@@ -420,7 +434,11 @@ if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
 		# special flags for Apple clang++ (assumes libomp is installed)
 		link_flags.append("-Xpreprocessor")
 		link_flags.append("-fopenmp")
-		link_flags.append("-lomp")
+		if useStaticLibs:
+			link_flags.append("/Users/erwin/coding/imfit/static_libs/libomp.a")
+		else:
+			# dynamic linking to libomp
+			link_flags.append("-lomp")
 	else:
 		# flags for (real) g++
 		link_flags.append("-fopenmp")
@@ -444,7 +462,7 @@ for key, value in ARGLIST:
 		extra_defines.append(value)
 
 
-if addressSanitize is True:
+if addressSanitize:
 	cflags_opt.append("-fsanitize=address")
 	cflags_opt.append("-fno-omit-frame-pointer")
 	cflags_db.append("-fsanitize=address")
@@ -452,7 +470,7 @@ if addressSanitize is True:
 	link_flags.append("-fsanitize=address")
 	link_flags.append("-fno-omit-frame-pointer")
 
-if allSanitize is True:
+if allSanitize:
 	cflags_opt += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
 	cflags_opt.append("-fno-omit-frame-pointer")
 	cflags_db += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
@@ -635,7 +653,7 @@ mcmc_sources = mcmc_base_sources + modelobject_sources + functionobject_sources
 
 
 # import environment variables if we're doing scan-build static analysis
-if scanBuild is True:
+if scanBuild:
 	env_debug["CC"] = os.getenv("CC")
 	env_debug["CXX"] = os.getenv("CXX")
 	env_debug["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
