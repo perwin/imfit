@@ -253,6 +253,7 @@ config_makeimage_sersic+exp512.dat
 config_makeimage_sersic+exp512_nosize.dat
 config_makeimage_gauss-oversample.dat
 config_makeimage_gauss-oversample2.dat
+config_makeimage_pointsource-oversample.dat
 config_makeimage_sersictest512_bad1.dat
 config_makeimage_sersictest512_bad2.dat
 config_makeimage_sersictest512_bad3.dat
@@ -334,6 +335,7 @@ test_dump_mcmc2a
 test_dump_mcmc2b
 oversampled_orig.fits
 oversampled2both_orig.fits
+oversampled_pointsource.fits
 mcmc_data/mcmc_test_short.1.txt
 mcmc_data/mcmc_test_short.2.txt
 mcmc_data/mcmc_test_short.3.txt

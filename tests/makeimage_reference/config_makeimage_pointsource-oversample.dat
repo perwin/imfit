@@ -1,0 +1,8 @@
+# config file for makeimage: oversampled PointSource
+NCOLS		200
+NROWS		200
+
+X0              100
+Y0              100
+FUNCTION PointSource
+I_0             1.0
