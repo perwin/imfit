@@ -82,7 +82,7 @@ os_type = platform.system()
 # dl [Linux, if using loguru for logging]
 # cfitsio
 # 	-- if static, then on macOS we must link with curl [part of system]
-#   -- for Linux, we use out compiled static-library version of cfitsio
+#   -- for Linux, we use our compiled static-library version of cfitsio
 #      (not Ubuntu's), so we don't need any extra libraries
 # fftw3, fftw3_threads
 # [gsl, gslcblas]
@@ -105,7 +105,7 @@ os_type = platform.system()
 
 MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
 # Debian/Ubuntu standard x86-64 package installation path
-LINUX_UBUNTU_STATIC_LIBS_PATH = "/usr/lib/x86_64-linux-gnu/"
+LINUX_UBUNTU_STATIC_LIBS_PATH = "/usr/local/lib/"
 libDirs = {"Darwin": MAC_STATIC_LIBS_PATH, "Linux": LINUX_UBUNTU_STATIC_LIBS_PATH}
 extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": []}
 
@@ -121,6 +121,8 @@ if os_type == "Linux":
 # cfitsio weirdness: if we link to the static-library version, then we
 # must also link to the (shared library) libcurl on Mac;
 # for Linux, we link to our pre-compiled static library in /usr/local/lib
+# Also, static-library path is different than for other static libraries on Linux
+# VM installation.
 STATIC_CFITSIO_LIBRARY_FILE = File(libDirs[os_type] + "libcfitsio.a")
 BASE_SHARED_LIBS += extraSharedLibs_static_cfitsio[os_type]
 

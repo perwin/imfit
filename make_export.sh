@@ -11,5 +11,5 @@ rm imfit-export.tar.gz
 rm -rf imfit-export
 hg clone imfit imfit-export
 tar -cf imfit-export.tar imfit-export && gzip imfit-export.tar
-cp imfit-export.tar.gz ${linux_vm_dest1}
-cp imfit-export.tar.gz ${linux_vm_dest2}
+cp imfit-export.tar.gz ${linux_vm_dest64}
+cp imfit-export.tar.gz ${linux_vm_dest32}
