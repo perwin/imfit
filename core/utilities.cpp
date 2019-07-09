@@ -174,6 +174,30 @@ void PrintParametersSimple( ModelObject *model, double *parameters )
 
 
 
+/* ---------------- FUNCTION: PrintProgressBar() ------------------- */
+/// Prints an updated progress bar.
+///    printTemplate should be a string with one "%d" and one "%d" formatting
+///    sequences -- e.g., " niter = %3d (%.1f%%)"
+///    barWidth = full width of progress bar in characters
+void PrintProgressBar( int nDone, int nTotal, string printTemplate, int barWidth )
+{
+  double  progress = nDone / (1.0*nTotal);
+  int  progressBarPos = (int)(progress * barWidth);
+  
+  printf("[");
+  for (int i = 0; i < barWidth; i++) {
+    if (i < progressBarPos)
+      printf("=");
+    else if (i == progressBarPos)
+      printf(">");
+    else
+      printf(" ");
+  }
+  printf(printTemplate.c_str(), nDone, (100.0 * progress));
+  fflush(stdout);
+}
+
+
 
 /* ---------------- FUNCTION: SplitString() ------------------------ */
 /// This function tokenizes a string, splitting it into substrings using

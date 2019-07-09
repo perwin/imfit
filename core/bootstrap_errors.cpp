@@ -9,7 +9,7 @@
  * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
-// Copyright 2013-2018 by Peter Erwin.
+// Copyright 2013-2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -48,11 +48,13 @@
 #include "bootstrap_errors.h"
 #include "statistics.h"
 #include "print_results.h"
+#include "utilities_pub.h"
 
 using namespace std;
 
 
 const int MIN_ITERATIONS_FOR_STATISTICS = 3;
+const int PROGRESS_BAR_WIDTH = 80;
 
 
 /* ------------------- Function Prototypes ----------------------------- */
@@ -195,13 +197,15 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 					double **outputParamArray, FILE *outputFile_ptr, unsigned long rngSeed )
 {
   double  *paramsVect, *paramOffsets;
-  int  i, status, nIter, nSuccessfulIters;
+  double  progress;
+  int  i, status, nIter, nDone, nSuccessfulIters;
+  int  progressBarPos;
   int  nParams = theModel->GetNParams();
   int  nValidPixels = theModel->GetNValidPixels();
   int  verboseLevel = -1;   // ensure minimizer stays silent
   bool  saveToFile = false;
-  string  outputLine;
-  
+  string  outputLine, iterTemplate;
+
   if (outputFile_ptr != NULL)
     saveToFile = true;
   
@@ -221,18 +225,21 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
   }
 
   if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_POISSON_MLR))
-    printf("\nStarting bootstrap iterations (L-M solver): ");
+    printf("Starting bootstrap iterations (L-M solver):\n");
   else
 #ifndef NO_NLOPT
-    printf("\nStarting bootstrap iterations (N-M simplex solver): ");
+    printf("Starting bootstrap iterations (N-M simplex solver):\n");
 #else
-    printf("\nStarting bootstrap iterations (DE solver): ");
+    printf("Starting bootstrap iterations (DE solver):\n");
 #endif
+
+
+  int  nDigits = floor(log10(nIterations)) + 1;
+  iterTemplate = PrintToString("] %%%dd", nDigits) + " (%3.1f%%)\r";
 
   // Bootstrap iterations:
   nSuccessfulIters = 0;
   for (nIter = 0; nIter < nIterations; nIter++) {
-    printf("%d...  ", nIter + 1);
     fflush(stdout);
     theModel->MakeBootstrapSample();
     for (i = 0; i < nParams; i++)
@@ -265,7 +272,25 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
       }
       nSuccessfulIters += 1;
     }
+    
+    // print/update progress bar
+    nDone = nIter + 1;
+    PrintProgressBar(nDone, nIterations, iterTemplate, PROGRESS_BAR_WIDTH);
+//     progress = nDone / (1.0*nIterations);
+//     progressBarPos = PROGRESS_BAR_WIDTH * progress;
+//     printf("[");
+//     for (int j = 0; j < PROGRESS_BAR_WIDTH; j++) {
+//       if (j < progressBarPos)
+//         printf("=");
+//       else if (j == progressBarPos)
+//         printf(">");
+//       else
+//         printf(" ");
+//     }
+//     printf(iterTemplate.c_str(), nDone, (100.0 * progress));
+//     fflush(stdout);
   }
+  printf("\n");
 
  
   free(paramsVect);

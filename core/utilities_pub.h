@@ -51,6 +51,9 @@ void PrepareImageComments( vector<string> *comments, const string &programName,
 ///        with names) to stdout
 void PrintParametersSimple( ModelObject *model, double *parameters );
 
+/// \brief Utility function to draw/update a progress bar by printing to stdout
+void PrintProgressBar( int nDone, int nTotal, string printTemplate, int barWidth );
+
 
 
 

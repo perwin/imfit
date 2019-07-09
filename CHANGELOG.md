@@ -21,6 +21,12 @@ at this point.
 
 ### Changed:
 
+- When doing bootstrap resampling, a one-line progress bar (with updating
+iteration count and percentage completion) is drawn to stdout; this replaces
+the printing of individual iteration numbers in previous versions, which
+could end up spilling over many lines of output. (Thanks to Iskren Georgiev
+for suggesting this.)
+
 - The SConstruct file has been updated to allow compiling on a Mac using
 Apple's Clang compiler, which (apparently since late 2017) finally has
 support for OpenMP! This *does*, however, require installing`libomp` (e.g., `brew
