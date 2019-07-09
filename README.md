@@ -37,7 +37,7 @@ ArXiv version:
 [![arxiv](http://img.shields.io/badge/arXiv-1408.1097-orange.svg?style=flat)](http://arxiv.org/abs/1408.1097)
  -->
 
-DOI for current release (v1.6.1), archived at Zenodo:
+DOI for current release (v1.7), archived at Zenodo:
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.594956.svg)](https://doi.org/10.5281/zenodo.594956)
 
