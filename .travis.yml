@@ -34,7 +34,7 @@ cache: pip
 
 install:
   - pip install numpy
-  - pip install pyfits
+  - pip install astropy
 
 script: 
   - ./run_unit_tests.sh
