@@ -29,7 +29,7 @@ addons:
 language: python
 python:
   # For simplicity we'll just stick with Python 2.7 for now...
-  - 2.7
+  - 3.5
 cache: pip
 
 install:
