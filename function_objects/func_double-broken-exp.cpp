@@ -20,7 +20,7 @@
  *     [v0.1]  31 Aug 2017: Created as modification of func_broken-exp.cpp.
  */
 
-// Copyright 2017 by Peter Erwin.
+// Copyright 2017--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

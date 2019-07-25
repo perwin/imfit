@@ -28,7 +28,7 @@ addons:
 # This needs to go *after* the C++ setup, otherwise the numpy install doesn't work...
 language: python
 python:
-  # Travis CI xenial (Ubuntu 16.04) have Python 3.6 and 3.7 pre-installed
+  # Travis CI xenial (Ubuntu 16.04) has Python 3.6 and 3.7 pre-installed
   - 3.6
 cache: pip
 

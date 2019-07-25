@@ -86,7 +86,12 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
   int  i, nSuccessfulIterations;
   int  nParams = theModel->GetNParams();
 
-  // Allocate 2D array to hold bootstrap results for each parameter
+  // Allocate 2D array to hold bootstrap results for each parameter.
+  // Because it's convenient to be able to pass a single *column* of values
+  // (i.e., values of a single parameter from all the iterations) to various
+  // statistical functions, we construct this array as [nParams][nIterations];
+  // thus, we can pass all the values for a particular parameter as
+  // outputParamArray[i_param]
   outputParamArray = (double **)calloc( (size_t)nParams, sizeof(double *) );
   for (i = 0; i < nParams; i++)
     outputParamArray[i] = (double *)calloc( (size_t)nIterations, sizeof(double) );
@@ -151,35 +156,6 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
   free(paramOffsets);
   free(bestfitParams_offsetCorrected);
 
-  return nSuccessfulIterations;
-}
-
-
-
-/* ---------------- FUNCTION: BootstrapErrorsArrayOnly ----------------- */
-/// Alternate wrapper function: returns array of best-fit parameters in outputParamArray;
-/// doesn't print any summary statistics (e.g., sigmas, confidence intervals). 
-/// * Note that outputParamArray will be allocated here; it should be de-allocated by 
-/// whatever function is calling this function.
-/// CURRENTLY UNUSED (UNLESS BY SOMEONE ELSE) -- REMOVE?
-int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parameterLimits, 
-					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
-					const int nIterations, const int nFreeParams, const int whichStatistic, 
-					double **outputParamArray, unsigned long rngSeed )
-{
-  int  i, nSuccessfulIterations;
-  int  nParams = theModel->GetNParams();
-
-  // Allocate 2D array to hold bootstrap results for each parameter
-  outputParamArray = (double **)calloc( (size_t)nParams, sizeof(double *) );
-  for (i = 0; i < nParams; i++)
-    outputParamArray[i] = (double *)calloc( (size_t)nIterations, sizeof(double) );
-  
-  // do the bootstrap iterations
-  nSuccessfulIterations = BootstrapErrorsBase(bestfitParams, parameterLimits, paramLimitsExist, 
-					theModel, ftol, nIterations, nFreeParams, whichStatistic, 
-					outputParamArray, NULL, rngSeed);
-  
   return nSuccessfulIterations;
 }
 
@@ -276,22 +252,78 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
     // print/update progress bar
     nDone = nIter + 1;
     PrintProgressBar(nDone, nIterations, iterTemplate, PROGRESS_BAR_WIDTH);
-//     progress = nDone / (1.0*nIterations);
-//     progressBarPos = PROGRESS_BAR_WIDTH * progress;
-//     printf("[");
-//     for (int j = 0; j < PROGRESS_BAR_WIDTH; j++) {
-//       if (j < progressBarPos)
-//         printf("=");
-//       else if (j == progressBarPos)
-//         printf(">");
-//       else
-//         printf(" ");
-//     }
-//     printf(iterTemplate.c_str(), nDone, (100.0 * progress));
-//     fflush(stdout);
   }
   printf("\n");
 
+ 
+  free(paramsVect);
+  free(paramOffsets);
+
+  return nSuccessfulIters;
+}
+
+
+
+/* ---------------- FUNCTION: BootstrapErrorsArrayOnly ----------------- */
+/// This is the same as BootstrapErrorsBase *except* that outputParamArray is
+/// a 1-D array, for ease of transfer to and from Numpy arrays in the Cython
+/// wrapper code in PyImfit, *and* that there is no saving to file or printing
+/// of a progress bar or other status info.
+int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parameterLimits, 
+					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
+					const int nIterations, const int nFreeParams, const int whichStatistic, 
+					double *outputParamArray, unsigned long rngSeed )
+{
+  double  *paramsVect, *paramOffsets;
+  int  i, status, nIter, nDone, nSuccessfulIters;
+  int  nParams = theModel->GetNParams();
+  int  nValidPixels = theModel->GetNValidPixels();
+  int  verboseLevel = -1;   // ensure minimizer stays silent
+
+  if (rngSeed > 0)
+    init_genrand(rngSeed);
+  else
+    init_genrand((unsigned long)time((time_t *)NULL));
+
+  paramsVect = (double *) calloc(nParams, sizeof(double));
+  paramOffsets = (double *) calloc(nParams, sizeof(double));
+
+  status = theModel->UseBootstrap();
+  if (status < 0) {
+    fprintf(stderr, "Error encountered during bootstrap setup!\n");
+    free(paramsVect);
+    return -1;
+  }
+
+  // Bootstrap iterations:
+  nSuccessfulIters = 0;
+  for (nIter = 0; nIter < nIterations; nIter++) {
+    theModel->MakeBootstrapSample();
+    for (i = 0; i < nParams; i++)
+      paramsVect[i] = bestfitParams[i];
+    if ((whichStatistic == FITSTAT_CHISQUARE) || (whichStatistic == FITSTAT_POISSON_MLR)) {
+      status = LevMarFit(nParams, nFreeParams, nValidPixels, paramsVect, parameterLimits, 
+      					theModel, ftol, paramLimitsExist, verboseLevel);
+    } else {
+#ifndef NO_NLOPT
+      status = NMSimplexFit(nParams, paramsVect, parameterLimits, theModel, ftol,
+      						verboseLevel);
+#else
+      status = DiffEvolnFit(nParams, paramsVect, parameterLimits, theModel, ftol,
+      						verboseLevel);
+#endif
+    }
+    // Store parameters in array if fit was successful.
+    // Note that paramsVect has image-subsection-relative values of X0,Y0, 
+    // so we need to correct them with paramOffsets
+    theModel->GetImageOffsets(paramOffsets);
+    if (status > 0) {
+      for (int j = 0; j < nParams; j++) {   // j = column number
+        outputParamArray[nSuccessfulIters*nParams + j] = paramsVect[j] + paramOffsets[j];
+      }
+      nSuccessfulIters += 1;
+    }
+  }
  
   free(paramsVect);
   free(paramOffsets);

@@ -178,7 +178,7 @@ base_defines = ["ANSI", "USING_SCONS"]
 # libraries needed for imfit, makeimage, psfconvolve, & other 2D programs
 lib_list = BASE_SHARED_LIBS
 # libraries needed for profilefit and psfconvolve1d compilation
-lib_list_1d = ["fftw3", "m"]
+lib_list_1d = ["fftw3", "fftw3_threads", "m"]
 
 
 include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, CDREAM_SUBDIR,
