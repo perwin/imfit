@@ -690,7 +690,7 @@ env.Command("alltests", None,
 
 # Build Imfit library
 base_for_lib_objstring = """mp_enorm statistics mersenne_twister utilities 
-config_file_parser add_functions"""
+config_file_parser add_functions bootstrap_errors"""
 base_for_lib_objs = [ CORE_SUBDIR + name for name in base_for_lib_objstring.split() ]
 libimfit_objs = modelobject_objs + functionobject_objs + solver_objs
 libimfit_objs += base_for_lib_objs
