@@ -11,7 +11,7 @@
 // will be done using int values, will overflow, and the overflow value will be
 // stored in the long variable...
 
-// Copyright 2015--2018 by Peter Erwin.
+// Copyright 2015--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -82,8 +82,25 @@ long EstimatePsfOversamplingMemoryUse( vector<PsfOversamplingInfo *> oversamplin
   long  nBytesNeeded = 0;
   int  x1, x2, y1, y2;
   
-  for (int i = 0; i < (int)oversamplingInfoVect.size(); i++) {
-    PsfOversamplingInfo * psfOsampInfo = oversamplingInfoVect[i];
+//   for (int i = 0; i < (int)oversamplingInfoVect.size(); i++) {
+//     PsfOversamplingInfo * psfOsampInfo = oversamplingInfoVect[i];
+//     int  oversampleScale = psfOsampInfo->GetOversamplingScale();
+//     int  nPSF_osamp_cols = psfOsampInfo->GetNColumns();
+//     int  nPSF_osamp_rows = psfOsampInfo->GetNRows();
+//     std::tie(x1, x2, y1, y2) = psfOsampInfo->GetCorrectedRegionCoords();
+//     int  deltaX = x2 - x1 + 1;
+//     int  deltaY = y2 - y1 + 1;
+// 
+//     int  nOversampModel_cols = deltaX*oversampleScale + 2*nPSF_osamp_cols;
+//     int  nOversampModel_rows = deltaY*oversampleScale + 2*nPSF_osamp_rows;
+//     long  nOversampModelPixels = (long)nOversampModel_cols * (long)nOversampModel_rows;
+//     // memory for oversampled model image
+//     nBytesNeeded += nOversampModelPixels * DOUBLE_SIZE;
+//     // memory used by Convolver object for oversampled convolution
+//     nBytesNeeded += EstimateConvolverMemoryUse(nOversampModel_cols, nOversampModel_rows, 
+//    												nPSF_osamp_cols, nPSF_osamp_rows);
+//   }
+  for (PsfOversamplingInfo * psfOsampInfo : oversamplingInfoVect) {
     int  oversampleScale = psfOsampInfo->GetOversamplingScale();
     int  nPSF_osamp_cols = psfOsampInfo->GetNColumns();
     int  nPSF_osamp_rows = psfOsampInfo->GetNRows();

@@ -361,11 +361,17 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
 
   // 3. Add flux from PointSource functions, if present (must be done *after* PSF convolution!)
   // Re-assign psfInterpolator object and set PointSource's oversampling scale
-  for (n = 0; n < nFunctions; n++)
-    if (functionObjectVect[n]->IsPointSource()) {
+//   for (n = 0; n < nFunctions; n++)
+//     if (functionObjectVect[n]->IsPointSource()) {
+//       pointSourcesPresent = true;
+//       functionObjectVect[n]->AddPsfInterpolator(psfInterpolator);
+//       functionObjectVect[n]->SetOversamplingScale(oversamplingScale);
+//     }
+  for (FunctionObject *funcObj : functionObjectVect)
+    if (funcObj->IsPointSource()) {
       pointSourcesPresent = true;
-      functionObjectVect[n]->AddPsfInterpolator(psfInterpolator);
-      functionObjectVect[n]->SetOversamplingScale(oversamplingScale);
+      funcObj->AddPsfInterpolator(psfInterpolator);
+      funcObj->SetOversamplingScale(oversamplingScale);
     }
 
 #ifdef USE_LOGGING

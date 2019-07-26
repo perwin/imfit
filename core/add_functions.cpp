@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2010--2018 by Peter Erwin.
+// Copyright 2010--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -355,8 +355,8 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
 // Function which frees the individual funcobj_factory objects inside the factory map
 void FreeFactories( map<string, factory*>& factory_map )
 {
-  for (map<string, factory*>::iterator it = factory_map.begin(); it != factory_map.end(); ++it)
-    delete it->second;
+  for (auto & kvPair : factory_map)
+    delete kvPair.second;
 }
 
 
@@ -390,12 +390,9 @@ void ListFunctionParameters( )
 
   PopulateFactoryMap(factory_map);
 
-  // get list of keys (function names) and step through it
-  map<string, factory*>::iterator  w;
-
   printf("\nAvailable function/components:\n");
-  for (w = factory_map.begin(); w != factory_map.end(); w++) {
-    thisFunctionObj = w->second->create();
+  for (const auto & kvPair : factory_map) {
+    thisFunctionObj = kvPair.second->create();
     currentName = thisFunctionObj->GetShortName();
     printf("\nFUNCTION %s\n", currentName.c_str());
     parameterNameList.clear();
@@ -452,11 +449,9 @@ void GetFunctionNames( vector<string> &functionNameList )
 
   PopulateFactoryMap(factory_map);
 
-  // get list of keys (function names) and step through it
-  map<string, factory*>::iterator  w;
-
-  for (w = factory_map.begin(); w != factory_map.end(); w++) {
-    thisFunctionObj = w->second->create();
+  // type of kvPair is map<string, factory*>::iterator
+  for (const auto & kvPair : factory_map) {
+    thisFunctionObj = kvPair.second->create();
     currentName = thisFunctionObj->GetShortName();
     functionNameList.push_back(currentName);
     delete thisFunctionObj;
