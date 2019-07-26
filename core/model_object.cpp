@@ -24,7 +24,7 @@
  * cases, as suggested by André Luiz de Amorim.
  */
 
-// Copyright 2010--2018 by Peter Erwin.
+// Copyright 2010--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -396,7 +396,6 @@ void ModelObject::AddParameterInfo( mp_par  *inputParameterInfo )
     paramStruct.limited[1] = inputParameterInfo[i].limited[1];
     paramStruct.limits[0] = inputParameterInfo[i].limits[0];
     paramStruct.limits[1] = inputParameterInfo[i].limits[1];
-//    paramStruct.offset = inputParameterInfo[i].offset;
     parameterInfoVect.push_back(paramStruct);
   }
 }
@@ -411,7 +410,6 @@ void ModelObject::AddParameterInfo( vector<mp_par> inputParameterInfo )
     paramStruct.limited[1] = inputParameterInfo[i].limited[1];
     paramStruct.limits[0] = inputParameterInfo[i].limits[0];
     paramStruct.limits[1] = inputParameterInfo[i].limits[1];
-//    paramStruct.offset = inputParameterInfo[i].offset;
     parameterInfoVect.push_back(paramStruct);
   }
 }
@@ -1100,7 +1098,6 @@ void ModelObject::CreateModelImage( double params[] )
     }
     modelVector[i*nModelColumns + j] = newValSum;
   }
-  
   } // end omp parallel section
   
   
@@ -1113,13 +1110,12 @@ void ModelObject::CreateModelImage( double params[] )
   // (must be done *after* PSF convolution!)
   if (pointSourcesPresent) {
     // Re-assign psfInterpolator object (bcs. calls made to
-    // OversampledRegion::ComputeRegionAndDownsample result
-    // in PointSource objects getting assigned alternate psfInterpolators),
-    // so we have to reset PointSource objects to use the standard-resolution
-    // psfInterpolator object held by ModelObject
-    for (n = 0; n < nFunctions; n++)
-      if (functionObjects[n]->IsPointSource())
-        functionObjects[n]->AddPsfInterpolator(psfInterpolator);
+    // OversampledRegion::ComputeRegionAndDownsample result in PointSource objects 
+    // getting assigned alternate psfInterpolators), so we have to reset PointSource 
+    // objects to use the standard-resolution psfInterpolator object held by ModelObject
+    for (FunctionObject *funcObj : functionObjects)
+      if (funcObj->IsPointSource())
+        funcObj->AddPsfInterpolator(psfInterpolator);
     
 #pragma omp parallel private(i,j,n,x,y,newValSum,tempSum,adjVal,storedError)
     {
@@ -1167,7 +1163,7 @@ void ModelObject::CreateModelImage( double params[] )
 // returned image will be the same size as the data image).
 //
 // Meant to be called *externally* (i.e., do NOT call this from within ModelObject,
-// unless you are aware that it will NOT return the full (expanded) model image.
+// unless you are aware that it will NOT return the full (expanded) model image.)
 double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex )
 {
   double  x0, y0, x, y, newVal;
@@ -1517,15 +1513,6 @@ void ModelObject::UsePoissonMLR( )
 }
 
 
-/* ---------------- PUBLIC METHOD: UsingCashStatistic ------------------ */
-// DEPRECATED! (Use WhichStatistic instead)
-
-// bool ModelObject::UsingCashStatistic( )
-// {
-//   return useCashStatistic;
-// }
-
-
 /* ---------------- PUBLIC METHOD: WhichStatistic ---------------------- */
 
 int ModelObject::WhichFitStatistic( bool verbose )
@@ -1730,9 +1717,8 @@ void ModelObject::PrintDescription( )
 void ModelObject::GetFunctionNames( vector<string>& functionNames )
 {
   functionNames.clear();
-  for (int n = 0; n < nFunctions; n++) {
-    functionNames.push_back(functionObjects[n]->GetShortName());
-  }
+  for (FunctionObject *funcObj : functionObjects)
+    functionNames.push_back(funcObj->GetShortName());
 }
 
 
@@ -1769,8 +1755,6 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
       k = indexOffset;
       x0 = params[k] + imageOffset_X0;
       y0 = params[k + 1] + imageOffset_Y0;
-//       x0 += parameterInfoVect[k].offset;
-//       y0 += parameterInfoVect[k + 1].offset;
       // blank line (or line with just prefix character) before start of function block
       stringVector.push_back(PrintToString("%s\n", prefix));
       if (printLimits) {
@@ -2280,7 +2264,6 @@ double * ModelObject::GetDataVector( )
     fprintf(stderr, "* ModelObject::GetDataVector -- Image data values have not yet been supplied!\n\n");
     return NULL;
   }
-  
   return dataVector;
 }
 
@@ -2312,8 +2295,6 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
     functionObjects[n]->Setup(params, offset, x0_all, y0_all);
     offset += paramSizes[n];
   }
-
-//  int  chunk = OPENMP_CHUNK_SIZE;
 
   // NOTE: I tried implementing the Kahan summation algorithm for this
   // calculation; it increased the time for a single-component Gaussian
@@ -2366,7 +2347,6 @@ bool ModelObject::CheckParamVector( int nParams, double paramVector[] )
     if (! isfinite(paramVector[z]))
       vectorOK = false;
   }
-  
   return vectorOK;
 }
 
