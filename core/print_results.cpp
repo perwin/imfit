@@ -4,7 +4,7 @@
 
 /* FILE: print_results.cpp ----------------------------------------- */
 
-// Copyright 2010-2018 by Peter Erwin.
+// Copyright 2010-2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -55,7 +55,7 @@ void PrintParameters( FILE *filePtr, ModelObject *model, double *parameters,
     vector<string> outputLines;
 
     model->PrintModelParamsToStrings(outputLines, parameters, paramErrors, prefix);
-    for (auto line: outputLines)
+    for (string line: outputLines)
       fprintf(filePtr, "%s", line.c_str());
 }
 
