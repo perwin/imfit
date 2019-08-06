@@ -2,6 +2,23 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.7.1 -- 2019-08-07
+### Changed:
+
+- The imfit_funcs.py module now calculates the Sersic b_n parameter correctly
+for all values of n > 0, and a dependence on the mpmath module has been
+removed.
+
+### Fixed:
+
+- An error in the SConstruct file introduced in 1.7.0 meant that OpenMP
+multi-threading was effectively turned off, making Imfit slow. This
+affected all pre-compiled versions *and* anything compiled from source
+with the SConstruct file. This has been fixed -- all users of v1.7.0
+are encouraged to update to restore Imfit's traditional speed!
+
+
+
 ## 1.7.0 -- 2019-07-10
 ### Added:
 

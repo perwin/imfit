@@ -81,7 +81,7 @@ os_type = platform.system()
 # pthread [Linux]
 # dl [Linux, if using loguru for logging]
 # cfitsio
-# 	-- if static, then on macOS we must link with curl [part of system]
+#   -- if static, then on macOS we must link with curl [part of system]
 #   -- for Linux, we use our compiled static-library version of cfitsio
 #      (not Ubuntu's), so we don't need any extra libraries
 # fftw3, fftw3_threads
@@ -111,7 +111,7 @@ extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": []}
 
 BASE_SHARED_LIBS = ["m"]
 if os_type == "Linux":
-	BASE_SHARED_LIBS.append("pthread")
+    BASE_SHARED_LIBS.append("pthread")
 
 
 # The following definitions are for when we want to force static linking to
@@ -171,7 +171,7 @@ with OpenMP support).
 
 cflags_opt = ["-O3", "-g0", "-fPIC", "-msse2", "-std=c++11"]
 cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow", 
-				"-Wredundant-decls", "-Wpointer-arith"]
+                "-Wredundant-decls", "-Wpointer-arith"]
 
 base_defines = ["ANSI", "USING_SCONS"]
 
@@ -182,7 +182,7 @@ lib_list_1d = ["fftw3", "fftw3_threads", "m"]
 
 
 include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, CDREAM_SUBDIR,
-				CDREAM_INCLUDE_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
+                CDREAM_INCLUDE_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
 lib_path = ["/usr/local/lib"]
 link_flags = []
 
@@ -206,25 +206,25 @@ usingGCC = True
 # Lee Kelvin, who contributed the new version)
 userName = pwd.getpwuid(os.getuid())[0]
 if (os_type == "Darwin") and (userName == "erwin"): 
-	CC_COMPILER = "gcc-9"
-	CPP_COMPILER = "g++-9"
-	c_compiler_changed = True
-	cpp_compiler_changed = True
-	usingGCC = True
+    CC_COMPILER = "gcc-9"
+    CPP_COMPILER = "g++-9"
+    c_compiler_changed = True
+    cpp_compiler_changed = True
+    usingGCC = True
 
 
 # *** System-specific setup
 # if (os_type == "Darwin"):   # OK, we're compiling on macOS (a.k.a. Mac OS X)
-# 	# Note: if for some reason you need to compile to 32-bit -- e.g., because
-# 	# your machine is 32-bit only, or because the fftw3 and cfitsio libraries
-# 	# are 32-bit, use the following
-# 	cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
+#   # Note: if for some reason you need to compile to 32-bit -- e.g., because
+#   # your machine is 32-bit only, or because the fftw3 and cfitsio libraries
+#   # are 32-bit, use the following
+#   cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 if (os_type == "Linux"):
-	# change the following path definitions as needed
-	include_path.append("/usr/include")
-	if userName == "erwin":
-		include_path.append("/home/erwin/include")
-		lib_path.append("/home/erwin/lib")
+    # change the following path definitions as needed
+    include_path.append("/usr/include")
+    if userName == "erwin":
+        include_path.append("/home/erwin/include")
+        lib_path.append("/home/erwin/lib")
 defines_opt = base_defines
 defines_db = base_defines
 
@@ -253,171 +253,171 @@ useLogging = False
 
 # Define some user options
 AddOption("--lib-path", dest="libraryPath", type="string", action="store", default=None,
-	help="colon-separated list of additional paths to search for libraries")
+    help="colon-separated list of additional paths to search for libraries")
 AddOption("--header-path", dest="headerPath", type="string", action="store", default=None,
-	help="colon-separated list of additional paths to search for header files")
+    help="colon-separated list of additional paths to search for header files")
 AddOption("--no-threading", dest="fftwThreading", action="store_false", 
-	default=True, help="compile programs *without* FFTW threading")
+    default=True, help="compile programs *without* FFTW threading")
 AddOption("--no-gsl", dest="useGSL", action="store_false", 
-	default=True, help="do *not* use GNU Scientific Library")
+    default=True, help="do *not* use GNU Scientific Library")
 AddOption("--no-nlopt", dest="useNLopt", action="store_false", 
-	default=True, help="do *not* use NLopt library")
+    default=True, help="do *not* use NLopt library")
 AddOption("--no-openmp", dest="noOpenMP", action="store_true", 
-	default=False, help="compile *without* OpenMP support")
+    default=False, help="compile *without* OpenMP support")
 AddOption("--clang-openmp", dest="useClangOpenMP", action="store_true", 
-	default=False, help="compile with clang++ on macOS")
+    default=False, help="compile with clang++ on macOS")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
-	default=False, help="compile additional FunctionObject classes for testing")
+    default=False, help="compile additional FunctionObject classes for testing")
 AddOption("--extra-checks", dest="doExtraChecks", action="store_true", 
-	default=False, help="turn on additional error-checking and warning flags during compilation")
+    default=False, help="turn on additional error-checking and warning flags during compilation")
 # options to specify use of non-default compilers, extra checks, loggin
 AddOption("--cc", dest="cc_compiler", type="string", action="store", default=None,
-	help="C compiler to use instead of system default")
+    help="C compiler to use instead of system default")
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
-	help="C++ compiler to use instead of system default")
+    help="C++ compiler to use instead of system default")
 AddOption("--use-gcc", dest="useGCC", action="store_true", 
-	default=False, help="use gcc and g++ v9 compilers")
+    default=False, help="use gcc and g++ v9 compilers")
 AddOption("--scan-build", dest="doingScanBuild", action="store_true", 
-	default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
+    default=False, help="set this when using scan-build (only for imfit_db and makeimage_db)")
 AddOption("--sanitize", dest="useAllSanitize", action="store_true", 
-	default=False, help="set this to generate binaries with -fsanitize-address, -fsanitize-undefined, and -fsanitize=leak")
+    default=False, help="set this to generate binaries with -fsanitize-address, -fsanitize-undefined, and -fsanitize=leak")
 AddOption("--address-sanitize", dest="useAddressSanitize", action="store_true", 
-	default=False, help="set this to generate binaries with -fsanitize-address")
+    default=False, help="set this to generate binaries with -fsanitize-address")
 AddOption("--logging", dest="useLogging", action="store_true", 
-	default=False, help="compile with support for logging via loguru")
+    default=False, help="compile with support for logging via loguru")
 
 # Define some more arcane options (e.g., for making binaries for distribution)
 AddOption("--static", dest="useStaticLibs", action="store_true", 
-	default=False, help="force static library linking")
+    default=False, help="force static library linking")
 AddOption("--allstatic", dest="useTotalStaticLinking", action="store_true", 
-	default=False, help="force static library linking, *including* system libraries if possible")
+    default=False, help="force static library linking, *including* system libraries if possible")
 AddOption("--mac-distribution", dest="compileForMacDistribution", action="store_true", 
-	default=False, help="use this to make macOS binaries for public distribution")
+    default=False, help="use this to make macOS binaries for public distribution")
 
 
 
 # * Check to see if user actually specified something, and implement it
 # special stuff for compiling Mac binary distribution
 if GetOption("compileForMacDistribution"):
-	print("DOING MAC DISTRIBUTION COMPILE!")
-	usingClangOpenMP = True
-	usingGCC = False
-	CC_COMPILER = "clang"
-	CPP_COMPILER = "clang++"
-	useStaticLibs = True
-#	totalStaticLinking = True
-	# reset lib_path so linker only looks where we want it to -- i.e., in the 
-	# directory with static library files
-	lib_path = ["/Users/erwin/coding/imfit/static_libs"]
+    print("DOING MAC DISTRIBUTION COMPILE!")
+    usingClangOpenMP = True
+    usingGCC = False
+    CC_COMPILER = "clang"
+    CPP_COMPILER = "clang++"
+    useStaticLibs = True
+#   totalStaticLinking = True
+    # reset lib_path so linker only looks where we want it to -- i.e., in the 
+    # directory with static library files
+    lib_path = ["/Users/erwin/coding/imfit/static_libs"]
 
 if GetOption("headerPath") is not None:
-	extraPaths = GetOption("headerPath").split(":")
-	print("extra header search paths: ", extraPaths)
-	include_path += extraPaths
+    extraPaths = GetOption("headerPath").split(":")
+    print("extra header search paths: ", extraPaths)
+    include_path += extraPaths
 if GetOption("libraryPath") is not None:
-	extraPaths = GetOption("libraryPath").split(":")
-	print("extra library search paths: ", extraPaths)
-	lib_path += extraPaths
+    extraPaths = GetOption("libraryPath").split(":")
+    print("extra library search paths: ", extraPaths)
+    lib_path += extraPaths
 if GetOption("useGSL") is False:
-	useGSL = False
+    useGSL = False
 if GetOption("useNLopt") is False:
-	useNLopt = False
+    useNLopt = False
 if GetOption("noOpenMP"):
-	useOpenMP = False
+    useOpenMP = False
 if GetOption("useClangOpenMP"):
-	usingClangOpenMP = True
-	usingGCC = False
-	CC_COMPILER = "clang"
-	CPP_COMPILER = "clang++"
+    usingClangOpenMP = True
+    usingGCC = False
+    CC_COMPILER = "clang"
+    CPP_COMPILER = "clang++"
 if GetOption("useExtraFuncs"):
-	useExtraFuncs = True
+    useExtraFuncs = True
 doExtraChecks = False
 if GetOption("doExtraChecks"):
-	doExtraChecks = True
+    doExtraChecks = True
 
 # change the compilers if user requests it
 if GetOption("cc_compiler") is not None:
-	CC_COMPILER = GetOption("cc_compiler")
-	print("using %s for C compiler" % CC_COMPILER)
-	c_compiler_changed = True
+    CC_COMPILER = GetOption("cc_compiler")
+    print("using %s for C compiler" % CC_COMPILER)
+    c_compiler_changed = True
 if GetOption("cpp_compiler") is not None:
-	CPP_COMPILER = GetOption("cpp_compiler")
-	print("using %s for C++ compiler" % CPP_COMPILER)
-	cpp_compiler_changed = True
+    CPP_COMPILER = GetOption("cpp_compiler")
+    print("using %s for C++ compiler" % CPP_COMPILER)
+    cpp_compiler_changed = True
 if GetOption("useGCC"):
-	if usingClangOpenMP:
-		print("ERROR: You cannot specify both Clang and GCC as the compiler!")
-		Exit(2)
-	usingGCC = True
-	CC_COMPILER = "gcc-9"
-	CPP_COMPILER = "g++-9"
-	print("using %s for C compiler" % CC_COMPILER)
-	print("using %s for C++ compiler" % CPP_COMPILER)
-	c_compiler_changed = True
-	cpp_compiler_changed = True
+    if usingClangOpenMP:
+        print("ERROR: You cannot specify both Clang and GCC as the compiler!")
+        Exit(2)
+    usingGCC = True
+    CC_COMPILER = "gcc-9"
+    CPP_COMPILER = "g++-9"
+    print("using %s for C compiler" % CC_COMPILER)
+    print("using %s for C++ compiler" % CPP_COMPILER)
+    c_compiler_changed = True
+    cpp_compiler_changed = True
 
 if GetOption("doingScanBuild"):
-	scanBuild = True
-	useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
+    scanBuild = True
+    useOpenMP = False   # scan-build uses clang, which doesn't have OpenMP
 
 if GetOption("useAddressSanitize"):
-	addressSanitize = True
-	useOpenMP = False
-	setOptToDebug = True
+    addressSanitize = True
+    useOpenMP = False
+    setOptToDebug = True
 if GetOption("useAllSanitize"):
-	allSanitize = True
-	useOpenMP = False
-	setOptToDebug = True
+    allSanitize = True
+    useOpenMP = False
+    setOptToDebug = True
 if GetOption("useLogging"):
-	useLogging = True
+    useLogging = True
 
 if GetOption("useStaticLibs"):
-	useStaticLibs = True
+    useStaticLibs = True
 if GetOption("useTotalStaticLinking"):
-	useStaticLibs = True
-	if usingGCC:
-		totalStaticLinking = True
+    useStaticLibs = True
+    if usingGCC:
+        totalStaticLinking = True
 
 
 
 # *** Setup for various options (either default, or user-altered)
 
 if setOptToDebug:
-	print("** Turning off optimizations!")
-	cflags_opt = cflags_db
+    print("** Turning off optimizations!")
+    cflags_opt = cflags_db
 
 
 if useStaticLibs:
-	lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
-	lib_list.append(STATIC_FFTW_LIBRARY_FILE)
-	lib_list.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
+    lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
+    lib_list.append(STATIC_FFTW_LIBRARY_FILE)
+    lib_list.append(STATIC_FFTW_THREADED_LIBRARY_FILE)
 else:
-	lib_list += ["cfitsio", "fftw3", "fftw3_threads"]
+    lib_list += ["cfitsio", "fftw3", "fftw3_threads"]
 extra_defines.append("FFTW_THREADING")
 
 if useGSL:   # true by default
-	if useStaticLibs:
-		lib_list.append(STATIC_GSL_LIBRARY_FILE1)
-		lib_list.append(STATIC_GSL_LIBRARY_FILE2)
-		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1)
-		lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2)
-	else:
-		lib_list.append("gsl")
-		lib_list.append("gslcblas")		
-		lib_list_1d.append("gsl")
-		lib_list_1d.append("gslcblas")		
+    if useStaticLibs:
+        lib_list.append(STATIC_GSL_LIBRARY_FILE1)
+        lib_list.append(STATIC_GSL_LIBRARY_FILE2)
+        lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1)
+        lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2)
+    else:
+        lib_list.append("gsl")
+        lib_list.append("gslcblas")     
+        lib_list_1d.append("gsl")
+        lib_list_1d.append("gslcblas")      
 else:
-	extra_defines.append("NO_GSL")
+    extra_defines.append("NO_GSL")
 
 if useNLopt:   # default is to do this
-	if useStaticLibs:
-		lib_list.append(STATIC_NLOPT_LIBRARY_FILE)
-		lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE)
-	else:
-		lib_list.append("nlopt")	
-		lib_list_1d.append("nlopt")	
+    if useStaticLibs:
+        lib_list.append(STATIC_NLOPT_LIBRARY_FILE)
+        lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE)
+    else:
+        lib_list.append("nlopt")    
+        lib_list_1d.append("nlopt") 
 else:
-	extra_defines.append("NO_NLOPT")
+    extra_defines.append("NO_NLOPT")
 
 
 
@@ -428,57 +428,63 @@ else:
 # in addition to libgcc_s). But we'll leave it in because it seems to be
 # the standard.
 if totalStaticLinking:
-	link_flags.append("-static-libgcc")
-	link_flags.append("-static-libstdc++")
+    link_flags.append("-static-libgcc")
+    link_flags.append("-static-libstdc++")
 
 if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
-	if usingClangOpenMP:
-		# special flags for Apple clang++ (assumes libomp is installed)
-		link_flags.append("-Xpreprocessor")
-		link_flags.append("-fopenmp")
-		if useStaticLibs:
-			link_flags.append("/Users/erwin/coding/imfit/static_libs/libomp.a")
-		else:
-			# dynamic linking to libomp
-			link_flags.append("-lomp")
-	else:
-		# flags for (real) g++
-		link_flags.append("-fopenmp")
-	extra_defines.append("USE_OPENMP")
+    if usingClangOpenMP:
+        # special flags for Apple clang++ (assumes libomp is installed)
+        cflags_opt.append("-Xpreprocessor")
+        cflags_opt.append("-fopenmp")
+        cflags_db.append("-Xpreprocessor")
+        cflags_db.append("-fopenmp")
+        link_flags.append("-Xpreprocessor")
+        link_flags.append("-fopenmp")
+        if useStaticLibs:
+            link_flags.append("/Users/erwin/coding/imfit/static_libs/libomp.a")
+        else:
+            # dynamic linking to libomp
+            link_flags.append("-lomp")
+    else:
+        # flags for (real) g++
+        cflags_opt.append("-fopenmp")
+        cflags_db.append("-fopenmp")
+        link_flags.append("-fopenmp")
+    extra_defines.append("USE_OPENMP")
 
 if useExtraFuncs:   # default is to NOT do this; user must specify with "--extra-funcs"
-	extra_defines.append("USE_EXTRA_FUNCS")
+    extra_defines.append("USE_EXTRA_FUNCS")
 
 if doExtraChecks:   # default is to NOT do this; user must specify with "--extra-checks"
-	cflags_opt.append(["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith",
-					"-Wextra", "-pedantic"])
+    cflags_opt.append(["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith",
+                    "-Wextra", "-pedantic"])
 
 if useLogging:
-	extra_defines.append(["-DUSE_LOGGING"])
-	if os_type == "Linux":
-		lib_list.append("dl")
-	
+    extra_defines.append(["-DUSE_LOGGING"])
+    if os_type == "Linux":
+        lib_list.append("dl")
+    
 # Add any additional, user-specified preprocessor definitions (e.g., "define=DEBUG")
 for key, value in ARGLIST:
-	if key == 'define':
-		extra_defines.append(value)
+    if key == 'define':
+        extra_defines.append(value)
 
 
 if addressSanitize:
-	cflags_opt.append("-fsanitize=address")
-	cflags_opt.append("-fno-omit-frame-pointer")
-	cflags_db.append("-fsanitize=address")
-	cflags_db.append("-fno-omit-frame-pointer")
-	link_flags.append("-fsanitize=address")
-	link_flags.append("-fno-omit-frame-pointer")
+    cflags_opt.append("-fsanitize=address")
+    cflags_opt.append("-fno-omit-frame-pointer")
+    cflags_db.append("-fsanitize=address")
+    cflags_db.append("-fno-omit-frame-pointer")
+    link_flags.append("-fsanitize=address")
+    link_flags.append("-fno-omit-frame-pointer")
 
 if allSanitize:
-	cflags_opt += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
-	cflags_opt.append("-fno-omit-frame-pointer")
-	cflags_db += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
-	cflags_db.append("-fno-omit-frame-pointer")
-	link_flags += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
-	link_flags.append("-fno-omit-frame-pointer")
+    cflags_opt += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
+    cflags_opt.append("-fno-omit-frame-pointer")
+    cflags_db += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
+    cflags_db.append("-fno-omit-frame-pointer")
+    link_flags += ["-fsanitize=address", "-fsanitize=undefined", "-fsanitize=leak"]
+    link_flags.append("-fno-omit-frame-pointer")
 
 
 # * Collect together all the updated preprocessor definitions
@@ -493,11 +499,11 @@ defines_opt = defines_opt + extra_defines
 # "env" is an environment for optimized compiling
 
 env = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
-					LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, 
-					CPPDEFINES=defines_opt )
+                    LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, 
+                    CPPDEFINES=defines_opt )
 env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
-					LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
-					CPPDEFINES=defines_db )
+                    LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
+                    CPPDEFINES=defines_db )
 
 
 # Checks for libraries and headers -- if we're not doing scons -c:
@@ -507,36 +513,36 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 #       up forcing the linking of dynamic-library versions even if we're trying to
 #       do static compilation
 # if not env.GetOption('clean'):
-# 	conf_opt = Configure(env)
-# 	cfitsioFound = conf_opt.CheckLibWithHeader('cfitsio', 'fitsio.h', 'c')
-# 	fftwFound = conf_opt.CheckLibWithHeader('fftw3', 'fftw3.h', 'c')
-# 	fftwThreadsFound = conf_opt.CheckLib('fftw3_threads')
-# 	nloptFound = conf_opt.CheckLibWithHeader('nlopt', 'nlopt.h', 'c')
-# 	gslFound = conf_opt.CheckLib('gsl')
-# 	libsOK = False
-# 	if cfitsioFound and fftwFound:
-# 		libsOK = True
-# 	else:
-# 		print("ERROR: Failed to find one or more required libraries and/or header files (cfitsio and/or fftw3)!")
-# 		print("\tMake sure they are installed; if necessary, include correct path to library with --lib-path option")
-# 		print("\tand correct path to header with --header-path option")
-# 		exit(1)
-# 	if useFFTWThreading and not fftwThreadsFound:
-# 		print("ERROR: Failed to find fftw3_threading library!")
-# 		print("\tSuggestion: include correct path to library with --lib-path option")
-# 		print("\tOR run SCons with --no-threading option")
-# 		exit(1)
-# 	if useGSL and not gslFound:
-# 		print("ERROR: Failed to find gsl library!")
-# 		print("\tSuggestion: include correct path to library with --lib-path option")
-# 		print("\tOR run SCons with --no-gsl option")
-# 		exit(1)
-# 	if useNLopt and not nloptFound:
-# 		print("ERROR: Failed to find nlopt library!")
-# 		print("\tSuggestion: include correct path to library with --lib-path option")
-# 		print("\tOR run SCons with --no-nlopt option")
-# 		exit(1)
-# 	env = conf_opt.Finish()
+#   conf_opt = Configure(env)
+#   cfitsioFound = conf_opt.CheckLibWithHeader('cfitsio', 'fitsio.h', 'c')
+#   fftwFound = conf_opt.CheckLibWithHeader('fftw3', 'fftw3.h', 'c')
+#   fftwThreadsFound = conf_opt.CheckLib('fftw3_threads')
+#   nloptFound = conf_opt.CheckLibWithHeader('nlopt', 'nlopt.h', 'c')
+#   gslFound = conf_opt.CheckLib('gsl')
+#   libsOK = False
+#   if cfitsioFound and fftwFound:
+#       libsOK = True
+#   else:
+#       print("ERROR: Failed to find one or more required libraries and/or header files (cfitsio and/or fftw3)!")
+#       print("\tMake sure they are installed; if necessary, include correct path to library with --lib-path option")
+#       print("\tand correct path to header with --header-path option")
+#       exit(1)
+#   if useFFTWThreading and not fftwThreadsFound:
+#       print("ERROR: Failed to find fftw3_threading library!")
+#       print("\tSuggestion: include correct path to library with --lib-path option")
+#       print("\tOR run SCons with --no-threading option")
+#       exit(1)
+#   if useGSL and not gslFound:
+#       print("ERROR: Failed to find gsl library!")
+#       print("\tSuggestion: include correct path to library with --lib-path option")
+#       print("\tOR run SCons with --no-gsl option")
+#       exit(1)
+#   if useNLopt and not nloptFound:
+#       print("ERROR: Failed to find nlopt library!")
+#       print("\tSuggestion: include correct path to library with --lib-path option")
+#       print("\tOR run SCons with --no-nlopt option")
+#       exit(1)
+#   env = conf_opt.Finish()
 
 
 
@@ -545,48 +551,48 @@ env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path,
 
 # ModelObject and related classes/files:
 modelobject_obj_string = """model_object convolver oversampled_region downsample
-		psf_oversampling_info setup_model_object"""
+        psf_oversampling_info setup_model_object"""
 modelobject_objs = [ CORE_SUBDIR + name for name in modelobject_obj_string.split() ]
 modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 
 # Function objects:
 functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
-		func_sersic func_gen-sersic func_core-sersic func_broken-exp
-		func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
-		func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
-		func_edge-on-ring func_edge-on-ring2side func_king func_king2
-		func_ferrersbar2d helper_funcs helper_funcs_3d psf_interpolators"""
+        func_sersic func_gen-sersic func_core-sersic func_broken-exp
+        func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
+        func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
+        func_edge-on-ring func_edge-on-ring2side func_king func_king2
+        func_ferrersbar2d helper_funcs helper_funcs_3d psf_interpolators"""
 if useGSL:
-	# the following modules require GSL be present
-	functionobject_obj_string += " func_edge-on-disk"
-	functionobject_obj_string += " integrator"
-	functionobject_obj_string += " func_expdisk3d"  # requires integrator
-	functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
-	functionobject_obj_string += " func_gaussianring3d"  # requires integrator
-	functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
-	functionobject_obj_string += " func_pointsource"
+    # the following modules require GSL be present
+    functionobject_obj_string += " func_edge-on-disk"
+    functionobject_obj_string += " integrator"
+    functionobject_obj_string += " func_expdisk3d"  # requires integrator
+    functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
+    functionobject_obj_string += " func_gaussianring3d"  # requires integrator
+    functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
+    functionobject_obj_string += " func_pointsource"
 if useExtraFuncs:
-	# experimental extra functions for personal testing
-	functionobject_obj_string += " func_broken-exp-bar"
-	functionobject_obj_string += " func_double-broken-exp"
-	functionobject_obj_string += " func_gen-exp2"
-	functionobject_obj_string += " func_flatbar"
-	functionobject_obj_string += " func_gen-flatbar"
-	functionobject_obj_string += " func_bp-cross-section"
-	functionobject_obj_string += " func_gaussian-ring-az"
-#	functionobject_obj_string += " func_ferrersbar2d"
-	if useGSL:
-		functionobject_obj_string += " func_brokenexpbar3d"
-		functionobject_obj_string += " func_boxytest3d"
-		functionobject_obj_string += " func_expdisk3d_trunc"
-		functionobject_obj_string += " func_logspiral"
-		functionobject_obj_string += " func_logspiral2"
-		functionobject_obj_string += " func_logspiral_gauss"
-		functionobject_obj_string += " func_nan"
-		functionobject_obj_string += " func_triaxbar3d"
-		functionobject_obj_string += " func_triaxbar3d_sq"
-		functionobject_obj_string += " func_triaxbar3d_gengauss_sq"
-		functionobject_obj_string += " func_exp-higher-mom"
+    # experimental extra functions for personal testing
+    functionobject_obj_string += " func_broken-exp-bar"
+    functionobject_obj_string += " func_double-broken-exp"
+    functionobject_obj_string += " func_gen-exp2"
+    functionobject_obj_string += " func_flatbar"
+    functionobject_obj_string += " func_gen-flatbar"
+    functionobject_obj_string += " func_bp-cross-section"
+    functionobject_obj_string += " func_gaussian-ring-az"
+#   functionobject_obj_string += " func_ferrersbar2d"
+    if useGSL:
+        functionobject_obj_string += " func_brokenexpbar3d"
+        functionobject_obj_string += " func_boxytest3d"
+        functionobject_obj_string += " func_expdisk3d_trunc"
+        functionobject_obj_string += " func_logspiral"
+        functionobject_obj_string += " func_logspiral2"
+        functionobject_obj_string += " func_logspiral_gauss"
+        functionobject_obj_string += " func_nan"
+        functionobject_obj_string += " func_triaxbar3d"
+        functionobject_obj_string += " func_triaxbar3d_sq"
+        functionobject_obj_string += " func_triaxbar3d_gengauss_sq"
+        functionobject_obj_string += " func_exp-higher-mom"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,
@@ -599,7 +605,7 @@ functionobject_sources = [name + ".cpp" for name in functionobject_objs]
 # Solvers and associated code
 solver_obj_string = """levmar_fit mpfit diff_evoln_fit DESolver dispatch_solver solver_results"""
 if useNLopt:
-	solver_obj_string += " nmsimplex_fit nlopt_fit"
+    solver_obj_string += " nmsimplex_fit nlopt_fit"
 solver_objs = [ SOLVER_SUBDIR + name for name in solver_obj_string.split() ]
 solver_sources = [name + ".cpp" for name in solver_objs]
 
@@ -623,7 +629,7 @@ image_io_objs = [ CORE_SUBDIR + name for name in image_io_obj_string.split() ]
 imfit_obj_string = """print_results bootstrap_errors estimate_memory 
 imfit_main"""
 if useLogging:
-	imfit_obj_string += " loguru/loguru"
+    imfit_obj_string += " loguru/loguru"
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
 imfit_base_objs = base_objs + image_io_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
@@ -631,7 +637,7 @@ imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 # Main set of files for makeimage
 makeimage_base_objs = base_objs + image_io_objs + [CORE_SUBDIR + "makeimage_main"]
 if useLogging:
-	makeimage_base_objs.append("loguru/loguru")
+    makeimage_base_objs.append("loguru/loguru")
 makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 
 # Main set of files for imfit-mcmc
@@ -656,9 +662,9 @@ mcmc_sources = mcmc_base_sources + modelobject_sources + functionobject_sources
 
 # import environment variables if we're doing scan-build static analysis
 if scanBuild:
-	env_debug["CC"] = os.getenv("CC")
-	env_debug["CXX"] = os.getenv("CXX")
-	env_debug["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
+    env_debug["CC"] = os.getenv("CC")
+    env_debug["CXX"] = os.getenv("CXX")
+    env_debug["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
 
 
 # *** Finally, define the actual targets for building
@@ -683,7 +689,7 @@ env.Command("unit", None, "./run_unit_tests.sh")
 
 # All tests:
 env.Command("alltests", None, 
-	"./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests ; ./do_mcmc_tests")
+    "./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests ; ./do_mcmc_tests")
 
 
 
@@ -706,7 +712,7 @@ staticlib = env.StaticLibrary(target="libimfit", source=libimfit_objlist)
 # THE FOLLOWING CURRENTLY DOES NOT WORK
 # ("Source file: core/model_object.o is static and is not compatible with shared target: libimfit.dylib")
 # sharedlib = env.SharedLibrary(target="libimfit", source=libimfit_objlist,
-# 									LIBS=lib_list_libimfit)
+#                                   LIBS=lib_list_libimfit)
 
 
 
@@ -716,7 +722,7 @@ staticlib = env.StaticLibrary(target="libimfit", source=libimfit_objlist)
 # From here to the end of the file: removed from exported distribution version of SConstruct
 
 env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
-						CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
+                        CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
 
 # ModelObject1d and related classes:
 # (Note that model_object includes references to oversampled_region and downsample,
@@ -730,20 +736,20 @@ modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 # 1D FunctionObject classes (note that we have to add a separate entry for function_object.cpp,
 # which is in a different subdirectory):
 functionobject1d_obj_string = """func1d_gaussian func1d_gaussian_linear func1d_exp func1d_sersic 
-		func1d_core-sersic func1d_broken-exp func1d_moffat func1d_delta func1d_sech 
-		func1d_sech2 func1d_vdksech func1d_gaussian2side  func1d_nuker func1d_spline
-		func1d_n1543majmin_circbulge func1d_n1543majmin func1d_n1543majmin2"""
+        func1d_core-sersic func1d_broken-exp func1d_moffat func1d_delta func1d_sech 
+        func1d_sech2 func1d_vdksech func1d_gaussian2side  func1d_nuker func1d_spline
+        func1d_n1543majmin_circbulge func1d_n1543majmin func1d_n1543majmin2"""
 functionobject1d_objs = [ FUNCTION_1D_SUBDIR + name for name in functionobject1d_obj_string.split() ]
 functionobject1d_objs.append(FUNCTION_SUBDIR + "function_object")
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 
 # Base files for profilefit:
 profilefit_base_obj_string = """core/commandline_parser core/utilities profile_fitting/read_profile 
-		core/config_file_parser core/print_results profile_fitting/add_functions_1d core/convolver 
-		core/mp_enorm core/statistics core/mersenne_twister 
-		function_objects/psf_interpolators
-		profile_fitting/convolver1d profile_fitting/model_object_1d 
-		profile_fitting/bootstrap_errors_1d profile_fitting/profilefit_main"""
+        core/config_file_parser core/print_results profile_fitting/add_functions_1d core/convolver 
+        core/mp_enorm core/statistics core/mersenne_twister 
+        function_objects/psf_interpolators
+        profile_fitting/convolver1d profile_fitting/model_object_1d 
+        profile_fitting/bootstrap_errors_1d profile_fitting/profilefit_main"""
 profilefit_base_objs = profilefit_base_obj_string.split()
 profilefit_base_sources = [name + ".cpp" for name in profilefit_base_objs]
 
@@ -753,7 +759,7 @@ profilefit_sources = profilefit_base_sources + modelobject1d_sources + functiono
 
 # psfconvolve1d: put all the object and source-code lists together
 psfconvolve1d_objs = ["profile_fitting/psfconvolve1d_main", "core/commandline_parser", "core/utilities",
-					"profile_fitting/read_profile", "profile_fitting/convolver1d"]
+                    "profile_fitting/read_profile", "profile_fitting/convolver1d"]
 psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
 
 
@@ -764,7 +770,7 @@ readimage_sources = ["readimage_main.cpp", "image_io.cpp"]
 
 # psfconvolve: put all the object and source-code lists together
 psfconvolve_objs = ["extra/psfconvolve_main", "core/commandline_parser", "core/utilities",
-					"core/image_io", "core/convolver"]
+                    "core/image_io", "core/convolver"]
 psfconvolve_sources = [name + ".cpp" for name in psfconvolve_objs]
 
 # test_parser: put all the object and source-code lists together
@@ -774,8 +780,8 @@ testparser_sources = [name + ".cpp" for name in testparser_objs]
 
 # test_2dspline: put all the object and source-code lists together
 spline2dtest_objs = ["spline2dtest_main", "function_objects/psf_interpolators", 
-					"core/commandline_parser", "core/utilities", "core/image_io", 
-					"function_objects/function_object", "function_objects/func_pointsource"]
+                    "core/commandline_parser", "core/utilities", "core/image_io", 
+                    "function_objects/function_object", "function_objects/func_pointsource"]
 spline2dtest_sources = [name + ".cpp" for name in spline2dtest_objs]
 
 
@@ -800,8 +806,8 @@ env_debug.Program("spline2dtest", spline2dtest_objlist)
 # timing: variation on makeimage designed to time image-generation and convolution
 # Base files for timing:
 timing_base_obj_string = """core/commandline_parser core/utilities core/image_io 
-			core/config_file_parser core/add_functions core/mp_enorm core/mersenne_twister
-			extra/timing_main"""
+            core/config_file_parser core/add_functions core/mp_enorm core/mersenne_twister
+            extra/timing_main"""
 timing_base_objs = timing_base_obj_string.split()
 timing_base_sources = [name + ".cpp" for name in timing_base_objs]
 

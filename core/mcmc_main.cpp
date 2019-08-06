@@ -77,9 +77,9 @@ const char *  LOG_FILENAME = "log_imfit-mcmc.txt";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.7.0 (OpenMP-enabled)"
+#define VERSION_STRING      "1.7.1 (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.7.0"
+#define VERSION_STRING      "1.7.1"
 #endif
 
 

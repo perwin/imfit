@@ -164,6 +164,19 @@ $IMFIT -c tests/imfit_reference/config_imfit_2gauss_small.dat tests/testimage_2g
 # test to see if fitting with interpolated PSF works
 $IMFIT -c tests/imfit_reference/config_imfit_ptsource.dat tests/psf_moffat_fwhm2.fits --psf=tests/psf_moffat_fwhm2_35x35.fits &> temptest/test_dump8a
 
+# test to see if OpenMP multithreading works (to make sure we don't re-introduce the
+# compilation bug of v1.7.0 that effectively turned it off)
+if [ "$1" == "--all" ]
+then
+  echo -n "   (now testing OpenMP speedup ...)"
+  # Don't use L-M for first two (converges way too slowly)
+  $IMFIT tests/n3073rss_small.fits -c tests/imfit_reference/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits &> temptest/test_dump_openmp
+  $IMFIT tests/n3073rss_small.fits -c tests/imfit_reference/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --max-threads=1 &> temptest/test_dump_maxthreads1
+  echo ""
+else
+  echo "   (-- skipping oversampled PSF tests --)"
+fi
+
 #    Testing to see that bad config files are caught:
 $IMFIT -c tests/makeimage_reference/config_makeimage_sersictest512_bad1.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad1
 $IMFIT -c tests/makeimage_reference/config_makeimage_sersictest512_bad2.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad2
@@ -390,6 +403,10 @@ echo -n "*** Diff comparison with archives: fitting with bicubic-interpolated PS
 ./python/diff_printouts.py tests/imfit_reference/imfit_textout8a temptest/test_dump8a --skip-last=3
 STATUS+=$?
 
+
+echo -n "*** Checking that OpenMP properly sped things up..."
+./python/check_speedup.py temptest/test_dump_openmp temptest/test_dump_maxthreads1
+STATUS+=$?
 
 
 

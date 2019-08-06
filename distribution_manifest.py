@@ -171,6 +171,7 @@ do_makeimage_tests
 
 python_files = """
 py_startup_test.py
+check_speedup.py
 compare_fits_files.py
 compare_imfit_printouts.py
 diff_printouts.py
