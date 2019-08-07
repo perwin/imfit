@@ -16,13 +16,18 @@
 from __future__ import print_function
 
 import sys, os, optparse, re
+import multiprocessing
 
 
 # look for and capture elapsed time in output line from imfit
 findTime = re.compile(r"Elapsed time:\s(?P<time>[0-9]+\.[0-9]+)\ssec")
 
 # required ratio
-MINIMUM_TIME_RATIO = 2.0
+nCPU = multiprocessing.cpu_count()
+if nCPU == 2:
+    MINIMUM_TIME_RATIO = 1.5
+else:
+    MINIMUM_TIME_RATIO = 2.0
 
 # predefine some ANSI color codes
 RED  = '\033[31m' # red

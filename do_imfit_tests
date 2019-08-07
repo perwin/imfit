@@ -2,7 +2,7 @@
 #
 # Regression tests for imfit
 #
-# How to skip DE and oversampled-PSF tests: run script as
+# How to skip time-consuming checks (DE, oversampled-PSF, etc.): run script as
 # $ ./do_imfit_tests
 # Including DE and oversampled-PSF tests: run script as
 # $ ./do_imfit_tests --all
@@ -24,11 +24,10 @@ then
   echo -n "Tests will skip comparison of FITS files"
 fi
 
-case "$OSTYPE" in
-  darwin*)  osname="osx" ;; 
-  linux*)   osname="linux" ;;
-  *)        echo "unknown: $OSTYPE" ;;
-esac
+# If there's only one processor core available, we'll skip the OpenMP-speedup test
+nProcs=$(getconf _NPROCESSORS_ONLN)
+
+
 
 # create output directory for test_dump*, etc. files (will do nothing if
 # directory already exists), then delete existing test_dump* files
@@ -40,7 +39,6 @@ rm temptest/test_dump*
 
 
 IMFIT="./imfit"
-#IMFIT="/Users/erwin/bin/imfit-1.4"
 
 
 # ** Run imfit with different test inputs **
@@ -56,7 +54,7 @@ $IMFIT tests/ic3478rss_64x64.fits -c tests/imfit_reference/imfit_config_ic3478_6
 # same, using N-M Simplex fitting
 $IMFIT tests/ic3478rss_64x64.fits -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --nm --quiet &> temptest/test_dump3b
 # same, using DE fitting [skip if requested by user, since it's slow!]
-if [ "$1" == "--all" ]
+if [[ "$1" == "--all" ]]
 then
   echo -n "   (now running fit with DE ...)"
   $IMFIT tests/ic3478rss_64x64.fits -c tests/imfit_reference/imfit_config_ic3478_64x64b.dat --de &> temptest/test_dump3c
@@ -87,7 +85,7 @@ $IMFIT tests/n3073rss_small.fits -c tests/imfit_reference/imfit_config_n3073.dat
 echo ""
 
 # test use of oversampled PSF (don't use L-M; doesn't converge)
-if [ "$1" == "--all" ]
+if [[ "$1" == "--all" ]]
 then
   echo -n "   (now running fits with oversampled PSF ...)"
   # Don't use L-M for first two (converges way too slowly)
@@ -165,16 +163,16 @@ $IMFIT -c tests/imfit_reference/config_imfit_2gauss_small.dat tests/testimage_2g
 $IMFIT -c tests/imfit_reference/config_imfit_ptsource.dat tests/psf_moffat_fwhm2.fits --psf=tests/psf_moffat_fwhm2_35x35.fits &> temptest/test_dump8a
 
 # test to see if OpenMP multithreading works (to make sure we don't re-introduce the
-# compilation bug of v1.7.0 that effectively turned it off)
-if [ "$1" == "--all" ]
+# compilation bug of v1.7.0 that effectively turned it off) -- but only if there are 2 
+# or more CPU cores available
+if [[ "$1" == "--all" ]] && [[ nProcs -gt 1 ]]
 then
   echo -n "   (now testing OpenMP speedup ...)"
-  # Don't use L-M for first two (converges way too slowly)
   $IMFIT tests/n3073rss_small.fits -c tests/imfit_reference/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits &> temptest/test_dump_openmp
   $IMFIT tests/n3073rss_small.fits -c tests/imfit_reference/imfit_config_n3073.dat --mask tests/n3073rss_small_mask.fits --max-threads=1 &> temptest/test_dump_maxthreads1
   echo ""
 else
-  echo "   (-- skipping oversampled PSF tests --)"
+  echo "   (-- skipping OpenMP speedup test --)"
 fi
 
 #    Testing to see that bad config files are caught:
@@ -217,7 +215,7 @@ STATUS+=$?
 
 # special test for DE output because final parameter are more variable from one fit
 # to the next...
-if [ "$1" == "--all" ]
+if [[ "$1" == "--all" ]]
 then
   tail -n 17 temptest/test_dump3c > temptest/test_dump3c_tail
   echo -n "*** Comparison with archives (tolerances ~ 5e-5 or smaller): tiny SDSS cutout image (DE fit)... "
@@ -258,7 +256,7 @@ echo -n "*** Diff comparison with archives: chisquare-only (Cash statistic) calc
 ./python/diff_printouts.py tests/imfit_reference/imfit_textout4d temptest/test_dump4d --skip-last=3
 STATUS+=$?
 
-if [ "$1" == "--all" ]
+if [[ "$1" == "--all" ]]
 then
   echo -n "*** Diff comparison with archives: fit using oversampled PSF... "
   ./python/diff_printouts.py tests/imfit_reference/imfit_textout4e temptest/test_dump4e --skip-last=3
@@ -404,10 +402,12 @@ echo -n "*** Diff comparison with archives: fitting with bicubic-interpolated PS
 STATUS+=$?
 
 
-echo -n "*** Checking that OpenMP properly sped things up..."
-./python/check_speedup.py temptest/test_dump_openmp temptest/test_dump_maxthreads1
-STATUS+=$?
-
+if [[ "$1" == "--all" ]] && [[ nProcs -gt 1 ]]
+then
+  echo -n "*** Checking that OpenMP speedup works..."
+  ./python/check_speedup.py temptest/test_dump_openmp temptest/test_dump_maxthreads1
+  STATUS+=$?
+fi
 
 
 
@@ -505,10 +505,10 @@ fi
 
 
 echo ""
-if [ $STATUS -eq 1 ]
+if [[ $STATUS -eq 1 ]]
 then
   echo -e "${RED}One test failed!${NC}"
-elif [ $STATUS -gt 1 ]
+elif [[ $STATUS -gt 1 ]]
 then
   echo -e "${RED}${STATUS} tests failed!${NC}"
 else
