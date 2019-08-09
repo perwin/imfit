@@ -267,18 +267,21 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 /* ---------------- FUNCTION: BootstrapErrorsArrayOnly ----------------- */
 /// This is the same as BootstrapErrorsBase *except* that outputParamArray is
 /// a 1-D array, for ease of transfer to and from Numpy arrays in the Cython
-/// wrapper code in PyImfit, *and* that there is no saving to file or printing
-/// of a progress bar or other status info.
+/// wrapper code in PyImfit, *and* that there is no saving to file; printing
+/// a progress bar is one only if verboseFlag = true.
 int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
-					double *outputParamArray, unsigned long rngSeed )
+					double *outputParamArray, unsigned long rngSeed, bool verboseFlag )
 {
   double  *paramsVect, *paramOffsets;
+  double  progress;
   int  i, status, nIter, nDone, nSuccessfulIters;
+  int  progressBarPos;
   int  nParams = theModel->GetNParams();
   int  nValidPixels = theModel->GetNValidPixels();
   int  verboseLevel = -1;   // ensure minimizer stays silent
+  string  iterTemplate;
 
   if (rngSeed > 0)
     init_genrand(rngSeed);
@@ -295,9 +298,16 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parame
     return -1;
   }
 
+  int  nDigits = floor(log10(nIterations)) + 1;
+  iterTemplate = PrintToString("] %%%dd", nDigits) + " (%3.1f%%)\r";
+
   // Bootstrap iterations:
+  if (verboseFlag)
+    printf("Starting %d rounds of bootstrap resampling:\n", nIterations);
   nSuccessfulIters = 0;
   for (nIter = 0; nIter < nIterations; nIter++) {
+  	if (verboseFlag)
+  	  fflush(stdout);
     theModel->MakeBootstrapSample();
     for (i = 0; i < nParams; i++)
       paramsVect[i] = bestfitParams[i];
@@ -323,8 +333,17 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parame
       }
       nSuccessfulIters += 1;
     }
+
+	if (verboseFlag) {
+      // print/update progress bar
+      nDone = nIter + 1;
+      PrintProgressBar(nDone, nIterations, iterTemplate, PROGRESS_BAR_WIDTH);
+    }
   }
  
+  if (verboseFlag)
+    printf("\n");
+
   free(paramsVect);
   free(paramOffsets);
 

@@ -1038,7 +1038,7 @@ void MakeMCMCOutputHeader( vector<string> *headerLines, const string& programNam
 void PrintParamLimits( vector<mp_par> &parameterInfo, int nParams )
 {
   for (int i = 0; i < nParams; i++) {
-    if ( (parameterInfo[i].fixed == 1) )
+    if (parameterInfo[i].fixed == 1)
       printf("%d: fixed\n", i);
     else
       printf("%d: %.1f,%.1f\n", i, parameterInfo[i].limits[0], parameterInfo[i].limits[1]);
