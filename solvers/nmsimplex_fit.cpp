@@ -1,6 +1,6 @@
 /* FILE: nmsimplex_fit.cpp ----------------------------------------------- */
 
-// Copyright 2012--2018 by Peter Erwin.
+// Copyright 2012--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -154,7 +154,8 @@ void GetInterpretation_NM( const int resultValue, string& outputString )
 
 
 int NMSimplexFit( const int nParamsTot, double *paramVector, vector<mp_par> parameterLimits, 
-                  ModelObject *theModel, const double ftol, const int verbose, SolverResults *solverResults )
+                  ModelObject *theModel, const double ftol, const int verbose, 
+                  SolverResults *solverResults )
 {
   nlopt_result  result;
   int  maxEvaluations;

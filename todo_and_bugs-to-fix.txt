@@ -1284,7 +1284,7 @@ should be skipped (e.g., for FlatSky component)
 			std::shared_ptr<T> ptr(static_cast<T*>(malloc(sizeof(T))), free);
 		See, e.g., https://stackoverflow.com/questions/12264701/shared-ptr-with-malloc-and-free
 		
-		* REASON WHY WE CAN'T DO THIS: In C++-11 (and C++14), shared_ptr objects
+		* REASON WHY WE CAN'T DO THIS: In C++-11 (and C++-14), shared_ptr objects
 		do *not* have array access via [], and so *cannot* be used in place of
 		standard C/C++ arrays! (Weirdly, unique_ptr *does* have this ability.
 		Also, there is a C++-17 proposal to add this to shared_ptr, but that's not
