@@ -28,6 +28,23 @@ double Calculate_bn( double n )
 }
 
 
+double CalculateDBEScalingFactor( double h1, double h2, double h3, double r_brk1,
+									double r_brk2, double alpha1, double alpha2 )
+{
+  // n = 2
+  double P2a = 1.0 + exp(-alpha1*r_brk1);
+  double exp2 = (1.0/alpha1)*(1.0/h1 - 1.0/h2);
+  double P2 = pow(P2a, exp2);
+
+  // n = 3
+  double P3a = 1.0 + exp(-alpha2*r_brk2);
+  double exp3 = (1.0/alpha2)*(1.0/h2 - 1.0/h3);
+  double P3 = pow(P3a, exp3);
+	
+  return 1.0/(P2*P3);
+}
+
+
 double GeneralizedRadius( double deltaX, double deltaY, double cosPA, double sinPA,
 							double q, double ellExponent, double invEllExponent )
 {

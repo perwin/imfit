@@ -584,6 +584,7 @@ if useExtraFuncs:
     if useGSL:
         functionobject_obj_string += " func_brokenexpbar3d"
         functionobject_obj_string += " func_boxytest3d"
+        functionobject_obj_string += " func_double-brokenexpdisk3d"
         functionobject_obj_string += " func_expdisk3d_trunc"
         functionobject_obj_string += " func_logspiral"
         functionobject_obj_string += " func_logspiral2"

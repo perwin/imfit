@@ -45,6 +45,7 @@
 #include <string>
 
 #include "func_double-broken-exp.h"
+#include "helper_funcs.h"
 
 using namespace std;
 
@@ -60,8 +61,8 @@ const int  SUBSAMPLE_R = 10;
 const char DoubleBrokenExponential::className[] = "DoubleBrokenExponential";
 
 
-double CalculateScalingFactor( double h1, double h2, double h3, double r_brk1,
-								double r_brk2, double alpha1, double alpha2 );
+// double CalculateScalingFactor( double h1, double h2, double h3, double r_brk1,
+// 								double r_brk2, double alpha1, double alpha2 );
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
@@ -111,7 +112,7 @@ void DoubleBrokenExponential::Setup( double params[], int offsetIndex, double xc
   exponent2 = (1.0/alpha1)*(1.0/h1 - 1.0/h2);
   exponent3 = (1.0/alpha2)*(1.0/h2 - 1.0/h3);
   // Calculate S [note that this can cause floating *underflow*, but that's OK]:
-  double  S = CalculateScalingFactor(h1, h2, h3, r_b1, r_b2, alpha1, alpha2);
+  double  S = CalculateDBEScalingFactor(h1, h2, h3, r_b1, r_b2, alpha1, alpha2);
   I_0_times_S = I_0 * S;
   delta_Rb1_scaled = r_b1/h2 - r_b1/h1;
   delta_Rb2_scaled = r_b2/h3 - r_b2/h2;
@@ -226,21 +227,21 @@ int DoubleBrokenExponential::CalculateSubsamples( double r )
 /* ----------------------------- OTHER FUNCTIONS -------------------------------- */
 
 /* ---------------- CalculateScalingFactor -------------------------------------- */
-double CalculateScalingFactor( double h1, double h2, double h3, double r_brk1,
-								double r_brk2, double alpha1, double alpha2 )
-{
-  // n = 2
-  double P2a = 1.0 + exp(-alpha1*r_brk1);
-  double exp2 = (1.0/alpha1)*(1.0/h1 - 1.0/h2);
-  double P2 = pow(P2a, exp2);
-
-  // n = 3
-  double P3a = 1.0 + exp(-alpha2*r_brk2);
-  double exp3 = (1.0/alpha2)*(1.0/h2 - 1.0/h3);
-  double P3 = pow(P3a, exp3);
-	
-  return 1.0/(P2*P3);
-}
+// double CalculateScalingFactor( double h1, double h2, double h3, double r_brk1,
+// 								double r_brk2, double alpha1, double alpha2 )
+// {
+//   // n = 2
+//   double P2a = 1.0 + exp(-alpha1*r_brk1);
+//   double exp2 = (1.0/alpha1)*(1.0/h1 - 1.0/h2);
+//   double P2 = pow(P2a, exp2);
+// 
+//   // n = 3
+//   double P3a = 1.0 + exp(-alpha2*r_brk2);
+//   double exp3 = (1.0/alpha2)*(1.0/h2 - 1.0/h3);
+//   double P3 = pow(P3a, exp3);
+// 	
+//   return 1.0/(P2*P3);
+// }
 
 
 /* END OF FILE: func_double-broken-exp.cpp ----------------------------- */

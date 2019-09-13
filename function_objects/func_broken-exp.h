@@ -13,7 +13,7 @@
  * h1 = params[3 + offsetIndex ];   -- inner exp. scale length (pixels)
  * h2 = params[4 + offsetIndex ];   -- outer exp. scale length (pixels)
  * r_break = params[5 + offsetIndex ];   -- break radius (pixels)
- * alpha = params[6 + offsetIndex ];     -- smoothness/sharpness of break
+ * alpha = params[6 + offsetIndex ];     -- smoothness/sharpness of break [1/pixels]
  *
  *
  */

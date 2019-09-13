@@ -11,6 +11,10 @@
 double Calculate_bn( double n );
 
 
+/// Calculate scaling factor for double-broken-exponential
+double CalculateDBEScalingFactor( double h1, double h2, double h3, double r_brk1,
+									double r_brk2, double alpha1, double alpha2 );
+
 
 // Generalized ellipse shapes
 

@@ -3,8 +3,8 @@
  *
  *   Experimental function object class for a 3D exponential disk (luminosity
  * density = radial broken exponential with scale lengths h1 and h2, break
- * radius r_b, and vertical vertical sech^(2/n) profile with scale heigh h_z, seen
- * at position angle PA and inclination inc.
+ * radius r_b, and vertical vertical sech^(2/n) profile with scale height h_z, 
+ * seen at position angle PA and inclination inc.
  *   
  *   BASIC IDEA:
  *      Setup() is called as the first part of invoking the function;

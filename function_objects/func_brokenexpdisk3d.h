@@ -4,6 +4,18 @@
  * which produces the integrated intensity of a 3D disk with a broken-exponential radial
  * profile and vertical exponential profile, seen at specified inclination.
  *
+ * PARAMETERS:
+ * x0 = xc;   -- center of component (pixels, x)
+ * y0 = yc;   -- center of component (pixels, y)
+ * PA = params[0 + offsetIndex];     -- PA of component line of nodes, rel. to image +x axis
+ * inclination = params[1 + offsetIndex];  -- inclination to line of sight (i=0 for face-on)
+ * J_0 = params[2 + offsetIndex ];   -- central luminosity density (ADU)
+ * h1 = params[3 + offsetIndex ];    -- inner exp. scale length (pixels)
+ * h2 = params[4 + offsetIndex ];    -- outer exp. scale length (pixels)
+ * r_b = params[5 + offsetIndex ];   -- break radius (pixels)
+ * alpha = params[6 + offsetIndex ]; -- smoothness/sharpness of break [1/pixels]
+ * n = params[7 + offsetIndex ];     -- exponent used in sech vertical function
+ * z_0 = params[8 + offsetIndex ];   -- vertical scale height
  *
  */
 

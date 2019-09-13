@@ -13,7 +13,7 @@
  * h1 = params[2 + offsetIndex ];   -- inner exp. scale length (pixels) along major axis
  * h2 = params[3 + offsetIndex ];   -- outer exp. scale length (pixels) along major axis
  * r_break = params[4 + offsetIndex ];   -- break radius (pixels)
- * alpha = params[5 + offsetIndex ];     -- smoothness/sharpness of break along major axis
+ * alpha = params[5 + offsetIndex ];     -- smoothness/sharpness of break along major axis [1/pixels]
  * sigma = params[6 + offsetIndex ];     -- width of minor-axis Gaussian (pixels)
  *
  */
