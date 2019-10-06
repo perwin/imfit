@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
 
   // * Read in oversampled PSF image(s), if supplied
   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {
-    status = GetOversampledPsfInfo(options.get(), X0_offset, Y0_offset, psfOversamplingInfoVect);
+    status = GetOversampledPsfInfo(options, X0_offset, Y0_offset, psfOversamplingInfoVect);
 	if (status < 0)
 	  exit(-1);
   }

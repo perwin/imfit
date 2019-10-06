@@ -9,6 +9,7 @@
 
 #include <tuple>
 #include <string>
+#include <memory>
 
 #include "options_base.h"
 #include "psf_oversampling_info.h"
@@ -31,7 +32,7 @@ std::tuple<double *, int, int, int> GetPsfImage( const string &psfFileName );
 /// Reads in multiple oversampled PSF images, storing them (along with user-specified
 /// info like oversampling scale and image regions for oversampling) in a vector
 /// of (pointers to) PsfOversamplingInfo objects.
-int GetOversampledPsfInfo( const OptionsBase *options, int xOffset, int yOffset, 
+int GetOversampledPsfInfo( const std::shared_ptr<OptionsBase> options, int xOffset, int yOffset, 
 							vector<PsfOversamplingInfo *> &psfOversamplingInfoVect );
 
 
