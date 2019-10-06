@@ -18,6 +18,7 @@
 // with Imfit.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
+#include <memory>
 #include <stdlib.h>
 
 #include "setup_model_object.h"
@@ -32,7 +33,7 @@ using namespace std;
 // nColumnsRowsVector[2] = nColumns_psf  [optional]
 // nColumnsRowsVector[3] = nRows_psf  [optional]
 
-ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVector, 
+ModelObject* SetupModelObject( std::shared_ptr<OptionsBase> options, vector<int> nColumnsRowsVector, 
 					double *dataPixels, double *psfPixels, double *maskPixels, 
 					double *errorPixels, vector<PsfOversamplingInfo *> psfOversampleInfoVect )
 {

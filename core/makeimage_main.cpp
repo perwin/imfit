@@ -223,7 +223,7 @@ int main( int argc, char *argv[] )
   nColumnsRowsVect.push_back(nColumns_psf);
   nColumnsRowsVect.push_back(nRows_psf);
 
-  theModel = SetupModelObject(options.get(), nColumnsRowsVect, NULL, psfPixels, NULL, NULL,
+  theModel = SetupModelObject(options, nColumnsRowsVect, NULL, psfPixels, NULL, NULL,
   								psfOversamplingInfoVect);
 
   // Add functions to the model object; also tells model object where function sets start

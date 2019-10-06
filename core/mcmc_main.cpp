@@ -37,6 +37,7 @@
 #include <string.h>
 #include <string>
 #include <vector>
+#include <memory>
 #include <sys/time.h>
 #include "fftw3.h"
 
@@ -62,6 +63,7 @@
 #include "dream.h"
 #include "rng/GSLStream.h"
 
+using namespace std;
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
@@ -73,7 +75,7 @@ static string  kExpTimeString = "EXPTIME";
 static string  kNCombinedString = "NCOMBINED";
 static string  kOriginalSkyString = "ORIGINAL_SKY";
 
-const char *  LOG_FILENAME = "log_imfit-mcmc.txt";
+const string  LOG_FILENAME = "log_imfit-mcmc.txt";
 
 
 #ifdef USE_OPENMP
@@ -85,10 +87,10 @@ const char *  LOG_FILENAME = "log_imfit-mcmc.txt";
 
 
 /* ------------------- Function Prototypes ----------------------------- */
-void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions );
-bool RequestedFilesPresent( MCMCOptions *theOptions );
+void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions );
+bool RequestedFilesPresent( shared_ptr<MCMCOptions> theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
-								MCMCOptions *mainOptions );
+								shared_ptr<MCMCOptions> mainOptions );
 
 double LikelihoodFuncForDREAM( int chain, int gen, const double* state, 
 								const void* extraData, bool recalc );
@@ -132,7 +134,7 @@ int main(int argc, char *argv[])
   int  status;
   vector<string>  imageCommentsList;
   OptionsBase *commandOpts;
-  MCMCOptions *options;
+  shared_ptr<MCMCOptions> options;
   configOptions  userConfigOptions;
   const std::string  X0_string("X0");
   const std::string  Y0_string("Y0");
@@ -150,10 +152,11 @@ int main(int argc, char *argv[])
  
   // Define default options, then process the command line
   // Use a pointer to OptionsBase so we can use it in calls to SetupModelImage
-  commandOpts = new MCMCOptions();
+//   commandOpts = new MCMCOptions();
   // Use a pointer to MCMCOptions so we can access all the extra, imfit-mcmc-specific
   // data members
-  options = (MCMCOptions *)commandOpts;
+//   options = (MCMCOptions *)commandOpts;
+  options = make_shared<MCMCOptions>();
 
   ProcessInput(argc, argv, options);
 
@@ -215,7 +218,7 @@ int main(int argc, char *argv[])
 
   // Read in oversampled PSF image(s), if supplied
   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {
-    status = GetOversampledPsfInfo(options, X0_offset, Y0_offset, psfOversamplingInfoVect);
+    status = GetOversampledPsfInfo(options.get(), X0_offset, Y0_offset, psfOversamplingInfoVect);
 	if (status < 0)
 	  exit(-1);
   }
@@ -477,7 +480,7 @@ int main(int argc, char *argv[])
 
 
 
-void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
+void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions )
 {
 
   CLineParser *optParser = new CLineParser();
@@ -880,7 +883,7 @@ void ProcessInput( int argc, char *argv[], MCMCOptions *theOptions )
 ///    mask image (options.maskFileName)
 ///    noise image (options.noiseFileName)
 ///    PSF image (options.psfFileName)
-bool RequestedFilesPresent( MCMCOptions *theOptions )
+bool RequestedFilesPresent( shared_ptr<MCMCOptions> theOptions )
 {
   bool  allFilesPresent = true;
   
@@ -918,7 +921,8 @@ bool RequestedFilesPresent( MCMCOptions *theOptions )
 // Note that we only use options from the config file if they have *not*
 // already been set by the command line (i.e., command-line options override
 // config-file values).
-void HandleConfigFileOptions( configOptions *configFileOptions, MCMCOptions *mainOptions )
+void HandleConfigFileOptions( configOptions *configFileOptions, 
+								shared_ptr<MCMCOptions> mainOptions )
 {
 	double  newDblVal;
 	int  newIntVal;
