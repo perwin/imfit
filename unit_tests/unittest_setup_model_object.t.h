@@ -7,11 +7,6 @@
 // See run_unittest_setup_model_object.sh for how to compile & run this
 
 
-// ModelObject* SetupModelObject( OptionsBase *options, vector<int> nColumnsRowsVector, 
-// 					double *dataPixels, double *psfPixels, double *maskPixels, 
-// 					double *errorPixels, double *psfOversampledPixels, 
-// 					vector<int> xyOversamplePos )
-
 // We assume that the input nColumnsRowsVector has the following entries:
 // nColumnsRowsVector[0] = nColumns
 // nColumnsRowsVector[1] = nRows
@@ -25,15 +20,16 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <stdlib.h>
 #include <math.h>
+
 using namespace std;
+
 #include "definitions.h"
-//#include "function_objects/function_object.h"
 #include "setup_model_object.h"
 #include "model_object.h"
 #include "psf_oversampling_info.h"
-//#include "add_functions.h"
 #include "config_file_parser.h"
 #include "options_base.h"
 #include "options_makeimage.h"
@@ -124,10 +120,10 @@ public:
   void testSetupMakeimage_simple( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new MakeimageOptions();
+    optionsPtr = make_shared<MakeimageOptions>();
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
   
@@ -141,20 +137,19 @@ public:
     TS_ASSERT_EQUALS(psfPresent, false);
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
 
-    delete optionsPtr;
     delete theModel;
   }
 
   void testSetupMakeimage_withPSF( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
 
     long nDataVals_true = 4;
     long nDataVals;
   
-    optionsPtr = new MakeimageOptions();
+    optionsPtr = make_shared<MakeimageOptions>();
     optionsPtr->psfImagePresent = true;
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
@@ -170,14 +165,13 @@ public:
     TS_ASSERT_EQUALS(psfPresent, true);
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
 
-    delete optionsPtr;
     delete theModel;
   }
 
   void testSetupMakeimage_withOversampledPSF( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
     PsfOversamplingInfo *psfOsampleInfo;
     vector<PsfOversamplingInfo *> psfOsampleInfoVect;
@@ -191,7 +185,7 @@ public:
     long nDataVals_true = 100;
     long nDataVals;
   
-    optionsPtr = new MakeimageOptions();
+    optionsPtr = make_shared<MakeimageOptions>();
     optionsPtr->psfImagePresent = true;
     optionsPtr->psfOversampling = true;
 
@@ -215,7 +209,6 @@ public:
     TS_ASSERT_EQUALS(psfPresent, true);
     TS_ASSERT_EQUALS(oversampledPSFPresent, true);
 
-    delete optionsPtr;
     delete theModel;
     delete psfOsampleInfo;
   }
@@ -223,7 +216,7 @@ public:
   void testSetupMakeimage_withMultiOversampledPSF( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
     PsfOversamplingInfo *psfOsampleInfo1;
     PsfOversamplingInfo *psfOsampleInfo2;
@@ -238,7 +231,7 @@ public:
     long nDataVals_true = 100;
     long nDataVals;
   
-    optionsPtr = new MakeimageOptions();
+    optionsPtr = make_shared<MakeimageOptions>();
     optionsPtr->psfImagePresent = true;
     optionsPtr->psfOversampling = true;
 
@@ -266,7 +259,6 @@ public:
     TS_ASSERT_EQUALS(psfPresent, true);
     TS_ASSERT_EQUALS(oversampledPSFPresent, true);
 
-    delete optionsPtr;
     delete theModel;
     delete psfOsampleInfo1;
     delete psfOsampleInfo2;
@@ -276,10 +268,10 @@ public:
   void testSetupImfit_simple( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new ImfitOptions();
+    optionsPtr = make_shared<ImfitOptions>();
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
   
@@ -293,17 +285,16 @@ public:
     TS_ASSERT_EQUALS(psfPresent, false);
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
 
-    delete optionsPtr;
     delete theModel;
   }
 
   void testSetupImfit_withPSF( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new ImfitOptions();
+    optionsPtr = make_shared<ImfitOptions>();
     optionsPtr->psfImagePresent = true;
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
@@ -323,14 +314,13 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
     TS_ASSERT_EQUALS(maskPresent, false);
 
-    delete optionsPtr;
     delete theModel;
   }
 
   void testSetupImfit_withOversampledPSF( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
     PsfOversamplingInfo *psfOsampleInfo;
     vector<PsfOversamplingInfo *> psfOsampleInfoVect;
@@ -341,7 +331,7 @@ public:
     oversampledPSFImage[2] = 0.0;
     oversampledPSFImage[3] = 0.0;
 
-    optionsPtr = new ImfitOptions();
+    optionsPtr = make_shared<ImfitOptions>();
     optionsPtr->psfImagePresent = true;
     optionsPtr->psfOversampling = true;
 
@@ -366,7 +356,6 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, true);
     TS_ASSERT_EQUALS(maskPresent, false);
 
-    delete optionsPtr;
     delete theModel;
     delete psfOsampleInfo;
   }
@@ -374,7 +363,7 @@ public:
   void testSetupImfit_withMultipleOversampledPSF( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
     PsfOversamplingInfo *psfOsampleInfo1;
     PsfOversamplingInfo *psfOsampleInfo2;
@@ -388,7 +377,7 @@ public:
     oversampledPSFImage[2] = 0.0;
     oversampledPSFImage[3] = 0.0;
 
-    optionsPtr = new ImfitOptions();
+    optionsPtr = make_shared<ImfitOptions>();
     optionsPtr->psfImagePresent = true;
     optionsPtr->psfOversampling = true;
 
@@ -419,7 +408,6 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, true);
     TS_ASSERT_EQUALS(maskPresent, false);
 
-    delete optionsPtr;
     delete theModel;
     delete psfOsampleInfo1;
     delete psfOsampleInfo2;
@@ -429,10 +417,10 @@ public:
   void testSetupImfit_withMask( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new ImfitOptions();
+    optionsPtr = make_shared<ImfitOptions>();
     optionsPtr->maskImagePresent = true;
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
@@ -450,17 +438,16 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
     TS_ASSERT_EQUALS(maskPresent, true);
 
-    delete optionsPtr;
     delete theModel;
   }
 
   void testSetupImfit_withError( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new ImfitOptions();
+    optionsPtr = make_shared<ImfitOptions>();
     optionsPtr->noiseImagePresent = true;
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
@@ -478,7 +465,6 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
     TS_ASSERT_EQUALS(maskPresent, false);
 
-    delete optionsPtr;
     delete theModel;
   }
 
@@ -486,10 +472,10 @@ public:
   void testSetupMCMC_simple( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new MCMCOptions();
+    optionsPtr = make_shared<MCMCOptions>();
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
   
@@ -505,17 +491,16 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
     TS_ASSERT_EQUALS(maskPresent, false);
 	
-    delete optionsPtr;
     delete theModel;
   }
 
   void testSetupMCMC_withPSF( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new MCMCOptions();
+    optionsPtr = make_shared<MCMCOptions>();
     optionsPtr->psfImagePresent = true;
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
@@ -535,14 +520,13 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
     TS_ASSERT_EQUALS(maskPresent, false);
 
-    delete optionsPtr;
     delete theModel;
   }
 
   void testSetupMCMC_withOversampledPSF( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
     PsfOversamplingInfo *psfOsampleInfo1;
     PsfOversamplingInfo *psfOsampleInfo2;
@@ -556,7 +540,7 @@ public:
     oversampledPSFImage[2] = 0.0;
     oversampledPSFImage[3] = 0.0;
 
-    optionsPtr = new MCMCOptions();
+    optionsPtr = make_shared<MCMCOptions>();
     optionsPtr->psfImagePresent = true;
     optionsPtr->psfOversampling = true;
 
@@ -585,7 +569,6 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, true);
     TS_ASSERT_EQUALS(maskPresent, false);
 
-    delete optionsPtr;
     delete theModel;
     delete psfOsampleInfo1;
     delete psfOsampleInfo2;
@@ -595,10 +578,10 @@ public:
   void testSetupMCMC_withMask( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new MCMCOptions();
+    optionsPtr = make_shared<MCMCOptions>();
     optionsPtr->maskImagePresent = true;
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
@@ -616,17 +599,16 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
     TS_ASSERT_EQUALS(maskPresent, true);
 
-    delete optionsPtr;
     delete theModel;
   }
 
   void testSetupMCMC_withError( void )
   {
     ModelObject *theModel = NULL;
-    OptionsBase *optionsPtr;
+    shared_ptr<OptionsBase> optionsPtr;
     vector<int> nColumnsRowsVect;
   
-    optionsPtr = new MCMCOptions();
+    optionsPtr = make_shared<MCMCOptions>();
     optionsPtr->noiseImagePresent = true;
     nColumnsRowsVect.push_back(nSmallDataCols);
     nColumnsRowsVect.push_back(nSmallDataRows);
@@ -644,7 +626,6 @@ public:
     TS_ASSERT_EQUALS(oversampledPSFPresent, false);
     TS_ASSERT_EQUALS(maskPresent, false);
 
-    delete optionsPtr;
     delete theModel;
   }
 
