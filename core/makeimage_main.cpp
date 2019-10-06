@@ -34,6 +34,7 @@
 #include <string.h>
 #include <math.h>
 #include <string>
+#include <memory>
 #include <sys/time.h>
 #include "fftw3.h"
 
@@ -56,11 +57,13 @@
 #include "psf_oversampling_info.h"
 #include "setup_model_object.h"
 
+using namespace std;
+
 
 /* ---------------- Definitions ---------------------------------------- */
 #define EST_SIZE_HELP_STRING "     --estimation-size <int>  Size of square image to use for estimating fluxes [default = 5000]"
 
-const char *  LOG_FILENAME = "log_makeimage.txt";
+const string  LOG_FILENAME = "log_makeimage.txt";
 
 
 // Option names for use in config files
@@ -79,9 +82,9 @@ static string  kNRows = "NROWS";
 
 /* ------------------- Function Prototypes ----------------------------- */
 
-void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions );
+void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
-								MakeimageOptions *mainOptions );
+								shared_ptr<MakeimageOptions> mainOptions );
 
 
 
@@ -106,13 +109,13 @@ int main( int argc, char *argv[] )
   vector< map<string, string> > optionalParamsMap;
   vector<string>  imageCommentsList;
   double  *singleFunctionImage;
-  MakeimageOptions *options;
+  shared_ptr<MakeimageOptions> options;
   configOptions  userConfigOptions;
   bool  printFluxesOnly = false;
   
   
   /* Process command line and parse config file: */
-  options = new MakeimageOptions();    
+  options = make_shared<MakeimageOptions>();    
   ProcessInput(argc, argv, options);
 
 #ifdef USE_LOGGING
@@ -122,7 +125,7 @@ int main( int argc, char *argv[] )
     loguru::g_preamble_thread = false;
     // initialize logging
     loguru::init(argc, argv);
-    loguru::add_file(LOG_FILENAME, loguru::Append, loguru::Verbosity_MAX);
+    loguru::add_file(LOG_FILENAME.c_str(), loguru::Append, loguru::Verbosity_MAX);
     LOG_F(INFO, "*** Starting up...");
   }
 #endif
@@ -202,7 +205,7 @@ int main( int argc, char *argv[] )
 
   // Read in oversampled PSF image(s), if supplied
   if ((options->psfOversampling) && (options->psfOversampledImagePresent)) {
-    status = GetOversampledPsfInfo(options, 0,0, psfOversamplingInfoVect);
+    status = GetOversampledPsfInfo(options.get(), 0,0, psfOversamplingInfoVect);
 	if (status < 0)
 	  exit(-1);
   }
@@ -220,7 +223,7 @@ int main( int argc, char *argv[] )
   nColumnsRowsVect.push_back(nColumns_psf);
   nColumnsRowsVect.push_back(nRows_psf);
 
-  theModel = SetupModelObject(options, nColumnsRowsVect, NULL, psfPixels, NULL, NULL,
+  theModel = SetupModelObject(options.get(), nColumnsRowsVect, NULL, psfPixels, NULL, NULL,
   								psfOversamplingInfoVect);
 
   // Add functions to the model object; also tells model object where function sets start
@@ -388,7 +391,7 @@ int main( int argc, char *argv[] )
 #ifdef USE_LOGGING
   if (options->loggingOn) {
     LOG_F(INFO, "*** Freeing up memory...");
-    printf("\nInternal logging output saved to %s\n\n", LOG_FILENAME);
+    printf("\nInternal logging output saved to %s\n\n", LOG_FILENAME.c_str());
   }
 #endif
 
@@ -402,14 +405,14 @@ int main( int argc, char *argv[] )
   }
   free(paramsVect);
   delete theModel;
-  delete options;
+//   delete options;
   
   return 0;
 }
 
 
 
-void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
+void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptions )
 {
 
   CLineParser *optParser = new CLineParser();
@@ -688,7 +691,8 @@ void ProcessInput( int argc, char *argv[], MakeimageOptions *theOptions )
 // Note that we only use options from the config file if they have *not* already been set
 // by the command line (i.e., command-line options override config-file values).
 //void HandleConfigFileOptions( configOptions *configFileOptions, makeimageCommandOptions *mainOptions )
-void HandleConfigFileOptions( configOptions *configFileOptions, MakeimageOptions *mainOptions )
+void HandleConfigFileOptions( configOptions *configFileOptions, 
+								shared_ptr<MakeimageOptions> mainOptions )
 {
 	int  newIntVal;
 	

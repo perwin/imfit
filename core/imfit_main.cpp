@@ -11,7 +11,7 @@
  *    10 Nov--2 Dec 2009: Early stages of development
 */
 
-// Copyright 2009--2018 by Peter Erwin.
+// Copyright 2009--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

@@ -11,7 +11,7 @@
  *    24 October 2016: Created as modification of imfit_main.cpp.
 */
 
-// Copyright 2009--2018 by Peter Erwin.
+// Copyright 2009--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
