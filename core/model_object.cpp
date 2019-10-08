@@ -102,6 +102,8 @@ void NormalizePSF( double *psfPixels, long nPixels_psf );
 
 
 
+// NOTE: (parts of) the following class are used in PyImfit
+
 // ModelObject class
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */

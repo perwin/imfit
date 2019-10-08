@@ -14,6 +14,8 @@ using namespace std;
 
 
 
+// NOTE: (parts of) the following class are used in PyImfit
+
 /// \brief Class for storing useful results related to minimization.
 class SolverResults 
 {

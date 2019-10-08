@@ -13,6 +13,7 @@
 #include "param_struct.h"   // for mp_par structure
 #include "solver_results.h"
 
+// NOTE: The following functions is used in PyImfit
 
 // Possible return values from DispatchToSolver
 // All:

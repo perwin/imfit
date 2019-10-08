@@ -85,6 +85,8 @@ static string  kNRows = "NROWS";
 void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								shared_ptr<MakeimageOptions> mainOptions );
+void DetermineFluxes( ModelObject *theModel, double *parameters, 
+					shared_ptr<MakeimageOptions> options, const string &programName );
 
 
 
@@ -112,6 +114,10 @@ int main( int argc, char *argv[] )
   shared_ptr<MakeimageOptions> options;
   configOptions  userConfigOptions;
   bool  printFluxesOnly = false;
+  
+  string  progName = "makeimage ";
+  progName += VERSION_STRING;
+
   
   
   /* Process command line and parse config file: */
@@ -268,8 +274,6 @@ int main( int argc, char *argv[] )
 
     /* Save model image: */
     if (options->saveImage) {
-      string  progName = "makeimage ";
-      progName += VERSION_STRING;
       PrepareImageComments(&imageCommentsList, progName, options->configFileName,
     					options->psfImagePresent, options->psfFileName);
       printf("\nSaving output model image (\"%s\") ...\n", options->outputImageName.c_str());
@@ -326,45 +330,8 @@ int main( int argc, char *argv[] )
   
   // Estimate component fluxes, if requested
   if (options->printFluxes) {
-    int  nComponents = theModel->GetNFunctions();
-    double *fluxes = (double *) calloc(nComponents, sizeof(double));
-    double  fraction, totalFlux, magnitude;
-    vector<string> functionNames;
-    
-    theModel->GetFunctionNames(functionNames);
-    
-    printf("\nEstimating fluxes on %d x %d image", options->estimationImageSize,
-    				options->estimationImageSize);
-    if (options->magZeroPoint != NO_MAGNITUDES)
-      printf(" (using zero point = %g)", options->magZeroPoint);
-    printf("...\n\n");
-    
-    totalFlux = theModel->FindTotalFluxes(paramsVect, options->estimationImageSize,
-    										options->estimationImageSize, fluxes);
-    printf("Component                 Flux        Magnitude  Fraction\n");
-    for (int n = 0; n < nComponents; n++) {
-      fraction = fluxes[n] / totalFlux;
-      printf("%-25s %10.4e", functionNames[n].c_str(), fluxes[n]);
-      if ( (options->magZeroPoint != NO_MAGNITUDES) && (fluxes[n] > 0.0) ) {
-        magnitude = options->magZeroPoint - 2.5*log10(fluxes[n]);
-        printf("   %6.4f", magnitude);
-      }
-      else
-        printf("      ---");
-      if (fraction >= 0.0001)
-        printf("%12.5f\n", fraction);
-      else
-        printf("%12.3e\n", fraction);
-    }
-
-    printf("\nTotal                     %10.4e", totalFlux);
-    if (options->magZeroPoint != NO_MAGNITUDES) {
-      magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
-      printf("   %6.4f", magnitude);
-    }
-
-    free(fluxes);
-    printf("\n\n");
+    DetermineFluxes(theModel, paramsVect, options, progName);
+    printf("\n");
   }
 
 
@@ -405,7 +372,6 @@ int main( int argc, char *argv[] )
   }
   free(paramsVect);
   delete theModel;
-//   delete options;
   
   return 0;
 }
@@ -448,6 +414,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptio
   optParser->AddUsageLine("     --print-fluxes           Estimate total component fluxes (& magnitudes, if zero point is given)");
   optParser->AddUsageLine(EST_SIZE_HELP_STRING);
   optParser->AddUsageLine("     --zero-point <value>     Zero point (for estimating component & total magnitudes)");
+  optParser->AddUsageLine("     --save-fluxes <filename>            Save print-fluxes output to user-specified file");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing, or for use with --print-fluxes)");
   optParser->AddUsageLine("");
@@ -488,6 +455,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptio
   optParser->AddQueueOption("overpsf_region");
   optParser->AddOption("zero-point");
   optParser->AddOption("estimation-size");
+  optParser->AddOption("save-fluxes");
   optParser->AddOption("output-functions");
   optParser->AddOption("timing");
   optParser->AddOption("max-threads");
@@ -644,6 +612,10 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptio
     }
     theOptions->estimationImageSize = atol(optParser->GetTargetString("estimation-size").c_str());
   }
+  if (optParser->OptionSet("save-fluxes")) {
+    theOptions->saveFluxesFileName = optParser->GetTargetString("save-fluxes");
+    theOptions->saveFluxes = true;
+  }
   if (optParser->OptionSet("output-functions")) {
     theOptions->functionRootName = optParser->GetTargetString("output-functions");
     theOptions->saveAllFunctions = true;
@@ -735,6 +707,85 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
     				configFileOptions->optionNames[i].c_str());
     
   }
+}
+
+
+void DetermineFluxes( ModelObject *theModel, double *parameters, 
+					shared_ptr<MakeimageOptions> options, const string &programName )
+{
+  int  n;
+  int  nComponents = theModel->GetNFunctions();
+  double *fluxes = (double *) calloc(nComponents, sizeof(double));
+  double  fraction, totalFlux, magnitude;
+  vector<string> functionNames;
+  vector<string> saveFluxesLines;
+  
+  theModel->GetFunctionNames(functionNames);
+  
+  printf("\nEstimating fluxes on %d x %d image", options->estimationImageSize,
+  				options->estimationImageSize);
+  if (options->magZeroPoint != NO_MAGNITUDES)
+    printf(" (using zero point = %g)", options->magZeroPoint);
+  printf("...\n\n");
+  
+  totalFlux = theModel->FindTotalFluxes(parameters, options->estimationImageSize,
+  										options->estimationImageSize, fluxes);
+  saveFluxesLines.push_back("Component                 Flux        Magnitude  Fraction\n");
+  for (n = 0; n < nComponents; n++) {
+    string  str = "", thisLine = "";
+    fraction = fluxes[n] / totalFlux;
+    thisLine = PrintToString("%-25s %10.4e", functionNames[n].c_str(), fluxes[n]);
+    if ( (options->magZeroPoint != NO_MAGNITUDES) && (fluxes[n] > 0.0) ) {
+      magnitude = options->magZeroPoint - 2.5*log10(fluxes[n]);
+      str = PrintToString("   %6.4f", magnitude);
+    }
+    else
+      str = PrintToString("      ---");
+    thisLine = PrintToString("%s%s", thisLine.c_str(), str.c_str());
+    if (fraction >= 0.0001)
+      str = PrintToString("%12.5f", fraction);
+    else
+      str = PrintToString("%12.3e", fraction);
+    thisLine = PrintToString("%s%s\n", thisLine.c_str(), str.c_str());
+    saveFluxesLines.push_back(thisLine);
+  }
+
+  string  extra = "";
+  if (options->magZeroPoint != NO_MAGNITUDES) {
+    magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
+    extra = PrintToString("   %6.4f", magnitude);
+  }
+  
+  if (options->magZeroPoint != NO_MAGNITUDES) {
+    magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
+  }
+  saveFluxesLines.push_back(PrintToString("\nTotal                     %10.4e%s\n",
+							totalFlux, extra.c_str()));
+  // print results to console
+  for (n = 0; n < (int)saveFluxesLines.size(); n++)
+    printf("%s", saveFluxesLines[n].c_str());
+  // save results to file, if requested
+  if (options->saveFluxes) {
+    char  *timeStamp = TimeStamp();
+    vector<string> headerLines;
+    headerLines.push_back(PrintToString("Fluxes estimated on %s by %s\n", timeStamp, 
+    									programName.c_str()));
+    headerLines.push_back(PrintToString("Using config file %s\n", 
+    									options->configFileName.c_str()));
+    if (options->magZeroPoint != NO_MAGNITUDES)
+    headerLines.push_back(PrintToString("(photometric zero point = %g)\n", options->magZeroPoint));
+    headerLines.push_back("\n");
+
+    FILE * file_ptr = fopen(options->saveFluxesFileName.c_str(), "w");
+    for (n = 0; n < (int)headerLines.size(); n++)
+      fprintf(file_ptr, headerLines[n].c_str());
+    for (n = 0; n < (int)saveFluxesLines.size(); n++)
+      fprintf(file_ptr, saveFluxesLines[n].c_str());
+    fclose(file_ptr);
+    printf("(Estimated fluxes saved to file %s.)\n", options->saveFluxesFileName.c_str());
+  }
+
+  free(fluxes);
 }
 
 

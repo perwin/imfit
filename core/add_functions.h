@@ -16,6 +16,8 @@ using namespace std;
 static vector< map<string, string> > EMPTY_MAP_VECTOR;
 
 
+// NOTE: (some of) the following functions are used in PyImfit
+
 //! Main function which adds a list of FunctionObject instances to an instance of ModelObject
 int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
                   vector<int> &functionBlockIndices, const bool subamplingFlag,

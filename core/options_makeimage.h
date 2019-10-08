@@ -45,6 +45,8 @@ class MakeimageOptions : public OptionsBase
 
       printFluxes = false;
       estimationImageSize = DEFAULT_ESTIMATION_IMAGE_SIZE;
+      saveFluxes = false;
+      saveFluxesFileName = "";
       timingIterations = 0;
     };
 
@@ -71,6 +73,8 @@ class MakeimageOptions : public OptionsBase
 
     bool  printFluxes;
     int  estimationImageSize;
+    bool  saveFluxes;
+    string  saveFluxesFileName;
   
     int  timingIterations;
 };

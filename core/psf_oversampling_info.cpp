@@ -37,6 +37,8 @@ using namespace std;
 
 
 
+// NOTE: the following class is used in PyImfit
+
 /* ---------------- CONSTRUCTOR (default) ------------------------------ */
 /// Default constructor for PsfOversamplingInfo class
 PsfOversamplingInfo::PsfOversamplingInfo( )

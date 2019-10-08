@@ -27,6 +27,9 @@
 using namespace std;
 
 
+// NOTE: (parts of) the following class are used in PyImfit
+
+
 // assume that all methods are "common" to both 2D (base) and 1D (derived) versions,
 // unless otherwise stated
 

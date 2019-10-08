@@ -122,6 +122,8 @@ int SortComp( const void *x, const void *y )
 
 
 
+// NOTE: the following two functions are used in PyImfit
+
 /* ---------------- AIC_corrected -------------------------------------- */
 /// Calculate the bias-corrected Akaike Information Criterion for a model fit
 /// to data, given the ln(likelihood) of the best-fit model, the number of model

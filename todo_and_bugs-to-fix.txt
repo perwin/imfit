@@ -52,21 +52,24 @@
 		Save output strings to vector<string>, then
 			A. Print to console
 			B. If requested, write strings (with header) to file
-	[ ] Add "--print-fluxes" option to makeimage_main.cpp
-	[ ] Add saveFluxesFilename data member to options_makeimage.h
-	[ ] Add stub code in main() to detect save-fluxes option
-	[ ] Add code to main() to save fluxes to file
-		[ ] Rewrite print-fluxes code to write strings to vector<string>,
+	[x] Add "--print-fluxes" option to makeimage_main.cpp
+	[x] Add saveFluxesFilename data member to options_makeimage.h
+	[x] Add stub code in main() to detect save-fluxes option
+	[x] Add code to main() to save fluxes to file
+		[x] Rewrite print-fluxes code to write strings to vector<string>,
 			then print that to console
-		[ ] Code to generate header with timestamp
+		[x] Code to generate header with commandline-args and timestamp
 	
 	[ ] Add regression test to check that save-fluxes file is correctly generated
+		[ ] Generate sample file and check it
+		[ ] Add sample file to tests/makeimage_reference/
+		[ ] Add regression test to do_makeimage_tests
 
 
 [ ] Improvements to imfit.py:
 	[x] Add suggested pandas-related code to Python utilities
 		-- see email from Justus Neumann, 14 May 2018
-	[ ] Add file-existence checking
+	[x] Add file-existence checking
 
 	
 [ ] Unit tests for FerrersBar3D
