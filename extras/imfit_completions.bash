@@ -60,8 +60,8 @@ _makeimage()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="--help --version --list-functions --list-parameters --sample-config --output
 --refimage --psf --overpsf --overpsf_scale --overpsf_region --ncols --nrows --nosubsampling
---output-functions --print-fluxes --estimation-size --zero-point --nosave --timing
---max-threads --debug"
+--output-functions --print-fluxes --save-fluxes --estimation-size --zero-point --nosave 
+--timing --max-threads --debug"
 
     if [[ ${cur} == -* ]] ; then
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )

@@ -136,7 +136,8 @@ int main( int argc, char *argv[] )
   }
 #endif
   
-  if ((options->printFluxes) && (! options->saveImage) && (! options->printImages))
+  if ( ((options->printFluxes) || options->saveFluxes) && 
+  		(! options->saveImage) && (! options->printImages) )
     printFluxesOnly = true;
 
 
@@ -329,7 +330,7 @@ int main( int argc, char *argv[] )
   
   
   // Estimate component fluxes, if requested
-  if (options->printFluxes) {
+  if ((options->printFluxes) || (options->saveFluxes)) {
     DetermineFluxes(theModel, paramsVect, options, progName);
     printf("\n");
   }
@@ -720,61 +721,81 @@ void DetermineFluxes( ModelObject *theModel, double *parameters,
   vector<string> functionNames;
   vector<string> saveFluxesLines;
   
+  const string columHeaderLine = "Component                 Flux        Magnitude   Fraction\n";
+  const string columHeaderLine_for_file = "# Component               Flux        Magnitude   Fraction\n";
+  
   theModel->GetFunctionNames(functionNames);
   
-  printf("\nEstimating fluxes on %d x %d image", options->estimationImageSize,
-  				options->estimationImageSize);
-  if (options->magZeroPoint != NO_MAGNITUDES)
-    printf(" (using zero point = %g)", options->magZeroPoint);
-  printf("...\n\n");
+  if (options->printFluxes) {
+    printf("\nEstimating fluxes on %d x %d image", options->estimationImageSize,
+  													options->estimationImageSize);
+    if (options->magZeroPoint != NO_MAGNITUDES)
+      printf(" (using zero point = %g)", options->magZeroPoint);
+    printf("...\n\n");
+  }
   
   totalFlux = theModel->FindTotalFluxes(parameters, options->estimationImageSize,
   										options->estimationImageSize, fluxes);
-  saveFluxesLines.push_back("Component                 Flux        Magnitude  Fraction\n");
-  for (n = 0; n < nComponents; n++) {
-    string  str = "", thisLine = "";
-    fraction = fluxes[n] / totalFlux;
-    thisLine = PrintToString("%-25s %10.4e", functionNames[n].c_str(), fluxes[n]);
-    if ( (options->magZeroPoint != NO_MAGNITUDES) && (fluxes[n] > 0.0) ) {
-      magnitude = options->magZeroPoint - 2.5*log10(fluxes[n]);
-      str = PrintToString("   %6.4f", magnitude);
+  for (n = 0; n < (nComponents + 1); n++) {
+    double  thisFlux;
+    string  thisLine = "";
+    string  componentName;
+    if (n == nComponents) {
+      thisFlux = totalFlux;
+      fraction = 1.0;
+      componentName = "Total";
+      thisLine = "\n";
+    }
+    else {
+      thisFlux = fluxes[n];
+      fraction = thisFlux / totalFlux;
+      componentName = functionNames[n];
+    }
+    thisLine += PrintToString("%-25s %10.4e", componentName.c_str(), thisFlux);
+    if ( (options->magZeroPoint != NO_MAGNITUDES) && (thisFlux > 0.0) ) {
+      magnitude = options->magZeroPoint - 2.5*log10(thisFlux);
+      thisLine += PrintToString("   %6.4f", magnitude);
     }
     else
-      str = PrintToString("      ---");
-    thisLine = PrintToString("%s%s", thisLine.c_str(), str.c_str());
-    if (fraction >= 0.0001)
-      str = PrintToString("%12.5f", fraction);
+      thisLine += PrintToString("      ---");
+    if ((fraction >= 0.0001) || (fraction == 0.0))
+      thisLine += PrintToString("%12.5f\n", fraction);
     else
-      str = PrintToString("%12.3e", fraction);
-    thisLine = PrintToString("%s%s\n", thisLine.c_str(), str.c_str());
+      thisLine += PrintToString("%12.3e\n", fraction);
     saveFluxesLines.push_back(thisLine);
   }
 
-  string  extra = "";
-  if (options->magZeroPoint != NO_MAGNITUDES) {
-    magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
-    extra = PrintToString("   %6.4f", magnitude);
+//   string  extra = "";
+//   if (options->magZeroPoint != NO_MAGNITUDES) {
+//     magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
+//     extra = PrintToString("   %6.4f", magnitude);
+//   }
+//   
+//   if (options->magZeroPoint != NO_MAGNITUDES) {
+//     magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
+//   }
+//   saveFluxesLines.push_back(PrintToString("\nTotal                     %10.4e%s     1.00000\n",
+// 							totalFlux, extra.c_str()));
+
+  if (options->printFluxes) {
+    // print results to console
+    printf("%s", columHeaderLine.c_str());
+    for (n = 0; n < (int)saveFluxesLines.size(); n++)
+      printf("%s", saveFluxesLines[n].c_str());
+    printf("\n");
   }
-  
-  if (options->magZeroPoint != NO_MAGNITUDES) {
-    magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
-  }
-  saveFluxesLines.push_back(PrintToString("\nTotal                     %10.4e%s\n",
-							totalFlux, extra.c_str()));
-  // print results to console
-  for (n = 0; n < (int)saveFluxesLines.size(); n++)
-    printf("%s", saveFluxesLines[n].c_str());
-  // save results to file, if requested
   if (options->saveFluxes) {
+    // save results to file, if requested
     char  *timeStamp = TimeStamp();
     vector<string> headerLines;
-    headerLines.push_back(PrintToString("Fluxes estimated on %s by %s\n", timeStamp, 
+    headerLines.push_back(PrintToString("# Fluxes estimated on %s by %s\n", timeStamp, 
     									programName.c_str()));
-    headerLines.push_back(PrintToString("Using config file %s\n", 
+    headerLines.push_back(PrintToString("# Using config file %s\n", 
     									options->configFileName.c_str()));
     if (options->magZeroPoint != NO_MAGNITUDES)
-    headerLines.push_back(PrintToString("(photometric zero point = %g)\n", options->magZeroPoint));
-    headerLines.push_back("\n");
+    headerLines.push_back(PrintToString("# (photometric zero point = %g)\n", options->magZeroPoint));
+    headerLines.push_back("#\n");
+    headerLines.push_back(columHeaderLine_for_file);
 
     FILE * file_ptr = fopen(options->saveFluxesFileName.c_str(), "w");
     for (n = 0; n < (int)headerLines.size(); n++)

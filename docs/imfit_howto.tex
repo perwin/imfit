@@ -1954,23 +1954,32 @@ and the result would be three \textsc{fits} files, named \texttt{mod1\_Sersic.fi
 to \texttt{model.fits}, which is the sum of all three functions).
 
 
-\section{Using \Makeimage{} to Estimate Fluxes and Magnitudes}
+\section{Using \Makeimage{} to Estimate Fluxes and Magnitudes, B/T Ratios, etc.}
 
-Given a configuration file, you can use \makeimage{} to estimate the total
-fluxes and magnitudes of different model components. For some components --
-e.g., the purely elliptical versions of the Gaussian, Exponential, and S\'{e}rsic
-functions -- there are analytical expressions which could be used. But since
-\imfit{} and \makeimage{} are designed to use arbitrary functions, including
-ones which do not have analytical expressions for total flux, \makeimage{}
-estimates the flux for each component by internally constructing a large model
-image for each component function in the configuration file, with the
-component centered within this image, and then summing the pixel values of that image. The
-output includes a list of total and relative fluxes for each component in the
-model image (and their magnitudes, if a zero point is supplied).
+Given a configuration file, you can use \makeimage{} to estimate the
+total fluxes and magnitudes of different model components. For some
+components -- e.g., the purely elliptical versions of the Gaussian,
+Exponential, and S\'{e}rsic functions -- there are analytical
+expressions which could be used. But since \imfit{} and \makeimage{} are
+designed to use arbitrary functions, including ones which do not have
+analytical expressions for total flux, \makeimage{} estimates the flux
+for each component by internally constructing a large model image for
+each component function in the configuration file, with the component
+centered within this image, and then summing the pixel values of that
+image. The output includes a list of total and relative fluxes (i.e.,
+what fraction of the total flux each component makes up) for each
+component in the model image -- and their magnitudes, if a zero point is
+supplied.
 
+There are two command-line options to do this. The first prints the results
+to the console; the second saves the results to an output text file.
 
 \begin{quote}
-  \texttt{\$ \makeimage{} }  --print-fluxes ~ \textit{config-file}
+  \texttt{\$ \makeimage{} }  \textit{config-file} ~ \texttt{--print-fluxes}
+\end{quote}
+
+\begin{quote}
+  \texttt{\$ \makeimage{} }  \textit{config-file} ~ \texttt{--save-fluxes } \textit{filename}
 \end{quote}
 
 Useful command-line flags and options:

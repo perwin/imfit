@@ -60,6 +60,9 @@
 			then print that to console
 		[x] Code to generate header with commandline-args and timestamp
 	
+	[ ] Rework options processing in main() to handle possibilities of "print but don't save",
+		"save but don't print", and both
+	
 	[ ] Add regression test to check that save-fluxes file is correctly generated
 		[ ] Generate sample file and check it
 		[ ] Add sample file to tests/makeimage_reference/
