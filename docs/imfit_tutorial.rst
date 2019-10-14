@@ -413,20 +413,20 @@ Chi-Squared and All That: Using Different Fit Statistics
 
 Fitting a model to an image involves some assumptions about the
 underlying *statistical* model that generated your data -- i.e., what
-kind of statistical distributions the individual pixel values are drawn from.
-This in turn affects how the "fit statistic" -- the quantity you are
-trying to minimize in order to get the best fit -- is calculated.
+kind of statistical distributions the individual pixel values are drawn
+from. This in turn affects how the "fit statistic" -- the quantity you
+are trying to minimize in order to get the best fit -- is calculated.
 
 By default, imfit uses a "data-based" χ2 approach, which assumes that
 individual pixel values are drawn from the Gaussian approximation of a
 Poisson distribution. To compare a model pixel value to the data value,
 we assume that the Gaussian distribution has a mean equal to the model
-value, with the dispersion equal the square root of the data value. (If
-you provide a read-noise value, this is added in quadrature to the
+value, with the dispersion equal the square root of the *data* value.
+(If you provide a read-noise value, this is added in quadrature to the
 data-based dispersion.)
 
 One alternative is to take the dispersion from the square root of the
-(current) model value, which you can do with the ``--model-errors``
+(current) *model* value, which you can do with the ``--model-errors``
 flag:
 
 ::
@@ -511,9 +511,9 @@ uncertainties are all symmetric, and they don't provide any information
 about possible correlations or anti-correlations between different
 parameter values.
 
-If you a better picture of what the parameter uncertainties and possible
-correlations are like, there are two options: one fast but noisy and the
-other slow but detailed:
+If you would like a better picture of what the parameter uncertainties
+and possible correlations are like, there are two options: one fast but
+noisy, the other slow but detailed:
 
 1. **Boootstrap resampling**: This involves generating a new version of
    the data image by sampling from the original image with replacement
@@ -553,7 +553,7 @@ This file has one column per parameter; the column names are the
 parameters with numbers appended (e.g., ``X0_1``, ``n_1``) to make it
 possible to distinguish different parameters when multiple versions of
 the same function, or just multiple functions that have the same
-parameter names, are used in the model. (E.g., all parameters for the
+parameter names, are used in the model. (I.e., all parameters for the
 first function will have ``_1`` appended, all parameters from the second
 will have ``_2`` appended, etc.)
 
@@ -618,8 +618,8 @@ values can be changed with command-line options.)
 
 When it's done, you will have *seven* output text files, named
 mcmc\_ic3478r.1.txt, mcmc\_ic3478r.2.txt, etc., one for each of the
-individual chains. (By default, the total number of chains is = the
-number of free parameters in the model.) Each is similar to the
+individual chains. (By default, the total number of chains is equal to
+the number of free parameters in the model.) Each is similar to the
 bootstrap-resampling output file in format, with one column for each
 parameter in the model (plus some extra bookkeeping columns that you can
 ignore unless you're interested in details of the MCMC process), and one

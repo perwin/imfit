@@ -484,8 +484,9 @@ the uncertainties are all symmetric, and they don't provide any information
 about possible correlations or anti-correlations between different
 parameter values.
 
-If you a better picture of what the parameter uncertainties and possible correlations
-are like, there are two options: one fast but noisy and the other slow but detailed:
+If you would like a better picture of what the parameter uncertainties
+and possible correlations are like, there are two options: one fast but
+noisy, the other slow but detailed:
 
 1. **Boootstrap resampling**: This involves generating a new version of
 the data image by sampling from the original image with replacement
@@ -583,7 +584,7 @@ values can be changed with command-line options.)
 
 When it's done, you will have *seven* output text files, named
 mcmc\_ic3478r.1.txt, mcmc\_ic3478r.2.txt, etc., one for each of the
-individual chains. (By default, the total number of chains is = the number
+individual chains. (By default, the total number of chains is equal to the number
 of free parameters in the model.) Each is similar to the bootstrap-resampling output
 file in format, with one column for each parameter in the model (plus
 some extra bookkeeping columns that you can ignore unless you're
