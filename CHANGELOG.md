@@ -2,6 +2,13 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.8.0 -- xxx
+### Added:
+
+- New option for makeimage: --save-fluxes
+
+
+
 ## 1.7.1 -- 2019-08-07
 ### Changed:
 
