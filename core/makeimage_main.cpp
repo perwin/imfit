@@ -765,18 +765,6 @@ void DetermineFluxes( ModelObject *theModel, double *parameters,
     saveFluxesLines.push_back(thisLine);
   }
 
-//   string  extra = "";
-//   if (options->magZeroPoint != NO_MAGNITUDES) {
-//     magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
-//     extra = PrintToString("   %6.4f", magnitude);
-//   }
-//   
-//   if (options->magZeroPoint != NO_MAGNITUDES) {
-//     magnitude = options->magZeroPoint - 2.5*log10(totalFlux);
-//   }
-//   saveFluxesLines.push_back(PrintToString("\nTotal                     %10.4e%s     1.00000\n",
-// 							totalFlux, extra.c_str()));
-
   if (options->printFluxes) {
     // print results to console
     printf("%s", columHeaderLine.c_str());
@@ -803,7 +791,7 @@ void DetermineFluxes( ModelObject *theModel, double *parameters,
     for (n = 0; n < (int)saveFluxesLines.size(); n++)
       fprintf(file_ptr, saveFluxesLines[n].c_str());
     fclose(file_ptr);
-    printf("(Estimated fluxes saved to file %s.)\n", options->saveFluxesFileName.c_str());
+    printf("\nEstimated fluxes saved to file %s.\n", options->saveFluxesFileName.c_str());
   }
 
   free(fluxes);

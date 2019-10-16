@@ -281,6 +281,7 @@ makeimage_textout13b
 makeimage_textout13c
 makeimage_textout14
 makeimage_textout15
+savefluxes_out.dat
 """
 
 # for tests/imfit-mcmc_reference/

@@ -41,7 +41,7 @@
 		[X] Check 1D minor-axis image, using commands above
 
 
-[ ] Save --print-fluxes output to file
+[X] Save --print-fluxes output to file
 	Iskren Georgiev requested ability to store output from --print-fluxes in a file.
 	He seems happy with the following idea:
 		1. Keep --print-fluxes as is;
@@ -60,13 +60,13 @@
 			then print that to console
 		[x] Code to generate header with commandline-args and timestamp
 	
-	[ ] Rework options processing in main() to handle possibilities of "print but don't save",
+	[x] Rework options processing in main() to handle possibilities of "print but don't save",
 		"save but don't print", and both
 	
-	[ ] Add regression test to check that save-fluxes file is correctly generated
-		[ ] Generate sample file and check it
-		[ ] Add sample file to tests/makeimage_reference/
-		[ ] Add regression test to do_makeimage_tests
+	[x] Add regression test to check that save-fluxes file is correctly generated
+		[x] Generate sample file and check it
+		[x] Add sample file to tests/makeimage_reference/
+		[x] Add regression test to do_makeimage_tests
 
 
 [ ] Improvements to imfit.py:

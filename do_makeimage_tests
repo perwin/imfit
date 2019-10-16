@@ -53,10 +53,14 @@ echo "Running tests for makeimage..."
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512_nosize.dat -o temptest/sersic+exp_b.fits --refimage tests/gensersictest_orig.fits > temptest/test_dump3b
 # test using PSF convolution:
 ./makeimage tests/makeimage_reference/config_makeimage_gensersic512.dat -o temptest/gensersictest_conv.fits --psf tests/psf_moffat_35_n4699z.fits > temptest/test_dump4
+
 # test doing --print-fluxes:
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat --print-fluxes --nosave > temptest/test_dump5
 # test doing --print-fluxes with a FlatSky component:
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512b.dat --print-fluxes --nosave > temptest/test_dump5b
+# test doing --save-fluxes:
+./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512b.dat --save-fluxes=temptest/savefluxes_out.dat --nosave  > temptest/test_dump_null
+
 # tests of --output-functions with PSF convolution:
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat -o temptest/sersic+exp_conv.fits --output-functions temptest/singleImage_conv --psf tests/psf_moffat_35_n4699z.fits > temptest/test_dump_null
 
@@ -251,6 +255,9 @@ else
   diff temptest/test_dump5b tests/makeimage_reference/makeimage_textout5b
   STATUS+=1
 fi
+echo -n "*** Diff comparison with archives: save-fluxes mode w/ FlatSky component... "
+./python/diff_printouts.py tests/makeimage_reference/savefluxes_out.dat temptest/savefluxes_out.dat --skip-first=1
+STATUS+=$?
 
 echo -n "*** Diff comparison with archives: bad config file 1... "
 if (diff --brief temptest/test_dump6 tests/makeimage_reference/makeimage_textout6)
