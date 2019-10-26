@@ -558,7 +558,7 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 # Function objects:
 functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
         func_sersic func_gen-sersic func_core-sersic func_broken-exp
-        func_broken-exp2d func_moffat func_flatsky func_gaussian-ring 
+        func_broken-exp2d func_moffat func_flatsky func_incflatsky func_gaussian-ring 
         func_gaussian-ring2side func_edge-on-disk_n4762 func_edge-on-disk_n4762v2 
         func_edge-on-ring func_edge-on-ring2side func_king func_king2
         func_ferrersbar2d helper_funcs helper_funcs_3d psf_interpolators"""

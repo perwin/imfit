@@ -52,6 +52,7 @@
 #include "func_king2.h"
 #include "func_ferrersbar2d.h"
 #include "func_flatsky.h"
+#include "func_incflatsky.h"
 // modules requiring GSL:
 #ifndef NO_GSL
 #include "func_edge-on-disk.h"
@@ -193,6 +194,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   FlatSky::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatSky>();
+  
+  InclinedFlatSky::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<InclinedFlatSky>();
 
 // functions requring GSL:
 #ifndef NO_GSL 
