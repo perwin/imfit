@@ -32,6 +32,9 @@
 #include <string.h>
 #include <string>
 
+#include <iostream>
+#include <ostream>
+
 #include "func_incflatsky.h"
 
 using namespace std;
@@ -81,7 +84,7 @@ void InclinedFlatSky::Setup( double params[], int offsetIndex,
 
 double InclinedFlatSky::GetValue( double x, double y )
 {
-  return I0 + (x-x0)*dIdx + (x-y0)*dIdy;
+  return I0 + x*dIdx + y*dIdy;
 }
 
 

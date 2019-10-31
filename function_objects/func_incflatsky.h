@@ -26,11 +26,10 @@ class InclinedFlatSky : public FunctionObject
     double  GetValue( double x, double y );
     bool  IsBackground( );
     // No destructor for now
-
+    
     // class method for returning official short name of class
     static void GetClassShortName( string& classname ) { classname = className; };
-
-
+    
   private:
     double  x0, y0, I0, dIdx, dIdy;
 };
