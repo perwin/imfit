@@ -40,7 +40,7 @@ class FunctionObject
 
     // override in derived classes only if said class is PointSource or similar
     /// Returns true if function models point sources (e.g., PointSource class)
-    virtual bool IsPointSource( ) { return(false); };
+    virtual bool IsPointSource( ) { return(false); };    
     /// Tell point-source function about PSF image data
     virtual void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf ) { ; };
     /// Pass in pointer to PsfInterpolator object (for point-source classes only)
@@ -97,7 +97,6 @@ class FunctionObject
     // [see e.g. Scott Meyers, Effective C++]; otherwise behavior is 
     // undefined when a derived class is deleted)
     virtual ~FunctionObject();
-
 
   private:
   

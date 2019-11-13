@@ -1,0 +1,19 @@
+# -*- mode: gitignore; -*-
+  
+build/
+*.a
+*.so
+*.o
+
+temptest/
+*.DS_Store
+*.dblite
+*.log
+*.swp
+
+*.dat
+*.fits
+
+imfit
+makeimage
+
