@@ -50,6 +50,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
+// Use cmath instead of math.h to avoid GCC-5 problems with C++-11 and isnan()
 //#include <math.h>
 #include <cmath>
 
