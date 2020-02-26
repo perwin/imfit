@@ -22,7 +22,7 @@
  *     2 Oct 2017: Created (as modification of func_gaussian.cpp).
  */
 
-// Copyright 2017 by Peter Erwin.
+// Copyright 2017--2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

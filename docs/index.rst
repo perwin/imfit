@@ -61,6 +61,7 @@ The full source-code distribution is available at
    config_file_format
    fitting_images
    writing_new_image_functions
+   frequently_asked_questions
 
 
 .. toctree::

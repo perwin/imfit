@@ -11,7 +11,7 @@
 double Calculate_bn( double n );
 
 
-/// Calculate scaling factor for double-broken-exponential
+/// Calculate scaling factor for double-broken-exponential ("DBE")
 double CalculateDBEScalingFactor( double h1, double h2, double h3, double r_brk1,
 									double r_brk2, double alpha1, double alpha2 );
 
@@ -32,5 +32,10 @@ double GeneralizedRadius( double deltaX, double deltaY, double cosPA, double sin
 // Experimental functions for interpolating c0 values
 
 double LinearInterp( double r, double r1, double r2, double c01, double c02 );
+
+
+// Hyperbolic-tangent truncation function
+double HyperbolicTangentTrunc( double r, double r_brk, double B );
+
 
 #endif  // _HELPER_H_

@@ -270,8 +270,8 @@ int DESolver::Solve( int maxGenerations, int verbose )
       lastBestEnergy = bestEnergy;
     }
 
-    if (isnan(bestEnergy)) {
-//        fprintf(stderr, "\n*** NaN-valued fit statistic detected (DE optimization)!\n");
+	// use "std::isnan" to avoid odd "ambiguity" bug in GCC 4.8.x if you just use "isnan"
+    if (std::isnan(bestEnergy)) {
       printf("\n\tcandidate %d, bestEnergy = %f\n", candidate, bestEnergy);
     }
 

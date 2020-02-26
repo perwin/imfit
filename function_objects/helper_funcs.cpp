@@ -68,3 +68,11 @@ double LinearInterp( double r, double r1, double r2, double c01, double c02 )
   double m = (c02 - c01) / (r2 - r1);
   return c01 + m*(r - r1);
 }
+
+
+// original parameters: r_brk, r_outer
+// B = 2.65 - 4.98*(r_brk / (r_brk - r_outer))
+double HyperbolicTangentTrunc( double r, double r_brk, double B )
+{
+  return 0.5 * (tanh((2 - B)*(r/r_brk) + B) + 1.0);
+}

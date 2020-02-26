@@ -1858,6 +1858,7 @@ string ModelObject::PrintModelParamsHorizontalString( const double params[], con
 /// locations corresponding to each function block's imageOffset_X0 and 
 /// imageOffset_Y0 values properly set (if there are no image offsets, then
 /// the corresponding values will remain zero).
+/// Intended for use in bootstrap_errors.cpp.
 void ModelObject::GetImageOffsets( double params[] )
 {
   int  indexOffset = 0;

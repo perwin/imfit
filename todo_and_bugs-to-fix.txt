@@ -15,10 +15,8 @@
 		vagrant-$ scons --static imfit && ./do_imfit_tests
 	
 	[ ] Set up 32-bit Vagrant VM for testing
-		[ ] Test imfit-1.6.1-linux-32.tar.gz on the 32-bit VM
+		[ ] Test imfit-1.7.1-linux-32.tar.gz on the 32-bit VM
 		
-	[ ] Test cross-compiling 32-bit version on 64-bit VM?
-
 
 [X] Double-broken exponential (for Nacho)
 	[X] Figure out what's causing minor-axis discontinuities
@@ -39,34 +37,6 @@
 	[X] Add fixed code from Python to double-broken-exp.cpp
 		[X] Run unit tests
 		[X] Check 1D minor-axis image, using commands above
-
-
-[X] Save --print-fluxes output to file
-	Iskren Georgiev requested ability to store output from --print-fluxes in a file.
-	He seems happy with the following idea:
-		1. Keep --print-fluxes as is;
-		2. Add --save-fluxes=<filename> option
-	-- Do we need to modify anything in ModelObject?
-	-- Probably best if we always print the fluxes to console
-	-- Adapt code in main()
-		Save output strings to vector<string>, then
-			A. Print to console
-			B. If requested, write strings (with header) to file
-	[x] Add "--print-fluxes" option to makeimage_main.cpp
-	[x] Add saveFluxesFilename data member to options_makeimage.h
-	[x] Add stub code in main() to detect save-fluxes option
-	[x] Add code to main() to save fluxes to file
-		[x] Rewrite print-fluxes code to write strings to vector<string>,
-			then print that to console
-		[x] Code to generate header with commandline-args and timestamp
-	
-	[x] Rework options processing in main() to handle possibilities of "print but don't save",
-		"save but don't print", and both
-	
-	[x] Add regression test to check that save-fluxes file is correctly generated
-		[x] Generate sample file and check it
-		[x] Add sample file to tests/makeimage_reference/
-		[x] Add regression test to do_makeimage_tests
 
 
 [ ] Improvements to imfit.py:
@@ -1193,6 +1163,35 @@ OK, here is the problem:
 
 
 ** IMPROVEMENTS APPLIED
+
+(1.8)[X] Save --print-fluxes output to file
+	Iskren Georgiev requested ability to store output from --print-fluxes in a file.
+	He seems happy with the following idea:
+		1. Keep --print-fluxes as is;
+		2. Add --save-fluxes=<filename> option
+	-- Do we need to modify anything in ModelObject?
+	-- Probably best if we always print the fluxes to console
+	-- Adapt code in main()
+		Save output strings to vector<string>, then
+			A. Print to console
+			B. If requested, write strings (with header) to file
+	[x] Add "--print-fluxes" option to makeimage_main.cpp
+	[x] Add saveFluxesFilename data member to options_makeimage.h
+	[x] Add stub code in main() to detect save-fluxes option
+	[x] Add code to main() to save fluxes to file
+		[x] Rewrite print-fluxes code to write strings to vector<string>,
+			then print that to console
+		[x] Code to generate header with commandline-args and timestamp
+	
+	[x] Rework options processing in main() to handle possibilities of "print but don't save",
+		"save but don't print", and both
+	
+	[x] Add regression test to check that save-fluxes file is correctly generated
+		[x] Generate sample file and check it
+		[x] Add sample file to tests/makeimage_reference/
+		[x] Add regression test to do_makeimage_tests
+
+
 
 (1.7)[X] Add boolean flags to FunctionObject components to indicate total-flux computation
 should be skipped (e.g., for FlatSky component)

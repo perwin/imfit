@@ -173,9 +173,7 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 					double **outputParamArray, FILE *outputFile_ptr, unsigned long rngSeed )
 {
   double  *paramsVect, *paramOffsets;
-  double  progress;
   int  i, status, nIter, nDone, nSuccessfulIters;
-  int  progressBarPos;
   int  nParams = theModel->GetNParams();
   int  nValidPixels = theModel->GetNValidPixels();
   int  verboseLevel = -1;   // ensure minimizer stays silent
@@ -275,9 +273,7 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parame
 					double *outputParamArray, unsigned long rngSeed, bool verboseFlag )
 {
   double  *paramsVect, *paramOffsets;
-  double  progress;
   int  i, status, nIter, nDone, nSuccessfulIters;
-  int  progressBarPos;
   int  nParams = theModel->GetNParams();
   int  nValidPixels = theModel->GetNValidPixels();
   int  verboseLevel = -1;   // ensure minimizer stays silent

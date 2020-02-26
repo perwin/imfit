@@ -86,6 +86,7 @@
 #include "func_double-broken-exp.h"
 #include "func_double-brokenexpdisk3d.h"
 #include "func_flatbar.h"
+#include "func_flatbar_trunc.h"
 #include "func_gen-flatbar.h"
 #include "func_bp-cross-section.h"
 #include "func_gaussian-ring-az.h"
@@ -276,6 +277,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   FlatBar::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatBar>();
+
+  FlatBarTrunc::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FlatBarTrunc>();
 
   GenFlatBar::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GenFlatBar>();

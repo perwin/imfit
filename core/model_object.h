@@ -53,6 +53,7 @@ class ModelObject
     
     
     // Adds a new FunctionObject pointer to the internal vector
+    // (Overridden by ModelObjectMultImage)
     virtual int AddFunction( FunctionObject *newFunctionObj_ptr );
     
     // 2D only
@@ -114,7 +115,7 @@ class ModelObject
     int AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf,
                          double *psfPixels, bool normalizePSF=true );
 
- 	// 2D only [this will eventually replace AddOversampledPSFVector]
+ 	// 2D only
     int AddOversampledPsfInfo( PsfOversamplingInfo *oversampledPsfInfo );
 
     // 1D only
@@ -145,6 +146,7 @@ class ModelObject
  
     virtual int WhichFitStatistic( bool verbose=false );
  
+    // Specialized by ModelObjectMultImages
     virtual double GetFitStatistic( double params[] );
     
     virtual double ChiSquared( double params[] );

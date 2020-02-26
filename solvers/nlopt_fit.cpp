@@ -133,7 +133,8 @@ double myfunc_nlopt_gen( unsigned n, const double *x, double *grad, void *my_fun
     }
   }
   
-  if (isnan(fitStatistic)) {
+  // use "std::isnan" to avoid odd "ambiguity" bug in GCC 4.8.x if you just use "isnan"
+  if (std::isnan(fitStatistic)) {
     fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
     fprintf(stderr, "*** Terminating the fit...\n");
     junk = nlopt_force_stop(theOptimizer);

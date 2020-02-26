@@ -153,9 +153,7 @@ int main(int argc, char *argv[])
 
  
   // ** Define default options, then process the command line
-  // Use a pointer to OptionsBase so we can use it in calls to SetupModelImage
   options = make_shared<ImfitOptions>();
-  
   ProcessInput(argc, argv, options);
 
   // (Appropriate error messages regarding any missing files will be printed

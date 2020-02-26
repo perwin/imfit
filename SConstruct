@@ -188,9 +188,9 @@ link_flags = []
 
 
 # find out what the default compilers (according to SCons) are
-env = DefaultEnvironment()
-cc_default = env["CC"]
-cpp_default = env["CXX"]
+default_environ = DefaultEnvironment()
+cc_default = default_environ["CC"]
+cpp_default = default_environ["CXX"]
 CC_COMPILER = cc_default
 CPP_COMPILER = cpp_default
 c_compiler_changed = False
@@ -577,6 +577,7 @@ if useExtraFuncs:
     functionobject_obj_string += " func_double-broken-exp"
     functionobject_obj_string += " func_gen-exp2"
     functionobject_obj_string += " func_flatbar"
+    functionobject_obj_string += " func_flatbar_trunc"
     functionobject_obj_string += " func_gen-flatbar"
     functionobject_obj_string += " func_bp-cross-section"
     functionobject_obj_string += " func_gaussian-ring-az"

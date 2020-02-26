@@ -181,7 +181,8 @@ double LogSpiral2::GetValue( double x, double y )
   r = sqrt(xp*xp + yp_scaled*yp_scaled);
   phi = atan(y_diff/x_diff);
   // guard against undefined phi for x_diff = y_diff = 0 case
-  if ( (isnan(phi)) || (! isfinite(phi)) )
+  // use "std::isnan" to avoid odd "ambiguity" bug in GCC 4.8.x if you just use "isnan"
+  if ( (std::isnan(phi)) || (! isfinite(phi)) )
     phi = 0.0;
   nSubsamples = CalculateSubsamples(r);
   if (nSubsamples > 1) {
