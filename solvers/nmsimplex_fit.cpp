@@ -1,6 +1,6 @@
 /* FILE: nmsimplex_fit.cpp ----------------------------------------------- */
 
-// Copyright 2012--2019 by Peter Erwin.
+// Copyright 2012--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -51,6 +51,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <cmath>
 
 #include <nlopt.h>
 
@@ -101,7 +102,7 @@ double myfunc_nlopt( unsigned n, const double *x, double *grad, void *my_func_da
   }
   
   // use "std::isnan" to avoid odd "ambiguity" bug in GCC 4.8.x if you just use "isnan"
-  if (::isnan(fitStatistic)) {
+  if (isnan(fitStatistic)) {
     fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
     fprintf(stderr, "*** Terminating the fit...\n");
     junk = nlopt_force_stop(optimizer);
