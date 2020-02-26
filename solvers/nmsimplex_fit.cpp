@@ -60,6 +60,7 @@
 #include "solver_results.h"
 #include "utilities_pub.h"
 
+
 const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
 const double  XTOL = 1.0e-8;
@@ -100,7 +101,7 @@ double myfunc_nlopt( unsigned n, const double *x, double *grad, void *my_func_da
   }
   
   // use "std::isnan" to avoid odd "ambiguity" bug in GCC 4.8.x if you just use "isnan"
-  if (std::isnan(fitStatistic)) {
+  if (::isnan(fitStatistic)) {
     fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
     fprintf(stderr, "*** Terminating the fit...\n");
     junk = nlopt_force_stop(optimizer);
