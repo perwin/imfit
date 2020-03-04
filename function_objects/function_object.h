@@ -3,7 +3,7 @@
  * This is intended to be an abstract base class for the various
  * function objects (e.g., Sersic function, broken-exponential
  * function, etc.).
- * 
+ *
  */
 
 
@@ -40,7 +40,7 @@ class FunctionObject
 
     // override in derived classes only if said class is PointSource or similar
     /// Returns true if function models point sources (e.g., PointSource class)
-    virtual bool IsPointSource( ) { return(false); };    
+    virtual bool IsPointSource( ) { return(false); };
     /// Tell point-source function about PSF image data
     virtual void AddPsfData( double *psfPixels, int nColumns_psf, int nRows_psf ) { ; };
     /// Pass in pointer to PsfInterpolator object (for point-source classes only)
@@ -94,12 +94,12 @@ class FunctionObject
 
     // Destructor (doesn't have to be modified, but MUST be declared
     // virtual in order for this to be a sensible base object
-    // [see e.g. Scott Meyers, Effective C++]; otherwise behavior is 
+    // [see e.g. Scott Meyers, Effective C++]; otherwise behavior is
     // undefined when a derived class is deleted)
     virtual ~FunctionObject();
 
   private:
-  
+
   protected:
     int  nParams;  ///< number of input parameters that image-function uses
     bool  doSubsampling;
@@ -111,7 +111,7 @@ class FunctionObject
     // class member (constant char-vector string) which will hold name of
     // individual class in derived classes
     static const char  shortFuncName[];  ///< Class data member holding name of individual class
-  
+
 };
 
 #endif   // _FUNCTION_OBJ_H_
