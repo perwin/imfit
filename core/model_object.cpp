@@ -285,17 +285,19 @@ int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
   paramSizes.push_back(nNewParams);
   nFunctionParams += nNewParams;
   
-  // handle optional case of PointSource function  
+  // handle optional case of PointSource function
   if (newFunctionObj_ptr->IsPointSource()) {
-  
     if (! psfInterpolator_allocated) {
       string interpName = newFunctionObj_ptr->GetInterpolationType();
       int interpType = interpolationMap[interpName];
       result = SetupPsfInterpolation(interpType);
       if (result < 0)
       	return -1;
-    }  }
-      
+    }
+    newFunctionObj_ptr->AddPsfInterpolator(psfInterpolator);
+    pointSourcesPresent = true;
+  }
+  
   return 0;
 }
 
