@@ -51,7 +51,7 @@
 # etc.
 
 
-# Copyright 2010--2019 by Peter Erwin.
+# Copyright 2010--2020 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -581,7 +581,8 @@ if useExtraFuncs:
     functionobject_obj_string += " func_gen-flatbar"
     functionobject_obj_string += " func_bp-cross-section"
     functionobject_obj_string += " func_gaussian-ring-az"
-#   functionobject_obj_string += " func_ferrersbar2d"
+    functionobject_obj_string += " func_lorentzian-ring"
+    functionobject_obj_string += " func_n4608disk"
     if useGSL:
         functionobject_obj_string += " func_brokenexpbar3d"
         functionobject_obj_string += " func_boxytest3d"

@@ -67,6 +67,8 @@
 //#include "func_mynewfunction.h"
 
 // extra functions -- in developement/experimental, for testing purposes, etc.
+// WARNING: most of the use files which are not part of the standard Imfit
+// distribution!
 #ifdef USE_EXTRA_FUNCS
 #include "func_gen-exp2.h"
 #include "func_broken-exp-bar.h"
@@ -90,6 +92,8 @@
 #include "func_gen-flatbar.h"
 #include "func_bp-cross-section.h"
 #include "func_gaussian-ring-az.h"
+#include "func_lorentzian-ring.h"
+#include "func_n4608disk.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -289,6 +293,13 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   GaussianRingAz::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz>();
+
+  LorentzianRing::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<LorentzianRing>();
+
+  N4608Disk::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<N4608Disk>();
+  
 #endif
 
 #ifdef USE_TEST_FUNCS

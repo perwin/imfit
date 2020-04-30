@@ -18,6 +18,10 @@
  */
 
 
+#ifndef _FUNC_GAUSSIANRINGAZ_H_
+#define _FUNC_GAUSSIANRINGAZ_H_
+
+
 // CLASS GaussianRingAz:
 
 #include "function_object.h"
@@ -53,3 +57,5 @@ class GaussianRingAz : public FunctionObject
     double  q, PA_rad, cosPA, sinPA, A_mid, deltaA;   // other useful quantities
     double  twosigma_squared;
 };
+
+#endif   // _FUNC_GAUSSIANRINGAZ_H_

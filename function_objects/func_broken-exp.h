@@ -19,6 +19,10 @@
  */
 
 
+#ifndef _FUNC_BROKENEXP_H_
+#define _FUNC_BROKENEXP_H_
+
+
 // CLASS BrokenExponential:
 
 #include "function_object.h"
@@ -52,3 +56,5 @@ class BrokenExponential : public FunctionObject
     double  q, PA_rad, cosPA, sinPA;   // other useful quantities
     double  exponent, I_0_times_S, delta_Rb_scaled;   // other useful quantities
 };
+
+#endif   // _FUNC_BROKENEXP_H_

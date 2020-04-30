@@ -21,7 +21,7 @@
  *     [v0.1]  11 Aug 2018: Created as modification of func_broken-exp.cpp.
  */
 
-// Copyright 2018--2019 by Peter Erwin.
+// Copyright 2018--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -113,7 +113,8 @@ void FlatBar::Setup( double params[], int offsetIndex, double xc, double yc )
 /* ---------------- PRIVATE METHOD: CalculateIntensity ----------------- */
 // This function calculates the intensity for a broken-exponential function at radius r.
 // Since h2 and r_b will depend on position angle relative to the bar major
-// axis, they have to be re-calculated here, not in Setup().
+// axis, they have to be re-calculated in GetValue() and passed as parameters
+// to this function, instead of simply being pre-calculated in Setup().
 // NOTE: We assume that r >= 0, since GetValue() ensures that.
 
 double FlatBar::CalculateIntensity( double r, double h2_adj, double r_b_adj )
@@ -187,10 +188,7 @@ double FlatBar::GetValue( double x, double y )
       h2_current = h1;
     else {
       std::tie(r_b_current, h2_current) = GetAdjustedRbh2(xp, yp, r, r_circ);
-      //printf("   r_b_current = %.2f, h2_current = %.2f\n", r_b_current, h2_current);
     }
-//     printf("\ndeltaPA = %.2f, r_b_current = %.2f, h2_current = %.2f, r,r_circ = %.2f,%.2f\n",
-//     		deltaPA*RAD2DEG, r_b_current, h2_current, r, r_circ);
     totalIntensity = CalculateIntensity(r, h2_current, r_b_current);
   }
 

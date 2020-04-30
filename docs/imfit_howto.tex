@@ -247,10 +247,12 @@ The basic outline for building \Imfit{} from source is:
 \begin{enumerate}
 \item Install the \textsc{cfitsio} library (version 3.0 or higher).
 
-\item Install the \textsc{fftw} library (version 3.0 or higher) -- note
+\item Install the \textsc{fftw} library (version 3.0 or higher). Note
 that if you have a multi-core CPU (or multiple CPUs sharing main
 memory), you should build and install the threaded version of
-\textsc{fftw} as well, since this speeds up PSF convolution
+\textsc{fftw} as well (this will probably involve running its
+``configure'' script with the \texttt{--enable-threaded} option; see
+the \textsc{fftw} manual for details), since this speeds up PSF convolution
 considerably. Building \textsc{fftw} with SSE2 and AVX support will
 provide a $\sim 10$--20\% speedup for PSF convolutions, so that's also
 recommended, though not as strongly.
@@ -338,19 +340,18 @@ some simple images correctly, are common config-file errors caught,
 etc.). They make use of files and data in the \texttt{tests/}
 subdirectory. 
 
-Differences in output at the level of the least
-significant digit compared to the reference files may occur when running
-the tests on a Linux system; these should not be considered problems.
-(This sort of thing appears to depend on subtle differences in how
-different compilers and libraries handle floating-point computations and
-rounding.)
+Differences in output at the level of the least significant digit
+compared to the reference files may occur when running the tests on a
+Linux system; these should not be considered problems. (This sort of
+thing appears to depend on subtle differences in how different compilers
+and libraries handle floating-point computations and rounding.)
 
-For the full set of tests to run,
-you should have Python version 2.6, 2.7, or 3.5+ installed, along with the
-Python libraries numpy\footnote{\url{https://www.numpy.org}} and
-astropy.\footnote{\url{https://www.astropy.org}} If these are
-not available, then the parts of the tests which compare output images
-with reference versions will be skipped.
+For the full set of tests to run, you should have Python version 2.6,
+2.7, or 3.5+ installed, along with the Python libraries
+numpy\footnote{\url{https://www.numpy.org}} and
+astropy.\footnote{\url{https://www.astropy.org}} If these are not
+available, then the parts of the tests which compare output images with
+reference versions will be skipped.
 
 
 
@@ -467,11 +468,12 @@ option:
 
 \subsubsection{Options: Compiling Without FFT Multithreading}
 
-By default, the \Imfit{} binaries are compiled to take advantage of multi-core CPUs (and other
-shared-memory multiple-processor systems) when performing PSF convolutions by using the 
-multithreaded version of the
-\textsc{fftw} library. If you do not have (or cannot build) the multithreaded \textsc{fftw} library,
-you can remove multithreaded FFT computation by compiling with the following commands:
+By default, the \Imfit{} binaries are compiled to take advantage of
+multi-core CPUs (and other shared-memory multiple-processor systems)
+when performing PSF convolutions by using the multithreaded version of
+the \textsc{fftw} library. If you do not have (or cannot build) the
+multithreaded \textsc{fftw} library, you can remove multithreaded FFT
+computation by compiling with the following commands:
 \begin{quote}
 \texttt{\$ scons --no-threading imfit} \\
 \texttt{\$ scons --no-threading imfit-mcmc} \\
