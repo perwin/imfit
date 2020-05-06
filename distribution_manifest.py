@@ -135,8 +135,10 @@ func_moffat
 func_flatsky 
 func_gaussian-ring 
 func_gaussian-ring2side
+func_gaussian-ring-az 
 func_edge-on-disk_n4762 
 func_edge-on-disk_n4762v2 
+func_n4608disk 
 func_edge-on-ring 
 func_edge-on-ring2side
 func_edge-on-disk
@@ -145,6 +147,7 @@ func_expdisk3d
 func_gaussianring3d 
 func_ferrersbar2d
 func_ferrersbar3d
+func_flatbar
 func_pointsource
 helper_funcs
 helper_funcs_3d

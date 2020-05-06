@@ -50,10 +50,10 @@ class FunctionObject
     /// Sets internal oversamplingScale to specified value (for use in oversampled regions)
     virtual void SetOversamplingScale( int oversampleScale ) { ; };
 
-    // probably no need to modify this:
+    // probably no need to modify this (unless function uses subcomponent functions):
     virtual void SetSubsampling( bool subsampleFlag );
 
-    // probably no need to modify this:
+    // probably no need to modify this (for 1D functions):
     virtual void SetZeroPoint( double zeroPoint );
 
     // derived classes will almost certainly modify this, which
