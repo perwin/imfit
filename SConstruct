@@ -71,8 +71,25 @@
 
 import os, subprocess, platform, getpass, pwd
 
+
+def GetLinuxType():
+    txt = subprocess.check_output("hostnamectl")
+    txt = txt.decode('utf-8')
+    lines = txt.splitlines()
+
+    linux_name = None
+    for line in lines:
+        pp = line.split(":")
+        if pp[0].strip() == "Operating System":
+            linux_name = pp[1].split()[0]
+    return linux_name
+
 # possible values: "Darwin", "Linux"
 os_type = platform.system()
+linux_type = None
+# possible values: "Ubuntu", "CentOS", ...
+if os_type == "Linux":
+    linux_type = GetLinuxType()
 
 
 
@@ -414,8 +431,12 @@ if useNLopt:   # default is to do this
         lib_list.append(STATIC_NLOPT_LIBRARY_FILE)
         lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE)
     else:
-        lib_list.append("nlopt")    
-        lib_list_1d.append("nlopt") 
+        if (os_type == "Linux") and (linux_type == "CentOS"):
+            lib_list.append("nlopt_cxx")    
+            lib_list_1d.append("nlopt_cxx") 
+        else:
+            lib_list.append("nlopt")    
+            lib_list_1d.append("nlopt") 
 else:
     extra_defines.append("NO_NLOPT")
 
