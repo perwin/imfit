@@ -37,6 +37,9 @@
 #include "func1d_n1543majmin.h"
 #include "func1d_n1543majmin2.h"
 
+#include "func1d_double-gauss-hermite.h"
+#include "func1d_gauss-hermite.h"
+
 
 using namespace std;
 
@@ -140,6 +143,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   n1543MajMin21D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<n1543MajMin21D>();
+
+  DoubleGaussHermite1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<DoubleGaussHermite1D>();
+
+  GaussHermite1D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GaussHermite1D>();
   
 }
 

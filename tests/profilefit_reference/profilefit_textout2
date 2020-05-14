@@ -23,6 +23,7 @@ Calling Levenberg-Marquardt solver ...
 
 Reduced Chi^2 = 0.001692
 AIC = 14.395933, BIC = 22.629800
+
 X0		0.000000 # +/- 0.000000
 FUNCTION Core-Sersic-1D
 n		3.860567 # +/- 2.145627

@@ -432,6 +432,8 @@ if useNLopt:   # default is to do this
         lib_list_1d.append(STATIC_NLOPT_LIBRARY_FILE)
     else:
         if (os_type == "Linux") and (linux_type == "CentOS"):
+            # CentOS package versions of NLopt tend to call the library file
+            # "libnlopt_cxx" instead of just "libnlopt"
             lib_list.append("nlopt_cxx")    
             lib_list_1d.append("nlopt_cxx") 
         else:
@@ -762,7 +764,8 @@ modelobject1d_sources = [name + ".cpp" for name in modelobject1d_objs]
 functionobject1d_obj_string = """func1d_gaussian func1d_gaussian_linear func1d_exp func1d_sersic 
         func1d_core-sersic func1d_broken-exp func1d_moffat func1d_delta func1d_sech 
         func1d_sech2 func1d_vdksech func1d_gaussian2side  func1d_nuker func1d_spline
-        func1d_n1543majmin_circbulge func1d_n1543majmin func1d_n1543majmin2"""
+        func1d_n1543majmin_circbulge func1d_n1543majmin func1d_n1543majmin2
+        func1d_double-gauss-hermite func1d_gauss-hermite"""
 functionobject1d_objs = [ FUNCTION_1D_SUBDIR + name for name in functionobject1d_obj_string.split() ]
 functionobject1d_objs.append(FUNCTION_SUBDIR + "function_object")
 functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]

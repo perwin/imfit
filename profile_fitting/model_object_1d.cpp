@@ -556,6 +556,7 @@ int ModelObject1d::PrintModelParamsToStrings( vector<string> &stringVector, doub
       // start of new function block: extract x0,y0 and then skip over them
       k = indexOffset;
       x0 = params[k] + parameterInfoVect[k].offset;
+      stringVector.push_back(PrintToString("%s\n", prefix));
       if (printLimits) {
         if (parameterInfoVect[k].fixed == 1)
           newLine = PrintToString(X_FORMAT_WITH_FIXED, prefix, x0);

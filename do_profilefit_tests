@@ -48,7 +48,7 @@ else
 fi
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Nelder-Mead Simplex)... "
-tail -n 11 test_dump3a > test_dump3a_tail
+tail -n 12 test_dump3a > test_dump3a_tail
 if (diff --brief test_dump3a_tail tests/profilefit_reference/profilefit_textout3a)
 then
   echo " OK"
@@ -59,7 +59,7 @@ else
 fi
 
 echo -n "*** Diff comparison with archives: NGC 5381 Sersict fit (Differential Evoln.)... "
-tail -n 11 test_dump3b > test_dump3b_tail
+tail -n 12 test_dump3b > test_dump3b_tail
 if (diff --brief test_dump3b_tail tests/profilefit_reference/profilefit_textout3b)
 then
   echo " OK"
