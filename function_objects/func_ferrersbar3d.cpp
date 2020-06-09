@@ -21,7 +21,7 @@
  *     [v0.1]: 16 Oct 2012: Created (as modification of func_exp3d.cpp.
  */
 
-// Copyright 2012, 2013, 2017 by Peter Erwin.
+// Copyright 2012--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -232,6 +232,7 @@ double LuminosityDensity_FerrersBar( double s, void *params )
   														cosBarPA, sinBarPA);
 
   // Calculate luminosity density for Ferrers ellipsoid at x_bar, y_bar, z_bar
+  // NOTE: This *is* the correct mixing of y_bar and x_bar vs a2 and b2!
   m2 = y_bar*y_bar/a2 + x_bar*x_bar/b2 + z_bar*z_bar/c2;
   if (m2 > 1.0)
   	lumDensity = 0.0;

@@ -87,7 +87,7 @@ DESolver::~DESolver( )
 
 
 void DESolver::Setup( double *min, double *max, int deStrategy, double diffScale, 
-					double crossoverProb, double ftol, unsigned long rngSeed )
+					double crossoverProb, double ftol, unsigned long rngSeed, bool useLHS )
 {
   int i;
 
@@ -105,40 +105,47 @@ void DESolver::Setup( double *min, double *max, int deStrategy, double diffScale
   CopyVector(minBounds, min);
   CopyVector(maxBounds, max);
 
-  int  sampleOffset;
-  double  intervalSize, p;
-  vector< vector<int> >  sampleIndices;   // [nDim][nPop]
-  random_device rd;
-  mt19937 g(rd());
-  vector<int> singleParamSampleIndices(nPop);
+  if (useLHS) {
+    // Latin hypercube sampling
+    printf("   DESolver::Setup -- using Latin hypercube sampling.\n");
+    int  sampleOffset;
+    double  intervalSize, p;
+    // prep Latin hypercube sampling --> sampleIndices
+    vector< vector<int> >  sampleIndices;   // [nDim][nPop]
+    random_device rd;
+    mt19937 g(rd());
+    vector<int> singleParamSampleIndices(nPop);
   
-  // set up the shuffled indices
-  for (int j = 0; j < nDim; j++) {   // iterate over parameters
-    for (int i = 0; i < nPop; i++)      // iterate over samples
-      singleParamSampleIndices[i] = i;
-    shuffle(singleParamSampleIndices.begin(), singleParamSampleIndices.end(), g);
-    sampleIndices.push_back(singleParamSampleIndices);
-  }
-
-  // generate actual samples
-  for (int i = 0; i < nPop; i++) {
-    for (int j = 0; j < nDim; j++) {
-      sampleOffset = sampleIndices[j][i];
-      intervalSize = (max[j] - min[j])/nPop;
-      p = genrand_real1();
-      Element(population,i,j) = min[j] + (sampleOffset + p)*intervalSize;
+    // set up the shuffled indices
+    for (int j = 0; j < nDim; j++) {   // iterate over parameters
+      for (int i = 0; i < nPop; i++)      // iterate over samples
+        singleParamSampleIndices[i] = i;
+      shuffle(singleParamSampleIndices.begin(), singleParamSampleIndices.end(), g);
+      sampleIndices.push_back(singleParamSampleIndices);
     }
-    popEnergy[i] = 1.0E20;
+
+    // generate actual samples
+    for (int i = 0; i < nPop; i++) {
+      for (int j = 0; j < nDim; j++) {
+        sampleOffset = sampleIndices[j][i];
+        intervalSize = (max[j] - min[j])/nPop;
+        p = genrand_real1();
+        Element(population,i,j) = min[j] + (sampleOffset + p)*intervalSize;
+      }
+      popEnergy[i] = 1.0E20;
+    }
+  }
+  else {
+  	// Uniform sampling
+    printf("   DESolver::Setup -- using uniform sampling.\n");
+ 	for (i = 0; i < nPop; i++) {
+      for (int j = 0; j < nDim; j++)
+        Element(population,i,j) = RandomUniform(min[j], max[j]);
+      popEnergy[i] = 1.0E20;
+    }
   }
 
-
-  // old code (uniform sampling)
-//   for (i = 0; i < nPop; i++) {
-//     for (int j = 0; j < nDim; j++)
-//       Element(population,i,j) = RandomUniform(min[j], max[j]);
-// 
-//     popEnergy[i] = 1.0E20;
-//   }
+  // old code (uniform Monte Carlo sampling)
 
   for (i = 0; i < nDim; i++)
     bestSolution[i] = 0.0;

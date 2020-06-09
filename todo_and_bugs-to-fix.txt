@@ -45,7 +45,7 @@
 	[x] Add file-existence checking
 
 	
-[ ] Unit tests for FerrersBar3D
+[X] Unit tests for FerrersBar3D
 
 
 [X] Fix image-comparison regression tests

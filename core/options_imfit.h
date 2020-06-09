@@ -42,6 +42,7 @@ class ImfitOptions : public OptionsBase
       ftolSet = false;
       ftol = DEFAULT_FTOL;
       nloptSolverName = "NM";   // default value = Nelder-Mead Simplex
+      useLHS = false;
 
       magZeroPoint = NO_MAGNITUDES;
   
@@ -68,6 +69,7 @@ class ImfitOptions : public OptionsBase
     bool  ftolSet;
     double  ftol;
     string  nloptSolverName;
+    bool  useLHS;
   
     double  magZeroPoint;
   

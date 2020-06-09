@@ -29,6 +29,7 @@ using namespace std;
 #include "function_objects/func_broken-exp.h"
 #include "function_objects/func_broken-exp2d.h"
 #include "function_objects/func_edge-on-disk.h"
+#include "function_objects/func_ferrersbar3d.h"
 #include "function_objects/func_double-broken-exp.h"
 //#include "function_objects/func_spline-profile.h"
 
@@ -1780,17 +1781,118 @@ public:
     
     // FUNCTION-SPECIFIC:
     // r = z = 0 value
-    double  centralFlux = 2.0 * h * L0;
-    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), centralFlux, DELTA );
+    double  centralValue = 2.0 * h * L0;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), centralValue, DELTA );
 
     // vertical quasi-exponential limit: flux at r=0, z=10
     double  params2[5] = {90.0, L0, h, nexp, z0};
-    double  offsetFlux = centralFlux * pow(2.0, 2.0/nexp) * exp(-10.0/z0);
+    double  offsetFlux = centralValue * pow(2.0, 2.0/nexp) * exp(-10.0/z0);
     thisFunc->Setup(params2, 0, x0, y0);
     double x = thisFunc->GetValue(100.0, 110.0);
     //printf("offsetFlux = %.18f, x = %.18f\n", offsetFlux, x);
     TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 110.0), offsetFlux, DELTA );
 
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
+  }
+};
+
+
+class TestFerrersBar3D : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new FerrersBar3D();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 8;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("inc");
+    correctParamNames.push_back("barPA");
+    correctParamNames.push_back("J_0");
+    correctParamNames.push_back("R_bar");
+    correctParamNames.push_back("q");
+    correctParamNames.push_back("q_z");
+    correctParamNames.push_back("n");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+    
+  }
+
+  void testCalculations( void )
+  {
+    // centered at x0,y0 = 100,100
+    double  x0 = 100.0;
+    double  y0 = 100.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: face-on FerrersBar3D
+    // Face-on ellipsoid with a = b = c
+    double  PA = 0.0;
+    double  inc = 0.0;
+    double  barPA = 0.0;
+    double  J_0 = 1.0;
+    double  R_bar = 100.0;
+    double  q = 1.0;
+    double  q_z = 1.0;
+    double  n = 2.0;
+    double  params[8] = {PA, inc, barPA, J_0, R_bar, q, q_z, n};
+    
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // central value (Python numerical integration gives 106.66666666666666)
+    double  centralValue = 106.666666573;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), centralValue, DELTA );
+
+	// value outside bar should = 0
+	TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 100.0), 0.0, DELTA );
+	TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 0.0), 0.0, DELTA );
+	TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 300.0), 0.0, DELTA );
+	TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 201.0), 0.0, DELTA );
+	TS_ASSERT_DELTA( thisFunc->GetValue(201.0, 100.0), 0.0, DELTA );
+	
+	// at r = R_bar/2 along major axis, integrated flux should be
+	// (Python numerical integration gives 51.96152422430678)
+	double  halfRadiusValue = 51.9615240239;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0 + R_bar/2.0), halfRadiusValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 - R_bar/2.0, 100.0), halfRadiusValue, DELTA );
+    
+    // Now with b = a/2 (q = 0.5).
+    double  params2[8] = {PA, inc, barPA, J_0, R_bar, 0.5, q_z, n};
+    thisFunc->Setup(params2, 0, x0, y0);
+    // Central flux unchanged
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0), centralValue, DELTA );
+    // Half-radius value from before is at R_bar/2 along major axis, R_bar/4 along minor axis
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0 - R_bar/2.0), halfRadiusValue, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 + R_bar/2.0, 100.0), 0.0, DELTA );
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 + R_bar/4.0, 100.0), halfRadiusValue, DELTA );
   }
 
   void testCanCalculateTotalFlux( void )

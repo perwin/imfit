@@ -67,8 +67,8 @@
 //#include "func_mynewfunction.h"
 
 // extra functions -- in developement/experimental, for testing purposes, etc.
-// WARNING: most of the use files which are not part of the standard Imfit
-// distribution!
+// WARNING: most of these use files which are not part of the standard Imfit
+// distribution, and so this is not guaranteed to compile!
 #ifdef USE_EXTRA_FUNCS
 #include "func_gen-exp2.h"
 #include "func_broken-exp-bar.h"

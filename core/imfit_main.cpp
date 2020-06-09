@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
     fitStatus = DispatchToSolver(options->solver, nParamsTot, nFreeParams, nPixels_tot, 
     							paramsVect, parameterInfo, theModel, options->ftol, paramLimitsExist, 
     							options->verbose, &resultsFromSolver, options->nloptSolverName,
-    							options->rngSeed);
+    							options->rngSeed, options->useLHS);
     gettimeofday(&timer_end_fit, NULL);
     							
     PrintResults(paramsVect, theModel, nFreeParams, fitStatus, resultsFromSolver);
@@ -512,7 +512,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
   optParser->AddUsageLine("     --noise <noisemap.fits>  Noise/error/weight image to use");
   optParser->AddUsageLine("     --mask <mask.fits>       Mask image to use");
   optParser->AddUsageLine("     --psf <psf.fits>         PSF image to use");
-  optParser->AddUsageLine("     --no-normalize                      Do *not* normalize input PSF image");
+  optParser->AddUsageLine("     --no-normalize           Do *not* normalize input PSF image");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     (Note that the following 3 options can be specified multiple times)");
   optParser->AddUsageLine("     --overpsf <psf.fits>      Oversampled PSF image to use");
@@ -545,6 +545,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
   optParser->AddUsageLine("     --nlopt <name>           Select miscellaneous NLopt solver");
 #endif
   optParser->AddUsageLine("     --de                     Use differential evolution solver");
+  optParser->AddUsageLine("     --de-lhs                 Use differential evolution solver (with Latin hypercube sampling)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --bootstrap <int>        Do this many iterations of bootstrap resampling to estimate errors");
   optParser->AddUsageLine("     --save-bootstrap <filename>        Save all bootstrap best-fit parameters to specified file");
@@ -590,6 +591,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
   optParser->AddOption("nlopt");
 #endif
   optParser->AddFlag("de");
+  optParser->AddFlag("de-lhs");
   optParser->AddFlag("quiet");
   optParser->AddFlag("silent");
   optParser->AddFlag("loud");
@@ -709,6 +711,11 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
   if (optParser->FlagSet("de")) {
   	printf("\t* Differential Evolution selected!\n");
   	theOptions->solver = DIFF_EVOLN_SOLVER;
+  }
+  if (optParser->FlagSet("de-lhs")) {
+  	printf("\t* Differential Evolution (with Latin hypercube sampling) selected!\n");
+  	theOptions->solver = DIFF_EVOLN_SOLVER;
+  	theOptions->useLHS = true;
   }
   if (optParser->FlagSet("no-normalize")) {
     theOptions->normalizePSF = false;
