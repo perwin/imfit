@@ -49,6 +49,7 @@ public:
     referenceFunctionNameList.push_back("PointSource");
     referenceFunctionNameList.push_back("Sersic");
     referenceFunctionNameList.push_back("Sersic_GenEllipse");
+    referenceFunctionNameList.push_back("TiltedSkyPlane");
     nFunctionNames_ref = referenceFunctionNameList.size();
   }
 
