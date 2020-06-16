@@ -52,6 +52,7 @@
 #include "func_king2.h"
 #include "func_ferrersbar2d.h"
 #include "func_flatsky.h"
+#include "func_tilted-sky-plane.h"
 // modules requiring GSL:
 #ifndef NO_GSL
 #include "func_edge-on-disk.h"
@@ -92,6 +93,7 @@
 #include "func_gen-flatbar.h"
 #include "func_bp-cross-section.h"
 #include "func_gaussian-ring-az.h"
+#include "func_gaussian-ring-az2.h"
 #include "func_lorentzian-ring.h"
 #include "func_n4608disk.h"
 #endif
@@ -199,6 +201,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   FlatSky::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatSky>();
 
+  TiltedSkyPlane::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<TiltedSkyPlane>();
+
 // functions requring GSL:
 #ifndef NO_GSL 
   EdgeOnDisk::GetClassShortName(classFuncName);
@@ -293,6 +298,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   GaussianRingAz::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz>();
+
+  GaussianRingAz2::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz2>();
 
   LorentzianRing::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LorentzianRing>();

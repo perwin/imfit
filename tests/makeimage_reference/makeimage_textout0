@@ -24,5 +24,6 @@ Moffat
 PointSource
 Sersic
 Sersic_GenEllipse
+TiltedSkyPlane
 
 

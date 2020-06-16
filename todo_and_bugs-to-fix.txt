@@ -86,7 +86,7 @@
 	[x] Check Laurikainen et al. models to see if it's same as GALFIT
 
 
-[ ] Add Latin Hypercube Sampling as option for Differential Evolution
+[X] Add Latin Hypercube Sampling as option for Differential Evolution
 	-- i.e., use LHS instead of current RandomUniform function
 	in DESolver::Setup (leave *other* uses of RandomUniform as they are!)
 	-- notes/note_on_differential-evolution_tuning.txt
@@ -96,11 +96,11 @@
 		[x] Look for possible notes on when I adjusted DE parameters?
 	[x] Write & test C++ code for LHS
 	[x] Incorporate LHS code into DESolver.cpp
-	[ ] Add command-line option to imfit_main.cpp for LHS with DE
+	[x] Add command-line option to imfit_main.cpp for LHS with DE
 		"--de-lhs" ?
-		[ ] Add option to options_imfit.h structure
-		[ ] Add code to imfit_main.cpp: ProcessInput
-	[ ] Figure out how to pass LHS option into DiffEvolnFit()
+		[x] Add option to options_imfit.h structure
+		[x] Add code to imfit_main.cpp: ProcessInput
+	[x] Figure out how to pass LHS option into DiffEvolnFit()
 		-- Extra optional parameter for DispatchToSolver(), which that function
 		knows to pass on to DiffEvolnFit(), but not to others?
 		

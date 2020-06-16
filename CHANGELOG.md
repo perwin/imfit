@@ -2,10 +2,27 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.8.0 -- xxx
+## 1.8.0 -- 2020-xxx
 ### Added:
 
-- New option for makeimage: --save-fluxes
+- New image function: TiltedSkyPlane. This represents a linear 2D gradient 
+background (a "tilted plane" as the image background). Based on the InclinedFlatSky 
+function suggested by Dan Prole (danjampro).
+
+- New image function: GaussianRingAz. This is similar to GaussianRing (an
+elliptical ring with a Gaussian radial intensity profile), but has a peak
+intensity that varies with azimuth around the ring (see Erwin et al. 2020
+for its use in modeling images of the barred galaxy NGC 4608).
+
+- New option for makeimage: `--save-fluxes`, which saves the `--print-fluxes`
+component-fluxes-and-fractions output of makeimage to a text file. (Thanks
+to Iskren Georgiev for requesting this.)
+
+- New option for fitting using Differential Evolution: `--de-lhs`, which uses
+Latin hypercube sampling to set up the initial set of trial parameter vectors,
+instead of the default uniform sampling. (This may in some cases more uniformly
+sample the parameter volume, though preliminary tests suggest it may be no
+better than the default.)
 
 
 

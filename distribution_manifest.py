@@ -133,6 +133,7 @@ func_king
 func_king2
 func_moffat 
 func_flatsky 
+func_tilted-sky-plane
 func_gaussian-ring 
 func_gaussian-ring2side
 func_gaussian-ring-az 
