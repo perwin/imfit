@@ -20,8 +20,8 @@ static vector< map<string, string> > EMPTY_MAP_VECTOR;
 
 //! Main function which adds a list of FunctionObject instances to an instance of ModelObject
 int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
-                  vector<int> &functionBlockIndices, const bool subamplingFlag,
-                  const int verboseFlag=0, 
+                  vector<string> &functionLabelList, vector<int> &functionBlockIndices, 
+                  const bool subamplingFlag, const int verboseFlag=0, 
                   vector< map<string, string> > &extraParams=EMPTY_MAP_VECTOR );
 
 //! Prints out names of available image functions (FunctionObject classes) to stdout

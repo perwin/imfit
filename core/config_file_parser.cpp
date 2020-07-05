@@ -6,7 +6,7 @@
 // from lines 235--255 to generate & store a new mp_par structure
 //
 
-// Copyright 2010--2016 by Peter Erwin.
+// Copyright 2010--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -47,7 +47,7 @@ void AddParameter( string& currentLine, vector<double>& parameterList );
 int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
 							vector<mp_par>& parameterLimits, int origLineNumber );
 void AddOptionalParameter( string& currentLine, vector< map<string, string> >& optionalParamsVect );
-void AddFunctionName( string& currentLine, vector<string>& functionNameList );
+//void AddFunctionName( string& currentLine, vector<string>& functionNameList );
 void ReportConfigError( const int errorCode, const int origLineNumber );
 
 
@@ -205,13 +205,39 @@ void AddOptionalParameter( string& currentLine, vector< map<string, string> >& o
 }
 
 
-/* ---------------- FUNCTION: AddFunctionName -------------------------- */
+/* ---------------- FUNCTION: GetFunctionLabel ------------------------- */
+// Returns the label for a function defined in currentLine; if no label,
+// then "" is returned.
+string GetFunctionLabel( const string& currentLine )
+{
+  string  label;
+  size_t  loc1, loc2;
+  
+  // look for "LABEL"; if not found, return ""
+  loc1 = currentLine.find("LABEL", 0);
+  if (loc1 == string::npos)
+    label = string(""); // not strictly necessary, but useful to be explicit
+  else {
+    loc2 = loc1 + 5;   // just past final character of "LABEL"
+    label = currentLine.substr(loc2);
+    TrimWhitespace(label);
+  }
+  return label;
+}
+
+
+/* ---------------- FUNCTION: AddFunctionNameAndLabel ------------------ */
 // Parses a line, extracting the second element as a string and storing it in 
 // the functionNameList vector.
-void AddFunctionName( string& currentLine, vector<string>& functionNameList ) 
+void AddFunctionNameAndLabel( string& currentLine, vector<string>& functionNameList,
+							vector<string>& functionLabelList ) 
 {
   vector<string>  stringPieces;
+  string  label;
   
+  // get label first, before chopping the comment off
+  label = GetFunctionLabel(currentLine);
+  functionLabelList.push_back(label);
   ChopComment(currentLine);
   stringPieces.clear();
   SplitString(currentLine, stringPieces);
@@ -347,9 +373,9 @@ void ReportConfigError( const int errorCode, const int origLineNumber )
 //    fblockStartIndices = output, will contain vector of integers specifying
 //                   which functions mark start of new function block
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
-                     vector<double>& parameterList, vector<int>& fblockStartIndices,
-                     configOptions& configFileOptions,
-                    vector< map<string, string> >& optionalParamsVect )
+                     vector<string>& functionLabels, vector<double>& parameterList, 
+                     vector<int>& fblockStartIndices, configOptions& configFileOptions,
+                     vector< map<string, string> >& optionalParamsVect )
 {
   ifstream  inputFileStream;
   string  inputLine;
@@ -363,7 +389,6 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   bool inOptionalParams = false;
 
   
-  //printf("opening file ...\n");
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
      cerr << "Error opening input stream for file " << configFileName.c_str() << endl;
@@ -382,14 +407,13 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   inputFileStream.close();
   nInputLines = inputLines.size();
   
-  //printf("clearing input vectors ...\n");
   // Clear the input vectors before we start appending things to them
   functionNameList.clear();
+  functionLabels.clear();
   parameterList.clear();
   fblockStartIndices.clear();
   optionalParamsVect.clear();
   
-  //printf("looking for start of function block ...\n");
   // OK, locate the start of the function block (first line beginning with "X0")
   functionSectionStart = VetConfigFile(inputLines, origLineNumbers, mode2D, &possibleBadLineNumber);
   if (functionSectionStart < 0) {
@@ -397,7 +421,6 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     return -1;
   }
 
-  //printf("parsing first non-function-related block ...\n");
   // Parse the first (non-function-related) section here
   // We assume that each of lines has the form "CAPITAL_KEYWORD some_value"
   configFileOptions.nOptions = 0;
@@ -413,7 +436,6 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     }
   }
   
-  //printf("parsing first function section ...\n");
   // OK, now parse the function section
   i = functionSectionStart;
   functionNumber = 0;
@@ -421,7 +443,6 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     if (inputLines[i].find("X0", 0) != string::npos) {
       fblockStartIndices.push_back(functionNumber);
       AddParameter(inputLines[i], parameterList);
-      //printf("   Done.\n");
       i++;
       if (mode2D) {
         // X0 line should always be followed by Y0 line in 2D mode
@@ -438,7 +459,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
       continue;
     }
     if (inputLines[i].find("FUNCTION", 0) != string::npos) {
-      AddFunctionName(inputLines[i], functionNameList);
+      AddFunctionNameAndLabel(inputLines[i], functionNameList, functionLabels);
       functionNumber++;
       i++;
       continue;
@@ -456,14 +477,12 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
       continue;
     }
     if (inOptionalParams) {
-      //printf("   AddOptionalParameter with inputLines[i=%d] = %s\n", i, inputLines[i].c_str());
       AddOptionalParameter(inputLines[i], optionalParamsVect);
       i++;
     } else {
       // regular (non-positional) parameter line
       AddParameter(inputLines[i], parameterList);
       i++;
-      //printf("   Done.\n");
     }
   }
   
@@ -473,7 +492,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
 
 
 /* ---------------- FUNCTION: ReadConfigFile --------------------------- */
-// Full version, for use by e.g. imfit -- reads parameter limits as well
+// Full version, for use by e.g. imfit and imfit-mcmc -- reads parameter limits as well
 //    configFileName = C++ string with name of configuration file
 //    mode2D = true for 2D functions (imfit, makeimage), false for 1D (imfit1d)
 //    functionNameList = output, will contain vector of C++ strings containing functions
@@ -484,9 +503,9 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
 //    fblockStartIndices = output, will contain vector of integers specifying
 //                   which functions mark start of new function block
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
-                    vector<double>& parameterList, vector<mp_par>& parameterLimits,
-                    vector<int>& fblockStartIndices, bool& parameterLimitsFound,
-                    configOptions& configFileOptions, 
+                    vector<string>& functionLabels, vector<double>& parameterList, 
+                    vector<mp_par>& parameterLimits, vector<int>& fblockStartIndices, 
+                    bool& parameterLimitsFound, configOptions& configFileOptions, 
                     vector< map<string, string> >& optionalParamsVect )
 {
   ifstream  inputFileStream;
@@ -519,6 +538,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
 
   // Clear the input vectors before we start appending things to them
   functionNameList.clear();
+  functionLabels.clear();
   parameterList.clear();
   parameterLimits.clear();
   fblockStartIndices.clear();
@@ -587,7 +607,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     }
     if (inputLines[i].find("FUNCTION", 0) != string::npos) {
       //printf("Function detected (i = %d)\n", i);
-      AddFunctionName(inputLines[i], functionNameList);
+      AddFunctionNameAndLabel(inputLines[i], functionNameList, functionLabels);
       functionNumber++;
       i++;
       continue;

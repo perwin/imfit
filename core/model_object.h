@@ -162,6 +162,8 @@ class ModelObject
 
     void GetFunctionNames( vector<string>& functionNames );
 
+    void GetFunctionLabels( vector<string>& functionLabels );
+
     void  GetImageOffsets( double params[] );
     
     virtual string GetParamHeader( );

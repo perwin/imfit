@@ -37,6 +37,7 @@ using namespace std;
 // r_e   50.0
 
 const string  TEST_CONFIGFILE_GOOD("./tests/config_makeimage_sersictest512.dat");
+const string  TEST_CONFIGFILE_WITH_LABELS_GOOD("./tests/config_makeimage_sersictest512_with_labels.dat");
 const string  TEST_CONFIGFILE_BAD1("./tests/makeimage_reference/config_makeimage_sersictest512_bad1.dat");
 const string  TEST_CONFIGFILE_BAD2("./tests/makeimage_reference/config_makeimage_sersictest512_bad2.dat");
 const string  TEST_CONFIGFILE_BAD3("./tests/makeimage_reference/config_makeimage_sersictest512_bad3.dat");
@@ -136,6 +137,73 @@ public:
 
 
 
+  // Test for capture of function label
+  void testGetFunctionLabel( void )
+  {
+    string  noLabelLine1 = "FUNCTION Sersic";
+    string  noLabelLine2 = "FUNCTION Sersic   # this is not a label";
+    string  labelLine1 = "FUNCTION Sersic # LABEL inner bulge";
+    string  labelLine2 = "FUNCTION Sersic  LABEL inner bulge";
+    string  result1, result2, result3, result4;
+    string  correctNoLabel = "";
+    string  correctLabel = "inner bulge";
+    
+    result1 = GetFunctionLabel(noLabelLine1);
+    TS_ASSERT_EQUALS(result1, correctNoLabel);
+    result2 = GetFunctionLabel(noLabelLine2);
+    TS_ASSERT_EQUALS(result2, correctNoLabel);
+    result3 = GetFunctionLabel(labelLine1);
+    TS_ASSERT_EQUALS(result3, correctLabel);
+    result4 = GetFunctionLabel(labelLine2);
+    TS_ASSERT_EQUALS(result4, correctLabel);
+  }
+
+
+
+// void AddFunctionNameAndLabel( string& currentLine, vector<string>& functionNameList,
+// 							vector<string>& functionLabelList ) 
+
+  // Tests for AddFunctionNameAndLabel
+  void testAddFunctionNameAndLabel( void )
+  {
+    string  noLabelLine1 = "FUNCTION Sersic";
+    string  noLabelLine2 = "FUNCTION Sersic   # this is not a label";
+    string  labelLine1 = "FUNCTION Sersic # LABEL inner bulge";
+    string  labelLine2 = "FUNCTION Sersic  LABEL inner bulge";
+    
+    vector<string>  funcNames;
+    vector<string>  funcLabels;
+    string  correctFunc = "Sersic";
+    string  correctNoLabel = "";
+    string  correctLabel = "inner bulge";
+    
+    funcNames.clear();
+    funcLabels.clear();
+    AddFunctionNameAndLabel(noLabelLine1, funcNames, funcLabels);
+    TS_ASSERT_EQUALS(funcNames[0], correctFunc);
+    TS_ASSERT_EQUALS(funcLabels[0], correctNoLabel);
+
+    funcNames.clear();
+    funcLabels.clear();
+    AddFunctionNameAndLabel(noLabelLine2, funcNames, funcLabels);
+    TS_ASSERT_EQUALS(funcNames[0], correctFunc);
+    TS_ASSERT_EQUALS(funcLabels[0], correctNoLabel);
+
+    funcNames.clear();
+    funcLabels.clear();
+    AddFunctionNameAndLabel(labelLine1, funcNames, funcLabels);
+    TS_ASSERT_EQUALS(funcNames[0], correctFunc);
+    TS_ASSERT_EQUALS(funcLabels[0], correctLabel);
+
+    funcNames.clear();
+    funcLabels.clear();
+    AddFunctionNameAndLabel(labelLine2, funcNames, funcLabels);
+    TS_ASSERT_EQUALS(funcNames[0], correctFunc);
+    TS_ASSERT_EQUALS(funcLabels[0], correctLabel);
+  }
+
+
+
   // Tests for VetConfigFile()
   void testVetConfigfile_Good( void )
   {
@@ -172,6 +240,40 @@ public:
     TS_ASSERT_EQUALS(output, correctOutput);
   }
 
+  void testVetConfigfile_Good_with_labels( void )
+  {
+    ifstream  inputFileStream;
+    string  inputLine;
+    vector<string>  inputLines;
+    int  output, correctOutput;
+    int  possibleBadLineNumber = -1;
+    int  k = 0;
+    vector<int>  origLineNumbers;
+    
+    inputFileStream.open(TEST_CONFIGFILE_WITH_LABELS_GOOD.c_str());
+    if( ! inputFileStream ) {
+       cerr << "Error opening input stream for file " << TEST_CONFIGFILE_WITH_LABELS_GOOD.c_str() << endl;
+    }
+    while ( getline(inputFileStream, inputLine) ) {
+      k++;
+      // strip off leading & trailing spaces; turns a blank line with spaces/tabs
+      // into an empty string
+      TrimWhitespace(inputLine);
+      // store non-empty, non-comment lines in a vector of strings
+      if ((inputLine.size() > 0) && (inputLine[0] != '#')) {
+        inputLines.push_back(inputLine);
+        origLineNumbers.push_back(k);
+      }
+    }
+    inputFileStream.close();
+
+    correctOutput = 2;
+    output = VetConfigFile(inputLines, origLineNumbers, false, &possibleBadLineNumber);
+    TS_ASSERT_EQUALS(output, correctOutput);
+    // check that this works in 2D mode also
+    output = VetConfigFile(inputLines, origLineNumbers, true, &possibleBadLineNumber);
+    TS_ASSERT_EQUALS(output, correctOutput);
+  }
 
   // optional params: empty optional-params specification
   void testVetConfigfile_Good_OptionalParams0( void )
@@ -245,7 +347,6 @@ public:
     output = VetConfigFile(inputLines, origLineNumbers, true, &possibleBadLineNumber);
     TS_ASSERT_EQUALS(output, correctOutput);
   }
-
 
 
   // Test bad config file (no function section)
@@ -478,15 +579,17 @@ public:
 //    fblockStartIndices = output, will contain vector of integers specifying
 //                   which functions mark start of new function block
 // int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
-//                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
-//                     vector<int>& fblockStartIndices, bool& parameterLimitsFound,
-//                     configOptions& configFileOptions )
+//                     vector<string>& functionLabels, vector<double>& parameterList, 
+//                     vector<mp_par>& parameterLimits, vector<int>& fblockStartIndices, 
+//                     bool& parameterLimitsFound, configOptions& configFileOptions, 
+//                     vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
 
 
   // Tests for ReadConfigFile() -- imfit version
   void testReadConfigFile_imfit( void )
   {
     vector<string>  functionList1;
+    vector<string>  functionLabels;
     vector<double>  parameterList1;
     vector<mp_par>  paramLimits1;
     vector<int>  FunctionBlockIndices1;
@@ -494,9 +597,9 @@ public:
     bool  paramLimitsExist1;
 	bool  status;
 	
-    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
-  								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, 
-  								userConfigOptions1);
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
+    							parameterList1, paramLimits1, FunctionBlockIndices1, 
+    							paramLimitsExist1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
     
@@ -523,14 +626,83 @@ public:
 
     // do it again, to make sure the input/output vectors are cleared, then appended
     // to, rather than just appended to without being cleared first
-    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
-  								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, 
-  								userConfigOptions1);
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
+    							parameterList1, paramLimits1, FunctionBlockIndices1, 
+    							paramLimitsExist1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
     
     TS_ASSERT_EQUALS((int)functionList1.size(), 1);
     TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++) {
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    }
+    
+    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS(paramLimitsExist1, false);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+
+  }
+
+  // Same as previous, but now with function labels
+  void testReadConfigFile_imfit_with_labels( void )
+  {
+    vector<string>  functionList1;
+    vector<string>  functionLabels;
+    vector<double>  parameterList1;
+    vector<mp_par>  paramLimits1;
+    vector<int>  FunctionBlockIndices1;
+    configOptions  userConfigOptions1;
+    bool  paramLimitsExist1;
+	bool  status;
+	
+    status = ReadConfigFile(TEST_CONFIGFILE_WITH_LABELS_GOOD, true, functionList1, functionLabels,
+    							parameterList1, paramLimits1, FunctionBlockIndices1, 
+    							paramLimitsExist1, userConfigOptions1);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    TS_ASSERT_EQUALS(functionLabels[0], "main component");
+    
+    int nParams = 8;
+    double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++) {
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    }
+    
+    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS(paramLimitsExist1, false);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+
+    // do it again, to make sure the input/output vectors are cleared, then appended
+    // to, rather than just appended to without being cleared first
+    status = ReadConfigFile(TEST_CONFIGFILE_WITH_LABELS_GOOD, true, functionList1, functionLabels,
+    							parameterList1, paramLimits1, FunctionBlockIndices1, 
+    							paramLimitsExist1, userConfigOptions1);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    TS_ASSERT_EQUALS(functionLabels[0], "main component");
     
     TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
     for (int i = 0; i < nParams; i++) {
@@ -553,13 +725,14 @@ public:
   void testReadConfigFile_makeimage( void )
   {
     vector<string>  functionList1;
+    vector<string>  functionLabels;
     vector<double>  parameterList1;
     vector<int>  FunctionBlockIndices1;
     configOptions  userConfigOptions1;
 	bool  status;
 	
-    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
-  							FunctionBlockIndices1, userConfigOptions1);
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
+    						parameterList1, FunctionBlockIndices1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
     
@@ -585,8 +758,8 @@ public:
 
     // do it again, to make sure the input/output vectors are cleared, then appended
     // to, rather than just appended to without being cleared first
-    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, parameterList1, 
-  							FunctionBlockIndices1, userConfigOptions1);
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
+    						parameterList1, FunctionBlockIndices1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
     
@@ -605,25 +778,81 @@ public:
     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+  }
 
+  void testReadConfigFile_makeimage_with_labels( void )
+  {
+    vector<string>  functionList1;
+    vector<string>  functionLabels;
+    vector<double>  parameterList1;
+    vector<int>  FunctionBlockIndices1;
+    configOptions  userConfigOptions1;
+	bool  status;
+	
+    status = ReadConfigFile(TEST_CONFIGFILE_WITH_LABELS_GOOD, true, functionList1, functionLabels,
+    						parameterList1, FunctionBlockIndices1, userConfigOptions1);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    TS_ASSERT_EQUALS(functionLabels[0], "main component");
+    
+    int nParams = 8;
+    double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++) {
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    }
+    
+    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+
+    // do it again, to make sure the input/output vectors are cleared, then appended
+    // to, rather than just appended to without being cleared first
+    status = ReadConfigFile(TEST_CONFIGFILE_WITH_LABELS_GOOD, true, functionList1, functionLabels,
+    						parameterList1, FunctionBlockIndices1, userConfigOptions1);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    TS_ASSERT_EQUALS(functionLabels[0], "main component");
+
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++)
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    
+    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
   }
 
   void testReadConfigFile_makeimage_OptionalParams( void )
   {
     vector<string>  functionList1;
+    vector<string>  functionLabels;
     vector<double>  parameterList1;
     vector<int>  FunctionBlockIndices1;
     configOptions  userConfigOptions1;
     vector< map<string, string> >  optionalParamsVect;
     bool  status;
 
-// int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
-//                     vector<double>& parameterList, vector<int>& fblockStartIndices,
-//                      configOptions& configFileOptions,
-//                      vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
-	
-    status = ReadConfigFile(TEST_CONFIGFILE_OPTIONAL1, true, functionList1, parameterList1, 
-  							FunctionBlockIndices1, userConfigOptions1, optionalParamsVect);
+    status = ReadConfigFile(TEST_CONFIGFILE_OPTIONAL1, true, functionList1, functionLabels,
+    						parameterList1, FunctionBlockIndices1, userConfigOptions1, 
+    						optionalParamsVect);
   
     TS_ASSERT_EQUALS(status, 0);
     

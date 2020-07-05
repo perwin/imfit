@@ -11,7 +11,7 @@
  *    24 October 2016: Created as modification of imfit_main.cpp.
 */
 
-// Copyright 2009--2019 by Peter Erwin.
+// Copyright 2009--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -126,6 +126,7 @@ int main(int argc, char *argv[])
   std::string  noiseImage;
   ModelObject  *theModel;
   vector<string>  functionList;
+  vector<string>  functionLabelList;
   vector<double>  parameterList;
   vector<mp_par>  parameterInfo;
   vector<int>  FunctionBlockIndices;
@@ -170,8 +171,9 @@ int main(int argc, char *argv[])
 
 
   // Read configuration file, parse & process user-supplied (non-function-related) values
-  status = ReadConfigFile(options->configFileName, true, functionList, parameterList, 
-  							parameterInfo, FunctionBlockIndices, paramLimitsExist, userConfigOptions);
+  status = ReadConfigFile(options->configFileName, true, functionList, functionLabelList,
+  							parameterList, parameterInfo, FunctionBlockIndices, 
+  							paramLimitsExist, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
@@ -241,7 +243,7 @@ int main(int argc, char *argv[])
 
 
   // Add functions to the model object
-  status = AddFunctions(theModel, functionList, FunctionBlockIndices, 
+  status = AddFunctions(theModel, functionList, functionLabelList, FunctionBlockIndices, 
   						options->subsamplingFlag, options->verbose, optionalParamsMap);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");

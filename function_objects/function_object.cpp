@@ -21,7 +21,7 @@
  *   function_object class.
  */
 
-// Copyright 2010--2016 by Peter Erwin.
+// Copyright 2010--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -60,8 +60,11 @@ using namespace std;
 /// Basic constructor: sets functionName and shortFunctionName
 FunctionObject::FunctionObject( )
 {
+  // These will get redefined by derived class's constructor
   functionName = "Base (undefined) function";
   shortFunctionName = "BaseFunction";
+  
+//  label = "";
   extraParamsSet = false;
 }
 
@@ -79,6 +82,14 @@ void FunctionObject::SetSubsampling( bool subsampleFlag )
 void FunctionObject::SetZeroPoint( double zeroPoint )
 {
   ZP = zeroPoint;
+}
+
+
+/* ---------------- PUBLIC METHOD: SetLabel ---------------------------- */
+/// Used to specify a string label for a particular function instance.
+void FunctionObject::SetLabel( string &userLabel )
+{
+  label = userLabel;
 }
 
 
@@ -141,6 +152,15 @@ string& FunctionObject::GetShortName( )
 /// Return a string containing just the function name.
 {
   return shortFunctionName;
+}
+
+
+/* ---------------- PUBLIC METHOD: GetLabel --------------------------- */
+
+string& FunctionObject::GetLabel( )
+/// Return a string containing just the function label (will be "" if not set).
+{
+  return label;
 }
 
 

@@ -102,6 +102,7 @@ public:
   {
     ModelObject *modelObj;
     vector<string>  fnameList;
+    vector<string>  flabelList;
     vector<int> funcBlockIndices;
     vector<double> parameterList;
     vector<mp_par>  paramLimits;
@@ -110,11 +111,11 @@ public:
     string filename = SIMPLE_CONFIG_FILE;
     int  status, nInputFuncs, nOutputFuncs;
 
-    status = ReadConfigFile(filename, true, fnameList, parameterList, paramLimits,
+    status = ReadConfigFile(filename, true, fnameList, flabelList, parameterList, paramLimits,
   							funcBlockIndices, paramLimitsExist, userConfigOptions);
 
     modelObj = new ModelObject();
-    status = AddFunctions(modelObj, fnameList, funcBlockIndices, false, -1);
+    status = AddFunctions(modelObj, fnameList, flabelList, funcBlockIndices, false, -1);
     TS_ASSERT_EQUALS(status, 0);
 
     vector<string> outputFuncNames;
@@ -128,10 +129,51 @@ public:
     }
   }
   
+  void testAddFunctionsToModel_with_labels( void )
+  {
+    ModelObject *modelObj;
+    vector<string>  fnameList;
+    vector<string>  flabelList;
+    vector<int> funcBlockIndices;
+    vector<double> parameterList;
+    vector<mp_par>  paramLimits;
+    bool  paramLimitsExist;
+    configOptions  userConfigOptions;
+    string filename = SIMPLE_CONFIG_FILE;
+    int  status, nInputFuncs, nOutputFuncs;
+
+    status = ReadConfigFile(filename, true, fnameList, flabelList, parameterList, paramLimits,
+  							funcBlockIndices, paramLimitsExist, userConfigOptions);
+
+    modelObj = new ModelObject();
+    status = AddFunctions(modelObj, fnameList, flabelList, funcBlockIndices, false, -1);
+    TS_ASSERT_EQUALS(status, 0);
+
+    vector<string> outputFuncNames;
+    modelObj->GetFunctionNames(outputFuncNames);
+    nInputFuncs = fnameList.size();
+    nOutputFuncs = outputFuncNames.size();
+    TS_ASSERT_EQUALS(nOutputFuncs, nInputFuncs);
+    if ((nInputFuncs > 0) && (nInputFuncs == nOutputFuncs)) {
+      for (int i = 0; i < nInputFuncs; i++)
+        TS_ASSERT_EQUALS(fnameList[i], outputFuncNames[i]);
+    }
+
+    vector<string> outputFuncLabels;
+    modelObj->GetFunctionLabels(outputFuncLabels);
+    nInputFuncs = fnameList.size();
+    nOutputFuncs = outputFuncNames.size();
+    if ((nInputFuncs > 0) && (nInputFuncs == nOutputFuncs)) {
+      for (int i = 0; i < nInputFuncs; i++)
+        TS_ASSERT_EQUALS(flabelList[i], outputFuncLabels[i]);
+    }
+  }
+  
     void testAddFunctionsToModel_optionalParams( void )
   {
     ModelObject *modelObj;
     vector<string>  fnameList;
+    vector<string>  flabelList;
     vector<int> funcBlockIndices;
     vector<double> parameterList;
     vector<mp_par>  paramLimits;
@@ -148,11 +190,12 @@ public:
     optionalParamsMap[keyword] = value;
     optionalParamsVect.push_back(optionalParamsMap);
 
-    status = ReadConfigFile(filename, true, fnameList, parameterList, paramLimits,
+    status = ReadConfigFile(filename, true, fnameList, flabelList, parameterList, paramLimits,
   							funcBlockIndices, paramLimitsExist, userConfigOptions);
 
     modelObj = new ModelObject();
-    status = AddFunctions(modelObj, fnameList, funcBlockIndices, false, -1, optionalParamsVect);
+    status = AddFunctions(modelObj, fnameList, flabelList, funcBlockIndices, false, -1, 
+    						optionalParamsVect);
     TS_ASSERT_EQUALS(status, 0);
 
     vector<string> outputFuncNames;

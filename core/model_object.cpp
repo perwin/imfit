@@ -24,7 +24,7 @@
  * cases, as suggested by André Luiz de Amorim.
  */
 
-// Copyright 2010--2019 by Peter Erwin.
+// Copyright 2010--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -52,7 +52,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <math.h>
+//#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <tuple>
 
@@ -682,6 +683,7 @@ int ModelObject::AddMaskVector( long nDataValues, int nImageColumns,
                                 int nImageRows, double *pixelVector, int inputType )
 {
   int  returnStatus = 0;
+  bool  nonFiniteValues = false;
   long  z;
   
   assert( (nDataValues == nDataVals) && (nImageColumns == nDataColumns) && 
@@ -701,8 +703,11 @@ int ModelObject::AddMaskVector( long nDataValues, int nImageColumns,
         printf("ModelObject::AddMaskVector -- treating zero-valued pixels as good ...\n");
       for (z = 0; z < nDataVals; z++) {
         // Values of NaN or -infinity will fail > 0 test, but we want them masked, too
-        if ( (! isfinite(maskVector[z])) || (maskVector[z] > 0.0) )
+        if ( (! isfinite(maskVector[z])) || (maskVector[z] > 0.0) ) {
+          if (! isfinite(maskVector[z]))
+            nonFiniteValues = true;
           maskVector[z] = 0.0;
+        }
         else {
           maskVector[z] = 1.0;
           nValidDataVals++;
@@ -716,8 +721,11 @@ int ModelObject::AddMaskVector( long nDataValues, int nImageColumns,
         printf("ModelObject::AddMaskVector -- treating zero-valued pixels as bad ...\n");
       for (z = 0; z < nDataVals; z++) {
         // Values of NaN or +infinity will fail < 1 test, but we want them masked, too
-        if ( (! isfinite(maskVector[z])) || (maskVector[z] < 1.0) )
+        if ( (! isfinite(maskVector[z])) || (maskVector[z] < 1.0) ) {
+          if (! isfinite(maskVector[z]))
+            nonFiniteValues = true;
           maskVector[z] = 0.0;
+        }
         else {
           maskVector[z] = 1.0;
           nValidDataVals++;
@@ -730,7 +738,12 @@ int ModelObject::AddMaskVector( long nDataValues, int nImageColumns,
       returnStatus = -1;
       maskExists = false;
   }
-      
+
+  if (nonFiniteValues) {
+    fprintf(stderr, " ** WARNING: ModelObject::AddMaskVector -- one or more non-finite values in mask image!\n");
+    fprintf(stderr, "    (Will be treated as masked)\n");
+  }
+  
   return returnStatus;
 }
 
@@ -1724,6 +1737,17 @@ void ModelObject::GetFunctionNames( vector<string>& functionNames )
 }
 
 
+/* ---------------- PUBLIC METHOD: GetFunctionLabels ------------------ */
+/// Adds the names of image functions in the model (calling each function's 
+/// GetShortName method) to the input vector of strings
+void ModelObject::GetFunctionLabels( vector<string>& functionLabels )
+{
+  functionLabels.clear();
+  for (FunctionObject *funcObj : functionObjects)
+    functionLabels.push_back(funcObj->GetLabel());
+}
+
+
 /* ---------------- PUBLIC METHOD: PrintModelParamsToStrings ---------- */
 /// Like PrintModelParams, but appends lines of output as strings to the input
 /// vector of string. 
@@ -1743,7 +1767,7 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
   double  x0, y0, paramVal;
   int nParamsThisFunc, k;
   int  indexOffset = 0;
-  string  funcName, paramName, newLine;
+  string  funcName, funcLabel, paramName, newLine;
 
   if ((printLimits) && (parameterInfoVect.size() == 0)) {
     fprintf(stderr, "** ERROR: ModelObject::PrintModelParamsToStrings -- printing of parameter limits\n");
@@ -1787,7 +1811,11 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
     // Now print the function and its parameters
     nParamsThisFunc = paramSizes[n];
     funcName = functionObjects[n]->GetShortName();
-    stringVector.push_back(PrintToString("%sFUNCTION %s\n", prefix, funcName.c_str()));
+    funcLabel = functionObjects[n]->GetLabel();
+    if (! funcLabel.empty())
+      funcLabel = PrintToString("   # LABEL %s", funcLabel.c_str());
+    stringVector.push_back(PrintToString("%sFUNCTION %s%s\n", prefix, funcName.c_str(),
+    						funcLabel.c_str()));
     for (int i = 0; i < nParamsThisFunc; i++) {
       paramName = GetParameterName(indexOffset + i);
       paramVal = params[indexOffset + i];
@@ -1823,7 +1851,7 @@ string ModelObject::PrintModelParamsHorizontalString( const double params[], con
   double  x0, y0, paramVal;
   int nParamsThisFunc, k;
   int  indexOffset = 0;
-  string  outputString = "";
+  string  outputString;
 
   for (int n = 0; n < nFunctions; n++) {
     if (fblockStartFlags[n] == true) {

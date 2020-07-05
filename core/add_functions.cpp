@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2010--2019 by Peter Erwin.
+// Copyright 2010--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -320,8 +320,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 /// Add instances of FunctionObject classes to the input ModelObject
 int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
-                  vector<int> &functionBlockIndices, const bool subsamplingFlag, 
-                  const int verboseLevel, vector< map<string, string> > &extraParams )
+                  vector<string> &functionLabelList, vector<int> &functionBlockIndices, 
+                  const bool subsamplingFlag, const int verboseLevel, 
+                  vector< map<string, string> > &extraParams )
 {
   int  nFunctions = functionNameList.size();
   int  status;

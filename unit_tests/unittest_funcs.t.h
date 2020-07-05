@@ -1,4 +1,4 @@
-// Unit tests for 2D function classes
+// Unit tests for image function classes
 //
 // "FUNCTION-SPECIFIC" denotes code which needs to be changed when testing
 // a different function object (e.g., Sersic vs Exponential, etc.).
@@ -272,6 +272,20 @@ public:
 
   }
 
+  void testLabels( void )
+  {
+    string  result;
+    
+    string  correct = "";
+    result = thisFunc->GetLabel();
+    TS_ASSERT_EQUALS(result, correct);
+    
+    string  input = "this is a label";
+    thisFunc->SetLabel(input);
+    result = thisFunc->GetLabel();
+    TS_ASSERT_EQUALS(result, input);
+  }
+  
   void testIsBackground( void )
   {
     bool result = thisFunc->IsBackground();

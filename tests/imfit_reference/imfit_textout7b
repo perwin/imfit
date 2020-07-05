@@ -1,3 +1,5 @@
+ ** WARNING: ModelObject::AddMaskVector -- one or more non-finite values in mask image!
+    (Will be treated as masked)
 	Image file = tests/testimage_3x3_ones.fits
 	configuration file = tests/imfit_reference/config_3x3_flatsky.dat
 	mask image = tests/testimage_3x3_mask-with-nan.fits
@@ -36,6 +38,6 @@ I_sky		      1 # +/- 0.35355
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.001060 sec for fit, 0.002914 sec total)
+(Elapsed time: 0.001080 sec for fit, 0.004747 sec total)
 Done!
 

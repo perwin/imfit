@@ -42,18 +42,42 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
 /// we can do unit tests on it)
 bool ValidParameterLine( string& currentLine, bool optionalParams=false );
 
+/// \brief Utility function which extracts function name and label label from "FUNCTION ..." line
+//
+/// (This is only used inside AddFunctionNameAndLabel, but is exposed in the header file so
+/// we can do unit tests on it)
+void AddFunctionNameAndLabel( string& currentLine, vector<string>& functionNameList,
+							vector<string>& functionLabelList );
+
+/// \brief Utility function which extracts function label from "FUNCTION ..." line
+//
+/// (This is only used inside AddFunctionNameAndLabel, but is exposed in the header file so
+/// we can do unit tests on it)
+string GetFunctionLabel( const string& currentLine );
+
 /// Function for use by makeimage
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
-                    vector<double>& parameterList, vector<int>& fblockStartIndices,
-                     configOptions& configFileOptions,
+                     vector<string>& functionLabels, vector<double>& parameterList, 
+                     vector<int>& fblockStartIndices, configOptions& configFileOptions,
                      vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
 
-/// Function for use by e.g. imfit: reads in parameters *and* parameter limits
+// int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
+//                     vector<double>& parameterList, vector<int>& fblockStartIndices,
+//                      configOptions& configFileOptions,
+//                      vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
+
+/// Function for use by e.g. imfit and imfit-mcmc: reads in parameters *and* parameter limits
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
-                    vector<double>& parameterList, vector<mp_par>& parameterLimits,
-                    vector<int>& fblockStartIndices, bool& parameterLimitsFound,
-                     configOptions& configFileOptions, 
-                     vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
+                    vector<string>& functionLabels, vector<double>& parameterList, 
+                    vector<mp_par>& parameterLimits, vector<int>& fblockStartIndices, 
+                    bool& parameterLimitsFound, configOptions& configFileOptions, 
+                    vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
+
+// int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
+//                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
+//                     vector<int>& fblockStartIndices, bool& parameterLimitsFound,
+//                      configOptions& configFileOptions, 
+//                      vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
 
 
 #endif  // _CONFIG_FILE_PARSER_H_

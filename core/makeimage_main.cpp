@@ -8,7 +8,7 @@
  * NAXIS2 = naxes[1] = nRows = sizeY.
 */
 
-// Copyright 2010--2019 by Peter Erwin.
+// Copyright 2010--2020 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -106,6 +106,7 @@ int main( int argc, char *argv[] )
   double  *paramsVect;
   ModelObject  *theModel;
   vector<string>  functionList;
+  vector<string>  functionLabelList;
   vector<double>  parameterList;
   vector<int>  functionBlockIndices;
   vector< map<string, string> > optionalParamsMap;
@@ -147,8 +148,9 @@ int main( int argc, char *argv[] )
            options->configFileName.c_str());
     return -1;
   }
-  status = ReadConfigFile(options->configFileName, true, functionList, parameterList,
-  							functionBlockIndices, userConfigOptions);
+  status = ReadConfigFile(options->configFileName, true, functionList, 
+  							functionLabelList, parameterList, functionBlockIndices, 
+  							userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file \"%s\"!\n\n", 
     			options->configFileName.c_str());
@@ -234,7 +236,7 @@ int main( int argc, char *argv[] )
   								psfOversamplingInfoVect);
 
   // Add functions to the model object; also tells model object where function sets start
-  status = AddFunctions(theModel, functionList, functionBlockIndices, 
+  status = AddFunctions(theModel, functionList, functionLabelList, functionBlockIndices, 
   						options->subsamplingFlag, 0, optionalParamsMap);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");

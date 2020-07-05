@@ -16,7 +16,66 @@
 	
 	[ ] Set up 32-bit Vagrant VM for testing
 		[ ] Test imfit-1.7.1-linux-32.tar.gz on the 32-bit VM
+
+
+[ ] Modify Imfit to allow labels for individual components in config/bestfit files?
+	E.g.,
+	"FUNCTION Sersic # LABEL inner bulge"
+	Maybe simplest: internally, *all* functions get a label, which defaults to "" for
+	no specified label
+	[x] Write utils code to extract label text from FUNCTION line
+		search for "LABEL" in the line
+			-- allows for possibility of "FUNCTION Sersic   LABEL inner bulge"
+			which we might allow for later versions (putting it in the comment
+			part of the line ensures config file can still be read by earlier
+			versions of Imfit)
+	[x] Figure out how to store (optional) labels in returns from config-file
+		processing
+		[x] Modify AddFunctionName to also capture and store function labels
+		in extra output parameter
+	
+	[x] Figure out how to pass function labels from ReadConfigFile to main()
+		-- Necessary for imfit and imfit-mcmc; *useful* for makeimage in case
+		of --print-fluxes
+		[x] Add unit testing of label return for ReadConfigFile
+			[x] Add new test config file with labels
+			[x] Write additional unit tests
+			
+	[x] Modify main() in all three programs to include functionLabels parameter
+	for calls to ReadConfigFile()
+		[x] Add to makeimage main()
+		[x] Compile and run makeimage tests
+		[x] Add to imfit main()
+		[x] Compile and run imfit tests
+		[x] Add to imfit-mcmc main()
+		[x] Compile and run imfit-mcmc tests
+
+	[ ] Figure out how to pass label info to ModelObject
+		[x] Modify AddFunctions to take labels vector
+			-- places that call AddFunctions: *_main.cpp
+		[x] Update unittest_add_functions.t.h to test this
 		
+		[x] Update makeimage_main.cpp to use modified AddFunctions
+		[x] Compile and run makeimage tests
+		[ ] Update imfit_main.cpp to use modified AddFunctions
+		[ ] Compile and run imfit tests
+		[ ] Update mcmc_main.cpp to use modified AddFunctions
+		[ ] Compile and run imfit-mcmc tests
+	
+	[ ] Figure out how to get ModelObject to add label to "FUNCTION xxx" lines
+		in output
+		-- Places where "FUNCTION <fname>" is printed and label might be also:
+					
+			model_object.cpp:1803 ModelObject::PrintModelParamsToStrings
+				funcName = functionObjects[n]->GetShortName();
+				stringVector.push_back(PrintToString("%sFUNCTION %s\n", prefix, funcName.c_str()));
+
+			makeimage_main.cpp:320 
+				theModel->GetFunctionNames(functionNames);
+					headerString = PrintToString("FUNCTION %s", functionNames[i].c_str());
+		
+	[ ] Add testing of function-label input/output to do_imfit_tests.sh
+
 
 [X] Double-broken exponential (for Nacho)
 	[X] Figure out what's causing minor-axis discontinuities
@@ -47,6 +106,14 @@
 	
 [X] Unit tests for FerrersBar3D
 
+
+[ ] GaussianRingAz with one intensity parameter
+	Currently, it has A_maj and A_min; better to have A_maj and A_min_fraction_A_maj
+	[ ] Create GaussianRingAz2 function
+	[ ] Add function to add_functions.cpp, SConstruct
+	[ ] Test makeimage
+		[ ] Generate output image from n4608 IRAC1 model using GaussianRingAz
+		[ ] Generate equivalent image using GaussianRingAz2; compare
 
 [X] Fix image-comparison regression tests
 	OK, the weird case is biggertest.fits, which has two (and only two) pixels

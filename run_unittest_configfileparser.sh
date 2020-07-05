@@ -16,7 +16,7 @@ core/utilities.cpp -I. -Icore -Isolvers -Ifunction_objects -I/usr/local/include 
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for config_file_parser:"
-  ./test_runner_config
+  ./test_runner_config NewTestSuite
   exit
 else
   echo -e "${RED}Compilation of unit tests for config_file_parser.cpp failed.${NC}"
