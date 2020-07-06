@@ -1,9 +1,9 @@
-# Fluxes estimated on Wed Oct 16 11:23:46 2019 by makeimage 1.7.1 (OpenMP-enabled)
+# Fluxes estimated on Mon Jul  6 13:31:29 2020 by makeimage 1.7.1 (OpenMP-enabled)
 # Using config file tests/makeimage_reference/config_makeimage_sersic+exp512b.dat
 #
-# Component               Flux        Magnitude   Fraction
-Sersic                    2.2635e+06      ---     0.86495
-Exponential               3.5343e+05      ---     0.13505
+# Component               Flux        Magnitude   Fraction   Label
+Sersic                    2.2635e+06      ---     0.86495    bulge
+Exponential               3.5343e+05      ---     0.13505    disk
 FlatSky                   0.0000e+00      ---     0.00000
 
 Total                     2.6169e+06      ---     1.00000

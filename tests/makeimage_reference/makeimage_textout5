@@ -11,7 +11,7 @@ Model Object: 262144 data values (pixels)
 
 Estimating fluxes on 5000 x 5000 image...
 
-Component                 Flux        Magnitude   Fraction
+Component                 Flux        Magnitude   Fraction   Label
 Sersic                    2.2635e+06      ---     0.86495
 Exponential               3.5343e+05      ---     0.13505
 

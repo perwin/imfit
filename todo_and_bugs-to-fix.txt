@@ -50,27 +50,27 @@
 		[x] Add to imfit-mcmc main()
 		[x] Compile and run imfit-mcmc tests
 
-	[ ] Figure out how to pass label info to ModelObject
+	[x] Figure out how to pass label info to ModelObject
 		[x] Modify AddFunctions to take labels vector
 			-- places that call AddFunctions: *_main.cpp
 		[x] Update unittest_add_functions.t.h to test this
 		
 		[x] Update makeimage_main.cpp to use modified AddFunctions
 		[x] Compile and run makeimage tests
-		[ ] Update imfit_main.cpp to use modified AddFunctions
-		[ ] Compile and run imfit tests
-		[ ] Update mcmc_main.cpp to use modified AddFunctions
-		[ ] Compile and run imfit-mcmc tests
+		[x] Update imfit_main.cpp to use modified AddFunctions
+		[x] Compile and run imfit tests
+		[x] Update mcmc_main.cpp to use modified AddFunctions
+		[x] Compile and run imfit-mcmc tests
 	
 	[ ] Figure out how to get ModelObject to add label to "FUNCTION xxx" lines
 		in output
 		-- Places where "FUNCTION <fname>" is printed and label might be also:
 					
-			model_object.cpp:1803 ModelObject::PrintModelParamsToStrings
+			[x] model_object.cpp:1803 ModelObject::PrintModelParamsToStrings
 				funcName = functionObjects[n]->GetShortName();
 				stringVector.push_back(PrintToString("%sFUNCTION %s\n", prefix, funcName.c_str()));
 
-			makeimage_main.cpp:320 
+			[ ] makeimage_main.cpp:320 
 				theModel->GetFunctionNames(functionNames);
 					headerString = PrintToString("FUNCTION %s", functionNames[i].c_str());
 		

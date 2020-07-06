@@ -346,6 +346,7 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
     }
     else {
       thisFunctionObj = factory_map[currentName]->create();
+      thisFunctionObj->SetLabel(functionLabelList[i]);
       thisFunctionObj->SetSubsampling(subsamplingFlag);
       if (extraParamsExist) {
         // specialize the function as requested by user (via config file)

@@ -302,8 +302,10 @@ int main( int argc, char *argv[] )
     // Save individual-function images, if requested
     if ((options->saveImage) && (options->saveAllFunctions)) {
       vector<string> functionNames;
+      vector<string> functionLabels;
       int  nFuncs = theModel->GetNFunctions();
       theModel->GetFunctionNames(functionNames);
+      theModel->GetFunctionLabels(functionLabels);
       for (int i = 0; i < nFuncs; i++) {
         // Generate single-function image (exit if that failed -- e.g., due to
         // memory allocation failure)
@@ -318,6 +320,8 @@ int main( int argc, char *argv[] )
         printf("%s\n", currentFilename.c_str());
         // Add comments for FITS header, describing this function
         headerString = PrintToString("FUNCTION %s", functionNames[i].c_str());
+        if (! functionLabels[i].empty())
+          headerString = PrintToString("%s # LABEL %s", headerString, functionLabels[i].c_str());
         imageCommentsList.push_back(headerString);
         status = SaveVectorAsImage(singleFunctionImage, currentFilename, nColumns, nRows, 
         							imageCommentsList);
@@ -721,12 +725,14 @@ void DetermineFluxes( ModelObject *theModel, double *parameters,
   double *fluxes = (double *) calloc(nComponents, sizeof(double));
   double  fraction, totalFlux, magnitude;
   vector<string> functionNames;
+  vector<string> functionLabels;
   vector<string> saveFluxesLines;
   
-  const string columHeaderLine = "Component                 Flux        Magnitude   Fraction\n";
-  const string columHeaderLine_for_file = "# Component               Flux        Magnitude   Fraction\n";
+  const string columHeaderLine = "Component                 Flux        Magnitude   Fraction   Label\n";
+  const string columHeaderLine_for_file = "# Component               Flux        Magnitude   Fraction   Label\n";
   
   theModel->GetFunctionNames(functionNames);
+  theModel->GetFunctionLabels(functionLabels);
   
   if (options->printFluxes) {
     printf("\nEstimating fluxes on %d x %d image", options->estimationImageSize,
@@ -746,7 +752,7 @@ void DetermineFluxes( ModelObject *theModel, double *parameters,
       thisFlux = totalFlux;
       fraction = 1.0;
       componentName = "Total";
-      thisLine = "\n";
+      thisLine = "\n";   // enforce line-skip before "Total" results
     }
     else {
       thisFlux = fluxes[n];
@@ -761,9 +767,14 @@ void DetermineFluxes( ModelObject *theModel, double *parameters,
     else
       thisLine += PrintToString("      ---");
     if ((fraction >= 0.0001) || (fraction == 0.0))
-      thisLine += PrintToString("%12.5f\n", fraction);
+      thisLine += PrintToString("%12.5f", fraction);
     else
-      thisLine += PrintToString("%12.3e\n", fraction);
+      thisLine += PrintToString("%12.3e", fraction);
+    if (n < nComponents) {
+      if (! functionLabels[n].empty())
+        thisLine += PrintToString("    %s", functionLabels[n].c_str());
+    }
+    thisLine += "\n";
     saveFluxesLines.push_back(thisLine);
   }
 
