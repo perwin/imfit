@@ -9,9 +9,9 @@
  * y0 = yc;   -- center of component (pixels, y)
  * PA = params[0 + offsetIndex];   -- PA of component, rel. to +y axis
  * ell = params[1 + offsetIndex ];   -- ellipticity of component
- * A_maj = params[2 + offsetIndex ];   -- intensity scaling (ADU/pix)
- * A_min = params[3 + offsetIndex ];   -- intensity scaling along ellipse major axis (ADU/pix)
- * R_ring = params[4 + offsetIndex ];  -- intensity scaling along ellipse minor axis (ADU/pix)
+ * A_maj = params[2 + offsetIndex ];   -- intensity scaling along major axis (ADU/pix)
+ * A_min_rel = params[3 + offsetIndex ];   -- relative intensity scaling along ellipse minor axis (ADU/pix)
+ * R_ring = params[4 + offsetIndex ];  -- major axis of ring
  * sigma = params[5 + offsetIndex ];   -- Gaussian sigma in radial direction
  *
  *
@@ -53,8 +53,8 @@ class GaussianRingAz : public FunctionObject
 
 
   private:
-    double  x0, y0, PA, A_maj, A_min, ell, R_ring, sigma_r;   // parameters
-    double  q, PA_rad, cosPA, sinPA, A_mid, deltaA;   // other useful quantities
+    double  x0, y0, PA, A_maj, A_min_rel, ell, R_ring, sigma_r;   // parameters
+    double  A_min, q, PA_rad, cosPA, sinPA, A_mid, deltaA;   // other useful quantities
     double  twosigma_squared;
 };
 

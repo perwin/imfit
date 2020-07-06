@@ -18,7 +18,7 @@
 		[ ] Test imfit-1.7.1-linux-32.tar.gz on the 32-bit VM
 
 
-[ ] Modify Imfit to allow labels for individual components in config/bestfit files?
+[x] Modify Imfit to allow labels for individual components in config/bestfit files?
 	E.g.,
 	"FUNCTION Sersic # LABEL inner bulge"
 	Maybe simplest: internally, *all* functions get a label, which defaults to "" for
@@ -62,7 +62,7 @@
 		[x] Update mcmc_main.cpp to use modified AddFunctions
 		[x] Compile and run imfit-mcmc tests
 	
-	[ ] Figure out how to get ModelObject to add label to "FUNCTION xxx" lines
+	[x] Figure out how to get ModelObject to add label to "FUNCTION xxx" lines
 		in output
 		-- Places where "FUNCTION <fname>" is printed and label might be also:
 					
@@ -70,11 +70,13 @@
 				funcName = functionObjects[n]->GetShortName();
 				stringVector.push_back(PrintToString("%sFUNCTION %s\n", prefix, funcName.c_str()));
 
-			[ ] makeimage_main.cpp:320 
+			[x] makeimage_main.cpp:320 
 				theModel->GetFunctionNames(functionNames);
 					headerString = PrintToString("FUNCTION %s", functionNames[i].c_str());
+			
+			[x] --print-fluxes mode
 		
-	[ ] Add testing of function-label input/output to do_imfit_tests.sh
+	[x] Add testing of function-label input/output to do_imfit_tests.sh
 
 
 [X] Double-broken exponential (for Nacho)
@@ -109,11 +111,13 @@
 
 [ ] GaussianRingAz with one intensity parameter
 	Currently, it has A_maj and A_min; better to have A_maj and A_min_fraction_A_maj
-	[ ] Create GaussianRingAz2 function
-	[ ] Add function to add_functions.cpp, SConstruct
-	[ ] Test makeimage
-		[ ] Generate output image from n4608 IRAC1 model using GaussianRingAz
-		[ ] Generate equivalent image using GaussianRingAz2; compare
+	[x] Create GaussianRingAz2 function
+	[x] Add function to add_functions.cpp, SConstruct
+	[x] Test makeimage
+		[x] Generate output image from n4608 IRAC1 model using GaussianRingAz
+		[x] Generate equivalent image using GaussianRingAz2; compare
+	[x] Change name from GaussianRingAz2 to GaussianRingAz
+	[ ] Add description to documentation
 
 [X] Fix image-comparison regression tests
 	OK, the weird case is biggertest.fits, which has two (and only two) pixels

@@ -47,6 +47,7 @@
 #include "func_edge-on-ring2side.h"
 #include "func_gaussian-ring.h"
 #include "func_gaussian-ring2side.h"
+#include "func_gaussian-ring-az.h"
 #include "func_moffat.h"
 #include "func_king.h"
 #include "func_king2.h"
@@ -92,8 +93,7 @@
 #include "func_flatbar_trunc.h"
 #include "func_gen-flatbar.h"
 #include "func_bp-cross-section.h"
-#include "func_gaussian-ring-az.h"
-#include "func_gaussian-ring-az2.h"
+//#include "func_gaussian-ring-az2.h"
 #include "func_lorentzian-ring.h"
 #include "func_n4608disk.h"
 #endif
@@ -183,6 +183,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   GaussianRing2Side::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRing2Side>();
   
+  GaussianRingAz::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz>();
+
   Gaussian::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<Gaussian>();
 
@@ -296,12 +299,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   BPCrossSection::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BPCrossSection>();
 
-  GaussianRingAz::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz>();
-
-  GaussianRingAz2::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz2>();
-
+//   GaussianRingAz2::GetClassShortName(classFuncName);
+//   input_factory_map[classFuncName] = new funcobj_factory<GaussianRingAz2>();
+// 
   LorentzianRing::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LorentzianRing>();
 

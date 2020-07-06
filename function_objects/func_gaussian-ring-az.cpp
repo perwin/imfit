@@ -52,7 +52,7 @@ using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 6;
-const char  PARAM_LABELS[][20] = {"PA", "ell", "A_maj", "A_min", "R_ring", "sigma_r"};
+const char  PARAM_LABELS[][20] = {"PA", "ell", "A_maj", "A_min_rel", "R_ring", "sigma_r"};
 const char  FUNCTION_NAME[] = "Gaussian Ring with azimuthal variation function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -89,11 +89,12 @@ void GaussianRingAz::Setup( double params[], int offsetIndex, double xc, double 
   PA = params[0 + offsetIndex];
   ell = params[1 + offsetIndex];
   A_maj = params[2 + offsetIndex ];
-  A_min = params[3 + offsetIndex ];
+  A_min_rel = params[3 + offsetIndex ];
   R_ring = params[4 + offsetIndex ];   // major-axis radius of ring
   sigma_r = params[5 + offsetIndex ];
 
   // pre-compute useful things for this round of invoking the function
+  A_min = A_min_rel * A_maj;
   q = 1.0 - ell;
   // convert PA to +x-axis reference
   PA_rad = (PA + 90.0) * DEG2RAD;

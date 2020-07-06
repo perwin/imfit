@@ -18,6 +18,11 @@ al. 2020 for its use in modeling images of the barred galaxy NGC 4608).
 `--print-fluxes` component-fluxes-and-fractions output of makeimage to a
 text file. (Thanks to Iskren Georgiev for requesting this.)
 
+- Function "labels" in config files: you can now annotate individual
+functions in config files (e.g., ``FUNCTION Sersic # LABEL bulge'');
+these labels will be propagated to output best-fit parameter files and
+`--print-fluxes` and `--save-fluxes` output.
+
 - New option for fitting using Differential Evolution: `--de-lhs`, which
 uses Latin hypercube sampling to set up the initial set of trial
 parameter vectors, instead of the default pure-uniform sampling. (This
