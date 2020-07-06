@@ -21,8 +21,8 @@ function_objects/func_sersic.cpp function_objects/func_gen-sersic.cpp \
 function_objects/func_core-sersic.cpp function_objects/func_broken-exp.cpp \
 function_objects/func_broken-exp2d.cpp function_objects/func_moffat.cpp \
 function_objects/func_flatsky.cpp function_objects/func_tilted-sky-plane.cpp \
-function_objects/func_gaussian-ring.cpp \
-function_objects/func_gaussian-ring2side.cpp function_objects/func_edge-on-disk_n4762.cpp \
+function_objects/func_gaussian-ring.cpp function_objects/func_gaussian-ring2side.cpp \
+function_objects/func_gaussian-ring-az.cpp function_objects/func_edge-on-disk_n4762.cpp \
 function_objects/func_edge-on-disk_n4762v2.cpp function_objects/func_edge-on-ring.cpp \
 function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.cpp \
 function_objects/integrator.cpp function_objects/func_expdisk3d.cpp function_objects/func_brokenexpdisk3d.cpp \
