@@ -31,6 +31,7 @@ function_objects/func_sersic.cpp function_objects/func_gen-sersic.cpp \
 function_objects/func_core-sersic.cpp function_objects/func_broken-exp.cpp \
 function_objects/func_broken-exp2d.cpp function_objects/func_moffat.cpp \
 function_objects/func_flatsky.cpp function_objects/func_tilted-sky-plane.cpp \
+function_objects/func_flatbar.cpp \
 function_objects/func_gaussian-ring.cpp function_objects/func_gaussian-ring-az.cpp \
 function_objects/func_gaussian-ring2side.cpp function_objects/func_edge-on-ring.cpp \
 function_objects/func_edge-on-ring2side.cpp function_objects/func_edge-on-disk.cpp \

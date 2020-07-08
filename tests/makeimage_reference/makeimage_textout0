@@ -13,6 +13,7 @@ ExponentialDisk3D
 Exponential_GenEllipse
 FerrersBar2D
 FerrersBar3D
+FlatBar
 FlatSky
 Gaussian
 GaussianRing

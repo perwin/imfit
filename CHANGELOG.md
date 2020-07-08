@@ -5,6 +5,11 @@
 ## 1.8.0 -- 2020-xxx
 ### Added:
 
+- Function "labels" in config files: you can now annotate individual
+functions in config files (e.g., "FUNCTION Sersic # LABEL bulge");
+these labels will be propagated to output best-fit parameter files and
+`--print-fluxes` and `--save-fluxes` output.
+
 - New image function: TiltedSkyPlane. This represents a linear 2D
 gradient background (a "tilted plane" as the image background). Based on
 the InclinedFlatSky function suggested by Dan Prole (danjampro).
@@ -14,14 +19,12 @@ the InclinedFlatSky function suggested by Dan Prole (danjampro).
 peak intensity that varies with azimuth around the ring (see Erwin et
 al. 2020 for its use in modeling images of the barred galaxy NGC 4608).
 
+- New image function: FlatBar. blah blah blah (see Erwin et
+al. 2020 for its use in modeling images of two barred galaxies).
+
 - New option for makeimage: `--save-fluxes`, which saves the
 `--print-fluxes` component-fluxes-and-fractions output of makeimage to a
 text file. (Thanks to Iskren Georgiev for requesting this.)
-
-- Function "labels" in config files: you can now annotate individual
-functions in config files (e.g., ``FUNCTION Sersic # LABEL bulge'');
-these labels will be propagated to output best-fit parameter files and
-`--print-fluxes` and `--save-fluxes` output.
 
 - New option for fitting using Differential Evolution: `--de-lhs`, which
 uses Latin hypercube sampling to set up the initial set of trial

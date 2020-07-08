@@ -45,6 +45,7 @@
 #include "func_broken-exp2d.h"
 #include "func_edge-on-ring.h"
 #include "func_edge-on-ring2side.h"
+#include "func_flatbar.h"
 #include "func_gaussian-ring.h"
 #include "func_gaussian-ring2side.h"
 #include "func_gaussian-ring-az.h"
@@ -89,7 +90,6 @@
 #include "func_exp-higher-mom.h"
 #include "func_double-broken-exp.h"
 #include "func_double-brokenexpdisk3d.h"
-#include "func_flatbar.h"
 #include "func_flatbar_trunc.h"
 #include "func_gen-flatbar.h"
 #include "func_bp-cross-section.h"
@@ -177,6 +177,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   EdgeOnRing2Side::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnRing2Side>();
   
+  FlatBar::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FlatBar>();
+
   GaussianRing::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<GaussianRing>();
   
@@ -286,9 +289,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   DoubleBrokenExponentialDisk3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<DoubleBrokenExponentialDisk3D>();
-
-  FlatBar::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<FlatBar>();
 
   FlatBarTrunc::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatBarTrunc>();

@@ -581,7 +581,8 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 # Function objects:
 functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
         func_sersic func_gen-sersic func_core-sersic func_broken-exp
-        func_broken-exp2d func_moffat func_flatsky func_tilted-sky-plane func_gaussian-ring 
+        func_broken-exp2d func_moffat func_flatsky func_tilted-sky-plane 
+        func_flatbar func_gaussian-ring 
         func_gaussian-ring2side func_gaussian-ring-az func_edge-on-disk_n4762 
         func_edge-on-disk_n4762v2 func_edge-on-ring func_edge-on-ring2side 
         func_king func_king2 func_ferrersbar2d 
@@ -600,11 +601,10 @@ if useExtraFuncs:
     functionobject_obj_string += " func_broken-exp-bar"
     functionobject_obj_string += " func_double-broken-exp"
     functionobject_obj_string += " func_gen-exp2"
-    functionobject_obj_string += " func_flatbar"
+#    functionobject_obj_string += " func_flatbar"
     functionobject_obj_string += " func_flatbar_trunc"
     functionobject_obj_string += " func_gen-flatbar"
     functionobject_obj_string += " func_bp-cross-section"
-#    functionobject_obj_string += " func_gaussian-ring-az2"
     functionobject_obj_string += " func_lorentzian-ring"
     functionobject_obj_string += " func_n4608disk"
     if useGSL:

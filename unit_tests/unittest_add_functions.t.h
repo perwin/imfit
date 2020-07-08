@@ -38,6 +38,7 @@ public:
     referenceFunctionNameList.push_back("Exponential_GenEllipse");
     referenceFunctionNameList.push_back("FerrersBar2D");
     referenceFunctionNameList.push_back("FerrersBar3D");
+    referenceFunctionNameList.push_back("FlatBar");
     referenceFunctionNameList.push_back("FlatSky");
     referenceFunctionNameList.push_back("Gaussian");
     referenceFunctionNameList.push_back("GaussianRing");

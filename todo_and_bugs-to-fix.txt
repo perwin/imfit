@@ -18,6 +18,9 @@
 		[ ] Test imfit-1.7.1-linux-32.tar.gz on the 32-bit VM
 
 
+[ ] Replace "function block" with "function set" in code and documentation
+
+
 [x] Modify Imfit to allow labels for individual components in config/bestfit files?
 	E.g.,
 	"FUNCTION Sersic # LABEL inner bulge"
@@ -516,25 +519,25 @@ image (accounting for data image subset, if any)
 
 
 
-[ ] Optional linking of component orientations within a function block:
+[ ] Optional linking of component orientations within a function set:
 	PA [position angle], INCLINATION [for 3D objects]
 	
 	In the individual-function parameter lists, we use "link=NAME", where
-	NAME = one of the allowed function-block parameters (i.e., PA or INCLINATION)
+	NAME = one of the allowed function-set parameters (i.e., PA or INCLINATION)
 	
-	E.g., a function block consistent of a Gaussian and an Exponential with
+	E.g., a function set consistent of a Gaussian and an Exponential with
 	the exact same PA:
 	
 	X0 		 	40		35,45
 	Y0			50		45,55
-	PA_block	15		0,30
+	PA_set	15		0,30
 	FUNCTION Gaussian
-	PA		link=PA_block
+	PA		link=PA_set
 	ell		0.3		fixed
 	I_0		100
 	sigma	1.0
 	FUNCTION Exponential
-	PA		link=PA_block
+	PA		link=PA_set
 	ell		0.5		0.2,0.8
 	I_0		10		0,50
 	h		100		50,200
@@ -542,7 +545,7 @@ image (accounting for data image subset, if any)
 	Need some way of tagging parameter vector so we know which individual-function
 	parameters are duplicated
 		-- I.e., *remove* those parameters from the main parameter vector sent to
-		the solver or MCMC; have logic in ModelObject which can copy PA_block
+		the solver or MCMC; have logic in ModelObject which can copy PA_set
 		value 
 		
 	
@@ -550,9 +553,9 @@ image (accounting for data image subset, if any)
 	parameters; perhaps we can use some of the same logic for assembling and
 	disassembling parameter vectors
 	
-	Conceptually, we have *block parameters* -- X0,Y0,PA_block,inc_block --
-	and function parameters. All functions in a block already refer to X0,Y0 in the 
-	block parameters
+	Conceptually, we have *set parameters* -- X0,Y0,PA_set,inc_set --
+	and function parameters. All functions in a set already refer to X0,Y0 in the 
+	set parameters
 	
 	[X]How do we coordinate PA between 2D and 3D image functions?
 		OK, our standard definition for a 3D function's line of nodes is
@@ -568,7 +571,7 @@ image (accounting for data image subset, if any)
 	OR:
 	[-]Always pass in X0,Y0,PA,inc to all functions; let functions decide what to
 	do with them. (Needs a way of telling functions that they're supposed to use
-	block PA and/or inc when setting them up.)
+	set PA and/or inc when setting them up.)
 		-- We would still need logic in main to remove unneeded PA and inc parameters
 		from the main parameter vector, and logic in ModelObject to add in (dummy)
 		values to the parameters passed to the FunctionObjects ...
