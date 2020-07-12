@@ -320,7 +320,7 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
 /// Add instances of FunctionObject classes to the input ModelObject
 int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
-                  vector<string> &functionLabelList, vector<int> &functionBlockIndices, 
+                  vector<string> &functionLabelList, vector<int> &functionSetIndices, 
                   const bool subsamplingFlag, const int verboseLevel, 
                   vector< map<string, string> > &extraParams )
 {
@@ -369,7 +369,7 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
   }
   // OK, we're done adding functions; now tell the model object to do some final setup
   // Tell model object about arrangement of functions into common-center sets
-  theModel->DefineFunctionBlocks(functionBlockIndices);
+  theModel->DefineFunctionSets(functionSetIndices);
   
   // Tell model object to create vector of parameter labels
   theModel->PopulateParameterNames();

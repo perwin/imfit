@@ -20,7 +20,7 @@ static vector< map<string, string> > EMPTY_MAP_VECTOR;
 
 //! Main function which adds a list of FunctionObject instances to an instance of ModelObject
 int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
-                  vector<string> &functionLabelList, vector<int> &functionBlockIndices, 
+                  vector<string> &functionLabelList, vector<int> &functionSetIndices, 
                   const bool subamplingFlag, const int verboseFlag=0, 
                   vector< map<string, string> > &extraParams=EMPTY_MAP_VECTOR );
 

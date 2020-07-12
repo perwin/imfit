@@ -58,26 +58,15 @@ string GetFunctionLabel( const string& currentLine );
 /// Function for use by makeimage
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                      vector<string>& functionLabels, vector<double>& parameterList, 
-                     vector<int>& fblockStartIndices, configOptions& configFileOptions,
+                     vector<int>& fsetStartIndices, configOptions& configFileOptions,
                      vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
-
-// int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
-//                     vector<double>& parameterList, vector<int>& fblockStartIndices,
-//                      configOptions& configFileOptions,
-//                      vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
 
 /// Function for use by e.g. imfit and imfit-mcmc: reads in parameters *and* parameter limits
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                     vector<string>& functionLabels, vector<double>& parameterList, 
-                    vector<mp_par>& parameterLimits, vector<int>& fblockStartIndices, 
+                    vector<mp_par>& parameterLimits, vector<int>& fsetStartIndices, 
                     bool& parameterLimitsFound, configOptions& configFileOptions, 
                     vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
-
-// int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
-//                     vector<double>& parameterList, vector<mp_par>& parameterLimits,
-//                     vector<int>& fblockStartIndices, bool& parameterLimitsFound,
-//                      configOptions& configFileOptions, 
-//                      vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
 
 
 #endif  // _CONFIG_FILE_PARSER_H_

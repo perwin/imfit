@@ -117,7 +117,7 @@ ModelObject::ModelObject( )
   residualVector = maskVector = deviatesVector = NULL;
   outputModelVector = extraCashTermsVector = NULL;
   bootstrapIndices = NULL;
-  fblockStartFlags = NULL;
+  fsetStartFlags = NULL;
 
   localPsfPixels = nullptr;
   psfInterpolator = nullptr;
@@ -133,7 +133,7 @@ ModelObject::ModelObject( )
   extraCashTermsVectorAllocated = false;
   localPsfPixels_allocated = false;
   
-  fblockStartFlags_allocated = false;
+  fsetStartFlags_allocated = false;
   
   // default setup = use data-based Gaussian errors + chi^2 minimization
   dataErrors = true;
@@ -155,7 +155,7 @@ ModelObject::ModelObject( )
   pointSourcesPresent = false;
   
   nFunctions = 0;
-  nFunctionBlocks = 0;
+  nFunctionSets = 0;
   nFunctionParams = 0;
   nParamsTot = 0;
   nOversampledRegions = 0;
@@ -209,8 +209,8 @@ ModelObject::~ModelObject()
     for (int i = 0; i < nFunctions; i++)
       delete functionObjects[i];
   
-  if (fblockStartFlags_allocated)
-    free(fblockStartFlags);
+  if (fsetStartFlags_allocated)
+    free(fsetStartFlags);
   
   if (doConvolution)
     delete psfConvolver;
@@ -342,37 +342,37 @@ int ModelObject::SetupPsfInterpolation( int interpolationType )
 }
 
 
-/* ---------------- PUBLIC METHOD: DefineFunctionBlocks --------------- */
+/* ---------------- PUBLIC METHOD: DefineFunctionSets ---------------- */
 /// Given a vector of indices specifying the start of individual function
-/// blocks, set up the internal fblockStartFlags array; also compute nParamsTot
-void ModelObject::DefineFunctionBlocks( vector<int>& functionStartIndices )
+/// sets, set up the internal fsetStartFlags array; also compute nParamsTot
+void ModelObject::DefineFunctionSets( vector<int>& functionStartIndices )
 {
   int  nn, i;
   
-  nFunctionBlocks = functionStartIndices.size();
+  nFunctionSets = functionStartIndices.size();
   
   // define array of [false, false, false, ...]
   // WARNING: Possible memory leak (if this function is called more than once)!
-  //    If this function *is* called again, nFunctions and/or nFunctionBlocks could
-  //    be different than the first call, in which we'd need to realloc fblockStartFlags
-  fblockStartFlags = (bool *)calloc(nFunctions, sizeof(bool));
-  fblockStartFlags_allocated = true;
+  //    If this function *is* called again, nFunctions and/or nFunctionSets could
+  //    be different than the first call, in which we'd need to realloc fsetStartFlags
+  fsetStartFlags = (bool *)calloc(nFunctions, sizeof(bool));
+  fsetStartFlags_allocated = true;
 
   // just to be extra safe, ensure that the very first parameter is indeed start 
-  // of a function-block (this will be taken care of during the loop as well)
-  fblockStartFlags[0] = true;
-  for (i = 0; i < nFunctionBlocks; i++) {
+  // of a function set (this will be taken care of during the loop as well)
+  fsetStartFlags[0] = true;
+  for (i = 0; i < nFunctionSets; i++) {
     nn = functionStartIndices[i];
-    // function number nn is start of new function block; change fblockStartFlags[n] to true
-    fblockStartFlags[nn] = true;
+    // function number nn is start of new function set; change fsetStartFlags[n] to true
+    fsetStartFlags[nn] = true;
   }
   
   // total number of parameters = number of parameters for individual functions
-  // plus x0/y0 pair for each function block
+  // plus x0/y0 pair for each function set
   // (add computed number to pre-existing value of nParamsTot [= 0 normally]
   // for special case of multimfit, etc., where additional image-description
   // parameters may have been counted)
-  nParamsTot += nFunctionParams + 2*nFunctionBlocks;
+  nParamsTot += nFunctionParams + 2*nFunctionSets;
 }
 
 
@@ -1065,8 +1065,8 @@ void ModelObject::CreateModelImage( double params[] )
   // The first component's parameters start at params[0]; the second's start at
   // params[paramSizes[0]], the third at params[paramSizes[0] + paramSizes[1]], and so forth...
   for (n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0,y0 and then skip over them
+    if (fsetStartFlags[n] == true) {
+      // start of new function set: extract x0,y0 and then skip over them
       x0 = params[offset];
       y0 = params[offset + 1];
       offset += 2;
@@ -1205,8 +1205,8 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   // to do setup. The first component's parameters start at params[0]; the second's 
   // at params[paramSizes[0]], the third at params[paramSizes[0] + paramSizes[1]], etc.
   for (int np = 0; np < nFunctions; np++) {
-    if (fblockStartFlags[np] == true) {
-      // start of new function block: extract x0,y0 and then skip over them
+    if (fsetStartFlags[np] == true) {
+      // start of new function set: extract x0,y0 and then skip over them
       x0 = params[offset];
       y0 = params[offset + 1];
       offset += 2;
@@ -1776,12 +1776,12 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
   }
 
   for (int n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0,y0 and then skip over them
+    if (fsetStartFlags[n] == true) {
+      // start of new function set: extract x0,y0 and then skip over them
       k = indexOffset;
       x0 = params[k] + imageOffset_X0;
       y0 = params[k + 1] + imageOffset_Y0;
-      // blank line (or line with just prefix character) before start of function block
+      // blank line (or line with just prefix character) before start of function set
       stringVector.push_back(PrintToString("%s\n", prefix));
       if (printLimits) {
         if (parameterInfoVect[k].fixed == 1)
@@ -1854,12 +1854,12 @@ string ModelObject::PrintModelParamsHorizontalString( const double params[], con
   string  outputString;
 
   for (int n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0,y0 and then skip over them
+    if (fsetStartFlags[n] == true) {
+      // start of new function set: extract x0,y0 and then skip over them
       k = indexOffset;
       x0 = params[k] + imageOffset_X0;
       y0 = params[k + 1] + imageOffset_Y0;
-      // Very first parameter on the line (X0 for first function block) should *not* 
+      // Very first parameter on the line (X0 for first function set) should *not* 
       // be preceded by separator
       if (n == 0)
         outputString += PrintToString("%#.10g%s%#.10g", x0, separator.c_str(), y0);
@@ -1883,7 +1883,7 @@ string ModelObject::PrintModelParamsHorizontalString( const double params[], con
 
 /* ---------------- PUBLIC METHOD: GetImageOffsets --------------------- */
 /// Given an input array (all zeros), this method returns the array with
-/// locations corresponding to each function block's imageOffset_X0 and 
+/// locations corresponding to each function set's imageOffset_X0 and 
 /// imageOffset_Y0 values properly set (if there are no image offsets, then
 /// the corresponding values will remain zero).
 /// Intended for use in bootstrap_errors.cpp.
@@ -1896,7 +1896,7 @@ void ModelObject::GetImageOffsets( double params[] )
   // modify it if there really are image offsets
   if ((imageOffset_X0 != 0) || (imageOffset_Y0 != 0)) {
     for (int n = 0; n < nFunctions; n++) {
-      if (fblockStartFlags[n] == true) {
+      if (fsetStartFlags[n] == true) {
         k = indexOffset;
         params[k] = imageOffset_X0;
         params[k + 1] = imageOffset_Y0;
@@ -1913,17 +1913,17 @@ void ModelObject::GetImageOffsets( double params[] )
 /// header in bootstrap-parameters output file.
 string ModelObject::GetParamHeader( )
 {
-  int nParamsThisFunc, nBlock;
+  int nParamsThisFunc, nSet;
   int  indexOffset = 0;
   string  paramName, headerLine, newString;
 
   headerLine = "# ";
-  nBlock = 0;
+  nSet = 0;
   for (int n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0,y0 and then skip over them
-      nBlock += 1;
-      newString = PrintToString("X0_%d\t\tY0_%d\t\t", nBlock, nBlock);
+    if (fsetStartFlags[n] == true) {
+      // start of new function set: extract x0,y0 and then skip over them
+      nSet += 1;
+      newString = PrintToString("X0_%d\t\tY0_%d\t\t", nSet, nSet);
       headerLine += newString;
       indexOffset += 2;
     }
@@ -2079,8 +2079,8 @@ void ModelObject::PopulateParameterNames( )
   int  n;
 
   for (n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0,y0
+    if (fsetStartFlags[n] == true) {
+      // start of new function set: extract x0,y0
       parameterLabels.push_back("X0");
       parameterLabels.push_back("Y0");
     }
@@ -2319,8 +2319,8 @@ double ModelObject::FindTotalFluxes( double params[], int xSize, int ySize,
   y0_all = 0.5*ySize;
   
   for (n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: skip over existing x0,y0 values
+    if (fsetStartFlags[n] == true) {
+      // start of new function set: skip over existing x0,y0 values
       offset += 2;
     }
     functionObjects[n]->Setup(params, offset, x0_all, y0_all);

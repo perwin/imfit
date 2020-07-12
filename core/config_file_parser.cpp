@@ -266,7 +266,7 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
   bool  yValueOK = true;   // defaults to true for 1D case
   
   nInputLines = inputLines.size();
-  // OK, locate the start of the function block (first line beginning with "X0")
+  // OK, locate the start of the function set (first line beginning with "X0")
   i = 0;
   while (i < nInputLines) {
     if (inputLines[i].find("X0", 0) != string::npos) {
@@ -370,11 +370,11 @@ void ReportConfigError( const int errorCode, const int origLineNumber )
 //    functionNameList = output, will contain vector of C++ strings containing functions
 //                   names from config file
 //    parameterList = output, will contain vector of parameter values
-//    fblockStartIndices = output, will contain vector of integers specifying
-//                   which functions mark start of new function block
+//    fsetStartIndices = output, will contain vector of integers specifying
+//                   which functions mark start of new function set
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                      vector<string>& functionLabels, vector<double>& parameterList, 
-                     vector<int>& fblockStartIndices, configOptions& configFileOptions,
+                     vector<int>& fsetStartIndices, configOptions& configFileOptions,
                      vector< map<string, string> >& optionalParamsVect )
 {
   ifstream  inputFileStream;
@@ -411,10 +411,10 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   functionNameList.clear();
   functionLabels.clear();
   parameterList.clear();
-  fblockStartIndices.clear();
+  fsetStartIndices.clear();
   optionalParamsVect.clear();
   
-  // OK, locate the start of the function block (first line beginning with "X0")
+  // OK, locate the start of the function set (first line beginning with "X0")
   functionSectionStart = VetConfigFile(inputLines, origLineNumbers, mode2D, &possibleBadLineNumber);
   if (functionSectionStart < 0) {
     ReportConfigError(functionSectionStart, possibleBadLineNumber);
@@ -441,7 +441,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   functionNumber = 0;
   while (i < nInputLines) {
     if (inputLines[i].find("X0", 0) != string::npos) {
-      fblockStartIndices.push_back(functionNumber);
+      fsetStartIndices.push_back(functionNumber);
       AddParameter(inputLines[i], parameterList);
       i++;
       if (mode2D) {
@@ -500,11 +500,11 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
 //    parameterList = output, will contain vector of parameter values
 //    parameterLimits = output, will contain vector of mp_par structures (specifying
 //                   possible limits on parameter values)
-//    fblockStartIndices = output, will contain vector of integers specifying
-//                   which functions mark start of new function block
+//    fsetStartIndices = output, will contain vector of integers specifying
+//                   which functions mark start of new function set
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                     vector<string>& functionLabels, vector<double>& parameterList, 
-                    vector<mp_par>& parameterLimits, vector<int>& fblockStartIndices, 
+                    vector<mp_par>& parameterLimits, vector<int>& fsetStartIndices, 
                     bool& parameterLimitsFound, configOptions& configFileOptions, 
                     vector< map<string, string> >& optionalParamsVect )
 {
@@ -541,9 +541,9 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   functionLabels.clear();
   parameterList.clear();
   parameterLimits.clear();
-  fblockStartIndices.clear();
+  fsetStartIndices.clear();
   
-  // OK, locate the start of the function block (first line beginning with "X0")
+  // OK, locate the start of the function set (first line beginning with "X0")
   functionSectionStart = VetConfigFile(inputLines, origLineNumbers, mode2D, &possibleBadLineNumber);
   if (functionSectionStart < 0) {
     ReportConfigError(functionSectionStart, possibleBadLineNumber);
@@ -573,7 +573,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   while (i < nInputLines) {
     if (inputLines[i].find("X0", 0) != string::npos) {
       //printf("X0 detected (i = %d)\n", i);
-      fblockStartIndices.push_back(functionNumber);
+      fsetStartIndices.push_back(functionNumber);
       pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits,
       										origLineNumbers[i]);
       paramNumber++;

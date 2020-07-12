@@ -108,7 +108,7 @@ int main( int argc, char *argv[] )
   vector<string>  functionList;
   vector<string>  functionLabelList;
   vector<double>  parameterList;
-  vector<int>  functionBlockIndices;
+  vector<int>  functionSetIndices;
   vector< map<string, string> > optionalParamsMap;
   vector<string>  imageCommentsList;
   double  *singleFunctionImage;
@@ -149,7 +149,7 @@ int main( int argc, char *argv[] )
     return -1;
   }
   status = ReadConfigFile(options->configFileName, true, functionList, 
-  							functionLabelList, parameterList, functionBlockIndices, 
+  							functionLabelList, parameterList, functionSetIndices, 
   							userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file \"%s\"!\n\n", 
@@ -236,7 +236,7 @@ int main( int argc, char *argv[] )
   								psfOversamplingInfoVect);
 
   // Add functions to the model object; also tells model object where function sets start
-  status = AddFunctions(theModel, functionList, functionLabelList, functionBlockIndices, 
+  status = AddFunctions(theModel, functionList, functionLabelList, functionSetIndices, 
   						options->subsamplingFlag, 0, optionalParamsMap);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");

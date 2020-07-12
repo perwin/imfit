@@ -19,6 +19,19 @@
 
 
 [ ] Replace "function block" with "function set" in code and documentation
+	[x] Replace in docs
+	[ ] Replace in code
+		[] Replace block and Block in model_object
+		[x] Replace in config_file_parser
+		[x] Replace Block in add_functions.h and add_functions.cpp
+		[ ] Replace Block in *main.cpp
+			[x] Replace in makeimage_main.cpp; compile & test
+			[ ] Replace in imfit_main.cpp; compile & test
+			[ ] Replace in mcmc_main.cpp; compile & test
+
+[ ] Update documentation with new functions
+	[ ] Add description of GaussianRingAz to imfit_howto
+	[ ] Add description of FlatBar to imfit_howto
 
 
 [x] Modify Imfit to allow labels for individual components in config/bestfit files?

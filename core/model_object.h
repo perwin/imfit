@@ -60,7 +60,7 @@ class ModelObject
     int SetupPsfInterpolation( int interpolationType=kInterpolator_bicubic );
 
     // common, but Specialized by ModelObject1D
-    virtual void DefineFunctionBlocks( vector<int>& functionStartIndices );
+    virtual void DefineFunctionSets( vector<int>& functionStartIndices );
     
     
     // 1D only
@@ -273,7 +273,7 @@ class ModelObject
     bool  modelVectorAllocated, weightVectorAllocated, maskVectorAllocated;
     bool  standardWeightVectorAllocated;
     bool  residualVectorAllocated, outputModelVectorAllocated;
-    bool  fblockStartFlags_allocated;
+    bool  fsetStartFlags_allocated;
     bool  modelImageSetupDone;
     bool  modelImageComputed;
     bool  weightValsSet, maskExists, doBootstrap, bootstrapIndicesAllocated;
@@ -284,7 +284,7 @@ class ModelObject
     bool  extraCashTermsVectorAllocated;
     bool  localPsfPixels_allocated;
     bool  zeroPointSet;
-    int  nFunctions, nFunctionBlocks, nFunctionParams, nParamsTot;
+    int  nFunctions, nFunctionSets, nFunctionParams, nParamsTot;
     double  *dataVector;
     double  *weightVector, *standardWeightVector;
     double  *maskVector;
@@ -295,7 +295,7 @@ class ModelObject
     double  *extraCashTermsVector;
     double  *localPsfPixels;
     long  *bootstrapIndices;
-    bool  *fblockStartFlags;
+    bool  *fsetStartFlags;
     vector<FunctionObject *> functionObjects;
     vector<int> paramSizes;
     vector<string>  parameterLabels;
