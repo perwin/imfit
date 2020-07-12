@@ -576,11 +576,11 @@ public:
 //    parameterList = output, will contain vector of parameter values
 //    parameterLimits = output, will contain vector of mp_par structures (specifying
 //                   possible limits on parameter values)
-//    fblockStartIndices = output, will contain vector of integers specifying
-//                   which functions mark start of new function block
+//    fsetStartIndices = output, will contain vector of integers specifying
+//                   which functions mark start of new function set
 // int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
 //                     vector<string>& functionLabels, vector<double>& parameterList, 
-//                     vector<mp_par>& parameterLimits, vector<int>& fblockStartIndices, 
+//                     vector<mp_par>& parameterLimits, vector<int>& fsetStartIndices, 
 //                     bool& parameterLimitsFound, configOptions& configFileOptions, 
 //                     vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
 
@@ -592,13 +592,13 @@ public:
     vector<string>  functionLabels;
     vector<double>  parameterList1;
     vector<mp_par>  paramLimits1;
-    vector<int>  FunctionBlockIndices1;
+    vector<int>  FunctionSetIndices1;
     configOptions  userConfigOptions1;
     bool  paramLimitsExist1;
 	bool  status;
 	
     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
-    							parameterList1, paramLimits1, FunctionBlockIndices1, 
+    							parameterList1, paramLimits1, FunctionSetIndices1, 
     							paramLimitsExist1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
@@ -614,8 +614,8 @@ public:
       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
     }
     
-    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     TS_ASSERT_EQUALS(paramLimitsExist1, false);
     
     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
@@ -627,7 +627,7 @@ public:
     // do it again, to make sure the input/output vectors are cleared, then appended
     // to, rather than just appended to without being cleared first
     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
-    							parameterList1, paramLimits1, FunctionBlockIndices1, 
+    							parameterList1, paramLimits1, FunctionSetIndices1, 
     							paramLimitsExist1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
@@ -640,8 +640,8 @@ public:
       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
     }
     
-    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     TS_ASSERT_EQUALS(paramLimitsExist1, false);
     
     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
@@ -659,13 +659,13 @@ public:
     vector<string>  functionLabels;
     vector<double>  parameterList1;
     vector<mp_par>  paramLimits1;
-    vector<int>  FunctionBlockIndices1;
+    vector<int>  FunctionSetIndices1;
     configOptions  userConfigOptions1;
     bool  paramLimitsExist1;
 	bool  status;
 	
     status = ReadConfigFile(TEST_CONFIGFILE_WITH_LABELS_GOOD, true, functionList1, functionLabels,
-    							parameterList1, paramLimits1, FunctionBlockIndices1, 
+    							parameterList1, paramLimits1, FunctionSetIndices1, 
     							paramLimitsExist1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
@@ -682,8 +682,8 @@ public:
       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
     }
     
-    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     TS_ASSERT_EQUALS(paramLimitsExist1, false);
     
     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
@@ -695,7 +695,7 @@ public:
     // do it again, to make sure the input/output vectors are cleared, then appended
     // to, rather than just appended to without being cleared first
     status = ReadConfigFile(TEST_CONFIGFILE_WITH_LABELS_GOOD, true, functionList1, functionLabels,
-    							parameterList1, paramLimits1, FunctionBlockIndices1, 
+    							parameterList1, paramLimits1, FunctionSetIndices1, 
     							paramLimitsExist1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
@@ -709,8 +709,8 @@ public:
       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
     }
     
-    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     TS_ASSERT_EQUALS(paramLimitsExist1, false);
     
     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
@@ -727,12 +727,12 @@ public:
     vector<string>  functionList1;
     vector<string>  functionLabels;
     vector<double>  parameterList1;
-    vector<int>  FunctionBlockIndices1;
+    vector<int>  FunctionSetIndices1;
     configOptions  userConfigOptions1;
 	bool  status;
 	
     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
-    						parameterList1, FunctionBlockIndices1, userConfigOptions1);
+    						parameterList1, FunctionSetIndices1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
     
@@ -747,8 +747,8 @@ public:
       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
     }
     
-    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     
     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
@@ -759,7 +759,7 @@ public:
     // do it again, to make sure the input/output vectors are cleared, then appended
     // to, rather than just appended to without being cleared first
     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
-    						parameterList1, FunctionBlockIndices1, userConfigOptions1);
+    						parameterList1, FunctionSetIndices1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
     
@@ -770,8 +770,8 @@ public:
     for (int i = 0; i < nParams; i++)
       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
     
-    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     
     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
@@ -785,12 +785,12 @@ public:
     vector<string>  functionList1;
     vector<string>  functionLabels;
     vector<double>  parameterList1;
-    vector<int>  FunctionBlockIndices1;
+    vector<int>  FunctionSetIndices1;
     configOptions  userConfigOptions1;
 	bool  status;
 	
     status = ReadConfigFile(TEST_CONFIGFILE_WITH_LABELS_GOOD, true, functionList1, functionLabels,
-    						parameterList1, FunctionBlockIndices1, userConfigOptions1);
+    						parameterList1, FunctionSetIndices1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
     
@@ -806,8 +806,8 @@ public:
       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
     }
     
-    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     
     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
@@ -818,7 +818,7 @@ public:
     // do it again, to make sure the input/output vectors are cleared, then appended
     // to, rather than just appended to without being cleared first
     status = ReadConfigFile(TEST_CONFIGFILE_WITH_LABELS_GOOD, true, functionList1, functionLabels,
-    						parameterList1, FunctionBlockIndices1, userConfigOptions1);
+    						parameterList1, FunctionSetIndices1, userConfigOptions1);
   
     TS_ASSERT_EQUALS(status, 0);
     
@@ -830,8 +830,8 @@ public:
     for (int i = 0; i < nParams; i++)
       TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
     
-    TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-    TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     
     TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
     TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
@@ -845,13 +845,13 @@ public:
     vector<string>  functionList1;
     vector<string>  functionLabels;
     vector<double>  parameterList1;
-    vector<int>  FunctionBlockIndices1;
+    vector<int>  FunctionSetIndices1;
     configOptions  userConfigOptions1;
     vector< map<string, string> >  optionalParamsVect;
     bool  status;
 
     status = ReadConfigFile(TEST_CONFIGFILE_OPTIONAL1, true, functionList1, functionLabels,
-    						parameterList1, FunctionBlockIndices1, userConfigOptions1, 
+    						parameterList1, FunctionSetIndices1, userConfigOptions1, 
     						optionalParamsVect);
   
     TS_ASSERT_EQUALS(status, 0);
@@ -868,8 +868,8 @@ public:
         TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
       }
     
-      TS_ASSERT_EQUALS((int)FunctionBlockIndices1.size(), 1);
-      TS_ASSERT_EQUALS(FunctionBlockIndices1[0], 0);
+      TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+      TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
     
       TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
       TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");

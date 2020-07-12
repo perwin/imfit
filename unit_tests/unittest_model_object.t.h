@@ -32,7 +32,7 @@ using namespace std;
 #define CONFIG_FILE "tests/imfit_reference/config_imfit_poisson.dat"
 #define CONFIG_FILE_POINTSOURCE "tests/makeimage_reference/config_imfit_pointsource.dat"
 #define CONFIG_FILE3b "tests/config_imfit_gauss-extra-params.dat"
-const string CONFIG_FILE_2BLOCKS("tests/config_imfit_2blocks.dat");
+const string CONFIG_FILE_2BLOCKS("tests/config_imfit_2sets.dat");
 
 
 // Reference things
@@ -454,7 +454,7 @@ public:
     status = AddFunctions(modelObj2b, functionList1, functionLabelList1, FunctionBlockIndices1, 
     						true, -1);
 
-    // Exp + FlatSky, each in its own function block
+    // Exp + FlatSky, each in its own function set
     status = ReadConfigFile(filename3, true, functionList3, functionLabelList3, parameterList3, 
     						paramLimits3, FunctionBlockIndices3, paramLimitsExist3, 
     						userConfigOptions3);
@@ -716,7 +716,7 @@ public:
     TS_ASSERT_EQUALS(outputString, correctString);
   }
 
-  void testPrintModelParamsHorizontalString_withOffset_2blocks( )
+  void testPrintModelParamsHorizontalString_withOffset_2sets( )
   {
     int nParamsTot = 9;
     // X0, Y0, PA, ell, I_0, h; X0, Y0, I_sky
