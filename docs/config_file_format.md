@@ -70,11 +70,11 @@ will override any corresponding values in the configuration file.
 
 The main (and required) section of the configuration file is the part which
 describes the actual model to be fit (or generated and saved in the case of makeimage).
-This consists of one or more **function blocks**.
+This consists of one or more **function sets**.
 
-### Function Blocks
+### Function Sets
 
-A **function block** is a central-coordinate (x0,y0) specification followed by one or
+A **function set** is a central-coordinate (x0,y0) specification followed by one or
 more **image-function declarations**. This specifies a set of image functions which
 share the same center.
 
@@ -154,12 +154,12 @@ for use with imfit.
     r_e    25     0,100
 
 
-### Single function block with two functions
+### Single function set with two functions
 
 This is a modification of the previous configuration file, using an Exponential function
 along with the Sersic function. In addition, the Sersic index *n* is held fixed with a
 value of 4 (making the Sersic profile a de Vaucouleurs profile). Both functions share the 
-same center, and are thus part of a single function block. This version also includes
+same center, and are thus part of a single function set. This version also includes
 an image-description prelude.
 
     GAIN          4.725
@@ -180,9 +180,9 @@ an image-description prelude.
     I_0   100     1,500
     h     50      5,500
 
-### Multiple function blocks
+### Multiple function sets
 
-Multiple function blocks can be included in a configuration file; these indicate
+Multiple function sets can be included in a configuration file; these indicate
 different sets of image functions which share common centers (i.e, x0,y0 locations
 on the image).
 

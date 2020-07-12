@@ -2,16 +2,18 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.8.0 -- 2020-xxx
+## 1.8.0 -- 2020-07-xx
 ### Added:
 
-- Function "labels" in config files: you can now annotate individual
+- Function "labels" in configuration files: you can now annotate individual
 functions in config files (e.g., "FUNCTION Sersic # LABEL bulge");
 these labels will be propagated to output best-fit parameter files and
-`--print-fluxes` and `--save-fluxes` output.
+`--print-fluxes` and `--save-fluxes` output. Everything after the keyword
+"LABEL" (must be in all-caps) is the "label"; note that the comment character "#"
+is required!
 
 - New image function: TiltedSkyPlane. This represents a linear 2D
-gradient background (a "tilted plane" as the image background). Based on
+gradient background (a "tilted plane") as the image background. Based on
 the InclinedFlatSky function suggested by Dan Prole (danjampro).
 
 - New image function: GaussianRingAz. This is similar to GaussianRing
@@ -19,8 +21,13 @@ the InclinedFlatSky function suggested by Dan Prole (danjampro).
 peak intensity that varies with azimuth around the ring (see Erwin et
 al. 2020 for its use in modeling images of the barred galaxy NGC 4608).
 
-- New image function: FlatBar. blah blah blah (see Erwin et
-al. 2020 for its use in modeling images of two barred galaxies).
+- New image function: FlatBar. This is an ad-hoc representation of the
+outer, vertically thin part of a two-component, vertically buckled bar
+in a massive galaxy, seen at low to moderate inclinations. It is meant to be
+used in conjunction with, e.g., a Sersic or Sersic_GenEllipse component (which
+would represent the inner, vertically thickened "boxy/peanut-shaped bulge"
+part of the bar. (See Erwin et al. 2020 -- especially Appendix~A -- for its use
+in modeling images of two barred galaxies).
 
 - New option for makeimage: `--save-fluxes`, which saves the
 `--print-fluxes` component-fluxes-and-fractions output of makeimage to a
@@ -31,6 +38,13 @@ uses Latin hypercube sampling to set up the initial set of trial
 parameter vectors, instead of the default pure-uniform sampling. (This
 may in some cases more evenly sample the parameter volume, though
 preliminary tests suggest it may be no better than the default.)
+
+### Changed:
+
+- The documentation now (mostly) refers to "function blocks" (i.e., one
+or more image functions in a configuration file that share the same
+central pixel coordinates X0,Y0) as *function sets*, to match the usage
+in PyImfit better.
 
 
 

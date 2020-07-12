@@ -31,7 +31,7 @@ existing FunctionObject subclasses, unless some special extra initialization is 
 
 - `Setup()` -- this is used by the calling program to supply the current
 set of function parameters (including the (*x*0,*y*0) pixel values for
-the center of the function block) prior to determining intensity values
+the center of the function set) prior to determining intensity values
 for individual pixels. The parameter values in the input array should be
 assigned to the appropriate data members of the class. This is also a
 convenient place to do any general calculations which depend on the

@@ -681,6 +681,9 @@ the minimization technique (\textsc{Warning}: slower)
 \item \texttt{--de} -- use Differential Evolution instead of Levenberg-Marquardt as
 the minimization technique (\textsc{Warning}: much slower!)
 
+\item \texttt{--de-lhs} -- use Differential Evolution with Latin hypecube sampling
+(as opposed to standard uniform sampling) for the initial guesses
+
 \item \texttt{--nlopt} \textit{algorithm-name} -- use one of the
 ``local derivative-free'' minimization algorithms from the NLopt
 library;\footnote{See
@@ -784,7 +787,9 @@ The configuration file should be a plain text file. Blank lines and
 lines beginning with ``\#'' are ignored; in fact, anything on the same line after a
 ``\#'' is ignored, which allows for comments at the end of lines.
 
-A model for an image is specified by one or more \textbf{function blocks}, each of
+A model for an image is specified by one or more \textbf{function sets},\footnote{In
+versions of \Imfit{} prior to 1.8, these were generally referred to as ``function 
+blocks''.} each of
 which is a group of one or more 2D image functions sharing a common $(x,y)$
 spatial position. Each function-specification consists of a line beginning with
 ``FUNCTION'' and containing the function name, followed by one or more lines
@@ -796,7 +801,7 @@ More formally, the format for a configuration file is:
 \begin{enumerate}
 \item Optional specifications of general parameters and settings (e.g., the
 input image's A/D gain and read noise)
-\item One or more function blocks, each of which contains:
+\item One or more function sets, each of which contains:
 \begin{enumerate}
 \item X-position parameter-specification line
 \item Y-position parameter-specification line
@@ -850,7 +855,7 @@ angle is limited to 0--180, the ellipticity must stay $\geq 0$ and $\leq 1$, and
 the central intensity I\_0 is held fixed at its initial value.
 
 Finally, here is a more elaborate example, specifying a model that has two
-function blocks, with the first block having two individual functions (this
+function sets, with the first set having two individual functions (this
 could be a model for, e.g., simultaneously fitting two galaxies in the same
 image, one as S\'ersic + exponential, the other with just an exponential):
 
@@ -860,7 +865,7 @@ image, one as S\'ersic + exponential, the other with just an exponential):
   \texttt{GAIN  2.7   \red{\# A/D gain for image in e/ADU}}\\
   \texttt{READNOISE  4.5   \red{\# image read-noise in electrons}}\\
   
-  \texttt{\red{\# This is the first function block: Sersic + exponential}}\\
+  \texttt{\red{\# This is the first function set: Sersic + exponential}}\\
   \texttt{X0 ~~   150.1  ~~ 148,152}\\
   \texttt{Y0 ~~   149.5  ~~ 148,152}\\
   \texttt{FUNCTION   Sersic   \red{\# A Sersic function}}\\
@@ -875,7 +880,7 @@ image, one as S\'ersic + exponential, the other with just an exponential):
   \texttt{I\_0 ~  90.0  ~ fixed}\\
   \texttt{h    ~~ 15.0}\\
   
-  \texttt{\red{\# This is the second function block: just a single exponential}}\\
+  \texttt{\red{\# This is the second function set: just a single exponential}}\\
   \texttt{X0 ~~   225.0  ~~ 224,226}\\
   \texttt{Y0 ~~   181.7  ~~ 180,183}\\
   \texttt{FUNCTION   Exponential} \\
@@ -888,7 +893,7 @@ image, one as S\'ersic + exponential, the other with just an exponential):
 
 \section{Parameter Names, Specifications, and Values}
 
-The X0/Y0 position lines at the start of each function block and the
+The X0/Y0 position lines at the start of each function set and the
 individual parameter lines for each function all share a common format:
 \begin{quote}
 \textit{parameter-name} ~~ \textit{initial-parameter-value} ~~ \textit{optional-limits}
@@ -901,7 +906,7 @@ for each parameter).
 \bigskip
 
 \textbf{Parameter Names:} The X0/Y0 positional parameters for each
-function block must be labeled ``X0'' and ``Y0''. Names for the
+function set must be labeled ``X0'' and ``Y0''. Names for the
 parameters of individual functions can be anything the user desires;
 only the order matters. Thus, the position-angle parameter could be
 labeled ``PA'', ``PosAngle'', ``angle'', or any non-space-containing
@@ -920,7 +925,7 @@ to see what these are for each function).
 \bigskip
 
 \textbf{Values for Positional Parameter (X0, Y0)}: The positional parameters
-for each function block are pixel values -- X0 for the column number and
+for each function set are pixel values -- X0 for the column number and
 Y0 for the row number. \Imfit{} uses the \textsc{iraf} pixel-numbering
 convention: the center of first pixel in the image (the lower left pixel
 in a standard display) is at $(1.0,1.0)$, with the lower-left corner of that
@@ -980,7 +985,7 @@ The configuration file can, optionally, contain one or more specifications of
 parameters describing the whole image, which take the place of certain command-line
 options for computing the internal noise map.  The specifications should be placed
 \textit{at the beginning} of the configuration file, \textit{before} the first function
-block is described. The format is the same as for other parameters in the configuration
+set is described. The format is the same as for other parameters in the configuration
 file: the name of the parameter, followed by one or more spaces and/or tabs, followed
 by a numerical value. E.g.,
 \begin{quote}
@@ -1533,12 +1538,25 @@ does \textit{not} require or use initial guesses for the parameter values.
 The Differential Evolution algorithm does, however, \textit{require}
 lower and upper limits for \textit{all} parameters in the configuration
 file (see Section~\ref{sec:param-limits}); this is because DE generates
-parameter-value ``genomes'' by random uniform sampling from within the
+initial parameter-value ``genomes'' by random uniform sampling from within the
 ranges specified by the parameter limits. The format of the
 configuration file still requires that initial-guess values be present
 for all parameters as well, but these are actually ignored by the DE
 algorithm. (This is to ensure that the same configuration file can be
 used with all minimization routines.)
+
+The standard implementation of Differential Evolution uses simple
+uniform sampling to generate the initial guesses: the initial value for
+a given parameter in a given ``genome'' is generated by uniformly
+sampling from within that parameter's limits. In some cases, this might
+leave the full parameter space unevenly sampled, which \textit{might}
+make it harder to find the global fit-statistic minimum if there are
+multiple local minima. As an alternative, you can use the
+\texttt{--de-lhs} option, which tells \imfit{} to use Latin hypercube
+sampling when generating the initial parameter guesses. In practice,
+it's not clear this improves the convergence speed of typical DE fits,
+but it might be useful in some cases (ideally, one should probably run
+experiments to see if it makes things better or worse).
 
 (An additional set of minimization algorithms -- all of the ``local
 derivative-free'' algorithms in the NLopt
@@ -2660,7 +2678,7 @@ beta
 This function approximates a point source (e.g., star, AGN, etc.) by
 taking the user-input PSF image and generating an interpolated,
 intensity-scaled copy of it at the X0,Y0 position of the parent function
-block. It has only one free parameter: $I_{\mathrm{tot}}$, which is the
+set. It has only one free parameter: $I_{\mathrm{tot}}$, which is the
 factor that the PSF image is multiplied by, and which will usually
 correspond to the total flux of the point source. Of course, it also
 \textit{requires} that a PSF image be supplied!
@@ -2981,7 +2999,7 @@ z_0
 \subsubsection{EdgeOnRing}
 
 A simplistic model for an edge-on ring, using two offset components located
-at distance $\pm$\texttt{r} from the center of the function block. Each component
+at distance $\pm$\texttt{r} from the center of the function set. Each component
 (i.e., each side of the ring) is a symmetric Gaussian with size
 \texttt{sigma\_r} for the radial profile and a symmetric Gaussian with
 size \texttt{sigma\_z} for the vertical profile. (See GaussianRing3D for a similar
