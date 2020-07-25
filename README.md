@@ -39,11 +39,8 @@ ArXiv version:
 
 **New:** Preliminary/experimental Python wrapper for Imfit: [PyImfit](https://github.com/perwin/pyimfit)
 
-**NOTE:** The previous version of Imfit (1.7.0) had an error in the build process
-which removed OpenMP-based speedups. Please upgrade to version 1.7.1, which fixes
-the problem and restores Imfit's proper speed!
 
-DOI for current release (v1.7.1), archived at Zenodo:
+DOI for current release (v1.8.0), archived at Zenodo:
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.594956.svg)](https://doi.org/10.5281/zenodo.594956)
 
