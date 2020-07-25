@@ -91,8 +91,8 @@ Building Imfit requires the following libraries:
 
 * [FFTW](http://www.fftw.org) (version 3)
 * [CFITSIO](http://heasarc.gsfc.nasa.gov/fitsio/fitsio.html) (version 3)
+* [GSL](http://www.gnu.org/software/gsl/) (GNU Scientific Library, version 2.0 or later)
 * [NLopt](http://ab-initio.mit.edu/wiki/index.php/NLopt) -- optional, but strongly recommended
-* [GSL](http://www.gnu.org/software/gsl/) (GNU Scientific Library, version 2.0 or later) -- optional, but strongly recommended
 
 Imfit uses [SCons](http://scons.org) as the build tool,
 and should build under any version of GCC from 4.8.1 onward, as well as any 
