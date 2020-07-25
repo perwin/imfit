@@ -321,7 +321,8 @@ int main( int argc, char *argv[] )
         // Add comments for FITS header, describing this function
         headerString = PrintToString("FUNCTION %s", functionNames[i].c_str());
         if (! functionLabels[i].empty())
-          headerString = PrintToString("%s # LABEL %s", headerString, functionLabels[i].c_str());
+          headerString = PrintToString("%s # LABEL %s", headerString.c_str(), 
+          								functionLabels[i].c_str());
         imageCommentsList.push_back(headerString);
         status = SaveVectorAsImage(singleFunctionImage, currentFilename, nColumns, nRows, 
         							imageCommentsList);
@@ -800,9 +801,9 @@ void DetermineFluxes( ModelObject *theModel, double *parameters,
 
     FILE * file_ptr = fopen(options->saveFluxesFileName.c_str(), "w");
     for (n = 0; n < (int)headerLines.size(); n++)
-      fprintf(file_ptr, headerLines[n].c_str());
+      fprintf(file_ptr, "%s", headerLines[n].c_str());
     for (n = 0; n < (int)saveFluxesLines.size(); n++)
-      fprintf(file_ptr, saveFluxesLines[n].c_str());
+      fprintf(file_ptr, "%s", saveFluxesLines[n].c_str());
     fclose(file_ptr);
     printf("\nEstimated fluxes saved to file %s.\n", options->saveFluxesFileName.c_str());
   }
