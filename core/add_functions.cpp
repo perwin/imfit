@@ -56,14 +56,14 @@
 #include "func_flatsky.h"
 #include "func_tilted-sky-plane.h"
 // modules requiring GSL:
-#ifndef NO_GSL
+//#ifndef NO_GSL
 #include "func_edge-on-disk.h"
 #include "func_expdisk3d.h"
 #include "func_brokenexpdisk3d.h"
 #include "func_gaussianring3d.h"
 #include "func_ferrersbar3d.h"
 #include "func_pointsource.h"
-#endif
+//#endif
 
 // ADD INCLUDE FILE FOR NEW FUNCTIONS HERE
 // e.g.
@@ -211,7 +211,7 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   input_factory_map[classFuncName] = new funcobj_factory<TiltedSkyPlane>();
 
 // functions requring GSL:
-#ifndef NO_GSL 
+//#ifndef NO_GSL 
   EdgeOnDisk::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDisk>();
 
@@ -229,7 +229,7 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   PointSource::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<PointSource>();
-#endif
+//#endif
 
 // ADD CODE FOR NEW FUNCTIONS HERE
 // e.g.

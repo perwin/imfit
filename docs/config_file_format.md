@@ -26,6 +26,9 @@ Finally, if a hash symbol is found in the middle of a line, then it and the
 rest of the line are ignored.  This allows comments to be added on the same
 line as a meaningful entry (function declaration, parameter name and value, etc.).
 
+(There is one minor exception to that last point, having to do with optional
+labels for funtions; see below.)
+
 
 ## (Optional) Prelude: Describing the Image
 
@@ -111,9 +114,19 @@ in imfit.
     <parameter_name2>    <initial_value>   [<limits>]
     [etc.]
 
+Optionally, you can include an arbitrary text label for a given function on the
+same line as the world "FUNCTION" by adding `# LABEL <some text>` after the
+function name, e.g.:
+
+    FUNCTION <function_name>  # LABEL <some label text>
+
+(These labels do not affect the fitting, but are copied to the output; they
+are for allowing the user to more easily keep track of intended meanings of
+different components in complicated models.)
+
 A simple example:
 
-    FUNCTION Exponential
+    FUNCTION Exponential  # LABEL main disk
     PA    90
     ell   0.5
     I_0   100

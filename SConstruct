@@ -252,7 +252,7 @@ extra_defines = []
 # *** Set up default settings, check for user-requested changes
 
 # Default settings for compilation
-useGSL = True
+#useGSL = True
 useNLopt = True
 useOpenMP = True
 usingClangOpenMP = False
@@ -275,8 +275,8 @@ AddOption("--header-path", dest="headerPath", type="string", action="store", def
     help="colon-separated list of additional paths to search for header files")
 AddOption("--no-threading", dest="fftwThreading", action="store_false", 
     default=True, help="compile programs *without* FFTW threading")
-AddOption("--no-gsl", dest="useGSL", action="store_false", 
-    default=True, help="do *not* use GNU Scientific Library")
+# AddOption("--no-gsl", dest="useGSL", action="store_false", 
+#     default=True, help="do *not* use GNU Scientific Library")
 AddOption("--no-nlopt", dest="useNLopt", action="store_false", 
     default=True, help="do *not* use NLopt library")
 AddOption("--no-openmp", dest="noOpenMP", action="store_true", 
@@ -335,8 +335,8 @@ if GetOption("libraryPath") is not None:
     extraPaths = GetOption("libraryPath").split(":")
     print("extra library search paths: ", extraPaths)
     lib_path += extraPaths
-if GetOption("useGSL") is False:
-    useGSL = False
+# if GetOption("useGSL") is False:
+#     useGSL = False
 if GetOption("useNLopt") is False:
     useNLopt = False
 if GetOption("noOpenMP"):
@@ -412,19 +412,20 @@ else:
     lib_list += ["cfitsio", "fftw3", "fftw3_threads"]
 extra_defines.append("FFTW_THREADING")
 
-if useGSL:   # true by default
-    if useStaticLibs:
-        lib_list.append(STATIC_GSL_LIBRARY_FILE1)
-        lib_list.append(STATIC_GSL_LIBRARY_FILE2)
-        lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1)
-        lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2)
-    else:
-        lib_list.append("gsl")
-        lib_list.append("gslcblas")     
-        lib_list_1d.append("gsl")
-        lib_list_1d.append("gslcblas")      
+#if useGSL:   # true by default
+# GNU Scientific Library
+if useStaticLibs:
+    lib_list.append(STATIC_GSL_LIBRARY_FILE1)
+    lib_list.append(STATIC_GSL_LIBRARY_FILE2)
+    lib_list_1d.append(STATIC_GSL_LIBRARY_FILE1)
+    lib_list_1d.append(STATIC_GSL_LIBRARY_FILE2)
 else:
-    extra_defines.append("NO_GSL")
+    lib_list.append("gsl")
+    lib_list.append("gslcblas")     
+    lib_list_1d.append("gsl")
+    lib_list_1d.append("gslcblas")      
+# else:
+#     extra_defines.append("NO_GSL")
 
 if useNLopt:   # default is to do this
     if useStaticLibs:
@@ -587,15 +588,15 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
         func_edge-on-disk_n4762v2 func_edge-on-ring func_edge-on-ring2side 
         func_king func_king2 func_ferrersbar2d 
         helper_funcs helper_funcs_3d psf_interpolators"""
-if useGSL:
-    # the following modules require GSL be present
-    functionobject_obj_string += " func_edge-on-disk"
-    functionobject_obj_string += " integrator"
-    functionobject_obj_string += " func_expdisk3d"  # requires integrator
-    functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
-    functionobject_obj_string += " func_gaussianring3d"  # requires integrator
-    functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
-    functionobject_obj_string += " func_pointsource"
+#if useGSL:
+# NOTE: the following modules require GSL be present
+functionobject_obj_string += " func_edge-on-disk"
+functionobject_obj_string += " integrator"
+functionobject_obj_string += " func_expdisk3d"  # requires integrator
+functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
+functionobject_obj_string += " func_gaussianring3d"  # requires integrator
+functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
+functionobject_obj_string += " func_pointsource"
 if useExtraFuncs:
     # experimental extra functions for personal testing
     functionobject_obj_string += " func_broken-exp-bar"
@@ -607,19 +608,19 @@ if useExtraFuncs:
     functionobject_obj_string += " func_bp-cross-section"
     functionobject_obj_string += " func_lorentzian-ring"
     functionobject_obj_string += " func_n4608disk"
-    if useGSL:
-        functionobject_obj_string += " func_brokenexpbar3d"
-        functionobject_obj_string += " func_boxytest3d"
-        functionobject_obj_string += " func_double-brokenexpdisk3d"
-        functionobject_obj_string += " func_expdisk3d_trunc"
-        functionobject_obj_string += " func_logspiral"
-        functionobject_obj_string += " func_logspiral2"
-        functionobject_obj_string += " func_logspiral_gauss"
-        functionobject_obj_string += " func_nan"
-        functionobject_obj_string += " func_triaxbar3d"
-        functionobject_obj_string += " func_triaxbar3d_sq"
-        functionobject_obj_string += " func_triaxbar3d_gengauss_sq"
-        functionobject_obj_string += " func_exp-higher-mom"
+#    if useGSL:
+    functionobject_obj_string += " func_brokenexpbar3d"
+    functionobject_obj_string += " func_boxytest3d"
+    functionobject_obj_string += " func_double-brokenexpdisk3d"
+    functionobject_obj_string += " func_expdisk3d_trunc"
+    functionobject_obj_string += " func_logspiral"
+    functionobject_obj_string += " func_logspiral2"
+    functionobject_obj_string += " func_logspiral_gauss"
+    functionobject_obj_string += " func_nan"
+    functionobject_obj_string += " func_triaxbar3d"
+    functionobject_obj_string += " func_triaxbar3d_sq"
+    functionobject_obj_string += " func_triaxbar3d_gengauss_sq"
+    functionobject_obj_string += " func_exp-higher-mom"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,

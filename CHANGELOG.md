@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.8.0 -- 2020-07-xx
+## 1.8.0 -- 2020-07-26
 ### Added:
 
 - Function "labels" in configuration files: you can now annotate individual
@@ -45,6 +45,12 @@ preliminary tests suggest it may be no better than the default.)
 or more image functions in a configuration file that share the same
 central pixel coordinates X0,Y0) as *function sets*, to match the usage
 in PyImfit better.
+
+- Compilation of the Imfit programs (`imfit`, `imfit-mcmc`, and `makeimage`)
+now *requires* the GNU Scientific Library; i.e., it is no longer "optional
+but strongly recommended".
+
+
 
 
 

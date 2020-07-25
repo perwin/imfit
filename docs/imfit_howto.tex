@@ -74,7 +74,7 @@
 \newcommand{\pmlr}{PMLR}
 
 % Other stuff, including version number
-\newcommand{\versionnum}{1.7.1}
+\newcommand{\versionnum}{1.8.0}
 
 \newcommand{\red}{\textcolor{red}}
 
@@ -156,23 +156,23 @@ distinction should be meaningless. (I.e., in most cases you're using the
 \bigskip
 
 \textbf{System Requirements:} \Imfit{} has been built and tested on
-Intel-based MacOS X (or macOS) 10.8--10.12 (Mountain Lion, Mavericks,
-Yosemite, El Capitan, and Sierra)\footnote{Versions 1.3 and earlier were
+Intel-based MacOS X (or macOS) 10.8--10.13 (Mountain Lion, Mavericks,
+Yosemite, El Capitan, Sierra, and High Sierra)\footnote{Versions 1.3 and earlier were
 also built for MacOS X 10.6 and 10.7; it's unclear whether the current
 version could still be compiled for those systems.} and Linux (Ubuntu)
 systems. It uses standard C++ or C++11 and should work on most
 Unix-style systems with a modern C++ compiler and the Standard Template
-Library (e.g., \textsc{gcc} v4.8.1 or higher). It relies on two
+Library (e.g., \textsc{gcc} v4.8.1 or higher). It relies on three
 external, open-source libraries: version 3 of the \textsc{cfitsio}
 library\footnote{\url{https://heasarc.nasa.gov/fitsio/}} for
-\textsc{fits} image I/O and version 3 of the \textsc{fftw} (Fastest
-Fourier Transform in the West)
-library\footnote{\url{http://www.fftw.org/}} for PSF convolution. Some
-optional components -- as well as the \imfitmcmc{} program -- require
-version 2.0 or higher of the \textsc{gnu} Scientific Library
-(\textsc{gsl}),\footnote{\url{https://www.gnu.org/software/gsl/}} and the NLopt
-library\footnote{\url{https://nlopt.readthedocs.io/en/latest/}},
-but the program can also be built without these.
+\textsc{fits} image I/O, version 3 of the \textsc{fftw} (Fastest Fourier
+Transform in the West) library\footnote{\url{http://www.fftw.org/}} for
+PSF convolution, and version 2.0 or higher of the \textsc{gnu}
+Scientific Library
+(\textsc{gsl}),\footnote{\url{https://www.gnu.org/software/gsl/}}. Some
+of the fitting algorithms require the NLopt
+library\footnote{\url{https://nlopt.readthedocs.io/en/latest/}}, but the
+program can also be built without it.
 
 \bigskip
 
@@ -247,6 +247,8 @@ The basic outline for building \Imfit{} from source is:
 \begin{enumerate}
 \item Install the \textsc{cfitsio} library (version 3.0 or higher).
 
+\item Install the \textsc{gnu} Scientific Library (\textsc{gsl}; version 2.0 or higher).
+
 \item Install the \textsc{fftw} library (version 3.0 or higher). Note
 that if you have a multi-core CPU (or multiple CPUs sharing main
 memory), you should build and install the threaded version of
@@ -261,15 +263,6 @@ recommended, though not as strongly.
 this is necessary if you wish to use the Nelder-Mead minimization
 algorithm. \Imfit{} can be built without this, if for some reason
 you don't have access to the NLopt library.
-
-\item (Optional, but strongly recommended) Install the \textsc{gnu}
-Scientific Library (\textsc{gsl}) -- this is necessary if you want to
-use the MCMC program \imfitmcmc. It is also necessary if you wish to use
-certain image functions that rely on \textsc{gsl}, such as the
-PointSource component, the EdgeOnDisk component, and the sample 3D
-line-of-sight integration functions (e.g., ExponentialDisk3D). \Imfit{}
-can be built without these components, if for some reason you don't have
-access to the \textsc{gsl}.
 
 \item Install SCons (if needed; see below).
 
@@ -318,12 +311,12 @@ this can be dealt with by using:
 \verb+$ scons --no-nlopt makeimage+
 \end{quote}
 
-Similarly, if you do not have \textsc{gsl} installed, you will get compilation errors; use the following
-commands instead (note that you cannot build \imfitmcmc{} without \textsc{gsl}):
-\begin{quote}
-\verb+$ scons --no-gsl imfit+ \\
-\verb+$ scons --no-gsl makeimage+
-\end{quote}
+%Similarly, if you do not have \textsc{gsl} installed, you will get compilation errors; use the following
+%commands instead (note that you cannot build \imfitmcmc{} without \textsc{gsl}):
+%\begin{quote}
+%\verb+$ scons --no-gsl imfit+ \\
+%\verb+$ scons --no-gsl makeimage+
+%\end{quote}
 
 Various other compilation options may be useful, particularly for telling SCons where
 to look for library files; these are explained in the next
@@ -361,7 +354,7 @@ By default, the SConstruct file (the equivalent of a Makefile for SCons) include
 in the source distribution for \imfit{}
 tells SCons to look for header files in \texttt{/usr/local/include} and
 library files in \texttt{/usr/local/lib}. If you have the \textsc{fftw},
-\textsc{cfitsio}, and/or (optionally) NLopt and \textsc{gsl} headers and
+\textsc{cfitsio}, \textsc{gsl}, and/or (optionally) NLopt and headers and
 libraries installed somewhere else, you can tell SCons about this by
 using the
 \texttt{--header-path} and \texttt{--lib-path} options:
@@ -785,7 +778,9 @@ possibly additional information (e.g, gain and read noise for the input image).
 
 The configuration file should be a plain text file. Blank lines and
 lines beginning with ``\#'' are ignored; in fact, anything on the same line after a
-``\#'' is ignored, which allows for comments at the end of lines.
+``\#'' is ignored, which allows for comments at the end of lines. (A minor exception:
+on lines defining a function name, an optical label can be specified as part
+of the comment.)
 
 A model for an image is specified by one or more \textbf{function sets},\footnote{In
 versions of \Imfit{} prior to 1.8, these were generally referred to as ``function 
@@ -807,7 +802,7 @@ input image's A/D gain and read noise)
 \item Y-position parameter-specification line
 \item One or more function + parameters specifications, each of which contains:
 \begin{enumerate}
-\item \texttt{FUNCTION} + function-name line
+\item \texttt{FUNCTION} + function-name line [+ optional label]
 \item one or more parameter-specification lines
 \end{enumerate}
 \end{enumerate}
@@ -857,7 +852,10 @@ the central intensity I\_0 is held fixed at its initial value.
 Finally, here is a more elaborate example, specifying a model that has two
 function sets, with the first set having two individual functions (this
 could be a model for, e.g., simultaneously fitting two galaxies in the same
-image, one as S\'ersic + exponential, the other with just an exponential):
+image, one as S\'ersic + exponential, the other with just an exponential).
+In addition, we specify labels for the two functions. These labels are
+purely for the convenience of the user; they have no
+effect on the fitting, but are reproduced in output files.
 
 \begin{quote}
   \texttt{\red{\# This line is a comment}}\\
@@ -868,13 +866,13 @@ image, one as S\'ersic + exponential, the other with just an exponential):
   \texttt{\red{\# This is the first function set: Sersic + exponential}}\\
   \texttt{X0 ~~   150.1  ~~ 148,152}\\
   \texttt{Y0 ~~   149.5  ~~ 148,152}\\
-  \texttt{FUNCTION   Sersic   \red{\# A Sersic function}}\\
+  \texttt{FUNCTION   Sersic   \red{\# LABEL galaxy 1 bulge}}\\
   \texttt{PA  ~  95.0  ~~ 0,180}\\
   \texttt{ell ~   0.05 ~ 0,1}\\
   \texttt{n   ~~   2.5  ~~~ 0.5,4.0 ~~ \red{\# Sersic index}}\\
   \texttt{I\_e ~  20.0 ~~ \red{\# intensity at the half-light radius}}\\
   \texttt{r\_e ~    5.0 ~~ \red{\# half-light radius in pixels}}\\
-  \texttt{FUNCTION   Exponential}\\
+  \texttt{FUNCTION   Exponential   \red{\# LABEL galaxy 1 disk}}\\
   \texttt{PA   ~ 95.0  ~~ 0,180}\\
   \texttt{ell  ~  0.45  ~~0,1}\\
   \texttt{I\_0 ~  90.0  ~ fixed}\\
@@ -883,7 +881,7 @@ image, one as S\'ersic + exponential, the other with just an exponential):
   \texttt{\red{\# This is the second function set: just a single exponential}}\\
   \texttt{X0 ~~   225.0  ~~ 224,226}\\
   \texttt{Y0 ~~   181.7  ~~ 180,183}\\
-  \texttt{FUNCTION   Exponential} \\
+  \texttt{FUNCTION   Exponential   \red{\# LABEL galaxy 2}} \\
   \texttt{PA   ~ 22.0  ~~ 0,180      }\\
   \texttt{ell  ~  0.25 ~ 0,1}\\
   \texttt{I\_0 ~  10.0  }\\
@@ -979,6 +977,28 @@ value should remain constant, used the ``fixed'' keyword as described above.
 not ``441.0,~443.5'' or ``441.0~,~443.5''.
 
 
+\section{Function Labels}
+
+Optional labels can be attached to each function. This has no effect on the fits,
+but since the labels are copied to the output printouts and files, they can be
+helpful in cases where models become complicated.
+
+The basic idea is a comment is added after the function name, where the first
+non-whitespace element after the comment character is the word ``LABEL'' (must
+be in all-caps), followed by whitespace, and then the rest of the line is
+treated as the label.
+
+\begin{quote}
+\texttt{FUNCTION} ~ \textit{function-name} ~ \texttt{\#} ~ \texttt{LABEL} ~ \textit{label-text}
+\end{quote}
+
+For example,
+
+\begin{quote}
+\texttt{FUNCTION Exponential} ~ \texttt{\#} ~ \texttt{LABEL nuclear disk}
+\end{quote}
+
+
 \section{Optional Image-Description Parameters}
 
 The configuration file can, optionally, contain one or more specifications of 
@@ -1026,6 +1046,7 @@ functions, including their parameters.
 
 \begin{itemize}
 \item FlatSky -- a uniform sky background.
+\item TiltedSkyPlane -- a sky background in the form of an inclined plane.
 \item Gaussian -- an elliptical 2D Gaussian function.
 \item Moffat -- an elliptical 2D Moffat function.
 \item Exponential -- an elliptical 2D exponential function.
@@ -1043,18 +1064,21 @@ consisting of a Gaussian centered at $r = R_{\mathrm{ring}}$.
 \item GaussianRing2Side -- like GaussianRing, but with a radial profile
 consisting of an asymmetric Gaussian (different values of $\sigma$ for
 $r < R_{\mathrm{ring}}$ and $r > R_{\mathrm{ring}}$).
+\item GaussianRingAz -- like GaussianRing, but the peak intensity of the
+radial Gaussian profile varying (sinusoidally) with azimuth.
 \item EdgeOnDisk -- the analytical form for a perfectly edge-on exponential
 disk, using the Bessel-function solution of \citet{vdk81} for 
 the radial profile and the generalized sech function of \citet{vdk88} 
-for the vertical profile. Note that this function requires that the \textsc{gnu}
-Scientific Library (\textsc{gsl}) be installed; if the \textsc{gsl} is not installed, \imfit{}
-should be compiled without this function (see Section~\ref{sec:build}).
+for the vertical profile.
 \item EdgeOnRing -- a simplistic model for an edge-on ring, using a
 Gaussian for the radial profile and another Gaussian (with
 different $\sigma$) for the vertical profile.
 \item EdgeOnRing2Side -- like EdgeOnRing, but using an
 asymmetric Gaussian for the radial profile (see description of GaussianRing2Side).
 \item FerrersBar2D -- a 2D version of the Ferrers ellipsoid.
+\item FlatBar -- An ad-hoc description of the outer (vertically thin) part of a
+relatively face-on bar in a massive galaxy (with the ``flat'' radial profile first
+identified by \cite{ee85}).
 
 \end{itemize}
 
@@ -1062,8 +1086,7 @@ In addition, four ``3D'' functions are available. With these, the
 intensity value for each pixel comes from line-of-sight integration
 through a 3D luminosity-density model, generating a projected 2D model
 image given input specifications of the orientation and inclination to
-the line of sight. All of these require the \textsc{gsl} for compilation
-from source (see Section~\ref{sec:build}).
+the line of sight.
 \begin{itemize}
 \item ExponentialDisk3D -- uses a 3D luminosity-density model of an axisymmetric 
 exponential disk (with different radial and vertical scale lengths), observed
@@ -2618,6 +2641,22 @@ I_sky
 \end{verbatim}
 
 
+\subsubsection{TiltedSkyPlane}
+
+A background in the form of an inclined plane: $I(x,y) = I_0$ at the center
+(X0,Y0), with $x$ and $y$ slopes given by $m_x$ and $m_y$.
+\begin{equation}
+I(x,y) \, = \, I_{0} + m_{x} (x - X_{0}) + m_{y} (y - Y_{0}).
+\end{equation}
+
+\begin{verbatim}
+FUNCTION TiltedSkyPlane
+I_0
+m_x
+m_y
+\end{verbatim}
+
+
 \subsubsection{Gaussian}
 
 This is an elliptical 2D Gaussian function, with the major-axis intensity
@@ -2935,13 +2974,32 @@ Similar to GaussianRing, but now using an asymmetric Gaussian (different
 values of $\sigma$ for $r < R_{\mathrm{ring}}$ and $r > R_{\mathrm{ring}}$).
 
 \begin{verbatim}
-FUNCTION GaussianRing2Side
+FUNCTION GaussianRingAz
 PA
 ell
-A
+A_maj
+A_min_rel
 R_ring
-sigma_r_in
-sigma_r_out
+sigma_r
+\end{verbatim}
+
+
+\subsubsection{GaussianRingAz}
+
+TBD. 
+
+Similar to GaussianRing, except that the peak radial intensity is modulated
+by a cosine function, varying from $A_{\mathrm{maj}}$ along the ellipse major
+axis to $A_{\mathrm{min}} = A_{\mathrm{min\_rel}} A_{\mathrm{maj}}$.
+
+\begin{verbatim}
+FUNCTION GaussianRingAz
+PA
+ell
+A_maj
+A_min_rel
+R_ring
+sigma_r
 \end{verbatim}
 
 
@@ -2980,11 +3038,6 @@ the code substitutes a pure exponential function for the $\mathrm{sech}^{2/n}$ t
 \begin{equation}
 \frac{n}{2} \frac{z}{z_{0}} > 100.
 \end{equation}
-
-Note that this particular function requires that the \textsc{gnu} Scientific Library
-(\textsc{gsl}) be installed; if the \textsc{gsl} is not installed, \imfit{} should be compiled
-without this function. (The pre-compiled binary versions include the necessary
-code from the \textsc{gsl}.)
 
 \begin{verbatim}
 FUNCTION EdgeOnDisk
@@ -3074,6 +3127,26 @@ a_bar
 %const char  PARAM_LABELS[][20] = {"PA", "ell", "c0", "n", "I_0", "a_bar"};
 
 
+\subsubsection{FlatBar}
+
+TBD.
+
+Blah blah blah; see \cite{erwin20}, especially Appendix~A.
+
+\begin{verbatim}
+FUNCTION FlatBar
+PA
+ell
+deltaPA_max
+I_0
+h1
+h2
+r_break
+alpha
+\end{verbatim}
+
+
+
 
 
 \section{3D Functions}
@@ -3110,11 +3183,6 @@ ring's major axis follows the usual orientation conventions with respect
 to the image +y axis. You are, of course, free to change this if you
 write 3D components of your own, though I will probably continue to
 follow it in the future.)
-
-These functions use integration routines from the \textsc{gnu}
-Scientific Library (\textsc{gsl}); if the \textsc{gsl} is not installed,
-\imfit{} should be compiled without them. (The pre-compiled binary
-versions include the necessary code from the \textsc{gsl}.)
 
 
 \subsubsection{ExponentialDisk3D}
@@ -3352,10 +3420,15 @@ Gadotti, D. A., and dos Anjos, S. 2004, ``BUDDA: A New Two-dimensional Bulge/Dis
 Decomposition Code for Detailed Structural Analysis of Galaxies'',
 \textit{Astrophys.J. Supplement} \textbf{153}: 411.
 
-\bibitem[Elson(1999)]{elson99} Elson, R.~A.~W. 1999, ``Stellar dynamics in globular clusters'',
-in \textit{Globular clusters: X Canary Islands Winter School of Astrophysics}, 
-C. Mart{\'{\i}}nez Roger, I. Perez Fourn{\'o}n, and F. S{\'a}nchez, eds., 
-(Cambridge: Cambridge U. Press), 209.
+\bibitem[Elmegreen \& Elmegreen(1985)]{ee85} Elmegreen, D.~M., and
+Elmegreen, B.~G. 1985, ``Properties of barred spiral galaxies'',
+\textit{Astrophys.J.} \textbf{288}: 438.
+
+\bibitem[Elson(1999)]{elson99} Elson, R.~A.~W. 1999, ``Stellar dynamics
+in globular clusters'', in \textit{Globular clusters: X Canary Islands
+Winter School of Astrophysics}, C. Mart{\'{\i}}nez Roger, I. Perez
+Fourn{\'o}n, and F. S{\'a}nchez, eds., (Cambridge: Cambridge U. Press),
+209.
 
 \bibitem[Erwin, Pohlen, \& Beckman(2008)]{erwin08} Erwin, P.,
 Pohlen, B., and Beckman, J. E. 2008, ``The Outer Disks of Early-Type Galaxies. I. 
@@ -3363,6 +3436,11 @@ Surface-Brightness Profiles of Barred Galaxies'', \textit{Astron.J.} \textbf{135
 
 \bibitem[Erwin(2015)]{erwin15} Erwin, P. 2015, ``Imfit: A Fast, Flexible
 New Program for Astronomical Image Fitting'', \textit{Astrophys.J.} \textbf{799:} 226.
+
+\bibitem[Erwin et al.(2020)]{erwin20} Erwin, P., et al. 2020,
+``Composite Bulges – II. Classical Bulges and Nuclear Disks in Barred
+Galaxies: The Contrasting Cases of NGC 4608 and NGC 4643'',
+\textit{Monthly Notices of the Royal Astronomical Society}, submitted.
 
 \bibitem[Ferrers(1877)]{ferrers} Ferrers, N. M. 1877, ``On the
 Potentials of Ellipsoids, Ellipsoidal Shells, Elliptic Laminae, and
