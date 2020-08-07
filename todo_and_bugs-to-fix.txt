@@ -15,84 +15,24 @@
 		vagrant-$ scons --static imfit && ./do_imfit_tests
 	
 	[ ] Set up 32-bit Vagrant VM for testing
-		[ ] Test imfit-1.7.1-linux-32.tar.gz on the 32-bit VM
+		[ ] Test imfit-1.8.0-linux-32.tar.gz on the 32-bit VM
 
 
 [ ] Replace "function block" with "function set" in code and documentation
 	[x] Replace in docs
-	[ ] Replace in code
-		[] Replace block and Block in model_object
+	[x] Replace in code
+		[x] Replace block and Block in model_object
 		[x] Replace in config_file_parser
 		[x] Replace Block in add_functions.h and add_functions.cpp
-		[ ] Replace Block in *main.cpp
+		[x] Replace Block in *main.cpp
 			[x] Replace in makeimage_main.cpp; compile & test
-			[ ] Replace in imfit_main.cpp; compile & test
-			[ ] Replace in mcmc_main.cpp; compile & test
+			[x] Replace in imfit_main.cpp; compile & test
+			[x] Replace in mcmc_main.cpp; compile & test
+	[ ] Replace in unit test code
 
 [ ] Update documentation with new functions
 	[ ] Add description of GaussianRingAz to imfit_howto
 	[ ] Add description of FlatBar to imfit_howto
-
-
-[x] Modify Imfit to allow labels for individual components in config/bestfit files?
-	E.g.,
-	"FUNCTION Sersic # LABEL inner bulge"
-	Maybe simplest: internally, *all* functions get a label, which defaults to "" for
-	no specified label
-	[x] Write utils code to extract label text from FUNCTION line
-		search for "LABEL" in the line
-			-- allows for possibility of "FUNCTION Sersic   LABEL inner bulge"
-			which we might allow for later versions (putting it in the comment
-			part of the line ensures config file can still be read by earlier
-			versions of Imfit)
-	[x] Figure out how to store (optional) labels in returns from config-file
-		processing
-		[x] Modify AddFunctionName to also capture and store function labels
-		in extra output parameter
-	
-	[x] Figure out how to pass function labels from ReadConfigFile to main()
-		-- Necessary for imfit and imfit-mcmc; *useful* for makeimage in case
-		of --print-fluxes
-		[x] Add unit testing of label return for ReadConfigFile
-			[x] Add new test config file with labels
-			[x] Write additional unit tests
-			
-	[x] Modify main() in all three programs to include functionLabels parameter
-	for calls to ReadConfigFile()
-		[x] Add to makeimage main()
-		[x] Compile and run makeimage tests
-		[x] Add to imfit main()
-		[x] Compile and run imfit tests
-		[x] Add to imfit-mcmc main()
-		[x] Compile and run imfit-mcmc tests
-
-	[x] Figure out how to pass label info to ModelObject
-		[x] Modify AddFunctions to take labels vector
-			-- places that call AddFunctions: *_main.cpp
-		[x] Update unittest_add_functions.t.h to test this
-		
-		[x] Update makeimage_main.cpp to use modified AddFunctions
-		[x] Compile and run makeimage tests
-		[x] Update imfit_main.cpp to use modified AddFunctions
-		[x] Compile and run imfit tests
-		[x] Update mcmc_main.cpp to use modified AddFunctions
-		[x] Compile and run imfit-mcmc tests
-	
-	[x] Figure out how to get ModelObject to add label to "FUNCTION xxx" lines
-		in output
-		-- Places where "FUNCTION <fname>" is printed and label might be also:
-					
-			[x] model_object.cpp:1803 ModelObject::PrintModelParamsToStrings
-				funcName = functionObjects[n]->GetShortName();
-				stringVector.push_back(PrintToString("%sFUNCTION %s\n", prefix, funcName.c_str()));
-
-			[x] makeimage_main.cpp:320 
-				theModel->GetFunctionNames(functionNames);
-					headerString = PrintToString("FUNCTION %s", functionNames[i].c_str());
-			
-			[x] --print-fluxes mode
-		
-	[x] Add testing of function-label input/output to do_imfit_tests.sh
 
 
 [X] Double-broken exponential (for Nacho)
@@ -520,6 +460,11 @@ image (accounting for data image subset, if any)
 			[] Write unit test to check input and processing of 1 or more input dicts
 			[] Write code to pass unit tests
 
+		[] Merge both versions of ReadConfigFile into single function?
+			-- Current code *ought* to be able to handle absence of parameter limits
+			in makeimage mode, since we can do that in imfit mode
+			-- For makeimage, we can call it with parameter-limit variables that
+			we then ignore
 		
 		[X] Add optional-parameter processing code to func1d_spline.cpp
 			-- additive constant
@@ -1693,4 +1638,65 @@ to mask.
 		ModelObject::FinalSetupForFitting( )
 		[after "Identify currently unmasked data pixels which have non-finite values" step]
 	[X] Test change
+
+
+[x] Modify Imfit to allow labels for individual components in config/bestfit files?
+	E.g.,
+	"FUNCTION Sersic # LABEL inner bulge"
+	Maybe simplest: internally, *all* functions get a label, which defaults to "" for
+	no specified label
+	[x] Write utils code to extract label text from FUNCTION line
+		search for "LABEL" in the line
+			-- allows for possibility of "FUNCTION Sersic   LABEL inner bulge"
+			which we might allow for later versions (putting it in the comment
+			part of the line ensures config file can still be read by earlier
+			versions of Imfit)
+	[x] Figure out how to store (optional) labels in returns from config-file
+		processing
+		[x] Modify AddFunctionName to also capture and store function labels
+		in extra output parameter
+	
+	[x] Figure out how to pass function labels from ReadConfigFile to main()
+		-- Necessary for imfit and imfit-mcmc; *useful* for makeimage in case
+		of --print-fluxes
+		[x] Add unit testing of label return for ReadConfigFile
+			[x] Add new test config file with labels
+			[x] Write additional unit tests
+			
+	[x] Modify main() in all three programs to include functionLabels parameter
+	for calls to ReadConfigFile()
+		[x] Add to makeimage main()
+		[x] Compile and run makeimage tests
+		[x] Add to imfit main()
+		[x] Compile and run imfit tests
+		[x] Add to imfit-mcmc main()
+		[x] Compile and run imfit-mcmc tests
+
+	[x] Figure out how to pass label info to ModelObject
+		[x] Modify AddFunctions to take labels vector
+			-- places that call AddFunctions: *_main.cpp
+		[x] Update unittest_add_functions.t.h to test this
+		
+		[x] Update makeimage_main.cpp to use modified AddFunctions
+		[x] Compile and run makeimage tests
+		[x] Update imfit_main.cpp to use modified AddFunctions
+		[x] Compile and run imfit tests
+		[x] Update mcmc_main.cpp to use modified AddFunctions
+		[x] Compile and run imfit-mcmc tests
+	
+	[x] Figure out how to get ModelObject to add label to "FUNCTION xxx" lines
+		in output
+		-- Places where "FUNCTION <fname>" is printed and label might be also:
+					
+			[x] model_object.cpp:1803 ModelObject::PrintModelParamsToStrings
+				funcName = functionObjects[n]->GetShortName();
+				stringVector.push_back(PrintToString("%sFUNCTION %s\n", prefix, funcName.c_str()));
+
+			[x] makeimage_main.cpp:320 
+				theModel->GetFunctionNames(functionNames);
+					headerString = PrintToString("FUNCTION %s", functionNames[i].c_str());
+			
+			[x] --print-fluxes mode
+		
+	[x] Add testing of function-label input/output to do_imfit_tests.sh
 

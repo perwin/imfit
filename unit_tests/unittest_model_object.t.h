@@ -58,7 +58,7 @@ public:
   vector<string>  functionLabelList1, functionLabelList3, functionLabelList3b;
   vector<double>  parameterList1, parameterList3, parameterList3b;
   vector<mp_par>  paramLimits1, paramLimits3, paramLimits3b;
-  vector<int>  FunctionBlockIndices1, FunctionBlockIndices3, FunctionBlockIndices3b;
+  vector<int>  FunctionSetIndices1, FunctionSetIndices3, FunctionSetIndices3b;
   bool  paramLimitsExist1, paramLimitsExist3, paramLimitsExist3b;
   mp_par  *parameterInfo;
   int  status;
@@ -118,9 +118,9 @@ public:
     modelObj1 = new ModelObject();    
     // Initialize modelObj1; set up internal FunctionObjects vector (Exp + FlatSky) inside
     status = ReadConfigFile(filename1, true, functionList1, functionLabelList1, parameterList1, 
-  								paramLimits1, FunctionBlockIndices1, paramLimitsExist1, 
+  								paramLimits1, FunctionSetIndices1, paramLimitsExist1, 
   								userConfigOptions1);
-    status = AddFunctions(modelObj1, functionList1, functionLabelList1, FunctionBlockIndices1, 
+    status = AddFunctions(modelObj1, functionList1, functionLabelList1, FunctionSetIndices1, 
     						true, -1);
 
     // Initialize modelObj2a, etc.
@@ -134,26 +134,26 @@ public:
     
     // Initialize modelObj3a and add model function & params (FlatSky)
     status = ReadConfigFile(filename3, true, functionList3, functionLabelList3, parameterList3, 
-  								paramLimits3, FunctionBlockIndices3, paramLimitsExist3, 
+  								paramLimits3, FunctionSetIndices3, paramLimitsExist3, 
   								userConfigOptions3);
     modelObj3a = new ModelObject();
-    status = AddFunctions(modelObj3a, functionList3, functionLabelList3, FunctionBlockIndices3, 
+    status = AddFunctions(modelObj3a, functionList3, functionLabelList3, FunctionSetIndices3, 
     						true, -1);
     // Initialize modelObj3b and add model function & params (GaussianExtraParams)
     // turn off subsampling to make things quicker and calculations simpler
     status = ReadConfigFile(filename3b, true, functionList3b, functionLabelList3b, parameterList3b, 
-  								paramLimits3b, FunctionBlockIndices3b, paramLimitsExist3b, 
+  								paramLimits3b, FunctionSetIndices3b, paramLimitsExist3b, 
   								userConfigOptions3b);
     modelObj3b = new ModelObject();
     status = AddFunctions(modelObj3b, functionList3b, functionLabelList3b, 
-    						FunctionBlockIndices3b, false, -1);
+    						FunctionSetIndices3b, false, -1);
     modelObj3c = new ModelObject();
     status = AddFunctions(modelObj3c, functionList3, functionLabelList3, 
-    						FunctionBlockIndices3, true, -1);
+    						FunctionSetIndices3, true, -1);
 
     // Initialize modelObj4 and add model function & params (Exp + FlatSky)
     modelObj4 = new ModelObject();
-    status = AddFunctions(modelObj4, functionList1, functionLabelList1, FunctionBlockIndices1, 
+    status = AddFunctions(modelObj4, functionList1, functionLabelList1, FunctionSetIndices1, 
     						true, -1);
   }
 
@@ -388,14 +388,14 @@ public:
     vector<string> funcLabelList;
     vector<double> paramList;
     vector<mp_par> paramLimits;
-    vector<int> funcBlockIndices;
+    vector<int> funcSetIndices;
     bool paramLimitsExist;
     configOptions userConfigOptions;
     status = ReadConfigFile(CONFIG_FILE3b, true, funcList, funcLabelList, paramList, paramLimits, 
-    							funcBlockIndices, paramLimitsExist, userConfigOptions);
+    							funcSetIndices, paramLimitsExist, userConfigOptions);
 
     modelObj = new ModelObject();
-    status = AddFunctions(modelObj, funcList, funcLabelList, funcBlockIndices, false, -1,
+    status = AddFunctions(modelObj, funcList, funcLabelList, funcSetIndices, false, -1,
     						optionalParamsVect);
     modelObj->SetupModelImage(nSmallDataCols, nSmallDataRows);
     modelObj->CreateModelImage(params);
@@ -420,7 +420,7 @@ public:
   vector<string>  functionLabelList1, functionLabelList2a, functionLabelList3;
   vector<double>  parameterList1, parameterList2a, parameterList3;
   vector<mp_par>  paramLimits1, paramLimits2a, paramLimits3;
-  vector<int>  FunctionBlockIndices1, FunctionBlockIndices2a, FunctionBlockIndices3;
+  vector<int>  FunctionSetIndices1, FunctionSetIndices2a, FunctionSetIndices3;
   bool  paramLimitsExist1, paramLimitsExist2a, paramLimitsExist3;
   configOptions  userConfigOptions1, userConfigOptions2a, userConfigOptions3;
   int nSmallDataCols, nSmallDataRows;
@@ -435,31 +435,31 @@ public:
     nSmallDataCols = nSmallDataRows = 2;
     
     status = ReadConfigFile(filename1, true, functionList1, functionLabelList1, parameterList1, 
-    						paramLimits1, FunctionBlockIndices1, paramLimitsExist1, 
+    						paramLimits1, FunctionSetIndices1, paramLimitsExist1, 
     						userConfigOptions1);
     // Initialize modelObj1 and add model function & params (Exp + FlatSky)
     modelObj1 = new ModelObject();
-    status = AddFunctions(modelObj1, functionList1, functionLabelList1, FunctionBlockIndices1, 
+    status = AddFunctions(modelObj1, functionList1, functionLabelList1, FunctionSetIndices1, 
     						true, -1);
 
     status = ReadConfigFile(filename2a, true, functionList2a, functionLabelList2a, parameterList2a, 
-    						paramLimits2a, FunctionBlockIndices2a, paramLimitsExist2a, 
+    						paramLimits2a, FunctionSetIndices2a, paramLimitsExist2a, 
     						userConfigOptions2a);
     // Initialize modelObj2a and add model function & params (FlatSky)
     modelObj2a = new ModelObject();
-    status = AddFunctions(modelObj2a, functionList2a, functionLabelList2a, FunctionBlockIndices2a, 
+    status = AddFunctions(modelObj2a, functionList2a, functionLabelList2a, FunctionSetIndices2a, 
     						true, -1);
 
     modelObj2b = new ModelObject();
-    status = AddFunctions(modelObj2b, functionList1, functionLabelList1, FunctionBlockIndices1, 
+    status = AddFunctions(modelObj2b, functionList1, functionLabelList1, FunctionSetIndices1, 
     						true, -1);
 
     // Exp + FlatSky, each in its own function set
     status = ReadConfigFile(filename3, true, functionList3, functionLabelList3, parameterList3, 
-    						paramLimits3, FunctionBlockIndices3, paramLimitsExist3, 
+    						paramLimits3, FunctionSetIndices3, paramLimitsExist3, 
     						userConfigOptions3);
     modelObj3 = new ModelObject();
-    status = AddFunctions(modelObj3, functionList3, functionLabelList3, FunctionBlockIndices3, 
+    status = AddFunctions(modelObj3, functionList3, functionLabelList3, FunctionSetIndices3, 
     						true, -1);
   }
   
@@ -825,7 +825,7 @@ public:
   vector<string>  functionLabelList1, functionLabelList2, functionLabelList3, functionLabelList3b;
   vector<double>  parameterList1, parameterList2, parameterList3, parameterList3b;
   vector<mp_par>  paramLimits1, paramLimits2, paramLimits3, paramLimits3b;
-  vector<int>  FunctionBlockIndices1, FunctionBlockIndices2, FunctionBlockIndices3, FunctionBlockIndices3b;
+  vector<int>  FunctionSetIndices1, FunctionSetIndices2, FunctionSetIndices3, FunctionSetIndices3b;
   bool  paramLimitsExist1, paramLimitsExist2, paramLimitsExist3, paramLimitsExist3b;
   mp_par  *parameterInfo;
   int  status;
@@ -906,12 +906,12 @@ public:
     ModelObject *modelObj4a;
     // Initialize modelObj4a and add model function & params (FlatSky)
     modelObj4a = new ModelObject();
-    status = AddFunctions(modelObj4a, functionList3, functionLabelList3, FunctionBlockIndices3, 
+    status = AddFunctions(modelObj4a, functionList3, functionLabelList3, FunctionSetIndices3, 
     						true, -1);
     ModelObject *modelObj4b;
     // Initialize modelObj4b and add model function & params (FlatSky)
     modelObj4b = new ModelObject();
-    status = AddFunctions(modelObj4b, functionList3, functionLabelList3, FunctionBlockIndices3, 
+    status = AddFunctions(modelObj4b, functionList3, functionLabelList3, FunctionSetIndices3, 
     						true, -1);
 
     
@@ -950,7 +950,7 @@ public:
     ModelObject *modelObj5a;
     // Initialize modelObj5a and add model function & params (Exp + FlatSky)
     modelObj5a = new ModelObject();
-    status = AddFunctions(modelObj5a, functionList1, functionLabelList1, FunctionBlockIndices1, 
+    status = AddFunctions(modelObj5a, functionList1, functionLabelList1, FunctionSetIndices1, 
     						true, -1);
 
     // This is the correct order
@@ -975,12 +975,12 @@ public:
     string  filename2 = CONFIG_FILE_POINTSOURCE;
 
     status = ReadConfigFile(filename2, true, functionList2, functionLabelList2, parameterList2, 
-    						paramLimits2, FunctionBlockIndices2, paramLimitsExist2, userConfigOptions2);
+    						paramLimits2, FunctionSetIndices2, paramLimitsExist2, userConfigOptions2);
 
     ModelObject *modelObj5a2;
     // Initialize modelObj5a2 and add model function & params (Exp + PointSource)
     modelObj5a2 = new ModelObject();
-    status = AddFunctions(modelObj5a2, functionList2, functionLabelList2, FunctionBlockIndices2, 
+    status = AddFunctions(modelObj5a2, functionList2, functionLabelList2, FunctionSetIndices2, 
     						true, -1);
 
     // First, see if we catch case of missing PSF
@@ -1011,7 +1011,7 @@ public:
 //     ModelObject *modelObj5b;
 //     // Initialize modelObj5b and add model function & params (Exp + FlatSky)
 //     modelObj5b = new ModelObject();
-//     status = AddFunctions(modelObj5b, functionList1, FunctionBlockIndices1, true, -1);
+//     status = AddFunctions(modelObj5b, functionList1, FunctionSetIndices1, true, -1);
 //     
 //     // This is the correct order
 //     // add PSF pixels first
@@ -1049,7 +1049,7 @@ public:
     ModelObject *modelObj5d;
     // Initialize modelObj5d and add model function & params (Exp + FlatSky)
     modelObj5d = new ModelObject();
-    status = AddFunctions(modelObj5d, functionList1, functionLabelList1, FunctionBlockIndices1, 
+    status = AddFunctions(modelObj5d, functionList1, functionLabelList1, FunctionSetIndices1, 
     						true, -1);
 
     // allocate memory from heap for overPSFImage_malloc, since PsfOversamplingInfo will

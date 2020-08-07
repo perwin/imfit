@@ -105,7 +105,7 @@ public:
     ModelObject *modelObj;
     vector<string>  fnameList;
     vector<string>  flabelList;
-    vector<int> funcBlockIndices;
+    vector<int> funcSetIndices;
     vector<double> parameterList;
     vector<mp_par>  paramLimits;
     bool  paramLimitsExist;
@@ -114,10 +114,10 @@ public:
     int  status, nInputFuncs, nOutputFuncs;
 
     status = ReadConfigFile(filename, true, fnameList, flabelList, parameterList, paramLimits,
-  							funcBlockIndices, paramLimitsExist, userConfigOptions);
+  							funcSetIndices, paramLimitsExist, userConfigOptions);
 
     modelObj = new ModelObject();
-    status = AddFunctions(modelObj, fnameList, flabelList, funcBlockIndices, false, -1);
+    status = AddFunctions(modelObj, fnameList, flabelList, funcSetIndices, false, -1);
     TS_ASSERT_EQUALS(status, 0);
 
     vector<string> outputFuncNames;
@@ -136,7 +136,7 @@ public:
     ModelObject *modelObj;
     vector<string>  fnameList;
     vector<string>  flabelList;
-    vector<int> funcBlockIndices;
+    vector<int> funcSetIndices;
     vector<double> parameterList;
     vector<mp_par>  paramLimits;
     bool  paramLimitsExist;
@@ -145,10 +145,10 @@ public:
     int  status, nInputFuncs, nOutputFuncs;
 
     status = ReadConfigFile(filename, true, fnameList, flabelList, parameterList, paramLimits,
-  							funcBlockIndices, paramLimitsExist, userConfigOptions);
+  							funcSetIndices, paramLimitsExist, userConfigOptions);
 
     modelObj = new ModelObject();
-    status = AddFunctions(modelObj, fnameList, flabelList, funcBlockIndices, false, -1);
+    status = AddFunctions(modelObj, fnameList, flabelList, funcSetIndices, false, -1);
     TS_ASSERT_EQUALS(status, 0);
 
     vector<string> outputFuncNames;
@@ -176,7 +176,7 @@ public:
     ModelObject *modelObj;
     vector<string>  fnameList;
     vector<string>  flabelList;
-    vector<int> funcBlockIndices;
+    vector<int> funcSetIndices;
     vector<double> parameterList;
     vector<mp_par>  paramLimits;
     bool  paramLimitsExist;
@@ -193,10 +193,10 @@ public:
     optionalParamsVect.push_back(optionalParamsMap);
 
     status = ReadConfigFile(filename, true, fnameList, flabelList, parameterList, paramLimits,
-  							funcBlockIndices, paramLimitsExist, userConfigOptions);
+  							funcSetIndices, paramLimitsExist, userConfigOptions);
 
     modelObj = new ModelObject();
-    status = AddFunctions(modelObj, fnameList, flabelList, funcBlockIndices, false, -1, 
+    status = AddFunctions(modelObj, fnameList, flabelList, funcSetIndices, false, -1, 
     						optionalParamsVect);
     TS_ASSERT_EQUALS(status, 0);
 
