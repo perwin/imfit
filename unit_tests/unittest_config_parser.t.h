@@ -694,7 +694,7 @@ public:
     vector<int>  FunctionSetIndices1;
     configOptions  userConfigOptions1;
     bool  paramLimitsExist1;
-	bool  status;
+	int  status;
 	
     status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
     							parameterList1, paramLimits1, FunctionSetIndices1, 

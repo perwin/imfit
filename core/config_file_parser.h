@@ -62,7 +62,8 @@ int ParseFunctionSection( vector<string>& inputLines, const bool mode2D,
 						vector<string> &functionNameList, vector<string>& functionLabels, 
 						vector<double>&	parameterList, vector<mp_par>& parameterLimits, 
 						vector<int>& fsetStartIndices, bool& parameterLimitsFound,
-						const vector<int>& origLineNumbers );
+						const vector<int>& origLineNumbers,
+						vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
 
 
 /// Function for use by makeimage
