@@ -512,6 +512,7 @@ int ParseFunctionSection( vector<string>& inputLines, const bool mode2D,
   int  i = 0;
   int  functionNumber = 0;
   int  paramNumber = 0;
+  parameterLimitsFound = false;
   while (i < inputLines.size()) {
     if (inputLines[i].find("X0", 0) != string::npos) {
       //printf("X0 detected (i = %d)\n", i);
