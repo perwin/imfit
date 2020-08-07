@@ -55,6 +55,16 @@ void AddFunctionNameAndLabel( string& currentLine, vector<string>& functionNameL
 /// we can do unit tests on it)
 string GetFunctionLabel( const string& currentLine );
 
+/// \brief Extract function-set info from a list of lines
+//
+/// (Mainly for use by Multimfit in parsing per-image function info in image-info files)
+int ParseFunctionSection( vector<string>& inputLines, const bool mode2D, 
+						vector<string> &functionNameList, vector<string>& functionLabels, 
+						vector<double>&	parameterList, vector<mp_par>& parameterLimits, 
+						vector<int>& fsetStartIndices, bool& parameterLimitsFound,
+						const vector<int>& origLineNumbers );
+
+
 /// Function for use by makeimage
 int ReadConfigFile( const string& configFileName, const bool mode2D, vector<string>& functionNameList,
                      vector<string>& functionLabels, vector<double>& parameterList, 

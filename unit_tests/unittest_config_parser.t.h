@@ -160,9 +160,6 @@ public:
 
 
 
-// void AddFunctionNameAndLabel( string& currentLine, vector<string>& functionNameList,
-// 							vector<string>& functionLabelList ) 
-
   // Tests for AddFunctionNameAndLabel
   void testAddFunctionNameAndLabel( void )
   {
@@ -566,6 +563,108 @@ public:
     TS_ASSERT_EQUALS(possibleBadLineNumber, trueBadLineNumber);
   }
 
+
+
+  // Tests for ParseFunctionSection()
+  void testParseFunctionSection( void )
+  {
+    vector<string>  functionList1;
+    vector<string>  functionLabels;
+    vector<double>  parameterList1;
+    vector<mp_par>  paramLimits1;
+    vector<int>  functionSetIndices1;
+    bool  paramLimitsExist1;
+	int  status;
+	vector<string> inputLines;
+	inputLines.push_back("X0    200.0\n");
+	inputLines.push_back("Y0    200.0\n");
+	inputLines.push_back("FUNCTION   Gaussian\n");
+	inputLines.push_back("PA    10.0\n");
+	inputLines.push_back("ell    0.1\n");
+	inputLines.push_back("I_0    1000.0\n");
+	inputLines.push_back("sigma      5.0\n");
+	inputLines.push_back("X0    256.0\n");
+	inputLines.push_back("Y0    256.0\n");
+	inputLines.push_back("FUNCTION   Sersic_GenEllipse\n");
+	inputLines.push_back("PA    30.0\n");
+	inputLines.push_back("ell    0.5\n");
+	inputLines.push_back("c0    -1.0\n");
+	inputLines.push_back("n      2.5\n");
+	inputLines.push_back("I_e  100.0\n");
+	inputLines.push_back("r_e   50.0\n");
+	inputLines.push_back("FUNCTION   FlatSky\n");
+	inputLines.push_back("I_0  1.0\n");
+
+	vector<int> originalLineNos = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+									15, 16, 17, 18};
+
+	status = ParseFunctionSection(inputLines, true, functionList1, functionLabels,
+    							parameterList1, paramLimits1, functionSetIndices1, 
+    							paramLimitsExist1, originalLineNos);
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 3);
+    TS_ASSERT_EQUALS(functionList1[0], "Gaussian");
+    TS_ASSERT_EQUALS(functionList1[1], "Sersic_GenEllipse");
+    TS_ASSERT_EQUALS(functionList1[2], "FlatSky");
+    
+    int nParams = 15;
+    double correctParamVals[15] = {200.0,200.0, 10.0, 0.1, 1000.0,5.0,
+    								256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0, 1.0};
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++) {
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    }
+    
+    TS_ASSERT_EQUALS((int)functionSetIndices1.size(), 2);
+    TS_ASSERT_EQUALS(functionSetIndices1[0], 0);
+    TS_ASSERT_EQUALS(functionSetIndices1[1], 1);
+    TS_ASSERT_EQUALS(paramLimitsExist1, false);
+  }
+
+  void testParseFunctionSection_bad( void )
+  {
+    vector<string>  functionList1;
+    vector<string>  functionLabels;
+    vector<double>  parameterList1;
+    vector<mp_par>  paramLimits1;
+    vector<int>  functionSetIndices1;
+    bool  paramLimitsExist1;
+	int  status;
+	vector<string> inputLines1, inputLines2;
+	
+	// Missing "Y0" line
+	inputLines1.push_back("X0    200.0\n");
+	inputLines1.push_back("FUNCTION   Gaussian\n");
+	inputLines1.push_back("PA    10.0\n");
+	inputLines1.push_back("ell    0.1\n");
+	inputLines1.push_back("I_0    1000.0\n");
+	inputLines1.push_back("sigma      5.0\n");
+
+	vector<int> originalLineNos1 = {1, 2, 3, 4, 5, 6};
+
+	status = ParseFunctionSection(inputLines1, true, functionList1, functionLabels,
+    							parameterList1, paramLimits1, functionSetIndices1, 
+    							paramLimitsExist1, originalLineNos1);
+    TS_ASSERT_EQUALS(status, -1);
+
+	// Bad parameter limits
+	inputLines2.push_back("X0    200.0\n");
+	inputLines2.push_back("Y0    200.0\n");
+	inputLines2.push_back("FUNCTION   Gaussian\n");
+	inputLines2.push_back("PA    10.0     20.0,1.0\n");
+	inputLines2.push_back("ell    0.1\n");
+	inputLines2.push_back("I_0    1000.0\n");
+	inputLines2.push_back("sigma      5.0\n");
+
+	vector<int> originalLineNos2 = {1, 2, 3, 4, 5, 6, 7};
+
+	status = ParseFunctionSection(inputLines2, true, functionList1, functionLabels,
+    							parameterList1, paramLimits1, functionSetIndices1, 
+    							paramLimitsExist1, originalLineNos2);
+    TS_ASSERT_EQUALS(status, -1);
+  }
 
 
 // Full version, for use by e.g. imfit -- reads parameter limits as well

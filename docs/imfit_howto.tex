@@ -2640,6 +2640,10 @@ FUNCTION FlatSky
 I_sky
 \end{verbatim}
 
+Note that this is considered a ``background'' function, and so no ``total flux''
+calculation is done when using \texttt{makeimage}'s \texttt{--print-fluxes} or
+\texttt{savefluxes} options.
+
 
 \subsubsection{TiltedSkyPlane}
 
@@ -2655,6 +2659,10 @@ I_0
 m_x
 m_y
 \end{verbatim}
+
+Note that this is considered a ``background'' function, and so no ``total flux''
+calculation is done when using \texttt{makeimage}'s \texttt{--print-fluxes} or
+\texttt{savefluxes} options.
 
 
 \subsubsection{Gaussian}

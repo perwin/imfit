@@ -491,6 +491,88 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
 
 
 
+/* ---------------- FUNCTION: ParseFunctionSection --------------------- */
+// Parse a list of lines from the function-set-definition section of a config file
+// (including per-image functions for a multimfit image-info file).
+int ParseFunctionSection( vector<string>& inputLines, const bool mode2D, 
+						vector<string> &functionNameList, vector<string>& functionLabels, 
+						vector<double>&	parameterList, vector<mp_par>& parameterLimits, 
+						vector<int>& fsetStartIndices, bool& parameterLimitsFound,
+						const vector<int>& origLineNumbers )
+{
+  int  pLimitFound;
+
+  // Clear the input vectors before we start appending things to them
+  functionNameList.clear();
+  functionLabels.clear();
+  parameterList.clear();
+  parameterLimits.clear();
+  fsetStartIndices.clear();
+
+  int  i = 0;
+  int  functionNumber = 0;
+  int  paramNumber = 0;
+  while (i < inputLines.size()) {
+    if (inputLines[i].find("X0", 0) != string::npos) {
+      //printf("X0 detected (i = %d)\n", i);
+      fsetStartIndices.push_back(functionNumber);
+      pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits,
+      										origLineNumbers[i]);
+      paramNumber++;
+      if (pLimitFound < 0) {
+        // Bad limit format or other problem -- bail out!
+        return -1;
+      }
+      if (pLimitFound == 1)
+        parameterLimitsFound = true;
+      i++;
+      if (mode2D) {
+        // X0 line should always be followed by Y0 line in 2D mode
+        if (inputLines[i].find("Y0", 0) == string::npos) {
+          fprintf(stderr, "*** WARNING: A 'Y0' line must follow each 'X0' line in the configuration file!\n");
+          fprintf(stderr, "   (X0 specification on input line %d should be followed by Y0 specification on next line)\n",
+          				origLineNumbers[i] - 1);
+          return -1;
+        }
+        pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits,
+        											origLineNumbers[i]);
+        if (pLimitFound < 0) {
+          // Bad limit format or other problem -- bail out!
+          return -1;
+        }
+        if (pLimitFound == 1)
+          parameterLimitsFound = true;
+        paramNumber++;
+        i++;
+      }
+      continue;
+    }
+    if (inputLines[i].find("FUNCTION", 0) != string::npos) {
+      //printf("Function detected (i = %d)\n", i);
+      AddFunctionNameAndLabel(inputLines[i], functionNameList, functionLabels);
+      functionNumber++;
+      i++;
+      continue;
+    }
+    // OK, we only reach here if it's a regular (non-positional) parameter line
+    //printf("Parameter detected (i = %d)\n", i);
+    pLimitFound = AddParameterAndLimit(inputLines[i], parameterList, parameterLimits,
+    										origLineNumbers[i]);
+    if (pLimitFound < 0) {
+      // Bad limit format or other problem -- bail out!
+      return -1;
+    }
+    if (pLimitFound == 1)
+      parameterLimitsFound = true;
+    paramNumber++;
+    i++;
+  }
+
+  return 0;
+}
+
+
+
 /* ---------------- FUNCTION: ReadConfigFile --------------------------- */
 // Full version, for use by e.g. imfit and imfit-mcmc -- reads parameter limits as well
 //    configFileName = C++ string with name of configuration file

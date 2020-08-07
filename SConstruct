@@ -223,8 +223,8 @@ usingGCC = True
 # Lee Kelvin, who contributed the new version)
 userName = pwd.getpwuid(os.getuid())[0]
 if (os_type == "Darwin") and (userName == "erwin"): 
-    CC_COMPILER = "gcc-9"
-    CPP_COMPILER = "g++-9"
+    CC_COMPILER = "gcc-10"
+    CPP_COMPILER = "g++-10"
     c_compiler_changed = True
     cpp_compiler_changed = True
     usingGCC = True
@@ -366,8 +366,8 @@ if GetOption("useGCC"):
         print("ERROR: You cannot specify both Clang and GCC as the compiler!")
         Exit(2)
     usingGCC = True
-    CC_COMPILER = "gcc-9"
-    CPP_COMPILER = "g++-9"
+    CC_COMPILER = "gcc-10"
+    CPP_COMPILER = "g++-10"
     print("using %s for C compiler" % CC_COMPILER)
     print("using %s for C++ compiler" % CPP_COMPILER)
     c_compiler_changed = True
