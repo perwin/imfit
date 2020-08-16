@@ -96,7 +96,7 @@ if os_type == "Linux":
 # LIBRARIES:
 # m
 # pthread [Linux]
-# dl [Linux, if using loguru for logging]
+# dl [Linux, if using loguru for g]
 # cfitsio
 #   -- if static, then on macOS we must link with curl [part of system]
 #   -- for Linux, we use our compiled static-library version of cfitsio
@@ -616,11 +616,12 @@ if useExtraFuncs:
     functionobject_obj_string += " func_logspiral"
     functionobject_obj_string += " func_logspiral2"
     functionobject_obj_string += " func_logspiral_gauss"
-    functionobject_obj_string += " func_nan"
     functionobject_obj_string += " func_triaxbar3d"
     functionobject_obj_string += " func_triaxbar3d_sq"
     functionobject_obj_string += " func_triaxbar3d_gengauss_sq"
     functionobject_obj_string += " func_exp-higher-mom"
+    functionobject_obj_string += " func_nan"
+    functionobject_obj_string += " func_simple-checkerboard"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,
@@ -656,9 +657,9 @@ image_io_objs = [ CORE_SUBDIR + name for name in image_io_obj_string.split() ]
 # Main set of files for imfit
 imfit_obj_string = """print_results bootstrap_errors estimate_memory 
 imfit_main"""
-if useLogging:
-    imfit_obj_string += " loguru/loguru"
 imfit_base_objs = [ CORE_SUBDIR + name for name in imfit_obj_string.split() ]
+if useLogging:
+    imfit_base_objs.append("loguru/loguru")
 imfit_base_objs = base_objs + image_io_objs + imfit_base_objs
 imfit_base_sources = [name + ".cpp" for name in imfit_base_objs]
 
@@ -671,6 +672,8 @@ makeimage_base_sources = [name + ".cpp" for name in makeimage_base_objs]
 # Main set of files for imfit-mcmc
 mcmc_obj_string = """estimate_memory mcmc_main"""
 mcmc_base_objs = [ CORE_SUBDIR + name for name in mcmc_obj_string.split() ]
+if useLogging:
+    mcmc_base_objs.append("loguru/loguru")
 mcmc_base_objs = mcmc_base_objs + base_objs + image_io_objs + cdream_objs
 mcmc_base_sources = [name + ".cpp" for name in mcmc_base_objs]
 

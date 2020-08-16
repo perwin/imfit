@@ -63,8 +63,6 @@ FunctionObject::FunctionObject( )
   // These will get redefined by derived class's constructor
   functionName = "Base (undefined) function";
   shortFunctionName = "BaseFunction";
-  
-//  label = "";
   extraParamsSet = false;
 }
 

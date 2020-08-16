@@ -82,7 +82,6 @@
 #include "func_logspiral.h"
 #include "func_logspiral2.h"
 #include "func_logspiral_gauss.h"
-#include "func_nan.h"
 #include "func_expdisk3d_trunc.h"
 #include "func_triaxbar3d.h"
 #include "func_triaxbar3d_sq.h"
@@ -96,6 +95,8 @@
 //#include "func_gaussian-ring-az2.h"
 #include "func_lorentzian-ring.h"
 #include "func_n4608disk.h"
+#include "func_nan.h"
+#include "func_simple-checkerboard.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -269,9 +270,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   LogSpiralGauss::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiralGauss>();
 
-  NaNFunc::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<NaNFunc>();
-
   TriaxBar3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<TriaxBar3D>();
 
@@ -307,7 +305,13 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   N4608Disk::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<N4608Disk>();
-  
+
+  NaNFunc::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<NaNFunc>();
+
+  SimpleCheckerboard::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<SimpleCheckerboard>();
+
 #endif
 
 #ifdef USE_TEST_FUNCS
