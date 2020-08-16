@@ -26,11 +26,13 @@ Markov Chain Monte Carlo (MCMC) analysis of the same image + model:
 
 <br>
 
-Pre-compiled binaries for Linux and macOS (a.k.a. Mac OS X), along with documentation
-and example files, can be found [at the main web
+Pre-compiled binaries for Linux and macOS (a.k.a. Mac OS X), along with
+documentation and example files, can be found [at the main web
 page](http://www.mpe.mpg.de/~erwin/code/imfit/index.html#downloads), as
-can a condensed source-code distribution suitable for local compilations and for
-making your own modifications.
+can a condensed source-code distribution suitable for local compilations
+and for making your own modifications. The most recent full source-code release can
+be found [here](https://github.com/perwin/imfit/releases/latest).
+
 
 <!-- 
 ArXiv version:
@@ -81,8 +83,11 @@ versions (or the basic source-code tarball) from [the main Imfit
 site](http://www.mpe.mpg.de/~erwin/code/imfit/).
 
 But if you're more comfortable forking things on Github, now you can!
-(Feel free to open an issue if you find a bug or want to suggest a feature --
-or just email me directly [erwin at sigmaxi.net].)
+(You can also download the latest official source-code release from this site,
+[here](https://github.com/perwin/imfit/releases/latest).)
+
+Feel free to open an issue if you find a bug or want to suggest a feature --
+or just email me directly [erwin at sigmaxi.net].
 
 
 ## Requirements

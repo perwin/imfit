@@ -65,6 +65,8 @@ static string  fixedIndicatorString = "fixed";
 // in standard parameter-line mode (as opposed checking a parameter line in 
 // optional-params mode) we also check that that the second token is a number
 // and that if there is a third token, it consists of two comma-separated numbers.
+// Note that this passes a valid function-declaration line as well as a valid
+// parameter line.
 bool ValidParameterLine( string& currentLine, bool optionalParams ) 
 {
   vector<string>  stringPieces, stringPieces2;

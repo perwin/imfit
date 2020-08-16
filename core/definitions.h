@@ -10,6 +10,12 @@
 #ifndef _DEFINITIONS_H_
 #define _DEFINITIONS_H_
 
+#include <string>
+#include <vector>
+#include <map>
+
+using namespace std;
+
 
 const int  MAXLINE = 1024;
 const int MAX_FILENAME_LENGTH = 512;
@@ -68,6 +74,12 @@ const int  MASK_ZERO_IS_BAD  =       20;  /// alternate input mask format (good 
 
 
 
+/* STRING DEFINITIONS FOR PARAMETER NAMES */
+const std::string  X0_string("X0");
+const std::string  Y0_string("Y0");
+
+
+
 /* Output string formats for printing parameter values */
 #define XY_FORMAT "%s%s\t\t%.4f\n"
 #define XY_FORMAT_WITH_ERRS "%s%s\t\t%.4f # +/- %.4f\n"
@@ -77,7 +89,6 @@ const int  MASK_ZERO_IS_BAD  =       20;  /// alternate input mask format (good 
 #define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%7g # +/- %.5g\n"
 #define PARAM_FORMAT_WITH_LIMITS "%s%s\t\t%7g\t\t%g,%g\n"
 #define PARAM_FORMAT_WITH_FIXED "%s%s\t\t%7g\t\tfixed\n"
-
 
 
 #endif /* _DEFINITIONS_H_ */

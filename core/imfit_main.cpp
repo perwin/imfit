@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   vector<string>  functionLabelList;
   vector<double>  parameterList;
   vector<mp_par>  parameterInfo;
-  vector<int>  FunctionSetIndices;
+  vector<int>  functionSetIndices;
   vector< map<string, string> > optionalParamsMap;
   bool  paramLimitsExist = false;
   int  status, fitStatus, nSucessfulIterations;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 
   // ** Read configuration file, parse & process user-supplied (non-function-related) values
   status = ReadConfigFile(options->configFileName, true, functionList, functionLabelList,
-  							parameterList, parameterInfo, FunctionSetIndices, 
+  							parameterList, parameterInfo, functionSetIndices, 
   							paramLimitsExist, userConfigOptions);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
   
 
   // Add functions to the model object
-  status = AddFunctions(theModel, functionList, functionLabelList, FunctionSetIndices, 
+  status = AddFunctions(theModel, functionList, functionLabelList, functionSetIndices, 
   						options->subsamplingFlag, options->verbose, optionalParamsMap);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
