@@ -5,6 +5,16 @@
 
 ** NEAR-TERM FUTURE TODO:
 
+[ ] Add option to skip initial fit in bootstrap resampling
+	-- just use input config file (ideally using values from an actual fit)
+	as starting values for all fits
+	-- possible useful for cluster jobs, where we want to do a few iterations
+	per job and merge them all later (so extra time replicating best fit for
+	each job is wasted)
+	[ ] add "--bootstrap-only" option
+	[ ] locate places in main() to modify
+
+
 [ ] Compilation with Vagrant VMs
 	[x] Test current default (shared-library) compilation
 		vagrant-$ scons -c ; scons makeimage && ./do_makeimage_tests
@@ -55,6 +65,12 @@
 		[X] Run unit tests
 		[X] Check 1D minor-axis image, using commands above
 
+
+[ ] Update mp_par struct (params_struct.h) to class with copy constructor
+	-- this is because we do a fair amount of laborious field-by-field copying
+	in (at least) imfit_main.cpp and multimage_main.cpp, which would be simplified 
+	if we could just do, e.g., new_mp_par = imageDescParamLimits[i]
+	
 
 [ ] Improvements to imfit.py:
 	[x] Add suggested pandas-related code to Python utilities

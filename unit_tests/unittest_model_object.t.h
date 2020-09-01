@@ -32,7 +32,7 @@ using namespace std;
 #define CONFIG_FILE "tests/imfit_reference/config_imfit_poisson.dat"
 #define CONFIG_FILE_POINTSOURCE "tests/makeimage_reference/config_imfit_pointsource.dat"
 #define CONFIG_FILE3b "tests/config_imfit_gauss-extra-params.dat"
-const string CONFIG_FILE_2BLOCKS("tests/config_imfit_2sets.dat");
+const string CONFIG_FILE_2SETS("tests/config_imfit_2sets.dat");
 
 
 // Reference things
@@ -430,7 +430,7 @@ public:
     int  status;
     string  filename1 = CONFIG_FILE;
     string  filename2a = SIMPLE_CONFIG_FILE;
-    string  filename3 = CONFIG_FILE_2BLOCKS;
+    string  filename3 = CONFIG_FILE_2SETS;
 
     nSmallDataCols = nSmallDataRows = 2;
     
