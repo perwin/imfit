@@ -11,7 +11,7 @@
 	-- possible useful for cluster jobs, where we want to do a few iterations
 	per job and merge them all later (so extra time replicating best fit for
 	each job is wasted)
-	[ ] add "--bootstrap-only" option
+	[ ] add "--bootstrap-only" ("--skip-fit"?) option
 	[ ] locate places in main() to modify
 
 
@@ -27,18 +27,6 @@
 	[ ] Set up 32-bit Vagrant VM for testing
 		[ ] Test imfit-1.8.0-linux-32.tar.gz on the 32-bit VM
 
-
-[ ] Replace "function block" with "function set" in code and documentation
-	[x] Replace in docs
-	[x] Replace in code
-		[x] Replace block and Block in model_object
-		[x] Replace in config_file_parser
-		[x] Replace Block in add_functions.h and add_functions.cpp
-		[x] Replace Block in *main.cpp
-			[x] Replace in makeimage_main.cpp; compile & test
-			[x] Replace in imfit_main.cpp; compile & test
-			[x] Replace in mcmc_main.cpp; compile & test
-	[ ] Replace in unit test code
 
 [ ] Update documentation with new functions
 	[ ] Add description of GaussianRingAz to imfit_howto
@@ -1120,6 +1108,19 @@ OK, here is the problem:
 
 
 ** REFACTORING
+
+[X] Replace "function block" with "function set" in code and documentation
+	[x] Replace in docs
+	[x] Replace in code
+		[x] Replace block and Block in model_object
+		[x] Replace in config_file_parser
+		[x] Replace Block in add_functions.h and add_functions.cpp
+		[x] Replace Block in *main.cpp
+			[x] Replace in makeimage_main.cpp; compile & test
+			[x] Replace in imfit_main.cpp; compile & test
+			[x] Replace in mcmc_main.cpp; compile & test
+	[x] Replace in unit test code
+
 
 [X] Standardize on vector<mp_par> for parameter info/limits
 	-- currently, we use a mixture of mp_par * and vector<mp_par>; the latter is

@@ -77,6 +77,8 @@
 #include "func_broken-exp-bar.h"
 #include "func_brokenexpbar3d.h"
 #include "func_boxytest3d.h"
+#include "func_boxytest3d2.h"
+#include "func_flatbar3d.h"
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
 #include "func_logspiral.h"
@@ -251,6 +253,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   BoxyTest3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BoxyTest3D>();
 
+  BoxyTest3D2::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<BoxyTest3D2>();
+
   ExpDisk3D_PerfectTrunc::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<ExpDisk3D_PerfectTrunc>();
 
@@ -260,6 +265,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   EdgeOnDiskN4762v2::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762v2>();
+
+  FlatBar3D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<FlatBar3D>();
 
   LogSpiral::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiral>();

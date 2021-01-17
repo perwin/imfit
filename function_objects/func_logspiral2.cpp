@@ -4,8 +4,7 @@
  *   Class (derived from FunctionObject; function_object.h) which produces a simple
  * inner-truncated logarithmic spiral. The basic spiral pattern is that specified by 
  * Eqn. 8 of Junqueira+2013, with the radial amplitude specified by an exponential 
- * for R > R_max and the product of R/R_max, a Gaussian, and the exponential for 
- * R < R_max.
+ * for R > R_max and by (R/R_max * a Gaussian * the exponential) for R < R_max.
  *
  *
  *   Eqn. 8 of Junqueira+2013:

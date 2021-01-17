@@ -104,7 +104,7 @@
 \chapter{What Is It?}
 
 \Imfit{} is a program for fitting astronomical images -- specifically,
-for fitting images of galaxies, though it could certainly be used for
+for fitting images of galaxies, though it can certainly be used for
 fitting other sources. The user specifies a set of one or more 2D
 surface-brightness functions (e.g., elliptical exponential, elliptical
 S\'ersic, circular Gaussian) which will be added together in order to
@@ -574,7 +574,7 @@ into a single item (if ``\texttt{-a}'' and ``\texttt{-b}'' are flags,
 ``\texttt{-a -b}'' will work, but ``\texttt{-ab}'' will \textit{not}), and you
 cannot merge a one-character option and its target
 (``\texttt{-cfoo.dat}'' is \textit{not} a valid substitute for
-``\texttt{-c foo.dat}'').
+``\texttt{-c=foo.dat}'' or ``\texttt{-c foo.dat}'').
 
 
 \section{Command-line Flags and Options}\label{sec:imfit-flags}
@@ -669,13 +669,13 @@ image $-$ best-fitting model image) will be saved using the specified filename.
 \bigskip
 
 \item \texttt{--nm} -- use Nelder-Mead simplex instead of Levenberg-Marquardt as
-the minimization technique (\textsc{Warning}: slower)
+the minimization technique (\textsc{Warning}: slower).
 
 \item \texttt{--de} -- use Differential Evolution instead of Levenberg-Marquardt as
-the minimization technique (\textsc{Warning}: much slower!)
+the minimization technique (\textsc{Warning}: much slower!).
 
 \item \texttt{--de-lhs} -- use Differential Evolution with Latin hypecube sampling
-(as opposed to standard uniform sampling) for the initial guesses
+(as opposed to standard uniform sampling) for the initial guesses.
 
 \item \texttt{--nlopt} \textit{algorithm-name} -- use one of the
 ``local derivative-free'' minimization algorithms from the NLopt
@@ -692,19 +692,18 @@ with \texttt{--nlopt NM}, though it's simpler just to use \texttt{--nm}).
 (instead of the data values) to estimate the individual-pixel dispersions
 $\sigma_{i}$ for \chisquare{} minimization
 
-\item \texttt{--cashstat} -- use Cash statistic $C$ instead of \chisquare{}
-as the fit statistic for minimization. This is especially useful in the
-case of Poisson statistics and low or zero read noise, but it also provides less
-biased fits than the \chisquare{} approach even when count levels are
-high. Cannot be used with the (default) Levenberg-Marquardt minimization
-technique.
+\item \texttt{--poisson-mlr} or \texttt{--mlr} -- use the Poisson
+Maximum-Likelihood-Ratio (MLR) statistic for minimization (this is the same as
+the ``CSTAT'' statistic in the X-ray packages XSPEC and Sherpa) This is
+especially useful in the case of Poisson statistics and low or zero read
+noise, but it also provides less biased fits than the \chisquare{}
+approach even when count levels are high.
 
-\item \texttt{--poisson-mlr} or \texttt{-mlr} -- like \texttt{--cashstat}, but uses the
-Poisson Maximum-Likelihood-Ratio statistic for minimization (this is
-the same as the ``CSTAT'' statistic in the X-ray packages XSPEC and
-Sherpa); fits should be essentially identical. The main difference is that this statistic is
-always $\ge 0$, which means it \textit{can} be used with the (default)
-Levenberg-Marquardt minimization technique.
+\item \texttt{--cashstat} -- use Cash statistic $C$ instead of
+\chisquare{} as the fit statistic for minimization. This is essentially
+the same as the Poisson MLR statistic, and should give identical
+results. However, since values of $C$ can be $< 0$, it cannot be used
+with the (default) Levenberg-Marquardt minimization technique.
 
 \item \texttt{--ftol} \textit{FTOL-value} -- specify tolerance for
 fractional improvements in the fit statistic value; if further iterations do 
@@ -732,11 +731,11 @@ printed once per iteration) and N-M simplex fitting (best-fit values printed onc
 \bigskip
 
 \item \texttt{--chisquare-only} or \texttt{--fitstat-only} (these are
-synonyms) -- Evaluate the \chisquare{} value for the initial input
-model as a fit to the input image, \textit{without} doing any
-minimization to find a better solution. (If \texttt{--cashstat} or
-\texttt{--poisson-mlr} is also specified, then the appropriate 
-statistic is evaluated instead.)
+synonyms) -- Evaluate the \chisquare{} value for the initial input model
+as a fit to the input image, \textit{without} doing any minimization to
+find a better solution. (If \texttt{--poisson-mlr} or
+\texttt{--cashstat} is also specified, then the appropriate statistic is
+evaluated instead.)
 
 \bigskip
 
@@ -779,7 +778,7 @@ possibly additional information (e.g, gain and read noise for the input image).
 The configuration file should be a plain text file. Blank lines and
 lines beginning with ``\#'' are ignored; in fact, anything on the same line after a
 ``\#'' is ignored, which allows for comments at the end of lines. (A minor exception:
-on lines defining a function name, an optical label can be specified as part
+on lines defining a function name, an optional label can be specified as part
 of the comment.)
 
 A model for an image is specified by one or more \textbf{function sets},\footnote{In
@@ -853,7 +852,7 @@ Finally, here is a more elaborate example, specifying a model that has two
 function sets, with the first set having two individual functions (this
 could be a model for, e.g., simultaneously fitting two galaxies in the same
 image, one as S\'ersic + exponential, the other with just an exponential).
-In addition, we specify labels for the two functions. These labels are
+In addition, we specify labels for the functions. These labels are
 purely for the convenience of the user; they have no
 effect on the fitting, but are reproduced in output files.
 
@@ -933,7 +932,7 @@ Note that these positions are in the coordinate system of the entire
 image. That is, if you specify a subsection of the image to be fit
 (e.g., ``image.fits[150:350,425:700]''), the X0 and Y0 values must still
 be absolute positions referring to the original image, \textit{not} relative
-positions with the subsection.
+positions within the subsection.
 
 
 \bigskip
@@ -1049,6 +1048,7 @@ functions, including their parameters.
 \item TiltedSkyPlane -- a sky background in the form of an inclined plane.
 \item Gaussian -- an elliptical 2D Gaussian function.
 \item Moffat -- an elliptical 2D Moffat function.
+\item PointSource -- a scaled copy of the user-supplied PSF image.
 \item Exponential -- an elliptical 2D exponential function.
 \item Exponential\_GenEllipse -- an elliptical 2D exponential function using
 generalized ellipses (``boxy'' to ``disky'' shapes) for the isophote shapes.
@@ -1088,9 +1088,13 @@ through a 3D luminosity-density model, generating a projected 2D model
 image given input specifications of the orientation and inclination to
 the line of sight.
 \begin{itemize}
-\item ExponentialDisk3D -- uses a 3D luminosity-density model of an axisymmetric 
-exponential disk (with different radial and vertical scale lengths), observed
-at an arbitrary inclination, to generate a projected surface-brightness image.
+
+\item ExponentialDisk3D -- uses a 3D luminosity-density model of an
+axisymmetric disk with an exponential radial profile and a
+generalized sech function for the vertical profile (as for the EdgeOnDisk
+function), observed at an arbitrary inclination, to generate a projected
+surface-brightness image.
+
 \item BrokenExponentialDisk3D -- similar to ExponentialDisk3D, except that the
 radial profile of the luminosity density is a broken exponential.
 
@@ -1561,7 +1565,7 @@ does \textit{not} require or use initial guesses for the parameter values.
 The Differential Evolution algorithm does, however, \textit{require}
 lower and upper limits for \textit{all} parameters in the configuration
 file (see Section~\ref{sec:param-limits}); this is because DE generates
-initial parameter-value ``genomes'' by random uniform sampling from within the
+initial parameter-value ``genomes'' by random sampling from within the
 ranges specified by the parameter limits. The format of the
 configuration file still requires that initial-guess values be present
 for all parameters as well, but these are actually ignored by the DE
@@ -2005,11 +2009,13 @@ components -- e.g., the purely elliptical versions of the Gaussian,
 Exponential, and S\'{e}rsic functions -- there are analytical
 expressions which could be used. But since \imfit{} and \makeimage{} are
 designed to use arbitrary functions, including ones which do not have
-analytical expressions for total flux, \makeimage{} estimates the flux
-for each component by internally constructing a large model image for
-each component function in the configuration file, with the component
-centered within this image, and then summing the pixel values of that
-image. The output includes a list of total and relative fluxes (i.e.,
+analytical expressions for total flux, \makeimage{} normally estimates
+the flux for each component by internally constructing a large model
+image for each component function in the configuration file, with the
+component centered within this image, and then summing the pixel values
+of that image. (For certain image functions -- e.g., Gaussian,
+Exponential, Sersic -- the analytic total flux value is calculated
+instead.) The output includes a list of total and relative fluxes (i.e.,
 what fraction of the total flux each component makes up) for each
 component in the model image -- and their magnitudes, if a zero point is
 supplied.
@@ -2031,7 +2037,7 @@ Useful command-line flags and options:
 \item \texttt{--estimation-size} \textit{N\_columns\_and\_rows} -- size of the
 (square) image to construct (the default size is 5000 pixels on a side)
 
-\item \texttt{--zero-point} \textit{value} -- zero point for converting total counts
+\item \texttt{--zero-point} \textit{value} -- zero point $Z$ for converting total counts
 to magnitudes:
 \begin{equation}
 m \; = \; Z - 2.5 \log_{10}( {\mathrm{counts}} )
@@ -2385,7 +2391,7 @@ class Gaussian : public FunctionObject
 \end{verbatim}
 (replace \texttt{Gaussian} with \texttt{NewMoffat})
 
-And finally edit the list of class data members, changing this:
+And, finally, edit the list of class data members, changing this:
 \begin{verbatim}
   private:
     double  x0, y0, PA, ell, I_0, sigma;   // parameters
@@ -3357,7 +3363,7 @@ Maximilian Fabricius for suggesting improvements to the documentation.
 Additional bug reports and suggestions from Andr{\'e} Luiz de Amorim,
 Giulia Savorgnan, David Streich, Guillermo Barro, Sergio Pascual, Lee
 Kelvin, Colleen Gilhuly, Semyeong Oh, Benne Holwerde, David Wilman, 
-Iskren Georgiev, and Corentin Schreiber are gratefully appreciated.
+Iskren Georgiev, Corentin Schreiber, and Dan Prole are gratefully appreciated.
 
 
 \section{Data Sources}

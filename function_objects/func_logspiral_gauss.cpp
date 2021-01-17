@@ -3,7 +3,8 @@
  *
  *   Class derived from FunctionObject; function_object.h) which produces a simple/crude
  * logarithmic spiral.
- *   Right now, we only handle face-on spirals.
+ *   In this version, the radial profile of the intensity is a 2-sided Gaussian, peaking
+ * at r = R_max.
  *
  *   Logarithmic spiral equation:
  *   For radius r, theta(peak) = 1/b * ln(r/a)
@@ -162,13 +163,19 @@ double LogSpiralGauss::GetValue( double x, double y )
   double  y_diff = y - y0;
   double  xp, yp_scaled;
   double  r, phi, totalIntensity;
+  double  yx_ratio;
   int  nSubsamples;
   
   // Calculate x,y in component reference frame, and scale y by 1/axis_ratio
   xp = x_diff*cosPA + y_diff*sinPA;
   yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
   r = sqrt(xp*xp + yp_scaled*yp_scaled);
-  phi = atan(y_diff/x_diff);
+  // account for possible /0 error if x == x0:
+  if (x_diff == 0.0)
+    yx_ratio = 0.0;
+  else
+    yx_ratio = y_diff/x_diff;
+  phi = atan(yx_ratio);
   
   nSubsamples = CalculateSubsamples(r);
   if (nSubsamples > 1) {
