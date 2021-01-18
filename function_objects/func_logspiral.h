@@ -48,7 +48,7 @@ class LogSpiral : public FunctionObject
 
   private:
     double  x0, y0, PA, ell, m, i_pitch, I_0, R_i, sigma, gamma;   // parameters
-    double  q, PA_rad, cosPA, sinPA;
+    double  q, PA_rad, cosPA, sinPA, gamma_rad;
     double  m_over_tani;   // other useful quantities
     double  sigma_squared;
 };

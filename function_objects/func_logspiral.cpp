@@ -112,6 +112,7 @@ void LogSpiral::Setup( double params[], int offsetIndex, double xc, double yc )
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
+  gamma_rad = (gamma + 90.0) * DEG2RAD;
 
   m_over_tani = m / tan(i_pitch * DEG2RAD);
   sigma_squared = sigma*sigma;
@@ -128,7 +129,7 @@ double LogSpiral::CalculateIntensity( double r, double phi )
   if (r <= 0.0) {
     r = MIN_RADIUS;
   }
-  logSpiralFn = m_over_tani * log(r/R_i) + gamma;
+  logSpiralFn = m_over_tani * log(r/R_i) + gamma_rad;
   double  phi_term = 1.0 - cos(m*phi - logSpiralFn);
   double  exp_stuff = exp( (-r*r/sigma_squared) * phi_term );
   I = I_0 * exp_stuff;
@@ -144,6 +145,7 @@ double LogSpiral::GetValue( double x, double y )
   double  x_diff = x - x0;
   double  y_diff = y - y0;
   double  xp, yp_scaled;
+  double  yx_ratio;
   double  r, phi, totalIntensity;
   int  nSubsamples;
   
@@ -151,13 +153,10 @@ double LogSpiral::GetValue( double x, double y )
   xp = x_diff*cosPA + y_diff*sinPA;
   yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
   r = sqrt(xp*xp + yp_scaled*yp_scaled);
-  phi = atan(yp_scaled/xp);
-  
-//   if ((x == 256.0) && (y == 256.0)) {
-//     printf("x = y = 256.0: x_diff,y_diff = %.2f,%.2f\n", x_diff, y_diff);
-//     printf("xp,yp_scaled = %.2f,%2.f; r = %.2f\n", xp, yp_scaled, r);
-//   }
-  
+
+  // NOTE: use atan2, *not* atan(y/x) [latter causes m=odd to be messed up]
+  phi = atan2(yp_scaled, xp);
+    
   nSubsamples = CalculateSubsamples(r);
   if (nSubsamples > 1) {
     // Do subsampling

@@ -117,6 +117,7 @@ void LogSpiralGauss::Setup( double params[], int offsetIndex, double xc, double 
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
+  gamma_rad = (gamma + 90.0) * DEG2RAD;
 
   m_over_tani = m / tan(i_pitch * DEG2RAD);
   sigma_squared = sigma*sigma;
@@ -137,7 +138,7 @@ double LogSpiralGauss::CalculateIntensity( double r, double phi )
   if (r <= 0.0) {
     r = MIN_RADIUS;
   }
-  logSpiralFn = m_over_tani * log(r/R_i) + gamma;
+  logSpiralFn = m_over_tani * log(r/R_i) + gamma_rad;
   double  phi_term = 1.0 - cos(m*phi - logSpiralFn);
   double  exp_stuff = exp( (-r*r/sigma_squared) * phi_term );
 
@@ -165,18 +166,23 @@ double LogSpiralGauss::GetValue( double x, double y )
   double  r, phi, totalIntensity;
   double  yx_ratio;
   int  nSubsamples;
-  
+    
   // Calculate x,y in component reference frame, and scale y by 1/axis_ratio
   xp = x_diff*cosPA + y_diff*sinPA;
   yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
   r = sqrt(xp*xp + yp_scaled*yp_scaled);
-  // account for possible /0 error if x == x0:
-  if (x_diff == 0.0)
-    yx_ratio = 0.0;
-  else
-    yx_ratio = y_diff/x_diff;
-  phi = atan(yx_ratio);
   
+  // This bit of code calculates phi as angle in sky plane, not in (possibly
+  // tilted) component plane
+  // account for possible /0 error if x == x0:
+//   if (x_diff == 0.0)
+//     yx_ratio = 0.0;
+//   else
+//     yx_ratio = y_diff/x_diff;
+
+  // NOTE: use atan2, *not* atan(y/x) [latter causes m=odd to be messed up]
+  phi = atan2(yp_scaled, xp);
+
   nSubsamples = CalculateSubsamples(r);
   if (nSubsamples > 1) {
     // Do subsampling

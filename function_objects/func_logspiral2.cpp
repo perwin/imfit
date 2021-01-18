@@ -119,8 +119,8 @@ void LogSpiral2::Setup( double params[], int offsetIndex, double xc, double yc )
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
+  gamma_rad = (gamma + 90.0) * DEG2RAD;
 
-  gamma_rad = gamma * DEG2RAD;
   m_over_tani = m / tan(i_pitch * DEG2RAD);
   sigma_az_squared = sigma_az*sigma_az;
   twosigma_trunc_squared = 2.0*sigma_trunc*sigma_trunc;
@@ -180,11 +180,19 @@ double LogSpiral2::GetValue( double x, double y )
   xp = x_diff*cosPA + y_diff*sinPA;
   yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
   r = sqrt(xp*xp + yp_scaled*yp_scaled);
-  phi = atan(y_diff/x_diff);
-  // guard against undefined phi for x_diff = y_diff = 0 case
-  // use "std::isnan" to avoid odd "ambiguity" bug in GCC 4.8.x if you just use "isnan"
-  if ( (std::isnan(phi)) || (! isfinite(phi)) )
-    phi = 0.0;
+  
+  // NOTE: use atan2, *not* atan(y/x) [latter causes m=odd to be messed up]
+  phi = atan2(yp_scaled, xp);
+
+//   if (x_diff == 0.0)
+//     phi = 0.0;
+//   else
+//     phi = atan(y_diff/x_diff);
+//   // guard against undefined phi for x_diff = y_diff = 0 case
+//   // use "std::isnan" to avoid odd "ambiguity" bug in GCC 4.8.x if you just use "isnan"
+//   if ( (std::isnan(phi)) || (! isfinite(phi)) )
+//     phi = 0.0;
+  
   nSubsamples = CalculateSubsamples(r);
   if (nSubsamples > 1) {
     // Do subsampling

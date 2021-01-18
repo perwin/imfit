@@ -52,7 +52,7 @@ class LogSpiralGauss : public FunctionObject
 
   private:
     double  x0, y0, PA, ell, m, i_pitch, I_0, R_i, sigma, gamma, R_max, sigma_max_in, sigma_max_out;   // parameters
-    double  q, PA_rad, cosPA, sinPA;
+    double  q, PA_rad, cosPA, sinPA, gamma_rad;
     double  m_over_tani;   // other useful quantities
     double  sigma_squared, twosigma_max_in_squared, twosigma_max_out_squared;
 };
