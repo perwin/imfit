@@ -6,6 +6,10 @@
  *   In this version, the radial profile of the intensity is a 2-sided Gaussian, peaking
  * at r = R_max.
  *
+ *   This is a simpliified version of our log-spiral functions, with a 2-sided
+ * Gaussian for the radial-amplitude function. It is [as of Jan 2021] better tested
+ * than logspiral2.
+ *
  *   Logarithmic spiral equation:
  *   For radius r, theta(peak) = 1/b * ln(r/a)
  *      b = winding/pitch angle

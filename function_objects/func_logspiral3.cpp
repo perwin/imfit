@@ -1,10 +1,11 @@
-/* FILE: func_logspiral2.cpp ------------------------------------------- */
+/* FILE: func_logspiral3.cpp ------------------------------------------- */
 /* VERSION 0.1
  *
- *   Class (derived from FunctionObject; function_object.h) which produces a simple
+ *   Class (derived from FunctionObject; function_object.h) which produces an
  * inner-truncated logarithmic spiral. The basic spiral pattern is that specified by 
- * Eqn. 8 of Junqueira+2013, with the radial amplitude specified by an exponential 
- * for R > R_max and by (R/R_max * a Gaussian * the exponential) for R < R_max.
+ * Eqn. 8 of Junqueira+2013, with the radial amplitude specified by a broken exponential 
+ * for R > R_max and by (R/R_max * a Gaussian * the inner part of the broken exponential) 
+ * for R < R_max.
  *
  *   This is the most "sophisticated" version of our log-spiral functions, with
  * a plausible radial-amplitude function, more complete variable names, etc.
@@ -61,26 +62,26 @@
 #include <string.h>
 #include <string>
 
-#include "func_logspiral2.h"
+#include "func_logspiral3.h"
 
 using namespace std;
 
 
 /* ---------------- Definitions ---------------------------------------- */
-const int   N_PARAMS = 11;
+const int   N_PARAMS = 14;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "m", "i_pitch", "R_i", "sigma_az", "gamma",
-								"I_0", "h", "R_max", "sigma_trunc"};
-const char  FUNCTION_NAME[] = "Logarithmic Spiral function (inner-Gaussian truncation)";
+								"I_0", "h1", "h2", "r_break", "alpha", "R_max", "sigma_trunc"};
+const char  FUNCTION_NAME[] = "Broken-Exponential Logarithmic Spiral function (inner-Gaussian truncation)";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 const double  MIN_RADIUS = 0.001;
 
-const char LogSpiral2::className[] = "LogSpiral2";
+const char LogSpiral3::className[] = "LogSpiral3";
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-LogSpiral2::LogSpiral2( )
+LogSpiral3::LogSpiral3( )
 {
   string  paramName;
   
@@ -100,7 +101,7 @@ LogSpiral2::LogSpiral2( )
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
-void LogSpiral2::Setup( double params[], int offsetIndex, double xc, double yc )
+void LogSpiral3::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
@@ -112,9 +113,12 @@ void LogSpiral2::Setup( double params[], int offsetIndex, double xc, double yc )
   sigma_az = params[5 + offsetIndex];  // Gaussian azimuthal width of spiral
   gamma = params[6 + offsetIndex];     // phase angle (azimuthal offset) for spiral pattern
   I_0 = params[7 + offsetIndex];       // intensity at peak of spiral amplitude
-  h = params[8 + offsetIndex];         // exponential radial scale length
-  R_max = params[9 + offsetIndex];     // inner truncation radius
-  sigma_trunc = params[10 + offsetIndex];  // inner Gaussian radial sigma (for r < R_max)
+  h1 = params[8 + offsetIndex];        // inner exponential radial scale length
+  h2 = params[9 + offsetIndex];        // outer exponential radial scale length
+  r_b = params[10 + offsetIndex];      // break radius
+  alpha = params[11 + offsetIndex];    // sharpness of break
+  R_max = params[12 + offsetIndex];    // inner truncation radius
+  sigma_trunc = params[13 + offsetIndex];  // inner Gaussian radial sigma (for r < R_max)
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
@@ -124,9 +128,17 @@ void LogSpiral2::Setup( double params[], int offsetIndex, double xc, double yc )
   sinPA = sin(PA_rad);
   gamma_rad = (gamma + 90.0) * DEG2RAD;
 
+  // logarithmic spiral stuff
   m_over_tani = m / tan(i_pitch * DEG2RAD);
   sigma_az_squared = sigma_az*sigma_az;
   twosigma_trunc_squared = 2.0*sigma_trunc*sigma_trunc;
+
+  // broken-exponential stuff
+  exponent = (1.0/alpha) * (1.0/h1 - 1.0/h2);
+  // Calculate S [note that this can cause floating *underflow*, but that's OK]:
+  double  S = pow( (1.0 + exp(-alpha*r_b)), (-exponent) );
+  I_0_times_S = I_0 * S;
+  delta_Rb_scaled = r_b/h2 - r_b/h1;
 }
 
 
@@ -134,44 +146,42 @@ void LogSpiral2::Setup( double params[], int offsetIndex, double xc, double yc )
 // This function calculates the intensity for logarithmic spiral, evaluated
 // at radius r and azimuthal angle phi; r is assumed to be positive, and phi
 // is assumed to be in radians.
-double LogSpiral2::CalculateIntensity( double r, double phi )
+double LogSpiral3::CalculateIntensity( double r, double phi )
 {
   double  I_rad, truncationScaling;
   double  logSpiralFn, phi_term, spiralAzimuthalTerm;
   
-//  printf("\nCalculateIntensity: r, phi = %.5f, %.5f\n", r, phi);
   if (r <= 0.0) {
     r = MIN_RADIUS;  // to avoid problems with log(0)
   }
-//  printf("   CalculateIntensity: r, phi = %.5f, %.5f\n", r, phi);
   logSpiralFn = m_over_tani * log(r/R_i) + gamma_rad;
   phi_term = 1.0 - cos(m*phi - logSpiralFn);
   spiralAzimuthalTerm = exp( (-r*r/sigma_az_squared) * phi_term );
-//  printf("   CalculateIntensity: logSpiralFn, phi_term, spiralAzimuthalTerm = %.5f, %.5f, %.5f\n",
-//  	logSpiralFn, phi_term, spiralAzimuthalTerm);
 
   // radial amplitude function
   if (r < R_max) {  // inside the "truncation radius"
     double  r_diff = R_max - r;
     double  gaussianTerm = exp( -(r_diff*r_diff)/twosigma_trunc_squared );
     truncationScaling = (r/R_max) * gaussianTerm;
+    I_rad = truncationScaling * I_0 * exp(-r/h1);
   }
-  else  // outside the ring
-    truncationScaling = 1.0;
-  I_rad = truncationScaling * I_0 * exp(-r/h);
+  else { // outside the truncation radius, so it's a standard broken-exponential
+    if ( alpha*(r - r_b) > 100.0 ) {
+      // Outer-exponential approximation:
+      I_rad = I_0_times_S * exp(delta_Rb_scaled - r/h2);
+    } else {
+      // no danger of overflow in exponentiation, so use fully correct calculation:
+      I_rad = I_0_times_S * exp(-r/h1) * pow( 1.0 + exp(alpha*(r - r_b)), exponent );
+    }
+  }
   return I_rad * spiralAzimuthalTerm;
 }
-
-// 	Sigma_exp = A0*np.exp(-R/h)
-// 	if R < R_max:
-// 		R_off = R_max - R
-// 		Sigma_exp = Sigma_exp * np.exp(-(R_off*R_off)/(2*sigma*sigma)) * (R/R_max)
 
 
 /* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
 // Note that both CalculateIntensity() and CalculateSubsamples() assume that
 // r is *non-negative*!
-double LogSpiral2::GetValue( double x, double y )
+double LogSpiral3::GetValue( double x, double y )
 {
   double  x_diff = x - x0;
   double  y_diff = y - y0;
@@ -220,7 +230,7 @@ double LogSpiral2::GetValue( double x, double y )
 // given that the current pixel is a (scaled) distance of r away from the center of the
 // ring.
 // For now, we don't do any subsampling.
-int LogSpiral2::CalculateSubsamples( double r )
+int LogSpiral3::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   return nSamples;
@@ -228,5 +238,5 @@ int LogSpiral2::CalculateSubsamples( double r )
 
 
 
-/* END OF FILE: func_logspiral2.cpp ------------------------------------ */
+/* END OF FILE: func_logspiral3.cpp ------------------------------------ */
 

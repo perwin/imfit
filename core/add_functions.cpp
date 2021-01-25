@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2010--2020 by Peter Erwin.
+// Copyright 2010--2021 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -83,6 +83,7 @@
 #include "func_edge-on-disk_n4762v2.h"
 #include "func_logspiral.h"
 #include "func_logspiral2.h"
+#include "func_logspiral3.h"
 #include "func_logspiral_gauss.h"
 #include "func_expdisk3d_trunc.h"
 #include "func_triaxbar3d.h"
@@ -274,6 +275,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   LogSpiral2::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiral2>();
+
+  LogSpiral3::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<LogSpiral3>();
 
   LogSpiralGauss::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiralGauss>();
