@@ -179,7 +179,7 @@ int AddFunctions1d( ModelObject *theModel, vector<string> &functionNameList,
   // OK, we're done adding functions; now tell the model object to do some
   // final setup work
   // Tell model object about arrangement of functions into common-center sets
-  theModel->DefineFunctionBlocks(FunctionBlockIndices);
+  theModel->DefineFunctionSets(FunctionBlockIndices);
   
   // Tell model object to create vector of parameter labels
   theModel->PopulateParameterNames();

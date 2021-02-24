@@ -63,7 +63,7 @@ ModelObject1d::ModelObject1d( )
   bootstrapIndicesAllocated = false;
   zeroPointSet = false;
   nFunctions = 0;
-  nFunctionBlocks = 0;
+  nFunctionSets = 0;
   nFunctionParams = 0;
   nParamsTot = 0;
   dataStartOffset = 0;
@@ -76,26 +76,26 @@ ModelObject1d::ModelObject1d( )
 }
 
 
-/* ---------------- PUBLIC METHOD: DefineFunctionBlocks --------------- */
+/* ---------------- PUBLIC METHOD: DefineFunctionSets --------------- */
 // We have to redefine this function from the ModelObject base function because
 // nParamsTot is calculated differently
-void ModelObject1d::DefineFunctionBlocks( vector<int>& functionStartIndices )
+void ModelObject1d::DefineFunctionSets( vector<int>& functionStartIndices )
 {
   int  nn, i;
   
-  nFunctionBlocks = functionStartIndices.size();
+  nFunctionSets = functionStartIndices.size();
     // define array of [false, false, false, ...]
-  fblockStartFlags = (bool *)calloc(nFunctions, sizeof(bool));
-  for (i = 0; i < nFunctionBlocks; i++) {
+  fsetStartFlags = (bool *)calloc(nFunctions, sizeof(bool));
+  for (i = 0; i < nFunctionSets; i++) {
     nn = functionStartIndices[i];
-    // function number n is start of new function block; 
-    // change fblockStartFlags[n] to true
-    fblockStartFlags[nn] = true;
+    // function number n is start of new function set; 
+    // change fsetStartFlags[n] to true
+    fsetStartFlags[nn] = true;
   }
   
   // total number of parameters = number of parameters for individual functions
-  // plus x0 for each function block
-  nParamsTot = nFunctionParams + nFunctionBlocks;
+  // plus x0 for each function Set
+  nParamsTot = nFunctionParams + nFunctionSets;
 }
 
 
@@ -383,8 +383,8 @@ void ModelObject1d::CreateModelImage( double params[] )
   // start at params[paramSizes[0]], the third at 
   // params[paramSizes[0] + paramSizes[1]], and so forth...
   for (n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0 and then skip over them
+    if (fsetStartFlags[n] == true) {
+      // start of new function Set: extract x0 and then skip over them
       x0 = params[offset];
       offset += 1;
     }
@@ -495,8 +495,8 @@ void ModelObject1d::PrintDescription( )
 //   string  funcName, paramName;
 // 
 //   for (int n = 0; n < nFunctions; n++) {
-//     if (fblockStartFlags[n] == true) {
-//       // start of new function block: extract x0,y0 and then skip over them
+//     if (fsetStartFlags[n] == true) {
+//       // start of new function Set: extract x0,y0 and then skip over them
 //       k = indexOffset;
 //       x0 = params[k] + parameterInfoVect[k].offset;
 //       if (errs != NULL) {
@@ -552,8 +552,8 @@ int ModelObject1d::PrintModelParamsToStrings( vector<string> &stringVector, doub
   }
 
   for (int n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0,y0 and then skip over them
+    if (fsetStartFlags[n] == true) {
+      // start of new function Set: extract x0,y0 and then skip over them
       k = indexOffset;
       x0 = params[k] + parameterInfoVect[k].offset;
       stringVector.push_back(PrintToString("%s\n", prefix));
@@ -612,8 +612,8 @@ void ModelObject1d::PopulateParameterNames( )
   int  n;
 
   for (n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: extract x0
+    if (fsetStartFlags[n] == true) {
+      // start of new function Set: extract x0
       parameterLabels.push_back("X0");
     }
     functionObjects[n]->GetParameterNames(parameterLabels);
@@ -795,9 +795,9 @@ ModelObject1d::~ModelObject1d()
       delete functionObjects[i];
     nFunctions = 0;
   }
-  if (fblockStartFlags_allocated) {
-    free(fblockStartFlags);
-    fblockStartFlags_allocated = false;
+  if (fsetStartFlags_allocated) {
+    free(fsetStartFlags);
+    fsetStartFlags_allocated = false;
   }
   
   if (bootstrapIndicesAllocated) {

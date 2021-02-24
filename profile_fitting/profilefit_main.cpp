@@ -146,6 +146,7 @@ int main(int argc, char *argv[])
   vector<mp_par>  parameterInfo;
   int  status, fitStatus;
   vector<string>  functionList;
+  vector<string>  functionLabelList;
   vector<double>  parameterList;
   commandOptions  options;
   configOptions  userConfigOptions;
@@ -201,8 +202,9 @@ int main(int argc, char *argv[])
            options.configFileName.c_str());
     return -1;
   }
-  status = ReadConfigFile(options.configFileName, false, functionList, parameterList, paramLimits, 
-                  FunctionBlockIndices, paramLimitsExist, userConfigOptions);
+  status = ReadConfigFile(options.configFileName, false, functionList, functionLabelList,
+  					parameterList, paramLimits, FunctionBlockIndices, paramLimitsExist, 
+  					userConfigOptions);
   if (status < 0) {
     printf("\n*** WARNING: Problem in processing config file!\n\n");
     return -1;

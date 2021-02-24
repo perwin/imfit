@@ -108,7 +108,7 @@ void LogSpiral2::Setup( double params[], int offsetIndex, double xc, double yc )
   ell = params[1 + offsetIndex];       // ellipticity of projected circle
   m = params[2 + offsetIndex];         // multiplicity of spiral
   i_pitch = params[3 + offsetIndex];   // pitch angle [degrees]
-  R_i = params[4 + offsetIndex];       // radius where spiral crosses x=0 [ring for infinite winding]
+  R_i = params[4 + offsetIndex];       // radius where spiral crosses x=0 [ring radius for infinite winding]
   sigma_az = params[5 + offsetIndex];  // Gaussian azimuthal width of spiral
   gamma = params[6 + offsetIndex];     // phase angle (azimuthal offset) for spiral pattern
   I_0 = params[7 + offsetIndex];       // intensity at peak of spiral amplitude
@@ -122,7 +122,10 @@ void LogSpiral2::Setup( double params[], int offsetIndex, double xc, double yc )
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
-  gamma_rad = (gamma + 90.0) * DEG2RAD;
+  // this is relative to internal orientation of spiral; corrects for
+  // value of m (if user wants to see pattern rotated by 45 deg, we need
+  // gamma = m*45 in the actual logSpiralFn equation
+  gamma_true = m * gamma * DEG2RAD;
 
   m_over_tani = m / tan(i_pitch * DEG2RAD);
   sigma_az_squared = sigma_az*sigma_az;
@@ -144,7 +147,7 @@ double LogSpiral2::CalculateIntensity( double r, double phi )
     r = MIN_RADIUS;  // to avoid problems with log(0)
   }
 //  printf("   CalculateIntensity: r, phi = %.5f, %.5f\n", r, phi);
-  logSpiralFn = m_over_tani * log(r/R_i) + gamma_rad;
+  logSpiralFn = m_over_tani * log(r/R_i) + gamma_true;
   phi_term = 1.0 - cos(m*phi - logSpiralFn);
   spiralAzimuthalTerm = exp( (-r*r/sigma_az_squared) * phi_term );
 //  printf("   CalculateIntensity: logSpiralFn, phi_term, spiralAzimuthalTerm = %.5f, %.5f, %.5f\n",
@@ -159,6 +162,7 @@ double LogSpiral2::CalculateIntensity( double r, double phi )
   else  // outside the ring
     truncationScaling = 1.0;
   I_rad = truncationScaling * I_0 * exp(-r/h);
+
   return I_rad * spiralAzimuthalTerm;
 }
 

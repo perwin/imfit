@@ -31,7 +31,7 @@ class ModelObject1d : public ModelObject
     ModelObject1d( );
     
    // redefined method/member functions:
-    void DefineFunctionBlocks( vector<int>& functionStartIndices );
+    void DefineFunctionSets( vector<int>& functionStartIndices );
     
     void AddDataVectors( int nDataValues, double *xValVector, double *yValVector,
     											bool magnitudeData );

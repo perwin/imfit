@@ -112,7 +112,10 @@ void LogSpiral::Setup( double params[], int offsetIndex, double xc, double yc )
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
-  gamma_rad = (gamma + 90.0) * DEG2RAD;
+  // this is relative to internal orientation of spiral; corrects for
+  // value of m (if user wants to see pattern rotated by 45 deg, we need
+  // gamma = m*45 in the actual logSpiralFn equation
+  gamma_true = m * gamma * DEG2RAD;
 
   m_over_tani = m / tan(i_pitch * DEG2RAD);
   sigma_squared = sigma*sigma;
@@ -129,7 +132,7 @@ double LogSpiral::CalculateIntensity( double r, double phi )
   if (r <= 0.0) {
     r = MIN_RADIUS;
   }
-  logSpiralFn = m_over_tani * log(r/R_i) + gamma_rad;
+  logSpiralFn = m_over_tani * log(r/R_i) + gamma_true;
   double  phi_term = 1.0 - cos(m*phi - logSpiralFn);
   double  exp_stuff = exp( (-r*r/sigma_squared) * phi_term );
   I = I_0 * exp_stuff;

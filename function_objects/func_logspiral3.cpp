@@ -126,7 +126,10 @@ void LogSpiral3::Setup( double params[], int offsetIndex, double xc, double yc )
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
-  gamma_rad = (gamma + 90.0) * DEG2RAD;
+  // this is relative to internal orientation of spiral; corrects for
+  // value of m (if user wants to see pattern rotated by 45 deg, we need
+  // gamma = m*45 in the actual logSpiralFn equation
+  gamma_true = m * gamma * DEG2RAD;
 
   // logarithmic spiral stuff
   m_over_tani = m / tan(i_pitch * DEG2RAD);
@@ -154,18 +157,18 @@ double LogSpiral3::CalculateIntensity( double r, double phi )
   if (r <= 0.0) {
     r = MIN_RADIUS;  // to avoid problems with log(0)
   }
-  logSpiralFn = m_over_tani * log(r/R_i) + gamma_rad;
+  logSpiralFn = m_over_tani * log(r/R_i) + gamma_true;
   phi_term = 1.0 - cos(m*phi - logSpiralFn);
   spiralAzimuthalTerm = exp( (-r*r/sigma_az_squared) * phi_term );
 
   // radial amplitude function
-  if (r < R_max) {  // inside the "truncation radius"
+  if (r < R_max) {  // inside the "inner truncation radius"
     double  r_diff = R_max - r;
     double  gaussianTerm = exp( -(r_diff*r_diff)/twosigma_trunc_squared );
     truncationScaling = (r/R_max) * gaussianTerm;
     I_rad = truncationScaling * I_0 * exp(-r/h1);
   }
-  else { // outside the truncation radius, so it's a standard broken-exponential
+  else { // outside the inner truncation radius, so it's a standard broken-exponential
     if ( alpha*(r - r_b) > 100.0 ) {
       // Outer-exponential approximation:
       I_rad = I_0_times_S * exp(delta_Rb_scaled - r/h2);
