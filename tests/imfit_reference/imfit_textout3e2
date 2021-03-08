@@ -15,7 +15,7 @@ ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
 6 free parameters (4090 degrees of freedom)
 Estimated memory use: 425984 bytes (416.0 KB)
 
-Performing fit by minimizing chi^2 (data-based errors):
+Performing fit by minimizing chi^2 (user-supplied error image):
 Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: fit statistic = 198337.457290
 	mpfit iteration 2: fit statistic = 15612.628210
@@ -53,6 +53,6 @@ r_e		60.7483 # +/- 0.24714
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.045969 sec for fit, 0.048199 sec total)
+(Elapsed time: 0.045032 sec for fit, 0.048611 sec total)
 Done!
 

@@ -359,6 +359,8 @@ int main(int argc, char *argv[])
       printf("Poisson MLR statistic:\n");
     else if (options->useModelForErrors)
       printf("chi^2 (model-based errors):\n");
+    else if (options->noiseImagePresent)
+      printf("chi^2 (user-supplied error image):\n");
     else
       printf("chi^2 (data-based errors):\n");
     gettimeofday(&timer_start_fit, NULL);
