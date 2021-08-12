@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Python script for comparing two text files (e.g., save output from running imfit),
 # with options for how many lines to skip at beginning or end.

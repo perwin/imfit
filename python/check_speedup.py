@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # A Python script to compare the elapsed time of two different imfit fits.
 # The assumed use is to copare a standard, OpenMP-enabled fit (the first file)

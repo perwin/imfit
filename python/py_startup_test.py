@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Tests to see whether numpy and pyfits are present (returns 1 if they are,
 # 0 if at least one is not accessible)

@@ -1,6 +1,11 @@
 
 ** BUGS TO FIX:
 
+[ ] Imfit on MBPro 2019 is very slow in oversampled-PSF tests (45s for fit
+	vs 3s on MBPro 2017)
+		-- true for all 3 tests (2 with N-M, 1 with L-M)
+		-- progression of actual recorded chi^2 values is identical
+
 
 
 ** NEAR-TERM FUTURE TODO:

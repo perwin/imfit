@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # A Python script to compare two text files (tail end of output from imfit) and
 # allow for small differences in numerical output, as expected for differential

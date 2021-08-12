@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # A Python script to compare two FITS image files to see if the image data matches
 # (assuming that some of the headers might not, so we can't simply do a binary

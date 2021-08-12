@@ -51,7 +51,7 @@
 # etc.
 
 
-# Copyright 2010--2020 by Peter Erwin.
+# Copyright 2010--2021 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -223,8 +223,8 @@ usingGCC = True
 # Lee Kelvin, who contributed the new version)
 userName = pwd.getpwuid(os.getuid())[0]
 if (os_type == "Darwin") and (userName == "erwin"): 
-    CC_COMPILER = "gcc-10"
-    CPP_COMPILER = "g++-10"
+    CC_COMPILER = "gcc-11"
+    CPP_COMPILER = "g++-11"
     c_compiler_changed = True
     cpp_compiler_changed = True
     usingGCC = True
@@ -366,8 +366,8 @@ if GetOption("useGCC"):
         print("ERROR: You cannot specify both Clang and GCC as the compiler!")
         Exit(2)
     usingGCC = True
-    CC_COMPILER = "gcc-10"
-    CPP_COMPILER = "g++-10"
+    CC_COMPILER = "gcc-11"
+    CPP_COMPILER = "g++-11"
     print("using %s for C compiler" % CC_COMPILER)
     print("using %s for C++ compiler" % CPP_COMPILER)
     c_compiler_changed = True
@@ -623,6 +623,7 @@ if useExtraFuncs:
     functionobject_obj_string += " func_exp-higher-mom"
     functionobject_obj_string += " func_nan"
     functionobject_obj_string += " func_simple-checkerboard"
+    functionobject_obj_string += " func_pointsource_rot"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,
