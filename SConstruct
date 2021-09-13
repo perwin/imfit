@@ -597,6 +597,7 @@ functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
 functionobject_obj_string += " func_gaussianring3d"  # requires integrator
 functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
 functionobject_obj_string += " func_pointsource"
+functionobject_obj_string += " func_pointsource_rot"
 if useExtraFuncs:
     # experimental extra functions for personal testing
     functionobject_obj_string += " func_broken-exp-bar"
@@ -623,7 +624,6 @@ if useExtraFuncs:
     functionobject_obj_string += " func_exp-higher-mom"
     functionobject_obj_string += " func_nan"
     functionobject_obj_string += " func_simple-checkerboard"
-    functionobject_obj_string += " func_pointsource_rot"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,

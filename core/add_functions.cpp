@@ -63,6 +63,7 @@
 #include "func_gaussianring3d.h"
 #include "func_ferrersbar3d.h"
 #include "func_pointsource.h"
+#include "func_pointsource_rot.h"
 //#endif
 
 // ADD INCLUDE FILE FOR NEW FUNCTIONS HERE
@@ -100,7 +101,6 @@
 #include "func_n4608disk.h"
 #include "func_nan.h"
 #include "func_simple-checkerboard.h"
-#include "func_pointsource_rot.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -234,6 +234,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   PointSource::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<PointSource>();
+
+  PointSourceRot::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<PointSourceRot>();
 //#endif
 
 // ADD CODE FOR NEW FUNCTIONS HERE
@@ -324,9 +327,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   SimpleCheckerboard::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<SimpleCheckerboard>();
-
-  PointSourceRot::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<PointSourceRot>();
 
 #endif
 
