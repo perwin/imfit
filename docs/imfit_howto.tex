@@ -1049,6 +1049,7 @@ functions, including their parameters.
 \item Gaussian -- an elliptical 2D Gaussian function.
 \item Moffat -- an elliptical 2D Moffat function.
 \item PointSource -- a scaled copy of the user-supplied PSF image.
+\item PointSourceRot -- as for PointSource, but allowing arbitrary rotation
 \item Exponential -- an elliptical 2D exponential function.
 \item Exponential\_GenEllipse -- an elliptical 2D exponential function using
 generalized ellipses (``boxy'' to ``disky'' shapes) for the isophote shapes.
@@ -2748,6 +2749,20 @@ The interpolation is done using the 2D bicubic function
 \begin{verbatim}
 FUNCTION PointSource
 I_tot
+\end{verbatim}
+
+
+\subsubsection{PointSourceRot}
+
+This function is basically identical to PointSource, except that it allows
+for arbitrary rotation of the user-input PSF image about its center
+(the center being the central pixel of the image, so this is best used
+with PSF images that are square and an odd number of pixels in size).
+
+\begin{verbatim}
+FUNCTION PointSourceRot
+I_tot
+PA
 \end{verbatim}
 
 

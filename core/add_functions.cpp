@@ -82,6 +82,7 @@
 #include "func_flatbar3d.h"
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
+#include "func_logspiral_exp.h"
 #include "func_logspiral.h"
 #include "func_logspiral2.h"
 #include "func_logspiral3.h"
@@ -274,6 +275,11 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   FlatBar3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatBar3D>();
 
+  // This is potentially ready to use
+  LogSpiralExp::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<LogSpiralExp>();
+
+  // The following "LogSpiral" functions are past experimental versions
   LogSpiral::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiral>();
 

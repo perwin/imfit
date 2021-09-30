@@ -17,6 +17,10 @@ This uses the user-supplied PSF image, shifting it (via bicubic interpolation) a
 scaling its brightness using the `I_0` parameter (which corresponds to the
 total flux of the source).
 
+If you are worried about possible rotation of the PSF for different positions
+within the image plane, you can use the PointSourceRot function, which
+adds a position-angle parameter.
+
 
 ## How can I determine B/T (bulge/total) and other flux ratios?
 
