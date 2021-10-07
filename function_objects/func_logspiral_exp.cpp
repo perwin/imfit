@@ -151,14 +151,21 @@ double LogSpiralExp::CalculateIntensity( double r, double phi )
   spiralAzimuthalTerm = exp( (-r*r/sigma_az_squared) * phi_term );
 
   // radial amplitude function
-  if (r < R_max) {  // inside the "truncation radius"
+//   if (r < R_max) {  // inside the "truncation radius"
+//     double  r_diff = R_max - r;
+//     double  gaussianTerm = exp( -(r_diff*r_diff)/twosigma_trunc_squared );
+//     truncationScaling = (r/R_max) * gaussianTerm;
+//   }
+//   else  // outside the ring
+//     truncationScaling = 1.0;
+//   I_rad = truncationScaling * I_0 * exp(-r/h);
+  
+  if (r < R_max) {   // inside R_max
     double  r_diff = R_max - r;
-    double  gaussianTerm = exp( -(r_diff*r_diff)/twosigma_trunc_squared );
-    truncationScaling = (r/R_max) * gaussianTerm;
+    I_rad = I_max * exp( -(r_diff*r_diff)/twosigma_trunc_squared );
   }
-  else  // outside the ring
-    truncationScaling = 1.0;
-  I_rad = truncationScaling * I_0 * exp(-r/h);
+  else   // outside R_max
+    I_rad = I_0 * exp(-r/h);
 
   return I_rad * spiralAzimuthalTerm;
 }

@@ -83,6 +83,7 @@
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
 #include "func_logspiral_exp.h"
+#include "func_logspiral_brokenexp.h"
 #include "func_logspiral.h"
 #include "func_logspiral2.h"
 #include "func_logspiral3.h"
@@ -278,6 +279,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   // This is potentially ready to use
   LogSpiralExp::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiralExp>();
+
+  LogSpiralBrokenExp::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<LogSpiralBrokenExp>();
 
   // The following "LogSpiral" functions are past experimental versions
   LogSpiral::GetClassShortName(classFuncName);

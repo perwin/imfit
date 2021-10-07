@@ -37,16 +37,18 @@ this is useful if you just want to know what the fluxes and ratios are.)
 
 The output will look something like this:
 
-    Component                 Flux        Magnitude  Fraction
-    Sersic                    1.0800e+06      ---     0.09038
-    Exponential               4.8448e+06      ---     0.40545
-    Sersic_GenEllipse         5.6323e+05      ---     0.04713
-    Exponential               5.4612e+06      ---     0.45703
+    Component                 Flux        Magnitude  Fraction    Label
+    Sersic                    1.0800e+06      ---     0.09038    
+    Exponential               4.8448e+06      ---     0.40545    nuclear disk
+    Sersic_GenEllipse         5.6323e+05      ---     0.04713    bar?
+    Exponential               5.4612e+06      ---     0.45703    disk
 
     Total                     1.1949e+07
 
 Note that the flux units are in counts (i.e., the units of individual
 pixel values). To get outputs in magnitudes as well, see the next question.
+(The "Label" entries take their names from the optional "# LABEL <label-text>"
+comments in the config/best-fit-parameters file.)
 
 By default, `makeimage` computes component fluxes by generating a 5000 x
 5000 pixel internal image and summing up the pixel values (a few
@@ -77,10 +79,10 @@ The "ZP" value will be used to compute the magnitude of each component, as
 
 The output will look something like this (using "--zero-point=25"):
 
-    Component                 Flux        Magnitude  Fraction
+    Component                 Flux        Magnitude  Fraction    Label
     Sersic                    1.0800e+06   9.9164     0.09038
-    Exponential               4.8448e+06   8.2868     0.40545
-    Sersic_GenEllipse         5.6323e+05   10.6233     0.04713
-    Exponential               5.4612e+06   8.1568     0.45703
+    Exponential               4.8448e+06   8.2868     0.40545    nuclear disk
+    Sersic_GenEllipse         5.6323e+05   10.6233     0.04713    bar?
+    Exponential               5.4612e+06   8.1568     0.45703    disk
 
     Total                     1.1949e+07   7.3066

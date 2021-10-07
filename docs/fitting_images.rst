@@ -37,33 +37,33 @@ greater than 100 photo-electrons per pixel), then you can probably
 assume the Gaussian approximation of Poisson statistics is OK, and use
 some variant of chi^2 as the fit statistic.
 
-IMPORTANT NOTE: Converting your pixel values to photo-electrons (or particles, or...)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+IMPORTANT NOTE: Converting your pixel values to photo-electrons (or particles, or…)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order for imfit to correctly estimate the per-pixel uncertainties, it
 is *very important* that the pixel values be convertible to units of the
-original detected quantities -- i.e., integrated photo-electrons for a
+original detected quantities – i.e., integrated photo-electrons for a
 typical detector, or particles/pixel for an *N*-body simulation.
 
 Since the actual recording of an astronomical image almost always
 involves conversion of detected photo-electrons to counts (also called
-"data numbers" or ADUs) via an A/D converter, the output image is
+“data numbers” or ADUs) via an A/D converter, the output image is
 already no longer in the proper units.
 
 So you must tell imfit how to convert the pixel values back to the
-original values, at least in a general, image-wide sense. (It's probably
+original values, at least in a general, image-wide sense. (It’s probably
 overkill to worry about the effects of flat-fielding.)
 
 The simple way to do this is to give imfit an effective gain factor, via
 the GAIN parameter in the config file, or the ``--gain`` command-line
 option. The effective gain is whatever number will, when multiplied by
-the image's pixel values, convert them back to, e.g., photo-electrons.
+the image’s pixel values, convert them back to, e.g., photo-electrons.
 For a processed (but not photometrically calibrated) image, where the
 pixel values are in ADUs, this is simply the gain of the original A/D
 conversion, in units of electrons/ADU. Imfit will then multiply the
 pixel values by the GAIN parameter to turn them back into
 photo-electrons. (Note that some data-taking setups will record an
-inverse "gain" in units of ADU/electrons; you will need to invert this
+inverse “gain” in units of ADU/electrons; you will need to invert this
 before passing it to imfit!)
 
 If your image has photometrically calibrated flux units (Jy,
@@ -83,7 +83,7 @@ confusion is with the background level.
 
 DR7 images do *not* have background subtraction applied (a crude
 estimate of the background level is included in the header of each
-image). However, each image has an artifical "soft bias" level of 1000
+image). However, each image has an artifical “soft bias” level of 1000
 added to each pixel. Thus, if an image has a mean background level of
 1210 counts/pixel, the *actual* observed sky background is only 210
 counts/pixel. The additional constant value of 1000 should be removed
@@ -98,7 +98,7 @@ level of, say, 1210.7 counts/pixel, you can either:
 
 -  OR: Subtract 1000 from the image, then include a background component
    (e.g., FlatSky) in the model with initial value = 210.7 (possibly
-   fixed to that value, if you don't want imfit to vary the background).
+   fixed to that value, if you don’t want imfit to vary the background).
 
 The A/D gain values are included in the tsField FITS tables that go with
 each field; typical values can also be found in the table at the bottom
@@ -113,17 +113,17 @@ because they have been preprocessed in slightly complicated and
 potentially confusing ways.
 
 First, the pixel values have been photometrically calibrated and
-transformed into flux values -- specifically, "nanomaggies" (units of
+transformed into flux values – specifically, “nanomaggies” (units of
 3.631e-6 Jy). To fit the images properly, you will need to convert these
 back to counts, or else combine the flux conversion with the A/D gain to
-make an "effective gain" parameter as input to imfit.
+make an “effective gain” parameter as input to imfit.
 
 The photometric calibration is recorded in the image header using the
 NMGY header keyword. You can convert the image back to ADUs via
 
 ::
 
-    image_ss_counts = image_ss_nmgy / NMGY
+   image_ss_counts = image_ss_nmgy / NMGY
 
 Second, a 2D model of the background is computed and subtracted from the
 image as part of the pipeline, so you will definitely need to include
@@ -141,11 +141,11 @@ the interpolation values in the second extension. For example, using
 
 ::
 
-    >>> import numpy as np
-    >>> from astropy.io import fits
-    >>> hdu_list = fits.open('<path-to-SDSS-image-file>')
-    >>> sky_bintable = hdu_list[2]
-    >>> np.mean(sky_bintable.data['ALLSKY'])
+   >>> import numpy as np
+   >>> from astropy.io import fits
+   >>> hdu_list = fits.open('<path-to-SDSS-image-file>')
+   >>> sky_bintable = hdu_list[2]
+   >>> np.mean(sky_bintable.data['ALLSKY'])
 
 The simplest approach is probably to convert the image from nanomaggies
 to counts, then use the standard A/D gain values and the mean sky value
@@ -153,5 +153,5 @@ from the second FITS extension.
 
 Alternately, you could combine the NMGY value with the gain to get an
 effective-gain value that converts the nanomaggie values directly to
-photo-electrons ("gain" = A/D gain / NMGY) -- but then you will have to
+photo-electrons (“gain” = A/D gain / NMGY) – but then you will have to
 convert the sky value from counts to nanomaggies.

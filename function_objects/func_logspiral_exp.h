@@ -18,7 +18,7 @@
  * gamma = params[6 + offsetIndex];     // phase angle (azimuthal offset) for spiral pattern
  * I_max = params[7 + offsetIndex];     // intensity at peak of spiral amplitude
  * h = params[8 + offsetIndex];         // exponential radial scale length
- * R_max = params[9 + offsetIndex];     // inner truncation radius
+ * R_max = params[9 + offsetIndex];     // radius where radial intensity profile = I_max
  * sigma_trunc = params[10 + offsetIndex];  // inner Gaussian radial sigma (for r < R_max)
  *
  */

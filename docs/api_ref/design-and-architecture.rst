@@ -4,7 +4,7 @@ Design and Architecture of Imfit
 General design and operation of imfit
 -------------------------------------
 
-The basic operation of imfit, as implemented in imfit\_main.cpp, is:
+The basic operation of imfit, as implemented in imfit_main.cpp, is:
 
 1. Process command-line options
 
@@ -52,7 +52,7 @@ The basic operation of imfit, as implemented in imfit\_main.cpp, is:
 5. Do the fit
 
    1. Set up initial parameter vector and parameter-limits structure
-      (mp\_par structure)
+      (mp_par structure)
 
    2. Call the user-specified solver (Levenberg-Marquardt is default)
 
@@ -83,7 +83,7 @@ image to use as a reference. There are three ways to do this:
 
 3. Use a reference image (``--refimage`` command-line option)
 
-The basic operation of makeimage, as implemented in makeimage\_main.cpp,
+The basic operation of makeimage, as implemented in makeimage_main.cpp,
 is:
 
 1. Process command-line options
@@ -117,15 +117,15 @@ is:
 
    1. Generate string vector of comments for image header
 
-   2. Call SaveVectorAsImage() function (image\_io.h).
+   2. Call SaveVectorAsImage() function (image_io.h).
 
 The ModelObject Class
 ---------------------
 
 The heart of Imfit is the ModelObject class. This is instantiated once
 in each program, and holds (among other things) the following objects
-and data ("**imfit only**\ " denotes data used in imfit or imfit-mcmc,
-but not needed when used in makeimage)
+and data (“**imfit only**” denotes data used in imfit or imfit-mcmc, but
+not needed when used in makeimage)
 
 -  Model image pixel values
 
@@ -150,8 +150,8 @@ but not needed when used in makeimage)
 -  **imfit only**: Internal weight image (from combination of error
    image and weight image).
 
-Not all of these data members are initialized or used -- for example,
-none of the data-related ("**imfit only**\ ") members are used by
+Not all of these data members are initialized or used – for example,
+none of the data-related (“**imfit only**”) members are used by
 makeimage, and the error image is not generated or used if a fit uses
 Poisson-based statistics instead of chi^2.
 
@@ -189,12 +189,12 @@ classes. Multiple instances of each class can be used.
 Each image function is a subclass of the abstract base class
 FunctionObject. The main methods of this class are:
 
--  Setup() -- Called by ModelObject to pass in the current parameter
+-  Setup() – Called by ModelObject to pass in the current parameter
    vector at the beginning of the computation of a model image; this
    allows the image function to store the relevant parameter values and
-   do any useful computations that don't depend on pixel position.
+   do any useful computations that don’t depend on pixel position.
 
--  GetValue() -- Called by ModelObject once for each pixel in the model
+-  GetValue() – Called by ModelObject once for each pixel in the model
    image, to pass in the current pixel values (x,y); the image function
    uses these to compute and return the appropriate intensity value for
    that pixel.
@@ -208,12 +208,12 @@ parameter values. (And, of course, convolution with a PSF if that is
 requested.) The FunctionObjects vector contains instantiations of one or
 more classes (e.g., Gaussian, Exponential, Sersic, ExponentialDisk3D)
 which are subclasses of the abstract base class FunctionObject (defined
-in function\_object.h).
+in function_object.h).
 
 When a model image is constructed, the first step is to call the Setup()
 method on each FunctionObject and pass in the corresponding parameter
 values. This enables the FunctionObject instances to do any initial
-computations which don't depend on actual location within the image.
+computations which don’t depend on actual location within the image.
 
 The value of an individual pixel in the model image is obtained by
 iterating over the individual FunctionObjects, calling its GetValue()
