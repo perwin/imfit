@@ -14,7 +14,7 @@ using namespace std;
 #include "model_object.h"
 #include "config_file_parser.h"
 
-#define SIMPLE_CONFIG_FILE "tests/config_imfit_flatsky.dat"
+#define SIMPLE_CONFIG_FILE "tests/imfit_reference/config_imfit_flatsky.dat"
 
 
 class NewTestSuite : public CxxTest::TestSuite 
@@ -49,6 +49,7 @@ public:
     referenceFunctionNameList.push_back("ModifiedKing2");
     referenceFunctionNameList.push_back("Moffat");
     referenceFunctionNameList.push_back("PointSource");
+    referenceFunctionNameList.push_back("PointSourceRot");
     referenceFunctionNameList.push_back("Sersic");
     referenceFunctionNameList.push_back("Sersic_GenEllipse");
     referenceFunctionNameList.push_back("TiltedSkyPlane");

@@ -7,16 +7,17 @@
 
 # optional specification if we're running on a Mac (currently, we allow use
 # of Clang/Clang++ because it provides nice error messages).
+# "-w" suppresses all warnings
 # "-Wl,-no_compact_unwind" is for suppressing the silly "no compact unwind"
 # warnings from the clang linker.
 if [[ $OSTYPE == darwin* ]]
 then
-  CPP="g++ -Wl,-no_compact_unwind"
+  CPP="g++ -w -Wl,-no_compact_unwind"
   CC=gcc
 #   CPP=g++-5
 #   CC=gcc-5
 else
-  CPP=g++
+  CPP="g++ -w"
   CC=gcc
 fi
 
@@ -32,12 +33,12 @@ then
 else
   # Not Travis CI; use path to local CxxTest installation
   # (change this to the appropriate path if yours is different!)
-  CXXTEST=/usr/local/cxxtest-4.4
+  CXXTEST=/usr/local/
 fi
 CXXTESTGEN=$CXXTEST/bin/cxxtestgen
 
 export CPP
 export CC
 export CXXTEST
-export CCTESTGEN
+export CXXTESTGEN
 export LDFLAGS
