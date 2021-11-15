@@ -33,9 +33,10 @@ then
 else
   # Not Travis CI; use path to local CxxTest installation
   # (change this to the appropriate path if yours is different!)
-  CXXTEST=/usr/local/
+  CXXTEST=/usr/local
 fi
-CXXTESTGEN=$CXXTEST/bin/cxxtestgen
+# CXXTESTGEN=$CXXTEST/bin/cxxtestgen
+CXXTESTGEN=cxxtestgen
 
 export CPP
 export CC
