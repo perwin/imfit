@@ -71,6 +71,7 @@ Finally, the paper describing Imfit can be found here:
 ## About the code at this Github site
 
 [![Build Status](https://travis-ci.org/perwin/imfit.svg?branch=master)](https://travis-ci.org/perwin/imfit)
+![Imfit build status](https://github.com/perwin/imfit/workflows/imfitCI_Action.yaml/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/imfit/badge/?version=latest)](http://imfit.readthedocs.io/en/latest/?badge=latest)
 
 
