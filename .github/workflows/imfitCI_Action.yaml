@@ -18,6 +18,7 @@ jobs:
         # Run a set of commands using the shell
         - name: setup
           run: |
+            sudo apt-get update -qq
             sudo apt-get install -y scons
             sudo apt-get install -y libfftw3-dev
             sudo apt-get install -y libcfitsio3-dev
@@ -25,11 +26,6 @@ jobs:
             sudo apt-get install -y libnlopt-dev
             sudo apt-get install -y cxxtest
       
-        - name: build-makeimage
+        - name: build makeimage
           run: scons makeimage
       
-#       - name: make
-#       run: make
-#      
-#       - name: make test
-#       run: make test
