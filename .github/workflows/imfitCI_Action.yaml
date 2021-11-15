@@ -27,6 +27,8 @@ jobs:
             sudo apt-get install -y libnlopt-dev
             sudo apt-get install -y cxxtest
       
+        - name: unit tests
+          run: ./run_unit_tests.sh
+      
         - name: build makeimage
           run: scons makeimage
-      
