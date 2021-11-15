@@ -30,8 +30,8 @@ jobs:
         - name: unit tests
           run: ./run_unit_tests.sh
       
-        - name: build makeimage
-          run: scons makeimage
-
-        - name: build imfit
-          run: scons imfit
+        - name: build executables
+          run: |
+            scons makeimage
+            scons imfit
+            scons imfit-mcmc
