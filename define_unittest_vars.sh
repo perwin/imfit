@@ -24,19 +24,17 @@ fi
 # attempt to suppress annoying, pointless "compact unwind" warnings
 LDFLAGS="-Wl,-no_compact_unwind"
 
-# Set the path to CxxTest (and thus cxxtestgen)
-# (Travis CI defines TRAVIS=true)
-if env | grep -q ^TRAVIS=
+# Set the path to CxxTest
+if [[ $OSTYPE == darwin* ]]
 then
-  # OK, running on Travis CI, so it's the apt-get install location
-  CXXTEST=/usr
-else
-  # Not Travis CI; use path to local CxxTest installation
-  # (change this to the appropriate path if yours is different!)
   CXXTEST=/usr/local
+else
+  # assume we're running on some version of Ubuntu
+  CXXTEST=/usr
+# simplest thing is to assume PATH includes location of cxxtestgen
 fi
-# CXXTESTGEN=$CXXTEST/bin/cxxtestgen
 CXXTESTGEN=cxxtestgen
+
 
 export CPP
 export CC
