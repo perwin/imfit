@@ -10,6 +10,10 @@
 
 ** NEAR-TERM FUTURE TODO:
 
+[ ] Start using Github Actions for Continuous Integration
+	-- since Travis CI is not really available to us any more
+
+
 [ ] Add option to skip initial fit in bootstrap resampling
 	-- just use input config file (ideally using values from an actual fit)
 	as starting values for all fits
