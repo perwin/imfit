@@ -32,3 +32,6 @@ jobs:
       
         - name: build makeimage
           run: scons makeimage
+
+        - name: build imfit
+          run: scons imfit
