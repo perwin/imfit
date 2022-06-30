@@ -63,10 +63,41 @@
 			-- if doing so, also sets paramUnitsExist = true
 			
 	[ ] Unit tests for new FunctionObject.GetParameterUnits() method
-		[ ] Write basic tests
-			[ ] test for case of no unit strings
-			[ ] test for case with some unit strings
-		[ ] Add code to make tests pass
+		[x] Write basic tests
+			[x] test for case of no unit strings
+			[x] test for case with some unit strings
+		[x] Add code to make tests pass
+	[ ] Update FunctionObject subclasses with units
+		1. Update header file
+			Add declaration of overridden method ParameterUnitsExist
+		2. Update source file
+			A. Add definition of PARAM_UNITS to preamble
+			B. Add code to constructor:
+  // Set up vectors of parameter labels and units
+  for (int i = 0; i < nParams; i++) {
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
+  }
+			C. Add override of FunctionObject::ParameterUnitsExist, after
+			TotalFlux method
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool Exponential::ParameterUnitsExist( )
+{
+  return true;
+}
+
+		[X] Update unit tests to include testing for unit strings
+			[X] func_sersic
+			[X] func_gaussian
+			[X] func_flatsky
+		[X] Write code to make unit tests pass
+			[x] func_sersic
+			[x] func_gaussian
+			[x] func_flatsky
+		[ ] Update other functions with unit strings
+	[X] Update code in add_functions.cpp to record unit strings
+	[ ] Write/update code outputting sample-config file?
 
 
 [ ] Add ability to handle Ctrl-C by exiting gracefully and printing current

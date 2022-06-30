@@ -301,7 +301,6 @@ public:
     
     TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
 
-//  const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h"};
     vector<string>  correctStrings = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
     thisFunc->GetParameterUnits(resultStrings);
     for (int i = 0; i < nParams; i++)
@@ -419,6 +418,19 @@ public:
 
   }
 
+  void testUnitNames( void )
+  {
+    int  nParams = 5;
+    vector<string>  resultStrings;
+    
+    TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
+
+    vector<string>  correctStrings = {"deg (CCW from +y axis)", "", "", "counts/pixel", "pixels"};
+    thisFunc->GetParameterUnits(resultStrings);
+    for (int i = 0; i < nParams; i++)
+      TS_ASSERT_EQUALS(resultStrings[i], correctStrings[i]);
+  }
+  
   void testIsBackground( void )
   {
     bool result = thisFunc->IsBackground();
@@ -553,6 +565,19 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(0.0, 10.0), rEqualsSigmaValue, DELTA );
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 0.0), rEqualsSigmaValue, DELTA );
 
+  }
+  
+  void testUnitNames( void )
+  {
+    int  nParams = 4;
+    vector<string>  resultStrings;
+    
+    TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
+
+    vector<string>  correctStrings = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
+    thisFunc->GetParameterUnits(resultStrings);
+    for (int i = 0; i < nParams; i++)
+      TS_ASSERT_EQUALS(resultStrings[i], correctStrings[i]);
   }
   
   void testIsBackground( void )
@@ -878,6 +903,19 @@ public:
     TS_ASSERT_DELTA( thisFunc->GetValue(10.0, 9.0), rEqualsOneValue, DELTA );
   }
 
+  void testUnitNames( void )
+  {
+    int  nParams = 1;
+    vector<string>  resultStrings;
+    
+    TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
+
+    vector<string>  correctStrings = {"counts/pixel"};
+    thisFunc->GetParameterUnits(resultStrings);
+    for (int i = 0; i < nParams; i++)
+      TS_ASSERT_EQUALS(resultStrings[i], correctStrings[i]);
+  }
+  
   void testIsBackground( void )
   {
     bool result = thisFunc->IsBackground();

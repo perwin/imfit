@@ -23,7 +23,7 @@
  *     [v0.1]: 18 Nov 2009: Created (as modification of func_gauss.cpp.
  */
 
-// Copyright 2010--2016 by Peter Erwin.
+// Copyright 2010--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -76,7 +76,6 @@ Exponential::Exponential( )
 
   // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-//    paramName = PARAM_LABELS[i];
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }

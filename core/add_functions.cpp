@@ -451,7 +451,7 @@ void ListFunctionParameters( )
 {
   
   string  currentName;
-  vector<string>  parameterNameList;
+  vector<string>  parameterNameList, parameterUnitsList;
   FunctionObject  *thisFunctionObj;
   map<string, factory*>  factory_map;
 
@@ -463,9 +463,16 @@ void ListFunctionParameters( )
     currentName = thisFunctionObj->GetShortName();
     printf("\nFUNCTION %s\n", currentName.c_str());
     parameterNameList.clear();
+    parameterUnitsList.clear();
     thisFunctionObj->GetParameterNames(parameterNameList);
-    for (int i = 0; i < (int)parameterNameList.size(); i++)
-      printf("%s\n", parameterNameList[i].c_str());
+    thisFunctionObj->GetParameterUnits(parameterUnitsList);
+    for (int i = 0; i < (int)parameterNameList.size(); i++) {
+      printf("%s", parameterNameList[i].c_str());
+      if (parameterUnitsList[i].empty())
+        printf("\n");
+      else
+        printf("\t\t# %s\n", parameterUnitsList[i].c_str());
+    }
     delete thisFunctionObj;
   }
   printf("\n\n");
