@@ -55,6 +55,7 @@ using namespace std;
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 4;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
 const char  FUNCTION_NAME[] = "Exponential function";
 const double  DEG2RAD = 0.017453292519943295;
 const double PI = 3.14159265358979;
@@ -73,10 +74,11 @@ Exponential::Exponential( )
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
-  // Set up the vector of parameter labels
+  // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-    paramName = PARAM_LABELS[i];
-    parameterLabels.push_back(paramName);
+//    paramName = PARAM_LABELS[i];
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
   }
   
   doSubsampling = true;
@@ -194,6 +196,14 @@ bool Exponential::CanCalculateTotalFlux( )
 double Exponential::TotalFlux( )
 {
   return (1.0 - ell)*2.0*PI*I_0*h*h;
+}
+
+
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool Exponential::ParameterUnitsExist( )
+{
+  return true;
 }
 
 

@@ -2,6 +2,15 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.9.0 -- 2022-xx-xx
+### Added:
+
+- New image function: PointSourceRot. This is identical to PointSource,
+except with an extra "PA" parameter which specifies CCW rotation of the
+PSF image. Thanks to Alex Borlaff for suggesting this.
+
+
+
 ## 1.8.0 -- 2020-07-26
 ### Added:
 

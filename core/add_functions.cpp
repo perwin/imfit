@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2010--2021 by Peter Erwin.
+// Copyright 2010--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -88,6 +88,8 @@
 #include "func_logspiral2.h"
 #include "func_logspiral3.h"
 #include "func_logspiral_gauss.h"
+#include "func_logspiral_arc.h"
+#include "func_polynomial_d1.h"
 #include "func_expdisk3d_trunc.h"
 #include "func_triaxbar3d.h"
 #include "func_triaxbar3d_sq.h"
@@ -295,6 +297,12 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   LogSpiralGauss::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<LogSpiralGauss>();
+
+  LogSpiralArc::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<LogSpiralArc>();
+
+  PolynomialD1::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<PolynomialD1>();
 
   TriaxBar3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<TriaxBar3D>();

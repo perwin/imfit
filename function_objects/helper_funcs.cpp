@@ -10,6 +10,7 @@ const double  A3_M03 = -19.67;
 const double  A4_M03 = 13.43;
 
 
+// Calculate the b_n parameter for a Sersic function
 double Calculate_bn( double n )
 {
   double  n2 = n*n;
@@ -28,6 +29,7 @@ double Calculate_bn( double n )
 }
 
 
+// Calculate scaling factor for double-broken-exponential ("DBE")
 double CalculateDBEScalingFactor( double h1, double h2, double h3, double r_brk1,
 									double r_brk2, double alpha1, double alpha2 )
 {
@@ -45,6 +47,7 @@ double CalculateDBEScalingFactor( double h1, double h2, double h3, double r_brk1
 }
 
 
+// Generalized ellipse shapes
 double GeneralizedRadius( double deltaX, double deltaY, double cosPA, double sinPA,
 							double q, double ellExponent, double invEllExponent )
 {

@@ -86,7 +86,15 @@ public:
 
     // check that we get correct set of parameter names
     thisFunc1a->GetParameterNames(paramNames);
-    TS_ASSERT( paramNames == correctParamNames ); 
+    TS_ASSERT( paramNames == correctParamNames );
+    
+    // check for (non-existent) parameter units
+    TS_ASSERT_EQUALS(thisFunc1a->ParameterUnitsExist(), false)
+    vector<string>  resultStrings;
+    string  correctStr = "";
+    thisFunc1a->GetParameterUnits(resultStrings);
+    for (int i = 0; i < correctNParams; i++)
+      TS_ASSERT_EQUALS(resultStrings[i], correctStr);
   }
   
   void testHasExtraParams( void )
@@ -284,6 +292,20 @@ public:
     thisFunc->SetLabel(input);
     result = thisFunc->GetLabel();
     TS_ASSERT_EQUALS(result, input);
+  }
+  
+  void testUnitNames( void )
+  {
+    int  nParams = 4;
+    vector<string>  resultStrings;
+    
+    TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
+
+//  const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "h"};
+    vector<string>  correctStrings = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
+    thisFunc->GetParameterUnits(resultStrings);
+    for (int i = 0; i < nParams; i++)
+      TS_ASSERT_EQUALS(resultStrings[i], correctStrings[i]);
   }
   
   void testIsBackground( void )

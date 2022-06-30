@@ -38,6 +38,7 @@ class Exponential : public FunctionObject
     double  GetValue( double x, double y );
     bool CanCalculateTotalFlux(  );
     double TotalFlux( );
+    bool ParameterUnitsExist( );
    // No destructor for now
 
     // class method for returning official short name of class

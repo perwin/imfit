@@ -12,8 +12,15 @@
 
 [ ] Start using Github Actions for Continuous Integration
 	-- since Travis CI is not really available to us any more
+	[X] Get basic CI working
+	[ ] See about including regression tests
 
 
+[ ] Online documentation: add individual web pages for tricky image functions
+	-- for image functions which are particularly complex or tricky to use
+	(spiral arms! ExpDisk3D), add pages with notes and figures and recommendations
+
+	
 [ ] Add option to skip initial fit in bootstrap resampling
 	-- just use input config file (ideally using values from an actual fit)
 	as starting values for all fits
@@ -22,6 +29,73 @@
 	each job is wasted)
 	[ ] add "--bootstrap-only" ("--skip-fit"?) option
 	[ ] locate places in main() to modify
+
+
+[ ] Add (optional) output of units specification for individual-function parameters
+	-- something to be called when --list-parameters or --sample-config is used
+	-- "--list-parameters" generates call to add_parameters.ListFunctionParameters
+		-- ListFunctionParameters calls FunctionObject->GetParameterNames(parameterNameList)
+		
+	Possible approach:
+		Add GetParameterUnits function to FunctionObject; modifies and returns
+		vector of possible unit strings; for each parameter, ListFunctionParameters 
+		optionally appends "# units " + unit string if string is non-empty
+	
+		In FunctionObject, we need to automatically generate a list of empty
+		strings with length = nParameters; writer of subclass can override it to
+		provide proper list
+		New data members
+			bool paramUnitsExist
+			vector<string> parameterUnits
+				-- explicitly populated in constructor; otherwise ... ?
+		New methods
+			bool parameterUnitsExist( )
+			string GetParameterUnits( int i )
+		FunctionObject.GetParameterUnits() is defined in base class
+			-- checks to see if paramUnitsExist is true
+				if true: return values from parameterUnits
+				if false: return vector of nParams empty strings
+		Ideally, we want to make sure that previously written FunctionObjects
+		(including those written by other people!) work properly -- that is,
+		do *not* return parameter units -- without having to have their
+		constructors rewritten
+		Constructor optionally defines parameterUnits vector
+			-- if doing so, also sets paramUnitsExist = true
+			
+	[ ] Unit tests for new FunctionObject.GetParameterUnits() method
+		[ ] Write basic tests
+			[ ] test for case of no unit strings
+			[ ] test for case with some unit strings
+		[ ] Add code to make tests pass
+
+
+[ ] Add ability to handle Ctrl-C by exiting gracefully and printing current
+best fit (and/or write it to a file)
+	https://en.cppreference.com/w/c/program/signal
+	-- compilation flag to turn this on/off (e.g., probably off when compiling
+	library for PyImfit, until we figure out how to handle *that*)
+	-- Possible approach:
+		-- global variable or singleton object with "halt" flag (starts off
+		set = false); if called, signal-handler function sets this to true
+		
+		Probably simplest to use C solution of
+		  #include <signal.h>
+		  volatile sig_atomic_t  stopSignal_flag = 0;
+		defined in one of our header files that's included by mpfit.cpp,
+		nmsimplex_fit.cpp, etc.
+		If the signal-handler function is called, it sets stopSignal_flag = 1.
+		
+		-- NM (or other NLopt) solver
+			-- inside myfunc_nlopt(), check state of halt flag; if true, then
+			call NLopt function nlopt_force_stop()
+			https://nlopt.readthedocs.io/en/latest/NLopt_Reference/#forced-termination
+		-- LM
+			Need to add code to mpfit.cpp to check state of halt flag, and
+			terminate safely if it's true. (Should be fairly straightforward;
+			treat this as xxx.)
+			Maybe do *not* attempt to compute/return parameter error estimates?
+		-- DE
+			same as for LM, basically
 
 
 [ ] Compilation with Vagrant VMs
@@ -38,7 +112,7 @@
 
 
 [ ] Update documentation with new functions
-	[ ] Add description of GaussianRingAz to imfit_howto
+	[X] Add description of GaussianRingAz to imfit_howto
 	[ ] Add description of FlatBar to imfit_howto
 
 
@@ -78,7 +152,7 @@
 [X] Unit tests for FerrersBar3D
 
 
-[ ] GaussianRingAz with one intensity parameter
+[X] GaussianRingAz with one intensity parameter
 	Currently, it has A_maj and A_min; better to have A_maj and A_min_fraction_A_maj
 	[x] Create GaussianRingAz2 function
 	[x] Add function to add_functions.cpp, SConstruct
@@ -86,7 +160,7 @@
 		[x] Generate output image from n4608 IRAC1 model using GaussianRingAz
 		[x] Generate equivalent image using GaussianRingAz2; compare
 	[x] Change name from GaussianRingAz2 to GaussianRingAz
-	[ ] Add description to documentation
+	[x] Add description to documentation
 
 [X] Fix image-comparison regression tests
 	OK, the weird case is biggertest.fits, which has two (and only two) pixels

@@ -51,7 +51,7 @@
 # etc.
 
 
-# Copyright 2010--2021 by Peter Erwin.
+# Copyright 2010--2022 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -91,6 +91,10 @@ linux_type = None
 if os_type == "Linux":
     linux_type = GetLinuxType()
 
+# specialized for running on Intel processors; set this to False
+# if compiling for arm64 (e.g. Apple Silicon/M1) or if compiling
+# x86-64 code to run under macOS Rosetta2 on Apple Silicon/M1
+useVectorExtensions = True
 
 
 # LIBRARIES:
@@ -184,9 +188,11 @@ with OpenMP support).
 #    SSE2 is supported on Intel processors from xxx onward
 #    AVX  is supported on Intel "Core i3/i5/i7" processors from 2011 onward
 #    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
-#    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2106 onward)
+#    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2016 onward)
 
-cflags_opt = ["-O3", "-g0", "-fPIC", "-msse2", "-std=c++11"]
+cflags_opt = ["-O3", "-g0", "-fPIC", "-std=c++11"]
+if useVectorExtensions:
+    cflags_opt.append("-msse2")
 cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow", 
                 "-Wredundant-decls", "-Wpointer-arith"]
 
@@ -620,6 +626,8 @@ if useExtraFuncs:
     functionobject_obj_string += " func_logspiral2"
     functionobject_obj_string += " func_logspiral3"
     functionobject_obj_string += " func_logspiral_gauss"
+    functionobject_obj_string += " func_logspiral_arc"
+    functionobject_obj_string += " func_polynomial_d1"
     functionobject_obj_string += " func_triaxbar3d"
     functionobject_obj_string += " func_triaxbar3d_sq"
     functionobject_obj_string += " func_triaxbar3d_gengauss_sq"

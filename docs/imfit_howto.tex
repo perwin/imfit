@@ -1065,7 +1065,7 @@ consisting of a Gaussian centered at $r = R_{\mathrm{ring}}$.
 \item GaussianRing2Side -- like GaussianRing, but with a radial profile
 consisting of an asymmetric Gaussian (different values of $\sigma$ for
 $r < R_{\mathrm{ring}}$ and $r > R_{\mathrm{ring}}$).
-\item GaussianRingAz -- like GaussianRing, but the peak intensity of the
+\item GaussianRingAz -- like GaussianRing, but with the peak intensity of the
 radial Gaussian profile varying (sinusoidally) with azimuth.
 \item EdgeOnDisk -- the analytical form for a perfectly edge-on exponential
 disk, using the Bessel-function solution of \citet{vdk81} for 
@@ -3015,11 +3015,12 @@ sigma_r
 
 \subsubsection{GaussianRingAz}
 
-TBD. 
-
 Similar to GaussianRing, except that the peak radial intensity is modulated
 by a cosine function, varying from $A_{\mathrm{maj}}$ along the ellipse major
-axis to $A_{\mathrm{min}} = A_{\mathrm{min\_rel}} A_{\mathrm{maj}}$.
+axis to $A_{\mathrm{min}} = A_{\mathrm{min\_rel}} A_{\mathrm{maj}}$. $A_{\mathrm{maj}}$
+is a standard intensity variable (counts/pixel); A_{\mathrm{min\_rel}} defines
+the minor-axis intensity relative to $A_{\mathrm{maj}}$; $A_{\mathrm{min\_rel}} = 1$
+will produce the same result as a standard GaussianRing component.
 
 \begin{verbatim}
 FUNCTION GaussianRingAz
