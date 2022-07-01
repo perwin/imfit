@@ -8,7 +8,7 @@
  * NAXIS2 = naxes[1] = nRows = sizeY.
 */
 
-// Copyright 2010--2020 by Peter Erwin.
+// Copyright 2010--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -73,9 +73,9 @@ static string  kNRows = "NROWS";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.8.0 (OpenMP-enabled)"
+#define VERSION_STRING      "1.9.0-dev (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.8.0"
+#define VERSION_STRING      "1.9.0-dev"
 #endif
 
 
@@ -424,7 +424,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptio
   optParser->AddUsageLine("     --zero-point <value>     Zero point (for estimating component & total magnitudes)");
   optParser->AddUsageLine("     --save-fluxes <filename>            Save print-fluxes output to user-specified file");
   optParser->AddUsageLine("");
-  optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing, or for use with --print-fluxes)");
+  optParser->AddUsageLine("     --nosave                 Do *not* save image (for testing)");
   optParser->AddUsageLine("");
   optParser->AddUsageLine("     --timing <int>           Generate image specified number of times and estimate average creation time");
   optParser->AddUsageLine("");
@@ -439,7 +439,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptio
   optParser->AddUsageLine("EXAMPLES:");
   optParser->AddUsageLine("   makeimage model_config_a.dat");
   optParser->AddUsageLine("   makeimage model_config_b.dat --ncols 800 --nrows 800 --psf best_psf.fits -o testimage_convolved.fits");
-  optParser->AddUsageLine("   makeimage bestfit_parameters.dat --print-fluxes --zero-point 26.24 --nosave");
+  optParser->AddUsageLine("   makeimage bestfit_parameters.dat --print-fluxes --zero-point 26.24");
   optParser->AddUsageLine("");
 
   optParser->AddFlag("help", "h");
@@ -537,6 +537,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MakeimageOptions> theOptio
   }
   if (optParser->FlagSet("print-fluxes")) {
     theOptions->printFluxes = true;
+    theOptions->saveImage = false;
   }
   if (optParser->OptionSet("output")) {
     theOptions->outputImageName = optParser->GetTargetString("output");

@@ -20,7 +20,7 @@
 	-- for image functions which are particularly complex or tricky to use
 	(spiral arms! ExpDisk3D), add pages with notes and figures and recommendations
 
-	
+
 [ ] Add option to skip initial fit in bootstrap resampling
 	-- just use input config file (ideally using values from an actual fit)
 	as starting values for all fits
@@ -70,16 +70,21 @@
 	[ ] Update FunctionObject subclasses with units
 		1. Update header file
 			Add declaration of overridden method ParameterUnitsExist
+    bool ParameterUnitsExist( );
+    
 		2. Update source file
 			A. Add definition of PARAM_UNITS to preamble
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
+
 			B. Add code to constructor:
   // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  
 			C. Add override of FunctionObject::ParameterUnitsExist, after
-			TotalFlux method
+			TotalFlux method or CalculateSubsamples
 /* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
 
 bool Exponential::ParameterUnitsExist( )
@@ -96,6 +101,32 @@ bool Exponential::ParameterUnitsExist( )
 			[x] func_gaussian
 			[x] func_flatsky
 		[ ] Update other functions with unit strings
+			[X] func_broken-exp
+			[ ] func_broken-exp2d
+			[ ] func_broken-expdisk3d
+			[ ] func_core-sersic
+			[ ] func_edge-on-disk
+			[ ] func_edge-on-ring
+			[ ] func_edge-on-ring2side
+			[ ] func_expdisk3d
+			[ ] func_ferrersbar2d
+			[ ] func_ferrersbar3d
+			[ ] func_flatbar
+			[ ] func_flatsky
+			[ ] func_gaussian-ring
+			[ ] func_gaussian-ring2side
+			[ ] func_gaussian-ring3d
+			[ ] func_gaussian-ring-az
+			[ ] func_gen-exp
+			[ ] func_gen-sersic
+			[ ] func_king
+			[ ] func_king2
+			[ ] func_moffat
+			[ ] func_core
+			[ ] func_core
+			[ ] func_core
+			[ ] func_core
+			[ ] func_core
 	[X] Update code in add_functions.cpp to record unit strings
 	[ ] Write/update code outputting sample-config file?
 
@@ -1326,6 +1357,11 @@ OK, here is the problem:
 
 
 ** IMPROVEMENTS APPLIED
+
+(1.9)[X] Change --print-fluxes mode in makeimage so it automatically turns off
+	image saving (i.e., so we don't have to also do --nosave)
+	
+
 
 (1.8)[X] Save --print-fluxes output to file
 	Iskren Georgiev requested ability to store output from --print-fluxes in a file.

@@ -22,7 +22,7 @@
  *     11 Aug 2021: Created (as modification of func_pointsource.cpp).
  */
 
-// Copyright 2021 by Peter Erwin.
+// Copyright 2021--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -46,7 +46,7 @@
 #include <string.h>
 #include <string>
 
-#include "func_pointsource_rot.h"
+#include "func_pointsource-rot.h"
 #include "psf_interpolators.h"
 
 using namespace std;

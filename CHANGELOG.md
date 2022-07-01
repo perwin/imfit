@@ -9,6 +9,14 @@
 except with an extra "PA" parameter which specifies CCW rotation of the
 PSF image. Thanks to Alex Borlaff for suggesting this.
 
+### Changed:
+
+- The `--print-fluxes` option for makeimage now automatically turn off
+image saving, so you no longer have to *also* specify `--nosave`. (This
+is because, in my experience at least, one almost always uses
+`--print-fluxes` just to see the component fluxes and fractions, and so
+it's tedious to have to remember to also specify `--nosave`.)
+
 
 
 ## 1.8.0 -- 2020-07-26

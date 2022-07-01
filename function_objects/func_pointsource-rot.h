@@ -1,4 +1,4 @@
-/*   Class interface definition for func_PointSourceRot.cpp
+/*   Class interface definition for func_pointsource-rot.cpp
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces a shifted and interpolated copy of a PSF image,

@@ -11,7 +11,7 @@
  *    24 October 2016: Created as modification of imfit_main.cpp.
 */
 
-// Copyright 2009--2020 by Peter Erwin.
+// Copyright 2009--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -79,9 +79,9 @@ const string  LOG_FILENAME = "log_imfit-mcmc.txt";
 
 
 #ifdef USE_OPENMP
-#define VERSION_STRING      "1.8.0 (OpenMP-enabled)"
+#define VERSION_STRING      "1.9.0-dev (OpenMP-enabled)"
 #else
-#define VERSION_STRING      "1.8.0"
+#define VERSION_STRING      "1.9.0-dev"
 #endif
 
 

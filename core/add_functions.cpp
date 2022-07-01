@@ -63,7 +63,7 @@
 #include "func_gaussianring3d.h"
 #include "func_ferrersbar3d.h"
 #include "func_pointsource.h"
-#include "func_pointsource_rot.h"
+#include "func_pointsource-rot.h"
 //#endif
 
 // ADD INCLUDE FILE FOR NEW FUNCTIONS HERE

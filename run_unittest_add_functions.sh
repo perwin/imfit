@@ -30,7 +30,7 @@ function_objects/integrator.cpp function_objects/func_expdisk3d.cpp function_obj
 function_objects/func_gaussianring3d.cpp function_objects/func_ferrersbar3d.cpp \
 function_objects/func_ferrersbar2d.cpp function_objects/func_king.cpp \
 function_objects/func_king2.cpp function_objects/func_pointsource.cpp \
-function_objects/func_pointsource_rot.cpp \
+function_objects/func_pointsource-rot.cpp \
 function_objects/helper_funcs.cpp function_objects/helper_funcs_3d.cpp \
 function_objects/psf_interpolators.cpp \
 core/mersenne_twister.cpp core/mp_enorm.cpp \
