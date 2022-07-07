@@ -65,7 +65,6 @@ const char BrokenExponential::className[] = "BrokenExponential";
 
 BrokenExponential::BrokenExponential( )
 {
-  string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;

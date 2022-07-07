@@ -22,7 +22,7 @@
  *     [v0.1]  16 Mar 2011: Created as modification of func_edge-on-ring2side.cpp.
  */
 
-// Copyright 2011--2016 by Peter Erwin.
+// Copyright 2011--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -54,6 +54,8 @@ using namespace std;
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 6;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "A", "R_ring", "sigma_r_in", "sigma_r_out"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels",
+								"pixels", "pixels"};
 const char  FUNCTION_NAME[] = "2-sided Gaussian Ring function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -65,16 +67,15 @@ const char GaussianRing2Side::className[] = "GaussianRing2Side";
 
 GaussianRing2Side::GaussianRing2Side( )
 {
-  string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
-  // Set up the vector of parameter labels
+  // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-    paramName = PARAM_LABELS[i];
-    parameterLabels.push_back(paramName);
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
   }
   
   doSubsampling = true;
@@ -185,6 +186,14 @@ int GaussianRing2Side::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   return nSamples;
+}
+
+
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool GaussianRing2Side::ParameterUnitsExist( )
+{
+  return true;
 }
 
 

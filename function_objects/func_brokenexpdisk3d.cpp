@@ -25,7 +25,7 @@
  *     [v0.1]: 25 Oct 2012: Created (as modification of func_expdisk3d.cpp).
  */
 
-// Copyright 2012--2016 by Peter Erwin.
+// Copyright 2012--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -59,7 +59,10 @@ using namespace std;
 
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 9;
-const char  PARAM_LABELS[][20] = {"PA", "inc", "J_0", "h1", "h2", "r_break", "alpha", "n", "z_0"};
+const char  PARAM_LABELS[][20] = {"PA", "inc", "J_0", "h1", "h2", "r_break", "alpha", 
+								"n", "z_0"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "deg", "counts/cubic-pixel", 
+								"pixels", "pixels", "pixels", "1/pixels", "", "pixels"};
 const char  FUNCTION_NAME[] = "BrokenExponentialDisk3D function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -82,16 +85,15 @@ double LuminosityDensityBED( double s, void *params );
 
 BrokenExponentialDisk3D::BrokenExponentialDisk3D( )
 {
-  string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
-  // Set up the vector of parameter labels
+  // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-    paramName = PARAM_LABELS[i];
-    parameterLabels.push_back(paramName);
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
   }
 
   // Stuff related to GSL integration  
@@ -191,6 +193,14 @@ double BrokenExponentialDisk3D::GetValue( double x, double y )
   totalIntensity = Integrate(F, -integLimit, integLimit);
 
   return totalIntensity;
+}
+
+
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool BrokenExponentialDisk3D::ParameterUnitsExist( )
+{
+  return true;
 }
 
 

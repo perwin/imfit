@@ -24,7 +24,7 @@
  *     [v0.1]  8 May 2019: Created (as modification of func_sersic.cpp).
  */
 
-// Copyright 2019 by Peter Erwin.
+// Copyright 2019--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -58,6 +58,8 @@ using namespace std;
 /* ---------------- Definitions ---------------------------------------- */
 const int  N_PARAMS = 6;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "c0", "n", "I_0", "a_bar"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "", "", "counts/pixel", 
+								"pixels"};
 const char  FUNCTION_NAME[] = "2D version of Ferrers-ellipsoid function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -69,16 +71,15 @@ const char FerrersBar2D::className[] = "FerrersBar2D";
 
 FerrersBar2D::FerrersBar2D( )
 {
-  string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
-  // Set up the vector of parameter labels
+  // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-    paramName = PARAM_LABELS[i];
-    parameterLabels.push_back(paramName);
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
   }
   
   doSubsampling = true;
@@ -214,6 +215,14 @@ int FerrersBar2D::CalculateSubsamples( double r )
     }
   }
   return nSamples;
+}
+
+
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool FerrersBar2D::ParameterUnitsExist( )
+{
+  return true;
 }
 
 

@@ -23,7 +23,7 @@
  *     [v0.1]  7 June 2010: Created (as modification of func_sersic.cpp).
  */
 
-// Copyright 2010--2016 by Peter Erwin.
+// Copyright 2010--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -57,6 +57,8 @@ using namespace std;
 /* ---------------- Definitions ---------------------------------------- */
 const int  N_PARAMS = 6;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "c0", "n", "I_e", "r_e"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "", "", 
+								"counts/pixel", "pixels"};
 const char  FUNCTION_NAME[] = "Generalized-ellipse Sersic function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -68,16 +70,15 @@ const char GenSersic::className[] = "Sersic_GenEllipse";
 
 GenSersic::GenSersic( )
 {
-  string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
-  // Set up the vector of parameter labels
+  // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-    paramName = PARAM_LABELS[i];
-    parameterLabels.push_back(paramName);
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
   }
   
   doSubsampling = true;
@@ -207,6 +208,14 @@ int GenSersic::CalculateSubsamples( double r )
     }
   }
   return nSamples;
+}
+
+
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool GenSersic::ParameterUnitsExist( )
+{
+  return true;
 }
 
 

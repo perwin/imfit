@@ -55,6 +55,7 @@ using namespace std;
 /* ---------------- Definitions ---------------------------------------- */
 const int  N_PARAMS = 2;
 const char  PARAM_LABELS[][20] = {"PA", "I_tot"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "counts"};
 const char  FUNCTION_NAME[] = "PointSourceRot function";
 const double  DEG2RAD = 0.017453292519943295;
 const double PI = 3.14159265358979;
@@ -66,16 +67,16 @@ const char PointSourceRot::className[] = "PointSourceRot";
 
 PointSourceRot::PointSourceRot( )
 {
-  string  paramName;
+
   nParams = N_PARAMS;
   
   functionName = FUNCTION_NAME;
   shortFunctionName = className;   // defined in header file
 
-  // Set up the vector of parameter labels
+  // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-    paramName = PARAM_LABELS[i];
-    parameterLabels.push_back(paramName);
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
   }
   
   oversamplingScale = 1;
@@ -237,6 +238,14 @@ bool PointSourceRot::CanCalculateTotalFlux( )
 double PointSourceRot::TotalFlux( )
 {
   return I_tot;
+}
+
+
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool PointSourceRot::ParameterUnitsExist( )
+{
+  return true;
 }
 
 

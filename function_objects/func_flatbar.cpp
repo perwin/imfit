@@ -21,7 +21,7 @@
  *     [v0.1]  11 Aug 2018: Created as modification of func_broken-exp.cpp.
  */
 
-// Copyright 2018--2020 by Peter Erwin.
+// Copyright 2018--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -55,6 +55,8 @@ using namespace std;
 const int   N_PARAMS = 8;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "deltaPA_max", "I_0", "h1", "h2", 
 									"r_break", "alpha"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "deg", "counts/pixel", 
+								"pixels", "pixels", "pixels", "1/pixels"};
 const char  FUNCTION_NAME[] = "FlatBar function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -69,16 +71,15 @@ const double  RAD2DEG = 180.0/M_PI;
 
 FlatBar::FlatBar( )
 {
-  string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
-  // Set up the vector of parameter labels
+  // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-    paramName = PARAM_LABELS[i];
-    parameterLabels.push_back(paramName);
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
   }
   
   doSubsampling = true;
@@ -218,6 +219,14 @@ int FlatBar::CalculateSubsamples( double r )
     }
   }
   return nSamples;
+}
+
+
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool FlatBar::ParameterUnitsExist( )
+{
+  return true;
 }
 
 

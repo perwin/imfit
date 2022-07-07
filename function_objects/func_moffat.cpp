@@ -29,7 +29,7 @@
  *     [v0.1]: 19 Apr 2009: Created (as modification of func_sersic.cpp).
  */
 
-// Copyright 2009--2016 by Peter Erwin.
+// Copyright 2009--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -62,6 +62,8 @@ using namespace std;
 /* ---------------- Definitions ---------------------------------------- */
 const int  N_PARAMS = 5;
 const char  PARAM_LABELS[][20] = {"PA", "ell", "I_0", "fwhm", "beta"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", 
+								"pixels", ""};
 const char  FUNCTION_NAME[] = "Moffat function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -73,16 +75,15 @@ const char Moffat::className[] = "Moffat";
 
 Moffat::Moffat( )
 {
-  string  paramName;
   
   nParams = N_PARAMS;
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
-  // Set up the vector of parameter labels
+  // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
-    paramName = PARAM_LABELS[i];
-    parameterLabels.push_back(paramName);
+    parameterLabels.push_back(PARAM_LABELS[i]);
+    parameterUnits.push_back(PARAM_UNITS[i]);
   }
   
   doSubsampling = true;
@@ -197,6 +198,14 @@ int Moffat::CalculateSubsamples( double r )
     }
   }
   return nSamples;
+}
+
+
+/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
+
+bool Moffat::ParameterUnitsExist( )
+{
+  return true;
 }
 
 
