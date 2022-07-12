@@ -6,7 +6,7 @@
  *
  */
 
-// Copyright 2020by Peter Erwin.
+// Copyright 2020--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -55,6 +55,8 @@ SimpleCheckerboard::SimpleCheckerboard( )
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
+  isBackground = true;
+
   // Set up the vector of parameter labels
   for (int i = 0; i < nParams; i++) {
     paramName = PARAM_LABELS[i];
@@ -96,14 +98,6 @@ double SimpleCheckerboard::GetValue( double x, double y )
       I = I_pos;
   }
   return I;
-}
-
-
-/* ---------------- PUBLIC METHOD: IsBackground ------------------------ */
-
-bool SimpleCheckerboard::IsBackground( )
-{
-  return true;
 }
 
 

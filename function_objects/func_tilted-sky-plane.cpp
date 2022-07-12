@@ -55,6 +55,8 @@ TiltedSkyPlane::TiltedSkyPlane( )
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
+  isBackground = true;
+  
   // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
     parameterLabels.push_back(PARAM_LABELS[i]);
@@ -86,14 +88,6 @@ double TiltedSkyPlane::GetValue( double x, double y )
   double  y_diff = y - y0;
 
   return I_0 + m_x*x_diff + m_y*y_diff;
-}
-
-
-/* ---------------- PUBLIC METHOD: IsBackground ------------------------ */
-
-bool TiltedSkyPlane::IsBackground( )
-{
-  return true;
 }
 
 

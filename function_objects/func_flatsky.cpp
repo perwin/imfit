@@ -56,6 +56,8 @@ FlatSky::FlatSky( )
   functionName = FUNCTION_NAME;
   shortFunctionName = className;
 
+  isBackground = true;
+
   // Set up vectors of parameter labels and units
   for (int i = 0; i < nParams; i++) {
     parameterLabels.push_back(PARAM_LABELS[i]);
@@ -82,14 +84,6 @@ void FlatSky::Setup( double params[], int offsetIndex, double xc, double yc )
 double FlatSky::GetValue( double x, double y )
 {
   return I_sky;
-}
-
-
-/* ---------------- PUBLIC METHOD: IsBackground ------------------------ */
-
-bool FlatSky::IsBackground( )
-{
-  return true;
 }
 
 

@@ -62,19 +62,18 @@
 		Constructor optionally defines parameterUnits vector
 			-- if doing so, also sets paramUnitsExist = true
 			
-	[ ] Unit tests for new FunctionObject.GetParameterUnits() method
+	[x] Unit tests for new FunctionObject.GetParameterUnits() method
 		[x] Write basic tests
 			[x] test for case of no unit strings
 			[x] test for case with some unit strings
 		[x] Add code to make tests pass
 	
-	[ ] Replace ParameterUnitsExist() function with data member
+	[x] Replace ParameterUnitsExist() function with data member
 		-- With c++-11, we can define its initial value in function_object.h
 		[ ] Rewrite FunctionObject::ParameterUnitsExist() to return the value
 		of the boolean
-		[ ] Update 
 		
-	[ ] Re-update FunctionObject subclasses with units
+	[x] Re-update FunctionObject subclasses with units
 		1. Update header file
 			REMOVE declaration of overridden method ParameterUnitsExist
     
@@ -91,7 +90,7 @@
 			[x] func_sersic
 			[x] func_gaussian
 			[x] func_flatsky
-		[ ] Update other functions with unit strings
+		[x] Update other functions with unit strings
 			[x] func_broken-exp
 			[x] func_broken-exp2d
 			[x] func_broken-expdisk3d
@@ -125,12 +124,6 @@
 		units?
 	[ ] Write/update code outputting sample-config file?
 
-
-[ ] Clean up IsBackground() method in FunctionObject
-	boolean data member, defined = false in FunctionObject
-	background classes define data member = true in constructor
-	Rewrite FunctionObject::IsBackground to return value of boolean data member
-	delete IsBackground() overrides in subclasses
 
 [ ] Add ability to handle Ctrl-C by exiting gracefully and printing current
 best fit (and/or write it to a file)
@@ -216,19 +209,6 @@ best fit (and/or write it to a file)
 	[x] Add file-existence checking
 
 	
-[X] Unit tests for FerrersBar3D
-
-
-[X] GaussianRingAz with one intensity parameter
-	Currently, it has A_maj and A_min; better to have A_maj and A_min_fraction_A_maj
-	[x] Create GaussianRingAz2 function
-	[x] Add function to add_functions.cpp, SConstruct
-	[x] Test makeimage
-		[x] Generate output image from n4608 IRAC1 model using GaussianRingAz
-		[x] Generate equivalent image using GaussianRingAz2; compare
-	[x] Change name from GaussianRingAz2 to GaussianRingAz
-	[x] Add description to documentation
-
 [X] Fix image-comparison regression tests
 	OK, the weird case is biggertest.fits, which has two (and only two) pixels
 	which differ by ~ 0.0167 between the Mac and Linux versions; all other
@@ -260,42 +240,6 @@ best fit (and/or write it to a file)
 		[X] Rewrite do_makeimage_tests to skip the OS testing and subdirectory use
 	
 	[X] Add do_makeimage_tests to travis.yml
-
-
-[X] 2D Ferrers bar model
-	-- for comparison with GALFIT; also with Laurikainen et al. models?
-	[x] Check Laurikainen et al. models to see if it's same as GALFIT
-
-
-[X] Add Latin Hypercube Sampling as option for Differential Evolution
-	-- i.e., use LHS instead of current RandomUniform function
-	in DESolver::Setup (leave *other* uses of RandomUniform as they are!)
-	-- notes/note_on_differential-evolution_tuning.txt
-	-- MARCH 2019: This doesn't seem to make fits any faster (and might even
-	make some slightly slower)...
-	[x] Plan possible tests of DE fitting
-		[x] Look for possible notes on when I adjusted DE parameters?
-	[x] Write & test C++ code for LHS
-	[x] Incorporate LHS code into DESolver.cpp
-	[x] Add command-line option to imfit_main.cpp for LHS with DE
-		"--de-lhs" ?
-		[x] Add option to options_imfit.h structure
-		[x] Add code to imfit_main.cpp: ProcessInput
-	[x] Figure out how to pass LHS option into DiffEvolnFit()
-		-- Extra optional parameter for DispatchToSolver(), which that function
-		knows to pass on to DiffEvolnFit(), but not to others?
-		
-    case DIFF_EVOLN_SOLVER:
-      if (verboseLevel >= 0)
-        printf("Calling Differential Evolution solver ..\n");
-      fitStatus = DiffEvolnFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
-      							verboseLevel, solverResults, rngSeed);
-    case DIFF_EVOLN_SOLVER_LHS:
-      if (verboseLevel >= 0)
-        printf("Calling Differential Evolution solver (Latin hypercube sampling)..\n");
-      fitStatus = DiffEvolnFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
-      							verboseLevel, solverResults, rngSeed, true);
-
 
 
 
@@ -593,15 +537,16 @@ image (accounting for data image subset, if any)
 			[x] Update AddFunctions() to properly handle extraParams
 				-- extraParams is *always* non-empty; individual per-function maps inside
 				it may be empty
-		[] Modify code in _main.cpp to set up optional-params vector for calls to
+		[x] Modify code in _main.cpp to set up optional-params vector for calls to
 		ReadConfigFile and then pass it into call to AddFunction
-			[] makeimage_main.cpp
+			[x] makeimage_main.cpp
+				Testing: ./makeimage config_makeimage_gaussian-extraparams.dat
 				[x] add code
 				[] add regression test to see that we correctly use GaussianExtraParams
 					-- i.e., config file w/ and w/o extra-parameter specification
 					-- compare output images against reference images
 					-- Problem: this only works if we compile makeimage with GaussianExtraParams,
-					but that is currently only included if we use -DUSE_TEST_FUNCS
+					but that is currently only included if we use --extra-funcs
 			[x] imfit_main.cpp
 			[x] mcmc_main.cpp
 
@@ -1264,6 +1209,47 @@ OK, here is the problem:
 
 ** REFACTORING
 
+[X] Clean up IsBackground() method in FunctionObject
+	boolean data member, defined = false in FunctionObject
+	background classes define data member = true in constructor
+	Rewrite FunctionObject::IsBackground to return value of boolean data member
+	delete IsBackground() overrides in subclasses
+
+
+[X] Unit tests for FerrersBar3D
+
+
+(1.8)[X] Add Latin Hypercube Sampling as option for Differential Evolution
+	-- i.e., use LHS instead of current RandomUniform function
+	in DESolver::Setup (leave *other* uses of RandomUniform as they are!)
+	-- notes/note_on_differential-evolution_tuning.txt
+	-- MARCH 2019: This doesn't seem to make fits any faster (and might even
+	make some slightly slower)...
+	[x] Plan possible tests of DE fitting
+		[x] Look for possible notes on when I adjusted DE parameters?
+	[x] Write & test C++ code for LHS
+	[x] Incorporate LHS code into DESolver.cpp
+	[x] Add command-line option to imfit_main.cpp for LHS with DE
+		"--de-lhs" ?
+		[x] Add option to options_imfit.h structure
+		[x] Add code to imfit_main.cpp: ProcessInput
+	[x] Figure out how to pass LHS option into DiffEvolnFit()
+		-- Extra optional parameter for DispatchToSolver(), which that function
+		knows to pass on to DiffEvolnFit(), but not to others?
+		
+    case DIFF_EVOLN_SOLVER:
+      if (verboseLevel >= 0)
+        printf("Calling Differential Evolution solver ..\n");
+      fitStatus = DiffEvolnFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
+      							verboseLevel, solverResults, rngSeed);
+    case DIFF_EVOLN_SOLVER_LHS:
+      if (verboseLevel >= 0)
+        printf("Calling Differential Evolution solver (Latin hypercube sampling)..\n");
+      fitStatus = DiffEvolnFit(nParametersTot, parameters, parameterInfo, modelObj, fracTolerance, 
+      							verboseLevel, solverResults, rngSeed, true);
+
+
+
 [X] Replace "function block" with "function set" in code and documentation
 	[x] Replace in docs
 	[x] Replace in code
@@ -1372,6 +1358,16 @@ OK, here is the problem:
 	image saving (i.e., so we don't have to also do --nosave)
 	
 
+(1.8)[X] GaussianRingAz with one intensity parameter
+	Currently, it has A_maj and A_min; better to have A_maj and A_min_fraction_A_maj
+	[x] Create GaussianRingAz2 function
+	[x] Add function to add_functions.cpp, SConstruct
+	[x] Test makeimage
+		[x] Generate output image from n4608 IRAC1 model using GaussianRingAz
+		[x] Generate equivalent image using GaussianRingAz2; compare
+	[x] Change name from GaussianRingAz2 to GaussianRingAz
+	[x] Add description to documentation
+
 
 (1.8)[X] Save --print-fluxes output to file
 	Iskren Georgiev requested ability to store output from --print-fluxes in a file.
@@ -1400,6 +1396,10 @@ OK, here is the problem:
 		[x] Add sample file to tests/makeimage_reference/
 		[x] Add regression test to do_makeimage_tests
 
+
+(1.7)[X] 2D Ferrers bar model
+	-- for comparison with GALFIT; also with Laurikainen et al. models?
+	[x] Check Laurikainen et al. models to see if it's same as GALFIT
 
 
 (1.7)[X] Add boolean flags to FunctionObject components to indicate total-flux computation

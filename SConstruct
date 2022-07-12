@@ -610,6 +610,7 @@ if useExtraFuncs:
     functionobject_obj_string += " func_double-broken-exp"
     functionobject_obj_string += " func_gen-exp2"
     functionobject_obj_string += " func_flatbar_trunc"
+    functionobject_obj_string += " func_gauss_extraparams"
     functionobject_obj_string += " func_gen-flatbar"
     functionobject_obj_string += " func_bp-cross-section"
     functionobject_obj_string += " func_lorentzian-ring"

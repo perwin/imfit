@@ -15,7 +15,7 @@
  *
  */
 
-// Copyright 2009--2016 by Peter Erwin.
+// Copyright 2009--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
   vector<double>  parameterList;
   vector<mp_par>  parameterInfo;
   vector<int>  FunctionSetIndices;
-  vector< map<string, string> > optionalParamsMap;
+  vector< map<string, string> > optionalParams;
   bool  paramLimitsExist = false;
   int  status;
   vector<string>  imageCommentsList;
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
   // Read configuration file, parse & process user-supplied (non-function-related) values
   status = ReadConfigFile(options->configFileName, true, functionList, functionLabelList,
   							parameterList, parameterInfo, FunctionSetIndices, 
-  							paramLimitsExist, userConfigOptions);
+  							paramLimitsExist, userConfigOptions, optionalParams);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file!\n\n");
     return -1;
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
 
   // Add functions to the model object
   status = AddFunctions(theModel, functionList, functionLabelList, FunctionSetIndices, 
-  						options->subsamplingFlag, options->verbose, optionalParamsMap);
+  						options->subsamplingFlag, options->verbose, optionalParams);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);

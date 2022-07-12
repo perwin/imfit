@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
   vector<string>  functionLabelList;
   vector<double>  parameterList;
   vector<int>  functionSetIndices;
-  vector< map<string, string> > optionalParamsMap;
+  vector< map<string, string> > optionalParams;
   vector<string>  imageCommentsList;
   double  *singleFunctionImage;
   shared_ptr<MakeimageOptions> options;
@@ -150,7 +150,7 @@ int main( int argc, char *argv[] )
   }
   status = ReadConfigFile(options->configFileName, true, functionList, 
   							functionLabelList, parameterList, functionSetIndices, 
-  							userConfigOptions);
+  							userConfigOptions, optionalParams);
   if (status != 0) {
     fprintf(stderr, "\n*** ERROR: Failure reading configuration file \"%s\"!\n\n", 
     			options->configFileName.c_str());
@@ -237,7 +237,7 @@ int main( int argc, char *argv[] )
 
   // Add functions to the model object; also tells model object where function sets start
   status = AddFunctions(theModel, functionList, functionLabelList, functionSetIndices, 
-  						options->subsamplingFlag, 0, optionalParamsMap);
+  						options->subsamplingFlag, 0, optionalParams);
   if (status < 0) {
   	fprintf(stderr, "*** ERROR: Failure in AddFunctions!\n\n");
   	exit(-1);

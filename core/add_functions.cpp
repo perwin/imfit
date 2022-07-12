@@ -79,6 +79,7 @@
 #include "func_brokenexpbar3d.h"
 #include "func_boxytest3d.h"
 #include "func_boxytest3d2.h"
+#include "func_gauss_extraparams.h"
 #include "func_flatbar3d.h"
 #include "func_edge-on-disk_n4762.h"
 #include "func_edge-on-disk_n4762v2.h"
@@ -277,6 +278,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   FlatBar3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatBar3D>();
+
+  GaussianExtraParams::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<GaussianExtraParams>();
 
   // This is potentially ready to use
   LogSpiralExp::GetClassShortName(classFuncName);
