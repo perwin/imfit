@@ -84,7 +84,7 @@ using namespace std;
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 6;
 const char  PARAM_LABELS[][20] = {"PA", "inc", "J_0", "h", "n", "z_0"};
-const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "deg", "counts/cubic-pixel", 
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "deg", "counts/voxel", 
 								"pixels", "", "pixels"};
 const char  FUNCTION_NAME[] = "ExponentialDisk3D function";
 const double  DEG2RAD = 0.017453292519943295;
@@ -118,6 +118,7 @@ ExponentialDisk3D::ExponentialDisk3D( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
 
   // Stuff related to GSL integration  
   gsl_set_error_handler_off();
@@ -199,14 +200,6 @@ double ExponentialDisk3D::GetValue( double x, double y )
   totalIntensity = Integrate(F, -integLimit, integLimit);
 
   return totalIntensity;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool ExponentialDisk3D::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

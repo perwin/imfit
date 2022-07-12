@@ -79,6 +79,7 @@ Gaussian::Gaussian( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -201,14 +202,6 @@ bool Gaussian::CanCalculateTotalFlux( )
 double Gaussian::TotalFlux( )
 {
   return (1.0 - ell)*2.0*PI*I_0*sigma*sigma;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool Gaussian::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

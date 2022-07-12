@@ -1,0 +1,36 @@
+# Config file for makeimage, meant to be used to generate a 512x512 image.
+# This file is for testing whether we correctly process more than one
+# OPTIONAL_PARAMS block
+
+NCOLS   512
+NROWS   512
+
+# Generalized-ellipse Sersic object
+X0    256.0
+Y0    256.0
+FUNCTION   Sersic_GenEllipse
+OPTIONAL_PARAMS_START
+mode	alpha
+degree  12
+OPTIONAL_PARAMS_END
+PA    30.0
+ell    0.5
+c0    -1.0
+n      2.5
+I_e  100.0
+r_e   50.0
+
+FUNCTION Exponential
+PA		20.0
+ell		0.0
+I_0		200.0
+h		35.0
+
+FUNCTION GaussianExtraParams
+OPTIONAL_PARAMS_START
+floor	1.5
+OPTIONAL_PARAMS_END
+PA    30.0
+ell    0.5
+A		100.0
+sigma	10.0

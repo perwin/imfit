@@ -122,6 +122,7 @@ A. Change the following lines in the beginning of the file:
     
     const int N_PARAMS = 4;
     const char PARAM_LABELS[][20] = {"PA", "ell", "I_0", "sigma"};
+    const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
     const char FUNCTION_NAME[] = "Gaussian function";
     
     
@@ -131,6 +132,8 @@ to
     
     const int N_PARAMS = 5;
     const char PARAM_LABELS[][20] = {"PA", "ell", "I_0", "fwhm", "beta"};
+    const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", 
+								"pixels", ""};
     const char FUNCTION_NAME[] = "Moffat function";
 
 B. In the remainder of the file, change all references to the class name from
@@ -219,6 +222,11 @@ update the ``SConstruct`` file so that the new function is included in the
 compilation.
 
 
+## Adding Parameter Unit Definitions
+
+Imfit version 1.9 added XXX
+
+
 ## Other Potential Issues
 
 If your new image function has an analytic expression for the total flux, then
@@ -228,9 +236,10 @@ total flux. (The default is to let `makeimage` estimate the total flux numerical
 by generating a large image using the image function and summing all the pixel
 values.)
 
-If your new image function is meant to represent the image *background* (as in the
-case of the built-in function FlatSky), then you may not want `makeimage` trying
-to calculate the "total flux" for the component. In this case, you can override
-the `IsBackground` method so that it returns `true` (as in `func_flatsky.h`
-and `func_flatsky.cpp`).
+If your new image function is meant to represent the image *background*
+(as in the case of the built-in functions FlatSky and TiltedSkyPlane),
+then you may not want `makeimage` trying to calculate the "total flux"
+for the component. In this case, you can override the `IsBackground`
+method so that it returns `true` (as in `func_flatsky.h` and
+`func_flatsky.cpp`).
 

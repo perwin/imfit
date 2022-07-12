@@ -81,6 +81,7 @@ FerrersBar2D::FerrersBar2D( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -215,14 +216,6 @@ int FerrersBar2D::CalculateSubsamples( double r )
     }
   }
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool FerrersBar2D::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

@@ -67,67 +67,70 @@
 			[x] test for case of no unit strings
 			[x] test for case with some unit strings
 		[x] Add code to make tests pass
-	[ ] Update FunctionObject subclasses with units
+	
+	[ ] Replace ParameterUnitsExist() function with data member
+		-- With c++-11, we can define its initial value in function_object.h
+		[ ] Rewrite FunctionObject::ParameterUnitsExist() to return the value
+		of the boolean
+		[ ] Update 
+		
+	[ ] Re-update FunctionObject subclasses with units
 		1. Update header file
-			Add declaration of overridden method ParameterUnitsExist
-    bool ParameterUnitsExist( );
+			REMOVE declaration of overridden method ParameterUnitsExist
     
 		2. Update source file
-			A. Add definition of PARAM_UNITS to preamble
-const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
+			A. Add code to constructor:
+				parameterUnitsExist = true;
+			B. REMOVE override of FunctionObject::ParameterUnitsExist
 
-			B. Add code to constructor:
-  // Set up vectors of parameter labels and units
-  for (int i = 0; i < nParams; i++) {
-    parameterLabels.push_back(PARAM_LABELS[i]);
-    parameterUnits.push_back(PARAM_UNITS[i]);
-  }
-  
-			C. Add override of FunctionObject::ParameterUnitsExist, after
-			TotalFlux method or CalculateSubsamples -- remember to rename class!
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool Exponential::ParameterUnitsExist( )
-{
-  return true;
-}
-
-		[X] Update unit tests to include testing for unit strings
-			[X] func_sersic
-			[X] func_gaussian
-			[X] func_flatsky
-		[X] Write code to make unit tests pass
+		[x] Update unit tests to include testing for unit strings
+			[x] func_sersic
+			[x] func_gaussian
+			[x] func_flatsky
+		[x] Write code to make unit tests pass
 			[x] func_sersic
 			[x] func_gaussian
 			[x] func_flatsky
 		[ ] Update other functions with unit strings
-			[X] func_broken-exp
-			[X] func_broken-exp2d
-			[X] func_broken-expdisk3d
-			[X] func_core-sersic
-			[X] func_edge-on-disk
-			[X] func_edge-on-ring
-			[X] func_edge-on-ring2side
-			[X] func_expdisk3d
-			[X] func_ferrersbar2d
-			[X] func_ferrersbar3d
-			[X] func_flatbar
-			[X] func_flatsky
-			[X] func_gaussian-ring
-			[X] func_gaussian-ring2side
-			[X] func_gaussian-ring3d
-			[X] func_gaussian-ring-az
-			[X] func_gen-exp
-			[X] func_gen-sersic
-			[X] func_king
-			[X] func_king2
-			[X] func_moffat
-			[X] func_pointsource
-			[X] func_pointsource-rot
-			[ ] func_tilted-sky-plane
+			[x] func_broken-exp
+			[x] func_broken-exp2d
+			[x] func_broken-expdisk3d
+			[x] func_core-sersic
+			[x] func_edge-on-disk
+			[x] func_edge-on-ring
+			[x] func_edge-on-ring2side
+			[x] func_exp
+			[x] func_expdisk3d
+			[x] func_ferrersbar2d
+			[x] func_ferrersbar3d
+			[x] func_flatbar
+			[x] func_flatsky
+			[x] func_gaussian-ring
+			[x] func_gaussian-ring2side
+			[x] func_gaussian-ring3d
+			[x] func_gaussian-ring-az
+			[x] func_gen-exp
+			[x] func_gen-sersic
+			[x] func_king
+			[x] func_king2
+			[x] func_moffat
+			[x] func_pointsource
+			[x] func_pointsource-rot
+			[x] func_tilted-sky-plane
 	[X] Update code in add_functions.cpp to record unit strings
+	[ ] Update documentation regarding writing new functions
+		[ ] docs/imfit_howto.tex
+		[ ] docs/writing_new_image_functions.md
+	[ ] Modify ModelObject::PrintModelParamsToStrings so that it appends
+		units?
 	[ ] Write/update code outputting sample-config file?
 
+
+[ ] Clean up IsBackground() method in FunctionObject
+	boolean data member, defined = false in FunctionObject
+	background classes define data member = true in constructor
+	Rewrite FunctionObject::IsBackground to return value of boolean data member
+	delete IsBackground() overrides in subclasses
 
 [ ] Add ability to handle Ctrl-C by exiting gracefully and printing current
 best fit (and/or write it to a file)
@@ -539,7 +542,7 @@ image (accounting for data image subset, if any)
     if (functionObjects[n]->HasExtraParams())
       functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
   
-  SIMPLER APPROACH:
+  [..]SIMPLER APPROACH:
      extra params are added to function *once*, when it is created inside
      AddFunctions (add_functions.cpp)
      	-- this way, ModelObject doesn't need to know about the extra options
@@ -580,11 +583,16 @@ image (accounting for data image subset, if any)
 			[x] Write sample config file with optional parameters
 				-- config_makeimage-optional_params*.dat
 			[x] Write unit tests for VetConfigFile
-			[] Write unit test for ReadConfigFile to check input and processing of 1 optional parameter
-			[] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
-			[] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
+			[x] Write unit test for ReadConfigFile to check input and processing of 1 optional parameter
+			[x] Write unit test for ReadConfigFile to endure it returns empty optionalParamsMap
+				if there are no optional parameters
+			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
+			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
 				for multiple functions
-			[] Write code (modify ReadConfigFile) to pass unit tests
+			[x] Write code (modify ReadConfigFile) to pass unit tests
+			[x] Update AddFunctions() to properly handle extraParams
+				-- extraParams is *always* non-empty; individual per-function maps inside
+				it may be empty
 		[] Modify code in _main.cpp to set up optional-params vector for calls to
 		ReadConfigFile and then pass it into call to AddFunction
 			[] makeimage_main.cpp

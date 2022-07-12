@@ -79,6 +79,7 @@ EdgeOnRing::EdgeOnRing( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -181,14 +182,6 @@ int EdgeOnRing::CalculateSubsamples( double r, double z )
 {
   int  nSamples = 1;
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool EdgeOnRing::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

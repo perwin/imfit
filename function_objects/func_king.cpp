@@ -76,6 +76,7 @@ ModifiedKing::ModifiedKing( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -194,14 +195,6 @@ int ModifiedKing::CalculateSubsamples( double r )
     }
   }
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool ModifiedKing::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

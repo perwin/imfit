@@ -79,6 +79,7 @@ Exponential::Exponential( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -195,14 +196,6 @@ bool Exponential::CanCalculateTotalFlux( )
 double Exponential::TotalFlux( )
 {
   return (1.0 - ell)*2.0*PI*I_0*h*h;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool Exponential::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

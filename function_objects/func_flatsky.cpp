@@ -61,6 +61,7 @@ FlatSky::FlatSky( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -87,14 +88,6 @@ double FlatSky::GetValue( double x, double y )
 /* ---------------- PUBLIC METHOD: IsBackground ------------------------ */
 
 bool FlatSky::IsBackground( )
-{
-  return true;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool FlatSky::ParameterUnitsExist( )
 {
   return true;
 }

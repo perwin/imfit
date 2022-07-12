@@ -95,8 +95,7 @@ class FunctionObject
     // probably no need to modify this:
     virtual void GetParameterNames( vector<string> &paramNameList );
 
-    // override this if derived class has specified parameter unit strings
-    virtual bool ParameterUnitsExist( );
+    bool ParameterUnitsExist( ) { return parameterUnitsExist; };
     
     // probably no need to modify this:
     virtual void GetParameterUnits( vector<string> &paramUnitList );
@@ -116,7 +115,8 @@ class FunctionObject
   protected:
     int  nParams;  ///< number of input parameters that image-function uses
     bool  doSubsampling;
-    bool  extraParamsSet;
+    bool  extraParamsSet = false;
+    bool  parameterUnitsExist = false;
     vector<string>  parameterLabels, parameterUnits;
     string  functionName, shortFunctionName, label;
     double  ZP;

@@ -171,12 +171,6 @@ void FunctionObject::GetParameterNames( vector<string> &paramNameList )
 }
 
 
-bool FunctionObject::ParameterUnitsExist( )
-/// Are there defined parameter units for (some of) the parameters?
-{
-  return false;
-}
-
 /* ---------------- PUBLIC METHOD: GetParameterUnits ------------------- */
 /// Add this function's parameter unit names (if they exist) to a vector of strings
 void FunctionObject::GetParameterUnits( vector<string> &paramUnitList )

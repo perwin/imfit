@@ -2329,6 +2329,8 @@ The new class should also redefine the following internal class constants:
 \item \texttt{N\_PARAMS} -- the number of input parameters (\textit{excluding} the
 central pixel coordinates);
 \item \texttt{PARAM\_LABELS} -- a vector of string labels for the input parameters;
+\item \texttt{PARAM\_UNITS} -- \textbf{[optional]} a vector of string labels 
+describing units (if any) for the input parameters;
 \item \texttt{FUNCTION\_NAME} -- a short string describing the function;
 \item \texttt{className} -- a string (no spaces allowed) giving the official name
 of the function, as it would be used in a configuration file.
@@ -2337,8 +2339,6 @@ of the function, as it would be used in a configuration file.
 The \texttt{add\_functions.cpp} file should then be updated by:
 \begin{enumerate}
 \item including the header file for the new class;
-%\item adding the class short name as a string to the \texttt{FUNCTION\_NAMES} array;
-%\item incrementing the \texttt{N\_FUNCTIONS} constant;
 \item adding 2 lines to the PopulateFactoryMap() function to add the ability to create an instance of
 the new class.
 \end{enumerate}
@@ -2422,6 +2422,9 @@ Edit this file and change the following lines (changed text indicated in red):
 const int  N\_PARAMS = \red{5}; \\
 
 const char  PARAM\_LABELS[][20] = \{"PA", "ell", "I\_0", \red{"fwhm", "beta"}\}; \\
+
+const char  PARAM\_UNITS[][30] = \{"deg (CCW from +y axis)", "", "counts/pixel",
+				"pixels"\red{, ""}\}; \\
 
 const char  FUNCTION\_NAME[] = "\red{Moffat} function";
 
@@ -2643,7 +2646,7 @@ A uniform background: $I(x,y) = I_{\mathrm{sky}}$ everywhere.
 
 \begin{verbatim}
 FUNCTION FlatSky
-I_sky
+I_sky     # counts/pixel
 \end{verbatim}
 
 Note that this is considered a ``background'' function, and so no ``total flux''
@@ -2661,7 +2664,7 @@ I(x,y) \, = \, I_{0} + m_{x} (x - X_{0}) + m_{y} (y - Y_{0}).
 
 \begin{verbatim}
 FUNCTION TiltedSkyPlane
-I_0
+I_0     # counts/pixel
 m_x
 m_y
 \end{verbatim}
@@ -2683,7 +2686,7 @@ I(a) \, = \, I_{0} \exp(-a^2/(2 \sigma^2)).
 FUNCTION Gaussian
 PA
 ell
-I_0
+I_0     # counts/pixel
 sigma
 \end{verbatim}
 
@@ -2711,7 +2714,7 @@ The Moffat function is often a good approximation to typical telescope PSFs (see
 FUNCTION Moffat
 PA
 ell
-I_0
+I_0     # counts/pixel
 fwhm
 beta
 \end{verbatim}
@@ -2747,7 +2750,7 @@ The interpolation is done using the 2D bicubic function
 
 \begin{verbatim}
 FUNCTION PointSource
-I_tot
+I_tot     # counts
 \end{verbatim}
 
 
@@ -2760,7 +2763,7 @@ with PSF images that are square and an odd number of pixels in size).
 
 \begin{verbatim}
 FUNCTION PointSourceRot
-I_tot
+I_tot     # counts
 PA
 \end{verbatim}
 
@@ -2784,7 +2787,7 @@ This reduces to the original King profile when $\alpha = 2$.
 FUNCTION ModifiedKing
 PA
 ell
-I_0
+I_0     # counts/pixel
 r_c
 r_t
 alpha
@@ -2802,7 +2805,7 @@ tidal/truncation radius $r_{t}$, which can be recovered as $r_{t} = c r_{c}$).
 FUNCTION ModifiedKing2
 PA
 ell
-I_0
+I_0     # counts/pixel
 r_c
 c
 alpha
@@ -2824,7 +2827,7 @@ where $I_{0}$ is the central surface brightness and $h$ is the scale length.
 FUNCTION Exponential
 PA
 ell
-I_0
+I_0     # counts/pixel
 h
 \end{verbatim}
 
@@ -2850,7 +2853,7 @@ FUNCTION Exponential_GenEllipse
 PA
 ell
 c0
-I_0
+I_0     # counts/pixel
 h
 \end{verbatim}
 
@@ -2881,7 +2884,7 @@ FUNCTION Sersic
 PA
 ell
 n
-I_e
+I_e     # counts/pixel
 r_e
 \end{verbatim}
 
@@ -2899,7 +2902,7 @@ PA
 ell
 c0
 n
-I_e
+I_e     # counts/pixel
 r_e
 \end{verbatim}
 
@@ -2923,7 +2926,7 @@ FUNCTION Core-Sersic
 PA
 ell
 n
-I_b
+I_b     # counts/pixel
 r_e
 r_b
 alpha
@@ -2973,7 +2976,7 @@ Note that the parameter $\alpha$ has units of length$^{-1}$ (i.e., pixels$^{-1}$
 FUNCTION BrokenExponential
 PA
 ell
-I_0
+I_0     # counts/pixel
 h1
 h2
 r_break
@@ -2990,7 +2993,7 @@ centered at $r = R_{\mathrm{ring}}$.
 FUNCTION GaussianRing
 PA
 ell
-A
+A     # counts/pixel
 R_ring
 sigma_r
 \end{verbatim}
@@ -3002,13 +3005,13 @@ Similar to GaussianRing, but now using an asymmetric Gaussian (different
 values of $\sigma$ for $r < R_{\mathrm{ring}}$ and $r > R_{\mathrm{ring}}$).
 
 \begin{verbatim}
-FUNCTION GaussianRingAz
-PA
+FUNCTION GaussianRing2Side
+PA     # deg (CCW from +y axis)
 ell
-A_maj
-A_min_rel
-R_ring
-sigma_r
+A     # counts/pixel
+R_ring     # pixels
+sigma_r_in     # pixels
+sigma_r_out     # pixels
 \end{verbatim}
 
 
@@ -3017,7 +3020,7 @@ sigma_r
 Similar to GaussianRing, except that the peak radial intensity is modulated
 by a cosine function, varying from $A_{\mathrm{maj}}$ along the ellipse major
 axis to $A_{\mathrm{min}} = A_{\mathrm{min\_rel}} A_{\mathrm{maj}}$. $A_{\mathrm{maj}}$
-is a standard intensity variable (counts/pixel); A_{\mathrm{min\_rel}} defines
+is a standard intensity variable (counts/pixel); $A_{\mathrm{min\_rel}}$ defines
 the minor-axis intensity relative to $A_{\mathrm{maj}}$; $A_{\mathrm{min\_rel}} = 1$
 will produce the same result as a standard GaussianRing component.
 
@@ -3025,7 +3028,7 @@ will produce the same result as a standard GaussianRing component.
 FUNCTION GaussianRingAz
 PA
 ell
-A_maj
+A_maj     # counts/pixel
 A_min_rel
 R_ring
 sigma_r
@@ -3055,9 +3058,10 @@ $\mu(0,0)$ is given by
 \begin{equation}
 \mu(0,0) \; = \;  2 \, h \, L_{0},
 \end{equation}
-where $L_{0}$ is the central luminosity \textit{density} (see \citealt{vdk81}). Note that 
-$L_{0}$ is the actual parameter required by the function; $\mu(0,0)$ is calculated 
-internally.
+where $L_{0}$ is the central luminosity \textit{density}, referred to as ``counts/voxel''
+in the units string (see \citealt{vdk81}). Note that 
+$L_{0}$ is the actual parameter required by the function; $\mu(0,0)$ (which has
+units of counts/pixel) is calculated internally.
 
 When $n = 1$, this becomes the familiar $\mathrm{sech}^2$ model for the
 vertical distribution of a disk (with $z_{0}$ corresponding to $1/2$ of the
@@ -3071,7 +3075,7 @@ the code substitutes a pure exponential function for the $\mathrm{sech}^{2/n}$ t
 \begin{verbatim}
 FUNCTION EdgeOnDisk
 PA
-L_0
+L_0     # counts/voxel
 h
 n
 z_0
@@ -3091,7 +3095,7 @@ model of a ring.)
 \begin{verbatim}
 FUNCTION EdgeOnRing
 PA
-I_0
+I_0     # counts/pixel
 r
 sigma_r
 sigma_z
@@ -3108,7 +3112,7 @@ with radial size \texttt{sigma\_r\_in}, while the outer side has radial size
 \begin{verbatim}
 FUNCTION EdgeOnRing2Side
 PA
-I_0
+I_0     # counts/pixel
 r
 sigma_r_in
 sigma_r_out
@@ -3149,7 +3153,7 @@ FUNCTION FerrersBar2D
 PA
 ell
 c0
-I_0
+I_0     # counts/pixel
 n
 a_bar
 \end{verbatim}
@@ -3167,7 +3171,7 @@ FUNCTION FlatBar
 PA
 ell
 deltaPA_max
-I_0
+I_0     # counts/pixel
 h1
 h2
 r_break
@@ -3213,6 +3217,16 @@ to the image +y axis. You are, of course, free to change this if you
 write 3D components of your own, though I will probably continue to
 follow it in the future.)
 
+A note on units: since these are luminosity-density functions (converted
+to standard surface-brightness or intensity units by integrating along
+the line of sight), the brightness is controlled by a luminosity-density
+parameter ($J_{0}$) which has units of ``counts/voxel''. This
+slightly odd name indicates that the line-of-sight integration
+(integrating using units of pixels) will yield counts/pixel in the final
+image. (Technically, we should have a linear unit of ``pixel-size'',
+with the 2D image pixels having area units of pixel-size$^{2}$ -- but
+that's being way too pedantic!)
+
 
 \subsubsection{ExponentialDisk3D}
 
@@ -3243,7 +3257,7 @@ setting $n$ equal to some fixed, large number.
 FUNCTION ExponentialDisk3D
 PA
 inc
-J_0
+J_0     # counts/voxel
 h
 n
 z_0
@@ -3266,7 +3280,7 @@ of a simple exponential. Consequently, it has the following parameters:
 FUNCTION BrokenExponentialDisk3D
 PA
 inc
-J_0
+J_0     # counts/voxel
 h1
 h2
 r_break
@@ -3297,7 +3311,7 @@ PA
 inc
 PA_ring
 ell
-J_0
+J_0     # counts/voxel
 a_ring
 sigma
 h_z
@@ -3355,7 +3369,7 @@ FUNCTION FerrersBar3D
 PA
 inc
 barPA
-J_0
+J_0     # counts/voxel
 R_bar
 q
 q_z

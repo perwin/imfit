@@ -75,6 +75,7 @@ BrokenExponential::BrokenExponential( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -196,14 +197,6 @@ int BrokenExponential::CalculateSubsamples( double r )
     }
   }
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool BrokenExponential::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

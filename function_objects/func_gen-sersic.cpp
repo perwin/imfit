@@ -80,6 +80,7 @@ GenSersic::GenSersic( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -208,14 +209,6 @@ int GenSersic::CalculateSubsamples( double r )
     }
   }
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool GenSersic::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

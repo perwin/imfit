@@ -46,7 +46,12 @@ const string  TEST_CONFIGFILE_BADLIMIT4("./tests/config_imfit_sersictest512_badl
 
 // new stuff
 const string TEST_CONFIGFILE_OPTIONAL0("./tests/config_makeimage-optional_params0.dat");
+// single image function, one optional params
 const string TEST_CONFIGFILE_OPTIONAL1("./tests/config_makeimage-optional_params1.dat");
+// single image function, two optional params
+const string TEST_CONFIGFILE_OPTIONAL2("./tests/config_makeimage-optional_params2.dat");
+// three image functions: first has two optional params, second none, third one
+const string TEST_CONFIGFILE_OPTIONAL3("./tests/config_makeimage-optional_params3.dat");
 const string TEST_CONFIGFILE_OPTIONAL_BAD("./tests/config_makeimage-optional_params_bad1.dat");
 
 
@@ -662,7 +667,7 @@ public:
 
 	status = ParseFunctionSection(inputLines2, true, functionList1, functionLabels,
     							parameterList1, paramLimits1, functionSetIndices1, 
-    							paramLimitsExist1, originalLineNos2);
+    							paramLimitsExist1, originalLineNos2, true);
     TS_ASSERT_EQUALS(status, -1);
   }
 
@@ -749,6 +754,35 @@ public:
     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
     TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
 
+    // do it again, this time passing in an extraParamsMap input parameter,
+    // which should come back empty (since config file has no extra
+    // params)
+    vector< map<string, string> >  optionalParamsVect;
+    status = ReadConfigFile(TEST_CONFIGFILE_GOOD, true, functionList1, functionLabels,
+    							parameterList1, paramLimits1, FunctionSetIndices1, 
+    							paramLimitsExist1, userConfigOptions1, optionalParamsVect);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+    TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+    for (int i = 0; i < nParams; i++) {
+      TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+    }
+    
+    TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+    TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
+    TS_ASSERT_EQUALS(paramLimitsExist1, false);
+    
+    TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+    TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+
+    TS_ASSERT_EQUALS((int)optionalParamsVect.size(), 1);
   }
 
   // Same as previous, but now with function labels
@@ -977,20 +1011,156 @@ public:
       TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
     }
    
-    // check that we have a vector with at least on element
+    // check that we have a vector with correct number of elements
     TS_ASSERT_EQUALS((int)optionalParamsVect.size(), 1);
     // extract the first (and only) map in the vector, check that it has a key named "mode"
     map<string, string> firstMap = optionalParamsVect[0];
+    TS_ASSERT_EQUALS((int)firstMap.size(), 1);
     map<string, string>::iterator key_iterator;
-    key_iterator = optionalParamsVect[0].find("mode");
+    key_iterator = firstMap.find("mode");
     TS_ASSERT_DIFFERS(key_iterator, firstMap.end());
     // check that the value indexed by "mode" is "alpha"
     if (optionalParamsVect.size() >= 1) {
       map<string, string> firstMap = optionalParamsVect[0];
       string resultString = firstMap["mode"];
       TS_ASSERT_EQUALS(resultString, "alpha");
-    }
+    }    
+  }
+
+  void testReadConfigFile_makeimage_OptionalParams_multiparams( void )
+  {
+    vector<string>  functionList1;
+    vector<string>  functionLabels;
+    vector<double>  parameterList1;
+    vector<int>  FunctionSetIndices1;
+    configOptions  userConfigOptions1;
+    vector< map<string, string> >  optionalParamsVect;
+    bool  status;
+
+    status = ReadConfigFile(TEST_CONFIGFILE_OPTIONAL2, true, functionList1, functionLabels,
+    						parameterList1, FunctionSetIndices1, userConfigOptions1, 
+    						optionalParamsVect);
+  
+    TS_ASSERT_EQUALS(status, 0);
     
+    TS_ASSERT_EQUALS((int)functionList1.size(), 1);
+    if (functionList1.size() >= 1) {
+      TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+      int nParams = 8;
+      double correctParamVals[8] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0};
+    
+      TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+      for (int i = 0; i < nParams; i++) {
+        TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+      }
+    
+      TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+      TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
+    
+      TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+      TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+    }
+   
+    // check that we have a vector with correct number of elements
+    TS_ASSERT_EQUALS((int)optionalParamsVect.size(), 1);
+    // check that optional-params map has correct number of entries
+    map<string, string> optParamsMap = optionalParamsVect[0];
+    TS_ASSERT_EQUALS((int)optParamsMap.size(), 2);
+
+    // Check that it has a key named "mode"
+    map<string, string>::iterator key_iterator;
+    key_iterator = optParamsMap.find("mode");
+    TS_ASSERT_DIFFERS(key_iterator, optParamsMap.end());
+    // check that the value indexed by "mode" is "alpha"
+    if (optionalParamsVect.size() >= 1) {
+      string resultString = optParamsMap["mode"];
+      TS_ASSERT_EQUALS(resultString, "alpha");
+    }    
+    // extract the second entry in the map, check that it has a key named "degree"
+    key_iterator = optParamsMap.find("degree");
+    TS_ASSERT_DIFFERS(key_iterator, optParamsMap.end());
+    // check that the value indexed by "degree" is "12"
+    if (optionalParamsVect.size() >= 1) {
+      string resultString = optParamsMap["degree"];
+      TS_ASSERT_EQUALS(resultString, "12");
+    }    
+  }
+
+  void testReadConfigFile_makeimage_OptionalParams_multiparams_multfunc( void )
+  {
+    vector<string>  functionList1;
+    vector<string>  functionLabels;
+    vector<double>  parameterList1;
+    vector<int>  FunctionSetIndices1;
+    configOptions  userConfigOptions1;
+    vector< map<string, string> >  optionalParamsVect;
+    map<string, string> optParamsMap;
+    map<string, string>::iterator key_iterator;
+    string  resultString;
+    bool  status;
+
+    status = ReadConfigFile(TEST_CONFIGFILE_OPTIONAL3, true, functionList1, functionLabels,
+    						parameterList1, FunctionSetIndices1, userConfigOptions1, 
+    						optionalParamsVect);
+  
+    TS_ASSERT_EQUALS(status, 0);
+    
+    TS_ASSERT_EQUALS((int)functionList1.size(), 3);
+    if (functionList1.size() >= 1) {
+      TS_ASSERT_EQUALS(functionList1[0], "Sersic_GenEllipse");
+    
+      int nParams = 16;
+      double correctParamVals[16] = {256.0,256.0, 30.0,0.5,-1.0,2.5,100.0,50.0,
+      			20.0,0.0,200.0,35.0, 30.0,0.5,100.0,10.0};
+    
+      TS_ASSERT_EQUALS((int)parameterList1.size(), nParams);
+      for (int i = 0; i < nParams; i++) {
+        TS_ASSERT_EQUALS(parameterList1[i], correctParamVals[i]);
+      }
+    
+      TS_ASSERT_EQUALS((int)FunctionSetIndices1.size(), 1);
+      TS_ASSERT_EQUALS(FunctionSetIndices1[0], 0);
+    
+      TS_ASSERT_EQUALS(userConfigOptions1.nOptions, 2);
+      TS_ASSERT_EQUALS(userConfigOptions1.optionNames[0], "NCOLS");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionNames[1], "NROWS");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionValues[0], "512");
+      TS_ASSERT_EQUALS(userConfigOptions1.optionValues[1], "512");
+    }
+   
+    // check that we have a vector with correct number of elements
+    TS_ASSERT_EQUALS((int)optionalParamsVect.size(), 3);
+    
+    // check each optional-parameter map
+    
+    // first function (two optional parameters)
+    optParamsMap = optionalParamsVect[0];
+    TS_ASSERT_EQUALS((int)optParamsMap.size(), 2);
+    key_iterator = optParamsMap.find("mode");
+    TS_ASSERT_DIFFERS(key_iterator, optParamsMap.end());
+    resultString = optParamsMap["mode"];
+    TS_ASSERT_EQUALS(resultString, "alpha");
+    key_iterator = optParamsMap.find("degree");
+    TS_ASSERT_DIFFERS(key_iterator, optParamsMap.end());
+    // check that the value indexed by "degree" is "12"
+    resultString = optParamsMap["degree"];
+    TS_ASSERT_EQUALS(resultString, "12");
+
+    // second function (no optional parameters specified)
+    optParamsMap = optionalParamsVect[1];
+    TS_ASSERT_EQUALS((int)optParamsMap.size(), 0);
+
+    // third function (one optional parameter)
+    optParamsMap = optionalParamsVect[2];
+    TS_ASSERT_EQUALS((int)optParamsMap.size(), 1);
+    key_iterator = optParamsMap.find("floor");
+    TS_ASSERT_DIFFERS(key_iterator, optParamsMap.end());
+    resultString = optParamsMap["floor"];
+    TS_ASSERT_EQUALS(resultString, "1.5");
   }
 
 };

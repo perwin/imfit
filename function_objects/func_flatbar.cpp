@@ -81,6 +81,7 @@ FlatBar::FlatBar( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -222,16 +223,9 @@ int FlatBar::CalculateSubsamples( double r )
 }
 
 
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool FlatBar::ParameterUnitsExist( )
-{
-  return true;
-}
-
-
-// blah blah blah
-// interpolate from y = y1 (at x = x1) to y = y2 (at x = x2)
+/* ---------------- PROTECTED METHOD: ParabolicInterpolation ---------------------- */
+// Interpolate value of y from y = y1 (at x = x1) to y = y2 (at x = x2), evaluated
+// at x.
 // Normally, this means interpolating from y = h2 (at deltaPA = 0) to
 // y = h1 (at deltaPA = deltaPA_max)
 double FlatBar::ParabolicInterpolation( double x, double x1, double x2, double y1, double y2 )

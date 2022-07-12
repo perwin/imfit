@@ -77,6 +77,7 @@ EdgeOnRing2Side::EdgeOnRing2Side( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -199,12 +200,6 @@ int EdgeOnRing2Side::CalculateSubsamples( double r, double z )
 {
   int  nSamples = 1;
   return nSamples;
-}
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool EdgeOnRing2Side::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

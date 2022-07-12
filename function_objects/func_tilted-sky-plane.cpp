@@ -60,6 +60,7 @@ TiltedSkyPlane::TiltedSkyPlane( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -91,14 +92,6 @@ double TiltedSkyPlane::GetValue( double x, double y )
 /* ---------------- PUBLIC METHOD: IsBackground ------------------------ */
 
 bool TiltedSkyPlane::IsBackground( )
-{
-  return true;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool TiltedSkyPlane::ParameterUnitsExist( )
 {
   return true;
 }

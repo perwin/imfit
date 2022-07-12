@@ -76,6 +76,7 @@ GaussianRing::GaussianRing( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -171,14 +172,6 @@ int GaussianRing::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool GaussianRing::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

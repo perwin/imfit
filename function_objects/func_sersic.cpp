@@ -83,6 +83,7 @@ Sersic::Sersic( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -234,13 +235,5 @@ double Sersic::TotalFlux( )
   return  q*L*gsl_sf_gamma(2*n)/bn2n;
 }
 #endif
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool Sersic::ParameterUnitsExist( )
-{
-  return true;
-}
 
 /* END OF FILE: func_sersic.cpp ---------------------------------------- */

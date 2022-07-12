@@ -77,6 +77,7 @@ PointSource::PointSource( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   oversamplingScale = 1;
   doSubsampling = false;
@@ -226,14 +227,6 @@ bool PointSource::CanCalculateTotalFlux( )
 double PointSource::TotalFlux( )
 {
   return I_tot;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool PointSource::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

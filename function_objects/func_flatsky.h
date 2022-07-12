@@ -25,7 +25,6 @@ class FlatSky : public FunctionObject
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     bool  IsBackground( );
-    bool  ParameterUnitsExist( );
     // No destructor for now
 
     // class method for returning official short name of class

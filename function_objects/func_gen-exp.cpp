@@ -77,6 +77,7 @@ GenExponential::GenExponential( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -193,14 +194,6 @@ int GenExponential::CalculateSubsamples( double r )
     }
   }
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool GenExponential::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

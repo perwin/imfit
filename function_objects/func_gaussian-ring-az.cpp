@@ -76,6 +76,7 @@ GaussianRingAz::GaussianRingAz( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -181,14 +182,6 @@ int GaussianRingAz::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool GaussianRingAz::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

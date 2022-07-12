@@ -78,6 +78,7 @@ PointSourceRot::PointSourceRot( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   oversamplingScale = 1;
   doSubsampling = false;
@@ -238,14 +239,6 @@ bool PointSourceRot::CanCalculateTotalFlux( )
 double PointSourceRot::TotalFlux( )
 {
   return I_tot;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool PointSourceRot::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

@@ -41,7 +41,6 @@ class PointSourceRot : public FunctionObject
     double  GetValue( double x, double y );
     bool CanCalculateTotalFlux(  );
     double TotalFlux( );
-    bool ParameterUnitsExist( );
     
     // class method for returning official short name of class
     static void GetClassShortName( string& classname ) { classname = className; };

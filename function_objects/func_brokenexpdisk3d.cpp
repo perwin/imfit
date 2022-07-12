@@ -61,7 +61,7 @@ using namespace std;
 const int   N_PARAMS = 9;
 const char  PARAM_LABELS[][20] = {"PA", "inc", "J_0", "h1", "h2", "r_break", "alpha", 
 								"n", "z_0"};
-const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "deg", "counts/cubic-pixel", 
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "deg", "counts/voxel", 
 								"pixels", "pixels", "pixels", "1/pixels", "", "pixels"};
 const char  FUNCTION_NAME[] = "BrokenExponentialDisk3D function";
 const double  DEG2RAD = 0.017453292519943295;
@@ -95,6 +95,7 @@ BrokenExponentialDisk3D::BrokenExponentialDisk3D( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
 
   // Stuff related to GSL integration  
   gsl_set_error_handler_off();
@@ -193,14 +194,6 @@ double BrokenExponentialDisk3D::GetValue( double x, double y )
   totalIntensity = Integrate(F, -integLimit, integLimit);
 
   return totalIntensity;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool BrokenExponentialDisk3D::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

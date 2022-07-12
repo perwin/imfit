@@ -85,6 +85,7 @@ Moffat::Moffat( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -198,14 +199,6 @@ int Moffat::CalculateSubsamples( double r )
     }
   }
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool Moffat::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

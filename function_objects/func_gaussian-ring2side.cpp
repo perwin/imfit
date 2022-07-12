@@ -77,6 +77,7 @@ GaussianRing2Side::GaussianRing2Side( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -186,14 +187,6 @@ int GaussianRing2Side::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool GaussianRing2Side::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

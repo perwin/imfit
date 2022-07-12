@@ -57,12 +57,12 @@ string GetFunctionLabel( const string& currentLine );
 
 /// \brief Extract function-set info from a list of lines
 //
-/// (Mainly for use by Multimfit in parsing per-image function info in image-info files)
+/// (Includes use by Multimfit in parsing per-image function info in image-info files)
 int ParseFunctionSection( vector<string>& inputLines, const bool mode2D, 
 						vector<string> &functionNameList, vector<string>& functionLabels, 
 						vector<double>&	parameterList, vector<mp_par>& parameterLimits, 
 						vector<int>& fsetStartIndices, bool& parameterLimitsFound,
-						const vector<int>& origLineNumbers,
+						const vector<int>& origLineNumbers, bool checkParameterLimits=false,
 						vector< map<string, string> >& optionalParamsVect=EMPTY_MAP_VECTOR_CONFIGPARSER );
 
 

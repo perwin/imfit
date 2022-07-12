@@ -365,14 +365,14 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
   int  nFunctions = functionNameList.size();
   int  status;
   string  currentName;
-  bool  extraParamsExist = false;
+  bool  extraParamsMayExist = false;
   FunctionObject  *thisFunctionObj;
   map<string, factory*>  factory_map;
 
   PopulateFactoryMap(factory_map);
 
   if (extraParams.size() > 0)
-    extraParamsExist = true;
+    extraParamsMayExist = true;
   
   for (int i = 0; i < nFunctions; i++) {
     currentName = functionNameList[i];
@@ -386,14 +386,18 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
       thisFunctionObj = factory_map[currentName]->create();
       thisFunctionObj->SetLabel(functionLabelList[i]);
       thisFunctionObj->SetSubsampling(subsamplingFlag);
-      if (extraParamsExist) {
-        // specialize the function as requested by user (via config file)
-        if (verboseLevel >= 0)
-          printf("   Setting optional parameter(s) for %s...\n", currentName.c_str());
-        status = thisFunctionObj->SetExtraParams(extraParams[i]);
-        if (status < 0) {
-          fprintf(stderr, "Error attempting to set extra/optional parameters for ");
-          fprintf(stderr, "function \"%s\"\n", thisFunctionObj->GetShortName().c_str());
+      if (extraParamsMayExist) {
+        map<string, string>  extraParamsMap = extraParams[i];
+        if (! extraParamsMap.empty()) {
+          // OK, the user actually specified optional parameters for this function,
+          // so specialize the function as requested
+          if (verboseLevel >= 0)
+            printf("   Setting optional parameter(s) for %s...\n", currentName.c_str());
+          status = thisFunctionObj->SetExtraParams(extraParams[i]);
+          if (status < 0) {
+            fprintf(stderr, "Error attempting to set extra/optional parameters for ");
+            fprintf(stderr, "function \"%s\"\n", thisFunctionObj->GetShortName().c_str());
+          }
         }
       }
       status = theModel->AddFunction(thisFunctionObj);

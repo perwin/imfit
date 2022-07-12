@@ -39,7 +39,6 @@ class CoreSersic : public FunctionObject
     // redefined method/member function:
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
-    bool ParameterUnitsExist( );
     // No destructor for now
 
     // class method for returning official short name of class

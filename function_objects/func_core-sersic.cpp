@@ -84,6 +84,7 @@ CoreSersic::CoreSersic( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
   
   doSubsampling = true;
 }
@@ -205,14 +206,6 @@ int CoreSersic::CalculateSubsamples( double r )
     }
   }
   return nSamples;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool CoreSersic::ParameterUnitsExist( )
-{
-  return true;
 }
 
 

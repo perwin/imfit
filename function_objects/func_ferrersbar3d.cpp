@@ -60,7 +60,7 @@ using namespace std;
 const int   N_PARAMS = 8;
 const char  PARAM_LABELS[][20] = {"PA", "inc", "barPA", "J_0", "R_bar", "q", "q_z", "n"};
 const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "deg", "deg", 
-				"counts/cubic-pixel", "pixels", "", "", ""};
+				"counts/voxel", "pixels", "", "", ""};
 const char  FUNCTION_NAME[] = "FerrersBar3D function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
@@ -92,6 +92,7 @@ FerrersBar3D::FerrersBar3D( )
     parameterLabels.push_back(PARAM_LABELS[i]);
     parameterUnits.push_back(PARAM_UNITS[i]);
   }
+  parameterUnitsExist = true;
 
   // Stuff related to GSL integration  
   gsl_set_error_handler_off();
@@ -192,14 +193,6 @@ double FerrersBar3D::GetValue( double x, double y )
   totalIntensity = Integrate(F, -integrationLimit, integrationLimit);
 
   return totalIntensity;
-}
-
-
-/* ---------------- PUBLIC METHOD: ParameterUnitsExist ----------------- */
-
-bool FerrersBar3D::ParameterUnitsExist( )
-{
-  return true;
 }
 
 
