@@ -44,14 +44,14 @@ AIC = 4569.975051, BIC = 4614.172017
 X0		32.9439 # +/- 0.0128
 Y0		34.0933 # +/- 0.0156
 FUNCTION Sersic
-PA		18.2612 # +/- 0.30986
+PA		18.2612 # +/- 0.30986	deg (CCW from +y axis)
 ell		0.235989 # +/- 0.0023165
 n		2.40028 # +/- 0.018072
-I_e		20.0094 # +/- 0.40396
-r_e		60.7612 # +/- 0.86063
+I_e		20.0094 # +/- 0.40396	counts/pixel
+r_e		60.7612 # +/- 0.86063	pixels
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.058716 sec for fit, 0.061191 sec total)
+(Elapsed time: 0.039370 sec for fit, 0.042389 sec total)
 Done!
 

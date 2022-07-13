@@ -10,17 +10,17 @@
 X0		40.5000
 Y0		40.2500
 FUNCTION Gaussian
-PA		      0
+PA		      0		# deg (CCW from +y axis)
 ell		      0
-I_0		45.9406
-sigma		1.53717
+I_0		45.9406		# counts/pixel
+sigma		1.53717		# pixels
 
 X0		15.1000
 Y0		10.6000
 FUNCTION Gaussian
-PA		      0
+PA		      0		# deg (CCW from +y axis)
 ell		      0
-I_0		 37.597
-sigma		 1.5369
+I_0		 37.597		# counts/pixel
+sigma		 1.5369		# pixels
 FUNCTION FlatSky
-I_sky		    100
+I_sky		    100		# counts/pixel

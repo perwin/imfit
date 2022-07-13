@@ -95,7 +95,7 @@ class FunctionObject
     // probably no need to modify this:
     virtual void GetParameterNames( vector<string> &paramNameList );
 
-    bool ParameterUnitsExist( ) { return parameterUnitsExist; };
+    bool HasParameterUnits( ) { return parameterUnitsExist; };
     
     // probably no need to modify this:
     virtual void GetParameterUnits( vector<string> &paramUnitList );

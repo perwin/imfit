@@ -5,10 +5,10 @@
 #X0		5.0000		3,8
 #Y0		6.0000		3,8
 #FUNCTION Gaussian
-#PA		    155		140,170
+#PA		    155		140,170		# deg (CCW from +y axis)
 #ell		    0.1		0,0.3
-#I_0		    250		220,320
-#sigma		      1		0.1,1.5
+#I_0		    250		220,320		# counts/pixel
+#sigma		      1		0.1,1.5		# pixels
 #
 # Column Headers
 # X0_1		Y0_1		PA_1	ell_1	I_0_1	sigma_1	  likelihood  burn-in    CR1               CR2               CR3        accept

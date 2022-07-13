@@ -20,110 +20,110 @@ Calling Levenberg-Marquardt solver ...
 X0		32.3912
 Y0		32.7346
 FUNCTION Sersic
-PA		18.0332
+PA		18.0332		# deg (CCW from +y axis)
 ell		      0
 n		1.81654
-I_e		 19.043
-r_e		30.4484
+I_e		 19.043		# counts/pixel
+r_e		30.4484		# pixels
 	mpfit iteration 2: fit statistic = 38837.128651
 X0		32.8246
 Y0		33.5074
 FUNCTION Sersic
-PA		18.0332
+PA		18.0332		# deg (CCW from +y axis)
 ell		      0
 n		2.20493
-I_e		24.7011
-r_e		38.3852
+I_e		24.7011		# counts/pixel
+r_e		38.3852		# pixels
 	mpfit iteration 3: fit statistic = 16396.742094
 X0		32.9992
 Y0		34.0253
 FUNCTION Sersic
-PA		25.3509
+PA		25.3509		# deg (CCW from +y axis)
 ell		      0
 n		2.40435
-I_e		19.0899
-r_e		51.3035
+I_e		19.0899		# counts/pixel
+r_e		51.3035		# pixels
 	mpfit iteration 4: fit statistic = 15914.301369
 X0		32.9958
 Y0		34.0292
 FUNCTION Sersic
-PA		     90
+PA		     90		# deg (CCW from +y axis)
 ell		      0
 n		2.40632
-I_e		19.1018
-r_e		 51.481
+I_e		19.1018		# counts/pixel
+r_e		 51.481		# pixels
 	mpfit iteration 5: fit statistic = 12632.941400
 X0		32.9480
 Y0		34.0851
 FUNCTION Sersic
-PA		     90
+PA		     90		# deg (CCW from +y axis)
 ell		      0
 n		2.43403
-I_e		19.2689
-r_e		53.9773
+I_e		19.2689		# counts/pixel
+r_e		53.9773		# pixels
 	mpfit iteration 6: fit statistic = 12632.237160
 X0		32.9485
 Y0		34.0895
 FUNCTION Sersic
-PA		      0
+PA		      0		# deg (CCW from +y axis)
 ell		      0
 n		2.43444
-I_e		19.2547
-r_e		53.9852
+I_e		19.2547		# counts/pixel
+r_e		53.9852		# pixels
 	mpfit iteration 7: fit statistic = 8036.249910
 X0		32.9468
 Y0		34.0973
 FUNCTION Sersic
-PA		0.00311914
+PA		0.00311914		# deg (CCW from +y axis)
 ell		0.18689
 n		2.39424
-I_e		20.3117
-r_e		 56.873
+I_e		20.3117		# counts/pixel
+r_e		 56.873		# pixels
 	mpfit iteration 8: fit statistic = 5002.948200
 X0		32.9462
 Y0		34.0948
 FUNCTION Sersic
-PA		22.3975
+PA		22.3975		# deg (CCW from +y axis)
 ell		0.194004
 n		2.41769
-I_e		19.5831
-r_e		59.8389
+I_e		19.5831		# counts/pixel
+r_e		59.8389		# pixels
 	mpfit iteration 9: fit statistic = 4569.384232
 X0		32.9434
 Y0		34.0951
 FUNCTION Sersic
-PA		17.2139
+PA		17.2139		# deg (CCW from +y axis)
 ell		0.235027
 n		2.40359
-I_e		19.9373
-r_e		60.7908
+I_e		19.9373		# counts/pixel
+r_e		60.7908		# pixels
 	mpfit iteration 10: fit statistic = 4555.953001
 X0		32.9442
 Y0		34.0933
 FUNCTION Sersic
-PA		18.2648
+PA		18.2648		# deg (CCW from +y axis)
 ell		0.23583
 n		 2.4004
-I_e		20.0071
-r_e		60.7584
+I_e		20.0071		# counts/pixel
+r_e		60.7584		# pixels
 	mpfit iteration 11: fit statistic = 4555.947657
 X0		32.9440
 Y0		34.0933
 FUNCTION Sersic
-PA		18.2612
+PA		18.2612		# deg (CCW from +y axis)
 ell		0.235989
 n		 2.4003
-I_e		 20.009
-r_e		60.7621
+I_e		 20.009		# counts/pixel
+r_e		60.7621		# pixels
 	mpfit iteration 12: fit statistic = 4555.947654
 X0		32.9439
 Y0		34.0933
 FUNCTION Sersic
-PA		18.2612
+PA		18.2612		# deg (CCW from +y axis)
 ell		0.235989
 n		2.40028
-I_e		20.0094
-r_e		60.7612
+I_e		20.0094		# counts/pixel
+r_e		60.7612		# pixels
 
 *** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
   CHI-SQUARE = 4555.947654    (4089 DOF)
@@ -140,14 +140,14 @@ AIC = 4569.975051, BIC = 4614.172017
 X0		32.9439 # +/- 0.0128
 Y0		34.0933 # +/- 0.0156
 FUNCTION Sersic
-PA		18.2612 # +/- 0.30986
+PA		18.2612 # +/- 0.30986	deg (CCW from +y axis)
 ell		0.235989 # +/- 0.0023165
 n		2.40028 # +/- 0.018072
-I_e		20.0094 # +/- 0.40396
-r_e		60.7612 # +/- 0.86063
+I_e		20.0094 # +/- 0.40396	counts/pixel
+r_e		60.7612 # +/- 0.86063	pixels
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.061225 sec for fit, 0.063193 sec total)
+(Elapsed time: 0.039264 sec for fit, 0.040936 sec total)
 Done!
 

@@ -243,7 +243,7 @@ int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nB
       fprintf(stderr, "*** Error returned from Convolver::DoFullSetup!\n");
       return result;
     }
-    nModelVals = nModelColumns*nModelRows;
+    nModelVals = (long)nModelColumns * (long)nModelRows;
   }
   else {
     nModelColumns = nRegionColumns;
@@ -258,14 +258,14 @@ int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nB
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
   if (modelVector == NULL) {
     fprintf(stderr, "*** ERROR: Unable to allocate memory for oversampled model image!\n");
-    fprintf(stderr, "    (Requested image size was %d pixels)\n", nModelVals);
+    fprintf(stderr, "    (Requested image size was %ld pixels)\n", nModelVals);
     return -1;
   }
   modelVectorAllocated = true;
   setupComplete = true;
   
 #ifdef USE_LOGGING
-  LOG_F(2, "OversampledRegion (%s): model image (nCols,nRows=%d,%d, %d pixels) allocated", 
+  LOG_F(2, "OversampledRegion (%s): model image (nCols,nRows=%d,%d, %ld pixels) allocated", 
   		regionLabel.c_str(), nModelColumns,nModelRows, nModelVals);
 #endif
 
@@ -303,7 +303,7 @@ void OversampledRegion::ComputeRegionAndDownsample( double *mainImageVector,
   #pragma omp for schedule (static, ompChunkSize)
   // single-loop code which is ~ same in general case as double-loop, and
   // faster for case of small image + many cores (André Luiz de Amorim suggestion)
-  for (int k = 0; k < nModelVals; k++) {
+  for (long k = 0; k < nModelVals; k++) {
     j = k % nModelColumns;
     i = k / nModelColumns;
     y = y1_region + startY_offset + (i - nPSFRows)*subpixFrac;              // Iraf counting: first row = 1

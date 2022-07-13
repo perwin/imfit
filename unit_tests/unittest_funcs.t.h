@@ -89,7 +89,7 @@ public:
     TS_ASSERT( paramNames == correctParamNames );
     
     // check for (non-existent) parameter units
-    TS_ASSERT_EQUALS(thisFunc1a->ParameterUnitsExist(), false)
+    TS_ASSERT_EQUALS(thisFunc1a->HasParameterUnits(), false)
     vector<string>  resultStrings;
     string  correctStr = "";
     thisFunc1a->GetParameterUnits(resultStrings);
@@ -299,7 +299,7 @@ public:
     int  nParams = 4;
     vector<string>  resultStrings;
     
-    TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
+    TS_ASSERT_EQUALS(thisFunc->HasParameterUnits(), true)
 
     vector<string>  correctStrings = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
     thisFunc->GetParameterUnits(resultStrings);
@@ -423,7 +423,7 @@ public:
     int  nParams = 5;
     vector<string>  resultStrings;
     
-    TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
+    TS_ASSERT_EQUALS(thisFunc->HasParameterUnits(), true)
 
     vector<string>  correctStrings = {"deg (CCW from +y axis)", "", "", "counts/pixel", "pixels"};
     thisFunc->GetParameterUnits(resultStrings);
@@ -572,7 +572,7 @@ public:
     int  nParams = 4;
     vector<string>  resultStrings;
     
-    TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
+    TS_ASSERT_EQUALS(thisFunc->HasParameterUnits(), true)
 
     vector<string>  correctStrings = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
     thisFunc->GetParameterUnits(resultStrings);
@@ -908,7 +908,7 @@ public:
     int  nParams = 1;
     vector<string>  resultStrings;
     
-    TS_ASSERT_EQUALS(thisFunc->ParameterUnitsExist(), true)
+    TS_ASSERT_EQUALS(thisFunc->HasParameterUnits(), true)
 
     vector<string>  correctStrings = {"counts/pixel"};
     thisFunc->GetParameterUnits(resultStrings);

@@ -70,7 +70,7 @@
 	
 	[x] Replace ParameterUnitsExist() function with data member
 		-- With c++-11, we can define its initial value in function_object.h
-		[ ] Rewrite FunctionObject::ParameterUnitsExist() to return the value
+		[x] Rewrite FunctionObject::ParameterUnitsExist() to return the value
 		of the boolean
 		
 	[x] Re-update FunctionObject subclasses with units
@@ -120,9 +120,9 @@
 	[ ] Update documentation regarding writing new functions
 		[ ] docs/imfit_howto.tex
 		[ ] docs/writing_new_image_functions.md
-	[ ] Modify ModelObject::PrintModelParamsToStrings so that it appends
+	[X] Modify ModelObject::PrintModelParamsToStrings so that it appends
 		units?
-	[ ] Write/update code outputting sample-config file?
+	[ ] Update imfit-regression-test reference output files
 
 
 [ ] Add ability to handle Ctrl-C by exiting gracefully and printing current
@@ -156,6 +156,9 @@ best fit (and/or write it to a file)
 		If fit was stopped by Ctrl-C, print current state and save to *special*
 		output file (we don't want a valid output file from a previous stage to
 		be overwritten unless the fit was actually successful).
+		
+	[ ] Write simple C++ program to test signal handling
+	
 
 
 [ ] Compilation with Vagrant VMs
@@ -652,31 +655,6 @@ image (accounting for data image subset, if any)
 	RESULT: for case of simple Gaussian model, Kahan summation took 2--3 times as long
 	and produced *no* difference in calculated flux (at 10^-5 level), even for a
 	very extended Gaussian.
-
-
-[] Convert total-pixel-number integer variables to long
-	[X]model_object.h: nModelVals, nDataVals, nValidDataVals, nOversampledModelVals
-	[X]model_object.cpp: 
-		ModelObject::AddErrorVector( int nDataValues
-		ModelObject::AddMaskVector( int nDataValues
-		ModelObject::AddPSFVector( int nPixels_psf
-		ModelObject::AddOversampledPSFVector( int nPixels
-		theModel->GetNValidPixels() -- should return long
-		int ModelObject::FinalSetupForFitting( ) -- nNonFinitePixels, nNonFiniteErrorPixels
-		Assorted for-loop index variables when looping over pixels
-		bootstrap indices
-			-- also make sure RNG can return long values
-
-	[X]convolver.h: nPixels_image, nPixels_psf, nPixels_padded; nPixels_padded_complex
-	[X]convolver.cpp: Convolver::ShiftAndWrapPSF( ) -- pos_in_psf, pos_in_dest;
-	oversampled_region.h: nModelVals
-	oversampled_region.cpp: ---
-	[X]image_io.cpp: 
-		ReadImageAsVector -- nPixelsTot
-	[X]makeimage_main.cpp: 
-	[X]imfit_main.cpp: 
-	[X]print_results.cpp
-	[X]statistics.cpp -- aic, bic [nValidPixels]
 
 
 [..] Add "const" specifiers to input parameters of functions, as appropriate
@@ -1208,6 +1186,32 @@ OK, here is the problem:
 
 
 ** REFACTORING
+
+[] Convert total-pixel-number integer variables to long
+	[X]model_object.h: nModelVals, nDataVals, nValidDataVals, nOversampledModelVals
+	[X]model_object.cpp: 
+		ModelObject::AddErrorVector( int nDataValues
+		ModelObject::AddMaskVector( int nDataValues
+		ModelObject::AddPSFVector( int nPixels_psf
+		ModelObject::AddOversampledPSFVector( int nPixels
+		theModel->GetNValidPixels() -- should return long
+		int ModelObject::FinalSetupForFitting( ) -- nNonFinitePixels, nNonFiniteErrorPixels
+		Assorted for-loop index variables when looping over pixels
+		bootstrap indices
+			-- also make sure RNG can return long values
+
+	[X]convolver.h: nPixels_image, nPixels_psf, nPixels_padded; nPixels_padded_complex
+	[X]convolver.cpp: Convolver::ShiftAndWrapPSF( ) -- pos_in_psf, pos_in_dest;
+	[X]oversampled_region.h: nModelVals
+	[X]oversampled_region.cpp: ---
+	[X]image_io.cpp: 
+		ReadImageAsVector -- nPixelsTot
+	[X]makeimage_main.cpp: 
+	[X]imfit_main.cpp: 
+	[X]print_results.cpp
+	[X]statistics.cpp -- aic, bic [nValidPixels]
+
+
 
 [X] Clean up IsBackground() method in FunctionObject
 	boolean data member, defined = false in FunctionObject

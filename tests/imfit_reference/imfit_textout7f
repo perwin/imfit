@@ -81,23 +81,23 @@ AIC = 50.586943, BIC = 97.121503
 X0		40.5000
 Y0		40.2500
 FUNCTION Gaussian
-PA		      0
+PA		      0		# deg (CCW from +y axis)
 ell		      0
-I_0		45.9406
-sigma		1.53717
+I_0		45.9406		# counts/pixel
+sigma		1.53717		# pixels
 
 X0		15.1000
 Y0		10.6000
 FUNCTION Gaussian
-PA		      0
+PA		      0		# deg (CCW from +y axis)
 ell		      0
-I_0		 37.597
-sigma		 1.5369
+I_0		 37.597		# counts/pixel
+sigma		 1.5369		# pixels
 FUNCTION FlatSky
-I_sky		    100
+I_sky		    100		# counts/pixel
 
 Saving best-fit parameters in file "temptest/bestfit_params_2gauss_small.dat"
 
-(Elapsed time: 0.265669 sec for fit, 0.267797 sec total)
+(Elapsed time: 0.192876 sec for fit, 0.195372 sec total)
 Done!
 

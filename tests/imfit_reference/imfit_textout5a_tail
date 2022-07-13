@@ -4,15 +4,15 @@ AIC = -2611589.269141, BIC = -2611541.145252
 X0		75.0318
 Y0		74.9458
 FUNCTION Exponential
-PA		0.0387723
+PA		0.0387723		# deg (CCW from +y axis)
 ell		0.500019
-I_0		  99.72
-h		19.9584
+I_0		  99.72		# counts/pixel
+h		19.9584		# pixels
 FUNCTION FlatSky
-I_sky		     20
+I_sky		     20		# counts/pixel
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.250401 sec for fit, 0.253003 sec total)
+(Elapsed time: 0.129547 sec for fit, 0.132742 sec total)
 Done!
 

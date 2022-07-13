@@ -176,7 +176,7 @@ void FunctionObject::GetParameterNames( vector<string> &paramNameList )
 void FunctionObject::GetParameterUnits( vector<string> &paramUnitList )
 {
   for (int i = 0; i < nParams; i++)
-    if (ParameterUnitsExist())
+    if (HasParameterUnits())
       paramUnitList.push_back(parameterUnits[i]);
     else
       paramUnitList.push_back("");

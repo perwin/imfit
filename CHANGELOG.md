@@ -9,6 +9,14 @@
 except with an extra "PA" parameter which specifies CCW rotation of the
 PSF image. Thanks to Alex Borlaff for suggesting this.
 
+- Unit strings for image-function parameters: the standard image functions
+will now print unit strings (e.g., "pixels", "counts/pixel", "deg")
+after the parameter names (when imfit or makeimage is called with
+"--list-parameters") and after the values (in imfit's output). The
+printing of parameters without units (e.g., ellipticity, Sersic n) is 
+unchanged. (You can optionally add unit strings to the printout for
+your own image functions; this is explained in XXX.)
+
 ### Changed:
 
 - The `--print-fluxes` option for makeimage now automatically turn off

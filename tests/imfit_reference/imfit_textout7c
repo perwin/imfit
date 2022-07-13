@@ -31,10 +31,10 @@ AIC = 12.000000, BIC = 6.238325
 X0		1.5000 # +/- 0.0000
 Y0		1.5000 # +/- 0.0000
 FUNCTION FlatSky
-I_sky		      1 # +/- 0.53033
+I_sky		      1 # +/- 0.53033	counts/pixel
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.001614 sec for fit, 0.004913 sec total)
+(Elapsed time: 0.000790 sec for fit, 0.002446 sec total)
 Done!
 

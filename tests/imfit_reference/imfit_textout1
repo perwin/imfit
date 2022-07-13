@@ -37,13 +37,13 @@ AIC = 12.082596, BIC = 41.588831
 X0		15.0000 # +/- 0.0214
 Y0		15.0000 # +/- 0.0091
 FUNCTION Exponential
-PA		     90 # +/- 0.1032
+PA		     90 # +/- 0.1032	deg (CCW from +y axis)
 ell		    0.5 # +/- 0.0017108
-I_0		    100 # +/- 0.15226
-h		     20 # +/- 0.072772
+I_0		    100 # +/- 0.15226	counts/pixel
+h		     20 # +/- 0.072772	pixels
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.005674 sec for fit, 0.015260 sec total)
+(Elapsed time: 0.007165 sec for fit, 0.012309 sec total)
 Done!
 

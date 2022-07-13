@@ -16,10 +16,10 @@ Estimated memory use: 1383465 bytes (1.3 MB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 241515.661816
-	mpfit iteration 2: fit statistic = 126454.118192
-	mpfit iteration 3: fit statistic = 23833.638726
-	mpfit iteration 4: fit statistic = 2263.479723
+	mpfit iteration 1: fit statistic = 241515.661813
+	mpfit iteration 2: fit statistic = 126454.117237
+	mpfit iteration 3: fit statistic = 23833.639121
+	mpfit iteration 4: fit statistic = 2263.479699
 	mpfit iteration 5: fit statistic = 1991.947078
 	mpfit iteration 6: fit statistic = 1991.946235
 	mpfit iteration 7: fit statistic = 1991.946235
@@ -39,12 +39,12 @@ AIC = 1997.961272, BIC = 2014.079511
 X0		20.4006 # +/- 0.0021
 Y0		20.3985 # +/- 0.0021
 FUNCTION PointSource
-I_tot		 263918 # +/- 519.52
+I_tot		 263918 # +/- 519.52	counts
 FUNCTION FlatSky
-I_sky		    100 # +/- 0
+I_sky		    100 # +/- 0	counts/pixel
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.045302 sec for fit, 0.057972 sec total)
+(Elapsed time: 0.025163 sec for fit, 0.047122 sec total)
 Done!
 

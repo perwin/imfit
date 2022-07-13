@@ -24,22 +24,22 @@ Estimated memory use: 8747785 bytes (8.3 MB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 1377109.207210
-	mpfit iteration 2: fit statistic = 1050138.775753
-	mpfit iteration 3: fit statistic = 120572.399758
-	mpfit iteration 4: fit statistic = 71415.148341
-	mpfit iteration 5: fit statistic = 43857.960903
-	mpfit iteration 6: fit statistic = 36911.947781
-	mpfit iteration 7: fit statistic = 36828.859244
-	mpfit iteration 8: fit statistic = 36828.611689
-	mpfit iteration 9: fit statistic = 36828.581708
+	mpfit iteration 1: fit statistic = 1377105.974828
+	mpfit iteration 2: fit statistic = 1050140.757030
+	mpfit iteration 3: fit statistic = 120552.649699
+	mpfit iteration 4: fit statistic = 71412.479240
+	mpfit iteration 5: fit statistic = 43861.693557
+	mpfit iteration 6: fit statistic = 36911.967682
+	mpfit iteration 7: fit statistic = 36828.859277
+	mpfit iteration 8: fit statistic = 36828.611695
+	mpfit iteration 9: fit statistic = 36828.581709
 	mpfit iteration 10: fit statistic = 36828.578449
 	mpfit iteration 11: fit statistic = 36828.578059
 	mpfit iteration 12: fit statistic = 36828.578011
 
 *** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
   CHI-SQUARE = 36828.578011    (28743 DOF)
-  INITIAL CHI^2 = 3184994682.091279
+  INITIAL CHI^2 = 3184994682.091280
         NPAR = 11
        NFREE = 11
      NPEGGED = 0
@@ -52,19 +52,19 @@ AIC = 36850.587197, BIC = 36941.509865
 X0		100.7073 # +/- 0.0058
 Y0		97.0877 # +/- 0.0052
 FUNCTION Sersic
-PA		111.919 # +/- 0.26435
+PA		111.919 # +/- 0.26435	deg (CCW from +y axis)
 ell		0.184258 # +/- 0.0015988
 n		3.28046 # +/- 0.034083
-I_e		1.45249 # +/- 0.049947
-r_e		 26.797 # +/- 0.64814
+I_e		1.45249 # +/- 0.049947	counts/pixel
+r_e		 26.797 # +/- 0.64814	pixels
 FUNCTION Exponential
-PA		51.7246 # +/- 0.80657
+PA		51.7246 # +/- 0.80657	deg (CCW from +y axis)
 ell		0.352234 # +/- 0.014013
-I_0		0.737829 # +/- 0.0334
-h		53.6064 # +/- 1.1648
+I_0		0.737829 # +/- 0.0334	counts/pixel
+h		53.6064 # +/- 1.1648	pixels
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.587266 sec for fit, 0.600544 sec total)
+(Elapsed time: 0.321367 sec for fit, 0.335819 sec total)
 Done!
 

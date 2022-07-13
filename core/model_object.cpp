@@ -1768,6 +1768,9 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
   int nParamsThisFunc, k;
   int  indexOffset = 0;
   string  funcName, funcLabel, paramName, newLine;
+  bool  thisFuncHasUnits = false;
+  string  unitsPrefix;
+  vector<string>  paramUnits;
 
   if ((printLimits) && (parameterInfoVect.size() == 0)) {
     fprintf(stderr, "** ERROR: ModelObject::PrintModelParamsToStrings -- printing of parameter limits\n");
@@ -1808,17 +1811,27 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
       indexOffset += 2;
     }
     
-    // Now print the function and its parameters
+    // Now print the function and its parameters (and units, if they exist)
     nParamsThisFunc = paramSizes[n];
     funcName = functionObjects[n]->GetShortName();
     funcLabel = functionObjects[n]->GetLabel();
     if (! funcLabel.empty())
       funcLabel = PrintToString("   # LABEL %s", funcLabel.c_str());
+    thisFuncHasUnits = false;
+    if (functionObjects[n]->HasParameterUnits()) {
+      paramUnits.clear();
+      functionObjects[n]->GetParameterUnits(paramUnits);
+      thisFuncHasUnits = true;
+    }
     stringVector.push_back(PrintToString("%sFUNCTION %s%s\n", prefix, funcName.c_str(),
     						funcLabel.c_str()));
     for (int i = 0; i < nParamsThisFunc; i++) {
       paramName = GetParameterName(indexOffset + i);
       paramVal = params[indexOffset + i];
+      // the following is placed in front of the unit string *if* we're not printing
+      // the parameter errors (since that case we've already put a comment character
+      // into the output line)
+      unitsPrefix = "\t# ";
       if (printLimits)
         if (parameterInfoVect[indexOffset + i].fixed == 1)
           newLine = PrintToString(PARAM_FORMAT_WITH_FIXED, prefix, paramName.c_str(), 
@@ -1827,12 +1840,22 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
           newLine = PrintToString(PARAM_FORMAT_WITH_LIMITS, prefix, paramName.c_str(), 
         						paramVal, parameterInfoVect[indexOffset + i].limits[0], 
         						parameterInfoVect[indexOffset + i].limits[1]);
-      else if (errs != NULL)
+      else if (errs != NULL) {
         newLine = PrintToString(PARAM_FORMAT_WITH_ERRS, prefix, paramName.c_str(), 
         						paramVal, errs[indexOffset + i]);
+        unitsPrefix = "";
+      }
       else
         newLine = PrintToString(PARAM_FORMAT, prefix, paramName.c_str(), paramVal);
-      stringVector.push_back(newLine);
+      if (thisFuncHasUnits) {
+        string  unitsString = paramUnits[i];
+        if (unitsString.size() > 0) {
+          string  extraString = PrintToString(UNITS_FORMAT, unitsPrefix.c_str(), 
+        										unitsString.c_str());
+          newLine += extraString;
+        }
+      }
+      stringVector.push_back(newLine + "\n");
     }
     indexOffset += paramSizes[n];
   }

@@ -35,13 +35,13 @@ AIC = 77.731914, BIC = 85.689480
 X0		4.9882 # +/- 0.0332
 Y0		4.9930 # +/- 0.0330
 FUNCTION Gaussian
-PA		      0 # +/- 0
+PA		      0 # +/- 0	deg (CCW from +y axis)
 ell		      0 # +/- 0
-I_0		505.169 # +/- 7.7852
-sigma		 2.4924 # +/- 0.028551
+I_0		505.169 # +/- 7.7852	counts/pixel
+sigma		 2.4924 # +/- 0.028551	pixels
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.006020 sec for fit, 0.008252 sec total)
+(Elapsed time: 0.004756 sec for fit, 0.006975 sec total)
 Done!
 

@@ -22,20 +22,20 @@ Estimated memory use: 8747785 bytes (8.3 MB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 49095.069648
-	mpfit iteration 2: fit statistic = 37345.298306
-	mpfit iteration 3: fit statistic = 37110.187291
-	mpfit iteration 4: fit statistic = 37053.537154
-	mpfit iteration 5: fit statistic = 36993.750692
-	mpfit iteration 6: fit statistic = 36947.464173
-	mpfit iteration 7: fit statistic = 36910.890089
-	mpfit iteration 8: fit statistic = 36882.958414
-	mpfit iteration 9: fit statistic = 36862.501596
-	mpfit iteration 10: fit statistic = 36848.786632
-	mpfit iteration 11: fit statistic = 36841.049070
-	mpfit iteration 12: fit statistic = 36831.937460
-	mpfit iteration 13: fit statistic = 36828.584568
-	mpfit iteration 14: fit statistic = 36828.578486
+	mpfit iteration 1: fit statistic = 49095.069543
+	mpfit iteration 2: fit statistic = 37345.298009
+	mpfit iteration 3: fit statistic = 37110.187446
+	mpfit iteration 4: fit statistic = 37053.537346
+	mpfit iteration 5: fit statistic = 36993.750721
+	mpfit iteration 6: fit statistic = 36947.464103
+	mpfit iteration 7: fit statistic = 36910.889973
+	mpfit iteration 8: fit statistic = 36882.958294
+	mpfit iteration 9: fit statistic = 36862.501491
+	mpfit iteration 10: fit statistic = 36848.786577
+	mpfit iteration 11: fit statistic = 36841.049092
+	mpfit iteration 12: fit statistic = 36831.937145
+	mpfit iteration 13: fit statistic = 36828.584569
+	mpfit iteration 14: fit statistic = 36828.578485
 	mpfit iteration 15: fit statistic = 36828.577740
 	mpfit iteration 16: fit statistic = 36828.577653
 
@@ -49,24 +49,24 @@ Calling Levenberg-Marquardt solver ...
       NFEV = 196
 
 Reduced Chi^2 = 1.281306
-AIC = 36850.586838, BIC = 36941.509506
+AIC = 36850.586838, BIC = 36941.509507
 
 X0		100.7073 # +/- 0.0058
 Y0		97.0877 # +/- 0.0052
 FUNCTION Sersic
-PA		111.919 # +/- 0.26435
+PA		111.919 # +/- 0.26435	deg (CCW from +y axis)
 ell		0.184262 # +/- 0.0015989
 n		 3.2805 # +/- 0.034084
-I_e		78.2973 # +/- 2.693
-r_e		26.7975 # +/- 0.6481
+I_e		78.2972 # +/- 2.693	counts/pixel
+r_e		26.7976 # +/- 0.6481	pixels
 FUNCTION Exponential
-PA		 51.724 # +/- 0.80649
+PA		 51.724 # +/- 0.80649	deg (CCW from +y axis)
 ell		0.35226 # +/- 0.014009
-I_0		39.7754 # +/- 1.8008
-h		53.6058 # +/- 1.1641
+I_0		39.7753 # +/- 1.8008	counts/pixel
+h		53.6058 # +/- 1.1641	pixels
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.801649 sec for fit, 0.816065 sec total)
+(Elapsed time: 0.439017 sec for fit, 0.456782 sec total)
 Done!
 

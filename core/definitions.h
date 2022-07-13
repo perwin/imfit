@@ -85,10 +85,11 @@ const std::string  Y0_string("Y0");
 #define XY_FORMAT_WITH_ERRS "%s%s\t\t%.4f # +/- %.4f\n"
 #define XY_FORMAT_WITH_LIMITS "%s%s\t\t%.4f\t\t%g,%g\n"
 #define XY_FORMAT_WITH_FIXED "%s%s\t\t%.4f\t\tfixed\n"
-#define PARAM_FORMAT "%s%s\t\t%7g\n"
-#define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%7g # +/- %.5g\n"
-#define PARAM_FORMAT_WITH_LIMITS "%s%s\t\t%7g\t\t%g,%g\n"
-#define PARAM_FORMAT_WITH_FIXED "%s%s\t\t%7g\t\tfixed\n"
-
+// the following do *not* have "\n" at the end
+#define PARAM_FORMAT "%s%s\t\t%7g"
+#define PARAM_FORMAT_WITH_ERRS "%s%s\t\t%7g # +/- %.5g"
+#define PARAM_FORMAT_WITH_LIMITS "%s%s\t\t%7g\t\t%g,%g"
+#define PARAM_FORMAT_WITH_FIXED "%s%s\t\t%7g\t\tfixed"
+#define UNITS_FORMAT "\t%s%s"
 
 #endif /* _DEFINITIONS_H_ */
