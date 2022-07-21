@@ -1835,6 +1835,7 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
         stringVector.push_back(PrintToString("%s%s\n", prefix, extraParamLines[k].c_str()));
     }
     
+    // print the function parameter values
     nParamsThisFunc = paramSizes[n];
     for (int i = 0; i < nParamsThisFunc; i++) {
       paramName = GetParameterName(indexOffset + i);
@@ -1876,8 +1877,8 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
 
 
 /* ---------------- PUBLIC METHOD: PrintModelParamsHorizontalString --- */
-/// Like PrintModelParams, but prints parameter values all in one line to a string
-/// (*without* parameter names or limits or errors), which is returned.
+/// Like PrintModelParamsToString, but prints parameter values all in one line to
+/// a string (*without* parameter names or limits or errors), which is returned.
 /// Meant to be used in printing results of bootstrap resampling (imfit) or MCMC
 /// chains (imfit-mcmc)
 string ModelObject::PrintModelParamsHorizontalString( const double params[], const string& separator )

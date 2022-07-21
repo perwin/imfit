@@ -31,6 +31,7 @@ using namespace std;
 #define SIMPLE_CONFIG_FILE "tests/imfit_reference/config_imfit_flatsky.dat"
 #define CONFIG_FILE "tests/imfit_reference/config_imfit_poisson.dat"
 #define CONFIG_FILE_POINTSOURCE "tests/makeimage_reference/config_imfit_pointsource.dat"
+#define CONFIG_FILE_POINTSOURCE_EXTRA "tests/makeimage_reference/config_imfit_pointsource-extra.dat"
 #define CONFIG_FILE3b "tests/config_imfit_gauss-extra-params.dat"
 const string CONFIG_FILE_2SETS("tests/config_imfit_2sets.dat");
 
@@ -416,13 +417,15 @@ public:
   ModelObject * modelObj2a;
   ModelObject * modelObj2b;
   ModelObject * modelObj3;
-  vector<string>  functionList1, functionList2a, functionList3;
-  vector<string>  functionLabelList1, functionLabelList2a, functionLabelList3;
-  vector<double>  parameterList1, parameterList2a, parameterList3;
-  vector<mp_par>  paramLimits1, paramLimits2a, paramLimits3;
-  vector<int>  FunctionSetIndices1, FunctionSetIndices2a, FunctionSetIndices3;
-  bool  paramLimitsExist1, paramLimitsExist2a, paramLimitsExist3;
-  configOptions  userConfigOptions1, userConfigOptions2a, userConfigOptions3;
+  ModelObject * modelObj4;
+  vector<string>  functionList1, functionList2a, functionList3, functionList4;
+  vector<string>  functionLabelList1, functionLabelList2a, functionLabelList3, functionLabelList4;
+  vector<double>  parameterList1, parameterList2a, parameterList3, parameterList4;
+  vector<mp_par>  paramLimits1, paramLimits2a, paramLimits3, paramLimits4;
+  vector<int>  FunctionSetIndices1, FunctionSetIndices2a, FunctionSetIndices3, FunctionSetIndices4;
+  bool  paramLimitsExist1, paramLimitsExist2a, paramLimitsExist3, paramLimitsExist4;
+  configOptions  userConfigOptions1, userConfigOptions2a, userConfigOptions3, userConfigOptions4;
+  vector< map<string, string> >  userOptionalParams4;
   int nSmallDataCols, nSmallDataRows;
   
   void setUp( )
@@ -431,6 +434,7 @@ public:
     string  filename1 = CONFIG_FILE;
     string  filename2a = SIMPLE_CONFIG_FILE;
     string  filename3 = CONFIG_FILE_2SETS;
+    string  filename4 = CONFIG_FILE_POINTSOURCE_EXTRA;
 
     nSmallDataCols = nSmallDataRows = 2;
     
@@ -461,6 +465,20 @@ public:
     modelObj3 = new ModelObject();
     status = AddFunctions(modelObj3, functionList3, functionLabelList3, FunctionSetIndices3, 
     						true, -1);
+
+	// PointSource function with optional-params specification
+    status = ReadConfigFile(filename4, true, functionList4, functionLabelList4, parameterList4, 
+    						paramLimits4, FunctionSetIndices4, paramLimitsExist4, 
+    						userConfigOptions4, userOptionalParams4);
+    modelObj4 = new ModelObject();
+	// we need to add a PSF image, otherwise we can't add the PointSource function
+    int  nColumns_psf = 4;
+    int  nRows_psf = 4;
+    int  nPixels_psf = nColumns_psf*nRows_psf;
+    double psfPixels[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    status = modelObj4->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels, false);
+    status = AddFunctions(modelObj4, functionList4, functionLabelList4, FunctionSetIndices4, 
+    						true, -1, userOptionalParams4);
   }
   
   void tearDown( )
@@ -471,6 +489,52 @@ public:
     delete modelObj3;
   }
   
+  void testPrintParamsToString_optionalParams( void )
+  {
+  int  nParamsTot = 3;
+  double  params[3] = {21.0, 22.0, 1500.0};
+    int  nDataVals = nSmallDataCols*nSmallDataRows;
+    int  retVal;
+    vector<string> outputVect;
+
+    vector<string> correctStrings;
+    correctStrings.push_back("#\n");
+    correctStrings.push_back("#X0\t\t21.0000\n");
+    correctStrings.push_back("#Y0\t\t22.0000\n");
+    correctStrings.push_back("#FUNCTION PointSource\n");
+    correctStrings.push_back("#OPTIONAL_PARAMS_START\n");
+    correctStrings.push_back("#method   bicubic\n");
+    correctStrings.push_back("#OPTIONAL_PARAMS_END\n");
+    correctStrings.push_back("#FUNCTION PointSource\n");
+    correctStrings.push_back("#I_tot\t\t      1500\t\t# counts\n");
+
+    string prefix = "#";
+    vector<mp_par> parameterInfo_empty;
+    vector<mp_par> parameterInfo;
+
+    // kit out parameterInfo
+    mp_par currentParameterInfo;
+    for (int i = 0; i < nParamsTot; i++) {
+      currentParameterInfo.fixed = 0;
+      currentParameterInfo.limited[0] = 1;
+      currentParameterInfo.limited[1] = 1;
+      currentParameterInfo.limits[0] = 0.0 + i;
+      currentParameterInfo.limits[1] = 200.0 + i;
+      currentParameterInfo.offset = 0.0;
+      parameterInfo.push_back(currentParameterInfo);
+    }
+
+    modelObj4->SetupModelImage(nSmallDataCols, nSmallDataRows);
+
+    // output without parameter limits, check to see that optional parameter is printed
+    retVal = modelObj4->PrintModelParamsToStrings(outputVect, params, NULL, prefix.c_str(), false);
+    TS_ASSERT_EQUALS(retVal, 0);
+    for (int i = 0; i < 7; i++) {
+      TS_ASSERT_EQUALS(outputVect[i], correctStrings[i]);
+    }
+  }
+  
+
   void testPrintParamsToString( void )
   {
     int nParamsTot = 7;

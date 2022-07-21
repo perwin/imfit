@@ -17,6 +17,27 @@ printing of parameters without units (e.g., ellipticity, Sersic n) is
 unchanged. (You can optionally add unit strings to the printout for
 your own image functions; this is explained in XXX.)
 
+- The PointSource (and PointSourceRot) image functions now include the
+option of Lanczos2 instead of the default bicubic interpolation. This
+is enabled by adding the following three lines immediately after the 
+"FUNCTION PointSource" line in a configuration file: "OPTIONAL_PARAMS_START",
+"method   lanczos2", "OPTIONAL_PARAMS_END".
+
+- It is now possible to write image functions which, like PointSource
+and PointSourceRot, take one (or more) *optional* parameters to
+specialize the function. These are *not* like the standard parameters --
+which are changed by the optimization algorithm as part of the fitting
+process --; instead, they are only used/applied at startup. These come
+in the form of key-value pairs (the key is the name of the parameter),
+with both specified as text strings in the configuration file. If
+supplied, they are passed to the image function after it is initialized
+but before any fitting; how they values are used is up to the
+individual function (e.g., they can be converted to floating-point
+values, used to select one of several internal algorithms, interpreted as the
+filename of an extra configuration file with options and/or data for the
+function, etc.).
+    
+
 ### Changed:
 
 - The `--print-fluxes` option for makeimage now automatically turn off

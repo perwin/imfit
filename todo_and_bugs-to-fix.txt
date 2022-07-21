@@ -4,7 +4,10 @@
 	-- todo_pointsource.txt; ~/python/lanczos_test.py
 	function_objects/psf_interpolators.*
 	
-	[ ] Update code in model_object.cpp to handle this
+	[X] Update code in model_object.cpp to handle this
+	[ ] Test fitting w/ bicuic vs lanczos2 for star in WFC3-IR image
+	
+	[ ] Implement recording of (user-set) optional-param values in output
 
 [X] Fix unittest_add_functions.t.h -- testAddFunctionsToModel_optionalParams
 	-- use an extra-params function properly
@@ -96,158 +99,6 @@ best fit (and/or write it to a file)
 [ ] Update documentation with new functions
 	[X] Add description of GaussianRingAz to imfit_howto
 	[ ] Add description of FlatBar to imfit_howto
-
-
-
-[..] Possible optional parameters for image functions in config file
-	"params"? "settings?"
-	-- ways to specify optional settings, or even input parameter files that
-	function can read when first starting up
-	-- optional keywords after FUNCTION but before parameters?
-		e.g.
-		FUNCTION blah
-		OPTIONAL_PARAMS_START
-		xxx
-		OPTIONAL_PARAMS_END
-		
-		or even just
-		FUNCTION blah
-		xxx
-		OPTIONAL_PARAMS_END
-		
-		The following should be acceptable (and interpreted as "no optional params supplied")
-		FUNCTION blah
-		OPTIONAL_PARAMS_START
-		OPTIONAL_PARAMS_END
-
-	Read and stored as something like dict of string: string pairs. If this exists
-	for a given function, then it is passed to function object just after initialization
-	(e.g., just after calling AddFunction)
-	
-	Output (e.g., best-fit parameters): do we list 
-		For best-fit params, we *should* list anything that was explicitly set by
-		the user
-		If none of the optional params were set by the user, should we still list them?
-		(Confusing if best-fit output doesn't match format of config file!)
-		(Alternate view: optional params *define* the function, so they should always
-		be listed...)
-		
-	Function object has extra method for handling input dict (defaults to a do-nothing)
-		-- e.g., it knows which values to convert to ints or doubles, how to
-		interpret different keywords, etc.
-
-	    virtual int FunctionObject::SetExtraParams( map<string, string> )
-	
-	
-  vector<map<string, string>> optionalParamsVect;
-  # one map per function; most or all such maps probably will be empty
-  
-  for (n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: skip over existing x0,y0 values
-      offset += 2;
-    }
-    functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
-    functionObjects[n]->Setup(params, offset, x0_all, y0_all);
-    offset += paramSizes[n];
-  }
-  
-  OR
-    if (functionObjects[n]->HasExtraParams())
-      functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
-  
-  [..]SIMPLER APPROACH:
-     extra params are added to function *once*, when it is created inside
-     AddFunctions (add_functions.cpp)
-     	-- this way, ModelObject doesn't need to know about the extra options
-     	at all! (Think of it this way: optional parameters are for specializing
-     	the function *before* it is used in the model, and shouldn't ever need
-     	to be adjusted during the fitting process.)
-     		-- only problem: how can we record the optional-parameter values in
-     		the output?
-     		-- New method for FunctionObject which prints out extra params
-     		E.g., in ModelObject::PrintModelParamsToStrings, 
-     		just after printing the function name, we check to see if it has optional 
-     		parameters, and if so, we ask the FunctionObject to print their names & values
-     		(Note that we shouldn't need to modify PrintModelParamsHorizontalString,
-     		because that's used in bootstrap and MCMC output, where the header of the
-     		file has the original or best-fit values, which is where we'd print the
-     		optional parameters, and because the optional parameters aren't part of
-     		the fit/MCMC process!)
-
-		Uses:
-			1. ReadConfigFile retrieves optional params in optional-params-vector
-				*_main.cpp; config_file_parser.cpp
-			2. AddFunctions takes optional-params-vector, uses it to modify FunctionObjects
-			via their SetExtraParams methods
-				add_functions.cpp; FunctionObjects
-			3. ModelObject gets parameter names and value from FunctionObjects as
-			part of ModelObject::PrintModelParams and ModelObject::PrintModelParamsToStrings
-				model_object.cpp; FunctionObjects
-			
-		[x] Add input method to FunctionObject
-			[x] Write unit tests to check input and processing of simple case
-			[x] Write code to pass unit tests
-		[x] Add input method to 2D FunctionObject subclass
-			[x] Write unit tests to check input and processing of 2D FunctionObject subclass
-			[x] Write code to pass unit tests
-			
-		[] Add processing code to config_file_parser.cpp
-			-- needs to accept & return an optional-params vector< map<string,string> >
-			[x] Write sample config file with optional parameters
-				-- config_makeimage-optional_params*.dat
-			[x] Write unit tests for VetConfigFile
-			[x] Write unit test for ReadConfigFile to check input and processing of 1 optional parameter
-			[x] Write unit test for ReadConfigFile to endure it returns empty optionalParamsMap
-				if there are no optional parameters
-			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
-			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
-				for multiple functions
-			[x] Write code (modify ReadConfigFile) to pass unit tests
-			[x] Update AddFunctions() to properly handle extraParams
-				-- extraParams is *always* non-empty; individual per-function maps inside
-				it may be empty
-		[x] Modify code in _main.cpp to set up optional-params vector for calls to
-		ReadConfigFile and then pass it into call to AddFunction
-			[x] makeimage_main.cpp
-				Testing: ./makeimage config_makeimage_gaussian-extraparams.dat
-				[x] add code
-				[] add regression test to see that we correctly use GaussianExtraParams
-					-- i.e., config file w/ and w/o extra-parameter specification
-					-- compare output images against reference images
-					-- Problem: this only works if we compile makeimage with GaussianExtraParams,
-					but that is currently only included if we use --extra-funcs
-			[x] imfit_main.cpp
-			[x] mcmc_main.cpp
-
-		[] Add printout code to FunctionObject
-			-- to be used in e.g. ModelObject::PrintModelParams and also in
-			ListFunctionParameters in add_functions.cpp [might be confusing, though,
-			since these are *optional* parameters
-				==> new command-line option "--list-parameters-with-options" ?]
-		[] Modify ModelObject::PrintModelParams and ModelObject::PrintModelParamsToStrings
-		to check for and get optional-params from FunctionObjects
-			[] Add unit test (to unittest_model_object) to check PrintModelParamsToStrings
-			[] Write code to pass unit test
-			[] Modify PrintModelParams
-		[] Add input method to ModelObject
-			[] Write unit test to check input and processing of 1 or more input dicts
-			[] Write code to pass unit tests
-
-		[] Merge both versions of ReadConfigFile into single function?
-			-- Current code *ought* to be able to handle absence of parameter limits
-			in makeimage mode, since we can do that in imfit mode
-			-- For makeimage, we can call it with parameter-limit variables that
-			we then ignore
-		
-		[X] Add optional-parameter processing code to func1d_spline.cpp
-			-- additive constant
-			[X] Write unit test to check input and processing
-			[X] Write code to pass test
-			[X] Generate and check output
-				[X] config file without optional parameter
-				[X] config file with optional parameter
-				[X] config file with optional parameter (different value)
 
 
 
@@ -1276,6 +1127,151 @@ OK, here is the problem:
 
 
 ** IMPROVEMENTS APPLIED
+
+(1.9)[X] Possible optional parameters for image functions in config file
+	"params"? "settings?"
+	-- ways to specify optional settings, or even input parameter files that
+	function can read when first starting up
+	-- optional keywords after FUNCTION but before parameters?
+		e.g.
+		FUNCTION blah
+		OPTIONAL_PARAMS_START
+		xxx
+		OPTIONAL_PARAMS_END
+		
+		or even just
+		FUNCTION blah
+		xxx
+		OPTIONAL_PARAMS_END
+		
+		The following should be acceptable (and interpreted as "no optional params supplied")
+		FUNCTION blah
+		OPTIONAL_PARAMS_START
+		OPTIONAL_PARAMS_END
+
+	Read and stored as something like dict of string: string pairs. If this exists
+	for a given function, then it is passed to function object just after initialization
+	(e.g., just after calling AddFunction)
+	
+	Output (e.g., best-fit parameters): do we list 
+		For best-fit params, we *should* list anything that was explicitly set by
+		the user
+		If none of the optional params were set by the user, should we still list them?
+		(Confusing if best-fit output doesn't match format of config file!)
+		(Alternate view: optional params *define* the function, so they should always
+		be listed...)
+		
+	Function object has extra method for handling input dict (defaults to a do-nothing)
+		-- e.g., it knows which values to convert to ints or doubles, how to
+		interpret different keywords, etc.
+
+	    virtual int FunctionObject::SetExtraParams( map<string, string> )
+	
+	
+  vector<map<string, string>> optionalParamsVect;
+  # one map per function; most or all such maps probably will be empty
+  
+  for (n = 0; n < nFunctions; n++) {
+    if (fblockStartFlags[n] == true) {
+      // start of new function block: skip over existing x0,y0 values
+      offset += 2;
+    }
+    functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
+    functionObjects[n]->Setup(params, offset, x0_all, y0_all);
+    offset += paramSizes[n];
+  }
+  
+  OR
+    if (functionObjects[n]->HasExtraParams())
+      functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
+  
+  [X]SIMPLER APPROACH:
+     extra params are added to function *once*, when it is created inside
+     AddFunctions (add_functions.cpp)
+     	-- this way, ModelObject doesn't need to know about the extra options
+     	at all! (Think of it this way: optional parameters are for specializing
+     	the function *before* it is used in the model, and shouldn't ever need
+     	to be adjusted during the fitting process.)
+     		-- only problem: how can we record the optional-parameter values in
+     		the output?
+     		-- New method for FunctionObject which prints out extra params
+     		E.g., in ModelObject::PrintModelParamsToStrings, 
+     		just after printing the function name, we check to see if it has optional 
+     		parameters, and if so, we ask the FunctionObject to print their names & values
+     		(Note that we shouldn't need to modify PrintModelParamsHorizontalString,
+     		because that's used in bootstrap and MCMC output, where the header of the
+     		file has the original or best-fit values, which is where we'd print the
+     		optional parameters, and because the optional parameters aren't part of
+     		the fit/MCMC process!)
+
+		Uses:
+			1. ReadConfigFile retrieves optional params in optional-params-vector
+				*_main.cpp; config_file_parser.cpp
+			2. AddFunctions takes optional-params-vector, uses it to modify FunctionObjects
+			via their SetExtraParams methods
+				add_functions.cpp; FunctionObjects
+			3. ModelObject gets parameter names and value from FunctionObjects as
+			part of ModelObject::PrintModelParams and ModelObject::PrintModelParamsToStrings
+				model_object.cpp; FunctionObjects
+			
+		[x] Add input method to FunctionObject
+			[x] Write unit tests to check input and processing of simple case
+			[x] Write code to pass unit tests
+		[x] Add input method to 2D FunctionObject subclass
+			[x] Write unit tests to check input and processing of 2D FunctionObject subclass
+			[x] Write code to pass unit tests
+			
+		[x] Add processing code to config_file_parser.cpp
+			-- needs to accept & return an optional-params vector< map<string,string> >
+			[x] Write sample config file with optional parameters
+				-- config_makeimage-optional_params*.dat
+			[x] Write unit tests for VetConfigFile
+			[x] Write unit test for ReadConfigFile to check input and processing of 1 optional parameter
+			[x] Write unit test for ReadConfigFile to endure it returns empty optionalParamsMap
+				if there are no optional parameters
+			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
+			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
+				for multiple functions
+			[x] Write code (modify ReadConfigFile) to pass unit tests
+			[x] Update AddFunctions() to properly handle extraParams
+				-- extraParams is *always* non-empty; individual per-function maps inside
+				it may be empty
+		[x] Modify code in _main.cpp to set up optional-params vector for calls to
+		ReadConfigFile and then pass it into call to AddFunction
+			[x] makeimage_main.cpp
+				Testing: ./makeimage config_makeimage_gaussian-extraparams.dat
+				[x] add code
+				[] add regression test to see that we correctly use GaussianExtraParams
+					-- i.e., config file w/ and w/o extra-parameter specification
+					-- compare output images against reference images
+					-- Problem: this only works if we compile makeimage with GaussianExtraParams,
+					but that is currently only included if we use --extra-funcs
+			[x] imfit_main.cpp
+			[x] mcmc_main.cpp
+
+		[X] Modify ModelObject::PrintModelParamsToStrings to check for and get optional-params 
+		from FunctionObjects
+			-- only print them if the user *set* them
+			-- add data member userSetExtraParams = map<string, string>
+				-- starts empty; only updated by SetExtraParams *if* user supplied
+				something
+			[X] Add unit test (to unittest_model_object) to check PrintModelParamsToStrings
+			[X] Write code to pass unit test
+			[X] Modify PrintModelParams
+		[X] Add input method to ModelObject
+			[X] Write unit test to check input and processing of 1 or more input dicts
+			[X] Write code to pass unit tests
+
+		[X] Add optional-parameter processing code to func1d_spline.cpp
+			-- additive constant
+			[X] Write unit test to check input and processing
+			[X] Write code to pass test
+			[X] Generate and check output
+				[X] config file without optional parameter
+				[X] config file with optional parameter
+				[X] config file with optional parameter (different value)
+
+
 
 (1.9)[X] Add (optional) output of units specification for individual-function parameters
 	-- something to be called when --list-parameters or --sample-config is used
