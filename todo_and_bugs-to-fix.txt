@@ -1,3 +1,16 @@
+*** CURRENT WORK
+
+[ ] Finish implementing Lanczos2 interpolation in PointSource
+	-- todo_pointsource.txt; ~/python/lanczos_test.py
+	function_objects/psf_interpolators.*
+	
+	[ ] Update code in model_object.cpp to handle this
+
+[X] Fix unittest_add_functions.t.h -- testAddFunctionsToModel_optionalParams
+	-- use an extra-params function properly
+
+
+
 
 ** BUGS TO FIX:
 
@@ -31,105 +44,11 @@
 	[ ] locate places in main() to modify
 
 
-[ ] Add (optional) output of units specification for individual-function parameters
-	-- something to be called when --list-parameters or --sample-config is used
-	-- "--list-parameters" generates call to add_parameters.ListFunctionParameters
-		-- ListFunctionParameters calls FunctionObject->GetParameterNames(parameterNameList)
-		
-	Possible approach:
-		Add GetParameterUnits function to FunctionObject; modifies and returns
-		vector of possible unit strings; for each parameter, ListFunctionParameters 
-		optionally appends "# units " + unit string if string is non-empty
-	
-		In FunctionObject, we need to automatically generate a list of empty
-		strings with length = nParameters; writer of subclass can override it to
-		provide proper list
-		New data members
-			bool paramUnitsExist
-			vector<string> parameterUnits
-				-- explicitly populated in constructor; otherwise ... ?
-		New methods
-			bool parameterUnitsExist( )
-			string GetParameterUnits( int i )
-		FunctionObject.GetParameterUnits() is defined in base class
-			-- checks to see if paramUnitsExist is true
-				if true: return values from parameterUnits
-				if false: return vector of nParams empty strings
-		Ideally, we want to make sure that previously written FunctionObjects
-		(including those written by other people!) work properly -- that is,
-		do *not* return parameter units -- without having to have their
-		constructors rewritten
-		Constructor optionally defines parameterUnits vector
-			-- if doing so, also sets paramUnitsExist = true
-			
-	[x] Unit tests for new FunctionObject.GetParameterUnits() method
-		[x] Write basic tests
-			[x] test for case of no unit strings
-			[x] test for case with some unit strings
-		[x] Add code to make tests pass
-	
-	[x] Replace ParameterUnitsExist() function with data member
-		-- With c++-11, we can define its initial value in function_object.h
-		[x] Rewrite FunctionObject::ParameterUnitsExist() to return the value
-		of the boolean
-		
-	[x] Re-update FunctionObject subclasses with units
-		1. Update header file
-			REMOVE declaration of overridden method ParameterUnitsExist
-    
-		2. Update source file
-			A. Add code to constructor:
-				parameterUnitsExist = true;
-			B. REMOVE override of FunctionObject::ParameterUnitsExist
-
-		[x] Update unit tests to include testing for unit strings
-			[x] func_sersic
-			[x] func_gaussian
-			[x] func_flatsky
-		[x] Write code to make unit tests pass
-			[x] func_sersic
-			[x] func_gaussian
-			[x] func_flatsky
-		[x] Update other functions with unit strings
-			[x] func_broken-exp
-			[x] func_broken-exp2d
-			[x] func_broken-expdisk3d
-			[x] func_core-sersic
-			[x] func_edge-on-disk
-			[x] func_edge-on-ring
-			[x] func_edge-on-ring2side
-			[x] func_exp
-			[x] func_expdisk3d
-			[x] func_ferrersbar2d
-			[x] func_ferrersbar3d
-			[x] func_flatbar
-			[x] func_flatsky
-			[x] func_gaussian-ring
-			[x] func_gaussian-ring2side
-			[x] func_gaussian-ring3d
-			[x] func_gaussian-ring-az
-			[x] func_gen-exp
-			[x] func_gen-sersic
-			[x] func_king
-			[x] func_king2
-			[x] func_moffat
-			[x] func_pointsource
-			[x] func_pointsource-rot
-			[x] func_tilted-sky-plane
-	[X] Update code in add_functions.cpp to record unit strings
-	[ ] Update documentation regarding writing new functions
-		[ ] docs/imfit_howto.tex
-		[ ] docs/writing_new_image_functions.md
-	[X] Modify ModelObject::PrintModelParamsToStrings so that it appends
-		units?
-	[ ] Update imfit-regression-test reference output files
-
-
 [ ] Add ability to handle Ctrl-C by exiting gracefully and printing current
 best fit (and/or write it to a file)
 	https://en.cppreference.com/w/c/program/signal
-	-- compilation flag to turn this on/off (e.g., probably off when compiling
-	library for PyImfit, until we figure out how to handle *that*)
+	-- We will want to have a compilation flag to turn this on/off (e.g., probably off 
+	when compiling library for PyImfit, until we figure out how to handle *that*)
 	-- Possible approach:
 		-- global variable or singleton object with "halt" flag (starts off
 		set = false); if called, signal-handler function sets this to true
@@ -179,6 +98,159 @@ best fit (and/or write it to a file)
 	[ ] Add description of FlatBar to imfit_howto
 
 
+
+[..] Possible optional parameters for image functions in config file
+	"params"? "settings?"
+	-- ways to specify optional settings, or even input parameter files that
+	function can read when first starting up
+	-- optional keywords after FUNCTION but before parameters?
+		e.g.
+		FUNCTION blah
+		OPTIONAL_PARAMS_START
+		xxx
+		OPTIONAL_PARAMS_END
+		
+		or even just
+		FUNCTION blah
+		xxx
+		OPTIONAL_PARAMS_END
+		
+		The following should be acceptable (and interpreted as "no optional params supplied")
+		FUNCTION blah
+		OPTIONAL_PARAMS_START
+		OPTIONAL_PARAMS_END
+
+	Read and stored as something like dict of string: string pairs. If this exists
+	for a given function, then it is passed to function object just after initialization
+	(e.g., just after calling AddFunction)
+	
+	Output (e.g., best-fit parameters): do we list 
+		For best-fit params, we *should* list anything that was explicitly set by
+		the user
+		If none of the optional params were set by the user, should we still list them?
+		(Confusing if best-fit output doesn't match format of config file!)
+		(Alternate view: optional params *define* the function, so they should always
+		be listed...)
+		
+	Function object has extra method for handling input dict (defaults to a do-nothing)
+		-- e.g., it knows which values to convert to ints or doubles, how to
+		interpret different keywords, etc.
+
+	    virtual int FunctionObject::SetExtraParams( map<string, string> )
+	
+	
+  vector<map<string, string>> optionalParamsVect;
+  # one map per function; most or all such maps probably will be empty
+  
+  for (n = 0; n < nFunctions; n++) {
+    if (fblockStartFlags[n] == true) {
+      // start of new function block: skip over existing x0,y0 values
+      offset += 2;
+    }
+    functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
+    functionObjects[n]->Setup(params, offset, x0_all, y0_all);
+    offset += paramSizes[n];
+  }
+  
+  OR
+    if (functionObjects[n]->HasExtraParams())
+      functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
+  
+  [..]SIMPLER APPROACH:
+     extra params are added to function *once*, when it is created inside
+     AddFunctions (add_functions.cpp)
+     	-- this way, ModelObject doesn't need to know about the extra options
+     	at all! (Think of it this way: optional parameters are for specializing
+     	the function *before* it is used in the model, and shouldn't ever need
+     	to be adjusted during the fitting process.)
+     		-- only problem: how can we record the optional-parameter values in
+     		the output?
+     		-- New method for FunctionObject which prints out extra params
+     		E.g., in ModelObject::PrintModelParamsToStrings, 
+     		just after printing the function name, we check to see if it has optional 
+     		parameters, and if so, we ask the FunctionObject to print their names & values
+     		(Note that we shouldn't need to modify PrintModelParamsHorizontalString,
+     		because that's used in bootstrap and MCMC output, where the header of the
+     		file has the original or best-fit values, which is where we'd print the
+     		optional parameters, and because the optional parameters aren't part of
+     		the fit/MCMC process!)
+
+		Uses:
+			1. ReadConfigFile retrieves optional params in optional-params-vector
+				*_main.cpp; config_file_parser.cpp
+			2. AddFunctions takes optional-params-vector, uses it to modify FunctionObjects
+			via their SetExtraParams methods
+				add_functions.cpp; FunctionObjects
+			3. ModelObject gets parameter names and value from FunctionObjects as
+			part of ModelObject::PrintModelParams and ModelObject::PrintModelParamsToStrings
+				model_object.cpp; FunctionObjects
+			
+		[x] Add input method to FunctionObject
+			[x] Write unit tests to check input and processing of simple case
+			[x] Write code to pass unit tests
+		[x] Add input method to 2D FunctionObject subclass
+			[x] Write unit tests to check input and processing of 2D FunctionObject subclass
+			[x] Write code to pass unit tests
+			
+		[] Add processing code to config_file_parser.cpp
+			-- needs to accept & return an optional-params vector< map<string,string> >
+			[x] Write sample config file with optional parameters
+				-- config_makeimage-optional_params*.dat
+			[x] Write unit tests for VetConfigFile
+			[x] Write unit test for ReadConfigFile to check input and processing of 1 optional parameter
+			[x] Write unit test for ReadConfigFile to endure it returns empty optionalParamsMap
+				if there are no optional parameters
+			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
+			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
+				for multiple functions
+			[x] Write code (modify ReadConfigFile) to pass unit tests
+			[x] Update AddFunctions() to properly handle extraParams
+				-- extraParams is *always* non-empty; individual per-function maps inside
+				it may be empty
+		[x] Modify code in _main.cpp to set up optional-params vector for calls to
+		ReadConfigFile and then pass it into call to AddFunction
+			[x] makeimage_main.cpp
+				Testing: ./makeimage config_makeimage_gaussian-extraparams.dat
+				[x] add code
+				[] add regression test to see that we correctly use GaussianExtraParams
+					-- i.e., config file w/ and w/o extra-parameter specification
+					-- compare output images against reference images
+					-- Problem: this only works if we compile makeimage with GaussianExtraParams,
+					but that is currently only included if we use --extra-funcs
+			[x] imfit_main.cpp
+			[x] mcmc_main.cpp
+
+		[] Add printout code to FunctionObject
+			-- to be used in e.g. ModelObject::PrintModelParams and also in
+			ListFunctionParameters in add_functions.cpp [might be confusing, though,
+			since these are *optional* parameters
+				==> new command-line option "--list-parameters-with-options" ?]
+		[] Modify ModelObject::PrintModelParams and ModelObject::PrintModelParamsToStrings
+		to check for and get optional-params from FunctionObjects
+			[] Add unit test (to unittest_model_object) to check PrintModelParamsToStrings
+			[] Write code to pass unit test
+			[] Modify PrintModelParams
+		[] Add input method to ModelObject
+			[] Write unit test to check input and processing of 1 or more input dicts
+			[] Write code to pass unit tests
+
+		[] Merge both versions of ReadConfigFile into single function?
+			-- Current code *ought* to be able to handle absence of parameter limits
+			in makeimage mode, since we can do that in imfit mode
+			-- For makeimage, we can call it with parameter-limit variables that
+			we then ignore
+		
+		[X] Add optional-parameter processing code to func1d_spline.cpp
+			-- additive constant
+			[X] Write unit test to check input and processing
+			[X] Write code to pass test
+			[X] Generate and check output
+				[X] config file without optional parameter
+				[X] config file with optional parameter
+				[X] config file with optional parameter (different value)
+
+
+
 [X] Double-broken exponential (for Nacho)
 	[X] Figure out what's causing minor-axis discontinuities
 		-- initial creation of ell=0.5 image shows good behavior along major
@@ -212,40 +284,6 @@ best fit (and/or write it to a file)
 	[x] Add file-existence checking
 
 	
-[X] Fix image-comparison regression tests
-	OK, the weird case is biggertest.fits, which has two (and only two) pixels
-	which differ by ~ 0.0167 between the Mac and Linux versions; all other
-	pixels appear to be identical. The discrepant pixels are at (x,y) = (31,23)
-	and (31,39)
-		The first function-block has center at 31,31; the two discrepant pixels
-		are at y = 31 +/- 8
-	
-	The difference shows up in the first Sersic function of the first function-block:
-	the mac version has I = 10.0, while the Linux version has I = 10.0167
-	
-	OK, what seems to be happening is this:
-	1. The image created on the Linux VM is fine.
-	2. *Sometimes*, when the image is copied from the VM to the Mac side,
-	one or more pixels (minor-axis only, for some reason) with values of 10.0
-	get converted to 10.016664.
-	
-	
-	All *other* files agree to w/in 1e-13
-	
-	[X] Update compare_fits_files.py to use numpy.allclose
-		[X] Update to use np.allclose( rtol=0, atol=1e-12)
-		[X] Test atol=1e-12 on existing Mac images
-			[X] write Python or shell script to do image comparisons from
-				makeimage regression tests
-		[X] Convert do_makeimage_tests to use new function
-		[X] Test atol=1e-12 on Linux images (on Mac)
-		[X] Move osx/*.fits images up one level
-		[X] Rewrite do_makeimage_tests to skip the OS testing and subdirectory use
-	
-	[X] Add do_makeimage_tests to travis.yml
-
-
-
 [ ] Test image convolution with overpsf_scale = even number
 	-- e.g., current WFC/IR empirical PSF images are 101x101 with 4x4 oversampling;
 	PSF center is at 51,51, like it should be
@@ -430,158 +468,6 @@ image (accounting for data image subset, if any)
 		if proposal variable value is outside bounds (thus rejecting the proposal)
 		-- see p.269 of Vrugt 2016 for options on handling parameter bounds
 	
-
-
-[..] Possible optional parameters for image functions in config file
-	"params"? "settings?"
-	-- ways to specify optional settings, or even input parameter files that
-	function can read when first starting up
-	-- optional keywords after FUNCTION but before parameters?
-		e.g.
-		FUNCTION blah
-		OPTIONAL_PARAMS_START
-		xxx
-		OPTIONAL_PARAMS_END
-		
-		or even just
-		FUNCTION blah
-		xxx
-		OPTIONAL_PARAMS_END
-		
-		The following should be acceptable (and interpreted as "no optional params supplied")
-		FUNCTION blah
-		OPTIONAL_PARAMS_START
-		OPTIONAL_PARAMS_END
-
-	Read and stored as something like dict of string: string pairs. If this exists
-	for a given function, then it is passed to function object just after initialization
-	(e.g., just after calling AddFunction)
-	
-	Output (e.g., best-fit parameters): do we list 
-		For best-fit params, we *should* list anything that was explicitly set by
-		the user
-		If none of the optional params were set by the user, should we still list them?
-		(Confusing if best-fit output doesn't match format of config file!)
-		(Alternate view: optional params *define* the function, so they should always
-		be listed...)
-		
-	Function object has extra method for handling input dict (defaults to a do-nothing)
-		-- e.g., it knows which values to convert to ints or doubles, how to
-		interpret different keywords, etc.
-
-	    virtual int FunctionObject::SetExtraParams( map<string, string> )
-	
-	
-  vector<map<string, string>> optionalParamsVect;
-  # one map per function; most or all such maps probably will be empty
-  
-  for (n = 0; n < nFunctions; n++) {
-    if (fblockStartFlags[n] == true) {
-      // start of new function block: skip over existing x0,y0 values
-      offset += 2;
-    }
-    functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
-    functionObjects[n]->Setup(params, offset, x0_all, y0_all);
-    offset += paramSizes[n];
-  }
-  
-  OR
-    if (functionObjects[n]->HasExtraParams())
-      functionObjects[n]->SetExtraParams(optionalParamsVect[n]);
-  
-  [..]SIMPLER APPROACH:
-     extra params are added to function *once*, when it is created inside
-     AddFunctions (add_functions.cpp)
-     	-- this way, ModelObject doesn't need to know about the extra options
-     	at all! (Think of it this way: optional parameters are for specializing
-     	the function *before* it is used in the model, and shouldn't ever need
-     	to be adjusted during the fitting process.)
-     		-- only problem: how can we record the optional-parameter values in
-     		the output?
-     		-- New method for FunctionObject which prints out extra params
-     		E.g., in ModelObject::PrintModelParamsToStrings, 
-     		just after printing the function name, we check to see if it has optional 
-     		parameters, and if so, we ask the FunctionObject to print their names & values
-     		(Note that we shouldn't need to modify PrintModelParamsHorizontalString,
-     		because that's used in bootstrap and MCMC output, where the header of the
-     		file has the original or best-fit values, which is where we'd print the
-     		optional parameters, and because the optional parameters aren't part of
-     		the fit/MCMC process!)
-
-		Uses:
-			1. ReadConfigFile retrieves optional params in optional-params-vector
-				*_main.cpp; config_file_parser.cpp
-			2. AddFunctions takes optional-params-vector, uses it to modify FunctionObjects
-			via their SetExtraParams methods
-				add_functions.cpp; FunctionObjects
-			3. ModelObject gets parameter names and value from FunctionObjects as
-			part of ModelObject::PrintModelParams and ModelObject::PrintModelParamsToStrings
-				model_object.cpp; FunctionObjects
-			
-		[x] Add input method to FunctionObject
-			[x] Write unit tests to check input and processing of simple case
-			[x] Write code to pass unit tests
-		[x] Add input method to 2D FunctionObject subclass
-			[x] Write unit tests to check input and processing of 2D FunctionObject subclass
-			[x] Write code to pass unit tests
-			
-		[] Add processing code to config_file_parser.cpp
-			-- needs to accept & return an optional-params vector< map<string,string> >
-			[x] Write sample config file with optional parameters
-				-- config_makeimage-optional_params*.dat
-			[x] Write unit tests for VetConfigFile
-			[x] Write unit test for ReadConfigFile to check input and processing of 1 optional parameter
-			[x] Write unit test for ReadConfigFile to endure it returns empty optionalParamsMap
-				if there are no optional parameters
-			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
-			[x] Write unit test for ReadConfigFile to check input and processing of multiple optional parameters
-				for multiple functions
-			[x] Write code (modify ReadConfigFile) to pass unit tests
-			[x] Update AddFunctions() to properly handle extraParams
-				-- extraParams is *always* non-empty; individual per-function maps inside
-				it may be empty
-		[x] Modify code in _main.cpp to set up optional-params vector for calls to
-		ReadConfigFile and then pass it into call to AddFunction
-			[x] makeimage_main.cpp
-				Testing: ./makeimage config_makeimage_gaussian-extraparams.dat
-				[x] add code
-				[] add regression test to see that we correctly use GaussianExtraParams
-					-- i.e., config file w/ and w/o extra-parameter specification
-					-- compare output images against reference images
-					-- Problem: this only works if we compile makeimage with GaussianExtraParams,
-					but that is currently only included if we use --extra-funcs
-			[x] imfit_main.cpp
-			[x] mcmc_main.cpp
-
-		[] Add printout code to FunctionObject
-			-- to be used in e.g. ModelObject::PrintModelParams and also in
-			ListFunctionParameters in add_functions.cpp [might be confusing, though,
-			since these are *optional* parameters
-				==> new command-line option "--list-parameters-with-options" ?]
-		[] Modify ModelObject::PrintModelParams and ModelObject::PrintModelParamsToStrings
-		to check for and get optional-params from FunctionObjects
-			[] Add unit test (to unittest_model_object) to check PrintModelParamsToStrings
-			[] Write code to pass unit test
-			[] Modify PrintModelParams
-		[] Add input method to ModelObject
-			[] Write unit test to check input and processing of 1 or more input dicts
-			[] Write code to pass unit tests
-
-		[] Merge both versions of ReadConfigFile into single function?
-			-- Current code *ought* to be able to handle absence of parameter limits
-			in makeimage mode, since we can do that in imfit mode
-			-- For makeimage, we can call it with parameter-limit variables that
-			we then ignore
-		
-		[X] Add optional-parameter processing code to func1d_spline.cpp
-			-- additive constant
-			[X] Write unit test to check input and processing
-			[X] Write code to pass test
-			[X] Generate and check output
-				[X] config file without optional parameter
-				[X] config file with optional parameter
-				[X] config file with optional parameter (different value)
-
 
 
 [ ] Optional linking of component orientations within a function set:
@@ -964,7 +850,40 @@ specific input/output functionality/limitations of imfit/makeimage.
 
 ** BUGS FIXED
 
-[.] PointSource component is not generated correctly in oversampled regions
+[X] Fix image-comparison regression tests
+	OK, the weird case is biggertest.fits, which has two (and only two) pixels
+	which differ by ~ 0.0167 between the Mac and Linux versions; all other
+	pixels appear to be identical. The discrepant pixels are at (x,y) = (31,23)
+	and (31,39)
+		The first function-block has center at 31,31; the two discrepant pixels
+		are at y = 31 +/- 8
+	
+	The difference shows up in the first Sersic function of the first function-block:
+	the mac version has I = 10.0, while the Linux version has I = 10.0167
+	
+	OK, what seems to be happening is this:
+	1. The image created on the Linux VM is fine.
+	2. *Sometimes*, when the image is copied from the VM to the Mac side,
+	one or more pixels (minor-axis only, for some reason) with values of 10.0
+	get converted to 10.016664.
+	
+	
+	All *other* files agree to w/in 1e-13
+	
+	[X] Update compare_fits_files.py to use numpy.allclose
+		[X] Update to use np.allclose( rtol=0, atol=1e-12)
+		[X] Test atol=1e-12 on existing Mac images
+			[X] write Python or shell script to do image comparisons from
+				makeimage regression tests
+		[X] Convert do_makeimage_tests to use new function
+		[X] Test atol=1e-12 on Linux images (on Mac)
+		[X] Move osx/*.fits images up one level
+		[X] Rewrite do_makeimage_tests to skip the OS testing and subdirectory use
+	
+	[X] Add do_makeimage_tests to travis.yml
+
+
+[X] PointSource component is not generated correctly in oversampled regions
 	-- xx July 20189 email from Iskren Georgiev
 	-- Problem was that oversampling from -X to +X is handled by calling
 	functions' GetValue() methods with (e.g.) x0 = -X to +X in 1/oversamplingScale increments
@@ -1357,6 +1276,100 @@ OK, here is the problem:
 
 
 ** IMPROVEMENTS APPLIED
+
+(1.9)[X] Add (optional) output of units specification for individual-function parameters
+	-- something to be called when --list-parameters or --sample-config is used
+	-- "--list-parameters" generates call to add_parameters.ListFunctionParameters
+		-- ListFunctionParameters calls FunctionObject->GetParameterNames(parameterNameList)
+		
+	Possible approach:
+		Add GetParameterUnits function to FunctionObject; modifies and returns
+		vector of possible unit strings; for each parameter, ListFunctionParameters 
+		optionally appends "# units " + unit string if string is non-empty
+	
+		In FunctionObject, we need to automatically generate a list of empty
+		strings with length = nParameters; writer of subclass can override it to
+		provide proper list
+		New data members
+			bool paramUnitsExist
+			vector<string> parameterUnits
+				-- explicitly populated in constructor; otherwise ... ?
+		New methods
+			bool parameterUnitsExist( )
+			string GetParameterUnits( int i )
+		FunctionObject.GetParameterUnits() is defined in base class
+			-- checks to see if paramUnitsExist is true
+				if true: return values from parameterUnits
+				if false: return vector of nParams empty strings
+		Ideally, we want to make sure that previously written FunctionObjects
+		(including those written by other people!) work properly -- that is,
+		do *not* return parameter units -- without having to have their
+		constructors rewritten
+		Constructor optionally defines parameterUnits vector
+			-- if doing so, also sets paramUnitsExist = true
+			
+	[x] Unit tests for new FunctionObject.GetParameterUnits() method
+		[x] Write basic tests
+			[x] test for case of no unit strings
+			[x] test for case with some unit strings
+		[x] Add code to make tests pass
+	
+	[x] Replace ParameterUnitsExist() function with data member
+		-- With c++-11, we can define its initial value in function_object.h
+		[x] Rewrite FunctionObject::ParameterUnitsExist() to return the value
+		of the boolean
+		
+	[x] Re-update FunctionObject subclasses with units
+		1. Update header file
+			REMOVE declaration of overridden method ParameterUnitsExist
+    
+		2. Update source file
+			A. Add code to constructor:
+				parameterUnitsExist = true;
+			B. REMOVE override of FunctionObject::ParameterUnitsExist
+
+		[x] Update unit tests to include testing for unit strings
+			[x] func_sersic
+			[x] func_gaussian
+			[x] func_flatsky
+		[x] Write code to make unit tests pass
+			[x] func_sersic
+			[x] func_gaussian
+			[x] func_flatsky
+		[x] Update other functions with unit strings
+			[x] func_broken-exp
+			[x] func_broken-exp2d
+			[x] func_broken-expdisk3d
+			[x] func_core-sersic
+			[x] func_edge-on-disk
+			[x] func_edge-on-ring
+			[x] func_edge-on-ring2side
+			[x] func_exp
+			[x] func_expdisk3d
+			[x] func_ferrersbar2d
+			[x] func_ferrersbar3d
+			[x] func_flatbar
+			[x] func_flatsky
+			[x] func_gaussian-ring
+			[x] func_gaussian-ring2side
+			[x] func_gaussian-ring3d
+			[x] func_gaussian-ring-az
+			[x] func_gen-exp
+			[x] func_gen-sersic
+			[x] func_king
+			[x] func_king2
+			[x] func_moffat
+			[x] func_pointsource
+			[x] func_pointsource-rot
+			[x] func_tilted-sky-plane
+	[X] Update code in add_functions.cpp to record unit strings
+	[x] Update documentation regarding writing new functions
+		[x] docs/imfit_howto.tex
+		[x] docs/writing_new_image_functions.md
+	[X] Modify ModelObject::PrintModelParamsToStrings so that it appends
+		units?
+	[X] Update imfit-regression-test reference output files
+
 
 (1.9)[X] Change --print-fluxes mode in makeimage so it automatically turns off
 	image saving (i.e., so we don't have to also do --nosave)

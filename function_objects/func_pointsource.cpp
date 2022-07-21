@@ -189,6 +189,8 @@ int PointSource::SetExtraParams( map<string,string>& inputMap )
   }
   interpolationType = iter->second;
   extraParamsSet = true;
+  inputExtraParams = inputMap;
+  
   printf("   PointSource::SetExtraParams -- setting method = %s\n", 
        		interpolationType.c_str());
   return 1;

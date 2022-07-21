@@ -2611,7 +2611,9 @@ your research.
 
 Unless otherwise noted, all ``intensity'' parameters (\texttt{I\_sky},
 \texttt{I\_0}, \texttt{I\_e}, etc.) are in units of counts per pixel, and all
-lengths are in pixels.
+lengths (radii, semi-major axes, etc.) are in pixels. In addition, unless
+otherwise noted, position angles ("PA") are in degrees, measured CCW from
+the +y axis of the image (negative values are valid).
 
 A sample function specification (giving the parameters in their proper order),
 as you would use in a configuration file, is listed for each function
@@ -3217,15 +3219,15 @@ to the image +y axis. You are, of course, free to change this if you
 write 3D components of your own, though I will probably continue to
 follow it in the future.)
 
-A note on units: since these are luminosity-density functions (converted
-to standard surface-brightness or intensity units by integrating along
-the line of sight), the brightness is controlled by a luminosity-density
-parameter ($J_{0}$) which has units of ``counts/voxel''. This
-slightly odd name indicates that the line-of-sight integration
-(integrating using units of pixels) will yield counts/pixel in the final
-image. (Technically, we should have a linear unit of ``pixel-size'',
-with the 2D image pixels having area units of pixel-size$^{2}$ -- but
-that's being way too pedantic!)
+A note on units: since these are luminosity-density functions, which
+yield standard surface-brightness or intensity units (usually
+counts/pixel) by integrating along the line of sight, the brightness is
+controlled by a luminosity-density parameter ($J_{0}$) which has units
+of ``counts/voxel''. This slightly odd name indicates that the
+line-of-sight integration (integrating using units of pixels) will
+produce counts/pixel in the final image. (Technically, we could speak of
+a linear 1D unit of ``pixel-size'', with the 2D image pixels having area
+units of pixel-size$^{2}$ -- but that's being way too pedantic!)
 
 
 \subsubsection{ExponentialDisk3D}

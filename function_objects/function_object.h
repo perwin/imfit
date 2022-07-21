@@ -99,6 +99,8 @@ class FunctionObject
     
     // probably no need to modify this:
     virtual void GetParameterUnits( vector<string> &paramUnitList );
+    
+    virtual void GetExtraParamsDescription( vector<string> &outputLines );
 
     // probably no need to modify this:
     virtual int GetNParams( );
@@ -119,6 +121,7 @@ class FunctionObject
     bool  parameterUnitsExist = false;
     bool  extraParamsSet = false;
     vector<string>  parameterLabels, parameterUnits;
+    map<string, string>  inputExtraParams;
     string  functionName, shortFunctionName, label;
     double  ZP;
 

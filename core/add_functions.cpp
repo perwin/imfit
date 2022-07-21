@@ -400,14 +400,16 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
           status = thisFunctionObj->SetExtraParams(extraParams[i]);
           if (status < 0) {
             fprintf(stderr, "Error attempting to set extra/optional parameters for ");
-            fprintf(stderr, "function \"%s\"\n", thisFunctionObj->GetShortName().c_str());
+            fprintf(stderr, "function \"%s\" (#%d in list)\n", 
+            		thisFunctionObj->GetShortName().c_str(), i + 1);
+            return status;
           }
         }
       }
       status = theModel->AddFunction(thisFunctionObj);
       if (status < 0) {
-        fprintf(stderr, "Error attempting to add function \"%s\"", 
-        		thisFunctionObj->GetShortName().c_str());
+        fprintf(stderr, "Error attempting to add function \"%s\" (#%d in list)", 
+        		thisFunctionObj->GetShortName().c_str(), i + 1);
         fprintf(stderr, " to ModelObject!\n");
         return status;
       }

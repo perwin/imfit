@@ -318,21 +318,23 @@ int ModelObject::SetupPsfInterpolation( int interpolationType )
     return -1;
   }
   
+  // the following is definitely needed for bicubic interpolation; not sure what
+  // the limits for lanczos2 or lanczos3 should be
+  if ((nPSFColumns < 4) || (nPSFRows < 4)) {
+    fprintf(stderr, "** ERROR: PSF image is too small for interpolation with PointSource functions!\n");
+    fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
+    return -2;
+  }
+
   switch (interpolationType) {
     case kInterpolator_bicubic:
-      if ((nPSFColumns >= 4) && (nPSFRows >= 4)) {
-        psfInterpolator = new PsfInterpolator_bicubic(localPsfPixels, nPSFColumns, nPSFRows);
-        psfInterpolator_allocated = true;
-      }
-      else {
-        fprintf(stderr, "** ERROR: PSF image is too small for interpolation with PointSource functions!\n");
-        fprintf(stderr, "   (must be at least 4 x 4 pixels in size for GSL bicubic interpolation)\n");
-        return -2;
-      }
+      psfInterpolator = new PsfInterpolator_bicubic(localPsfPixels, nPSFColumns, nPSFRows);
+	  psfInterpolator_allocated = true;
       break;
     case kInterpolator_lanczos2:
-      printf("ERROR: Lanczos2 interpolation not yet implemented!\n");
-      return -2;
+      psfInterpolator = new PsfInterpolator_lanczos2(localPsfPixels, nPSFColumns, nPSFRows);
+      psfInterpolator_allocated = true;
+      break;
     case kInterpolator_lanczos3:
       printf("ERROR: Lanczos3 interpolation not yet implemented!\n");
       return -2;
@@ -1749,7 +1751,7 @@ void ModelObject::GetFunctionLabels( vector<string>& functionLabels )
 
 
 /* ---------------- PUBLIC METHOD: PrintModelParamsToStrings ---------- */
-/// Like PrintModelParams, but appends lines of output as strings to the input
+/// Prints description of model (e.g., best-fit result) as strings to the input
 /// vector of string. 
 /// Optionally, the lower and upper limits defined in parameterInfo are also printed, 
 /// OR associated lower and upper error bounds in errs can be printed.
@@ -1771,6 +1773,7 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
   bool  thisFuncHasUnits = false;
   string  unitsPrefix;
   vector<string>  paramUnits;
+  vector<string>  extraParamLines;
 
   if ((printLimits) && (parameterInfoVect.size() == 0)) {
     fprintf(stderr, "** ERROR: ModelObject::PrintModelParamsToStrings -- printing of parameter limits\n");
@@ -1812,7 +1815,6 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
     }
     
     // Now print the function and its parameters (and units, if they exist)
-    nParamsThisFunc = paramSizes[n];
     funcName = functionObjects[n]->GetShortName();
     funcLabel = functionObjects[n]->GetLabel();
     if (! funcLabel.empty())
@@ -1825,6 +1827,15 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
     }
     stringVector.push_back(PrintToString("%sFUNCTION %s%s\n", prefix, funcName.c_str(),
     						funcLabel.c_str()));
+    						
+    // print optional parameters, if they were set
+    if (functionObjects[n]->ExtraParamsSet()) {
+      functionObjects[n]->GetExtraParamsDescription(extraParamLines);
+      for (int k = 0; k < extraParamLines.size(); k++)
+        stringVector.push_back(PrintToString("%s%s\n", prefix, extraParamLines[k].c_str()));
+    }
+    
+    nParamsThisFunc = paramSizes[n];
     for (int i = 0; i < nParamsThisFunc; i++) {
       paramName = GetParameterName(indexOffset + i);
       paramVal = params[indexOffset + i];

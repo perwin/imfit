@@ -14,7 +14,13 @@ using namespace std;
 #include "model_object.h"
 #include "config_file_parser.h"
 
+// TODO: fix testAddFunctionsToModel_optionalParams so that it uses an
+// actual optional-parameter function (not just pretending that FlatSky
+// takes optional parameters). PointSource is a possibility (though we
+// don't actually make any use of its optional parameter at the moment...)
+
 #define SIMPLE_CONFIG_FILE "tests/imfit_reference/config_imfit_flatsky.dat"
+#define SIMPLE_CONFIG_FILE2 "tests/makeimage_reference/config_imfit_pointsource-extra.dat"
 
 
 class NewTestSuite : public CxxTest::TestSuite 
@@ -182,14 +188,13 @@ public:
     vector<mp_par>  paramLimits;
     bool  paramLimitsExist;
     configOptions  userConfigOptions;
-    string filename = SIMPLE_CONFIG_FILE;
+    string filename = SIMPLE_CONFIG_FILE2;
     int  status, nInputFuncs, nOutputFuncs;
 
     vector< map<string, string> > optionalParamsVect;
     map<string, string> optionalParamsMap;
-    string  keyword = "floor";
-    string  value = "100";
-    double  floorVal = 100.0;
+    string  keyword = "method";
+    string  value = "bicubic";
     optionalParamsMap[keyword] = value;
     optionalParamsVect.push_back(optionalParamsMap);
 
@@ -197,6 +202,14 @@ public:
   							funcSetIndices, paramLimitsExist, userConfigOptions);
 
     modelObj = new ModelObject();
+    // need to add a PSF image, otherwise ModelObject will object when we try to add
+    // a PointSource function
+    int  nColumns_psf = 4;
+    int  nRows_psf = 4;
+    int  nPixels_psf = nColumns_psf*nRows_psf;
+    double psfPixels[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    status = modelObj->AddPSFVector(nPixels_psf, nColumns_psf, nRows_psf, psfPixels, false);
+    TS_ASSERT_EQUALS(status, 0);
     status = AddFunctions(modelObj, fnameList, flabelList, funcSetIndices, false, -1, 
     						optionalParamsVect);
     TS_ASSERT_EQUALS(status, 0);

@@ -1395,6 +1395,8 @@ public:
   {
     bool  returnVal = thisFunc->HasExtraParams();
     TS_ASSERT_EQUALS( returnVal, true );
+    returnVal = thisFunc->ExtraParamsSet();
+    TS_ASSERT_EQUALS( returnVal, false );
   }
   
   void testSetExtraParams1_GoodNameAndValues( void )
@@ -1403,6 +1405,7 @@ public:
     string  keyword = "method";
     string  value_bicubic = "bicubic";
     string  value_lanczos2 = "lanczos2";
+    vector<string>  extraParamLines;
     
     theMap[keyword] = value_bicubic;
     int  status = thisFunc->SetExtraParams(theMap);
@@ -1413,6 +1416,17 @@ public:
     
     string  returnVal2 = thisFunc->GetInterpolationType();
     TS_ASSERT_EQUALS( returnVal2, value_bicubic );
+    
+    thisFunc->GetExtraParamsDescription(extraParamLines);
+    TS_ASSERT_EQUALS( extraParamLines.size(), 3 );
+    if (extraParamLines.size() == 3) {
+      string  correctString1 = "OPTIONAL_PARAMS_START";
+      string  correctString2 = "method   bicubic";
+      string  correctString3 = "OPTIONAL_PARAMS_END";
+      TS_ASSERT_EQUALS( extraParamLines[0], correctString1 );
+      TS_ASSERT_EQUALS( extraParamLines[1], correctString2 );
+      TS_ASSERT_EQUALS( extraParamLines[2], correctString3 );
+    }
 
 
     theMap[keyword] = value_lanczos2;
@@ -1424,6 +1438,18 @@ public:
     
     returnVal2 = thisFunc->GetInterpolationType();
     TS_ASSERT_EQUALS( returnVal2, value_lanczos2 );
+
+    
+    thisFunc->GetExtraParamsDescription(extraParamLines);
+    TS_ASSERT_EQUALS( extraParamLines.size(), 3 );
+    if (extraParamLines.size() == 3) {
+      string  correctString1 = "OPTIONAL_PARAMS_START";
+      string  correctString2b = "method   lanczos2";
+      string  correctString3 = "OPTIONAL_PARAMS_END";
+      TS_ASSERT_EQUALS( extraParamLines[0], correctString1 );
+      TS_ASSERT_EQUALS( extraParamLines[1], correctString2b );
+      TS_ASSERT_EQUALS( extraParamLines[2], correctString3 );
+    }
   }
 
   void testSetExtraParams2_EmptyMap( void )
