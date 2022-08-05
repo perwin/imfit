@@ -13,6 +13,7 @@ using namespace std;
 
 // The following is necessary to ensure stopSignal_flag is handled by the
 // compilation correctly
+#include "signal.h"
 #include "definitions.h"
 volatile sig_atomic_t  stopSignal_flag = 0;
 
