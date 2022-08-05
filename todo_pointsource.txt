@@ -84,7 +84,136 @@ sigma		    0.1 # +/- 0
 time = 1.1s
 
 
+# Using bicubic interpolation
+$ ./imfit n3368i_star_cutout.fits -c config_imfit_n3368i_star.dat --psf=tests/psf_moffat_35.fits --save-params=bestfit_params_n3368i_star_bicubic.dat --save-residual=resid_bicubic.fits
+Reduced Chi^2 = 7.989425
+AIC = 79876.279987, BIC = 79897.908607
+
+X0		49.6518 # +/- 0.0016
+Y0		50.8098 # +/- 0.0016
+FUNCTION PointSource
+I_tot		 145002 # +/- 177.07	counts
+
+
+# Using lanczos2 interpolation
+$ ./imfit n3368i_star_cutout.fits -c config_imfit_n3368i_star.dat --psf=tests/psf_moffat_35.fits --save-params=bestfit_params_n3368i_star_lanczos2.dat --save-residual=resid_lanczos2.fits
+Reduced Chi^2 = 7.955269
+AIC = 79534.822164, BIC = 79556.450784
+
+X0		49.6637 # +/- 0.0017
+Y0		50.8169 # +/- 0.0016
+FUNCTION PointSource
+I_tot		 142029 # +/- 174.27	counts
+
+Lanczos2 is formally a slightly better fit (DeltaAIC = -341)
+
 [ ] Test imfit-mcmc
+
+TESTING STAR ON HST IMAGE
+
+Fit using FlatSky or TiltedPlane + PointSource
+
+WFC3-IR images of CBS galaxies
+	ic2051 -- 381,468
+	n3887 -- 185,1840
+	n4440 -- 260,1504
+	n4612 -- 1773,1978 -- superbright (probably sat. w/in inner 3 pix or so)
+	n4984 -- 838,1823
+			1973,230 -- fainter, cleaner surrounds
+	n5363 -- 603,93
+	n6744 -- 483,954
+	n7177 -- 2168,523 (interesting as case with two faint neighbors)
+			134,1421 -- fainter, also has faint neighbors
+
+* Bright star in IC2051 image:
+
+$ ./imfit ic2051f160w_star_cutout.fits -c config_imfit_ic2051f160w_star.dat --psf=/Users/erwin/Beleriand/data/composite_bulges_sample/PSFs/psf_f160w_grizli_extracted.fits --save-params=bestfit_params_ic2051f160w_star_bicubic.dat --save-residual=resid_ic2051_bicubic.fits --save-model=model_ic2051_bicubic.fits
+Reduced Chi^2 = 7.890131
+AIC = 177504.381365, BIC = 177536.464669
+
+X0		75.4919 # +/- 0.0008
+Y0		74.6383 # +/- 0.0008
+FUNCTION PointSource
+OPTIONAL_PARAMS_START
+method   bicubic
+OPTIONAL_PARAMS_END
+I_tot		5.39718e+06 # +/- 2359.8	counts
+FUNCTION FlatSky
+I_sky		15.0931 # +/- 0.062134	counts/pixel
+
+PROBLEM: outer spikes of star clearly extend outside our PSF image! (PSF image is too small...)
+Visible PSF image in model is 60x57 pixels in size.
+
+$ ./imfit ic2051f160w_star_cutout.fits -c config_imfit_ic2051f160w_star.dat --psf=/Users/erwin/Beleriand/data/composite_bulges_sample/PSFs/psf_f160w_grizli_extracted.fits --save-params=bestfit_params_ic2051f160w_star_lanczos2.dat --save-residual=resid_ic2051_lanczos2.fits --save-model=model_ic2051_lanczos2.fits
+Reduced Chi^2 = 15.083530
+AIC = 339327.094547, BIC = 339359.177851
+
+X0		75.6407 # +/- 0.0009
+Y0		74.4861 # +/- 0.0010
+FUNCTION PointSource
+OPTIONAL_PARAMS_START
+method   lanczos2
+OPTIONAL_PARAMS_END
+I_tot		5.05563e+06 # +/- 2253.9	counts
+FUNCTION FlatSky
+I_sky		 15.231 # +/- 0.062133	counts/pixel
+
+PROBLEM: outer spikes of star clearly extend outside our PSF image! (PSF image is too small...)
+Visible PSF image in model is 56x60 pixels in size.
+
+Bicubic is formally a better fit; residuals are better for bicubic, though not
+perfect...
+
+Actual PSF image has 60x56 as its visible size
+(note that brightest pixel is at 31,31, with image size = 61,61)
+
+
+* Fainter star in NGC4984 image:
+
+$ ./imfit n4984f160w_star_cutout.fits -c config_imfit_n4984f160w_star.dat --psf=/Users/erwin/Beleriand/data/composite_bulges_sample/PSFs/psf_f160w_grizli_extracted.fits --save-params=bestfit_params_n4984f160w_star_bicubic.dat --save-residual=resid_n4984_bicubic.fits --save-model=model_n4984_bicubic.fits
+Reduced Chi^2 = 6.760717
+AIC = 67588.134101, BIC = 67616.971460
+
+X0		50.6168 # +/- 0.0009
+Y0		51.2036 # +/- 0.0008
+FUNCTION PointSource
+OPTIONAL_PARAMS_START
+method   bicubic
+OPTIONAL_PARAMS_END
+I_tot		4.82231e+06 # +/- 2267	counts
+FUNCTION FlatSky
+I_sky		177.199 # +/- 0.14453	counts/pixel
+
+$ ./imfit n4984f160w_star_cutout.fits -c config_imfit_n4984f160w_star.dat --psf=/Users/erwin/Beleriand/data/composite_bulges_sample/PSFs/psf_f160w_grizli_extracted.fits --save-params=bestfit_params_n4984f160w_star_lanczos2.dat --save-residual=resid_n4984_lanczos2.fits --save-model=model_n4984_lanczos2.fits
+Reduced Chi^2 = 19.099567
+AIC = 190927.277633, BIC = 190956.114993
+
+X0		50.7570 # +/- 0.0009
+Y0		51.0169 # +/- 0.0007
+FUNCTION PointSource
+OPTIONAL_PARAMS_START
+method   lanczos2
+OPTIONAL_PARAMS_END
+I_tot		4.64736e+06 # +/- 2228.1	counts
+FUNCTION FlatSky
+I_sky		177.971 # +/- 0.14451	counts/pixel
+
+$ ./imfit n4984f160w_star_cutout.fits -c config_imfit_n4984f160w_star.dat --psf=/Users/erwin/Beleriand/data/composite_bulges_sample/PSFs/psf_f160w_grizli_extracted.fits --save-params=bestfit_params_n4984f160w_star_lanczos3.dat --save-residual=resid_n4984_lanczos3.fits --save-model=model_n4984_lanczos3.fits
+Reduced Chi^2 = 18.632666
+AIC = 186260.133296, BIC = 186288.970656
+
+X0		50.7394 # +/- 0.0009
+Y0		51.0467 # +/- 0.0009
+FUNCTION PointSource
+OPTIONAL_PARAMS_START
+method   lanczos3
+OPTIONAL_PARAMS_END
+I_tot		4.71331e+06 # +/- 2246.6	counts
+FUNCTION FlatSky
+I_sky		177.939 # +/- 0.14451	counts/pixel
+
+
+
 
 
 Let ModelObject handle supplying PSF images to PointSource functions?
@@ -100,6 +229,7 @@ Alternate interpolation
 	-- zero-pad PointSource copy of PSF if we're using Lanczos
 		[X] Look for Python code implementing Lanczos interpolation (e.g., for
 		checking our code against "proper" output)
+			-- /Users/erwin/python/lanczos_test.py
 		[X] Write Python code to implement 1D Lanczos interpolation
 		[X] Write Python code to implement 2D Lanczos interpolation
 			[X] Investigate issue of normalization of Lanczos kernel

@@ -13,8 +13,13 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <signal.h>   // for sig_atomic_t
 
 using namespace std;
+
+
+// volatile sig_atomic_t  stopSignal_flag;
+extern volatile sig_atomic_t  stopSignal_flag;
 
 
 const int  MAXLINE = 1024;

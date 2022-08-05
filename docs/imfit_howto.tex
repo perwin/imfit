@@ -2581,6 +2581,40 @@ such as a function which calculates the $b_{n}$ parameter for a S\'ersic
 function, and a function which calculates the effective radius for a
 generalized ellipse.
 
+
+\subsection{New in Version 1.9: Parameter Units}
+
+Version 1.9 of \Imfit{} added the (optional!) ability to print parameter units
+when outputting best-fit parameters. This is purely cosmetic (it has no effect
+on image computation or fitting) and is meant to be helpful to users who
+might be uncertain as to the meaning of certain parameters of an image function.
+
+To add parameter units to your function all you really need to do is
+define the units in the constructor, and set the
+\texttt{parameterUnitsExist} data member to \texttt{true}. Note that all
+of the standard image functions included in \Imfit{} all have (as of v1.9)
+parameter unit definitions, so you can look at the constructors for any
+of those classes for examples of how to do this.
+
+Units are defined as short strings; if a parameter does \textit{not} have
+a unit (e.g., ellipticities or axis ratios, indices, exponents, etc.), then
+use an empty string (\texttt{""}).
+
+
+
+\subsection{New in Version 1.9: Optional Meta-Parameters}
+
+Version 1.9 of \Imfit{} introduced the optional ability to specify that an
+image function takes optional ``meta-parameters'' -- parameters that define
+certain specializations of a function, but which do \textit{not} change
+during a fit. An example is the \texttt{PointSource} function, which has
+an optional meta-parameter (\texttt{mode}) specifying the interpolation
+algorithm to use (bicubic spline (the default) versus Lanczos2).
+
+TBD.
+
+
+
 %Really simple example: FlatSky
 %
 %GetValues vs CalculateIntensity

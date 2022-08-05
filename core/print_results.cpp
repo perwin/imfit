@@ -4,7 +4,7 @@
 
 /* FILE: print_results.cpp ----------------------------------------- */
 
-// Copyright 2010-2019 by Peter Erwin.
+// Copyright 2010-2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

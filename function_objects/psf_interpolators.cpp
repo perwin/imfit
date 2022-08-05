@@ -178,6 +178,96 @@ double PsfInterpolator_lanczos2::GetValue( double x, double y )
 
 
 
+// DERIVED CLASS: PsfInterpolator_lanczos3 -- uses Lanczos3 interpolation
+
+/* ---------------- CONSTRUCTOR ---------------------------------------- */
+
+PsfInterpolator_lanczos3::PsfInterpolator_lanczos3( double *inputImage, int nCols_image, 
+													int nRows_image )
+{
+  nColumns = nCols_image;
+  nRows = nRows_image;
+  nPixelsTot = (long)(nColumns * nRows);
+  psfDataArray = inputImage;
+  
+  xBound = (nColumns - 1) / 2.0;
+  yBound = (nRows - 1) / 2.0;
+  xArray = (double *)calloc((size_t)nColumns, sizeof(double));
+  yArray = (double *)calloc((size_t)nRows, sizeof(double));
+  for (int n = 0; n < nColumns; n++)
+    xArray[n] = n - xBound;
+  for (int n = 0; n < nRows; n++)
+    yArray[n] = n - yBound;
+  deltaXMin = -xBound;
+  deltaXMax = xBound;
+  deltaYMin = -yBound;
+  deltaYMax = yBound;
+
+  interpolatorType = kInterpolator_lanczos3;
+}
+
+
+/* ---------------- DESTRUCTOR ----------------------------------------- */
+
+PsfInterpolator_lanczos3::~PsfInterpolator_lanczos3( )
+{
+  free(xArray);
+  free(yArray);
+}
+
+
+/* ---------------- PUBLIC METHOD: GetValue ---------------------------- */
+// This function calculates and returns the value of the Lanczos3
+// interpolation kernel, convolved with the PSF image, at x_diff,y_diff, with 
+// those coordinates being relative to the center of the PSF. The corresponding 
+// calculations and call in PointSource::GetValue are
+//    x_diff = x - x0;
+//    y_diff = y - y0;
+//    normalizedIntensity = psfInterpolator->GetValue(x_diff, y_diff);
+
+double PsfInterpolator_lanczos3::GetValue( double x, double y )
+{
+  double newVal;
+  double lanczosScaling;
+  int i_data_mid_x, i_data_mid_y;
+  int i_data_x, i_data_y;
+  double x_dat, y_dat;
+  
+  if ((x < deltaXMin) || (x > deltaXMax) || (y < deltaYMin) || (y > deltaYMax))
+    newVal = 0.0;
+  else {
+    // FIXME: do Lanczos3 interpolation
+    // reminder: xArray runs from [-halfXwidth, .., +halfXwidth], etc.
+    i_data_mid_x = FindIndex(xArray, x);
+    i_data_mid_y = FindIndex(yArray, y);
+    
+    newVal = 0.0;
+    // loop over columns in PSF image
+    for (int i = -3; i <= 3; i++) {
+      i_data_x = i_data_mid_x + i;
+      if ((i_data_x < 0) || (i_data_x >= nColumns))
+        newVal += 0.0;  // outside PSF image (in x)
+      else {
+        x_dat = xArray[i_data_x];  // current x-value for PSF pixels
+        // loop over rows in PSF image (for this column)
+        for (int j = -3; j <= 3; j++) {
+          i_data_y = i_data_mid_y + j;
+          if ((i_data_y < 0) || (i_data_y >= nRows))
+            newVal += 0.0;  // outside PSF image (in y)
+          else {
+            y_dat = yArray[i_data_y];  // current y-value for PSF pixels
+            lanczosScaling = Lanczos(x - x_dat, 3) * Lanczos(y - y_dat, 3);
+            newVal += lanczosScaling * psfDataArray[i_data_x*nColumns + i_data_y];
+          }
+        }
+      }
+    }
+  }
+  return newVal;
+}
+
+
+
 // Extra non-method functions
 
 // Find the index i into monotonically inreasing, evenly spaced array

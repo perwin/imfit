@@ -336,8 +336,11 @@ int ModelObject::SetupPsfInterpolation( int interpolationType )
       psfInterpolator_allocated = true;
       break;
     case kInterpolator_lanczos3:
-      printf("ERROR: Lanczos3 interpolation not yet implemented!\n");
-      return -2;
+//       printf("ERROR: Lanczos3 interpolation not yet implemented!\n");
+//       return -2;
+      psfInterpolator = new PsfInterpolator_lanczos3(localPsfPixels, nPSFColumns, nPSFRows);
+      psfInterpolator_allocated = true;
+      break;
   }
   
   return 0;

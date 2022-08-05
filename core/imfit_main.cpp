@@ -74,6 +74,11 @@
 using namespace std;
 
 
+/* ---------------- Quasi-Global Variable Definitions ------------------- */
+
+volatile sig_atomic_t  stopSignal_flag = 0;
+
+
 /* ---------------- Definitions & Constants ----------------------------- */
 
 // Option names for use in config files
@@ -98,6 +103,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
 bool RequestedFilesPresent( shared_ptr<ImfitOptions> theOptions );
 void HandleConfigFileOptions( configOptions *configFileOptions, 
 								shared_ptr<ImfitOptions> mainOptions );
+void signal_handler( int signal );
 
 
 
@@ -363,6 +369,8 @@ int main(int argc, char *argv[])
       printf("chi^2 (user-supplied error image):\n");
     else
       printf("chi^2 (data-based errors):\n");
+    // Set signal-handling so Ctrl-C (SIGINT) is intercepted
+    signal(SIGINT, signal_handler);
     gettimeofday(&timer_start_fit, NULL);
     fitStatus = DispatchToSolver(options->solver, nParamsTot, nFreeParams, nPixels_tot, 
     							paramsVect, parameterInfo, theModel, options->ftol, paramLimitsExist, 
@@ -1031,6 +1039,14 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
     				configFileOptions->optionNames[i].c_str());
     
   }
+}
+
+
+
+void signal_handler( int signal )
+{
+  if (signal == SIGINT)
+    stopSignal_flag = 1;
 }
 
 

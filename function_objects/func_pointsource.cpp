@@ -176,6 +176,10 @@ int PointSource::SetExtraParams( map<string,string>& inputMap )
         interpolationType = "lanczos2";
         break;
       }
+      if ((iter->second == "lanczos3") || (iter->second == "Lanczos3")) {
+        interpolationType = "lanczos3";
+        break;
+      }
       fprintf(stderr, "ERROR: unidentified interpolation type in PointSource::SetExtraParams!\n");
       fprintf(stderr, "(\"%s\" is not a recognized interpolation type)\n",
       			iter->second.c_str());
@@ -187,7 +191,7 @@ int PointSource::SetExtraParams( map<string,string>& inputMap )
       return 0;
     }
   }
-  interpolationType = iter->second;
+//   interpolationType = iter->second;
   extraParamsSet = true;
   inputExtraParams = inputMap;
   

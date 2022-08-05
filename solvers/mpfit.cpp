@@ -86,6 +86,7 @@
 #include "model_object.h"
 #include "mp_enorm.h"
 #include "utilities_pub.h"
+#include "definitions.h"
 
 
 // Constant definitions (PE)
@@ -348,8 +349,8 @@ int CheckFinite(int ntot, double *matrix);
 * ********** */
 
 
-int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config *config, 
-			ModelObject *theModel, mp_result *result)
+int mpfit( mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config *config, 
+			ModelObject *theModel, mp_result *result )
 {
   mp_config conf;
   int i, j, info, iflag, nfree, npegged, iter;
@@ -957,6 +958,11 @@ int mpfit(mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config 
   /*
    *            tests for termination and stringent tolerances.
    */
+  // PE: check if user typed Ctrl-C; if yes, abort
+  // We do this first, so if the fit actually failed to converge, we report that
+  // instead
+  if (stopSignal_flag == 1)
+    info = MP_SIGINT;
   if ((conf.maxfev > 0) && (nfev >= conf.maxfev)) {
     /* Too many function evaluations */
     info = MP_MAXITER;
@@ -2329,6 +2335,8 @@ void InterpretMpfitResult( int mpfitResult, std::string& interpretationString )
         interpretationString += "xtol too small; no further improvement";
       if (mpfitResult == MP_GTOL)
         interpretationString += "gtol too small; no further improvement";
+      if (mpfitResult == MP_SIGINT)
+        interpretationString += "User interrupt";
     }
   }
 }

@@ -1,13 +1,13 @@
 *** CURRENT WORK
 
-[ ] Finish implementing Lanczos2 interpolation in PointSource
+[X] Finish implementing Lanczos2 interpolation in PointSource
 	-- todo_pointsource.txt; ~/python/lanczos_test.py
 	function_objects/psf_interpolators.*
 	
 	[X] Update code in model_object.cpp to handle this
-	[ ] Test fitting w/ bicuic vs lanczos2 for star in WFC3-IR image
+	[X] Test fitting w/ bicuic vs lanczos2 for star in WFC3-IR image
 	
-	[ ] Implement recording of (user-set) optional-param values in output
+	[X] Implement recording of (user-set) optional-param values in output
 
 [X] Fix unittest_add_functions.t.h -- testAddFunctionsToModel_optionalParams
 	-- use an extra-params function properly
@@ -80,6 +80,7 @@ best fit (and/or write it to a file)
 		be overwritten unless the fit was actually successful).
 		
 	[ ] Write simple C++ program to test signal handling
+		-- ~/coding/testing/interrupt_test.cpp
 	
 
 
@@ -125,14 +126,14 @@ best fit (and/or write it to a file)
 
 [ ] Update mp_par struct (params_struct.h) to class with copy constructor
 	-- this is because we do a fair amount of laborious field-by-field copying
-	in (at least) imfit_main.cpp and multimage_main.cpp, which would be simplified 
+	in (at least) multimage_main.cpp, which would be simplified 
 	if we could just do, e.g., new_mp_par = imageDescParamLimits[i]
+	-- places where this might be useful:
+		multimfit_main.cpp
+		ModelObject::AddParameterInfo
 	
 
 [ ] Improvements to imfit.py:
-	[x] Add suggested pandas-related code to Python utilities
-		-- see email from Justus Neumann, 14 May 2018
-	[x] Add file-existence checking
 
 	
 [ ] Test image convolution with overpsf_scale = even number
@@ -473,29 +474,6 @@ image oversampled
 	of convolutions
 
 [] Optional convolution with charge-diffusion kernel?
-
-
-[] Annotations to describe function parameters
-	-- optional text strings in a FunctionObject class which provide a short, one-line
-	description/reminder of what the parameter is (and maybe its units?)
-	-- printed on same line as parameter name, with "#" in between
-	-- possibly alternate command-line flag to specify this instead of the
-	current, "bare-bones" version
-
-
-[] User annotations for functions in config file
-	-- i.e., allow user to add names to individual functions, e.g.
-	FUNCTION Sersic   # NGC 100: bulge
-	or:
-	FUNCTION Sersic   LABEL = NGC 100: bulge
-	-- these would be stored and written to output files
-
-
-[] Compiling parts of program(s) into a library, which is then linked when
-compiling imfit and makeimage (and other things, like timing). Idea is to set
-things up so it's easier for other people to use "libimfit" without the
-specific input/output functionality/limitations of imfit/makeimage.
-
 
 
 [] Ability to update ModelObject with new data/error/mask/PSF images
@@ -1410,6 +1388,12 @@ OK, here is the problem:
 		[x] Add regression test to do_makeimage_tests
 
 
+[X] Improvements to imfit.py:
+	[x] Add suggested pandas-related code to Python utilities
+		-- see email from Justus Neumann, 14 May 2018
+	[x] Add file-existence checking
+
+
 (1.7)[X] 2D Ferrers bar model
 	-- for comparison with GALFIT; also with Laurikainen et al. models?
 	[x] Check Laurikainen et al. models to see if it's same as GALFIT
@@ -1830,6 +1814,7 @@ to mask.
 	[X] Test change
 
 
+
 [x] Modify Imfit to allow labels for individual components in config/bestfit files?
 	E.g.,
 	"FUNCTION Sersic # LABEL inner bulge"
@@ -1889,4 +1874,12 @@ to mask.
 			[x] --print-fluxes mode
 		
 	[x] Add testing of function-label input/output to do_imfit_tests.sh
+
+
+[X] Compiling parts of program(s) into a library, which is then linked when
+compiling imfit and makeimage (and other things, like timing). Idea is to set
+things up so it's easier for other people to use "libimfit" without the
+specific input/output functionality/limitations of imfit/makeimage.
+	-- Basically done as part of PyImfit
+
 
