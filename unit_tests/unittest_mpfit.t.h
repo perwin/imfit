@@ -11,6 +11,11 @@ using namespace std;
 #include "mpfit.h"
 #include "model_object.h"
 
+// The following is necessary to ensure stopSignal_flag is handled by the
+// compilation correctly
+#include "definitions.h"
+volatile sig_atomic_t  stopSignal_flag = 0;
+
 
 // For use when calling mpfit
 int myfunc_mpfit_good( int nDataVals, int nParams, double *params, double *deviates,

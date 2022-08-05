@@ -79,8 +79,16 @@ best fit (and/or write it to a file)
 		output file (we don't want a valid output file from a previous stage to
 		be overwritten unless the fit was actually successful).
 		
-	[ ] Write simple C++ program to test signal handling
+	[X] Write simple C++ program to test signal handling
 		-- ~/coding/testing/interrupt_test.cpp
+	
+	[X] Add interrupt-handling code to mpfit.cpp
+	[ ] Add interrupt-handling code to DESolver.cpp (and/or diff_evoln_fit.cpp)
+	[ ] Add interrupt-handling code to nmsimplex_fit.cpp
+	[ ] Add interrupt-handling code to nlopt.cpp
+	
+	[ ] Modify code in imfit_main.cpp to save parameters to alternate file *if*
+		use interrupted the fit
 	
 
 
