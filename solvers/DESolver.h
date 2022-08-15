@@ -18,6 +18,12 @@
 #ifndef _DESOLVER_H
 #define _DESOLVER_H
 
+
+#define DE_CONVERGED   1
+#define DE_MAX_ITERATIONS   5
+#define DE_SIGINT   100
+
+
 const int stBest1Exp       =    0;
 const int stRand1Exp       =    1;
 const int stRandToBest1Exp =    2;

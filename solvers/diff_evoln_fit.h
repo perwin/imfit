@@ -19,6 +19,7 @@
 //    value = 0   --> FAILURE: input parameter error
 //    value = 1   --> generic success
 //    value = 5   --> max iterations reached
+//    value = 100   --> user-triggered interrupt (via Ctrl-C)
 
 int DiffEvolnFit( int nParamsTot, double *initialParams, vector<mp_par> parameterLimits, 
 									ModelObject *theModel, const double ftol, const int verbose,

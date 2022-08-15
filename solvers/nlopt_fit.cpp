@@ -1,6 +1,6 @@
 /* FILE: nlopt_fit.cpp --------------------------------------------------- */
 
-// Copyright 2014--2018 by Peter Erwin.
+// Copyright 2014--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -69,6 +69,7 @@ using namespace std;
 #include "nlopt_fit.h"
 #include "utilities_pub.h"
 #include "solver_results.h"
+#include "definitions.h"
 
 const int  MAXEVAL_BASE = 10000;
 const double  FTOL = 1.0e-8;
@@ -139,6 +140,10 @@ double myfunc_nlopt_gen( unsigned n, const double *x, double *grad, void *my_fun
   if (std::isnan(fitStatistic)) {
     fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
     fprintf(stderr, "*** Terminating the fit...\n");
+    junk = nlopt_force_stop(theOptimizer);
+  }
+  if (stopSignal_flag == 1) {
+    fprintf(stderr, "\n*** User-requested termination of the fit...\n");
     junk = nlopt_force_stop(theOptimizer);
   }
 

@@ -23,22 +23,27 @@ is enabled by adding the following three lines immediately after the
 "FUNCTION PointSource" line in a configuration file: "OPTIONAL_PARAMS_START",
 "method   lanczos2", "OPTIONAL_PARAMS_END".
 
-- It is now possible to write image functions which, like PointSource
-and PointSourceRot, take one (or more) *optional* parameters to
-specialize the function. These are *not* like the standard parameters --
-which are changed by the optimization algorithm as part of the fitting
-process --; instead, they are only used/applied at startup. These come
-in the form of key-value pairs (the key is the name of the parameter),
-with both specified as text strings in the configuration file. If
-supplied, they are passed to the image function after it is initialized
-but before any fitting; how they values are used is up to the
-individual function (e.g., they can be converted to floating-point
-values, used to select one of several internal algorithms, interpreted as the
-filename of an extra configuration file with options and/or data for the
-function, etc.).
+- It is now possible to write image functions which, like the updated
+versions of PointSource and PointSourceRot, take one (or more)
+*optional* parameters to specialize the function. These are *not* like
+the standard parameters -- which are changed by the optimization
+algorithm as part of the fitting process -- instead, they are only
+used/applied at startup. These come in the form of key-value pairs (the
+key is the name of the parameter), with both specified as text strings
+in the configuration file. If supplied, they are passed to the image
+function after it is initialized but before any fitting; how they values
+are used is up to the individual function (e.g., they can be converted
+to floating-point values, used to select one of several internal
+algorithms, interpreted as the filename of an extra configuration file
+with options and/or data for the function, etc.).
     
 
 ### Changed:
+
+- If you type Control-C to interrupt a fit (you think it's taking too long,
+you decide you specified the model wrong, you forgot to specify a PSF image, etc.),
+`imfit` now halts, prints the *current* best parameter values, *and*
+saves them in a special output file ("current_parameters_imfit.dat").
 
 - The `--print-fluxes` option for makeimage now automatically turn off
 image saving, so you no longer have to *also* specify `--nosave`. (This
@@ -65,14 +70,14 @@ the InclinedFlatSky function suggested by Dan Prole (danjampro).
 - New image function: GaussianRingAz. This is similar to GaussianRing
 (an elliptical ring with a Gaussian radial intensity profile), but has a
 peak intensity that varies with azimuth around the ring (see Erwin et
-al. 2020 for its use in modeling images of the barred galaxy NGC 4608).
+al. 2021 for its use in modeling images of the barred galaxy NGC 4608).
 
 - New image function: FlatBar. This is an ad-hoc representation of the
 outer, vertically thin part of a two-component, vertically buckled bar
 in a massive galaxy, seen at low to moderate inclinations. It is meant to be
 used in conjunction with, e.g., a Sersic or Sersic_GenEllipse component (which
 would represent the inner, vertically thickened "boxy/peanut-shaped bulge"
-part of the bar. (See Erwin et al. 2020 -- especially Appendix~A -- for its use
+part of the bar. (See Erwin et al. 2021 -- especially Appendix~A -- for its use
 in modeling images of two barred galaxies).
 
 - New option for makeimage: `--save-fluxes`, which saves the
@@ -375,8 +380,7 @@ is being used.
 Xcode earlier than 5 installed on a Mac (in which case it would try to
 use llvm-g++-4.2 as the compiler), since that's increasingly
 ancient. The choices for compiling on a Mac are now basically: 1) Use
-GCC installed via a package manager (e.g., Homebrew, Fink, MacPorts); or
-2) Use Apple's version of clang without OpenMP support.
+GCC installed via a package manager (e.g., Homebrew, Fink, MacPorts); or 2) Use Apple's version of clang without OpenMP support.
 
 
 

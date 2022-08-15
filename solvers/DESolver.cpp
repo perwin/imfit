@@ -37,8 +37,14 @@
 
 using namespace std;
 
+#include "definitions.h"
 #include "DESolver.h"
 #include "mersenne_twister.h"
+
+// #define DE_CONVERGED   1
+// #define DE_MAX_ITERATIONS   5
+// #define DE_SIGINT   100
+// 
 
 #define Element(a,b,c)  a[b*nDim+c]
 #define RowVector(a,b)  (&a[b*nDim])
@@ -245,6 +251,13 @@ int DESolver::Solve( int maxGenerations, int verbose )
       }
     }
     
+    if (stopSignal_flag == 1) {
+      fprintf(stderr, "\n*** User-requested termination of the fit...\n");
+      generations = generation;
+      bAtSolution = true;
+      return DE_SIGINT;
+    }
+
     // Debugging printout code added by PE -- print an update every 10 generations
     double  relativeDeltaEnergy = 0.0;
     if ((generation % 10) == 0) {
@@ -273,7 +286,7 @@ int DESolver::Solve( int maxGenerations, int verbose )
         if (TestConverged(relativeDeltas, tolerance)) {
           generations = generation;
           bAtSolution = true;
-          return 1;
+          return DE_CONVERGED;
         }
       }
       lastBestEnergy = bestEnergy;
@@ -287,7 +300,7 @@ int DESolver::Solve( int maxGenerations, int verbose )
   }
   
   generations = generation;
-  return 5;
+  return DE_MAX_ITERATIONS;
 }
 
 

@@ -25,6 +25,7 @@
 // #define MP_FTOL (6)              /* ftol is too small; no further improvement*/
 // #define MP_XTOL (7)              /* xtol is too small; no further improvement*/
 // #define MP_GTOL (8)              /* gtol is too small; no further improvement*/
+// #define MP_SIGINT (100)          /* PE: user typed Ctrl-C */
 
 int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVector, 
 				vector<mp_par> parameterLimits, ModelObject *theModel, const double ftol, 

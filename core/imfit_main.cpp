@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
   const std::string  Y0_string("Y0");
   string  progNameVersion = "imfit ";
   vector<string> programHeader;
+  bool  userInterrupted = false;
   FILE  *bootstrapSaveFile_ptr = NULL;
   bool  didBootstrap = false;
   // timing-related
@@ -377,13 +378,15 @@ int main(int argc, char *argv[])
     							options->verbose, &resultsFromSolver, options->nloptSolverName,
     							options->rngSeed, options->useLHS);
     gettimeofday(&timer_end_fit, NULL);
+    if (stopSignal_flag == 1)
+      userInterrupted = true;
     							
     PrintResults(paramsVect, theModel, nFreeParams, fitStatus, resultsFromSolver);
   }
 
 
   // ** Optional bootstrap resampling
-  if ((options->doBootstrap) && (options->bootstrapIterations > 0)) {
+  if ((options->doBootstrap) && (options->bootstrapIterations > 0) && (! userInterrupted)) {
     if (options->saveBootstrap) {
       bootstrapSaveFile_ptr = fopen(options->outputBootstrapFileName.c_str(), "w");
       // write general info + best-fitting params as a commented-out header
@@ -413,11 +416,19 @@ int main(int argc, char *argv[])
   // "warnings" and don't immediately exit, since we're close to the end of the program
   // anyway, and the user might just have given us a bad path for one of the output images
   if (options->saveBestFitParams) {
-    printf("Saving best-fit parameters in file \"%s\"\n", options->outputParameterFileName.c_str());
-    SaveParameters(paramsVect, theModel, options->outputParameterFileName, programHeader, 
+    if (! userInterrupted) {
+      printf("Saving best-fit parameters in file \"%s\"\n", options->outputParameterFileName.c_str());
+      SaveParameters(paramsVect, theModel, options->outputParameterFileName, programHeader, 
     						nFreeParams, options->solver, fitStatus, resultsFromSolver);
+    }
+    else {
+      // User interrupted (e.g via Ctrl-C), so save parameters in special file
+       printf("Saving current parameters in file \"%s\"\n", options->interruptedParameterFileName.c_str());
+      SaveParameters(paramsVect, theModel, options->interruptedParameterFileName, programHeader, 
+    						nFreeParams, options->solver, fitStatus, resultsFromSolver);   
+    }
   }
-  if (options->saveModel) {
+  if ((options->saveModel) && (! userInterrupted)) {
     PrepareImageComments(&imageCommentsList, progNameVersion, options->outputParameterFileName,
     					options->psfImagePresent, options->psfFileName, HDR_MODELIMAGE,
     					options->imageFileName);
@@ -429,7 +440,7 @@ int main(int argc, char *argv[])
       				options->outputModelFileName.c_str());
     }
   }
-  if (options->saveResidualImage) {
+  if ((options->saveResidualImage) && (! userInterrupted)) {
     imageCommentsList.clear();
     PrepareImageComments(&imageCommentsList, progNameVersion, options->outputParameterFileName,
     					options->psfImagePresent, options->psfFileName, HDR_RESIDUALIMAGE,
@@ -442,7 +453,7 @@ int main(int argc, char *argv[])
       				options->outputResidualFileName.c_str());
     }
   }
-  if (options->saveWeightImage) {
+  if ((options->saveWeightImage) && (! userInterrupted)) {
     imageCommentsList.clear();
     PrepareImageComments(&imageCommentsList, progNameVersion, options->outputParameterFileName,
     					options->psfImagePresent, options->psfFileName, HDR_WEIGHTIMAGE,

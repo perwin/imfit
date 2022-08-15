@@ -47,7 +47,7 @@
 	[ ] locate places in main() to modify
 
 
-[ ] Add ability to handle Ctrl-C by exiting gracefully and printing current
+[..] Add ability to handle Ctrl-C by exiting gracefully and printing current
 best fit (and/or write it to a file)
 	https://en.cppreference.com/w/c/program/signal
 	-- We will want to have a compilation flag to turn this on/off (e.g., probably off 
@@ -84,11 +84,12 @@ best fit (and/or write it to a file)
 	
 	[X] Add interrupt-handling code to mpfit.cpp
 	[ ] Add interrupt-handling code to DESolver.cpp (and/or diff_evoln_fit.cpp)
-	[ ] Add interrupt-handling code to nmsimplex_fit.cpp
-	[ ] Add interrupt-handling code to nlopt.cpp
+	[X] Add interrupt-handling code to nmsimplex_fit.cpp
+	[X] Add interrupt-handling code to nlopt.cpp
 	
 	[ ] Modify code in imfit_main.cpp to save parameters to alternate file *if*
-		use interrupted the fit
+		user interrupted the fit
+			-- check status of stopSignal_flag
 	
 
 

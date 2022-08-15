@@ -24,13 +24,13 @@ Estimated memory use: 14275339 bytes (13.6 MB)
 
 Performing fit by minimizing chi^2 (data-based errors):
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 19349.479586
-	mpfit iteration 2: fit statistic = 14100.700133
-	mpfit iteration 3: fit statistic = 11225.390212
-	mpfit iteration 4: fit statistic = 7809.597853
-	mpfit iteration 5: fit statistic = 5256.016522
-	mpfit iteration 6: fit statistic = 2806.755544
-	mpfit iteration 7: fit statistic = 2494.671443
+	mpfit iteration 1: fit statistic = 19349.481448
+	mpfit iteration 2: fit statistic = 14100.700303
+	mpfit iteration 3: fit statistic = 11225.390278
+	mpfit iteration 4: fit statistic = 7809.597858
+	mpfit iteration 5: fit statistic = 5256.016580
+	mpfit iteration 6: fit statistic = 2806.755585
+	mpfit iteration 7: fit statistic = 2494.671438
 	mpfit iteration 8: fit statistic = 2491.977778
 	mpfit iteration 9: fit statistic = 2491.977492
 	mpfit iteration 10: fit statistic = 2491.977492
@@ -50,23 +50,23 @@ AIC = 2508.035300, BIC = 2554.569860
 X0		40.5036 # +/- 0.0064
 Y0		40.2470 # +/- 0.0064
 FUNCTION Gaussian
-PA		      0 # +/- 0
+PA		      0 # +/- 0	deg (CCW from +y axis)
 ell		      0 # +/- 0
-I_0		109.583 # +/- 1.2714
-sigma		1.00132 # +/- 0.0068688
+I_0		109.583 # +/- 1.2714	counts/pixel
+sigma		1.00132 # +/- 0.0068688	pixels
 
 X0		15.0959 # +/- 0.0078
 Y0		10.5906 # +/- 0.0078
 FUNCTION Gaussian
-PA		      0 # +/- 0
+PA		      0 # +/- 0	deg (CCW from +y axis)
 ell		      0 # +/- 0
-I_0		88.5157 # +/- 1.2183
-sigma		1.01064 # +/- 0.0082669
+I_0		88.5157 # +/- 1.2183	counts/pixel
+sigma		1.01064 # +/- 0.0082669	pixels
 FUNCTION FlatSky
-I_sky		    100 # +/- 0
+I_sky		    100 # +/- 0	counts/pixel
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 1.474790 sec for fit, 1.559491 sec total)
+(Elapsed time: 34.234144 sec for fit, 34.945392 sec total)
 Done!
 

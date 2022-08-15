@@ -1,6 +1,6 @@
 /* FILE: nmsimplex_fit.cpp ----------------------------------------------- */
 
-// Copyright 2012--2020 by Peter Erwin.
+// Copyright 2012--2022 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -61,6 +61,7 @@
 #include "nmsimplex_fit.h"
 #include "solver_results.h"
 #include "utilities_pub.h"
+#include "definitions.h"
 
 
 const int  MAXEVAL_BASE = 10000;
@@ -106,6 +107,10 @@ double myfunc_nlopt( unsigned n, const double *x, double *grad, void *my_func_da
   if (std::isnan(fitStatistic)) {
     fprintf(stderr, "\n*** NaN-valued fit statistic detected (N-M optimization)!\n");
     fprintf(stderr, "*** Terminating the fit...\n");
+    junk = nlopt_force_stop(optimizer);
+  }
+  if (stopSignal_flag == 1) {
+    fprintf(stderr, "\n*** User-requested termination of the fit...\n");
     junk = nlopt_force_stop(optimizer);
   }
 

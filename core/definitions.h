@@ -34,7 +34,7 @@ const double MEMORY_WARNING_LIMT = 1073741824.0;   /* 1 gigabyte */
 // imfit-related
 #define DEFAULT_IMFIT_CONFIG_FILE   "imfit_config.dat"
 #define DEFAULT_OUTPUT_PARAMETER_FILE   "bestfit_parameters_imfit.dat"
-
+#define USER_INTERRUPT_OUTPUT_PARAMETER_FILE   "current_parameters_imfit.dat"
 
 // makeimage-related
 #define DEFAULT_MAKEIMAGE_OUTPUT_FILENAME   "modelimage.fits"

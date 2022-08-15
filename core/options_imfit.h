@@ -32,6 +32,7 @@ class ImfitOptions : public OptionsBase
       outputWeightFileName = "";
       saveBestFitParams = true;
       outputParameterFileName = DEFAULT_OUTPUT_PARAMETER_FILE;
+      interruptedParameterFileName = USER_INTERRUPT_OUTPUT_PARAMETER_FILE;
 
       useModelForErrors = false;
       useCashStatistic = false;
@@ -64,6 +65,7 @@ class ImfitOptions : public OptionsBase
     string  outputWeightFileName;
     bool  saveBestFitParams;
     string  outputParameterFileName;
+    string  interruptedParameterFileName;
   
     bool  noParamLimits;
     bool  ftolSet;
