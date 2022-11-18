@@ -3,6 +3,8 @@
 // Code for determining the number of *physical* CPU cores on a computer;
 // useful for determining how many threads to use for OpenMP and (especially)
 // FFTW.
+// This has a single function in two versions, one for Linux (parses the
+// /proc/cpuinfo file) and one for macOS (uses sysctlbyname function).
 
 // Copyright 2022 by Peter Erwin.
 // 
@@ -46,11 +48,10 @@ int GetPhysicalCoreCount( )
   string  inputLine;
   vector<string>  inputLines;
   vector<string>  tokens;
-  set<string>  physIDStrings;
+  set<string>  physIDStrings;   // use std::set so we only store unique strings
   // search strings
   string  physIDStr = "physical id";
   string  coreStr = "cpu cores";
-  int  nInputLines;
   int  nSockets = 0;
   int  nCoresPerSocket = 0;
 
@@ -64,28 +65,25 @@ int GetPhysicalCoreCount( )
     }
   }
   inputFileStream.close();
-  nInputLines = inputLines.size();
 
-  for (int i = 0; i < nInputLines; i++) {
+  for (int i = 0; i < inputLines.size(); i++) {
     // collect unique instances of "physical id" string
     if (inputLines[i].find(physIDStr) != string::npos) {
       physIDStrings.insert(inputLines[i]);
     }
     else if (inputLines[i].find(coreStr) != string::npos) {
-      // get nCoresPerSocket (assume all such instances are the same and just
-      // use the last)
+      // get nCoresPerSocket (assume all instances are the same and just use the last)
       SplitString(inputLines[i], tokens);
       nCoresPerSocket = atol(tokens[tokens.size() - 1].c_str());
     }
   }
   
-  // count unique examples of "physical id" string
   nSockets = physIDStrings.size();
   return nSockets * nCoresPerSocket;
 }
 
 #else
-// macOS version of GetPhysicalCoreCount() -- much simpler!
+// macOS version -- much simpler!
 
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -95,7 +93,7 @@ int GetPhysicalCoreCount( )
   int  nCores;
   size_t  size = sizeof(nCores);
   
-  // we use hw.perflevel0 instead of hw.physicalcpu to ensure we only count
+  // we use hw.perflevel0.physicalcpu instead of hw.physicalcpu to ensure we only count
   // high-performance cores on Apple Silicon CPUs
   sysctlbyname("hw.perflevel0.physicalcpu", &nCores, &size, NULL, 0);
   return nCores;
@@ -105,4 +103,4 @@ int GetPhysicalCoreCount( )
 
 
 
-/* END OF FILE: count_cpu_cores.cpp --p--------------------------------- */
+/* END OF FILE: count_cpu_cores.cpp ------------------------------------ */

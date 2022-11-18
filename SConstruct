@@ -187,7 +187,9 @@ with OpenMP support).
 #    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
 #    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2016 onward)
 
-cflags_opt = ["-O3", "-g0", "-fPIC", "-std=c++11", "-mmacosx-version-min=10.13"]
+cflags_opt = ["-O3", "-g0", "-fPIC", "-std=c++11"]
+if os_type == "Darwin":
+    cflags_opt.append("-mmacosx-version-min=10.13")
 if useVectorExtensions:
     cflags_opt.append("-msse2")
 cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow", 
