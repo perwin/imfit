@@ -70,6 +70,7 @@
 #include "print_results.h"
 #include "estimate_memory.h"
 #include "sample_configs.h"
+#include "count_cpu_cores.h"
 
 using namespace std;
 
@@ -162,6 +163,11 @@ int main(int argc, char *argv[])
  
   // ** Define default options, then process the command line
   options = make_shared<ImfitOptions>();
+  // Set maximum number of threads = number of hardware cores by default
+  // (user can still override this with --max-threads option)
+  options->maxThreads = GetPhysicalCoreCount();
+  options->maxThreadsSet = true;
+  /* Process command line and parse config file: */
   ProcessInput(argc, argv, options);
 
   // (Appropriate error messages regarding any missing files will be printed

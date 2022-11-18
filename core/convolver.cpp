@@ -118,6 +118,7 @@
 #endif  // FFTW_THREADING
 
 #include "convolver.h"
+#include "count_cpu_cores.h"
 
 #define DEFAULT_OPENMP_CHUNK_SIZE  10
 
@@ -260,7 +261,9 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
 
 #ifdef FFTW_THREADING
   int  nThreads, nCores;
-  nCores = sysconf(_SC_NPROCESSORS_ONLN);
+//   nCores = sysconf(_SC_NPROCESSORS_ONLN);
+  nCores = GetPhysicalCoreCount();
+//   printf("Convolver::DoFullSetup: nCores = %d\n", nCores);
   if (maxRequestedThreads == 0) {
     // Default: 1 thread per available core
     nThreads = nCores;
@@ -268,6 +271,7 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
     nThreads = maxRequestedThreads;
   if (nThreads < 1)
     nThreads = 1;
+//   printf("Convolver::DoFullSetup: calling fftw_plan_with_nthreads with nThreads = %d\n", nThreads);
   fftw_plan_with_nthreads(nThreads);
 #endif  // FFTW_THREADING
 

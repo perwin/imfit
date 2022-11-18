@@ -828,6 +828,8 @@ int ModelObject::AddPSFVector( long nPixels_psf, int nColumns_psf, int nRows_psf
   nPSFRows = nRows_psf;
   psfConvolver = new Convolver();
   psfConvolver->SetupPSF(psfPixels, nColumns_psf, nRows_psf, normalizePSF);
+//   printf("ModelObject::AddPSFVector -- calling psfConvolver->SetMaxThreads()");
+//   printf("with maxRequestedThreads = %d\n", maxRequestedThreads);
   psfConvolver->SetMaxThreads(maxRequestedThreads);
   doConvolution = true;
   

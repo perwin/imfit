@@ -21,9 +21,6 @@
 # To build a version *without* OpenMP enabled
 #    $ scons --no-openmp <target-name>
 #
-# To build a version *without* FFTW threading:
-#    $ scons --no-threading <target-name>
-#
 #
 # To build a version using non-default compiler:
 #    $ scons --cc=<C_COMPILER> --cpp=<C++_COMPILE> <target-name>
@@ -69,7 +66,7 @@
 # with Imfit.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os, subprocess, platform, getpass, pwd
+import os, subprocess, platform, getpass, pwd, copy
 
 
 def GetLinuxType():
@@ -101,8 +98,8 @@ useVectorExtensions = True
 # m
 # pthread [Linux]
 # dl [Linux, if using loguru for g]
-# cfitsio
-#   -- if static, then on macOS we must link with curl [part of system]
+# cfitsio (v4.0 and later)
+#   -- if static, then on macOS we must link with curl AND zlib [part of system]
 #   -- for Linux, we use our compiled static-library version of cfitsio
 #      (not Ubuntu's), so we don't need any extra libraries
 # fftw3, fftw3_threads
@@ -128,7 +125,7 @@ MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
 # Debian/Ubuntu standard x86-64 package installation path
 LINUX_UBUNTU_STATIC_LIBS_PATH = "/usr/local/lib/"
 libDirs = {"Darwin": MAC_STATIC_LIBS_PATH, "Linux": LINUX_UBUNTU_STATIC_LIBS_PATH}
-extraSharedLibs_static_cfitsio = {"Darwin": ["curl"], "Linux": []}
+extraSharedLibs_static_cfitsio = {"Darwin": ["curl", "z"], "Linux": []}
 
 BASE_SHARED_LIBS = ["m"]
 if os_type == "Linux":
@@ -190,7 +187,7 @@ with OpenMP support).
 #    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
 #    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2016 onward)
 
-cflags_opt = ["-O3", "-g0", "-fPIC", "-std=c++11"]
+cflags_opt = ["-O3", "-g0", "-fPIC", "-std=c++11", "-mmacosx-version-min=10.13"]
 if useVectorExtensions:
     cflags_opt.append("-msse2")
 cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow", 
@@ -221,20 +218,22 @@ cpp_compiler_changed = False
 usingGCC = True
 
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v9 is installed and
-# callable via gcc-9 and g++-9)
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v12 is installed and
+# callable via gcc-12 and g++-12)
 # Comment this out otherwise!
 # Note that the following way of determining the username seems to be a bit more 
 # portable than "getpass.getuser()", which fails for "Ubuntu on Windows" (acc. to 
 # Lee Kelvin, who contributed the new version)
 userName = pwd.getpwuid(os.getuid())[0]
 if (os_type == "Darwin") and (userName == "erwin"): 
-    CC_COMPILER = "gcc-11"
-    CPP_COMPILER = "g++-11"
+    CC_COMPILER = "gcc-12"
+    CPP_COMPILER = "g++-12"
     c_compiler_changed = True
     cpp_compiler_changed = True
     usingGCC = True
 
+
+extra_defines = []
 
 # *** System-specific setup
 # if (os_type == "Darwin"):   # OK, we're compiling on macOS (a.k.a. Mac OS X)
@@ -243,15 +242,16 @@ if (os_type == "Darwin") and (userName == "erwin"):
 #   # are 32-bit, use the following
 #   cflags_db = ["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith", "-g3"]
 if (os_type == "Linux"):
+    extra_defines.append("LINUX")
     # change the following path definitions as needed
     include_path.append("/usr/include")
     if userName == "erwin":
         include_path.append("/home/erwin/include")
         lib_path.append("/home/erwin/lib")
+else:
+    extra_defines.append("MACOS")
 defines_opt = base_defines
 defines_db = base_defines
-
-extra_defines = []
 
 
 
@@ -275,14 +275,14 @@ setOptToDebug = False
 useLogging = False
 
 # Define some user options
+AddOption("--fftw-path", dest="fftwLibraryPath", type="string", action="store", default=None,
+    help="path to directory containing FFTW libraries")
+AddOption("--fftw-openmp", dest="fftwOpenMP", action="store_true", 
+    default=False, help="compile with OpenMP-threaded FFTW library")
 AddOption("--lib-path", dest="libraryPath", type="string", action="store", default=None,
     help="colon-separated list of additional paths to search for libraries")
 AddOption("--header-path", dest="headerPath", type="string", action="store", default=None,
     help="colon-separated list of additional paths to search for header files")
-AddOption("--no-threading", dest="fftwThreading", action="store_false", 
-    default=True, help="compile programs *without* FFTW threading")
-# AddOption("--no-gsl", dest="useGSL", action="store_false", 
-#     default=True, help="do *not* use GNU Scientific Library")
 AddOption("--no-nlopt", dest="useNLopt", action="store_false", 
     default=True, help="do *not* use NLopt library")
 AddOption("--no-openmp", dest="noOpenMP", action="store_true", 
@@ -372,8 +372,8 @@ if GetOption("useGCC"):
         print("ERROR: You cannot specify both Clang and GCC as the compiler!")
         Exit(2)
     usingGCC = True
-    CC_COMPILER = "gcc-11"
-    CPP_COMPILER = "g++-11"
+    CC_COMPILER = "gcc-12"
+    CPP_COMPILER = "g++-12"
     print("using %s for C compiler" % CC_COMPILER)
     print("using %s for C++ compiler" % CPP_COMPILER)
     c_compiler_changed = True
@@ -401,6 +401,15 @@ if GetOption("useTotalStaticLinking"):
     if usingGCC:
         totalStaticLinking = True
 
+
+# TESTING FFTW
+if GetOption("fftwLibraryPath"):
+    fftwPath = GetOption("fftwLibraryPath") + "/lib/"
+    STATIC_FFTW_LIBRARY_FILE = File(fftwPath + "libfftw3.a")
+    if GetOption("fftwOpenMP"):
+        STATIC_FFTW_THREADED_LIBRARY_FILE = File(fftwPath + "libfftw3_omp.a")
+    else:
+        STATIC_FFTW_THREADED_LIBRARY_FILE = File(fftwPath + "libfftw3_threads.a")
 
 
 # *** Setup for various options (either default, or user-altered)
@@ -534,6 +543,13 @@ env = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=
 env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
                     LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
                     CPPDEFINES=defines_db )
+lib_list_nofits = copy.copy(lib_list)
+if "nlopt" in lib_list_nofits:
+    lib_list_nofits.remove("nlopt")
+env_debug_nofits = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, 
+                    LIBS=lib_list_nofits, 
+                    LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
+                    CPPDEFINES=defines_db )
 
 
 # Checks for libraries and headers -- if we're not doing scons -c:
@@ -661,7 +677,7 @@ cdream_sources = [name + ".cpp" for name in cdream_objs]
 
 # Base files for imfit, makeimage, imfit-mcmc, and libimfit:
 base_obj_string = """mp_enorm statistics mersenne_twister commandline_parser utilities 
-config_file_parser add_functions"""
+config_file_parser add_functions count_cpu_cores"""
 base_objs = [ CORE_SUBDIR + name for name in base_obj_string.split() ]
 # FITS image-file I/O
 image_io_obj_string = "image_io getimages"
@@ -838,7 +854,7 @@ profilefit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in z
 env_1d.Program("profilefit", profilefit_dbg_objlist)
 
 psfconvolve_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve_objs, psfconvolve_sources) ]
-env_debug.Program("psfconvolve", psfconvolve_dbg_objlist)
+env_debug_nofits.Program("psfconvolve", psfconvolve_dbg_objlist)
 
 psfconvolve1d_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(psfconvolve1d_objs, psfconvolve1d_sources) ]
 env_1d.Program("psfconvolve1d", psfconvolve1d_dbg_objlist)

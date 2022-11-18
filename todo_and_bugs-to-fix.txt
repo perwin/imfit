@@ -17,10 +17,15 @@
 
 ** BUGS TO FIX:
 
+[ ] Fix imfit, makeimage, and imfit-mcmc so the error out if user supplies
+	oversampled PSF(s) but *not* oversampling regions
+
 [ ] Imfit on MBPro 2019 is very slow in oversampled-PSF tests (45s for fit
 	vs 3s on MBPro 2017)
 		-- true for all 3 tests (2 with N-M, 1 with L-M)
 		-- progression of actual recorded chi^2 values is identical
+	This is probably due to the problem of using more threads than actual cores
+	(via "hyperthreading") when doing FFT
 
 
 
@@ -37,6 +42,21 @@
 	(spiral arms! ExpDisk3D), add pages with notes and figures and recommendations
 
 
+[ ] Test use of FFTW "measure" option for plans
+	-- can we get meaningful speedups for large image convolution?
+	
+		-- command-line flag
+		-- modify model_object.cpp to pass doFFTWMeasure to psfConvolver->DoFullSetup()
+		
+		-- do some timing tests
+		
+		[later: modify ]
+	[ ] Read FFTW docs to see what we need to add
+	[ ] Figure out what code to test
+		-- psfconvolve?
+		
+
+
 [ ] Add option to skip initial fit in bootstrap resampling
 	-- just use input config file (ideally using values from an actual fit)
 	as starting values for all fits
@@ -47,7 +67,7 @@
 	[ ] locate places in main() to modify
 
 
-[..] Add ability to handle Ctrl-C by exiting gracefully and printing current
+[X] Add ability to handle Ctrl-C by exiting gracefully and printing current
 best fit (and/or write it to a file)
 	https://en.cppreference.com/w/c/program/signal
 	-- We will want to have a compilation flag to turn this on/off (e.g., probably off 
@@ -83,11 +103,11 @@ best fit (and/or write it to a file)
 		-- ~/coding/testing/interrupt_test.cpp
 	
 	[X] Add interrupt-handling code to mpfit.cpp
-	[ ] Add interrupt-handling code to DESolver.cpp (and/or diff_evoln_fit.cpp)
+	[X] Add interrupt-handling code to DESolver.cpp (and/or diff_evoln_fit.cpp)
 	[X] Add interrupt-handling code to nmsimplex_fit.cpp
 	[X] Add interrupt-handling code to nlopt.cpp
 	
-	[ ] Modify code in imfit_main.cpp to save parameters to alternate file *if*
+	[X] Modify code in imfit_main.cpp to save parameters to alternate file *if*
 		user interrupted the fit
 			-- check status of stopSignal_flag
 	
