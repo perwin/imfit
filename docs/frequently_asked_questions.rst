@@ -35,11 +35,11 @@ components and their fractions of the total flux of the model:
 
 ::
 
-   $ makeimage config_or_bestfit_file.dat --print-fluxes [--nosave]
+   $ makeimage config_or_bestfit_file.dat --print-fluxes
 
-(The “–nosave” option tells ``makeimage`` to skip saving the model
-image; this is useful if you just want to know what the fluxes and
-ratios are.)
+(In versions earlier than 1.9, you should also supply the “–nosave”
+option, which tells ``makeimage`` to skip saving the model image; this
+is the default in version 1.9 and later.)
 
 The output will look something like this:
 
@@ -54,9 +54,10 @@ The output will look something like this:
    Total                     1.1949e+07
 
 Note that the flux units are in counts (i.e., the units of individual
-pixel values). To get outputs in magnitudes as well, see the next
-question. (The “Label” entries take their names from the optional “#
-LABEL ” comments in the config/best-fit-parameters file.)
+pixel values, summed over all pixels). To get outputs in magnitudes as
+well, see the next question. (The “Label” entries take their names from
+the optional “# LABEL ” comments in the config/best-fit-parameters
+file.)
 
 By default, ``makeimage`` computes component fluxes by generating a 5000
 x 5000 pixel internal image and summing up the pixel values (a few

@@ -161,7 +161,7 @@ Yosemite, El Capitan, Sierra, and High Sierra)\footnote{Versions 1.3 and
 earlier were also built for MacOS X 10.6 and 10.7; it's unclear whether
 the current version could still be compiled for those systems.} and
 Linux (Ubuntu) systems. The Intel-based Mac binary will also run on
-Apple Silicon (aka arm64) Mac computers via th Rosetta 2 facility. It
+Apple Silicon (aka arm64) Mac computers via the Rosetta 2 facility. It
 uses standard C++ or C++11 and should work on most Unix-style systems
 with a modern C++ compiler and the Standard Template Library (e.g.,
 \textsc{gcc} v4.8.1 or higher). It relies on three external, open-source
@@ -406,9 +406,9 @@ The standard compiler tools for macOS (formerly Mac OS~X) are those
 which come with Apple's Xcode, which for C and C++ are based on LLVM's
 Clang. (Confusingly, the Clang-based tools include ``\texttt{gcc}'' and
 ``\texttt{g++}'' aliases which are wrappers around \texttt{clang} and
-\texttt{clang++}. To be sure, try \texttt{gcc -v}; if you see something
-like ``Apple LLVM version'', then you know it's really the Clang
-compiler.)
+\texttt{clang++}. To be certain this is the case, try \texttt{gcc -v};
+if you see something like ``Apple LLVM version'', then you know it's
+really the Clang compiler.)
 
 Prior to version 9 of Xcode (introduced in late 2017), the
 Apple-supplied Clang compiler did \textit{not} support OpenMP (even though
@@ -429,7 +429,7 @@ GCC (this should be version 4.8.1 or later), such as those available via
 package managers such as Homebrew or MacPorts. (Note that Homebrew does
 not \textit{replace} the pseudo-``gcc'' and ``g++'' aliases provided by
 Xcode, which will still point to Apple's Clang compilers; instead, it
-installs version-specific names such as ``gcc-9'' and ``g++-9''.)
+installs version-specific names such as ``gcc-12'' and ``g++-12''.)
 Another alternative is to install a version of LLVM/Clang that
 \textit{does} support OpenMP, e.g., from one of the aforementioned
 package managers.
@@ -482,6 +482,9 @@ computation by compiling with the following commands:
 \newpage
 
 \chapter{Trying It Out}
+
+This section has some basic notes on how to use \Imfit; for a somewhat more comprehensive
+introduction, see the online tutorial at \url{https://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html}.
 
 In the \texttt{examples/} directory are some sample galaxy images, masks, PSF images, and
 configuration files. To give \imfit{} a quick spin (and check that it's working on your system), change to the
@@ -742,13 +745,16 @@ evaluated instead.)
 \bigskip
 
 \item \texttt{--max-threads} \textit{n-threads} -- specifies the maximum
-number of CPU cores to use during computation (the default is to use
-\textit{all} available CPU cores); has no effect if \imfit{} was
+number of CPU threads to use during computation (the default is to use
+\textit{all} available CPU threads); has no effect if \imfit{} was
 compiled without OpenMP or \textsc{fftw} multithreading support. For
 best performance with PSF convolution, this should be set = the number
-of physical CPU cores (\textit{not} the number of ``threads'', which is
-what the default will select). For best performance on Apple Silicon
-computers, this should be set = the number of ``performance'' cores.
+of physical CPU cores (\textit{not} the number of logical cores). For
+best performance on Apple Silicon computers, this should be set = the
+number of ``performance'' cores. (As of version 1.9, \Imfit{} will
+default to this mode.) You can use this to reduce the number of threads
+that \Imfit{} will use if you want to reduce system load or power consumption,
+at the cost of slower fits.
 
 \item \texttt{--seed} \textit{N} -- specifies a specific integer seed to use with
 random number generation; applies to DE fits and also to bootstrap resampling. This is
@@ -1841,11 +1847,10 @@ the operating system will usually include this in its hardware thread
 reported as having 16 threads available, two for each core.)
 
 For computations that \textit{don't} involve PSF convolution, this is
-fine, and the results are faster than if one used one thread per
+fine, and the results are (slightly) faster than if one used one thread per
 physical core. However, this does \textit{not} work for PSF convolution:
-the computations are actually \textit{slower} if more threads than
-physical cores are used -- sometimes a factor of ten or more times
-slower!
+the computations can sometimes be \textit{slower} if more threads than
+physical cores are used -- sometimes a factor of several times slower!
 
 A somewhat related problem seems to occur with the new Apple Silicon
 (aka M1, M2) CPUs in modern Mac computers. Although these do
@@ -1854,10 +1859,17 @@ CPU core \textit{types}: half or more of the cores are
 ``high-performance'' (fast), while the remainder are ``high-efficiency''
 (useful for low power consumption, but slower).
 
-\textbf{Summary:} If you are doing PSF convolutions with \imfit{}, you
-should use the \texttt{--max-threads} option and set this equal to the
-number of \textit{physical} cores (or high-performance cores on an Apple
-Silicon CPU) on your computer.
+Because using more threads than there are physical (or high-efficiency) cores
+seems to either be no faster than, or signficantly slower than, using
+the same number of threads as there are physical (or high-efficiency) cores,
+\Imfit{} now (as of version 1.9) defaults to the latter case. (This requires some trickery
+in the case of Linux, as it is not easy for a program to learn how many
+physical cores there are.)
+
+For versions of \Imfit{} prior to 1.9, you should use the
+\texttt{--max-threads} option and set this equal to the number of
+\textit{physical} cores (or high-performance cores on an Apple Silicon
+CPU) on your computer.
 
 
 

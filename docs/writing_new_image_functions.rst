@@ -138,6 +138,7 @@ A. Change the following lines in the beginning of the file:
 
    const int N_PARAMS = 4;
    const char PARAM_LABELS[][20] = {"PA", "ell", "I_0", "sigma"};
+   const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", "pixels"};
    const char FUNCTION_NAME[] = "Gaussian function";
 
 to
@@ -148,6 +149,8 @@ to
 
    const int N_PARAMS = 5;
    const char PARAM_LABELS[][20] = {"PA", "ell", "I_0", "fwhm", "beta"};
+   const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel", 
+                               "pixels", ""};
    const char FUNCTION_NAME[] = "Moffat function";
 
 B. In the remainder of the file, change all references to the class name
@@ -246,18 +249,40 @@ in ``add_functions.cpp`` so it knows about the new function and update
 the ``SConstruct`` file so that the new function is included in the
 compilation.
 
+Adding Parameter Unit Definitions
+---------------------------------
+
+Imfit version 1.9 added the possibility of including strings describing
+the intended units for certain parameters of the image functions. This
+is purely cosmetic – the image functions ignore them – but it can be
+useful for the user as a reminder of what individual parameters mean.
+(Example: the Exponential image function has the units label “deg (CCW
+from +y axis)” for the PA (position angle) parameter, “counts/pixel” for
+I_0, and “pixels” for the scale length parameter h.)
+
+You do not *have* to provide this information in any image functions you
+write. If you wish to, you need to properly define the ``PARAM_UNITS``
+constant at the top of the source file (see 2.A above for an example);
+assign the unit-description strings (the empty string – “” – is used for
+an parameters without units) to the ``parameterUnits`` vector in the
+constructor (see any of the standard image functions for an example of
+how to do this), and set the ``parameterUnitsExist`` data member to
+``true`` (again, see the constructor of any of the standard image
+functions for examples).
+
 Other Potential Issues
 ----------------------
 
 If your new image function has an analytic expression for the total
-flux, then you might consider overriding the CanCalculateTotalFlux
-method to return ``true`` and then override the ``TotalFlux`` method so
-that it calculates and returns the total flux. (The default is to let
+flux, then you might consider overriding the ``CanCalculateTotalFlux``
+method to return ``true`` and then overriding the ``TotalFlux`` method
+so that it calculates and returns the total flux. (The default is to let
 ``makeimage`` estimate the total flux numerically, by generating a large
 image using the image function and summing all the pixel values.)
 
 If your new image function is meant to represent the image *background*
-(as in the case of the built-in function FlatSky), then you may not want
-``makeimage`` trying to calculate the “total flux” for the component. In
-this case, you can override the ``IsBackground`` method so that it
-returns ``true`` (as in ``func_flatsky.h`` and ``func_flatsky.cpp``).
+(as in the case of the built-in functions FlatSky and TiltedSkyPlane),
+then you may not want ``makeimage`` trying to calculate the “total flux”
+for the component. In this case, you should add a line to your class’s
+constructor which sets the data member ``isBackground`` to ``true`` (as
+is done in, e.g., ``func_flatsky.cpp``).
