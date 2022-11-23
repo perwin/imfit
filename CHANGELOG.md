@@ -5,12 +5,13 @@
 ## 1.9.0 -- 2022-xx-xx
 ### Added:
 
-- Imfit will attempt to identify how many *physical* CPU cores your 
-computer has, and then set the number of threads equal to that. This 
-should make PSF convolution *several times* faster than the previous 
-default of setting the number of threads equal to the number of *logical* 
-cores, which usually includes so-called symmetric multithreading 
-(aka "hyperthreading") and turns out to make PSF convolutions slower.
+- Imfit will attempt to identify how many *physical* CPU cores your
+computer has, and then set the number of threads equal to that. In some
+cases (particularly with smaller images), this can make PSF convolution
+faster than the previous default of setting the number of threads equal
+to the number of *logical* cores, which usually includes so-called
+symmetric multithreading (aka "hyperthreading") and turns out to (sometimes)
+make PSF convolutions slower.
 
 - New image function: PointSourceRot. This is identical to PointSource,
 except with an extra "PA" parameter which specifies CCW rotation of the
