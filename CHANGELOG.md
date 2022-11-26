@@ -2,7 +2,7 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.9.0 -- 2022-xx-xx
+## 1.9.0 -- 2022-11-23
 ### Added:
 
 - Imfit will attempt to identify how many *physical* CPU cores your

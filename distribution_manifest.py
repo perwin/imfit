@@ -36,6 +36,7 @@ bootstrap_errors
 commandline_parser
 config_file_parser
 convolver
+count_cpu_cores
 definitions
 downsample
 estimate_memory 
@@ -80,6 +81,7 @@ bootstrap_errors
 commandline_parser 
 config_file_parser
 convolver
+count_cpu_cores
 downsample
 estimate_memory 
 getimages
@@ -150,6 +152,7 @@ func_ferrersbar2d
 func_ferrersbar3d
 func_flatbar
 func_pointsource
+func_pointsource-rot
 helper_funcs
 helper_funcs_3d
 integrator
