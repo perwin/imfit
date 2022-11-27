@@ -156,16 +156,15 @@ distinction should be meaningless. (I.e., in most cases you're using the
 \bigskip
 
 \textbf{System Requirements:} \Imfit{} has been built and tested on
-Intel-based MacOS X (or macOS) 10.8--12 (Mountain Lion, Mavericks,
-Yosemite, El Capitan, Sierra, and High Sierra)\footnote{Versions 1.3 and
-earlier were also built for MacOS X 10.6 and 10.7; it's unclear whether
-the current version could still be compiled for those systems.} and
-Linux (Ubuntu) systems. The Intel-based Mac binary will also run on
-Apple Silicon (aka arm64) Mac computers via the Rosetta 2 facility. It
-uses standard C++ or C++11 and should work on most Unix-style systems
-with a modern C++ compiler and the Standard Template Library (e.g.,
-\textsc{gcc} v4.8.1 or higher). It relies on three external, open-source
-libraries: version 3 of the \textsc{cfitsio}
+Intel-based MacOS X (or macOS) 10.8--12 (Mountain Lion through
+Monterey)\footnote{Versions 1.3 and earlier were also built for MacOS X
+10.6 and 10.7; it's unclear whether the current version could still be
+compiled for those systems.} and Linux (Ubuntu) systems. The Intel-based
+Mac binary will also run on Apple Silicon (aka arm64) Mac computers via
+the Rosetta 2 facility. It uses standard C++ or C++11 and should work on
+most Unix-style systems with a modern C++ compiler and the Standard
+Template Library (e.g., \textsc{gcc} v4.8.1 or higher). It relies on
+three external, open-source libraries: version 3 of the \textsc{cfitsio}
 library\footnote{\url{https://heasarc.nasa.gov/fitsio/}} for
 \textsc{fits} image I/O, version 3 of the \textsc{fftw} (Fastest Fourier
 Transform in the West) library\footnote{\url{http://www.fftw.org/}} for
@@ -257,7 +256,8 @@ memory), you should build and install the threaded version of
 \textsc{fftw} as well (this will probably involve running its
 ``configure'' script with the \texttt{--enable-threaded} option; see
 the \textsc{fftw} manual for details), since this speeds up PSF convolution
-considerably. Building \textsc{fftw} with SSE2 and AVX support will
+considerably. Building \textsc{fftw} with SSE2 and AVX support -- assuming
+you have an Intel CPU -- will
 provide a $\sim 10$--20\% speedup for PSF convolutions, so that's also
 recommended, though not as strongly.
 
@@ -495,8 +495,8 @@ the \imfitprog{} binary is now in your path; if it isn't you can access it via
 \texttt{\$ imfit ic3478rss\_256.fits \texttt{-c} config\_sersic\_ic3478\_256.dat \texttt{--}sky=130.14}
 \end{quote}
 
-This converges to a fit in a few seconds or less (e.g., about 0.5 seconds on a 
-2011 MacBook Pro with a 2.3 GHz Core i7 processor). In addition to being printed to
+This converges to a fit in about a second or less (e.g., about 0.14 seconds on a 
+2019 MacBook Pro with a 2.3 GHz Core i9 processor). In addition to being printed to
 the screen, the final fit is saved in a file called \texttt{bestfit\_parameters\_imfit.dat}.
 
 The preceding command told \imfitprog{} to fit using every pixel in the image and to estimate
@@ -563,8 +563,8 @@ as other file names specified by options discussed below -- can be plain
 filenames in the current working directory, relative paths (e.g.,
 \texttt{data\_dir/image.fits}), or absolute paths.
 
-The ``options'' are a set of command-line flags and options (use ``\imfitprog{} \texttt{-h}''
-or ``\imfitprog{} \texttt{--help}'' to see the complete list). Options must be followed by
+The ``options'' are a set of command-line flags and options; use ``\imfitprog{} \texttt{-h}''
+or ``\imfitprog{} \texttt{--help}'' to see the complete list. Options must be followed by
 an appropriate value (e.g., a filename, an integer, a floating-point number); this can
 be separated from the option by a space, or they can be connected with an equals sign.
 In other words, both of the following are valid:
@@ -628,8 +628,10 @@ noise map are assumed to be Gaussian $\sigma$ values).
 \item \texttt{--errors-are-variances} -- indicates that pixel values in the noise
 map are variances ($\sigma^2$) instead of sigmas.
 \item \texttt{--errors-are-weights} -- indicates that pixel values in the noise
-map should be interpreted as weights (e.g., $1/\sigma^2$), not as sigmas or variances. (None
-of these three options is usable with Cash statistic or Poisson-MLR statistic minimization.)
+map should be interpreted as weights (e.g., $1/\sigma^2$), not as sigmas or variances. 
+
+Note that none of these three options is usable with Cash statistic or
+Poisson-MLR statistic minimization.
 
 \bigskip
 
@@ -695,7 +697,7 @@ with \texttt{--nlopt NM}, though it's simpler just to use \texttt{--nm}).
 
 \item \texttt{--model-errors} -- use the model image pixel values
 (instead of the data values) to estimate the individual-pixel dispersions
-$\sigma_{i}$ for \chisquare{} minimization
+$\sigma_{i}$ for \chisquare{} minimization.
 
 \item \texttt{--poisson-mlr} or \texttt{--mlr} -- use the Poisson
 Maximum-Likelihood-Ratio (MLR) statistic for minimization (this is the same as
@@ -713,16 +715,16 @@ with the (default) Levenberg-Marquardt minimization technique.
 \item \texttt{--ftol} \textit{FTOL-value} -- specify tolerance for
 fractional improvements in the fit statistic value; if further iterations do 
 not reduce the fit statistic by more than this, the minimization is considered a 
-success and halted (default value = $10^{-8}$)
+success and halted (default value = $10^{-8}$).
 
 \bigskip
 
 \item \texttt{--bootstrap} \textit{n-iterations} -- Do \textit{n-iterations} rounds
 of bootstrap resampling after the fit, to estimate parameter errors.
 
-\item \texttt{--save-bootstrap} \textit{filename} -- file to save
+\item \texttt{--save-bootstrap} \textit{filename} -- file where
 individual best-fit parameter values from the bootstrap resampling (one
-line per iteration).
+line per iteration) will be saved.
 
 \bigskip
 
@@ -1181,12 +1183,14 @@ image sections in \textsc{iraf}). An example:
 ic3478rss\_256.fits[45:150,200:310]
 \end{quote}
 This will fit columns 45--150 and rows 200--310 of the image (column and
-row numbering starts at~1 and is inclusive, so ``[1:10]'' means column or
-row numbers 1 through 10). Pixel coordinates in the configuration (and
-output) files refer to locations within the \textit{full} image, not
-relative positions within the subsection. Note that this works as-is
-when running \Imfit{} from within the Bash shell; for the C shell, you
-may need to enclose the image name + specification in quotation marks.
+row numbering starts at~1 and is inclusive, so ``[1:10]'' means column
+or row numbers 1 through 10). Pixel coordinates in the configuration
+(and output) files refer to locations within the \textit{full} image,
+not relative positions within the subsection. Note that this works as-is
+when running \Imfit{} from within the Bash shell; for the C and Z
+shells, you need to enclose the image name + specification in quotation
+marks, or (Z shell only, I believe) just precede the entire \imfitprog{} command with
+``\texttt{noglob}''.
 
 The only kind of image section specification that's allowed is a simple
 [x1:x2,y1:y2] format, though you can specify all of a particular dimension using
@@ -1233,15 +1237,14 @@ URLs which point directly to accessible \textsc{fits} files; you cannot
 \section{Masks (and automatic masking of certain pixels)}
 
 A mask image can be supplied to \imfitprog{} by using the command-line
-option \texttt{--mask}. The mask image should be an
-\textit{integer}-valued \textsc{fits} file with the same dimensions as
-the image being fitted (\textsc{iraf} \texttt{.pl} mask files are not
-recognized, but these can be converted to \textsc{fits} format within
-\textsc{iraf}). The default is to treat zero-valued pixels in the mask
-image as \textit{good} and pixels with values $> 0$ as \textit{bad}
-(i.e., to be excluded from the fit); however, you can specify that
-zero-valued pixels are \textit{bad} with the command-line flag
-\texttt{--mask-zero-is-bad}.
+option \texttt{--mask}. The mask image should be a \textsc{fits} file
+with the same dimensions as the image being fitted (\textsc{iraf}
+\texttt{.pl} mask files are not recognized, but these can be converted
+to \textsc{fits} format within \textsc{iraf}). The default is to treat
+zero-valued pixels in the mask image as \textit{good} and pixels with
+values $> 0$ as \textit{bad} (i.e., to be excluded from the fit);
+however, you can specify that zero-valued pixels are \textit{bad} with
+the command-line flag \texttt{--mask-zero-is-bad}.
 
 Any pixels in the data image, the noise/error/weight image (see below),
 \textit{or} the mask image which have non-finite values (i.e., NaN,
@@ -1361,7 +1364,8 @@ E.g., for a $25 \times 25$-pixel PSF, the center should be at $(x,y) =
 (13.0,13.0)$. An off-center PSF can certainly be used, but the resulting
 convolved model images will be shifted! The PSF does \textit{not} need
 to be normalized, as \imfitprog{} will automatically normalize the PSF
-image internally.
+image internally (you can use the ``\texttt{--no-normalize}'' flag to
+tell \imfitprog{} to skip normalizing the PSF).
 
 Although \imfit{} uses a multi-threaded version version of the
 \textsc{fftw} library, which is itself quite fast, adding PSF
@@ -2841,13 +2845,27 @@ which fall within an oversampling region (specified via
 \texttt{--overpsf\_region}) will interpolate the corresponding
 \textit{oversampled} PSF image (specified via \texttt{--overpsf}) instead.
 
-The interpolation is done using the 2D bicubic function
+The interpolation is by default done using the 2D bicubic function
 (\texttt{gsl\_interp2d\_bicubic}) from the GNU Scientific Library.
 
 \begin{verbatim}
 FUNCTION PointSource
 I_tot     # counts
 \end{verbatim}
+
+An alternate interpolation method is Lanczos2, which can be specified
+by using the \textit{optional parameter} specification, like so:
+
+\begin{verbatim}
+FUNCTION PointSource
+I_tot     # counts
+OPTIONAL_PARAMS_START
+method          lanczos2
+OPTIONAL_PARAMS_END
+\end{verbatim}
+
+If you want to explicitly specify the (default) bicubic interpolation, you
+can replace ``lanczos2'' with ''bicubic''.
 
 
 \subsubsection{PointSourceRot}
@@ -2862,6 +2880,10 @@ FUNCTION PointSourceRot
 I_tot     # counts
 PA
 \end{verbatim}
+
+As with PointSource, you can optionally specify the interpolation method (the
+default bicubic or the alternative Lanczos2); see the description of PointSource
+above for what this looks like.
 
 
 \subsubsection{ModifiedKing}
@@ -3487,8 +3509,9 @@ Saglia for urging me to implement the Core-S{\'e}rsic function, and to
 Maximilian Fabricius for suggesting improvements to the documentation.
 Additional bug reports and suggestions from Andr{\'e} Luiz de Amorim,
 Giulia Savorgnan, David Streich, Guillermo Barro, Sergio Pascual, Lee
-Kelvin, Colleen Gilhuly, Semyeong Oh, Benne Holwerde, David Wilman, 
-Iskren Georgiev, Corentin Schreiber, and Dan Prole are gratefully appreciated.
+Kelvin, Colleen Gilhuly, Semyeong Oh, Benne Holwerde, David Wilman,
+Iskren Georgiev, Corentin Schreiber, Dan Prole, and Alex Borlaff are
+gratefully appreciated.
 
 
 \section{Data Sources}
