@@ -142,10 +142,12 @@ double myfunc_nlopt_gen( unsigned n, const double *x, double *grad, void *my_fun
     fprintf(stderr, "*** Terminating the fit...\n");
     junk = nlopt_force_stop(theOptimizer);
   }
+#ifndef NO_SIGNALS
   if (stopSignal_flag == 1) {
     fprintf(stderr, "\n*** User-requested termination of the fit...\n");
     junk = nlopt_force_stop(theOptimizer);
   }
+#endif
 
   return(fitStatistic);
 }

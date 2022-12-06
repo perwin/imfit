@@ -17,9 +17,10 @@
 
 using namespace std;
 
-
+#ifndef NO_SIGNALS
 // volatile sig_atomic_t  stopSignal_flag;
 extern volatile sig_atomic_t  stopSignal_flag;
+#endif
 
 
 const int  MAXLINE = 1024;

@@ -251,12 +251,14 @@ int DESolver::Solve( int maxGenerations, int verbose )
       }
     }
     
+#ifndef NO_SIGNALS
     if (stopSignal_flag == 1) {
       fprintf(stderr, "\n*** User-requested termination of the fit...\n");
       generations = generation;
       bAtSolution = true;
       return DE_SIGINT;
     }
+#endif
 
     // Debugging printout code added by PE -- print an update every 10 generations
     double  relativeDeltaEnergy = 0.0;

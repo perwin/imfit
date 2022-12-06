@@ -77,7 +77,9 @@ using namespace std;
 
 /* ---------------- Quasi-Global Variable Definitions ------------------- */
 
+#ifndef NO_SIGNALS
 volatile sig_atomic_t  stopSignal_flag = 0;
+#endif
 
 
 /* ---------------- Definitions & Constants ----------------------------- */
@@ -384,8 +386,10 @@ int main(int argc, char *argv[])
     							options->verbose, &resultsFromSolver, options->nloptSolverName,
     							options->rngSeed, options->useLHS);
     gettimeofday(&timer_end_fit, NULL);
+#ifndef NO_SIGNALS
     if (stopSignal_flag == 1)
       userInterrupted = true;
+#endif
     							
     PrintResults(paramsVect, theModel, nFreeParams, fitStatus, resultsFromSolver);
   }
@@ -1060,11 +1064,13 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
 
 
 
+#ifndef NO_SIGNALS
 void signal_handler( int signal )
 {
   if (signal == SIGINT)
     stopSignal_flag = 1;
 }
+#endif
 
 
 /* END OF FILE: imfit_main.cpp ------------------------------------------- */

@@ -1,18 +1,5 @@
 *** CURRENT WORK
 
-[X] Finish implementing Lanczos2 interpolation in PointSource
-	-- todo_pointsource.txt; ~/python/lanczos_test.py
-	function_objects/psf_interpolators.*
-	
-	[X] Update code in model_object.cpp to handle this
-	[X] Test fitting w/ bicuic vs lanczos2 for star in WFC3-IR image
-	
-	[X] Implement recording of (user-set) optional-param values in output
-
-[X] Fix unittest_add_functions.t.h -- testAddFunctionsToModel_optionalParams
-	-- use an extra-params function properly
-
-
 
 
 ** BUGS TO FIX:
@@ -20,16 +7,29 @@
 [ ] Fix imfit, makeimage, and imfit-mcmc so the error out if user supplies
 	oversampled PSF(s) but *not* oversampling regions
 
-[ ] Imfit on MBPro 2019 is very slow in oversampled-PSF tests (45s for fit
-	vs 3s on MBPro 2017)
-		-- true for all 3 tests (2 with N-M, 1 with L-M)
-		-- progression of actual recorded chi^2 values is identical
-	This is probably due to the problem of using more threads than actual cores
-	(via "hyperthreading") when doing FFT
-
 
 
 ** NEAR-TERM FUTURE TODO:
+
+[ ] Add conditional compilation of Ctrl-C handling (use of stopSignal_flag)
+	-- currently, this causes import failure of pyimfit:
+	ImportError: dlopen(/Users/erwin/coding/pyimfit/pyimfit/pyimfit_lib.cpython-310-darwin.so, 0x0002): symbol not found in flat namespace (_stopSignal_flag)
+
+	[x] ID places where this is used
+		-- imfit_main.cpp, definitions.h, solvers/ DESolver.cpp, mpfit.cpp, nlopt_fit.cpp,
+		nmsimplex_fit.cpp
+	[x] Add flag to SConstruct, used when compiling library
+	[ ] Add #ifdef boundaries for use of stopSignal_flag
+		#ifndef NO_SIGNALS
+		[x] definitions.h
+		[x] imfit_main.cpp
+		[x] solvers/DESolver.cpp
+		[x] solvers/mpfit.cpp
+		[x] solvers/nlopt_fit.cpp
+		[x] solvers/nmsimplex_fit.cpp
+	
+	[ ] Test compilation and import in pyimfit
+
 
 [ ] Start using Github Actions for Continuous Integration
 	-- since Travis CI is not really available to us any more
@@ -708,6 +708,16 @@ image oversampled
 
 ** BUGS FIXED
 
+[X] Imfit on MBPro 2019 is very slow in oversampled-PSF tests (45s for fit
+	vs 3s on MBPro 2017)
+		-- true for all 3 tests (2 with N-M, 1 with L-M)
+		-- progression of actual recorded chi^2 values is identical
+	This is probably due to the problem of using more threads than actual cores
+	(via "hyperthreading") when doing FFT
+
+[X] Fix unittest_add_functions.t.h -- testAddFunctionsToModel_optionalParams
+	-- use an extra-params function properly
+
 [X] Fix image-comparison regression tests
 	OK, the weird case is biggertest.fits, which has two (and only two) pixels
 	which differ by ~ 0.0167 between the Mac and Linux versions; all other
@@ -1134,6 +1144,16 @@ OK, here is the problem:
 
 
 ** IMPROVEMENTS APPLIED
+
+(1.9)[X] Finish implementing Lanczos2 interpolation in PointSource
+	-- todo_pointsource.txt; ~/python/lanczos_test.py
+	function_objects/psf_interpolators.*
+	
+	[X] Update code in model_object.cpp to handle this
+	[X] Test fitting w/ bicuic vs lanczos2 for star in WFC3-IR image
+	
+	[X] Implement recording of (user-set) optional-param values in output
+
 
 (1.9)[X] Possible optional parameters for image functions in config file
 	"params"? "settings?"

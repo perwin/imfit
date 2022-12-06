@@ -441,8 +441,6 @@ else:
     lib_list.append("gslcblas")     
     lib_list_1d.append("gsl")
     lib_list_1d.append("gslcblas")      
-# else:
-#     extra_defines.append("NO_GSL")
 
 if useNLopt:   # default is to do this
     if useStaticLibs:
@@ -504,7 +502,15 @@ if useLogging:
     extra_defines.append(["-DUSE_LOGGING"])
     if os_type == "Linux":
         lib_list.append("dl")
-    
+
+
+# special definitions for compiling libimfit.a
+# (currently useful for turning off signal-handling that catches Ctrl-C, since
+# including that code that causes problems for pyimfit)
+if 'libimfit.a' in COMMAND_LINE_TARGETS:
+    extra_defines.append("NO_SIGNALS")
+
+
 # Add any additional, user-specified preprocessor definitions (e.g., "define=DEBUG")
 for key, value in ARGLIST:
     if key == 'define':
@@ -537,7 +543,7 @@ defines_opt = defines_opt + extra_defines
 
 # *** Create Environments for compilation:
 # "env_debug" is environment with debugging options turned on
-# "env" is an environment for optimized compiling
+# "env" is an environment for optimized compiling (our default)
 
 env = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
                     LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, 

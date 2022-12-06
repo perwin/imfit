@@ -961,8 +961,10 @@ int mpfit( mp_func funct, int m, int npar, double *xall, mp_par *pars, mp_config
   // PE: check if user typed Ctrl-C; if yes, abort
   // We do this first, so if the fit actually failed to converge, we report that
   // instead
+#ifndef NO_SIGNALS
   if (stopSignal_flag == 1)
     info = MP_SIGINT;
+#endif
   if ((conf.maxfev > 0) && (nfev >= conf.maxfev)) {
     /* Too many function evaluations */
     info = MP_MAXITER;
