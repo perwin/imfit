@@ -64,6 +64,10 @@
 
 #define VERSION_STRING      "v1.5"
 
+#ifndef NO_SIGNALS
+volatile sig_atomic_t  stopSignal_flag = 0;
+#endif
+
 
 
 typedef struct {

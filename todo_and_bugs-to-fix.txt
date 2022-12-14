@@ -4,6 +4,18 @@
 
 ** BUGS TO FIX:
 
+[ ] libimfit.a and GetPhysicalCoreCount()
+	-- pyimfit fails to import bcs 
+	ImportError: dlopen(/Users/erwin/coding/pyimfit/pyimfit/pyimfit_lib.cpython-310-darwin.so, 0x0002): symbol not found in flat namespace (__Z20GetPhysicalCoreCountv)
+	This is presumably bcs we aren't including count_cpu_cores.cpp in the object list
+	for compiling libimit.a
+	[ ] Figure out where GetPhysicalCoreCount is called
+		-- convolver.cpp
+		-- used in _main.cpp to populate options->maxThreads, passed to SetupModelObject()
+	[ ] Figure out where to add this to PyImfit code
+		SetupModelObject(options, ...)
+			newModelObj->SetMaxThreads(options->maxThreads);
+	
 [ ] Fix imfit, makeimage, and imfit-mcmc so the error out if user supplies
 	oversampled PSF(s) but *not* oversampling regions
 

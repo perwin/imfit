@@ -764,7 +764,7 @@ env.Command("alltests", None,
 
 # Build Imfit library
 base_for_lib_objstring = """mp_enorm statistics mersenne_twister utilities 
-config_file_parser add_functions bootstrap_errors"""
+config_file_parser add_functions bootstrap_errors count_cpu_cores"""
 base_for_lib_objs = [ CORE_SUBDIR + name for name in base_for_lib_objstring.split() ]
 libimfit_objs = modelobject_objs + functionobject_objs + solver_objs
 libimfit_objs += base_for_lib_objs
@@ -815,7 +815,7 @@ functionobject1d_sources = [name + ".cpp" for name in functionobject1d_objs]
 # Base files for profilefit:
 profilefit_base_obj_string = """core/commandline_parser core/utilities profile_fitting/read_profile 
         core/config_file_parser core/print_results profile_fitting/add_functions_1d core/convolver 
-        core/mp_enorm core/statistics core/mersenne_twister 
+        core/mp_enorm core/statistics core/mersenne_twister core/count_cpu_cores 
         function_objects/psf_interpolators
         profile_fitting/convolver1d profile_fitting/model_object_1d 
         profile_fitting/bootstrap_errors_1d profile_fitting/profilefit_main"""
