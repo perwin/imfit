@@ -1,7 +1,7 @@
-/* FILE: func_core-sersic.cpp ------------------------------------------ */
+/* FILE: func_nuker.cpp ------------------------------------------------ */
 /* 
  *
- *   Function object class for a Core-Sersic function, with constant
+ *   Function object class for a Nuker-law function, with constant
  * ellipticity and position angle (pure elliptical, not generalized).
  *   
  *   BASIC IDEA:
@@ -18,10 +18,10 @@
  * convert it to radians] relative to +x axis.
  *
  *   MODIFICATION HISTORY:
- *     [v0.1]: 21 Sept 2012: Created (as modification of func_sersic.cpp.
+ *     [v0.1]: 20 April 2023: Created (as modification of func_sersic.cpp.
  */
 
-// Copyright 2012--2022 by Peter Erwin.
+// Copyright 2023 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -47,32 +47,32 @@
 #include <string>
 #include <algorithm>
 
-#include "func_core-sersic.h"
-#include "helper_funcs.h"
+#include "func_nuker.h"
+// #include "helper_funcs.h"
 
 using namespace std;
 
 
 /* ---------------- Definitions ---------------------------------------- */
-const int  N_PARAMS = 8;
-const char  PARAM_LABELS[][20] = {"PA", "ell", "n", "I_b", "r_e", "r_b", "alpha", "gamma"};
-const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "", "counts/pixel",
-								"pixels", "pixels", "", ""};
-const char  FUNCTION_NAME[] = "Core-Sersic function";
+const int  N_PARAMS = 7;
+const char  PARAM_LABELS[][20] = {"PA", "ell", "I_b", "r_b", "alpha", "beta", "gamma"};
+const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "", "counts/pixel",
+								"pixels", "", "", ""};
+const char  FUNCTION_NAME[] = "NukerLaw function";
 const double  DEG2RAD = 0.017453292519943295;
 const int  SUBSAMPLE_R = 10;
 
-const char CoreSersic::className[] = "Core-Sersic";
+const char NukerLaw::className[] = "NukerLaw";
 
 // The following is the minimum allowable value of r, meant to
 // avoid blowups due to the fact that the inner, power-law part of the
-// Core-Sersic function becomes infinite at r = 0.
+// Nuker-Law function becomes infinite at r = 0.
 const double  R_MIN = 0.001;
 
 
 /* ---------------- CONSTRUCTOR ---------------------------------------- */
 
-CoreSersic::CoreSersic( )
+NukerLaw::NukerLaw( )
 {
   
   nParams = N_PARAMS;
@@ -92,18 +92,17 @@ CoreSersic::CoreSersic( )
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
-void CoreSersic::Setup( double params[], int offsetIndex, double xc, double yc )
+void NukerLaw::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
   PA = params[0 + offsetIndex];
   ell = params[1 + offsetIndex];
-  n = params[2 + offsetIndex ];
-  I_b = params[3 + offsetIndex ];
-  r_e = params[4 + offsetIndex ];
-  r_b = params[5 + offsetIndex ];
-  alpha = params[6 + offsetIndex ];
-  gamma = params[7 + offsetIndex ];
+  I_b = params[2 + offsetIndex ];
+  r_b = params[3 + offsetIndex ];
+  alpha = params[4 + offsetIndex ];
+  beta = params[5 + offsetIndex ];
+  gamma = params[6 + offsetIndex ];
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
@@ -111,28 +110,27 @@ void CoreSersic::Setup( double params[], int offsetIndex, double xc, double yc )
   PA_rad = (PA + 90.0) * DEG2RAD;
   cosPA = cos(PA_rad);
   sinPA = sin(PA_rad);
-  bn = Calculate_bn(n);
-  invn = 1.0 / n;
-  Iprime = I_b * pow(2.0, -gamma/alpha) * exp( bn * pow( pow(2.0, 1.0/alpha) * r_b/r_e, (1.0/n) ));
+
+  exponent = (beta - gamma)/alpha;
+  Iprime = I_b * pow(2.0, exponent);
 }
 
 
 /* ---------------- PRIVATE METHOD: CalculateIntensity ----------------- */
-// This function calculates the intensity for a Core-Sersic function at radius r,
-// with the various parameters and derived values (n, b_n, r_e, etc.)
-// pre-calculated by Setup().
+// This function calculates the intensity for a Nuker-law function at radius r,
+// with the various parameters and derived values pre-calculated by Setup().
 
-double CoreSersic::CalculateIntensity( double r )
+double NukerLaw::CalculateIntensity( double r )
 {
-  double  powerlaw_part, exp_part, intensity;
+  double  I1, I2;
   
   // kludge to handle cases when r is very close to zero:
   if (r < R_MIN)
     r = R_MIN;
-  powerlaw_part = pow( 1.0 + pow(r_b/r, alpha), gamma/alpha );
-  exp_part = exp( -bn * pow( ( pow(r, alpha) + pow(r_b, alpha) )/pow(r_e, alpha), 1.0/(alpha*n)) );
-  intensity = Iprime * powerlaw_part * exp_part;
-  return intensity;
+
+  I1 = Iprime * pow(r_b/r, gamma);
+  I2 = pow((1.0 + pow(r/r_b, alpha)), -exponent);
+  return (I1*I2);
 }
 
 
@@ -143,7 +141,7 @@ double CoreSersic::CalculateIntensity( double r )
 // is turned on). The CalculateIntensity() function is called for the actual
 // intensity calculation.
 
-double CoreSersic::GetValue( double x, double y )
+double NukerLaw::GetValue( double x, double y )
 {
   double  x_diff = x - x0;
   double  y_diff = y - y0;
@@ -187,27 +185,22 @@ double CoreSersic::GetValue( double x, double y )
 /* ---------------- PROTECTED METHOD: CalculateSubsamples ------------------------- */
 // Function which determines the number of pixel subdivisions for sub-pixel integration,
 // given that the current pixel is a distance of r away from the center of the
-// Core-Sersic function.
+// Nuker-law function.
 // This function returns the number of x and y subdivisions; the total number of subpixels
 // will then be the return value *squared*.
-int CoreSersic::CalculateSubsamples( double r )
+int NukerLaw::CalculateSubsamples( double r )
 {
   int  nSamples = 1;
   
-  // Standard Sersic subsampling, based on Chien Peng's GALFIT algorithm
   if ((doSubsampling) && (r < 10.0)) {
-    if ((r_e <= 1.0) && (r <= 1.0))
-      nSamples = min(100, (int)(2 * SUBSAMPLE_R / r_e));
-    else {
-      if (r <= 4.0)
-        nSamples = 2 * SUBSAMPLE_R;
-      else
-        nSamples = min(100, (int)(2 * SUBSAMPLE_R / r));
-    }
+    if (r <= 4.0)
+      nSamples = 2 * SUBSAMPLE_R;
+    else
+      nSamples = min(100, (int)(2 * SUBSAMPLE_R / r));
   }
   return nSamples;
 }
 
 
 
-/* END OF FILE: func_core-sersic.cpp ----------------------------------- */
+/* END OF FILE: func_nuker.cpp ----------------------------------------- */

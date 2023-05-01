@@ -1836,8 +1836,8 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
     // print optional parameters, if they were set
     if (functionObjects[n]->ExtraParamsSet()) {
       functionObjects[n]->GetExtraParamsDescription(extraParamLines);
-      for (int k = 0; k < extraParamLines.size(); k++)
-        stringVector.push_back(PrintToString("%s%s\n", prefix, extraParamLines[k].c_str()));
+      for (int p = 0; p < extraParamLines.size(); p++)
+        stringVector.push_back(PrintToString("%s%s\n", prefix, extraParamLines[p].c_str()));
     }
     
     // print the function parameter values

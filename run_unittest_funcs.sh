@@ -15,6 +15,7 @@ $CPP -std=c++11 -o test_runner_funcs test_runner_funcs.cpp function_objects/func
 function_objects/func_exp.cpp function_objects/func_flatsky.cpp \
 function_objects/func_gaussian.cpp function_objects/func_moffat.cpp \
 function_objects/func_sersic.cpp function_objects/func_king.cpp function_objects/func_king2.cpp \
+function_objects/func_nuker.cpp \
 function_objects/func_broken-exp.cpp function_objects/func_double-broken-exp.cpp \
 function_objects/func_broken-exp2d.cpp function_objects/func_edge-on-disk.cpp \
 function_objects/func_gauss_extraparams.cpp function_objects/func_ferrersbar3d.cpp \

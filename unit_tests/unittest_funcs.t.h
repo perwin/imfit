@@ -31,6 +31,7 @@ using namespace std;
 #include "function_objects/func_edge-on-disk.h"
 #include "function_objects/func_ferrersbar3d.h"
 #include "function_objects/func_double-broken-exp.h"
+#include "function_objects/func_nuker.h"
 //#include "function_objects/func_spline-profile.h"
 
 const double  DELTA = 1.0e-9;
@@ -1499,6 +1500,124 @@ public:
 
     bool  returnVal2 = thisFunc2->ExtraParamsSet();
     TS_ASSERT_EQUALS( returnVal2, false );
+  }
+};
+
+
+class TestNukerLaw : public CxxTest::TestSuite 
+{
+  FunctionObject  *thisFunc, *thisFunc_subsampled;
+  
+public:
+  void setUp()
+  {
+    // FUNCTION-SPECIFIC:
+    bool  subsampleFlag = false;
+    thisFunc = new NukerLaw();
+    thisFunc->SetSubsampling(subsampleFlag);
+  }
+  
+  void tearDown()
+  {
+    delete thisFunc;
+  }
+
+
+  // and now the actual tests
+  void testBasic( void )
+  {
+    vector<string>  paramNames;
+    vector<string>  correctParamNames;
+    // FUNCTION-SPECIFIC:
+    int  correctNParams = 7;
+    correctParamNames.push_back("PA");
+    correctParamNames.push_back("ell");
+    correctParamNames.push_back("I_b");
+    correctParamNames.push_back("r_b");
+    correctParamNames.push_back("alpha");
+    correctParamNames.push_back("beta");
+    correctParamNames.push_back("gamma");
+
+    // check that we get right number of parameters
+    TS_ASSERT_EQUALS( thisFunc->GetNParams(), correctNParams );
+
+    // check that we get correct set of parameter names
+    thisFunc->GetParameterNames(paramNames);
+    TS_ASSERT( paramNames == correctParamNames );
+    
+  }
+
+  void testCalculations_circular( void )
+  {
+    // centered at x0,y0 = 100,100
+    double  x0 = 100.0;
+    double  y0 = 100.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: circular nuker-law with I_b = 100, r_b = 10
+    double  params[7] = {90.0, 0.0, 100.0, 10.0, 10.0, 1.5, 0.5};
+    double  rEqualsOneValue, rEqualsRbValue, rEquals2RbValue;
+    
+    // test
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 1 value
+    rEqualsOneValue = 338.924527730594;
+    TS_ASSERT_DELTA( thisFunc->GetValue(101.0, 100.0), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(99.0, 100.0), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 99.0), rEqualsOneValue, DELTA);
+    // r = r_break value
+    double  r_b = 10.0;
+    rEqualsRbValue = 100.0;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 + r_b, 100.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 - r_b, 100.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0 - r_b), rEqualsRbValue, DELTA);
+    // r = 2*r_break value
+    rEquals2RbValue = 37.889215669066;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 + 2*r_b, 100.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 - 2*r_b, 100.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0 - 2*r_b), rEquals2RbValue, DELTA);
+  }
+
+  void testCalculations_elliptical( void )
+  {
+    // centered at x0,y0 = 100,100
+    double  x0 = 100.0;
+    double  y0 = 100.0;
+    // FUNCTION-SPECIFIC:
+    // test setup: ell=0.5 broken-exp with nuker-law with I_b = 100, r_b = 10
+    double  params[7] = {90.0, 0.5, 100.0, 10.0, 10.0, 1.5, 0.5};
+    double  rEqualsOneValue, rEqualsRbValue, rEquals2RbValue;
+    
+    // test
+    thisFunc->Setup(params, 0, x0, y0);
+    
+    // FUNCTION-SPECIFIC:
+    // r = 1 value; account for ellipticity = 0.5 for y offsets
+    rEqualsOneValue = 338.924527730594;
+    TS_ASSERT_DELTA( thisFunc->GetValue(101.0, 100.0), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(99.0, 100.0), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 99.5), rEqualsOneValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.5), rEqualsOneValue, DELTA);
+    // r = r_break value
+    double  r_b = 10.0;
+    rEqualsRbValue = 100.0;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 + r_b, 100.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 - r_b, 100.0), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0 - 0.5*r_b), rEqualsRbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0 + 0.5*r_b), rEqualsRbValue, DELTA);
+    // r = 2*r_break value
+    rEquals2RbValue = 37.889215669066;
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 + 2*r_b, 100.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0 - 2*r_b, 100.0), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0 - r_b), rEquals2RbValue, DELTA);
+    TS_ASSERT_DELTA( thisFunc->GetValue(100.0, 100.0 + r_b), rEquals2RbValue, DELTA);
+  }
+
+  void testCanCalculateTotalFlux( void )
+  {
+    bool result = thisFunc->CanCalculateTotalFlux();
+    TS_ASSERT_EQUALS(result, false);
   }
 };
 

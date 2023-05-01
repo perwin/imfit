@@ -4,19 +4,24 @@
 
 ** BUGS TO FIX:
 
-[ ] libimfit.a and GetPhysicalCoreCount()
+[X] libimfit.a and GetPhysicalCoreCount()
 	-- pyimfit fails to import bcs 
 	ImportError: dlopen(/Users/erwin/coding/pyimfit/pyimfit/pyimfit_lib.cpython-310-darwin.so, 0x0002): symbol not found in flat namespace (__Z20GetPhysicalCoreCountv)
 	This is presumably bcs we aren't including count_cpu_cores.cpp in the object list
 	for compiling libimit.a
-	[ ] Figure out where GetPhysicalCoreCount is called
+	[x] Figure out where GetPhysicalCoreCount is called
 		-- convolver.cpp
 		-- used in _main.cpp to populate options->maxThreads, passed to SetupModelObject()
 	[ ] Figure out where to add this to PyImfit code
 		SetupModelObject(options, ...)
 			newModelObj->SetMaxThreads(options->maxThreads);
-	
-[ ] Fix imfit, makeimage, and imfit-mcmc so the error out if user supplies
+		
+		pyimfit_lib.pyx
+			ModelObjectWrapper.setMaxThreads
+			[ ] where does this get called?
+
+
+[ ] Fix imfit, makeimage, and imfit-mcmc so they error out if user supplies
 	oversampled PSF(s) but *not* oversampling regions
 
 
@@ -140,7 +145,7 @@ best fit (and/or write it to a file)
 
 [ ] Update documentation with new functions
 	[X] Add description of GaussianRingAz to imfit_howto
-	[ ] Add description of FlatBar to imfit_howto
+	[X] Add description of FlatBar to imfit_howto
 
 
 
@@ -441,7 +446,7 @@ image (accounting for data image subset, if any)
 
 
 [] Possible improved error reporting
-	[] When negative pixel values are encountered during vetting of input data image,
+	[X] When negative pixel values are encountered during vetting of input data image,
 	mention possibility of missing sky parameter
 
 
@@ -462,6 +467,24 @@ image (accounting for data image subset, if any)
 		-- would require changing modifying SetExtraParams to set up
 		parameter names vector properly, reset nParams; maybe also modifiy
 		GetParameterNames?
+
+[ ] Spline-interpolation of variable ellipticity profile
+	Base this on the previous idea -- interpolate ellipticity(a) instead of intensity(a)
+	I *think* this can work by converting input pixel x,y into x_p via usual
+	rotation, and then treating x_p as semi-major axis to derive q(a)
+
+	So this (from func_exp.cpp: Exponential::GetValue):
+  // Calculate x,y in component reference frame, and scale y by 1/axis_ratio
+  xp = x_diff*cosPA + y_diff*sinPA;
+  yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
+  r = sqrt(xp*xp + yp_scaled*yp_scaled);
+
+	becomes this:
+  // Calculate x,y in component reference frame, and scale y by 1/axis_ratio
+  xp = x_diff*cosPA + y_diff*sinPA;
+  q = 1 - get_interpolated_ellipticity(x_p);
+  yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
+  r = sqrt(xp*xp + yp_scaled*yp_scaled);
 
 
 [] Modify handling of oversampled PSF to catch case where user wants entire

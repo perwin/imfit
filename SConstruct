@@ -659,6 +659,7 @@ if useExtraFuncs:
     functionobject_obj_string += " func_exp-higher-mom"
     functionobject_obj_string += " func_nan"
     functionobject_obj_string += " func_simple-checkerboard"
+    functionobject_obj_string += " func_nuker"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,

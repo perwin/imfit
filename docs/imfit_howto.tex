@@ -3280,9 +3280,22 @@ a_bar
 
 \subsubsection{FlatBar}
 
-TBD.
+This produces a 2D component meant to represent the outer part of a
+typical bar in a massive disk galaxy. Specifically, this is intended to
+model the outer, \textit{vertically thin} part of the bar,
+outside the (vertically thick) boxy/peanut-shaped bulge, when the bar is
+seen close to face-on. This corresponds to the ``spurs'' in the
+terminology of \citet{erwin-debattista13}), and also to the
+``shoulders'' of the bar-major-axis profile as analyzed in
+\citet{anderson22} and \citet{erwin23}.
 
-see \cite{erwin21}, especially Appendix~A.
+Since this is a reflection-symmetric structure, it works best when the
+bar is close to the galaxy major axis \textit{or} the minor axis, or
+when the galaxy is close to face-on; intermediate position angles tend
+to make the projected spurs offset in opposite directions on either side
+of the galaxy center (see discussion in \citealt{erwin-debattista13}).
+
+See \cite{erwin21}, especially Appendix~A, for examples of use.
 
 \begin{verbatim}
 FUNCTION FlatBar
@@ -3385,6 +3398,15 @@ Because this function performs numerical integration for each pixel value, it wi
 slower than the analytic EdgeOnDisk function (though the latter is correct only in
 the $i= 90\arcdeg$ case), and even slower than the standard Exponential function.
 
+Note that one can get an approximate conversion between $J_{0}$ (central luminosity
+density) and the observed central surface brightness $I_{0}$ (e.g., the intensity parameter of
+the 2D Exponential function) in the limit of a face-on disk by assuming a vertical
+exponential profile. In this case, line-of-sight integration along the $z$ axis gives
+\begin{equation}
+I_{0} \; = \; 2 \, J_{0} \, z_{0}.
+\end{equation}
+The central surface brightness will be higher for inclined disks, but this can still be
+used for order-of-magnitude estimates.
 
 
 \subsubsection{BrokenExponentialDisk3D}
@@ -3510,8 +3532,8 @@ Maximilian Fabricius for suggesting improvements to the documentation.
 Additional bug reports and suggestions from Andr{\'e} Luiz de Amorim,
 Giulia Savorgnan, David Streich, Guillermo Barro, Sergio Pascual, Lee
 Kelvin, Colleen Gilhuly, Semyeong Oh, Benne Holwerde, David Wilman,
-Iskren Georgiev, Corentin Schreiber, Dan Prole, and Alex Borlaff are
-gratefully appreciated.
+Iskren Georgiev, Corentin Schreiber, Dan Prole, Alex Borlaff, and Daria
+Kozlova are gratefully appreciated.
 
 
 \section{Data Sources}
@@ -3569,6 +3591,12 @@ population of barred galaxies in the local universe. I. Detection and
 characterisation of bars'', \textit{Astron.\ Astrophys.} \textbf{495}:
 491.
 
+\bibitem[Anderson et al.(2022)]{anderson22} Anderson, S. R., Debattista,
+V. P, Erwin, P., Liddicott, D. J., Deg, N., and Beraldo e Silva, L. 2022,
+``The secular growth of bars revealed by flat (peak + shoulders) density
+profiles'', \textit{Monthly Notices of the Royal Astronomical Society}, 2022,
+\textbf{513:} 1642.
+
 \bibitem[Athanassoula et al.(1990)]{athanassoula90} Athanassoula, E., Morin, S., Wozniak, H.,
 Puy, D., Pierce, M. J., Lombard, J., and Bosma, A. 1990, \textit{Monthly Notices of the Royal
 Astronomical Society} \textbf{245}: 130.
@@ -3596,6 +3624,12 @@ Fourn{\'o}n, and F. S{\'a}nchez, eds., (Cambridge: Cambridge U. Press),
 Pohlen, B., and Beckman, J. E. 2008, ``The Outer Disks of Early-Type Galaxies. I. 
 Surface-Brightness Profiles of Barred Galaxies'', \textit{Astron.J.} \textbf{135}: 20.
 
+\bibitem[Erwin \& Debattista(2013)]{erwin-debattista13} Erwin, P., and
+Debattista, V. P. 2013, ``Peanuts at an Angle: Detecting and
+Measuring the Three-Dimensional Structure of Bars in Moderately Inclined
+Galaxies'', \textit{Monthly Notices of the Royal Astronomical Society}
+\textbf{431}: 3060.
+
 \bibitem[Erwin(2015)]{erwin15} Erwin, P. 2015, ``Imfit: A Fast, Flexible
 New Program for Astronomical Image Fitting'', \textit{Astrophys.J.} \textbf{799:} 226.
 
@@ -3603,6 +3637,11 @@ New Program for Astronomical Image Fitting'', \textit{Astrophys.J.} \textbf{799:
 ``Composite Bulges – II. Classical Bulges and Nuclear Disks in Barred
 Galaxies: The Contrasting Cases of NGC 4608 and NGC 4643'',
 \textit{Monthly Notices of the Royal Astronomical Society}, \textbf{502:} 2446.
+
+\bibitem[Erwin, Debattista, \& Anderson(2023)]{erwin23} Erwin, Peter,
+Debattista, Victor P., and Anderson, S. R. 2023, ``The Profiles of Bars
+in Spiral Galaxies'', \textit{Monthly Notices of the Royal Astronomical
+Society}, submitted.
 
 \bibitem[Ferrers(1877)]{ferrers} Ferrers, N. M. 1877, ``On the
 Potentials of Ellipsoids, Ellipsoidal Shells, Elliptic Laminae, and
