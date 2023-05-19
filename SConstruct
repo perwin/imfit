@@ -220,16 +220,16 @@ cpp_compiler_changed = False
 usingGCC = True
 
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v12 is installed and
-# callable via gcc-12 and g++-12)
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v13 is installed and
+# callable via gcc-13 and g++-13)
 # Comment this out otherwise!
 # Note that the following way of determining the username seems to be a bit more 
 # portable than "getpass.getuser()", which fails for "Ubuntu on Windows" (acc. to 
 # Lee Kelvin, who contributed the new version)
 userName = pwd.getpwuid(os.getuid())[0]
 if (os_type == "Darwin") and (userName == "erwin"): 
-    CC_COMPILER = "gcc-12"
-    CPP_COMPILER = "g++-12"
+    CC_COMPILER = "gcc-13"
+    CPP_COMPILER = "g++-13"
     c_compiler_changed = True
     cpp_compiler_changed = True
     usingGCC = True
@@ -374,8 +374,8 @@ if GetOption("useGCC"):
         print("ERROR: You cannot specify both Clang and GCC as the compiler!")
         Exit(2)
     usingGCC = True
-    CC_COMPILER = "gcc-12"
-    CPP_COMPILER = "g++-12"
+    CC_COMPILER = "gcc-13"
+    CPP_COMPILER = "g++-13"
     print("using %s for C compiler" % CC_COMPILER)
     print("using %s for C++ compiler" % CPP_COMPILER)
     c_compiler_changed = True
@@ -660,6 +660,8 @@ if useExtraFuncs:
     functionobject_obj_string += " func_nan"
     functionobject_obj_string += " func_simple-checkerboard"
     functionobject_obj_string += " func_nuker"
+    functionobject_obj_string += " func_sersic_var-ell"
+    functionobject_obj_string += " func_sersic_var-ell2"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,

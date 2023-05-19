@@ -13,6 +13,14 @@
  * r_3 = params[5 + offsetIndex ];    -- radius of 4th interpolation data point
  * I_3 = params[6 + offsetIndex ];    -- surf. brightness of 4th interpolation data point
  *
+ * Note that this function includes one optional/extra parameter:
+      OPTIONAL_PARAMS_START
+      N    100.0
+      OPTIONAL_PARAMS_END
+ * where N = maximum number of interpolation points for the spline interpolation.
+ * This lets us specify that the interpolation should only use e.g. 2 or 3 points rather
+ * than the full 4 possible points (the config file must still include lines for all
+ * possible interpolation points)
  *
  */
 

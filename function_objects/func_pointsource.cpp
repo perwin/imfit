@@ -135,16 +135,6 @@ void PointSource::AddPsfInterpolator( PsfInterpolator *theInterpolator )
 }
 
 
-/* ---------------- PUBLIC METHOD: Setup ------------------------------- */
-
-void PointSource::Setup( double params[], int offsetIndex, double xc, double yc )
-{
-  x0 = xc;
-  y0 = yc;
-  I_tot = params[0 + offsetIndex];
-}
-
-
 /* ---------------- PUBLIC METHOD: HasExtraParams ---------------------- */
 
 bool PointSource::HasExtraParams( )
@@ -198,6 +188,16 @@ int PointSource::SetExtraParams( map<string,string>& inputMap )
   printf("   PointSource::SetExtraParams -- setting method = %s\n", 
        		interpolationType.c_str());
   return 1;
+}
+
+
+/* ---------------- PUBLIC METHOD: Setup ------------------------------- */
+
+void PointSource::Setup( double params[], int offsetIndex, double xc, double yc )
+{
+  x0 = xc;
+  y0 = yc;
+  I_tot = params[0 + offsetIndex];
 }
 
 

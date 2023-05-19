@@ -102,34 +102,34 @@ const double one = 1.0;
 
 
 /* Forward declarations of functions in this module */
-int mp_fdjac2(mp_func funct,
+int mp_fdjac2( mp_func funct,
               int m, int n, int *ifree, int npar, double *x, double *fvec,
               double *fjac, int ldfjac, double epsfcn,
               double *wa, ModelObject *priv, int *nfev,
               double *step, double *dstep, int *dside,
               int *qulimited, double *ulimit,
-              int *ddebug, double *ddrtol, double *ddatol);
-void mp_qrfac(int m, int n, double *a, int lda, 
+              int *ddebug, double *ddrtol, double *ddatol );
+void mp_qrfac( int m, int n, double *a, int lda, 
               int pivot, int *ipvt, int lipvt,
-              double *rdiag, double *acnorm, double *wa);
-void mp_qrsolv(int n, double *r, int ldr, int *ipvt, double *diag,
+              double *rdiag, double *acnorm, double *wa );
+void mp_qrsolv( int n, double *r, int ldr, int *ipvt, double *diag,
                double *qtb, double *x, double *sdiag, double *wa);
-void mp_lmpar(int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
+void mp_lmpar( int n, double *r, int ldr, int *ipvt, int *ifree, double *diag,
               double *qtb, double delta, double *par, double *x,
-              double *sdiag, double *wa1, double *wa2);
-double mp_dmax1(double a, double b);
-double mp_dmin1(double a, double b);
-int mp_min0(int a, int b);
-int mp_covar(int n, double *r, int ldr, int *ipvt, double tol, double *wa);
+              double *sdiag, double *wa1, double *wa2 );
+double mp_dmax1( double a, double b );
+double mp_dmin1( double a, double b );
+int mp_min0( int a, int b );
+int mp_covar( int n, double *r, int ldr, int *ipvt, double tol, double *wa );
 
-int CheckFinite(int ntot, double *matrix);
+int CheckFinite( int ntot, double *matrix );
 
 
 /* Macro to call user function */
-#define mp_call(funct, m, n, x, fvec, dvec, priv) (*(funct))(m,n,x,fvec,dvec,priv)
+#define mp_call( funct, m, n, x, fvec, dvec, priv) (*(funct))(m,n,x,fvec,dvec,priv )
 
 /* Macro to safely allocate memory */
-#define mp_malloc(dest,type,size) \
+#define mp_malloc( dest, type, size ) \
   dest = (type *) malloc( sizeof(type)*size ); \
   if (dest == 0) { \
     info = MP_ERR_MEMORY; \

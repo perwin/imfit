@@ -15,7 +15,7 @@
  *
  */
 
-// Copyright 2009--2022 by Peter Erwin.
+// Copyright 2009--2023 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -79,27 +79,6 @@ GaussianExtraParams::GaussianExtraParams( )
 }
 
 
-/* ---------------- PUBLIC METHOD: Setup ------------------------------- */
-
-void GaussianExtraParams::Setup( double params[], int offsetIndex, double xc, double yc )
-{
-  x0 = xc;
-  y0 = yc;
-  PA = params[0 + offsetIndex];
-  ell = params[1 + offsetIndex];
-  I_0 = params[2 + offsetIndex];
-  sigma = params[3 + offsetIndex];
-
-  // pre-compute useful things for this round of invoking the function
-  q = 1.0 - ell;
-  // convert PA to +x-axis reference and then to radians
-  PA_rad = (PA + 90.0) * DEG2RAD;
-  cosPA = cos(PA_rad);
-  sinPA = sin(PA_rad);
-  twosigma_squared = 2.0 * sigma*sigma;
-}
-
-
 /* ---------------- PUBLIC METHOD: HasExtraParams ---------------------- */
 
 bool GaussianExtraParams::HasExtraParams( )
@@ -133,6 +112,27 @@ int GaussianExtraParams::SetExtraParams( map<string,string>& inputMap )
     }
   }
   return 0;
+}
+
+
+/* ---------------- PUBLIC METHOD: Setup ------------------------------- */
+
+void GaussianExtraParams::Setup( double params[], int offsetIndex, double xc, double yc )
+{
+  x0 = xc;
+  y0 = yc;
+  PA = params[0 + offsetIndex];
+  ell = params[1 + offsetIndex];
+  I_0 = params[2 + offsetIndex];
+  sigma = params[3 + offsetIndex];
+
+  // pre-compute useful things for this round of invoking the function
+  q = 1.0 - ell;
+  // convert PA to +x-axis reference and then to radians
+  PA_rad = (PA + 90.0) * DEG2RAD;
+  cosPA = cos(PA_rad);
+  sinPA = sin(PA_rad);
+  twosigma_squared = 2.0 * sigma*sigma;
 }
 
 

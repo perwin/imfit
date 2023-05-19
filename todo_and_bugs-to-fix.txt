@@ -468,24 +468,14 @@ image (accounting for data image subset, if any)
 		parameter names vector properly, reset nParams; maybe also modifiy
 		GetParameterNames?
 
-[ ] Spline-interpolation of variable ellipticity profile
-	Base this on the previous idea -- interpolate ellipticity(a) instead of intensity(a)
-	I *think* this can work by converting input pixel x,y into x_p via usual
-	rotation, and then treating x_p as semi-major axis to derive q(a)
-
-	So this (from func_exp.cpp: Exponential::GetValue):
-  // Calculate x,y in component reference frame, and scale y by 1/axis_ratio
-  xp = x_diff*cosPA + y_diff*sinPA;
-  yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
-  r = sqrt(xp*xp + yp_scaled*yp_scaled);
-
-	becomes this:
-  // Calculate x,y in component reference frame, and scale y by 1/axis_ratio
-  xp = x_diff*cosPA + y_diff*sinPA;
-  q = 1 - get_interpolated_ellipticity(x_p);
-  yp_scaled = (-x_diff*sinPA + y_diff*cosPA)/q;
-  r = sqrt(xp*xp + yp_scaled*yp_scaled);
-
+**[ ] Spline-interpolation of variable ellipticity profile
+	-- See notes/notes_for_variable-ell-pa.txt
+	[ ] Locate useful galaxy to experiment on (should have smoothly varying ell --> Abell 150 BCG
+		but ~ constant PA; ideally Sersic rather than Core-Sersic)
+		[ ] ? Determine PSF
+		[ ] Trial standard Sersic fit
+	[ ] Create preliminary image function using Sersic + linear ellipticity interpolation
+	
 
 [] Modify handling of oversampled PSF to catch case where user wants entire
 image oversampled

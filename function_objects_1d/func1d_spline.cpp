@@ -115,7 +115,6 @@ void Spline1D::Setup( double params[], int offsetIndex, double xc )
     }
   }
 
-  // FIXME: currently using linear interpolation!
   gsl_interp_accel_reset(splineCache);
   if (splineFuncAllocated)
     gsl_spline_free(splineFunc);
@@ -146,7 +145,7 @@ int Spline1D::SetExtraParams( map<string,string>& inputMap )
 {
   // check for empty map
   if (inputMap.empty()) {
-    printf("   GaussianExtraParams::SetExtraParams: input map is empty!\n");
+    printf("   Spline1D::SetExtraParams: input map is empty!\n");
     return -1;
   }
   // only one possible parameter for this function, so no need to loop

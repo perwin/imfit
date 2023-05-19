@@ -136,22 +136,6 @@ void PointSourceRot::AddPsfInterpolator( PsfInterpolator *theInterpolator )
 }
 
 
-/* ---------------- PUBLIC METHOD: Setup ------------------------------- */
-
-void PointSourceRot::Setup( double params[], int offsetIndex, double xc, double yc )
-{
-  x0 = xc;
-  y0 = yc;
-  PA = params[0 + offsetIndex];
-  I_tot = params[1 + offsetIndex];
-
-  // convert PA to +x-axis reference
-  PA_rad = (PA + 90.0) * DEG2RAD;
-  cosPA = cos(PA_rad);
-  sinPA = sin(PA_rad);
-}
-
-
 /* ---------------- PUBLIC METHOD: HasExtraParams ---------------------- */
 
 bool PointSourceRot::HasExtraParams( )
@@ -199,6 +183,22 @@ int PointSourceRot::SetExtraParams( map<string,string>& inputMap )
   printf("   PointSourceRot::SetExtraParams -- setting method = %s\n", 
        		interpolationType.c_str());
   return 1;
+}
+
+
+/* ---------------- PUBLIC METHOD: Setup ------------------------------- */
+
+void PointSourceRot::Setup( double params[], int offsetIndex, double xc, double yc )
+{
+  x0 = xc;
+  y0 = yc;
+  PA = params[0 + offsetIndex];
+  I_tot = params[1 + offsetIndex];
+
+  // convert PA to +x-axis reference
+  PA_rad = (PA + 90.0) * DEG2RAD;
+  cosPA = cos(PA_rad);
+  sinPA = sin(PA_rad);
 }
 
 
