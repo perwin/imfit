@@ -500,6 +500,7 @@ image (accounting for data image subset, if any)
 				Constructor -- to set up parameterLabels array
 				FunctionObject::GetParameterNames, GetParameterUnits, GetNParams
 		[ ] Enable correct saving of optional params (i.e. N)
+			-- <functionObject>.GetExtraParamsDescription
 			-- currently, best-fit parameter file looks like this (missing the parameter line!)
 			FUNCTION Sersic_VarEll
 			OPTIONAL_PARAMS_START
