@@ -661,7 +661,7 @@ if useExtraFuncs:
     functionobject_obj_string += " func_simple-checkerboard"
     functionobject_obj_string += " func_nuker"
     functionobject_obj_string += " func_sersic_var-ell"
-    functionobject_obj_string += " func_sersic_var-ell2"
+    functionobject_obj_string += " func_bpbar3d"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,

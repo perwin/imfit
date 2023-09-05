@@ -108,7 +108,6 @@
 #include "func_simple-checkerboard.h"
 #include "func_nuker.h"
 #include "func_sersic_var-ell.h"
-#include "func_sersic_var-ell2.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -358,9 +357,6 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   Sersic_VarEll::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<Sersic_VarEll>();
-
-  Sersic_VarEll2::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<Sersic_VarEll2>();
 
 #endif
 

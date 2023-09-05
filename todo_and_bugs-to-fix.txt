@@ -468,14 +468,53 @@ image (accounting for data image subset, if any)
 		parameter names vector properly, reset nParams; maybe also modifiy
 		GetParameterNames?
 
-**[ ] Spline-interpolation of variable ellipticity profile
+**[..] Spline-interpolation of variable ellipticity profile
 	-- See notes/notes_for_variable-ell-pa.txt
-	[ ] Locate useful galaxy to experiment on (should have smoothly varying ell --> Abell 150 BCG
+	[X] Locate useful galaxy to experiment on (should have smoothly varying ell --> Abell 150 BCG
 		but ~ constant PA; ideally Sersic rather than Core-Sersic)
-		[ ] ? Determine PSF
-		[ ] Trial standard Sersic fit
-	[ ] Create preliminary image function using Sersic + linear ellipticity interpolation
+		[X] ? Determine PSF
+		[X] Trial standard Sersic fit
+	[X] Create preliminary image function using Sersic + linear ellipticity interpolation
 	
+	[X] Variable number of parameters (= variable number of interpolation points)
+		-- In imfit's main(), we start figuring out how many free parameters there are
+		after calling AddFunctions; we also compare total number of parameters with
+		number of input parameters (from config file)
+		-- Can we tell VarEll function to set its number of parameters after getting
+		the optional-params input [via call to its SetExtraParams method] so that it 
+		tells the rest of the program how many parameters it *really* needs?
+			[x] OK, SetExtraParams is called from within AddParameters, so that's good
+		
+			main: theModel->GetNParams();
+				ModelObject: return nParamsTot;
+			ModelObject::DefineFunctionSets
+				nParamsTot += nFunctionParams + 2*nFunctionSets;
+			ModelObject::AddFunction
+				  nNewParams = newFunctionObj_ptr->GetNParams();
+				  paramSizes.push_back(nNewParams);
+				  nFunctionParams += nNewParams;
+		OK, looks like it will work:
+		[X] Modify SetExtraParams() to set the number of parameters
+			-- NOTE the following in constructor:   nParams = N_PARAMS;
+			nParams is used:
+				Constructor -- to set up parameterLabels array
+				FunctionObject::GetParameterNames, GetParameterUnits, GetNParams
+		[ ] Enable correct saving of optional params (i.e. N)
+			-- currently, best-fit parameter file looks like this (missing the parameter line!)
+			FUNCTION Sersic_VarEll
+			OPTIONAL_PARAMS_START
+			OPTIONAL_PARAMS_END
+
+		[ ] Test fitting of Abell 150 BCG image
+
+
+[ ] Modify --list-parameters output so that it includes OPTIONAL_PARAMS_START/OPTIONAL_PARAMS_END
+blocks
+	-- PointSource, PointSourceRot, Sersic_VarEll
+	-- how do we specify (default?) values? do we need to?
+	-- should we include a comment reminding the use that these do not need to
+	be included?
+
 
 [] Modify handling of oversampled PSF to catch case where user wants entire
 image oversampled

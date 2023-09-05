@@ -22,7 +22,7 @@
  *     11 Aug 2021: Created (as modification of func_pointsource.cpp).
  */
 
-// Copyright 2021--2022 by Peter Erwin.
+// Copyright 2021--2023 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 

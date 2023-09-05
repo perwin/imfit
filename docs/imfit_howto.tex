@@ -2673,7 +2673,7 @@ image function takes optional ``meta-parameters'' -- parameters that define
 certain specializations of a function, but which do \textit{not} change
 during a fit. An example is the \texttt{PointSource} function, which has
 an optional meta-parameter (\texttt{mode}) specifying the interpolation
-algorithm to use (bicubic spline (the default) versus Lanczos2).
+algorithm to use (bicubic spline (the default) versus Lanczos2 or Lanczos3).
 
 TBD.
 
@@ -2864,8 +2864,18 @@ method          lanczos2
 OPTIONAL_PARAMS_END
 \end{verbatim}
 
+If you want to use a Lanczos3 kernel, you specify it thus:
+
+\begin{verbatim}
+FUNCTION PointSource
+I_tot     # counts
+OPTIONAL_PARAMS_START
+method          lanczos3
+OPTIONAL_PARAMS_END
+\end{verbatim}
+
 If you want to explicitly specify the (default) bicubic interpolation, you
-can replace ``lanczos2'' with ''bicubic''.
+can use ''bicubic'' instead of ``lanczos2'' or ``lanczos3''.
 
 
 \subsubsection{PointSourceRot}
@@ -2882,7 +2892,7 @@ PA
 \end{verbatim}
 
 As with PointSource, you can optionally specify the interpolation method (the
-default bicubic or the alternative Lanczos2); see the description of PointSource
+default bicubic or the alternatives Lanczos2 or Lanczos3); see the description of PointSource
 above for what this looks like.
 
 
