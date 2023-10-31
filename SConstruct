@@ -68,7 +68,6 @@
 
 import os, subprocess, platform, getpass, pwd, copy
 
-
 def GetLinuxType():
     txt = subprocess.check_output("hostnamectl")
     txt = txt.decode('utf-8')
@@ -87,11 +86,32 @@ linux_type = None
 # possible values: "Ubuntu", "CentOS", ...
 if os_type == "Linux":
     linux_type = GetLinuxType()
+else:   # assuming Darwin/macos
+    proctype = platform.processor()
+    if proctype == "arm":
+        usingAppleSilicon = True
+    else:
+        usingAppleSilicon = False
 
-# specialized for running on Intel processors; set this to False
-# if compiling for arm64 (e.g. Apple Silicon/M1) or if compiling
-# x86-64 code to run under macOS Rosetta2 on Apple Silicon/M1
-useVectorExtensions = True
+
+# Apple Silicon setup (temp)
+
+# the following is our default for Linux *and* macOS-Intel
+include_path_base = [".", "/usr/local/include"]
+
+if usingAppleSilicon:
+    useVectorExtensions = False
+    # assuming arm64 binaries and libraries from Homebrew
+    compiler_path = ['/bin', '/usr/bin', '/opt/homebrew/bin']
+    lib_path = ["/opt/homebrew/lib"]
+    MAC_STATIC_LIBS_PATH = "/opt/homebrew/lib/"
+    include_path_base = [".", "/opt/homebrew/include/"]
+else:   # Intel
+    useVectorExtensions = True
+    # assuming x86-64 binaries and libraries from Homebrew
+    compiler_path = ['/bin', '/usr/bin', '/usr/local/bin']
+    lib_path = ["/usr/local/lib"]
+    MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
 
 
 # LIBRARIES:
@@ -203,14 +223,15 @@ lib_list = BASE_SHARED_LIBS
 lib_list_1d = ["fftw3", "fftw3_threads", "m"]
 
 
-include_path = [".", "/usr/local/include", CORE_SUBDIR, SOLVER_SUBDIR, CDREAM_SUBDIR,
+include_path = include_path_base + [CORE_SUBDIR, SOLVER_SUBDIR, CDREAM_SUBDIR,
                 CDREAM_INCLUDE_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
-lib_path = ["/usr/local/lib"]
-link_flags = []
+# the following flag ("-ld_classic") is a workaround to use the old linker instead of the
+# new (XCode 15) linker, which fails
+link_flags = ["-ld_classic"]
 
 
 # find out what the default compilers (according to SCons) are
-default_environ = DefaultEnvironment()
+default_environ = DefaultEnvironment(ENV = {'PATH' : os.environ['PATH']})
 cc_default = default_environ["CC"]
 cpp_default = default_environ["CXX"]
 CC_COMPILER = cc_default
@@ -547,17 +568,17 @@ defines_opt = defines_opt + extra_defines
 
 env = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
                     LIBPATH=lib_path, CCFLAGS=cflags_opt, LINKFLAGS=link_flags, 
-                    CPPDEFINES=defines_opt )
+                    CPPDEFINES=defines_opt, ENV = {'PATH' : os.environ['PATH']} )
 env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
                     LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
-                    CPPDEFINES=defines_db )
+                    CPPDEFINES=defines_db, ENV = {'PATH' : os.environ['PATH']} )
 lib_list_nofits = copy.copy(lib_list)
 if "nlopt" in lib_list_nofits:
     lib_list_nofits.remove("nlopt")
 env_debug_nofits = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, 
                     LIBS=lib_list_nofits, 
                     LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
-                    CPPDEFINES=defines_db )
+                    CPPDEFINES=defines_db, ENV = {'PATH' : os.environ['PATH']} )
 
 
 # Checks for libraries and headers -- if we're not doing scons -c:
@@ -662,6 +683,9 @@ if useExtraFuncs:
     functionobject_obj_string += " func_nuker"
     functionobject_obj_string += " func_sersic_var-ell"
     functionobject_obj_string += " func_bpbar3d"
+    functionobject_obj_string += " func_double-gaussian"
+    functionobject_obj_string += " func_peanut_shashank"
+    functionobject_obj_string += " func_peanut_shashank_v2"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,
@@ -793,7 +817,8 @@ staticlib = env.StaticLibrary(target="libimfit", source=libimfit_objlist)
 # From here to the end of the file: removed from exported distribution version of SConstruct
 
 env_1d = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list_1d, LIBPATH=lib_path,
-                        CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db )
+                        CCFLAGS=cflags_db, LINKFLAGS=link_flags, CPPDEFINES=defines_db,
+                        ENV = {'PATH' : os.environ['PATH']} )
 
 # ModelObject1d and related classes:
 # (Note that model_object includes references to oversampled_region and downsample,

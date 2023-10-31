@@ -109,6 +109,9 @@
 #include "func_nuker.h"
 #include "func_sersic_var-ell.h"
 #include "func_bpbar3d.h"
+#include "func_double-gaussian.h"
+#include "func_peanut_shashank.h"
+#include "func_peanut_shashank_v2.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -361,6 +364,15 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   BPBar3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<BPBar3D>();
+
+  DoubleGaussian::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<DoubleGaussian>();
+
+  Peanut::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Peanut>();
+
+  Peanut_v2::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<Peanut_v2>();
 
 #endif
 

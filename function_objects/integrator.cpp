@@ -15,7 +15,7 @@
  * Ferrers bar, so not much reason to change them.
  */
  
-// Copyright 2011--2017 by Peter Erwin.
+// Copyright 2011--2023 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -53,6 +53,61 @@ double  Integrate( gsl_function F, double s1, double s2 )
   
   return result;
 }
+
+
+// Potentially better integrator (e.g., for face-on vertical exponential integration)
+double  Integrate_cquad( gsl_function F, double s1, double s2 )
+{
+  double  result, error;
+  size_t  n_eval;
+  int  status;
+  gsl_integration_cquad_workspace * workspace_cquad;
+
+  workspace_cquad = gsl_integration_cquad_workspace_alloc(100);
+  status = gsl_integration_cquad(&F, s1,s2, 0, RELATIVE_TOL, workspace_cquad, &result, 
+  								&error, &n_eval);
+  gsl_integration_cquad_workspace_free(workspace_cquad);
+
+  return result;
+}
+
+
+// This is for occasional testing purposes
+double  Integrate_Alt( gsl_function F, double s1, double s2 )
+{
+  double  result, error;
+  size_t  n_eval;
+  int  status;
+  gsl_integration_workspace * workspace;
+  gsl_integration_cquad_workspace * workspace_cquad;
+  gsl_integration_romberg_workspace * workspace_romberg;
+  
+  // allocate and free the workspace object here (referencing it with a local
+  // variable) to ensure thread safety
+  
+  // This works pretty well for face-on BP bulge
+//   workspace = gsl_integration_workspace_alloc(LIMIT_SIZE);
+//   int  key = GSL_INTEG_GAUSS61;
+//   status = gsl_integration_qag(&F, s1, s2, 0, RELATIVE_TOL, LIMIT_SIZE, key, workspace,
+//   								&result, &error);
+//   gsl_integration_workspace_free(workspace);
+
+  workspace = gsl_integration_workspace_alloc(LIMIT_SIZE);
+  status = gsl_integration_qagi(&F, 0, RELATIVE_TOL, LIMIT_SIZE, workspace,
+  								&result, &error);
+  gsl_integration_workspace_free(workspace);
+
+//   workspace_cquad = gsl_integration_cquad_workspace_alloc(100);
+//   gsl_integration_cquad(&F, s1,s2, 0, RELATIVE_TOL, workspace_cquad, &result, &error, &n_eval);
+//   gsl_integration_cquad_workspace_free(workspace_cquad);
+
+//   workspace_romberg = gsl_integration_romberg_alloc(20);
+//   gsl_integration_romberg(&F, s1,s2, 0, RELATIVE_TOL, &result, &n_eval, workspace_romberg);
+//   gsl_integration_romberg_free(workspace_romberg);
+    
+  return result;
+}
+
 
 
 /* END OF FILE: integrator.cpp ----------------------------------------- */

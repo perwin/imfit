@@ -9,6 +9,9 @@
 
 
 double  Integrate( gsl_function F, double s1, double s2 );
+double  Integrate_cquad( gsl_function F, double s1, double s2 );
+// the following is for occasional testing purposes
+// double  Integrate_Alt( gsl_function F, double s1, double s2 );
 
 
 #endif  // _GSL_INTEGRATOR_H_

@@ -1,4 +1,4 @@
-/* FILE: func_bpbar3d-bar3d.cpp ---------------------------------------- */
+/* FILE: func_bpbar3d.cpp ---------------------------------------------- */
 /*
  *   Function object class for a "flat" (vertically thin) bar with a broken
  * exponential major-axis profile, transitioning to single-exponential for
@@ -275,7 +275,8 @@ double DoubleGaussian2D( double x, double y, double R_max, double twosigma_squar
 double LuminosityDensity_BPBar3D( double s, void *params )
 {
   double  y_d, z_d, x_bar, y_bar, z_bar;
-  double  y_bar_scaled, R_outer, R_bp, z_h_bp, bp_z_scaling;
+  double  y_bar_scaled, R_outer;
+  double  y_bp_scaled, R_bp, z_h_bp, bp_z_scaling;
   double  lumDensity_outer, lumDensity_bp;
   double  *paramsVect = (double *)params;
   double x_d0 = paramsVect[0];
@@ -310,13 +311,13 @@ double LuminosityDensity_BPBar3D( double s, void *params )
   lumDensity_outer = J_0_outer * lumDensity_outer * exp(-z_bar/z_0);
 
   // * BP component
-  y_bar_scaled = y_bar/q_bp;
+  y_bp_scaled = y_bar/q_bp;
   // computer modified vertical scale height
-  bp_z_scaling = z_bp_max * DoubleGaussian2D(x_bar, y_bar_scaled, r_bp_max, twosigma_squared);
+  bp_z_scaling = z_bp_max * DoubleGaussian2D(x_bar, y_bp_scaled, r_bp_max, twosigma_squared);
   z_h_bp = bp_z_scaling * z_0;
-  R_bp = sqrt(x_bar*x_bar + y_bar_scaled*y_bar_scaled);
+  R_bp = sqrt(x_bar*x_bar + y_bp_scaled*y_bp_scaled);
 //   lumDensity_bp = J_0_bp * exp(-R_bp/h_bp) * exp(-z_bar/z_0);
-  lumDensity_bp = J_0_bp * exp(-R_bp/h_bp) * exp(-z_bar/z_h_bp);
+  lumDensity_bp = (J_0_bp / bp_z_scaling) * exp(-R_bp/h_bp) * exp(-z_bar/z_h_bp);
   
   return lumDensity_outer + lumDensity_bp;
 }
