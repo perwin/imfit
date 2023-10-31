@@ -86,12 +86,29 @@ linux_type = None
 # possible values: "Ubuntu", "CentOS", ...
 if os_type == "Linux":
     linux_type = GetLinuxType()
+    usingAppleSilicon = False
 else:   # assuming Darwin/macos
     proctype = platform.processor()
     if proctype == "arm":
         usingAppleSilicon = True
     else:
         usingAppleSilicon = False
+
+def GetXCodeVersion():
+    """Attempts to determine XCode version (e.g., 15.0) by parsing output of
+    "clang --version".
+    """
+    result = subprocess.run("clang --version", capture_output=True, shell=True)
+    pp = result.stdout.split()
+    pp_str = [pp[i].decode() for i in range(4)]
+    if pp_str[0:3] == ["Apple", "clang", "version"]:
+        version_str = pp_str[3]
+        ppp = version_str.split(".")
+        version_num = float(ppp[0] + "." + ppp[1])
+        return version_num
+    else:
+        print("WARNING: Unable to determine clang version!")
+        return None
 
 
 # the following is our default for Linux *and* macOS-Intel
@@ -191,16 +208,6 @@ CDREAM_SUBDIR = "cdream/"
 CDREAM_INCLUDE_SUBDIR = CDREAM_SUBDIR + "include/"
 PROFILEFIT_SUBDIR = "profile_fitting/"
 
-BAD_OPENMP_COMPILER_WARNING = """
-*** WARNING: You appear to be trying to compile with OpenMP support under macOS 
-while using Apple's (Xcode) clang++, which does NOT support OpenMP.
-(Note that clang++ may be aliased on a macOS system as /usr/bin/g++.)
-
-Either go ahead and compile without OpenMP by calling scons with the --no-openmp 
-flag, or (ideally) use a different compiler (e.g., GCC, or a version of Clang/LLVM
-with OpenMP support).
-"""
-
 
 # *** Set up compiler flags, library lists, include paths
 
@@ -228,9 +235,12 @@ lib_list_1d = ["fftw3", "fftw3_threads", "m"]
 
 include_path = include_path_base + [CORE_SUBDIR, SOLVER_SUBDIR, CDREAM_SUBDIR,
                 CDREAM_INCLUDE_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
-# the following flag ("-ld_classic") is a workaround to use the old linker instead of the
-# new (XCode 15) linker, which fails
-link_flags = ["-ld_classic"]
+# the following flag ("-ld_classic") is a workaround on macos to use the old linker 
+# instead of the new (in XCode 15) linker, which fails for us (and other people)
+# FIXME: If an updated version of XCode fixes the problem, then we should modify this
+# so it just checks for the specific bad version(s).
+if os_type == "Darwin" and GetXCodeVersion() >= 15:
+    link_flags = ["-ld_classic"]
 
 
 # find out what the default compilers (according to SCons) are
@@ -445,8 +455,6 @@ if setOptToDebug:
     cflags_opt = cflags_db
 
 
-# *If* we're compiling with clang + OpenMP on macos, we need to specify the static
-# library libomp.a, even if we're not doing static linking otherwise
 if useStaticLibs:
     lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
     lib_list.append(STATIC_FFTW_LIBRARY_FILE)
