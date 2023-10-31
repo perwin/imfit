@@ -48,7 +48,7 @@
 # etc.
 
 
-# Copyright 2010--2022 by Peter Erwin.
+# Copyright 2010--2023 by Peter Erwin.
 # 
 # This file is part of Imfit.
 # 
@@ -94,8 +94,6 @@ else:   # assuming Darwin/macos
         usingAppleSilicon = False
 
 
-# Apple Silicon setup (temp)
-
 # the following is our default for Linux *and* macOS-Intel
 include_path_base = [".", "/usr/local/include"]
 
@@ -105,13 +103,19 @@ if usingAppleSilicon:
     compiler_path = ['/bin', '/usr/bin', '/opt/homebrew/bin']
     lib_path = ["/opt/homebrew/lib"]
     MAC_STATIC_LIBS_PATH = "/opt/homebrew/lib/"
+    LOCAL_STATIC_LIBS_PATH = "/Users/erwin/coding/imfit/static_libs/arm64/"
+    # kludgey solution for compiling on Apple Silicon (Homebrew Apple Silicon
+    # distribution of nlopt does *not* include static libraries)
+    STATIC_NLOPT_LIBRARY_FILE = File("/Users/erwin/coding/imfit/static_libs/arm64/libnlopt.a")
     include_path_base = [".", "/opt/homebrew/include/"]
 else:   # Intel
     useVectorExtensions = True
     # assuming x86-64 binaries and libraries from Homebrew
     compiler_path = ['/bin', '/usr/bin', '/usr/local/bin']
     lib_path = ["/usr/local/lib"]
-    MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
+    MAC_STATIC_LIBS_PATH = File("/usr/local/lib/")
+    LOCAL_STATIC_LIBS_PATH = "/Users/erwin/coding/imfit/static_libs/x86-64/"
+    STATIC_NLOPT_LIBRARY_FILE = File("/Users/erwin/coding/imfit/static_libs/x86-64/libnlopt.a")
 
 
 # LIBRARIES:
@@ -141,7 +145,6 @@ else:   # Intel
 
 # We assume that FFTW library is static-only (since that's the default installation).
 
-MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
 # Debian/Ubuntu standard x86-64 package installation path
 LINUX_UBUNTU_STATIC_LIBS_PATH = "/usr/local/lib/"
 libDirs = {"Darwin": MAC_STATIC_LIBS_PATH, "Linux": LINUX_UBUNTU_STATIC_LIBS_PATH}
@@ -174,8 +177,8 @@ STATIC_GSL_LIBRARY_FILE2 = File(libDirs[os_type] + "libgslcblas.a")
 
 # the following is for when we want to force static linking to the NLopt library
 # (Change these if the locations are different on your system)
-STATIC_NLOPT_LIBRARY_FILE = File(libDirs[os_type] + "libnlopt.a")
-STATIC_NLOPT_LIBRARY_FILE_MACOSX_NOTHREADLOCAL = File("/Users/erwin/coding/imfit/static_libs/nlopt_nothreadlocal/libnlopt.a")
+if os_type == "Linux":
+    STATIC_NLOPT_LIBRARY_FILE = File(libDirs[os_type] + "libnlopt.a")
 
 
 
@@ -442,6 +445,8 @@ if setOptToDebug:
     cflags_opt = cflags_db
 
 
+# *If* we're compiling with clang + OpenMP on macos, we need to specify the static
+# library libomp.a, even if we're not doing static linking otherwise
 if useStaticLibs:
     lib_list.append(STATIC_CFITSIO_LIBRARY_FILE)
     lib_list.append(STATIC_FFTW_LIBRARY_FILE)
@@ -501,7 +506,7 @@ if useOpenMP:   # default is to do this (turn this off with "--no-openmp")
         link_flags.append("-Xpreprocessor")
         link_flags.append("-fopenmp")
         if useStaticLibs:
-            link_flags.append("/Users/erwin/coding/imfit/static_libs/libomp.a")
+            link_flags.append(MAC_STATIC_LIBS_PATH + "/libomp.a")
         else:
             # dynamic linking to libomp
             link_flags.append("-lomp")

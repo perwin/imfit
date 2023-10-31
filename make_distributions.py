@@ -12,7 +12,6 @@ import distribution_manifest as dm
 # Linux virtual machines on MacBook Pro and local web-site directory for Mac
 # versions)
 #    LINUX_DEST = local folder within Linux VM
-#LINUX_DEST = "/media/sf_vbox_shared/"
 LINUX_DEST = "/vagrant/transfer/"
 MAC_DEST = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/"
 MAC_DEST_BIN = "/Users/erwin/Documents/Working/web_site_new/resources/imfit/binaries/"
@@ -27,15 +26,12 @@ os_machine_type = os.uname()[4]   # "x86-64", etc.
 
 # basic scons command (specifies static linking, etc.)
 scons_string = "scons --static"
-#scons_string_mac = "scons --allstatic --mac-distribution"
 scons_string_mac = "scons --mac-distribution"
 
 SOURCE_TARFILE = "imfit-%s-source.tar.gz" % VERSION_STRING
 if (os_type == "Darwin"):   # OK, we're compiling on Mac OS X
 	BINARY_TARFILE = "imfit-%s-macintel.tar.gz" % VERSION_STRING
 	BINARY_TARFILE_OLDMAC = "imfit-%s-macintel_10.6-10.7.tar.gz" % VERSION_STRING
-	# ensure that we use GCC-5 for all compilation
-#	scons_string += " --use-gcc"
 	scons_string += " --clang-openmp"
 	scons_string_oldmac = scons_string + " --old-mac"
 	SOURCE_COPY_DEST_DIR = MAC_DEST
