@@ -224,6 +224,8 @@ if useVectorExtensions:
     cflags_opt.append("-msse2")
 cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow", 
                 "-Wredundant-decls", "-Wpointer-arith"]
+# the following will probably be appended to multiple times
+link_flags = []
 
 base_defines = ["ANSI", "USING_SCONS"]
 
@@ -235,12 +237,14 @@ lib_list_1d = ["fftw3", "fftw3_threads", "m"]
 
 include_path = include_path_base + [CORE_SUBDIR, SOLVER_SUBDIR, CDREAM_SUBDIR,
                 CDREAM_INCLUDE_SUBDIR, FUNCTION_SUBDIR, FUNCTION_1D_SUBDIR, PROFILEFIT_SUBDIR]
+
+
 # the following flag ("-ld_classic") is a workaround on macos to use the old linker 
 # instead of the new (in XCode 15) linker, which fails for us (and other people)
 # FIXME: If an updated version of XCode fixes the problem, then we should modify this
 # so it just checks for the specific bad version(s).
 if os_type == "Darwin" and GetXCodeVersion() >= 15:
-    link_flags = ["-ld_classic"]
+    link_flags.append("-ld_classic")
 
 
 # find out what the default compilers (according to SCons) are
