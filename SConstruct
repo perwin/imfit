@@ -130,7 +130,7 @@ else:   # Intel
     # assuming x86-64 binaries and libraries from Homebrew
     compiler_path = ['/bin', '/usr/bin', '/usr/local/bin']
     lib_path = ["/usr/local/lib"]
-    MAC_STATIC_LIBS_PATH = File("/usr/local/lib/")
+    MAC_STATIC_LIBS_PATH = "/usr/local/lib/"
     LOCAL_STATIC_LIBS_PATH = "/Users/erwin/coding/imfit/static_libs/x86-64/"
     STATIC_NLOPT_LIBRARY_FILE = File("/Users/erwin/coding/imfit/static_libs/x86-64/libnlopt.a")
 
