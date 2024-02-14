@@ -15,7 +15,7 @@
  * Ferrers bar, so not much reason to change them.
  */
  
-// Copyright 2011--2023 by Peter Erwin.
+// Copyright 2011--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -80,7 +80,7 @@ double  Integrate_Alt( gsl_function F, double s1, double s2 )
   int  status;
   gsl_integration_workspace * workspace;
   gsl_integration_cquad_workspace * workspace_cquad;
-  gsl_integration_romberg_workspace * workspace_romberg;
+//   gsl_integration_romberg_workspace * workspace_romberg;
   
   // allocate and free the workspace object here (referencing it with a local
   // variable) to ensure thread safety
