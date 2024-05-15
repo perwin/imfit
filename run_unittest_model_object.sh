@@ -41,6 +41,7 @@ function_objects/func_ferrersbar3d.cpp function_objects/func_king.cpp \
 function_objects/func_ferrersbar2d.cpp \
 function_objects/func_king2.cpp function_objects/func_gauss_extraparams.cpp \
 function_objects/func_pointsource.cpp function_objects/func_pointsource-rot.cpp \
+function_objects/func_peanut_dattathri.cpp \
 function_objects/helper_funcs.cpp function_objects/helper_funcs_3d.cpp \
 function_objects/psf_interpolators.cpp \
 -I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST \

@@ -36,6 +36,7 @@ public:
     referenceFunctionNameList.push_back("BrokenExponential2D");
     referenceFunctionNameList.push_back("BrokenExponentialDisk3D");
     referenceFunctionNameList.push_back("Core-Sersic");
+    referenceFunctionNameList.push_back("DattathriPeanut3D");
     referenceFunctionNameList.push_back("EdgeOnDisk");
     referenceFunctionNameList.push_back("EdgeOnRing");
     referenceFunctionNameList.push_back("EdgeOnRing2Side");
