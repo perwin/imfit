@@ -2,6 +2,18 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
+## 1.9.1 -- 2024-05-xx
+### Added:
+
+- New image function: DattathriPeanut3D. This is is the
+peanut-shaped-bulge version of a bar, presented in Dattathri et al.
+(2024; MNRAS 530: 1195). As with other functions with "3D" in their
+names, it uses integration along the line of sight to construct the
+model image. Thanks to Shashank Dattatri for contributing this. 
+
+
+
+
 ## 1.9.0 -- 2022-11-27
 ### Added:
 

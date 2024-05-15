@@ -55,6 +55,7 @@
 #include "func_ferrersbar2d.h"
 #include "func_flatsky.h"
 #include "func_tilted-sky-plane.h"
+#include "func_peanut_dattathri.h"
 // modules requiring GSL:
 //#ifndef NO_GSL
 #include "func_edge-on-disk.h"
@@ -110,8 +111,8 @@
 #include "func_sersic_var-ell.h"
 #include "func_bpbar3d.h"
 #include "func_double-gaussian.h"
-#include "func_peanut_shashank.h"
-#include "func_peanut_shashank_v2.h"
+// #include "func_peanut_shashank.h"
+// #include "func_peanut_shashank_v2.h"
 #endif
 
 // extra functions useful for e.g. unit tests
@@ -225,6 +226,9 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 
   TiltedSkyPlane::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<TiltedSkyPlane>();
+
+  DattathriPeanut3D::GetClassShortName(classFuncName);
+  input_factory_map[classFuncName] = new funcobj_factory<DattathriPeanut3D>();
 
 // functions requring GSL:
 //#ifndef NO_GSL 
@@ -368,11 +372,8 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   DoubleGaussian::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<DoubleGaussian>();
 
-  Peanut::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<Peanut>();
-
-  Peanut_v2::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<Peanut_v2>();
+//   Peanut_v2::GetClassShortName(classFuncName);
+//   input_factory_map[classFuncName] = new funcobj_factory<Peanut_v2>();
 
 #endif
 

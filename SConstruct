@@ -654,7 +654,7 @@ functionobject_obj_string = """function_object func_gaussian func_exp func_gen-e
         func_flatbar func_gaussian-ring 
         func_gaussian-ring2side func_gaussian-ring-az func_edge-on-disk_n4762 
         func_edge-on-disk_n4762v2 func_edge-on-ring func_edge-on-ring2side 
-        func_king func_king2 func_ferrersbar2d 
+        func_king func_king2 func_ferrersbar2d  func_peanut_dattathri
         helper_funcs helper_funcs_3d psf_interpolators"""
 #if useGSL:
 # NOTE: the following modules require GSL be present
@@ -701,8 +701,6 @@ if useExtraFuncs:
     functionobject_obj_string += " func_sersic_var-ell"
     functionobject_obj_string += " func_bpbar3d"
     functionobject_obj_string += " func_double-gaussian"
-    functionobject_obj_string += " func_peanut_shashank"
-    functionobject_obj_string += " func_peanut_shashank_v2"
 # ADD CODE FOR NEW FUNCTIONS HERE
 # (NOTE: be sure to include one or more spaces before the file name!)
 # e.g.,
