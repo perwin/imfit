@@ -9,7 +9,7 @@
 peanut-shaped-bulge version of a bar, presented in Dattathri et al.
 (2024; MNRAS 530: 1195). As with other functions with "3D" in their
 names, it uses integration along the line of sight to construct the
-model image. Thanks to Shashank Dattatri for contributing this. 
+model image. Thanks to Shashank Dattathri for contributing this. 
 
 
 
@@ -52,7 +52,7 @@ algorithm as part of the fitting process -- instead, they are only
 used/applied at startup. These come in the form of key-value pairs (the
 key is the name of the parameter), with both specified as text strings
 in the configuration file. If supplied, they are passed to the image
-function after it is initialized but before any fitting; how they values
+function after it is initialized but before any fitting; how the values
 are used is up to the individual function (e.g., they can be converted
 to floating-point values, used to select one of several internal
 algorithms, interpreted as the filename of an extra configuration file
