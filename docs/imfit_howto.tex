@@ -1098,7 +1098,7 @@ identified by \cite{ee85}).
 
 \end{itemize}
 
-In addition, four ``3D'' functions are available. With these, the
+In addition, five ``3D'' functions are available. With these, the
 intensity value for each pixel comes from line-of-sight integration
 through a 3D luminosity-density model, generating a projected 2D model
 image given input specifications of the orientation and inclination to
@@ -1119,6 +1119,9 @@ elliptical ring with Gaussian radial and exponential vertical profiles.
 
 \item FerrersBar3D -- uses a 3D luminosity-density model of a triaxial
 \citet{ferrers} ellipsoid.
+
+\item DattathriPeanut3D -- uses a 3D luminosity-density model of a bar with
+peanut-shaped vertical distortions as described in \citet{dattathri24}.
 
 \end{itemize}
 
@@ -3346,17 +3349,17 @@ face-on system and $i = 90$ for an edge-on system. See Section~6.2 of
 \citet{erwin15} for details of how the line-of-sight integration is
 handled.
 
-For the GaussianRing3D and FerrersBar3D functions, which are not
-axisymmetric, there is an additional ``position angle'' parameter
-(\texttt{PA\_ring} or \texttt{PA\_bar}), which defines the position of
-the ring's or bar's major axis \textit{in the primary plane} (i.e., prior to any
-projection) with respect to the primary plane's +x axis. (The logic
-behind this is that when the primary plane's line of nodes is
-\textit{horizontal} -- i.e., PA $= 90$ -- the orientation of the
-ring's major axis follows the usual orientation conventions with respect
-to the image +y axis. You are, of course, free to change this if you
-write 3D components of your own, though I will probably continue to
-follow it in the future.)
+For the non-axisymmetric functions (GaussianRing3D, FerrersBar3D, and
+DattathriPeanut3D), which are not axisymmetric, there is an additional
+``position angle'' parameter (\texttt{PA\_ring} or \texttt{barPA}),
+which defines the position of the ring's or bar's major axis \textit{in
+the primary plane} (i.e., prior to any projection) with respect to the
+primary plane's +x axis. (The logic behind this is that when the primary
+plane's line of nodes is \textit{horizontal} -- i.e., PA $= 90$ -- the
+orientation of the ring's major axis follows the usual orientation
+conventions with respect to the image +y axis. You are, of course, free
+to change this if you write 3D components of your own, though I will
+probably continue to follow it in the future.)
 
 A note on units: since these are luminosity-density functions, which
 yield standard surface-brightness or intensity units (usually
@@ -3497,7 +3500,7 @@ assumed that $q \leq 1$ and $q_{z} \leq 1$; however, it is not required
 that $q_{z}$ must be $\leq q$.
 
 The luminosity density function is
-\begin{equation}\label{eqn:ferrers}
+\begin{equation}\label{eqn:ferrers3d}
  j(m) = 
   \begin{cases} 
    \: J_0 \, (1 - m^{2})^{n} & \text{if } m < 1 \\
@@ -3512,7 +3515,7 @@ with $a = \rbar$, $b = q \rbar$, and $c = q_{z} \rbar$. Typical values of $n$
 used in theoretical studies are 1 and 2.
 
 Note that this is related to but different from the ``Ferrer'' component
-in GALFIT, which defines a 2D surface-brightness function using Eqn.~\ref{eqn:ferrers}.
+in GALFIT, which defines a 2D surface-brightness function using Eqn.~\ref{eqn:ferrers3d}.
 
 \begin{verbatim}
 FUNCTION FerrersBar3D
@@ -3524,6 +3527,56 @@ R_bar
 q
 q_z
 n
+\end{verbatim}
+
+
+
+
+
+
+\subsubsection{DattathriPeanut3D}\label{sec:dattathri-peanut}
+
+This function does line-of-sight integration through XXX
+
+As with the GaussianRing3D and FerrersBar3D components, the peanut bar can be imagined as
+lying in an (invisible) ``equatorial'' plane -- defined by the first two
+axes of the ellipsoid -- with a line of nodes at angle \texttt{PA\_lon} and
+inclination \texttt{inc} (as for the ExponentialDisk3D function, above);
+within this plane, the bar's major axis is at position angle
+\texttt{barPA} \textit{relative to the perpendicular to the line of
+nodes} (i.e., at $90 + $\texttt{barPA} degrees relative to the line of
+nodes). The shape of the ellipsoid is defined by XXX
+
+The luminosity density function is XXX
+\begin{equation}\label{eqn:dattathri}
+ j(m) = 
+  \begin{cases} 
+   \: J_0 \, (1 - m^{2})^{n} & \text{if } m < 1 \\
+   \: 0                      & \text{otherwise}
+  \end{cases}
+\end{equation}
+where $m$ is the ellipsoidal radius:
+\begin{equation}
+m^2 =  \frac{x^2}{a^2} + \frac{y^2}{b^2} + \frac{z^2}{c^2} ,
+\end{equation}
+with $a = \rbar$, $b = q \rbar$, and $c = q_{z} \rbar$. Typical values of $n$
+used in theoretical studies are 1 and 2.
+
+
+\begin{verbatim}
+FUNCTION DattathriPeanut3D
+PA_lon		# deg (CCW from +y axis)
+inc		# deg
+barPA		# deg
+J0_bar		# counts/voxel
+R_bar_x		# pixels
+q
+q_z
+R_peanut		# pixels
+A_bar		# pixels
+sigma_peanut		# pixels
+c_bar_par
+c_bar_perp
 \end{verbatim}
 
 
@@ -3614,6 +3667,12 @@ Astronomical Society} \textbf{245}: 130.
 \bibitem[Ciotti \& Bertin(1999)]{ciotti99} Ciotti, L., and Bertin, G. 1999,
 ''Analytical properties of the R$^{1/m}$ law'', \textit{Astron.\ Astrophys.}
 \textbf{352}: 447.
+
+\bibitem[Dattathri et al.(2024)]{dattathri24} Dattathri, S., Valluri, M.,
+Vasiliev, E, Wheeler, V., and Erwin, P. 2024, ``Deprojection and stellar
+dynamical modelling of boxy/peanut bars in edge-on discs'',
+\textit{Monthly Notices of the Royal Astronomical Society} \textbf{530}:
+1195.
 
 \bibitem[de Souza, Gadotti, \& dos Anjos(2004)]{desouza04} de Souza, R. E.,
 Gadotti, D. A., and dos Anjos, S. 2004, ``BUDDA: A New Two-dimensional Bulge/Disk

@@ -6,7 +6,7 @@
 // from lines 235--255 to generate & store a new mp_par structure
 //
 
-// Copyright 2010--2022 by Peter Erwin.
+// Copyright 2010--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -34,6 +34,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef USE_LOGGING
+#include "loguru/loguru.hpp"
+#endif
 
 #include "param_struct.h"
 #include "utilities_pub.h"
@@ -300,6 +304,10 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
   if (functionsExist) {
     allOK = true;
     for (i = functionSectionStart; i < nInputLines; i++) {
+#ifdef USE_LOGGING
+      LOG_F(2, "VetConfigFile: checking line %d (orig = %d): %s", i, 
+      		origLineNumbers[i], inputLines[i].c_str());
+#endif
       if (inputLines[i].find("FUNCTION", 0) == string::npos) {
         // test for valid line
         if (inputLines[i].find(OPTIONAL_PARAMS_START, 0) != string::npos) {
@@ -311,6 +319,9 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
           continue;
         }
         if (! ValidParameterLine(inputLines[i], inOptionalParams)) {
+#ifdef USE_LOGGING
+          LOG_F(2, "VetConfigFile: invalid parameter line (line %d)", i);
+#endif
           allOK = false;
           *badLineNumber = origLineNumbers[i];
           break;
@@ -339,6 +350,10 @@ int VetConfigFile( vector<string>& inputLines, const vector<int>& origLineNumber
 /* ---------------- FUNCTION: ReportConfigError ------------------------ */
 void ReportConfigError( const int errorCode, const int origLineNumber )
 {
+#ifdef USE_LOGGING
+  LOG_F(2, "ReportConfigError: called with errorCode = %d (line number = %d)", 
+    		errorCode, origLineNumber);
+#endif
   switch (errorCode) {
     case CONFIG_FILE_ERROR_NOFUNCSECTION:
       fprintf(stderr, "\n*** ReadConfigFile: Unable to find start of function section in configuration file!");
@@ -509,6 +524,9 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     k++;
     // strip off leading & trailing spaces; turns a blank line with spaces/tabs
     // into an empty string
+#ifdef USE_LOGGING
+    LOG_F(2, "ReadConfigFile: line %d: %s", k, inputLine.c_str());
+#endif
     TrimWhitespace(inputLine);
     // store non-empty, non-comment lines in a vector of strings
     if ((inputLine.size() > 0) && (inputLine[0] != '#')) {

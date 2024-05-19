@@ -35,7 +35,7 @@ class DattathriPeanut3D : public FunctionObject
 
 
   private:
-    double  x0, y0, PA, inc, psi_bar, J0_bar, R_bar_x, q, q_z, R_peanut, A_bar, 
+    double  x0, y0, PA, inc, psi_bar, J0_bar, R_bar_x, q, q_z, R_peanut, A_peanut, 
     		sigma_peanut, c_bar_par, c_bar_perp;   // parameters
     double  PA_rad, cosPA, sinPA, inc_rad, cosInc, sinInc, cosPsi, sinPsi;   // other useful quantities
     double  R_bar_y, R_bar_z;   // other useful quantities

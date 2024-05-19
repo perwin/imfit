@@ -11,6 +11,13 @@ peanut-shaped-bulge version of a bar, presented in Dattathri et al.
 names, it uses integration along the line of sight to construct the
 model image. Thanks to Shashank Dattathri for contributing this. 
 
+- The PointSource (and PointSourceRot) image functions now include the
+option of Lanczos3 interpolation, in addition to the existing options of
+Lanczos2 or bicubic. This is enabled by adding the following three lines
+immediately after the "FUNCTION PointSource" line in a configuration
+file: "OPTIONAL_PARAMS_START", "method   lanczos3",
+"OPTIONAL_PARAMS_END".
+
 
 
 

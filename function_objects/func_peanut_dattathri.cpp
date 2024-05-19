@@ -54,7 +54,7 @@ using namespace std;
 /* ---------------- Definitions ---------------------------------------- */
 const int   N_PARAMS = 12;
 const char  PARAM_LABELS[][20] = {"PA_lon", "inc", "barPA", "J0_bar", "R_bar_x", "q", "q_z", 
-				"R_peanut", "A_bar", "sigma_peanut", "c_bar_par", "c_bar_perp"};
+				"R_peanut", "A_peanut", "sigma_peanut", "c_bar_par", "c_bar_perp"};
 const char  PARAM_UNITS[][30] = {"deg (CCW from +y axis)", "deg", "deg", "counts/voxel", 
 				"pixels", "", "", "pixels", "pixels", "pixels", "", ""};
 const char  FUNCTION_NAME[] = "Peanut function (v2)";
@@ -112,7 +112,7 @@ void DattathriPeanut3D::Setup( double params[], int offsetIndex, double xc, doub
   q = params[5 + offsetIndex];
   q_z = params[6 + offsetIndex];
   R_peanut = params[7 + offsetIndex];
-  A_bar = params[8 + offsetIndex];
+  A_peanut = params[8 + offsetIndex];
   sigma_peanut = params[9 + offsetIndex];
   c_bar_par = params[10 + offsetIndex];
   c_bar_perp = params[11 + offsetIndex];
@@ -166,7 +166,7 @@ double DattathriPeanut3D::GetValue( double x, double y )
   xyParameters[5] = R_bar_y;
   xyParameters[6] = R_bar_z;
   xyParameters[7] = R_peanut;
-  xyParameters[8] = A_bar;
+  xyParameters[8] = A_peanut;
   xyParameters[9] = sigma_peanut;
   xyParameters[10] = c_bar_par;
   xyParameters[11] = c_bar_perp;
@@ -210,7 +210,7 @@ double LuminosityDensityDattathriPeanut3D( double s, void *params )
   double R_bar_y = paramsVect[5];
   double R_bar_z = paramsVect[6];
   double R_peanut = paramsVect[7];
-  double A_bar = paramsVect[8];
+  double A_peanut = paramsVect[8];
   double sigma_peanut = paramsVect[9];
   double c_bar_par = paramsVect[10];
   double c_bar_perp = paramsVect[11];
@@ -229,9 +229,9 @@ double LuminosityDensityDattathriPeanut3D( double s, void *params )
   double zbar = z_d;
 
   // vertical scale height at this (xbar, ybar) location
-  double z0 = A_bar*exp(-( pow((xbar - R_peanut),2.0)/(2.0*pow(sigma_peanut,2.0)) + 
+  double z0 = A_peanut*exp(-( pow((xbar - R_peanut),2.0)/(2.0*pow(sigma_peanut,2.0)) + 
   				pow(ybar,2.0)/(2.*pow(sigma_peanut,2.0)) )) + 
-  				A_bar*exp(-( pow((xbar + R_peanut),2.0)/(2.0* pow(sigma_peanut,2.0)) + 
+  				A_peanut*exp(-( pow((xbar + R_peanut),2.0)/(2.0* pow(sigma_peanut,2.0)) + 
   				pow(ybar,2.0)/(2.0*pow(sigma_peanut,2.0)) )) + R_bar_z;
 
   // scaled 3D radius value, for use in computing density
