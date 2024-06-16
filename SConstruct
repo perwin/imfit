@@ -258,16 +258,16 @@ cpp_compiler_changed = False
 usingGCC = True
 
 
-# ** Special setup for compilation by P.E. on Mac (assumes GCC v13 is installed and
-# callable via gcc-13 and g++-13)
+# ** Special setup for compilation by P.E. on Mac (assumes GCC v14 is installed and
+# callable via gcc-14 and g++-14)
 # Comment this out otherwise!
 # Note that the following way of determining the username seems to be a bit more 
 # portable than "getpass.getuser()", which fails for "Ubuntu on Windows" (acc. to 
 # Lee Kelvin, who contributed the new version)
 userName = pwd.getpwuid(os.getuid())[0]
 if (os_type == "Darwin") and (userName == "erwin"): 
-    CC_COMPILER = "gcc-13"
-    CPP_COMPILER = "g++-13"
+    CC_COMPILER = "gcc-14"
+    CPP_COMPILER = "g++-14"
     c_compiler_changed = True
     cpp_compiler_changed = True
     usingGCC = True
@@ -333,7 +333,7 @@ AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true",
     default=False, help="compile additional FunctionObject classes for testing")
 AddOption("--extra-checks", dest="doExtraChecks", action="store_true", 
     default=False, help="turn on additional error-checking and warning flags during compilation")
-# options to specify use of non-default compilers, extra checks, loggin
+# options to specify use of non-default compilers, extra checks, logging
 AddOption("--cc", dest="cc_compiler", type="string", action="store", default=None,
     help="C compiler to use instead of system default")
 AddOption("--cpp", dest="cpp_compiler", type="string", action="store", default=None,
@@ -412,8 +412,8 @@ if GetOption("useGCC"):
         print("ERROR: You cannot specify both Clang and GCC as the compiler!")
         Exit(2)
     usingGCC = True
-    CC_COMPILER = "gcc-13"
-    CPP_COMPILER = "g++-13"
+    CC_COMPILER = "gcc-14"
+    CPP_COMPILER = "g++-14"
     print("using %s for C compiler" % CC_COMPILER)
     print("using %s for C++ compiler" % CPP_COMPILER)
     c_compiler_changed = True
