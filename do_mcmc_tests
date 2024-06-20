@@ -85,6 +85,10 @@ fi
 ./imfit-mcmc -c tests/imfit_reference/config_imfit_sersictest512_badlimits3.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad7
 ./imfit-mcmc -c tests/imfit_reference/config_imfit_badparamline.dat tests/ic3478rss_64x64.fits &> temptest/test_dump_bad8
 
+#    Other input testing:
+# specifying oversampling PSF image but failing to specify one or more oversampling regions
+./imfit-mcmc -c tests/imfit_reference/config_imfit_2gauss_small.dat tests/twogaussian_psf+2osamp_noisy.fits --psf=tests/psf_moffat_35.fits --overpsf tests/psf_moffat_35_oversamp3.fits --overpsf_scale 3  &> temptest/test_dump_nooverpsfregions
+
 
 
 
@@ -254,6 +258,16 @@ then
 else
   echo -e "   ${RED}Failed:${NC}  Diff output:"
   diff temptest/test_dump_bad8 tests/imfit_reference/imfit_textout_bad8
+  STATUS+=1
+fi
+
+echo -n "*** Diff comparison with archives: oversampled PSF supplied, but no oversampling regions... "
+if (diff --brief temptest/test_dump_nooverpsfregions tests/imfit_reference/imfit_textout_nooverpsfregions)
+then
+  echo " OK"
+else
+  echo -e "   ${RED}Failed:${NC}Diff output:"
+  diff temptest/test_dump_nooverpsfregions tests/imfit_reference/imfit_textout_nooverpsfregions
   STATUS+=1
 fi
 

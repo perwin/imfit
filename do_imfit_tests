@@ -187,6 +187,8 @@ $IMFIT -c tests/imfit_reference/config_imfit_badparamline.dat tests/ic3478rss_64
 
 #    Other input testing -- bad NLOpt specifiers, etc.
 $IMFIT tests/testimage_poisson_lowsn20.fits -c tests/imfit_reference/config_imfit_poisson.dat --cashstat --nlopt=BADNAME &> temptest/test_dump_badnloptname
+# specifying oversampling PSF image but failing to specify one or more oversampling regions
+$IMFIT -c tests/imfit_reference/config_imfit_2gauss_small.dat tests/twogaussian_psf+2osamp_noisy.fits --psf=tests/psf_moffat_35.fits --overpsf tests/psf_moffat_35_oversamp3.fits --overpsf_scale 3  &> temptest/test_dump_nooverpsfregions
 
 
 
@@ -498,6 +500,16 @@ then
 else
   echo -e "   ${RED}Failed:${NC} Diff output:"
   diff temptest/test_dump_badnloptname tests/imfit_reference/imfit_textout_badnloptname
+  STATUS+=1
+fi
+
+echo -n "*** Diff comparison with archives: oversampled PSF supplied, but no oversampling regions... "
+if (diff --brief temptest/test_dump_nooverpsfregions tests/imfit_reference/imfit_textout_nooverpsfregions)
+then
+  echo " OK"
+else
+  echo -e "   ${RED}Failed:${NC}Diff output:"
+  diff temptest/test_dump_nooverpsfregions tests/imfit_reference/imfit_textout_nooverpsfregions
   STATUS+=1
 fi
 
