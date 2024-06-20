@@ -1,0 +1,72 @@
+	Image file = tests/twogaussian_psf+2osamp_noisy.fits
+	configuration file = tests/imfit_reference/config_imfit_2gauss_small.dat
+	PSF image = tests/psf_moffat_35.fits
+	Oversampled PSF image = tests/psf_moffat_35_oversamp3.fits
+	PSF oversampling scale = 3
+	PSF oversampling region = 35:45,35:45
+	PSF oversampling region = 10:20,5:15
+Value from config file: gain = 1000.000000 e-/ADU
+Reading data image ("tests/twogaussian_psf+2osamp_noisy.fits") ...
+naxis1 [# pixels/row] = 50, naxis2 [# pixels/col] = 50; nPixels_tot = 2500
+Reading PSF image ("tests/psf_moffat_35.fits") ...
+naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
+Reading oversampled PSF image ("tests/psf_moffat_35_oversamp3.fits") ...
+naxis1 [# pixels/row] = 105, naxis2 [# pixels/col] = 105; nPixels_tot = 11025
+* No noise image supplied ... will generate noise image from input data image.
+Function: Gaussian
+Function: Gaussian
+Function: FlatSky
+13 total parameters
+Model Object: 2500 data values (pixels)
+ModelObject: mask vector applied to weight vector. (2500 valid pixels remain)
+8 free parameters (2492 degrees of freedom)
+Estimated memory use: 14275339 bytes (13.6 MB)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 19349.481379
+	mpfit iteration 2: fit statistic = 14100.700176
+	mpfit iteration 3: fit statistic = 11225.390185
+	mpfit iteration 4: fit statistic = 7809.597920
+	mpfit iteration 5: fit statistic = 5256.016648
+	mpfit iteration 6: fit statistic = 2806.755656
+	mpfit iteration 7: fit statistic = 2494.671446
+	mpfit iteration 8: fit statistic = 2491.977778
+	mpfit iteration 9: fit statistic = 2491.977492
+	mpfit iteration 10: fit statistic = 2491.977492
+
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+  CHI-SQUARE = 2491.977492    (2492 DOF)
+  INITIAL CHI^2 = 186211.137245
+        NPAR = 13
+       NFREE = 8
+     NPEGGED = 0
+     NITER = 11
+      NFEV = 91
+
+Reduced Chi^2 = 0.999991
+AIC = 2508.035300, BIC = 2554.569860
+
+X0		40.5036 # +/- 0.0064
+Y0		40.2470 # +/- 0.0064
+FUNCTION Gaussian
+PA		      0 # +/- 0	deg (CCW from +y axis)
+ell		      0 # +/- 0
+I_0		109.583 # +/- 1.2714	counts/pixel
+sigma		1.00132 # +/- 0.0068688	pixels
+
+X0		15.0959 # +/- 0.0078
+Y0		10.5906 # +/- 0.0078
+FUNCTION Gaussian
+PA		      0 # +/- 0	deg (CCW from +y axis)
+ell		      0 # +/- 0
+I_0		88.5157 # +/- 1.2183	counts/pixel
+sigma		1.01064 # +/- 0.0082669	pixels
+FUNCTION FlatSky
+I_sky		    100 # +/- 0	counts/pixel
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.807079 sec for fit, 0.873948 sec total)
+Done!
+

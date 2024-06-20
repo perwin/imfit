@@ -1,0 +1,10 @@
+
+*** ERROR: when specifying use of an oversampled PSF, you must supply at least one instance of "--overpsf_region"
+
+	PSF image = tests/psf_standard.fits
+	Oversampled PSF image = tests/psf_oversamp.fits
+	PSF oversampling scale = 3
+Value from config file: nColumns = 200
+Value from config file: nRows = 200
+Reading PSF image ("tests/psf_standard.fits") ...
+naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225

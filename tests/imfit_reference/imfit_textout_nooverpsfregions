@@ -1,0 +1,13 @@
+
+*** ERROR: when specifying use of an oversampled PSF, you must supply at least one instance of "--overpsf_region"
+
+	Image file = tests/twogaussian_psf+2osamp_noisy.fits
+	configuration file = tests/imfit_reference/config_imfit_2gauss_small.dat
+	PSF image = tests/psf_moffat_35.fits
+	Oversampled PSF image = tests/psf_moffat_35_oversamp3.fits
+	PSF oversampling scale = 3
+Value from config file: gain = 1000.000000 e-/ADU
+Reading data image ("tests/twogaussian_psf+2osamp_noisy.fits") ...
+naxis1 [# pixels/row] = 50, naxis2 [# pixels/col] = 50; nPixels_tot = 2500
+Reading PSF image ("tests/psf_moffat_35.fits") ...
+naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
