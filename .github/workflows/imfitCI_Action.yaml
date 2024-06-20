@@ -14,8 +14,10 @@ jobs:
       # Steps are the individual actions for each job
       steps:
         # Check-out your repository under $GITHUB_WORKSPACE, so your job can access it
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v4
 
+        # The following Python setup is so we can use our text- and FITS-file comparison
+        # scripts in the regression tests
         - name: Set up Python 3.10
           uses: actions/setup-python@v3
           with:

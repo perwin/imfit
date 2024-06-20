@@ -21,10 +21,6 @@
 			[ ] where does this get called?
 
 
-[ ] Fix imfit, makeimage, and imfit-mcmc so they error out if user supplies
-	oversampled PSF(s) but *not* oversampling regions
-
-
 
 ** NEAR-TERM FUTURE TODO:
 
@@ -772,6 +768,9 @@ image oversampled
 
 
 ** BUGS FIXED
+
+[X] Fix imfit, makeimage, and imfit-mcmc so they error out if user supplies
+	oversampled PSF(s) but *not* oversampling regions
 
 [X] Imfit on MBPro 2019 is very slow in oversampled-PSF tests (45s for fit
 	vs 3s on MBPro 2017)

@@ -2,14 +2,16 @@
 
 (Formatting and design based on Olivier Lacan's [Keep a CHANGELOG](http://keepachangelog.com/))
 
-## 1.9.1 -- 2024-05-xx
+## 1.9.1 -- 2024-06-xx
 ### Added:
 
 - New image function: DattathriPeanut3D. This is is the
 peanut-shaped-bulge version of a bar, presented in Dattathri et al.
 (2024; MNRAS 530: 1195). As with other functions with "3D" in their
 names, it uses integration along the line of sight to construct the
-model image. Thanks to Shashank Dattathri for contributing this. 
+model image. Thanks to Shashank Dattathri for contributing this; if you
+use this particular function for a publication, you should cite the
+above reference. 
 
 - The PointSource (and PointSourceRot) image functions now include the
 option of Lanczos3 interpolation, in addition to the existing options of
@@ -17,7 +19,16 @@ Lanczos2 or bicubic. This is enabled by adding the following three lines
 immediately after the "FUNCTION PointSource" line in a configuration
 file: "OPTIONAL_PARAMS_START", "method   lanczos3",
 "OPTIONAL_PARAMS_END".
+    
 
+### Changed:
+
+- Pre-compiled versions of `imfit`, `imfit-mcmc`, and `makeimage` for Apple silicon
+(aka arm64) machines are now part of the standard binary distributions.
+
+- I have dropped the pre-compiled 32-bit Linux version from the standard
+binary distributions. (If you have a 32-bit-only machine running Linux,
+it should still be possible to compile from source code.)
 
 
 
@@ -88,7 +99,7 @@ it's tedious to have to remember to also specify `--nosave`.)
 functions in config files (e.g., "FUNCTION Sersic # LABEL bulge");
 these labels will be propagated to output best-fit parameter files and
 `--print-fluxes` and `--save-fluxes` output. Everything after the keyword
-"LABEL" (must be in all-caps) is the "label"; note that the comment character "#"
+"LABEL" (which must be in all-caps) is the "label"; note that the comment character "#"
 is required!
 
 - New image function: TiltedSkyPlane. This represents a linear 2D
