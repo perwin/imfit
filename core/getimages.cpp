@@ -144,6 +144,12 @@ int GetOversampledPsfInfo( const std::shared_ptr<OptionsBase> options, int xOffs
   long  nPixels_psf_oversampled;
   int psfOversamplingScale;
   
+  if (options->nOversampleRegions < 1) {
+    fprintf(stderr, "\n*** ERROR: when specifying use of an oversampled PSF, you must ");
+    fprintf(stderr, "supply at least one instance of \"--overpsf_region\"\n\n");
+    return -1;
+  }
+
   int nOversampledPsfImages = (int)options->psfOversampledFileNames.size();
   int nOversampledScales = (int)options->psfOversamplingScales.size();
   if (nOversampledPsfImages != nOversampledScales) {

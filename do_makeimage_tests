@@ -73,6 +73,7 @@ echo "Running tests for makeimage..."
 # tests of PSF oversampling with PointSource model
 ./makeimage tests/makeimage_reference/config_makeimage_pointsource-oversample.dat -o temptest/oversampled_pointsource.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 --overpsf_region 80:120,80:120  > temptest/test_dump_null
 
+# Tests that we catch bad input
 # testing that bad config files are caught (redirect stderr to temptest/test_dump* files):
 ./makeimage tests/makeimage_reference/config_makeimage_sersictest512_bad1.dat &> temptest/test_dump6
 ./makeimage tests/makeimage_reference/config_makeimage_sersictest512_bad2.dat &> temptest/test_dump7
@@ -90,8 +91,11 @@ echo "Running tests for makeimage..."
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat --psf=tests/testimage_3x3_allzeros.fits  &> temptest/test_dump13c
 ./makeimage tests/makeimage_reference/config_makeimage_sersic+exp512.dat --psf=_nofilewiththisname_wehope.fits  &> temptest/test_dump14
 
+# more bad config file tests
 ./makeimage tests/imfit_reference/config_imfit_badparamline.dat  &> temptest/test_dump15
 
+# specifying oversampling PSF image but failing to specify one or more oversampling regions
+./makeimage tests/makeimage_reference/config_makeimage_gauss-oversample.dat -o temptest/oversampled.fits --psf tests/psf_standard.fits --overpsf tests/psf_oversamp.fits --overpsf_scale 3 &> temptest/test_dump16
 
 
 
@@ -376,6 +380,16 @@ then
 else
   echo -e "   ${RED}Failed:${NC}Diff output:"
   diff temptest/test_dump15 tests/makeimage_reference/makeimage_textout15
+  STATUS+=1
+fi
+
+echo -n "*** Diff comparison with archives: oversampled PSF supplied, but no oversampling regions... "
+if (diff --brief temptest/test_dump16 tests/makeimage_reference/makeimage_textout16)
+then
+  echo " OK"
+else
+  echo -e "   ${RED}Failed:${NC}Diff output:"
+  diff temptest/test_dump16 tests/makeimage_reference/makeimage_textout16
   STATUS+=1
 fi
 
