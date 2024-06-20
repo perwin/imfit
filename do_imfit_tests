@@ -204,11 +204,11 @@ echo -n "*** Diff comparison with archives: first test... "
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout2 temptest/test_dump2 --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout2 temptest/test_dump2 --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (take 2)... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout3 temptest/test_dump3 --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout3 temptest/test_dump3 --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (N-M simplex fit)... "
@@ -226,11 +226,11 @@ then
 fi
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud)... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout3d temptest/test_dump3d --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout3d temptest/test_dump3d --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with --loud, fixed parameter)... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout3d2 temptest/test_dump3d2 --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout3d2 temptest/test_dump3d2 --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit using sigma map)... "
@@ -238,16 +238,16 @@ echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit usin
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit using variance map)... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout3e2 temptest/test_dump3e2 --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout3e2 temptest/test_dump3e2 --skip-last=3
 STATUS+=$?
 
 
 echo -n "*** Diff comparison with archives: fit to larger (rectangular) SDSS image w/ PSF convolution... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout4 temptest/test_dump4 --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout4 temptest/test_dump4 --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: same, but using counts/sec image + --exptime option... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout4b temptest/test_dump4b --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout4b temptest/test_dump4b --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: chisquare-only calculation... "
@@ -290,22 +290,22 @@ STATUS+=$?
 
 echo -n "*** Diff comparison with archives: Poisson-MLR-stat fit to problematic image (+ L-M solver)... "
 tail -n 18 temptest/test_dump5d > temptest/test_dump5d_tail
-./python/diff_printouts.py tests/imfit_reference/imfit_textout5d_tail temptest/test_dump5d_tail --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout5d_tail temptest/test_dump5d_tail --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: bootstrap-resampling output... "
 tail -n 7 temptest/temp_bootstrap_output.dat > temptest/temp_bootstrap_output_tail
-./python/diff_printouts.py tests/bootstrap_output_seed10_tail.dat temptest/temp_bootstrap_output_tail
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/bootstrap_output_seed10_tail.dat temptest/temp_bootstrap_output_tail
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: bootstrap-resampling printout (with image offset)... "
 tail -n 18 temptest/test_dump5e > temptest/test_dump5e_tail
-./python/diff_printouts.py tests/imfit_reference/imfit_textout5e_tail temptest/test_dump5e_tail --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout5e_tail temptest/test_dump5e_tail --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: bootstrap-resampling output (with image offset)... "
 tail -n 7 temptest/temp_bootstrap_output2.dat > temptest/temp_bootstrap_output2_tail
-./python/diff_printouts.py tests/bootstrap_output_seed10_2_tail.dat temptest/temp_bootstrap_output2_tail
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/bootstrap_output_seed10_2_tail.dat temptest/temp_bootstrap_output2_tail
 STATUS+=$?
 
 
@@ -400,7 +400,7 @@ fi
 
 
 echo -n "*** Diff comparison with archives: fitting with bicubic-interpolated PSF image... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout8a temptest/test_dump8a --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout8a temptest/test_dump8a --skip-last=3
 STATUS+=$?
 
 
