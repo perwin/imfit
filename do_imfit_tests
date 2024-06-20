@@ -269,7 +269,7 @@ then
   STATUS+=$?
 
   echo -n "*** Diff comparison with archives: fit using oversampled PSF + 2 image sections... "
-  ./python/diff_printouts.py tests/imfit_reference/imfit_textout4e3 temptest/test_dump4e3 --skip-last=3
+  ./python/diff_printouts.py tests/imfit_reference/macos_x86-64/imfit_textout4e3 temptest/test_dump4e3 --skip-last=3
   STATUS+=$?
 fi
 
