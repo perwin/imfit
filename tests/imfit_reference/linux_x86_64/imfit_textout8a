@@ -1,0 +1,50 @@
+	Image file = tests/psf_moffat_fwhm2.fits
+	configuration file = tests/imfit_reference/config_imfit_ptsource.dat
+	PSF image = tests/psf_moffat_fwhm2_35x35.fits
+Reading data image ("tests/psf_moffat_fwhm2.fits") ...
+naxis1 [# pixels/row] = 40, naxis2 [# pixels/col] = 40; nPixels_tot = 1600
+Reading PSF image ("tests/psf_moffat_fwhm2_35x35.fits") ...
+naxis1 [# pixels/row] = 35, naxis2 [# pixels/col] = 35; nPixels_tot = 1225
+* No noise image supplied ... will generate noise image from input data image.
+Function: PointSource
+Function: FlatSky
+4 total parameters
+Model Object: 1600 data values (pixels)
+ModelObject: mask vector applied to weight vector. (1600 valid pixels remain)
+3 free parameters (1597 degrees of freedom)
+Estimated memory use: 1383465 bytes (1.3 MB)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 241515.661796
+	mpfit iteration 2: fit statistic = 126454.117304
+	mpfit iteration 3: fit statistic = 23833.640157
+	mpfit iteration 4: fit statistic = 2263.479693
+	mpfit iteration 5: fit statistic = 1991.947078
+	mpfit iteration 6: fit statistic = 1991.946235
+	mpfit iteration 7: fit statistic = 1991.946235
+
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+  CHI-SQUARE = 1991.946235    (1597 DOF)
+  INITIAL CHI^2 = 1846834.686862
+        NPAR = 4
+       NFREE = 3
+     NPEGGED = 0
+     NITER = 8
+      NFEV = 30
+
+Reduced Chi^2 = 1.247305
+AIC = 1997.961272, BIC = 2014.079511
+
+X0		20.4006 # +/- 0.0021
+Y0		20.3985 # +/- 0.0021
+FUNCTION PointSource
+I_tot		 263918 # +/- 519.52	counts
+FUNCTION FlatSky
+I_sky		    100 # +/- 0	counts/pixel
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.015477 sec for fit, 0.025283 sec total)
+Done!
+

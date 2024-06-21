@@ -1,0 +1,58 @@
+	Image file = tests/ic3478rss_64x64.fits
+	configuration file = tests/imfit_reference/imfit_config_ic3478_64x64b.dat
+Value from config file: gain = 4.725000 e-/ADU
+Value from config file: read noise = 4.300000 e-
+Value from config file: original sky = 130.100000
+Reading data image ("tests/ic3478rss_64x64.fits") ...
+naxis1 [# pixels/row] = 64, naxis2 [# pixels/col] = 64; nPixels_tot = 4096
+* No PSF image supplied -- no image convolution will be done!
+* No noise image supplied ... will generate noise image from input data image.
+Function: Sersic
+7 total parameters
+Model Object: 4096 data values (pixels)
+ModelObject: mask vector applied to weight vector. (4096 valid pixels remain)
+7 free parameters (4089 degrees of freedom)
+Estimated memory use: 458752 bytes (448.0 KB)
+
+Performing fit by minimizing chi^2 (data-based errors):
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 263212.803197
+	mpfit iteration 2: fit statistic = 38837.128759
+	mpfit iteration 3: fit statistic = 16396.742925
+	mpfit iteration 4: fit statistic = 15979.520384
+	mpfit iteration 5: fit statistic = 12187.956137
+	mpfit iteration 6: fit statistic = 10678.619377
+	mpfit iteration 7: fit statistic = 8950.460348
+	mpfit iteration 8: fit statistic = 7411.960018
+	mpfit iteration 9: fit statistic = 5553.995805
+	mpfit iteration 10: fit statistic = 4614.075210
+	mpfit iteration 11: fit statistic = 4557.562201
+	mpfit iteration 12: fit statistic = 4555.947660
+	mpfit iteration 13: fit statistic = 4555.947654
+
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+  CHI-SQUARE = 4555.947654    (4089 DOF)
+  INITIAL CHI^2 = 494330.961892
+        NPAR = 7
+       NFREE = 7
+     NPEGGED = 0
+     NITER = 14
+      NFEV = 106
+
+Reduced Chi^2 = 1.114196
+AIC = 4569.975051, BIC = 4614.172017
+
+X0		32.9439 # +/- 0.0128
+Y0		34.0933 # +/- 0.0156
+FUNCTION Sersic
+PA		18.2612 # +/- 0.30987	deg (CCW from +y axis)
+ell		0.235989 # +/- 0.0023165
+n		2.40028 # +/- 0.018071
+I_e		20.0094 # +/- 0.40397	counts/pixel
+r_e		60.7613 # +/- 0.86058	pixels
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.089406 sec for fit, 0.091931 sec total)
+Done!
+

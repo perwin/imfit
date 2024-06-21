@@ -29,17 +29,15 @@ fi
 # different numerical output)
 OS_NAME=$(uname -s)
 ARCH=$(uname -m)
-if [[ "$OS_NAME" -eq "Darwin" ]]
+
+if [[ $OS_NAME == "Darwin" ]]
 then
-  if [[ "$ARCH" -eq "x86-64" ]]
-  then
-    ARCH_TEST_DIR="macos_x86-64"
-  else
-    ARCH_TEST_DIR="macos_arm64"  
-  fi
-else # assume Linux
-  ARCH_TEST_DIR="linux-x86-64"
+    OS_NAME_BETTER="macos"
+else
+    OS_NAME_BETTER="linux"
 fi
+ARCH_TEST_DIR="${OS_NAME_BETTER}_${ARCH}"
+echo "Using OS+architecture = ${ARCH_TEST_DIR}"
 
 # If there's only one processor core available, we'll skip the OpenMP-speedup test
 nProcs=$(getconf _NPROCESSORS_ONLN)
