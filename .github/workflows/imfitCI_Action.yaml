@@ -49,5 +49,7 @@ jobs:
             scons imfit-mcmc
         
         - name: regression tests
-          run: ./do_makeimage_tests
+          run: |
+            ./do_makeimage_tests
+            ./do_imfit_tests
       
