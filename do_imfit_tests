@@ -31,7 +31,7 @@ OS_NAME=$(uname -s)
 ARCH=$(uname -m)
 if [[ "$OS_NAME" -eq "Darwin" ]]
 then
-  if [[ "$ARCH" -eq "arm64" ]]
+  if [[ "$ARCH" -eq "x86-64" ]]
   then
     ARCH_TEST_DIR="macos_x86-64"
   else
@@ -217,7 +217,7 @@ echo ""
 # elapsed-time output (reported at the end of the file).
 
 echo -n "*** Diff comparison with archives: first test... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout1 temptest/test_dump1 --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/${ARCH_TEST_DIR}/imfit_textout1 temptest/test_dump1 --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image... "
@@ -251,7 +251,7 @@ echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit with
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit using sigma map)... "
-./python/diff_printouts.py tests/imfit_reference/imfit_textout3e temptest/test_dump3e --skip-last=3
+./python/diff_printouts.py tests/imfit_reference/${ARCH_TEST_DIR}/imfit_textout3e temptest/test_dump3e --skip-last=3
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: tiny SDSS cutout image (L-M fit using variance map)... "

@@ -67,6 +67,6 @@ I_sky		    100 # +/- 0	counts/pixel
 
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.387330 sec for fit, 0.411191 sec total)
+(Elapsed time: 0.386245 sec for fit, 0.410390 sec total)
 Done!
 
