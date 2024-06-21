@@ -9,9 +9,10 @@ configuration files, FITS images, and reference output files.
 the parent directory for how to run unit tests; the actual unit-test header
 files are found in the `../unit_test` directory.)
 
-**Note:** The reference text files and FITS images are tuned for
-development work on a Mac (i.e., with Mac OS X/macOS); minor differences
-in numerical output will probably occur on a Linux system, due to the
-vagaries of how floating-point numbers are handled. A partial (and very
-incomplete) attempt to deal with this involves separate images in the
-`osx/` and `linux/` subdirectories
+**Note:** The reference text files and FITS images are mostly tuned for
+development work on a Mac. Minor differences in numerical output will
+occur on a Linux system, and on x86-64 vs arm64 versions of macOS, due
+to the vagaries of how floating-point numbers are handled. A partial
+attempt to deal with this involves separate images in the `osx/` and
+`linux/` subdirectories, and the different os+architecture
+subdirectories inside `imfit_reference/`.
