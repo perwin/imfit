@@ -1,0 +1,49 @@
+	Image file = tests/testimage_expdisk32.fits
+	configuration file = tests/imfit_reference/config_imfit_expdisk32.dat
+	noise image = tests/uniform_image32.fits
+Reading data image ("tests/testimage_expdisk32.fits") ...
+naxis1 [# pixels/row] = 32, naxis2 [# pixels/col] = 32; nPixels_tot = 1024
+Reading noise image ("tests/uniform_image32.fits") ...
+* No PSF image supplied -- no image convolution will be done!
+* Pixel subsampling has been turned OFF.
+Function: Exponential
+6 total parameters
+Model Object: 1024 data values (pixels)
+ModelObject: mask vector applied to weight vector. (1024 valid pixels remain)
+6 free parameters (1018 degrees of freedom)
+Estimated memory use: 106496 bytes (104.0 KB)
+
+Performing fit by minimizing chi^2 (user-supplied error image):
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 690.413630
+	mpfit iteration 2: fit statistic = 0.239584
+	mpfit iteration 3: fit statistic = 0.000000
+	mpfit iteration 4: fit statistic = 0.000000
+	mpfit iteration 5: fit statistic = 0.000000
+	mpfit iteration 6: fit statistic = 0.000000
+
+*** mpfit status = 2 -- SUCCESS: Convergence in parameter value.
+  CHI-SQUARE = 0.000000    (1018 DOF)
+  INITIAL CHI^2 = 124738.278679
+        NPAR = 6
+       NFREE = 6
+     NPEGGED = 0
+     NITER = 7
+      NFEV = 43
+
+Reduced Chi^2 = 0.000000
+AIC = 12.082596, BIC = 41.588831
+
+X0		15.0000 # +/- 0.0214
+Y0		15.0000 # +/- 0.0091
+FUNCTION Exponential
+PA		     90 # +/- 0.1032	deg (CCW from +y axis)
+ell		    0.5 # +/- 0.0017108
+I_0		    100 # +/- 0.15226	counts/pixel
+h		     20 # +/- 0.072772	pixels
+
+Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
+
+(Elapsed time: 0.007165 sec for fit, 0.012309 sec total)
+Done!
+
