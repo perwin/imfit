@@ -217,13 +217,12 @@ PROFILEFIT_SUBDIR = "profile_fitting/"
 #    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
 #    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2016 onward)
 
-cflags_opt = ["-O3", "-g0", "-fPIC", "-std=c++11"]
+cflags_opt = ["-O3", "-g0", "-fPIC"]
 if os_type == "Darwin":
     cflags_opt.append("-mmacosx-version-min=10.13")
 if useVectorExtensions:
     cflags_opt.append("-msse2")
-cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-std=c++11", "-Wshadow", 
-                "-Wredundant-decls", "-Wpointer-arith"]
+cflags_db = ["-Wall", "-g3", "-O0", "-fPIC", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith"]
 # the following will probably be appended to multiple times
 link_flags = []
 
@@ -541,9 +540,13 @@ if doExtraChecks:   # default is to NOT do this; user must specify with "--extra
     cflags_opt.append(["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith",
                     "-Wextra", "-pedantic"])
 
+# which dialect/version of C++ are we using?
 if useModernCpp:
     cflags_opt.append("-std=c++17")
     cflags_db.append("-std=c++17")
+else:
+    cflags_opt.append("-std=c++11")
+    cflags_db.append("-std=c++11")
 
 if useLogging:
     extra_defines.append(["-DUSE_LOGGING"])
