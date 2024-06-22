@@ -305,6 +305,7 @@ usingClangOpenMP = False
 useExtraFuncs = False
 useStaticLibs = False
 totalStaticLinking = False
+useModernCpp = False
 buildFatBinary = False
 build32bit = False
 buildForOldMacOS = False
@@ -331,6 +332,8 @@ AddOption("--clang-openmp", dest="useClangOpenMP", action="store_true",
     default=False, help="compile with clang++ on macOS")
 AddOption("--extra-funcs", dest="useExtraFuncs", action="store_true", 
     default=False, help="compile additional FunctionObject classes for testing")
+AddOption("--modern-cpp", dest="useModernCpp", action="store_true", 
+    default=False, help="tell compiler to assume C++-17")
 AddOption("--extra-checks", dest="doExtraChecks", action="store_true", 
     default=False, help="turn on additional error-checking and warning flags during compilation")
 # options to specify use of non-default compilers, extra checks, logging
@@ -395,6 +398,8 @@ if GetOption("useClangOpenMP"):
 if GetOption("useExtraFuncs"):
     useExtraFuncs = True
 doExtraChecks = False
+if GetOption("useModernCpp"):
+    useModernCpp = True
 if GetOption("doExtraChecks"):
     doExtraChecks = True
 
@@ -535,6 +540,10 @@ if useExtraFuncs:   # default is to NOT do this; user must specify with "--extra
 if doExtraChecks:   # default is to NOT do this; user must specify with "--extra-checks"
     cflags_opt.append(["-Wall", "-Wshadow", "-Wredundant-decls", "-Wpointer-arith",
                     "-Wextra", "-pedantic"])
+
+if useModernCpp:
+    cflags_opt.append("-std=c++17")
+    cflags_db.append("-std=c++17")
 
 if useLogging:
     extra_defines.append(["-DUSE_LOGGING"])

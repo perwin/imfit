@@ -1593,7 +1593,7 @@ should be skipped (e.g., for FlatSky component)
 			[x] Write code to pass tests
 		
 		LATER:
-		[-] Experiment with converting pointers used for oversampled PSFs to
+		[ ] Experiment with converting pointers used for oversampled PSFs to
 		C++-11 shared_ptr. A given PSF vector is then shared among:
 			* shared_ptr in PsfOversamplingInfo instance (shared_ptrs in
 			multiple PsfOversamplingInfo instances could all point to a
@@ -1613,6 +1613,10 @@ should be skipped (e.g., for FlatSky component)
 		standard C/C++ arrays! (Weirdly, unique_ptr *does* have this ability.
 		Also, there is a C++-17 proposal to add this to shared_ptr, but that's not
 		helpful now...)
+		
+		2024: We might try using C++-17 to allow [] access, since C++-17 is supported
+		from GCC 8 onwards.
+		
 
 	[x] Modify SetupModelObject to check for and handle multiple oversampling regions
 		[x] Basic check using 2 regions w/ 1 PSF and scale

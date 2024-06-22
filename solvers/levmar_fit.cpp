@@ -1,6 +1,6 @@
 /* FILE: levmar_fit.cpp -------------------------------------------------- */
 
-// Copyright 2012-2018 by Peter Erwin.
+// Copyright 2012-2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -78,8 +78,8 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
   // Since we now use vector<mp_par> in main and elsewhere, we need to allocate
   // and construct a corresponding mp_par * array, if parameter limits actually exist
   if (! paramLimitsExist) {
-    // If parameters are unconstrained, then mpfit() expects a NULL mp_par array
-    mpfitParameterConstraints = NULL;
+    // If parameters are unconstrained, then mpfit() expects a nullptr mp_par array
+    mpfitParameterConstraints = nullptr;
   } else {
     mpfitParameterConstraints = (mp_par *) calloc((size_t)nParamsTot, sizeof(mp_par));
     parameterConstraintsAllocated = true;
@@ -104,7 +104,7 @@ int LevMarFit( int nParamsTot, int nFreeParams, int nDataVals, double *paramVect
 					&mpConfig, theModel, &mpfitResult);
 
   // Store information about the optimization, if SolverResults object was supplied
-  if (solverResults != NULL) {
+  if (solverResults != nullptr) {
     solverResults->SetSolverType(MPFIT_SOLVER);
     solverResults->AddMPResults(mpfitResult);
   }

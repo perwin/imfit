@@ -4,7 +4,7 @@
 
 /* FILE: print_results.cpp ----------------------------------------- */
 
-// Copyright 2010-2022 by Peter Erwin.
+// Copyright 2010-2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -46,7 +46,7 @@ using namespace std;
 /* Local Functions: */
 
 // Utility function for printing parameters to a file (including to stdout),
-// with or without parameter errors (use NULL to indicate no errors) and
+// with or without parameter errors (use nullptr to indicate no errors) and
 // with an optional prefix character for each line.
 // Basically a wrapper around ModelObject::PrintModelParamsToStrings
 void PrintParameters( FILE *filePtr, ModelObject *model, double *parameters, 
@@ -150,7 +150,7 @@ void PrintResults( double *params, ModelObject *model, int nFreeParameters, int 
     aic = AIC_corrected(fitStatistic, nFreeParameters, nValidPixels, 1);
     bic = BIC(fitStatistic, nFreeParameters, nValidPixels, 1);
     printf("AIC = %f, BIC = %f\n", aic, bic);
-    PrintParameters(stdout, model, params, NULL);
+    PrintParameters(stdout, model, params, nullptr);
     printf("\n");
   }
 }
@@ -224,9 +224,9 @@ void SaveParameters( double *params, ModelObject *model, string& outputFilename,
 {
   FILE  *file_ptr;
   string  statName, algorithmSummary;
-  double  *parameterErrs = NULL;
+  double  *parameterErrs = nullptr;
   
-  if ((file_ptr = fopen(outputFilename.c_str(), "w")) == NULL) {
+  if ((file_ptr = fopen(outputFilename.c_str(), "w")) == nullptr) {
     fprintf(stderr, FILE_OPEN_ERR_STRING, outputFilename.c_str());
     exit(-1);
   }
@@ -284,7 +284,7 @@ void SaveParameters( double *params, ModelObject *model, string& outputFilename,
     free(parameterErrs);
   }
   else
-    PrintParameters(file_ptr, model, params, NULL);
+    PrintParameters(file_ptr, model, params, nullptr);
 
   fclose(file_ptr);
 }
@@ -299,7 +299,7 @@ void SaveParameters2( FILE *file_ptr, double *params, ModelObject *model,
   for (int i = 0; i < (int)outputHeader.size(); i++)
     fprintf(file_ptr, "%s\n", outputHeader[i].c_str());
   fprintf(file_ptr, "%s\n", prefix);
-  PrintParameters(file_ptr, model, params, NULL, prefix);
+  PrintParameters(file_ptr, model, params, nullptr, prefix);
 }
 
 

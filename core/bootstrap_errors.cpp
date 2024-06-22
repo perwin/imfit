@@ -9,7 +9,7 @@
  * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
-// Copyright 2013-2019 by Peter Erwin.
+// Copyright 2013-2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -70,7 +70,7 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 /* ---------------- FUNCTION: BootstrapErrors -------------------------- */
 /// Primary wrapper function (meant to be called from main() in imfit_main.cpp, etc.).
 /// If saving of all best-fit parameters to file is requested, then outputFile_ptr
-/// should be non-NULL (i.e., should point to a file object opened for writing, possibly
+/// should be non-nullptr (i.e., should point to a file object opened for writing, possibly
 /// with header information already written).
 /// Returns the number of (successful) bootstrap iterations, or returns -1 if error
 /// encountered.
@@ -100,7 +100,7 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
   bestfitParams_offsetCorrected = (double *) calloc(nParams, sizeof(double));
   
   // write column header info to file, if user requested saving to file
-  if (outputFile_ptr != NULL) {
+  if (outputFile_ptr != nullptr) {
     string  headerLine = theModel->GetParamHeader();
     fprintf(outputFile_ptr, "#\n# Bootstrap resampling output (%d iterations requested):\n%s\n", 
    			nIterations, headerLine.c_str());
@@ -164,7 +164,7 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
 /* ---------------- FUNCTION: BootstrapErrorsBase ---------------------- */
 /// Base function called by the wrapper functions (above), which does the main work
 /// of overseeing the bootstrap resampling.
-/// Saving individual best-fit vales to file is done *if* outputFile_ptr != NULL.
+/// Saving individual best-fit vales to file is done *if* outputFile_ptr != nullptr.
 /// Returns the number of successful iterations performed (-1 if an error was
 /// encountered)
 int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLimits, 
@@ -180,13 +180,13 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
   bool  saveToFile = false;
   string  outputLine, iterTemplate;
 
-  if (outputFile_ptr != NULL)
+  if (outputFile_ptr != nullptr)
     saveToFile = true;
   
   if (rngSeed > 0)
     init_genrand(rngSeed);
   else
-    init_genrand((unsigned long)time((time_t *)NULL));
+    init_genrand((unsigned long)time((time_t *)nullptr));
 
   paramsVect = (double *) calloc(nParams, sizeof(double));
   paramOffsets = (double *) calloc(nParams, sizeof(double));
@@ -282,7 +282,7 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parame
   if (rngSeed > 0)
     init_genrand(rngSeed);
   else
-    init_genrand((unsigned long)time((time_t *)NULL));
+    init_genrand((unsigned long)time((time_t *)nullptr));
 
   paramsVect = (double *) calloc(nParams, sizeof(double));
   paramOffsets = (double *) calloc(nParams, sizeof(double));

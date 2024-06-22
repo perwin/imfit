@@ -475,7 +475,7 @@ int dream( const dream_pars* p, rng::RngStream* rng )
 
   for (int i(0); i < p->numChains; ++i) {
     // close output files
-    if (oout[i] != NULL) 
+    if (oout[i] != nullptr) 
       delete oout[i];
   }
 

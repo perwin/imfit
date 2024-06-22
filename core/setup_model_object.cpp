@@ -70,7 +70,7 @@ ModelObject* SetupModelObject( std::shared_ptr<OptionsBase> options, vector<int>
   nColumns = nColumnsRowsVector[0];
   nRows = nColumnsRowsVector[1];
   nPixels_data = (long)nColumns * (long)nRows;
-  if (dataPixels == NULL) {
+  if (dataPixels == nullptr) {
     // No data image, so we're in makeimage mode
     status = newModelObj->SetupModelImage(nColumns, nRows);
     if (status < 0) {

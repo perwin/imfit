@@ -3,7 +3,7 @@
  * Class definition for PsfOversamplingInfo.
  */
 
-// Copyright 2017-2018 by Peter Erwin.
+// Copyright 2017-2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -43,7 +43,7 @@ using namespace std;
 /// Default constructor for PsfOversamplingInfo class
 PsfOversamplingInfo::PsfOversamplingInfo( )
 {
-  psfPixels = NULL;
+  psfPixels = nullptr;
   nColumns_psf = nRows_psf = 0;
   oversamplingScale = 1;
   regionString = "";

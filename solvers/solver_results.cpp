@@ -1,6 +1,6 @@
 /* FILE: solver_results.cpp ---------------------------------------------- */
 
-// Copyright 2015, 2017, 2018 by Peter Erwin.
+// Copyright 2015, 2017, 2018, 2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -38,7 +38,7 @@ SolverResults::SolverResults( )
   bestFitValue = 0.0;
   paramSigmasPresent = false;
   paramSigmasAllocated = false;
-  paramSigmas = NULL;
+  paramSigmas = nullptr;
   mpResultsPresent = false;
   solverName = "";
   
@@ -52,9 +52,9 @@ SolverResults::SolverResults( )
   mpResult.nfree = 0;
   mpResult.npegged = 0;
   mpResult.nfunc = 0;
-  mpResult.resid = NULL;
-  mpResult.xerror = NULL;
-  mpResult.covar = NULL;
+  mpResult.resid = nullptr;
+  mpResult.xerror = nullptr;
+  mpResult.covar = nullptr;
   
 }
 
@@ -106,7 +106,7 @@ void SolverResults::AddMPResults( mp_result& mpResult_input )
   nParameters = mpResult_input.npar;
   // if parameter uncertainties are present, copy those into the paramSigmas array;
   // don't both keeping an extra copy within the mp_result struct
-  if (mpResult_input.xerror != NULL)
+  if (mpResult_input.xerror != nullptr)
     StoreErrors(mpResult_input.xerror, nParameters);
   initialFitStatistic = mpResult_input.orignorm;
   bestFitValue = mpResult_input.bestnorm;

@@ -11,7 +11,7 @@
  *    24 October 2016: Created as modification of imfit_main.cpp.
 */
 
-// Copyright 2009--2022 by Peter Erwin.
+// Copyright 2009--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   struct timeval  timer_start_all, timer_end_all;
 
 
-  gettimeofday(&timer_start_all, NULL);
+  gettimeofday(&timer_start_all, nullptr);
 
   progNameVersion += VERSION_STRING;
   MakeMCMCOutputHeader(&programHeader, progNameVersion, argc, argv);
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
   // Get image data and sizes
   printf("Reading data image (\"%s\") ...\n", options->imageFileName.c_str());
   allPixels = ReadImageAsVector(options->imageFileName, &nColumns, &nRows);
-  if (allPixels == NULL) {
+  if (allPixels == nullptr) {
     fprintf(stderr,  "\n*** ERROR: Unable to read image file \"%s\"!\n\n", 
     			options->imageFileName.c_str());
     exit(-1);
@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
 
   // Construct header using parameter names, etc.
   programHeader.push_back("#\n# Model definition:\n");
-  theModel->PrintModelParamsToStrings(programHeader, paramsVect, NULL, "#", true);
+  theModel->PrintModelParamsToStrings(programHeader, paramsVect, nullptr, "#", true);
   programHeader.push_back("#\n# Column Headers\n");
   string headerString = theModel->GetParamHeader();
   headerString += "  likelihood  burn-in    ";
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
   if (options->rngSeed > 0)
     rng.alloc(options->rngSeed);
   else
-    rng.alloc();   // void alloc(unsigned long seed = time(NULL))
+    rng.alloc();   // void alloc(unsigned long seed = time(nullptr))
 
 
   // OK, now we execute the MCMC process
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
 
   // Elapsed time reports
   if (options->verbose >= 0) {
-    gettimeofday(&timer_end_all, NULL);
+    gettimeofday(&timer_end_all, nullptr);
     double  microsecs, time_elapsed_all;
     microsecs = timer_end_all.tv_usec - timer_start_all.tv_usec;
     time_elapsed_all = timer_end_all.tv_sec - timer_start_all.tv_sec + microsecs/1e6;
@@ -738,7 +738,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->originalSky = strtod(optParser->GetTargetString("sky").c_str(), NULL);
+    theOptions->originalSky = strtod(optParser->GetTargetString("sky").c_str(), nullptr);
     theOptions->originalSkySet = true;
     printf("\toriginal sky level = %g ADU\n", theOptions->originalSky);
   }
@@ -748,7 +748,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->gain = strtod(optParser->GetTargetString("gain").c_str(), NULL);
+    theOptions->gain = strtod(optParser->GetTargetString("gain").c_str(), nullptr);
     theOptions->gainSet = true;
     printf("\tgain = %g e-/ADU\n", theOptions->gain);
   }
@@ -758,7 +758,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->readNoise = strtod(optParser->GetTargetString("readnoise").c_str(), NULL);
+    theOptions->readNoise = strtod(optParser->GetTargetString("readnoise").c_str(), nullptr);
     theOptions->readNoiseSet = true;
     printf("\tread noise = %g e-\n", theOptions->readNoise);
   }
@@ -768,7 +768,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->expTime = strtod(optParser->GetTargetString("exptime").c_str(), NULL);
+    theOptions->expTime = strtod(optParser->GetTargetString("exptime").c_str(), nullptr);
     theOptions->expTimeSet = true;
     printf("\texposure time = %g sec\n", theOptions->expTime);
   }
@@ -831,7 +831,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->GRScaleReductionLimit = strtod(optParser->GetTargetString("gelman-rubin-limit").c_str(), NULL);
+    theOptions->GRScaleReductionLimit = strtod(optParser->GetTargetString("gelman-rubin-limit").c_str(), nullptr);
     printf("\tGelman-Rubin scale reduction limit = %f\n", theOptions->GRScaleReductionLimit);
   }
   if (optParser->OptionSet("uniform-offset")) {
@@ -840,7 +840,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->mcmcNoise = strtod(optParser->GetTargetString("uniform-offset").c_str(), NULL);
+    theOptions->mcmcNoise = strtod(optParser->GetTargetString("uniform-offset").c_str(), nullptr);
     printf("\tMCMC uniform-offset parameter = %f\n", theOptions->mcmcNoise);
   }
   if (optParser->OptionSet("gaussian-offset")) {
@@ -849,7 +849,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<MCMCOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->mcmc_bstar = strtod(optParser->GetTargetString("gaussian-offset").c_str(), NULL);
+    theOptions->mcmc_bstar = strtod(optParser->GetTargetString("gaussian-offset").c_str(), nullptr);
     printf("\tMCMC Gaussian-offset sigma = %f\n", theOptions->mcmc_bstar);
   }
   if (optParser->OptionSet("max-threads")) {
@@ -939,7 +939,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
       if (mainOptions->gainSet) {
         printf("Gain value in config file ignored (using command-line value)\n");
       } else {
-        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), nullptr);
         printf("Value from config file: gain = %f e-/ADU\n", newDblVal);
         mainOptions->gain = newDblVal;
       }
@@ -949,7 +949,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
       if (mainOptions->readNoiseSet) {
         printf("Read-noise value in config file ignored (using command-line value)\n");
       } else {
-        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), nullptr);
         printf("Value from config file: read noise = %f e-\n", newDblVal);
         mainOptions->readNoise = newDblVal;
       }
@@ -959,7 +959,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
       if (mainOptions->expTimeSet) {
         printf("Read-noise value in config file ignored (using command-line value)\n");
       } else {
-        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), nullptr);
         printf("Value from config file: exposure time = %f sec\n", newDblVal);
         mainOptions->expTime = newDblVal;
       }
@@ -969,7 +969,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
       if (mainOptions->originalSkySet) {
         printf("Original-sky value in config file ignored (using command-line value)\n");
       } else {
-        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), nullptr);
         printf("Value from config file: original sky = %f\n", newDblVal);
         mainOptions->originalSky = newDblVal;
       }

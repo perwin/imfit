@@ -101,7 +101,7 @@ int main( int argc, char *argv[] )
   int  nColumns_psf, nRows_psf;
   int  nParamsTot;
   int  status;
-  double  *psfPixels = NULL;
+  double  *psfPixels = nullptr;
   long  nPixels_psf_oversampled;
   vector<PsfOversamplingInfo *>  psfOversamplingInfoVect;
   double  *paramsVect;
@@ -237,7 +237,7 @@ int main( int argc, char *argv[] )
   nColumnsRowsVect.push_back(nColumns_psf);
   nColumnsRowsVect.push_back(nRows_psf);
 
-  theModel = SetupModelObject(options, nColumnsRowsVect, NULL, psfPixels, NULL, NULL,
+  theModel = SetupModelObject(options, nColumnsRowsVect, nullptr, psfPixels, nullptr, nullptr,
   								psfOversamplingInfoVect);
 
   // Add functions to the model object; also tells model object where function sets start
@@ -316,7 +316,7 @@ int main( int argc, char *argv[] )
         // memory allocation failure)
         string currentFilename, headerString;
         singleFunctionImage = theModel->GetSingleFunctionImage(paramsVect, i);
-        if (singleFunctionImage == NULL) {
+        if (singleFunctionImage == nullptr) {
           fprintf(stderr, "\n*** ERROR: Unable to generate single-function image #%d!\n\n", i);
           exit(-1);
         }
@@ -352,10 +352,10 @@ int main( int argc, char *argv[] )
   if (options->timingIterations > 0) {
     struct timeval  timer_start, timer_end;
     double  microsecs, time_elapsed, time_per_iteration;
-    gettimeofday(&timer_start, NULL);
+    gettimeofday(&timer_start, nullptr);
     for (int i = 0; i < options->timingIterations; i++)
       theModel->CreateModelImage(paramsVect);
-    gettimeofday(&timer_end, NULL);
+    gettimeofday(&timer_end, nullptr);
     microsecs = timer_end.tv_usec - timer_start.tv_usec;
     time_elapsed = timer_end.tv_sec - timer_start.tv_sec + microsecs/1e6;
     time_per_iteration = time_elapsed / options->timingIterations;

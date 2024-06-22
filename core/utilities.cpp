@@ -2,7 +2,7 @@
 /*   Several utility routines used by imfit, makeimage, etc.
  */
 
-// Copyright 2010-2018 by Peter Erwin.
+// Copyright 2010-2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -167,7 +167,7 @@ void PrintParametersSimple( ModelObject *model, double *parameters )
 {
     vector<string> outputLines;
 
-    model->PrintModelParamsToStrings(outputLines, parameters, NULL);
+    model->PrintModelParamsToStrings(outputLines, parameters, nullptr);
     for (string line: outputLines)
       printf("%s", line.c_str());
 }
@@ -532,7 +532,7 @@ char * TimeStamp( void )
   time_t  currentTime;
   char *dateString;
   
-  currentTime = time(NULL);
+  currentTime = time(nullptr);
   dateString = ctime(&currentTime);
   // Hack! Shift the null-termination up one character to knock out the
   // '\n' which otherwise ends the string.  This works because the
@@ -616,7 +616,7 @@ int IsNumeric( const char *aString )
 {
     char *p;
 
-    if (aString == NULL || *aString == '\0' || isspace(*aString))
+    if (aString == nullptr || *aString == '\0' || isspace(*aString))
       return 0;
     strtod(aString, &p);
     return (*p == '\0');

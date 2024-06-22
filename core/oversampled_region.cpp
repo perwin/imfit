@@ -256,7 +256,7 @@ int OversampledRegion::SetupModelImage( int x1, int y1, int nBaseColumns, int nB
   //    If this function *is* called again, then nModelVals could be different
   //    from the first call, in wich case we'd need to realloc modelVector
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
-  if (modelVector == NULL) {
+  if (modelVector == nullptr) {
     fprintf(stderr, "*** ERROR: Unable to allocate memory for oversampled model image!\n");
     fprintf(stderr, "    (Requested image size was %ld pixels)\n", nModelVals);
     return -1;

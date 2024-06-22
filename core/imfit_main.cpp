@@ -11,7 +11,7 @@
  *    10 Nov--2 Dec 2009: Early stages of development
 */
 
-// Copyright 2009--2023 by Peter Erwin.
+// Copyright 2009--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
   string  progNameVersion = "imfit ";
   vector<string> programHeader;
   bool  userInterrupted = false;
-  FILE  *bootstrapSaveFile_ptr = NULL;
+  FILE  *bootstrapSaveFile_ptr = nullptr;
   bool  didBootstrap = false;
   // timing-related
   struct timeval  timer_start_all, timer_end_all;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   struct timeval  timer_start_bootstrap, timer_end_bootstrap;
 
 
-  gettimeofday(&timer_start_all, NULL);
+  gettimeofday(&timer_start_all, nullptr);
 
   progNameVersion += VERSION_STRING;
   MakeOutputHeader(&programHeader, progNameVersion, argc, argv);
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
   // Get image data and sizes
   printf("Reading data image (\"%s\") ...\n", options->imageFileName.c_str());
   allPixels = ReadImageAsVector(options->imageFileName, &nColumns, &nRows);
-  if (allPixels == NULL) {
+  if (allPixels == nullptr) {
     fprintf(stderr,  "\n*** ERROR: Unable to read image file \"%s\"!\n\n", 
     			options->imageFileName.c_str());
     exit(-1);
@@ -380,12 +380,12 @@ int main(int argc, char *argv[])
       printf("chi^2 (data-based errors):\n");
     // Set signal-handling so Ctrl-C (SIGINT) is intercepted
     signal(SIGINT, signal_handler);
-    gettimeofday(&timer_start_fit, NULL);
+    gettimeofday(&timer_start_fit, nullptr);
     fitStatus = DispatchToSolver(options->solver, nParamsTot, nFreeParams, nPixels_tot, 
     							paramsVect, parameterInfo, theModel, options->ftol, paramLimitsExist, 
     							options->verbose, &resultsFromSolver, options->nloptSolverName,
     							options->rngSeed, options->useLHS);
-    gettimeofday(&timer_end_fit, NULL);
+    gettimeofday(&timer_end_fit, nullptr);
 #ifndef NO_SIGNALS
     if (stopSignal_flag == 1)
       userInterrupted = true;
@@ -405,12 +405,12 @@ int main(int argc, char *argv[])
     
     printf("\nNow doing bootstrap resampling (%d iterations) to estimate errors...\n",
            options->bootstrapIterations);
-    gettimeofday(&timer_start_bootstrap, NULL);
+    gettimeofday(&timer_start_bootstrap, nullptr);
     nSucessfulIterations = BootstrapErrors(paramsVect, parameterInfo, paramLimitsExist, 
     									theModel, options->ftol, options->bootstrapIterations, 
     									nFreeParams, theModel->WhichFitStatistic(), 
     									bootstrapSaveFile_ptr, options->rngSeed);
-    gettimeofday(&timer_end_bootstrap, NULL);
+    gettimeofday(&timer_end_bootstrap, nullptr);
     if (options->saveBootstrap) {
       if (nSucessfulIterations > 0)
         printf("Bootstrap-resampling output saved to file \"%s\".\n", options->outputBootstrapFileName.c_str());
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
   
   // Elapsed time reports
   if (options->verbose >= 0) {
-    gettimeofday(&timer_end_all, NULL);
+    gettimeofday(&timer_end_all, nullptr);
     double  microsecs, time_elapsed_all, time_elapsed_fit, time_elapsed_bootstrap;
     microsecs = timer_end_all.tv_usec - timer_start_all.tv_usec;
     time_elapsed_all = timer_end_all.tv_sec - timer_start_all.tv_sec + microsecs/1e6;
@@ -853,7 +853,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->originalSky = strtod(optParser->GetTargetString("sky").c_str(), NULL);
+    theOptions->originalSky = strtod(optParser->GetTargetString("sky").c_str(), nullptr);
     theOptions->originalSkySet = true;
     printf("\toriginal sky level = %g ADU\n", theOptions->originalSky);
   }
@@ -863,7 +863,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->gain = strtod(optParser->GetTargetString("gain").c_str(), NULL);
+    theOptions->gain = strtod(optParser->GetTargetString("gain").c_str(), nullptr);
     theOptions->gainSet = true;
     printf("\tgain = %g e-/ADU\n", theOptions->gain);
   }
@@ -873,7 +873,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->readNoise = strtod(optParser->GetTargetString("readnoise").c_str(), NULL);
+    theOptions->readNoise = strtod(optParser->GetTargetString("readnoise").c_str(), nullptr);
     theOptions->readNoiseSet = true;
     printf("\tread noise = %g e-\n", theOptions->readNoise);
   }
@@ -883,7 +883,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->expTime = strtod(optParser->GetTargetString("exptime").c_str(), NULL);
+    theOptions->expTime = strtod(optParser->GetTargetString("exptime").c_str(), nullptr);
     theOptions->expTimeSet = true;
     printf("\texposure time = %g sec\n", theOptions->expTime);
   }
@@ -903,7 +903,7 @@ void ProcessInput( int argc, char *argv[], shared_ptr<ImfitOptions> theOptions )
       delete optParser;
       exit(1);
     }
-    theOptions->ftol = strtod(optParser->GetTargetString("ftol").c_str(), NULL);
+    theOptions->ftol = strtod(optParser->GetTargetString("ftol").c_str(), nullptr);
     theOptions->ftolSet = true;
     printf("\tfractional tolerance ftol for fit-statistic convergence = %g\n", theOptions->ftol);
   }
@@ -1009,7 +1009,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
       if (mainOptions->gainSet) {
         printf("Gain value in config file ignored (using command-line value)\n");
       } else {
-        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), nullptr);
         printf("Value from config file: gain = %f e-/ADU\n", newDblVal);
         mainOptions->gain = newDblVal;
       }
@@ -1019,7 +1019,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
       if (mainOptions->readNoiseSet) {
         printf("Read-noise value in config file ignored (using command-line value)\n");
       } else {
-        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), nullptr);
         printf("Value from config file: read noise = %f e-\n", newDblVal);
         mainOptions->readNoise = newDblVal;
       }
@@ -1029,7 +1029,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
       if (mainOptions->expTimeSet) {
         printf("Read-noise value in config file ignored (using command-line value)\n");
       } else {
-        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), nullptr);
         printf("Value from config file: exposure time = %f sec\n", newDblVal);
         mainOptions->expTime = newDblVal;
       }
@@ -1039,7 +1039,7 @@ void HandleConfigFileOptions( configOptions *configFileOptions,
       if (mainOptions->originalSkySet) {
         printf("Original-sky value in config file ignored (using command-line value)\n");
       } else {
-        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), NULL);
+        newDblVal = strtod(configFileOptions->optionValues[i].c_str(), nullptr);
         printf("Value from config file: original sky = %f\n", newDblVal);
         mainOptions->originalSky = newDblVal;
       }

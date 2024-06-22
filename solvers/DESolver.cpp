@@ -106,7 +106,7 @@ void DESolver::Setup( double *min, double *max, int deStrategy, double diffScale
   if (rngSeed > 0)
     init_genrand(rngSeed);
   else
-    init_genrand((unsigned long)time((time_t *)NULL));
+    init_genrand((unsigned long)time((time_t *)nullptr));
   
   CopyVector(minBounds, min);
   CopyVector(maxBounds, max);

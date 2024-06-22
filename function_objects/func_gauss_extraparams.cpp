@@ -15,7 +15,7 @@
  *
  */
 
-// Copyright 2009--2023 by Peter Erwin.
+// Copyright 2009--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -103,7 +103,7 @@ int GaussianExtraParams::SetExtraParams( map<string,string>& inputMap )
   for( iter = inputMap.begin(); iter != inputMap.end(); iter++) {
     if (iter->first == "floor") {
       if (IsNumeric(iter->second.c_str())) {
-        floorValue = strtod(iter->second.c_str(), NULL);
+        floorValue = strtod(iter->second.c_str(), nullptr);
         printf("   GaussianExtraParams::SetExtraParams -- setting floor = %f\n", floorValue);
         extraParamsSet = true;
         return 1;

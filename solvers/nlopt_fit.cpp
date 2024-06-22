@@ -1,6 +1,6 @@
 /* FILE: nlopt_fit.cpp --------------------------------------------------- */
 
-// Copyright 2014--2022 by Peter Erwin.
+// Copyright 2014--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -321,7 +321,7 @@ int NLOptFit( int nParamsTot, double *paramVector, vector<mp_par> parameterLimit
     InterpretResult(result, algorithmName);
 
   // Store information about the optimization, if SolverResults object was supplied
-  if (solverResults != NULL) {
+  if (solverResults != nullptr) {
     solverResults->SetSolverType(GENERIC_NLOPT_SOLVER);
     solverResults->StoreNFunctionEvals(funcCallCount);
     solverResults->StoreBestfitStatisticValue(finalStatisticVal);

@@ -10,7 +10,7 @@
  *     [v0.01]: 26 Mar 2010: Created.
  */
 
-// Copyright 2010--2018 by Peter Erwin.
+// Copyright 2010--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -240,9 +240,9 @@ int Convolver::DoFullSetup( int debugLevel, bool doFFTWMeasure )
   psf_fft_cmplx = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nPixels_padded_complex);
   multiplied_cmplx = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * nPixels_padded_complex);
   convolvedImage_out = (double*) fftw_malloc(sizeof(double) * nPixels_padded);
-  if ( (image_in_padded == NULL) || (image_fft_cmplx == NULL) || (psf_in_padded == NULL)
-  		|| (psf_fft_cmplx == NULL) || (multiplied_cmplx == NULL) 
-  		|| (convolvedImage_out == NULL) ) {
+  if ( (image_in_padded == nullptr) || (image_fft_cmplx == nullptr) || (psf_in_padded == nullptr)
+  		|| (psf_fft_cmplx == nullptr) || (multiplied_cmplx == nullptr) 
+  		|| (convolvedImage_out == nullptr) ) {
     fprintf(stderr, "*** WARNING: Convolver::DoFullSetup: memory allocation failure!\n");
 	return -2;
   }

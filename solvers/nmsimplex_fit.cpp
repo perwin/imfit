@@ -1,6 +1,6 @@
 /* FILE: nmsimplex_fit.cpp ----------------------------------------------- */
 
-// Copyright 2012--2022 by Peter Erwin.
+// Copyright 2012--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -215,7 +215,7 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, vector<mp_par> para
   nlopt_set_upper_bounds(optimizer, maxParamValues);
   
   // record initial fit-statistic value, if we're going to save it
-  if (solverResults != NULL)
+  if (solverResults != nullptr)
     initialStatisticVal = theModel->GetFitStatistic(paramVector);
   
   // Specify level of verbosity and start the optimization
@@ -228,7 +228,7 @@ int NMSimplexFit( const int nParamsTot, double *paramVector, vector<mp_par> para
   }
 
   // Store information about the optimization, if SolverResults object was supplied
-  if (solverResults != NULL) {
+  if (solverResults != nullptr) {
     solverResults->SetSolverType(NMSIMPLEX_SOLVER);
     solverResults->StoreNFunctionEvals(funcCallCount);
     solverResults->StoreBestfitStatisticValue(finalStatisticVal);

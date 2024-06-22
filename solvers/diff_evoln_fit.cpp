@@ -11,7 +11,7 @@
  *
  */
 
-// Copyright 2010--2018 by Peter Erwin.
+// Copyright 2010--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -160,7 +160,7 @@ int DiffEvolnFit( int nParamsTot, double *paramVector, vector<mp_par> parameterL
 
   solver->StoreSolution(paramVector);
 
-  if (solverResults != NULL) {
+  if (solverResults != nullptr) {
     int  populationSize = solver->Population();
     int  nGenerationsDone = solver->Generations();
     solverResults->SetSolverType(DIFF_EVOLN_SOLVER);

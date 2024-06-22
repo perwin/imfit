@@ -24,8 +24,8 @@ void SetupDreamParams( dream_pars* p, size_t n, const double* init, const string
   p->pCR_update = 1;
   p->nCR = 3;                 // recommended value in Vrugt+09: 3
   p->reenterBurnin = 0.2;
-  p->fun = NULL;
-  p->extraData = NULL;
+  p->fun = nullptr;
+  p->extraData = nullptr;
   p->outputHeaderLines.push_back("# mult_params L burnin gen mult_pCR accept\n");
 
   p->nvar = n;

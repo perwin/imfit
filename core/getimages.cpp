@@ -1,4 +1,4 @@
-// Copyright 2017--2018 by Peter Erwin.
+// Copyright 2017--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -39,7 +39,7 @@ std::tuple<double *, int> GetAndCheckImage( const string imageName, const string
   double *imagePixels = nullptr;
 
   imagePixels = ReadImageAsVector(imageName, &nColumns, &nRows);
-  if (imagePixels == NULL) {
+  if (imagePixels == nullptr) {
     fprintf(stderr,  "\n*** ERROR: Unable to read %s file \"%s\"!\n\n", 
     			imageType.c_str(), imageName.c_str());
     return std::make_tuple(imagePixels, -1);
@@ -178,7 +178,7 @@ int GetOversampledPsfInfo( const std::shared_ptr<OptionsBase> options, int xOffs
       printf("Reading oversampled PSF image (\"%s\") ...\n", options->psfOversampledFileNames[nn].c_str());
       psfOversampledPixels = ReadImageAsVector(options->psfOversampledFileNames[nn], 
 	    							&nColumns_psf_oversampled, &nRows_psf_oversampled);
-      if (psfOversampledPixels == NULL) {
+      if (psfOversampledPixels == nullptr) {
         fprintf(stderr, "\n*** ERROR: Unable to read oversampled PSF image file \"%s\"!\n\n", 
 		      			options->psfOversampledFileNames[nn].c_str());
         return -1;

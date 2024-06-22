@@ -118,7 +118,7 @@ void AddParameter( string& currentLine, vector<double>& parameterList ) {
   stringPieces.clear();
   SplitString(currentLine, stringPieces);
   // first piece is parameter name, which we ignore; second piece is initial value
-  paramVal = strtod(stringPieces[1].c_str(), NULL);
+  paramVal = strtod(stringPieces[1].c_str(), nullptr);
   parameterList.push_back(paramVal);
 }
 
@@ -144,7 +144,7 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
   stringPieces.clear();
   SplitString(currentLine, stringPieces);
   // first piece is parameter name, which we ignore; second piece is initial value
-  paramVal = strtod(stringPieces[1].c_str(), NULL);
+  paramVal = strtod(stringPieces[1].c_str(), nullptr);
   parameterList.push_back(paramVal);
 
   // OK, now we create a new mp_par structure and check for possible parameter limits
@@ -163,8 +163,8 @@ int AddParameterAndLimit( string& currentLine, vector<double>& parameterList,
         SplitString(extraPiece, newPieces, ",");
         newParamLimit.limited[0] = 1;
         newParamLimit.limited[1] = 1;
-        lowerLimit = strtod(newPieces[0].c_str(), NULL);
-        upperLimit = strtod(newPieces[1].c_str(), NULL);
+        lowerLimit = strtod(newPieces[0].c_str(), nullptr);
+        upperLimit = strtod(newPieces[1].c_str(), nullptr);
         if (lowerLimit >= upperLimit) {
           fprintf(stderr, "*** WARNING: first parameter limit for \"%s\" (%g) must be < second limit (%g)!\n",
           				stringPieces[0].c_str(), lowerLimit, upperLimit);

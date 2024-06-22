@@ -24,7 +24,7 @@
  * cases, as suggested by André Luiz de Amorim.
  */
 
-// Copyright 2010--2020 by Peter Erwin.
+// Copyright 2010--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -113,11 +113,11 @@ ModelObject::ModelObject( )
 {
   dataValsSet = weightValsSet = false;
 
-  dataVector = modelVector = weightVector = standardWeightVector = NULL;
-  residualVector = maskVector = deviatesVector = NULL;
-  outputModelVector = extraCashTermsVector = NULL;
-  bootstrapIndices = NULL;
-  fsetStartFlags = NULL;
+  dataVector = modelVector = weightVector = standardWeightVector = nullptr;
+  residualVector = maskVector = deviatesVector = nullptr;
+  outputModelVector = extraCashTermsVector = nullptr;
+  bootstrapIndices = nullptr;
+  fsetStartFlags = nullptr;
 
   localPsfPixels = nullptr;
   psfInterpolator = nullptr;
@@ -481,7 +481,7 @@ int ModelObject::SetupModelImage( int nImageColumns, int nImageRows )
   //    If this function *is* called again, then nModelVals could be different
   //    from the first call, in wich case we'd need to realloc modelVector
   modelVector = (double *) calloc((size_t)nModelVals, sizeof(double));
-  if (modelVector == NULL) {
+  if (modelVector == nullptr) {
     fprintf(stderr, "*** ERROR: Unable to allocate memory for model image!\n");
     fprintf(stderr, "    (Requested image size was %d x %d = %ld pixels)\n", nModelRows,
     		nModelColumns, nModelVals);
@@ -614,7 +614,7 @@ int ModelObject::GenerateErrorVector( )
   // nDataVals *might* have changed; we are currently assuming it hasn't!
   if (! weightVectorAllocated) {
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-    if (weightVector == NULL) {
+    if (weightVector == nullptr) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for weight image!\n");
       fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
       return -1;
@@ -941,7 +941,7 @@ int ModelObject::FinalSetupForFitting( )
   // Create a default all-pixels-valid mask if no mask already exists
   if (! maskExists) {
     maskVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-    if (maskVector == NULL) {
+    if (maskVector == nullptr) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for mask image!\n");
       fprintf(stderr, "    (Requested vector size was %ld pixels)\n", nDataVals);
       // go ahead and return now, otherwise we'll be trying to access a null
@@ -1262,10 +1262,10 @@ double * ModelObject::GetSingleFunctionImage( double params[], int functionIndex
   if (doConvolution) {
     if (! outputModelVectorAllocated) {
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-      if (outputModelVector == NULL) {
+      if (outputModelVector == nullptr) {
         fprintf(stderr, "*** ERROR: Unable to allocate memory for output model image!\n");
         fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
-        return NULL;
+        return nullptr;
       }
       outputModelVectorAllocated = true;
     }
@@ -1465,7 +1465,7 @@ int ModelObject::UseModelErrors( )
   // nDataVals *might* have changed; we are currently assuming it hasn't!
   if (! weightVectorAllocated) {
     weightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-    if (weightVector == NULL) {
+    if (weightVector == nullptr) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for weight vector!\n");
       fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
       return -1;
@@ -1507,7 +1507,7 @@ int ModelObject::UseCashStatistic( )
   }
   if (! extraCashTermsVectorAllocated) {
     extraCashTermsVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-    if (extraCashTermsVector == NULL) {
+    if (extraCashTermsVector == nullptr) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for extra Cash terms vector!\n");
       fprintf(stderr, "    (Requested vector size was %ld pixels)\n", nDataVals);
       return -1;
@@ -1761,9 +1761,9 @@ void ModelObject::GetFunctionLabels( vector<string>& functionLabels )
 /// Optionally, the lower and upper limits defined in parameterInfo are also printed, 
 /// OR associated lower and upper error bounds in errs can be printed.
 ///
-/// If errs != NULL, then +/- errors are printed as well (only if printLimits is false)
+/// If errs != nullptr, then +/- errors are printed as well (only if printLimits is false)
 ///
-/// If prefix != NULL, then the specified character (e.g., '#') is prepended to
+/// If prefix != nullptr, then the specified character (e.g., '#') is prepended to
 /// each output line.
 ///
 /// If printLimits == true, then lower and upper parameter limits will be printed
@@ -1808,7 +1808,7 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
         				parameterInfoVect[k + 1].limits[0], parameterInfoVect[k + 1].limits[1]);
         stringVector.push_back(newLine);
       } else {
-        if (errs != NULL) {
+        if (errs != nullptr) {
           stringVector.push_back(PrintToString(XY_FORMAT_WITH_ERRS, prefix, "X0", x0, errs[k]));
           stringVector.push_back(PrintToString(XY_FORMAT_WITH_ERRS, prefix, "Y0", y0, errs[k + 1]));
         } else {
@@ -1857,7 +1857,7 @@ int ModelObject::PrintModelParamsToStrings( vector<string> &stringVector, double
           newLine = PrintToString(PARAM_FORMAT_WITH_LIMITS, prefix, paramName.c_str(), 
         						paramVal, parameterInfoVect[indexOffset + i].limits[0], 
         						parameterInfoVect[indexOffset + i].limits[1]);
-      else if (errs != NULL) {
+      else if (errs != nullptr) {
         newLine = PrintToString(PARAM_FORMAT_WITH_ERRS, prefix, paramName.c_str(), 
         						paramVal, errs[indexOffset + i]);
         unitsPrefix = "";
@@ -2013,7 +2013,7 @@ int ModelObject::MakeBootstrapSample( )
   
   if (! bootstrapIndicesAllocated) {
     bootstrapIndices = (long *) calloc((size_t)nValidDataVals, sizeof(long));
-    if (bootstrapIndices == NULL) {
+    if (bootstrapIndices == nullptr) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for bootstrap-resampling pixel indices!\n");
       fprintf(stderr, "    (Requested vector size was %ld pixels)\n", nValidDataVals);
       return -1;
@@ -2201,7 +2201,7 @@ bool ModelObject::HasMask( )
 /* ---------------- PUBLIC METHOD: GetModelImageVector ----------------- */
 /// Returns a pointer to the model image (matching the data image in size if
 /// convolution is being done).
-/// If the model image has not yet been computed, returns NULL.
+/// If the model image has not yet been computed, returns nullptr.
 double * ModelObject::GetModelImageVector( )
 {
   int  iDataRow, iDataCol;
@@ -2209,16 +2209,16 @@ double * ModelObject::GetModelImageVector( )
 
   if (! modelImageComputed) {
     fprintf(stderr, "* ModelObject::GetModelImageVector -- Model image has not yet been computed!\n\n");
-    return NULL;
+    return nullptr;
   }
   
   if (doConvolution) {
     if (! outputModelVectorAllocated) {
       outputModelVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-      if (outputModelVector == NULL) {
+      if (outputModelVector == nullptr) {
         fprintf(stderr, "*** ERROR: Unable to allocate memory for output model image!\n");
         fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
-        return NULL;
+        return nullptr;
       }
       outputModelVectorAllocated = true;
     }
@@ -2247,7 +2247,7 @@ double * ModelObject::GetExpandedModelImageVector( )
 
   if (! modelImageComputed) {
     fprintf(stderr, "* ModelObject::GetExpandedModelImageVector -- Model image has not yet been computed!\n\n");
-    return NULL;
+    return nullptr;
   }
   return modelVector;
 }
@@ -2256,7 +2256,7 @@ double * ModelObject::GetExpandedModelImageVector( )
 /* ---------------- PUBLIC METHOD: GetResidualImageVector -------------- */
 /// Computes residual image (data - model) using current model image (usually
 /// best-fit image), and returns pointer to residual-image vector.
-/// Returns NULL if memory allocation failed.
+/// Returns nullptr if memory allocation failed.
 double * ModelObject::GetResidualImageVector( )
 {
   int  iDataRow, iDataCol;
@@ -2264,17 +2264,17 @@ double * ModelObject::GetResidualImageVector( )
 
   if (! modelImageComputed) {
     fprintf(stderr, "* ModelObject::GetResidualImageVector -- Model image has not yet been computed!\n\n");
-    return NULL;
+    return nullptr;
   }
   
   // WARNING: If we are calling this function for a second or subsequent time,
   // nDataVals *might* have changed; we are currently assuming it hasn't!
   if (! residualVectorAllocated) {
     residualVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-    if (residualVector == NULL) {
+    if (residualVector == nullptr) {
       fprintf(stderr, "*** ERROR: Unable to allocate memory for output residual image!\n");
       fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
-      return NULL;
+      return nullptr;
     }
     residualVectorAllocated = true;
   }
@@ -2303,19 +2303,19 @@ double * ModelObject::GetResidualImageVector( )
 
 /* ---------------- PUBLIC METHOD: GetWeightImageVector ---------------- */
 /// Returns the weightVector converted to 1/sigma^2 (i.e., 1/variance) form.
-/// Returns NULL if memory allocation failed.
+/// Returns nullptr if memory allocation failed.
 double * ModelObject::GetWeightImageVector( )
 {
   if (! weightValsSet) {
     fprintf(stderr, "* ModelObject::GetWeightImageVector -- Weight image has not yet been computed!\n\n");
-    return NULL;
+    return nullptr;
   }
   
   standardWeightVector = (double *) calloc((size_t)nDataVals, sizeof(double));
-  if (standardWeightVector == NULL) {
+  if (standardWeightVector == nullptr) {
     fprintf(stderr, "*** ERROR: Unable to allocate memory for output weight image!\n");
     fprintf(stderr, "    (Requested image size was %ld pixels)\n", nDataVals);
-    return NULL;
+    return nullptr;
   }
   for (long z = 0; z < nDataVals; z++) {
     // Note: this loop is auto-vectorized when compiling with -O3 and -sse2 (g++-7)
@@ -2333,7 +2333,7 @@ double * ModelObject::GetDataVector( )
 {
   if (! dataValsSet) {
     fprintf(stderr, "* ModelObject::GetDataVector -- Image data values have not yet been supplied!\n\n");
-    return NULL;
+    return nullptr;
   }
   return dataVector;
 }

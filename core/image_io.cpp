@@ -68,7 +68,7 @@
  * include SaveVectorAsImage().
  */
 
-// Copyright 2010--2018 by Peter Erwin.
+// Copyright 2010--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -237,7 +237,7 @@ std::tuple<int, int, int> GetImageSize( const std::string filename, const bool v
 /// returns a pointer to the array; it also stores the image dimensions
 /// in the pointer-parameters nRows and nColumns.
 ///
-///    Returns NULL (and prints error message) if a CFITSIO-related error occurred.
+///    Returns nullptr (and prints error message) if a CFITSIO-related error occurred.
 double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRows,
 							const bool verbose )
 {
@@ -260,7 +260,7 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   if (validHDU_flag > 0)
     fits_open_file(&imfile_ptr, filename.c_str(), READONLY, &status);
   else
-    return NULL;
+    return nullptr;
 
   /* read the NAXIS1 and NAXIS2 keyword to get image size */
   problems = fits_read_keys_lng(imfile_ptr, "NAXIS", 1, 2, naxes, &nfound,
@@ -268,7 +268,7 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems reading FITS keywords from file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
-    return NULL;
+    return nullptr;
   }
   if (verbose)
     printf("ReadImageAsVector: Image keywords: NAXIS1 = %ld, NAXIS2 = %ld\n", naxes[0], naxes[1]);
@@ -281,12 +281,12 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
   
   // Read in the image data
   imageVector = fftw_alloc_real(nPixelsTot);
-  problems = fits_read_pix(imfile_ptr, TDOUBLE, firstPixel, nPixelsTot, NULL, imageVector,
-                            NULL, &status);
+  problems = fits_read_pix(imfile_ptr, TDOUBLE, firstPixel, nPixelsTot, nullptr, imageVector,
+                            nullptr, &status);
   if ( problems ) {
     fprintf(stderr, "\n*** WARNING: Problems reading pixel data from FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
-    return NULL;
+    return nullptr;
   }
 
   if (verbose)
@@ -297,7 +297,7 @@ double * ReadImageAsVector( const std::string filename, int *nColumns, int *nRow
     fprintf(stderr, "\n*** WARNING: Problems closing FITS file \"%s\"!\n    FITSIO error messages follow:", filename.c_str());
     PrintError(status);
     fftw_free(imageVector);
-    return NULL;
+    return nullptr;
   }
 
   return imageVector;
@@ -325,8 +325,8 @@ int SaveVectorAsImage( double *pixelVector, const std::string filename, int nCol
   status = problems = 0;
   
   // Check for bad input
-  if (pixelVector == NULL) {
-    fprintf(stderr, "\n*** WARNING: input image array to SaveVectorAsImage is NULL!\n");
+  if (pixelVector == nullptr) {
+    fprintf(stderr, "\n*** WARNING: input image array to SaveVectorAsImage is nullptr!\n");
     return -2;
   }
   

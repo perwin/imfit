@@ -16,8 +16,8 @@ static vector<PsfOversamplingInfo *> EMPTY_PSF_OVERSAMPLING_PTR_VECTOR;
 
 
 ModelObject* SetupModelObject( std::shared_ptr<OptionsBase> options, vector<int> nColumnsRowsVector, 
-					double *dataPixels, double *psfPixels=NULL, double *maskPixels=NULL, 
-					double *errorPixels=NULL, 
+					double *dataPixels, double *psfPixels=nullptr, double *maskPixels=nullptr, 
+					double *errorPixels=nullptr, 
 					vector<PsfOversamplingInfo *> psfOversampleInfoVect=EMPTY_PSF_OVERSAMPLING_PTR_VECTOR ); 
 
 
