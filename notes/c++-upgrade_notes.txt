@@ -1,0 +1,60 @@
+NOTES FOR FURTHER C++-11 REWRITES/REFACTORING:
+
+[X] Replace NULL with nullptr
+
+
+NOTES FOR POSSIBLE C+-17 REWRITES/REFACTORING:
+
+* How to compile things for C++-17 (i.e., how we ensure compiler gets a
+"-std=c++17" flag):
+$ scons --modern-cpp <target>
+
+
+Experiment with profilefit first, since that has its own input formats and
+most people don't know about it, so they won't try compiling it with the
+wrong compiler.
+
+[] std::optional ? (C++-17 equiv. of Haskell Maybe)
+		https://www.bfilipek.com/2018/05/using-optional.html
+		[x]clang++ -std=c++17
+
+		"It is recommended to use optional<T> in situations where there
+		is exactly one, clear (to all parties) reason for having no
+		value of type T, and where the lack of value is as natural as
+		having any regular value of T"
+
+[ ] Experiment with converting pointers used for oversampled PSFs to
+		C++-11 shared_ptr. A given PSF vector is then shared among:
+			* shared_ptr in PsfOversamplingInfo instance (shared_ptrs in
+			multiple PsfOversamplingInfo instances could all point to a
+			single pixel array)
+			* shared_ptr in ModelObject::AddOversampledPsfInfo (psfPixels_osamp)
+			* shared_ptr in OversampledRegion::AddPSFVector ?
+			* shared_ptr in Convolver instance (psfPixels)
+		TRICKY POINT: shared_ptrs by default call "delete" to de-allocate the
+		memory. Memory that's been allocated via malloc/calloc instead of via "new"
+		should have a "custom deleter" that calls "free"; this can be set up
+		via
+			std::shared_ptr<T> ptr(static_cast<T*>(malloc(sizeof(T))), free);
+		See, e.g., https://stackoverflow.com/questions/12264701/shared-ptr-with-malloc-and-free
+		
+		* REASON WHY WE CAN'T DO THIS: In C++-11 (and C++-14), shared_ptr objects
+		do *not* have array access via [], and so *cannot* be used in place of
+		standard C/C++ arrays! (Weirdly, unique_ptr *does* have this ability.
+		Also, there is a C++-17 proposal to add this to shared_ptr, but that's not
+		helpful now...)
+		
+		2024: We might try using C++-17 to allow [] access, since C++-17 is supported
+		from GCC 8 onwards.
+
+
+
+NOTES FOR HYPOTHETICAL C+-20 REWRITES:
+
+std::span = simple wrapper for an array that includes its size
+	NOTE that we could use the ISO C++ Guidelines Support Library (GSL)
+	to include use of (an equivalent to) span if we're still using a pre-C++-20
+	compiler. E.g., this single-header version:
+		https://github.com/gsl-lite/gsl-lite?tab=readme-ov-file
+	which lets us use "gsl::span"
+
