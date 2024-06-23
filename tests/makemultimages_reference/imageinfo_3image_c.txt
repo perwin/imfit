@@ -1,0 +1,38 @@
+# First is the reference image, for which we leave things like weight, PIXEL_SCALE,
+# FLUX_SCALE, and IMAGE_PA unspecified so they assume their default values
+#   	image-name	weight
+IMAGE_START
+DATA	n100_2mass.fit
+NCOLS		64
+NROWS		64
+GAIN			2.3
+READNOISE		4.5
+ORIGINAL_SKY	11.344
+
+# now we have the second image
+IMAGE_START
+DATA	n100_hst-acs-wfc_ss.fits[250:350,200:300]	1.0
+NCOLS		64
+NROWS		64
+GAIN		1.5
+READNOISE	0.6
+ORIGINAL_SKY	2.359
+PIXEL_SCALE		1.0		fixed   # pixels in this image are PIXEL_SCALE * reference image
+IMAGE_PA		0.0		fixed
+FLUX_SCALE		1.0		fixed
+X0				40
+Y0				40
+
+# third image
+IMAGE_START
+DATA	n100_hst-acs-wfc_ss.fits[250:350,200:300]	1.0
+NCOLS		64
+NROWS		64
+GAIN		1.0
+READNOISE	0.6
+ORIGINAL_SKY	2.359
+PIXEL_SCALE		1.0		fixed   # pixels in this image are PIXEL_SCALE * reference image
+IMAGE_PA		90.0		fixed   # this image is rotated 22.4 deg CCW w.r.t. reference image
+FLUX_SCALE		1.0		10,20   # flux should be multiplied by FLUX_SCALE
+X0				10
+Y0				20

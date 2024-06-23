@@ -1,0 +1,23 @@
+# image-info file for testing makemultimages
+#
+# First is the reference image, for which we leave things like weight, PIXEL_SCALE,
+# FLUX_SCALE, and IMAGE_PA unspecified so they assume their default values
+#   	image-name	weight
+IMAGE_START
+NCOLS		200
+NROWS		200
+
+# now we have the second image
+IMAGE_START
+NCOLS		200
+NROWS		200
+PSF		tests/psf_standard.fits
+OVERSAMPLED_PSF		tests/psf_oversamp.fits
+OVERSAMPLED_REGION	100:110,100:110
+OVERSAMPLED_REGION	40:45,30:40
+OVERSAMPLE_SCALE	3
+PIXEL_SCALE		1.0		fixed   # pixels in this image are PIXEL_SCALE * reference image
+IMAGE_PA		0.0		fixed
+FLUX_SCALE		1.0		fixed
+X0              105.2377
+Y0              105.4582

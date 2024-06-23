@@ -1,0 +1,14 @@
+# first function set: exponential + sersic, at (x0,y0) = (1,1)
+X0    31.0   0,4     # x-coordinate
+Y0    31.0   0,4
+FUNCTION   Exponential   # here is a comment
+PA    95.0   0,180   # this means we restrict PA to 0 <= PA <= 180
+ell    0.45  0,1
+I_0   90.0   0,1000
+h     15.0   0,1000
+FUNCTION   Sersic
+PA    90.0
+ell    0.2
+n      2.5
+I_e   10.0
+r_e   10.0

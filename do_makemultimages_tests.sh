@@ -50,32 +50,32 @@ rm temptest/multimage_diff-sizes*.fits
 rm temptest/multimage-with-imageinfo_*.fits
 
 # 3 images, one function block, using --image-info
-./makemultimages tests_for_makemultimage/config_for_globalparams.txt -o temptest/multimage-with-imageinfo --image-info=tests_for_makemultimage/imageinfo_3image.txt > temptest/test_dump2
+./makemultimages tests/makemultimages_reference/config_for_globalparams.txt -o temptest/multimage-with-imageinfo --image-info=tests/makemultimages_reference/imageinfo_3image.txt > temptest/test_dump2
 
-./makemultimages tests_for_makemultimage/config_for_globalparams.txt -o temptest/multimage-with-imageinfo_b --image-info=tests_for_makemultimage/imageinfo_3image_b.txt > temptest/test_dump2b
+./makemultimages tests/makemultimages_reference/config_for_globalparams.txt -o temptest/multimage-with-imageinfo_b --image-info=tests/makemultimages_reference/imageinfo_3image_b.txt > temptest/test_dump2b
 
-./makemultimages tests_for_makemultimage/config_for_globalparams.txt -o temptest/multimage-with-imageinfo_c --image-info=tests_for_makemultimage/imageinfo_3image_c.txt > temptest/test_dump2c
+./makemultimages tests/makemultimages_reference/config_for_globalparams.txt -o temptest/multimage-with-imageinfo_c --image-info=tests/makemultimages_reference/imageinfo_3image_c.txt > temptest/test_dump2c
 
-./makemultimages tests_for_makemultimage/config_for_globalparams.txt -o temptest/multimage-with-imageinfo_d --image-info=tests_for_makemultimage/imageinfo_3image_d.txt > temptest/test_dump2d
+./makemultimages tests/makemultimages_reference/config_for_globalparams.txt -o temptest/multimage-with-imageinfo_d --image-info=tests/makemultimages_reference/imageinfo_3image_d.txt > temptest/test_dump2d
 
-./makemultimages tests_for_makemultimage/config_for_globalparams.txt -o temptest/multimage-with-imageinfo_e --image-info=tests_for_makemultimage/imageinfo_3image_e.txt > temptest/test_dump2d
+./makemultimages tests/makemultimages_reference/config_for_globalparams.txt -o temptest/multimage-with-imageinfo_e --image-info=tests/makemultimages_reference/imageinfo_3image_e.txt > temptest/test_dump2d
 
 
 # model with two function blocks, 3 images (offsets only), using --image-info
-./makemultimages tests_for_makemultimage/config_for_globalparams_2blocks.txt -o temptest/multimage-with-imageinfo_2blocks --image-info=tests_for_makemultimage/imageinfo_3image.txt > temptest/test_dump3
+./makemultimages tests/makemultimages_reference/config_for_globalparams_2blocks.txt -o temptest/multimage-with-imageinfo_2blocks --image-info=tests/makemultimages_reference/imageinfo_3image.txt > temptest/test_dump3
 
 
 # model with 2 images, different sizes, using --image-info
-./makemultimages tests_for_makemultimage/config_for_globalparams_mult-sizes.txt -o temptest/multimage_diff-sizes --image-info=tests_for_makemultimage/imageinfo_2sizes.txt > temptest/test_dump5
+./makemultimages tests/makemultimages_reference/config_for_globalparams_mult-sizes.txt -o temptest/multimage_diff-sizes --image-info=tests/makemultimages_reference/imageinfo_2sizes.txt > temptest/test_dump5
 
 # model with 3 images, different sizes, 1st and 3rd with PSF, using --image-info
-./makemultimages tests_for_makemultimage/config_for_globalparams_mult-sizes.txt -o temptest/multimage_diff-sizes-psf --image-info=tests_for_makemultimage/imageinfo_3sizes-with-psf.txt > temptest/test_dump6
+./makemultimages tests/makemultimages_reference/config_for_globalparams_mult-sizes.txt -o temptest/multimage_diff-sizes-psf --image-info=tests/makemultimages_reference/imageinfo_3sizes-with-psf.txt > temptest/test_dump6
 
 # tests of PSF oversampling [NO COMPARISON WITH REFERENCE YET]
-./makemultimages tests/makeimage_reference/config_makeimage_gauss-oversample.dat --image-info tests_for_makemultimage/imageinfo_2sizes-with-oversampled-psf.txt -o temptest/multimage_osamp  > temptest/test_dump7a
+./makemultimages tests/makeimage_reference/config_makeimage_gauss-oversample.dat --image-info tests/makemultimages_reference/imageinfo_2sizes-with-oversampled-psf.txt -o temptest/multimage_osamp  > temptest/test_dump7a
 
 # tests of multi-region PSF oversampling [NO COMPARISON WITH REFERENCE YET]
-./makemultimages tests/makeimage_reference/config_makeimage_gauss-oversample.dat --image-info tests_for_makemultimage/imageinfo_2sizes-with-2oversampled-psf.txt -o temptest/multimage_2osamp  > temptest/test_dump7b
+./makemultimages tests/makeimage_reference/config_makeimage_gauss-oversample.dat --image-info tests/makemultimages_reference/imageinfo_2sizes-with-2oversampled-psf.txt -o temptest/multimage_2osamp  > temptest/test_dump7b
 
 
 
@@ -83,12 +83,12 @@ rm temptest/multimage-with-imageinfo_*.fits
 echo ""
 
 echo -n "*** Diff comparison with archives: printing function list... "
-if (diff --brief temptest/test_dump0 tests/makemultimages_textout0)
+if (diff --brief temptest/test_dump0 tests/makemultimages_reference/makemultimages_textout0)
 then
   echo " OK"
 else
   echo "Diff output:"
-  diff temptest/test_dump0 tests/makemultimages_textout0
+  diff temptest/test_dump0 tests/makemultimages_reference/makemultimages_textout0
   STATUS+=1
 fi
 
@@ -97,7 +97,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_0.
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_0.fits tests/multimagetest_0.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_0.fits tests/makemultimages_reference/multimagetest_0.fits
   STATUS+=$?
 fi
 
@@ -105,7 +105,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_1.
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_1.fits tests/multimagetest_1.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_1.fits tests/makemultimages_reference/multimagetest_1.fits
   STATUS+=$?
 fi
 
@@ -113,7 +113,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_2.
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_2.fits tests/multimagetest_2.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_2.fits tests/makemultimages_reference/multimagetest_2.fits
   STATUS+=$?
 fi
 
@@ -122,7 +122,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_b_
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_b_2.fits tests/multimagetest_2b.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_b_2.fits tests/makemultimages_reference/multimagetest_2b.fits
   STATUS+=$?
 fi
 
@@ -130,7 +130,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_c_
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_c_2.fits tests/multimagetest_2c.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_c_2.fits tests/makemultimages_reference/multimagetest_2c.fits
   STATUS+=$?
 fi
 
@@ -138,7 +138,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_d_
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_d_2.fits tests/multimagetest_2d.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_d_2.fits tests/makemultimages_reference/multimagetest_2d.fits
   STATUS+=$?
 fi
 
@@ -147,7 +147,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_e_
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_e_1.fits tests/multimagetest_1.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_e_1.fits tests/makemultimages_reference/multimagetest_1.fits
   STATUS+=$?
 fi
 
@@ -155,7 +155,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_e_
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_e_2.fits tests/multimagetest_2d.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_e_2.fits tests/makemultimages_reference/multimagetest_2d.fits
   STATUS+=$?
 fi
 
@@ -164,7 +164,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_2b
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_2blocks_0.fits tests/multimagetest_2blocks_0.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_2blocks_0.fits tests/makemultimages_reference/multimagetest_2blocks_0.fits
   STATUS+=$?
 fi
 
@@ -172,7 +172,7 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_2b
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_2blocks_1.fits tests/multimagetest_2blocks_offset_1.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_2blocks_1.fits tests/makemultimages_reference/multimagetest_2blocks_offset_1.fits
   STATUS+=$?
 fi
 
@@ -180,18 +180,18 @@ echo -n "*** Diff comparison of image with archives: multimage-with-imageinfo_2b
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_2blocks_2.fits tests/multimagetest_2blocks_offset_2.fits
+  ./python/compare_fits_files.py temptest/multimage-with-imageinfo_2blocks_2.fits tests/makemultimages_reference/multimagetest_2blocks_offset_2.fits
   STATUS+=$?
 fi
 
 
 # archive images generated by
-# makeimage[v1.4] -c tests_for_makemultimage/config_for_globalparams_2sizes.txt
+# makeimage[v1.4] -c tests/makemultimages_reference/config_for_globalparams_2sizes.txt
 echo -n "*** Diff comparison of image with archives: multimage_diff-sizes_0... "
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage_diff-sizes_0.fits tests/multimagetest_diff-sizes_0.fits
+  ./python/compare_fits_files.py temptest/multimage_diff-sizes_0.fits tests/makemultimages_reference/multimagetest_diff-sizes_0.fits
   STATUS+=$?
 fi
 
@@ -199,7 +199,7 @@ echo -n "*** Diff comparison of image with archives: multimage_diff-sizes_1... "
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage_diff-sizes_1.fits tests/multimagetest_diff-sizes_1.fits
+  ./python/compare_fits_files.py temptest/multimage_diff-sizes_1.fits tests/makemultimages_reference/multimagetest_diff-sizes_1.fits
   STATUS+=$?
 fi
 
@@ -210,7 +210,7 @@ echo -n "*** Diff comparison of image with archives: multimage_diff-sizes-psf_0.
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage_diff-sizes-psf_0.fits tests/multimagetest_diff-sizes-psf_0.fits
+  ./python/compare_fits_files.py temptest/multimage_diff-sizes-psf_0.fits tests/makemultimages_reference/multimagetest_diff-sizes-psf_0.fits
   STATUS+=$?
 fi
 
@@ -218,7 +218,7 @@ echo -n "*** Diff comparison of image with archives: multimage_diff-sizes-psf_1.
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage_diff-sizes-psf_1.fits tests/multimagetest_diff-sizes-psf_1.fits
+  ./python/compare_fits_files.py temptest/multimage_diff-sizes-psf_1.fits tests/makemultimages_reference/multimagetest_diff-sizes-psf_1.fits
   STATUS+=$?
 fi
 
@@ -226,7 +226,7 @@ echo -n "*** Diff comparison of image with archives: multimage_diff-sizes-psf_2.
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py temptest/multimage_diff-sizes-psf_2.fits tests/multimagetest_diff-sizes-psf_2.fits
+  ./python/compare_fits_files.py temptest/multimage_diff-sizes-psf_2.fits tests/makemultimages_reference/multimagetest_diff-sizes-psf_2.fits
   STATUS+=$?
 fi
 
