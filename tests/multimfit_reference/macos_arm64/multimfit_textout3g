@@ -28,23 +28,23 @@ Estimated memory use: 6400 bytes (6.2 KB)
 
 Performing fit by minimizing Poisson MLR statistic:
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 1901.411151
-	mpfit iteration 2: fit statistic = 1584.362903
-	mpfit iteration 3: fit statistic = 1532.430502
-	mpfit iteration 4: fit statistic = 1513.149986
-	mpfit iteration 5: fit statistic = 1506.845544
-	mpfit iteration 6: fit statistic = 1494.343953
-	mpfit iteration 7: fit statistic = 1469.583601
-	mpfit iteration 8: fit statistic = 1421.045750
-	mpfit iteration 9: fit statistic = 1326.072522
-	mpfit iteration 10: fit statistic = 1145.170035
-	mpfit iteration 11: fit statistic = 802.455813
-	mpfit iteration 12: fit statistic = 309.014601
-	mpfit iteration 13: fit statistic = 153.226167
-	mpfit iteration 14: fit statistic = 95.624468
-	mpfit iteration 15: fit statistic = 40.036770
-	mpfit iteration 16: fit statistic = 36.307797
-	mpfit iteration 17: fit statistic = 36.293184
+	mpfit iteration 1: fit statistic = 1901.378646
+	mpfit iteration 2: fit statistic = 1584.262959
+	mpfit iteration 3: fit statistic = 1532.461777
+	mpfit iteration 4: fit statistic = 1513.157418
+	mpfit iteration 5: fit statistic = 1506.862793
+	mpfit iteration 6: fit statistic = 1494.380797
+	mpfit iteration 7: fit statistic = 1469.658859
+	mpfit iteration 8: fit statistic = 1421.194695
+	mpfit iteration 9: fit statistic = 1326.365747
+	mpfit iteration 10: fit statistic = 1145.716253
+	mpfit iteration 11: fit statistic = 803.402525
+	mpfit iteration 12: fit statistic = 309.940948
+	mpfit iteration 13: fit statistic = 153.279947
+	mpfit iteration 14: fit statistic = 95.607458
+	mpfit iteration 15: fit statistic = 39.949457
+	mpfit iteration 16: fit statistic = 36.306931
+	mpfit iteration 17: fit statistic = 36.293183
 	mpfit iteration 18: fit statistic = 36.293171
 	mpfit iteration 19: fit statistic = 36.293171
 
@@ -65,7 +65,7 @@ X0		2.5074 # +/- 0.0162
 Y0		2.5387 # +/- 0.0209
 FUNCTION Gaussian
 PA		18.9275 # +/- 1.6147	deg (CCW from +y axis)
-ell		0.293349 # +/- 0.014349
+ell		0.293348 # +/- 0.014349
 I_0		995.157 # +/- 20.42	counts/pixel
 sigma		0.992435 # +/- 0.014688	pixels
 
@@ -93,19 +93,19 @@ Best-fit		 Bootstrap      [68% conf.int., half-width]; (mean +/- standard deviat
 PIXEL_SCALE = 1     [fixed parameter]
 ROTATION = 0     [fixed parameter]
 FLUX_SCALE = 1     [fixed parameter]
-X0 = 2.49087  +0.0129221, -0.00286677    [2.488 -- 2.50379, 0.00789442];  (2.49726 +/- 0.00790079)
-Y0 = 2.47574  +0.0366922, -0.0215646    [2.45417 -- 2.51243, 0.0291284];  (2.47399 +/- 0.0228414)
+X0 = 2.49087  +0.0129219, -0.00286684    [2.488 -- 2.50379, 0.00789439];  (2.49726 +/- 0.00790076)
+Y0 = 2.47574  +0.0366922, -0.0215645    [2.45417 -- 2.51243, 0.0291284];  (2.47399 +/- 0.0228414)
 # Model parameters:
-Y0 = 2.47574  +0.0366922, -0.0215646    [2.45417 -- 2.51243, 0.0291284];  (2.47399 +/- 0.0228414)
-X0 = 2.50736  +0.0177573, -0.0246261    [2.48273 -- 2.52512, 0.0211917];  (2.50171 +/- 0.0152172)
-Y0 = 2.53867  +0.0272355, -0.00953278    [2.52914 -- 2.56591, 0.0183841];  (2.55398 +/- 0.0149579)
-PA = 18.9275  +1.47082, -3.1609    [15.7666 -- 20.3983, 2.31586];  (18.0292 +/- 1.91501)
-ell = 0.293349  +-0.0109035, -0.0177403    [0.275608 -- 0.282445, 0.00341842];  (0.279485 +/- 0.00285833)
-I_0 = 995.157  +42.3583, --3.8385    [998.995 -- 1037.52, 19.2599];  (1014.03 +/- 15.3642)
-sigma = 0.992435  +-0.000478602, -0.0229735    [0.969461 -- 0.991956, 0.0112474];  (0.980082 +/- 0.00824588)
+Y0 = 2.47574  +0.0366922, -0.0215645    [2.45417 -- 2.51243, 0.0291284];  (2.47399 +/- 0.0228414)
+X0 = 2.50736  +0.0177574, -0.0246261    [2.48273 -- 2.52512, 0.0211917];  (2.50171 +/- 0.0152172)
+Y0 = 2.53867  +0.0272354, -0.00953272    [2.52914 -- 2.56591, 0.0183841];  (2.55398 +/- 0.0149578)
+PA = 18.9275  +1.4708, -3.16086    [15.7667 -- 20.3983, 2.31583];  (18.0292 +/- 1.91499)
+ell = 0.293348  +-0.0109036, -0.0177403    [0.275608 -- 0.282445, 0.00341835];  (0.279485 +/- 0.0028583)
+I_0 = 995.157  +42.3583, --3.83849    [998.995 -- 1037.52, 19.2599];  (1014.03 +/- 15.3642)
+sigma = 0.992435  +-0.000478653, -0.0229733    [0.969462 -- 0.991956, 0.0112473];  (0.980082 +/- 0.00824579)
 
 Bootstrap-resampling output saved to file "temptest/temp_multimfit_bootstrap_output.dat".
 
-(Elapsed time: 0.083240 sec for fit, 0.106022 for bootstrap, 0.192782 sec total)
+(Elapsed time: 0.033118 sec for fit, 0.037023 for bootstrap, 0.071331 sec total)
 Done!
 

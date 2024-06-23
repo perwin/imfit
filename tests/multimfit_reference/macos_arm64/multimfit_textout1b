@@ -27,15 +27,16 @@ Estimated memory use: 640 bytes (0.6 KB)
 Performing fit by minimizing chi^2:
 Calling Levenberg-Marquardt solver ...
 	mpfit iteration 1: fit statistic = 1.985294
+	mpfit iteration 2: fit statistic = 1.985294
 
-*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+*** mpfit status = 4 -- SUCCESS: Convergence in orthogonality.
   CHI-SQUARE = 1.985294    (5 DOF)
   INITIAL CHI^2 = 6.750000
         NPAR = 8
        NFREE = 3
      NPEGGED = 0
-     NITER = 2
-      NFEV = 9
+     NITER = 3
+      NFEV = 12
 
 Reduced Chi^2 = 0.397059
 AIC = 13.985294, BIC = 8.223619
@@ -60,6 +61,6 @@ Saving single-image best-fit parameter files (root name = "bestfit_parameters_mu
 	Saving bestfit_parameters_multimfit_image2.dat...
 Saving best-fit image-info file "bestfit_parameters_multimfit_imageinfo.dat"...
 
-(Elapsed time: 0.003546 sec for fit, 0.006063 sec total)
+(Elapsed time: 0.002906 sec for fit, 0.003958 sec total)
 Done!
 

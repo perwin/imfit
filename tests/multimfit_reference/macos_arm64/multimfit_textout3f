@@ -25,23 +25,23 @@ Estimated memory use: 6400 bytes (6.2 KB)
 
 Performing fit by minimizing Poisson MLR statistic:
 Calling Levenberg-Marquardt solver ...
-	mpfit iteration 1: fit statistic = 1901.411151
-	mpfit iteration 2: fit statistic = 1584.362903
-	mpfit iteration 3: fit statistic = 1532.430502
-	mpfit iteration 4: fit statistic = 1513.149986
-	mpfit iteration 5: fit statistic = 1506.845544
-	mpfit iteration 6: fit statistic = 1494.343953
-	mpfit iteration 7: fit statistic = 1469.583601
-	mpfit iteration 8: fit statistic = 1421.045750
-	mpfit iteration 9: fit statistic = 1326.072522
-	mpfit iteration 10: fit statistic = 1145.170035
-	mpfit iteration 11: fit statistic = 802.455813
-	mpfit iteration 12: fit statistic = 309.014601
-	mpfit iteration 13: fit statistic = 153.226167
-	mpfit iteration 14: fit statistic = 95.624468
-	mpfit iteration 15: fit statistic = 40.036770
-	mpfit iteration 16: fit statistic = 36.307797
-	mpfit iteration 17: fit statistic = 36.293184
+	mpfit iteration 1: fit statistic = 1901.378646
+	mpfit iteration 2: fit statistic = 1584.262959
+	mpfit iteration 3: fit statistic = 1532.461777
+	mpfit iteration 4: fit statistic = 1513.157418
+	mpfit iteration 5: fit statistic = 1506.862793
+	mpfit iteration 6: fit statistic = 1494.380797
+	mpfit iteration 7: fit statistic = 1469.658859
+	mpfit iteration 8: fit statistic = 1421.194695
+	mpfit iteration 9: fit statistic = 1326.365747
+	mpfit iteration 10: fit statistic = 1145.716253
+	mpfit iteration 11: fit statistic = 803.402525
+	mpfit iteration 12: fit statistic = 309.940948
+	mpfit iteration 13: fit statistic = 153.279947
+	mpfit iteration 14: fit statistic = 95.607458
+	mpfit iteration 15: fit statistic = 39.949457
+	mpfit iteration 16: fit statistic = 36.306931
+	mpfit iteration 17: fit statistic = 36.293183
 	mpfit iteration 18: fit statistic = 36.293171
 	mpfit iteration 19: fit statistic = 36.293171
 
@@ -62,7 +62,7 @@ X0		2.5074 # +/- 0.0162
 Y0		2.5387 # +/- 0.0209
 FUNCTION Gaussian
 PA		18.9275 # +/- 1.6147	deg (CCW from +y axis)
-ell		0.293349 # +/- 0.014349
+ell		0.293348 # +/- 0.014349
 I_0		995.157 # +/- 20.42	counts/pixel
 sigma		0.992435 # +/- 0.014688	pixels
 
@@ -80,6 +80,6 @@ Saving single-image best-fit parameter files (root name = "bestfit_parameters_mu
 	Saving bestfit_parameters_multimfit_image2.dat...
 Saving best-fit image-info file "bestfit_parameters_multimfit_imageinfo.dat"...
 
-(Elapsed time: 0.083492 sec for fit, 0.086280 sec total)
+(Elapsed time: 0.034498 sec for fit, 0.035568 sec total)
 Done!
 
