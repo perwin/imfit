@@ -1,0 +1,34 @@
+# Model config file = 
+#	tests/config_imfit_gauss-oversample-test2.dat -- 200x200, Gaussian centered at xxx
+#
+# $ cd imfit/overample_testing
+# $ makeimage config_makeimage_target_200_narrow_off-center.dat -o oversamp_test4.fits --psf psf_standard.fits --overpsf psf_oversamp10.fits --overpsf_scale 10 --overpsf_region 100:110,100:110
+# $ makeimage config_makeimage_target_200_narrow_off-center2.dat -o oversamp_test4b.fits --psf psf_standard.fits --overpsf psf_oversamp10.fits --overpsf_scale 10 --overpsf_region 50:60,60:70
+
+# First is the reference image, for which we leave things like weight, PIXEL_SCALE,
+# FLUX_SCALE, and IMAGE_PA unspecified so they assume their default values
+#       image-name
+IMAGE_START
+DATA    tests/multimfit_reference//oversamp_test4.fits
+ORIGINAL_SKY		0.0
+GAIN				100.0
+PSF             tests/psf_standard.fits
+OVERSAMPLED_PSF         tests/psf_oversamp.fits
+OVERSAMPLED_REGION      100:110,100:110
+OVERSAMPLE_SCALE        3
+
+# now we have the second image (same as first, except for Gaussian center at X0,Y0 = 55.2377,65.4582)
+
+IMAGE_START
+DATA    tests/multimfit_reference//oversamp_test4b.fits
+ORIGINAL_SKY		0.0
+GAIN				100.0
+PIXEL_SCALE             1.0			fixed   # pixels in this image are PIXEL_SCALE * reference image
+IMAGE_PA                0.0			fixed
+FLUX_SCALE              1.0		 	fixed
+X0                      54			50,60
+Y0                      64			60,70
+PSF             tests/psf_standard.fits
+OVERSAMPLED_PSF         tests/psf_oversamp.fits
+OVERSAMPLED_REGION      50:60,60:70
+OVERSAMPLE_SCALE        3

@@ -666,9 +666,8 @@ modelobject_sources = [name + ".cpp" for name in modelobject_objs]
 functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
         func_sersic func_gen-sersic func_core-sersic func_broken-exp
         func_broken-exp2d func_moffat func_flatsky func_tilted-sky-plane 
-        func_flatbar func_gaussian-ring 
-        func_gaussian-ring2side func_gaussian-ring-az func_edge-on-disk_n4762 
-        func_edge-on-disk_n4762v2 func_edge-on-ring func_edge-on-ring2side 
+        func_flatbar func_gaussian-ring func_gaussian-ring2side func_gaussian-ring-az  
+        func_edge-on-ring func_edge-on-ring2side 
         func_king func_king2 func_ferrersbar2d  func_peanut_dattathri
         helper_funcs helper_funcs_3d psf_interpolators"""
 #if useGSL:
@@ -705,6 +704,8 @@ if useExtraFuncs:
     functionobject_obj_string += " func_logspiral3"
     functionobject_obj_string += " func_logspiral_gauss"
     functionobject_obj_string += " func_logspiral_arc"
+    func_edge-on-disk_n4762
+    func_edge-on-disk_n4762v2 
     functionobject_obj_string += " func_polynomial_d1"
     functionobject_obj_string += " func_triaxbar3d"
     functionobject_obj_string += " func_triaxbar3d_sq"
@@ -821,6 +822,7 @@ if scanBuild:
     env_debug["ENV"].update(x for x in os.environ.items() if x[0].startswith("CCC_"))
 
 
+
 # *** Finally, define the actual targets for building
 # specify ".do" as the suffix for "full-debug" object code
 imfit_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(imfit_objs, imfit_sources) ]
@@ -839,8 +841,8 @@ env.Program("imfit-mcmc", mcmc_sources)
 multi_objlist = [ env.Object(obj, src) for (obj,src) in zip(makemultimages_objs, makemultimages_sources) ]
 env.Program("makemultimages", multi_objlist)
 
-# multimfit_objlist = [ env_multi.Object(obj, src) for (obj,src) in zip(multimfit_objs, multimfit_sources) ]
-# env_multi.Program("multimfit", multimfit_objlist)
+multimfit_objlist = [ env.Object(obj, src) for (obj,src) in zip(multimfit_objs, multimfit_sources) ]
+env.Program("multimfit", multimfit_objlist)
 
 
 # Run tests
@@ -850,7 +852,6 @@ env.Command("unit", None, "./run_unit_tests.sh")
 # All tests:
 env.Command("alltests", None, 
     "./run_unit_tests.sh ; ./do_makeimage_tests ; ./do_imfit_tests ; ./do_mcmc_tests")
-
 
 
 
@@ -923,6 +924,8 @@ profilefit_sources = profilefit_base_sources + modelobject1d_sources + functiono
 psfconvolve1d_objs = ["profile_fitting/psfconvolve1d_main", "core/commandline_parser", "core/utilities",
                     "profile_fitting/read_profile", "profile_fitting/convolver1d"]
 psfconvolve1d_sources = [name + ".cpp" for name in psfconvolve1d_objs]
+
+
 
 
 

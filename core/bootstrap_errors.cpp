@@ -9,7 +9,7 @@
  * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
-// Copyright 2013-2024 by Peter Erwin.
+// Copyright 2013-2019 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -38,6 +38,7 @@
 #include <tuple>
 
 #include "definitions.h"
+#include "definitions_multimage.h"
 #include "model_object.h"
 #include "levmar_fit.h"
 #ifndef NO_NLOPT
@@ -56,6 +57,9 @@ using namespace std;
 const int MIN_ITERATIONS_FOR_STATISTICS = 3;
 const int PROGRESS_BAR_WIDTH = 80;
 
+const vector<string> imageParamLabels = {"PIXEL_SCALE", "ROTATION", "FLUX_SCALE",
+										"X0", "Y0"};
+
 
 /* ------------------- Function Prototypes ----------------------------- */
 
@@ -63,6 +67,11 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
 					double **outputParamArray, FILE *outputFile_ptr, unsigned long rngSeed=0 );
+void PrintBootstrapSummary( const double *bestfitParams, double **outputParamArray, int nParams, 
+				int nIterations, vector<mp_par> parameterLimits, ModelObject *theModel );
+void PrintBootstrapSummaryMultimfit( const double *bestfitParams, double **outputParamArray, 
+				int nParams, int nIterations, vector<mp_par> parameterLimits, 
+				ModelObject *theModel );
 
 
 
@@ -70,19 +79,18 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
 /* ---------------- FUNCTION: BootstrapErrors -------------------------- */
 /// Primary wrapper function (meant to be called from main() in imfit_main.cpp, etc.).
 /// If saving of all best-fit parameters to file is requested, then outputFile_ptr
-/// should be non-nullptr (i.e., should point to a file object opened for writing, possibly
+/// should be non-NULL (i.e., should point to a file object opened for writing, possibly
 /// with header information already written).
 /// Returns the number of (successful) bootstrap iterations, or returns -1 if error
 /// encountered.
 int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits, 
 					const bool paramLimitsExist, ModelObject *theModel, const double ftol, 
 					const int nIterations, const int nFreeParams, const int whichStatistic, 
-					FILE *outputFile_ptr, unsigned long rngSeed )
+					FILE *outputFile_ptr, unsigned long rngSeed, bool multimfitMode )
 {
   double  *paramSigmas;
-  double  *bestfitParams_offsetCorrected, *paramOffsets;
   double **outputParamArray;
-  double  lower, upper, plus, minus, halfwidth;
+//   double  lower, upper, plus, minus, halfwidth;
   int  i, nSuccessfulIterations;
   int  nParams = theModel->GetNParams();
 
@@ -96,11 +104,11 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
   for (i = 0; i < nParams; i++)
     outputParamArray[i] = (double *)calloc( (size_t)nIterations, sizeof(double) );
 
-  paramOffsets = (double *) calloc(nParams, sizeof(double));
-  bestfitParams_offsetCorrected = (double *) calloc(nParams, sizeof(double));
+//   paramOffsets = (double *) calloc(nParams, sizeof(double));
+//   bestfitParams_offsetCorrected = (double *) calloc(nParams, sizeof(double));
   
   // write column header info to file, if user requested saving to file
-  if (outputFile_ptr != nullptr) {
+  if (outputFile_ptr != NULL) {
     string  headerLine = theModel->GetParamHeader();
     fprintf(outputFile_ptr, "#\n# Bootstrap resampling output (%d iterations requested):\n%s\n", 
    			nIterations, headerLine.c_str());
@@ -117,44 +125,25 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
   else {
     // Apply image-offset corrections to best-fit parameters, so their values
     // get printed corrected
-    theModel->GetImageOffsets(paramOffsets);
-    for (i = 0; i < nParams; i++)
-      bestfitParams_offsetCorrected[i] = bestfitParams[i] + paramOffsets[i];
+//     theModel->GetImageOffsets(paramOffsets);
+//     for (i = 0; i < nParams; i++)
+//       bestfitParams_offsetCorrected[i] = bestfitParams[i] + paramOffsets[i];
     
     // Calculate sigmas and 68% confidence intervals for the parameters
     // vector to hold estimated sigmas for each parameter
-    paramSigmas = (double *)calloc( (size_t)nParams, sizeof(double) );
-    for (i = 0; i < nParams; i++)
-      paramSigmas[i] = StandardDeviation(outputParamArray[i], nSuccessfulIterations);
-    // Print parameter values + standard deviations, for non-fixed parameters
-    // (note that calling ConfidenceInterval() sorts the vectors in place!)
-    printf("\nStatistics for parameter values from bootstrap resampling");
-    printf(" (%d successful iterations):\n", nSuccessfulIterations);
-    printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
-    for (i = 0; i < nParams; i++) {
-      if (parameterLimits[i].fixed == 0) {
-        std::tie(lower, upper) = ConfidenceInterval(outputParamArray[i], nSuccessfulIterations);
-        plus = upper - bestfitParams_offsetCorrected[i];
-        minus = bestfitParams_offsetCorrected[i] - lower;
-        halfwidth = (upper - lower)/2.0;
-        printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", 
-               theModel->GetParameterName(i).c_str(), 
-               bestfitParams_offsetCorrected[i], plus, minus, lower, upper, halfwidth,
-               Mean(outputParamArray[i], nSuccessfulIterations), paramSigmas[i]);
-      }
-      else {
-        printf("%s = %g     [fixed parameter]\n", theModel->GetParameterName(i).c_str(),
-                    bestfitParams_offsetCorrected[i]);
-      }
-    }
-    free(paramSigmas);
+    if (multimfitMode)
+      PrintBootstrapSummaryMultimfit(bestfitParams, outputParamArray, nParams, nIterations, 
+    								parameterLimits, theModel);
+    else
+      PrintBootstrapSummary(bestfitParams, outputParamArray, nParams, nIterations, 
+    						parameterLimits, theModel);
   }
 
   for (i = 0; i < nParams; i++)
     free(outputParamArray[i]);
   free(outputParamArray);
-  free(paramOffsets);
-  free(bestfitParams_offsetCorrected);
+//   free(paramOffsets);
+//   free(bestfitParams_offsetCorrected);
 
   return nSuccessfulIterations;
 }
@@ -164,7 +153,7 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
 /* ---------------- FUNCTION: BootstrapErrorsBase ---------------------- */
 /// Base function called by the wrapper functions (above), which does the main work
 /// of overseeing the bootstrap resampling.
-/// Saving individual best-fit vales to file is done *if* outputFile_ptr != nullptr.
+/// Saving individual best-fit vales to file is done *if* outputFile_ptr != NULL.
 /// Returns the number of successful iterations performed (-1 if an error was
 /// encountered)
 int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLimits, 
@@ -180,13 +169,13 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
   bool  saveToFile = false;
   string  outputLine, iterTemplate;
 
-  if (outputFile_ptr != nullptr)
+  if (outputFile_ptr != NULL)
     saveToFile = true;
   
   if (rngSeed > 0)
     init_genrand(rngSeed);
   else
-    init_genrand((unsigned long)time((time_t *)nullptr));
+    init_genrand((unsigned long)time((time_t *)NULL));
 
   paramsVect = (double *) calloc(nParams, sizeof(double));
   paramOffsets = (double *) calloc(nParams, sizeof(double));
@@ -282,7 +271,7 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parame
   if (rngSeed > 0)
     init_genrand(rngSeed);
   else
-    init_genrand((unsigned long)time((time_t *)nullptr));
+    init_genrand((unsigned long)time((time_t *)NULL));
 
   paramsVect = (double *) calloc(nParams, sizeof(double));
   paramOffsets = (double *) calloc(nParams, sizeof(double));
@@ -346,6 +335,103 @@ int BootstrapErrorsArrayOnly( const double *bestfitParams, vector<mp_par> parame
   return nSuccessfulIters;
 }
 
+
+void PrintBootstrapSummary( const double *bestfitParams, double **outputParamArray, int nParams, 
+				int nIterations, vector<mp_par> parameterLimits, ModelObject *theModel )
+{
+  double  lower, upper, plus, minus, halfwidth;
+  double  *paramSigmas;
+  int  i;
+  
+  paramSigmas = (double *)calloc( (size_t)nParams, sizeof(double) );
+  for (i = 0; i < nParams; i++)
+    paramSigmas[i] = StandardDeviation(outputParamArray[i], nIterations);
+  // Print parameter values + standard deviations, for non-fixed parameters
+  // (note that calling ConfidenceInterval() sorts the vectors in place!)
+  printf("\nStatistics for parameter values from bootstrap resampling");
+  printf(" (%d successful iterations):\n", nIterations);
+  printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
+  for (i = 0; i < nParams; i++) {
+    if (parameterLimits[i].fixed == 0) {
+      std::tie(lower, upper) = ConfidenceInterval(outputParamArray[i], nIterations);
+      plus = upper - bestfitParams[i];
+      minus = bestfitParams[i] - lower;
+      halfwidth = (upper - lower)/2.0;
+      printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", 
+             theModel->GetParameterName(i).c_str(), 
+             bestfitParams[i], plus, minus, lower, upper, halfwidth,
+             Mean(outputParamArray[i], nIterations), paramSigmas[i]);
+    }
+    else {
+      printf("%s = %g     [fixed parameter]\n", theModel->GetParameterName(i).c_str(),
+                  bestfitParams[i]);
+    }
+  }
+  free(paramSigmas);
+}
+
+
+
+void PrintBootstrapSummaryMultimfit( const double *bestfitParams, double **outputParamArray, 
+				int nParams, int nIterations, vector<mp_par> parameterLimits, 
+				ModelObject *theModel )
+{
+  double  lower, upper, plus, minus, halfwidth;
+  double  *paramSigmas;
+  int  i, i_last, nImages;
+  
+  nImages = theModel->GetNImages();
+  
+  paramSigmas = (double *)calloc( (size_t)nParams, sizeof(double) );
+  for (i = 0; i < nParams; i++)
+    paramSigmas[i] = StandardDeviation(outputParamArray[i], nIterations);
+  // Print parameter values + standard deviations, for non-fixed parameters
+  // (note that calling ConfidenceInterval() sorts the vectors in place!)
+  printf("\nStatistics for parameter values from bootstrap resampling");
+  printf(" (%d successful iterations):\n", nIterations);
+  printf("Best-fit\t\t Bootstrap      [68%% conf.int., half-width]; (mean +/- standard deviation)\n");
+  
+  i = -1;
+  // print results for image-description parameters (for 2nd and subsequent images)
+  for (int n = 1; n < nImages; n++) {
+    printf("# Image-description parameters for image %d:\n", n + 1);
+    for (int j = 0; j < N_IMAGE_PARAMS; j++) {
+      i += 1;
+      if (parameterLimits[i].fixed == 0) {
+        std::tie(lower, upper) = ConfidenceInterval(outputParamArray[i], nIterations);
+        plus = upper - bestfitParams[i];
+        minus = bestfitParams[i] - lower;
+        halfwidth = (upper - lower)/2.0;
+        printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", imageParamLabels[i].c_str(),
+      	       	bestfitParams[i], plus, minus, lower, upper, halfwidth,
+        		Mean(outputParamArray[i], nIterations), paramSigmas[i]);
+      }
+      else
+        printf("%s = %g     [fixed parameter]\n", imageParamLabels[i].c_str(),
+        		bestfitParams[i]);
+    }
+  }
+  
+  // now print results for model parameters
+  i_last = i;
+  printf("# Model parameters:\n");
+  for (i = i_last; i < nParams; i++) {
+    if (parameterLimits[i].fixed == 0) {
+      std::tie(lower, upper) = ConfidenceInterval(outputParamArray[i], nIterations);
+      plus = upper - bestfitParams[i];
+      minus = bestfitParams[i] - lower;
+      halfwidth = (upper - lower)/2.0;
+      printf("%s = %g  +%g, -%g    [%g -- %g, %g];  (%g +/- %g)\n", 
+      	 		theModel->GetParameterName(i).c_str(), bestfitParams[i], plus, minus, 
+        		lower, upper, halfwidth, Mean(outputParamArray[i], nIterations), paramSigmas[i]);
+    }
+    else
+      printf("%s = %g     [fixed parameter]\n", theModel->GetParameterName(i).c_str(),
+               bestfitParams[i]);
+  }
+
+  free(paramSigmas);
+}
 
 
 /* END OF FILE: bootstrap_errors.cpp ----------------------------------- */

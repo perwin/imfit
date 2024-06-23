@@ -1,0 +1,111 @@
+	* Using Poisson maximum-likelihood-ratio statistic instead of chi^2 for minimization!
+	configuration file = tests/multimfit_reference/config_imfit_smallgauss.dat
+	number of bootstrap iterations = 5
+	bootstrap best-fit parameters to be saved in temptest/temp_multimfit_bootstrap_output.dat
+	RNG seed = 10
+Image-description params from image-info file "tests/multimfit_reference/imageinfo_multimfit3d.txt": 1.0 0.0 1.0 2.0 2.0 
+Reading data image ("tests/multimfit_reference/smallgauss_5x5_0.fits") ...
+naxis1 [# pixels/row] = 5, naxis2 [# pixels/col] = 5; nPixels_tot = 25
+Function: Gaussian
+Reading data image ("tests/multimfit_reference/smallgauss_5x5_1.fits") ...
+naxis1 [# pixels/row] = 5, naxis2 [# pixels/col] = 5; nPixels_tot = 25
+Function: Gaussian
+main: theMultImageModel has 2 data images (ModelObject instances)
+ModelObjectMultImage: 50 total data values
+   ModelObject 1: Model Object: 25 data values (pixels)
+   ModelObject 2: Model Object: 25 data values (pixels)
+Function: Gaussian
+(global) parameterList:  2.00 2.00 0.00 0.10 900.00 1.50
+11 total parameters in ModelObjectMultImage
+ModelObjectMultImage: 50 total data values
+   ModelObject 1: Model Object: 25 data values (pixels)
+   ModelObject 2: Model Object: 25 data values (pixels)
+ModelObject: mask vector applied to weight vector. (25 valid pixels remain)
+ModelObject: mask vector applied to weight vector. (25 valid pixels remain)
+Setting up parameter information vector ...
+8 free parameters (42 degrees of freedom)
+Estimated memory use: 6400 bytes (6.2 KB)
+
+Performing fit by minimizing Poisson MLR statistic:
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 1901.411151
+	mpfit iteration 2: fit statistic = 1584.362903
+	mpfit iteration 3: fit statistic = 1532.430502
+	mpfit iteration 4: fit statistic = 1513.149986
+	mpfit iteration 5: fit statistic = 1506.845544
+	mpfit iteration 6: fit statistic = 1494.343953
+	mpfit iteration 7: fit statistic = 1469.583601
+	mpfit iteration 8: fit statistic = 1421.045750
+	mpfit iteration 9: fit statistic = 1326.072522
+	mpfit iteration 10: fit statistic = 1145.170035
+	mpfit iteration 11: fit statistic = 802.455813
+	mpfit iteration 12: fit statistic = 309.014601
+	mpfit iteration 13: fit statistic = 153.226167
+	mpfit iteration 14: fit statistic = 95.624468
+	mpfit iteration 15: fit statistic = 40.036770
+	mpfit iteration 16: fit statistic = 36.307797
+	mpfit iteration 17: fit statistic = 36.293184
+	mpfit iteration 18: fit statistic = 36.293171
+	mpfit iteration 19: fit statistic = 36.293171
+
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+  POISSON-MLR STATISTIC = 36.293171    (42 DOF)
+  INITIAL POISSON-MLR STATISTIC = 5805.518354
+        NPAR = 11
+       NFREE = 8
+     NPEGGED = 0
+     NITER = 20
+      NFEV = 172
+
+Reduced Chi^2 equivalent = 0.864123
+AIC = 55.805366, BIC = 67.589355
+
+# Main model parameters (for reference image = image 1 (tests/multimfit_reference/smallgauss_5x5_0.fits))
+X0		2.5074 # +/- 0.0162
+Y0		2.5387 # +/- 0.0209
+FUNCTION Gaussian
+PA		18.9275 # +/- 1.6147	deg (CCW from +y axis)
+ell		0.293349 # +/- 0.014349
+I_0		995.157 # +/- 20.42	counts/pixel
+sigma		0.992435 # +/- 0.014688	pixels
+
+# Image-description parameters for image 2 (tests/multimfit_reference/smallgauss_5x5_1.fits)
+PIXEL_SCALE		      1 # +/- 0
+ROTATION		      0 # +/- 0
+FLUX_SCALE		      1 # +/- 0
+X0		2.49087 # +/- 0.01617
+Y0		2.47574 # +/- 0.021056
+
+
+Saving summary of fit in bestfit_parameters_multimfit_summary.dat...
+Saving single-image best-fit parameter files (root name = "bestfit_parameters_multimfit"):
+	Saving bestfit_parameters_multimfit_refimage.dat (for reference image)...
+	Saving bestfit_parameters_multimfit_image2.dat...
+Saving best-fit image-info file "bestfit_parameters_multimfit_imageinfo.dat"...
+
+Now doing bootstrap resampling (5 iterations) to estimate errors...
+Starting bootstrap iterations (L-M solver):
+[================>                                                               ] 1 (20.0%)[================================>                                               ] 2 (40.0%)[================================================>                               ] 3 (60.0%)[================================================================>               ] 4 (80.0%)[================================================================================] 5 (100.0%)
+
+Statistics for parameter values from bootstrap resampling (5 successful iterations):
+Best-fit		 Bootstrap      [68% conf.int., half-width]; (mean +/- standard deviation)
+# Image-description parameters for image 2:
+PIXEL_SCALE = 1     [fixed parameter]
+ROTATION = 0     [fixed parameter]
+FLUX_SCALE = 1     [fixed parameter]
+X0 = 2.49087  +0.0129221, -0.00286677    [2.488 -- 2.50379, 0.00789442];  (2.49726 +/- 0.00790079)
+Y0 = 2.47574  +0.0366922, -0.0215646    [2.45417 -- 2.51243, 0.0291284];  (2.47399 +/- 0.0228414)
+# Model parameters:
+Y0 = 2.47574  +0.0366922, -0.0215646    [2.45417 -- 2.51243, 0.0291284];  (2.47399 +/- 0.0228414)
+X0 = 2.50736  +0.0177573, -0.0246261    [2.48273 -- 2.52512, 0.0211917];  (2.50171 +/- 0.0152172)
+Y0 = 2.53867  +0.0272355, -0.00953278    [2.52914 -- 2.56591, 0.0183841];  (2.55398 +/- 0.0149579)
+PA = 18.9275  +1.47082, -3.1609    [15.7666 -- 20.3983, 2.31586];  (18.0292 +/- 1.91501)
+ell = 0.293349  +-0.0109035, -0.0177403    [0.275608 -- 0.282445, 0.00341842];  (0.279485 +/- 0.00285833)
+I_0 = 995.157  +42.3583, --3.8385    [998.995 -- 1037.52, 19.2599];  (1014.03 +/- 15.3642)
+sigma = 0.992435  +-0.000478602, -0.0229735    [0.969461 -- 0.991956, 0.0112474];  (0.980082 +/- 0.00824588)
+
+Bootstrap-resampling output saved to file "temptest/temp_multimfit_bootstrap_output.dat".
+
+(Elapsed time: 0.083240 sec for fit, 0.106022 for bootstrap, 0.192782 sec total)
+Done!
+

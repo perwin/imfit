@@ -1,0 +1,41 @@
+	* No fitting will be done!
+	configuration file = tests/multimfit_reference/config_imfit_smalldataimages.dat
+Image-description params from image-info file "tests/multimfit_reference/imageinfo_multimfit0.txt": 1.0 0.0 1.0 2.0 2.0 
+Reading data image ("tests/multimfit_reference/smallDataImage1a.fits") ...
+naxis1 [# pixels/row] = 2, naxis2 [# pixels/col] = 2; nPixels_tot = 4
+* No noise image supplied ... will generate noise image from input data image.
+Function: FlatSky
+Reading data image ("tests/multimfit_reference/smallDataImage1b.fits") ...
+naxis1 [# pixels/row] = 2, naxis2 [# pixels/col] = 2; nPixels_tot = 4
+* No noise image supplied ... will generate noise image from input data image.
+Function: FlatSky
+main: theMultImageModel has 2 data images (ModelObject instances)
+ModelObjectMultImage: 8 total data values
+   ModelObject 1: Model Object: 4 data values (pixels)
+   ModelObject 2: Model Object: 4 data values (pixels)
+Function: FlatSky
+(global) parameterList:  1.00 1.00 1.00
+8 total parameters in ModelObjectMultImage
+ModelObjectMultImage: 8 total data values
+   ModelObject 1: Model Object: 4 data values (pixels)
+   ModelObject 2: Model Object: 4 data values (pixels)
+ModelObject: mask vector applied to weight vector. (4 valid pixels remain)
+ModelObject: mask vector applied to weight vector. (4 valid pixels remain)
+Setting up parameter information vector ...
+3 free parameters (5 degrees of freedom)
+Estimated memory use: 640 bytes (0.6 KB)
+
+  CHI-SQUARE = 6.750000    (5 DOF)
+
+Reduced Chi^2 = 1.350000
+AIC = 18.750000, BIC = 12.988325
+
+
+Saving single-image best-fit parameter files (root name = "bestfit_parameters_multimfit"):
+	Saving bestfit_parameters_multimfit_refimage.dat (for reference image)...
+	Saving bestfit_parameters_multimfit_image2.dat...
+Saving best-fit image-info file "bestfit_parameters_multimfit_imageinfo.dat"...
+
+(Elapsed time: 0.002754 sec)
+Done!
+

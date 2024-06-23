@@ -1,0 +1,122 @@
+	* Nelder-Mead simplex solver selected!
+	configuration file = tests/multimfit_reference/config_imfit_smallgauss.dat
+Image-description params from image-info file "tests/multimfit_reference/imageinfo_multimfit3_noerror.txt": 1.0 0.0 1.0 2.0 2.0 
+Reading data image ("tests/multimfit_reference/smallgauss_5x5_0.fits") ...
+naxis1 [# pixels/row] = 5, naxis2 [# pixels/col] = 5; nPixels_tot = 25
+* No noise image supplied ... will generate noise image from input data image.
+Function: Gaussian
+Reading data image ("tests/multimfit_reference/smallgauss_5x5_1.fits") ...
+naxis1 [# pixels/row] = 5, naxis2 [# pixels/col] = 5; nPixels_tot = 25
+* No noise image supplied ... will generate noise image from input data image.
+Function: Gaussian
+main: theMultImageModel has 2 data images (ModelObject instances)
+ModelObjectMultImage: 50 total data values
+   ModelObject 1: Model Object: 25 data values (pixels)
+   ModelObject 2: Model Object: 25 data values (pixels)
+Function: Gaussian
+(global) parameterList:  2.00 2.00 0.00 0.10 900.00 1.50
+11 total parameters in ModelObjectMultImage
+ModelObjectMultImage: 50 total data values
+   ModelObject 1: Model Object: 25 data values (pixels)
+   ModelObject 2: Model Object: 25 data values (pixels)
+ModelObject: mask vector applied to weight vector. (25 valid pixels remain)
+ModelObject: mask vector applied to weight vector. (25 valid pixels remain)
+Setting up parameter information vector ...
+8 free parameters (42 degrees of freedom)
+Estimated memory use: 1600 bytes (1.6 KB)
+
+Performing fit by minimizing chi^2:
+Calling Nelder-Mead Simplex solver ..
+	N-M simplex: function call 20: objective = 9121.822708
+	N-M simplex: function call 40: objective = 2003.177438
+	N-M simplex: function call 60: objective = 539.241874
+	N-M simplex: function call 80: objective = 456.805700
+	N-M simplex: function call 100: objective = 337.476572
+	N-M simplex: function call 120: objective = 325.535756
+	N-M simplex: function call 140: objective = 308.757595
+	N-M simplex: function call 160: objective = 290.672575
+	N-M simplex: function call 180: objective = 256.649029
+	N-M simplex: function call 200: objective = 242.495236
+	N-M simplex: function call 220: objective = 221.767871
+	N-M simplex: function call 240: objective = 214.537058
+	N-M simplex: function call 260: objective = 209.484684
+	N-M simplex: function call 280: objective = 204.227057
+	N-M simplex: function call 300: objective = 199.436388
+	N-M simplex: function call 320: objective = 197.698139
+	N-M simplex: function call 340: objective = 190.869305
+	N-M simplex: function call 360: objective = 183.364044
+	N-M simplex: function call 380: objective = 182.070997
+	N-M simplex: function call 400: objective = 180.617263
+	N-M simplex: function call 420: objective = 179.457071
+	N-M simplex: function call 440: objective = 179.343720
+	N-M simplex: function call 460: objective = 179.162011
+	N-M simplex: function call 480: objective = 178.671145
+	N-M simplex: function call 500: objective = 177.268307
+	N-M simplex: function call 520: objective = 172.776687
+	N-M simplex: function call 540: objective = 158.959754
+	N-M simplex: function call 560: objective = 122.961091
+	N-M simplex: function call 580: objective = 92.531025
+	N-M simplex: function call 600: objective = 74.639776
+	N-M simplex: function call 620: objective = 60.076030
+	N-M simplex: function call 640: objective = 49.773653
+	N-M simplex: function call 660: objective = 46.308390
+	N-M simplex: function call 680: objective = 44.817594
+	N-M simplex: function call 700: objective = 38.651756
+	N-M simplex: function call 720: objective = 39.138748
+	N-M simplex: function call 740: objective = 37.820878
+	N-M simplex: function call 760: objective = 37.487096
+	N-M simplex: function call 780: objective = 37.335437
+	N-M simplex: function call 800: objective = 37.261246
+	N-M simplex: function call 820: objective = 37.077210
+	N-M simplex: function call 840: objective = 36.977322
+	N-M simplex: function call 860: objective = 37.003763
+	N-M simplex: function call 880: objective = 36.923593
+	N-M simplex: function call 900: objective = 36.903458
+	N-M simplex: function call 920: objective = 36.902128
+	N-M simplex: function call 940: objective = 36.898537
+	N-M simplex: function call 960: objective = 36.897972
+	N-M simplex: function call 980: objective = 36.897698
+	N-M simplex: function call 1000: objective = 36.897718
+	N-M simplex: function call 1020: objective = 36.897683
+	N-M simplex: function call 1040: objective = 36.897659
+	N-M simplex: function call 1060: objective = 36.897634
+	N-M simplex: function call 1080: objective = 36.897625
+	N-M simplex: function call 1100: objective = 36.897616
+	N-M simplex: function call 1120: objective = 36.897615
+	N-M simplex: function call 1140: objective = 36.897614
+	N-M simplex: function call 1160: objective = 36.897611
+	N-M simplex: function call 1180: objective = 36.897610
+Nelder-Mead Simplex: status = 3 -- SUCCESS: ftol_rel or ftol_abs reached
+
+  CHI-SQUARE = 36.897610
+  NFEV = 1182
+
+Reduced Chi^2 = 0.878515
+AIC = 56.409805, BIC = 68.193794
+
+# Main model parameters (for reference image = image 1 (tests/multimfit_reference/smallgauss_5x5_0.fits))
+X0		2.5062
+Y0		2.5372
+FUNCTION Gaussian
+PA		18.8741		# deg (CCW from +y axis)
+ell		0.293693
+I_0		996.289		# counts/pixel
+sigma		0.990537		# pixels
+
+# Image-description parameters for image 2 (tests/multimfit_reference/smallgauss_5x5_1.fits)
+PIXEL_SCALE		      1
+ROTATION		      0
+FLUX_SCALE		      1
+X0		2.48935
+Y0		2.47739
+
+
+Saving summary of fit in bestfit_parameters_multimfit_summary.dat...
+Saving single-image best-fit parameter files (root name = "bestfit_parameters_multimfit"):
+	Saving bestfit_parameters_multimfit_refimage.dat (for reference image)...
+	Saving bestfit_parameters_multimfit_image2.dat...
+Saving best-fit image-info file "bestfit_parameters_multimfit_imageinfo.dat"...
+
+(Elapsed time: 0.671886 sec for fit, 0.675087 sec total)
+Done!
+

@@ -1,0 +1,10 @@
+GAIN			1
+ORIGINAL_SKY	100
+
+X0		2		0,5
+Y0		2		0,5
+FUNCTION Gaussian
+PA		0		-50,50
+ell		0.1		0,0.6
+I_0		900		500,1500
+sigma	1.5		0.1,3

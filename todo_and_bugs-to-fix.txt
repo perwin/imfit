@@ -14,15 +14,17 @@
 	
 	[X] Check that imfit & makeimage still work
 	
-	[ ] Update add_functions.cpp
+	[..] Update add_functions.cpp
 		[ ] May need to update defintion or calls to AddFunctions() in PyImfit
 			-- we added optional final parameter globalFuncFlags
 	
-	[ ] Check that imfit & makeimage still work
+	[X] Check that imfit & makeimage still work
 	
-	[ ] Continue trying to compile makemultimages
+	[X] Continue trying to compile makemultimages
 	
 	[ ] Copy in tests and test files from multimfit
+		[ ] tests for makemultimages
+		[ ] tests for multimfit
 
 
 [ ] Copy extra functions from imfit_hg to imfit

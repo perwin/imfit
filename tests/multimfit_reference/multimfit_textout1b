@@ -1,0 +1,65 @@
+	configuration file = tests/multimfit_reference/config_imfit_smalldataimages.dat
+Image-description params from image-info file "tests/multimfit_reference/imageinfo_multimfit0.txt": 1.0 0.0 1.0 2.0 2.0 
+Reading data image ("tests/multimfit_reference/smallDataImage1a.fits") ...
+naxis1 [# pixels/row] = 2, naxis2 [# pixels/col] = 2; nPixels_tot = 4
+* No noise image supplied ... will generate noise image from input data image.
+Function: FlatSky
+Reading data image ("tests/multimfit_reference/smallDataImage1b.fits") ...
+naxis1 [# pixels/row] = 2, naxis2 [# pixels/col] = 2; nPixels_tot = 4
+* No noise image supplied ... will generate noise image from input data image.
+Function: FlatSky
+main: theMultImageModel has 2 data images (ModelObject instances)
+ModelObjectMultImage: 8 total data values
+   ModelObject 1: Model Object: 4 data values (pixels)
+   ModelObject 2: Model Object: 4 data values (pixels)
+Function: FlatSky
+(global) parameterList:  1.00 1.00 1.00
+8 total parameters in ModelObjectMultImage
+ModelObjectMultImage: 8 total data values
+   ModelObject 1: Model Object: 4 data values (pixels)
+   ModelObject 2: Model Object: 4 data values (pixels)
+ModelObject: mask vector applied to weight vector. (4 valid pixels remain)
+ModelObject: mask vector applied to weight vector. (4 valid pixels remain)
+Setting up parameter information vector ...
+3 free parameters (5 degrees of freedom)
+Estimated memory use: 640 bytes (0.6 KB)
+
+Performing fit by minimizing chi^2:
+Calling Levenberg-Marquardt solver ...
+	mpfit iteration 1: fit statistic = 1.985294
+
+*** mpfit status = 1 -- SUCCESS: Convergence in fit-statistic value.
+  CHI-SQUARE = 1.985294    (5 DOF)
+  INITIAL CHI^2 = 6.750000
+        NPAR = 8
+       NFREE = 3
+     NPEGGED = 0
+     NITER = 2
+      NFEV = 9
+
+Reduced Chi^2 = 0.397059
+AIC = 13.985294, BIC = 8.223619
+
+# Main model parameters (for reference image = image 1 (tests/multimfit_reference/smallDataImage1a.fits))
+X0		1.0000 # +/- 0.0000
+Y0		1.0000 # +/- 0.0000
+FUNCTION FlatSky
+I_sky		0.470588 # +/- 0.24254	counts/pixel
+
+# Image-description parameters for image 2 (tests/multimfit_reference/smallDataImage1b.fits)
+PIXEL_SCALE		      1 # +/- 0
+ROTATION		      0 # +/- 0
+FLUX_SCALE		      1 # +/- 0
+X0		      2 # +/- 0
+Y0		      2 # +/- 0
+
+
+Saving summary of fit in bestfit_parameters_multimfit_summary.dat...
+Saving single-image best-fit parameter files (root name = "bestfit_parameters_multimfit"):
+	Saving bestfit_parameters_multimfit_refimage.dat (for reference image)...
+	Saving bestfit_parameters_multimfit_image2.dat...
+Saving best-fit image-info file "bestfit_parameters_multimfit_imageinfo.dat"...
+
+(Elapsed time: 0.003546 sec for fit, 0.006063 sec total)
+Done!
+

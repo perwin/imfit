@@ -1,0 +1,5 @@
+# imfit config file for 2x4 "data" image 
+X0	1
+Y0	1
+FUNCTION FlatSky
+I0	1.0

@@ -1,0 +1,21 @@
+#	For use with, e.g., 
+#   tests/multimfit_reference/config_imfit_smallgauss.dat -- 5x5, Gaussian
+#
+# First is the reference image, for which we leave things like weight, PIXEL_SCALE,
+# FLUX_SCALE, and IMAGE_PA unspecified so they assume their default values
+#       image-name
+IMAGE_START
+DATA    tests/multimfit_reference/smallgauss_5x5_0.fits[2:5,2:5]
+ERROR	tests/multimfit_reference/smallgauss_5x5_sigma.fits[2:5,2:5]
+ORIGINAL_SKY		100.0
+
+# now we have the second image
+IMAGE_START
+DATA    tests/multimfit_reference/smallgauss_5x5_1.fits
+ERROR	tests/multimfit_reference/smallgauss_5x5_sigma.fits
+ORIGINAL_SKY		100.0
+PIXEL_SCALE             1.0			fixed   # pixels in this image are PIXEL_SCALE * reference image
+IMAGE_PA                0.0			fixed
+FLUX_SCALE              1.0		 	fixed
+X0                      2			
+Y0                      2			
