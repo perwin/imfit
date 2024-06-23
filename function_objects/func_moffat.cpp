@@ -91,16 +91,31 @@ Moffat::Moffat( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void Moffat::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, I_0, fwhm, beta
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = intensityScale * inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = pixelScaling * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = inputFunctionParams[4 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void Moffat::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   ell = params[1 + offsetIndex];
-  I_0 = params[2 + offsetIndex];
-  fwhm = params[3 + offsetIndex];
+  I_0 = params[2 + offsetIndex] * intensityScale;
+  fwhm = params[3 + offsetIndex] * pixelScaling;
   beta = params[4 + offsetIndex];
 
   // pre-compute useful things for this round of invoking the function

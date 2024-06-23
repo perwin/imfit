@@ -6,6 +6,9 @@
  */
 
 
+#ifndef _FUNC_TILTEDSKY_H_
+#define _FUNC_TILTEDSKY_H_
+
 // CLASS TiltedSkyPlane:
 
 #include "function_object.h"
@@ -22,6 +25,8 @@ class TiltedSkyPlane : public FunctionObject
     // Constructors:
     TiltedSkyPlane( );
     // redefined method/member function:
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now
@@ -33,3 +38,6 @@ class TiltedSkyPlane : public FunctionObject
   private:
     double  x0, y0, I_0, m_x, m_y;
 };
+
+
+#endif /* _FUNC_TILTEDSKY_H_ */

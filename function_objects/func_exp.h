@@ -16,6 +16,9 @@
  */
 
 
+#ifndef _UTILITIES_FUNC_EXPONENTIAL_
+#define _UTILITIES_FUNC_EXPONENTIAL_
+
 // CLASS Exponential:
 
 #include "function_object.h"
@@ -34,6 +37,8 @@ class Exponential : public FunctionObject
     // Constructors:
     Exponential( );
     // redefined method/member function:
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     bool CanCalculateTotalFlux(  );
@@ -52,4 +57,6 @@ class Exponential : public FunctionObject
     double  x0, y0, PA, ell, I_0, h;   // parameters
     double  q, PA_rad, cosPA, sinPA;   // other useful quantities
 };
+
+#endif /* _UTILITIES_FUNC_EXPONENTIAL_ */
 

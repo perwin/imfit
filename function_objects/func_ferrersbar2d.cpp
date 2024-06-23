@@ -89,16 +89,29 @@ FerrersBar2D::FerrersBar2D( )
 
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
+void FerrersBar2D::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, c0, n, I_0, a_bar
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = intensityScale * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = pixelScaling * inputFunctionParams[5 + offsetIndex];
+}
+
+
 void FerrersBar2D::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   ell = params[1 + offsetIndex];
   c0 = params[2 + offsetIndex ];
   n = params[3 + offsetIndex ];
-  I_0 = params[4 + offsetIndex ];
-  a_bar = params[5 + offsetIndex ];
+  I_0 = params[4 + offsetIndex ] * intensityScale;
+  a_bar = params[5 + offsetIndex ] * pixelScaling;
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;

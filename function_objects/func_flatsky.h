@@ -6,6 +6,9 @@
  */
 
 
+#ifndef _FUNC_FLATSKY_H_
+#define _FUNC_FLATSKY_H_
+
 // CLASS FlatSky:
 
 #include "function_object.h"
@@ -22,6 +25,8 @@ class FlatSky : public FunctionObject
     // Constructors:
     FlatSky( );
     // redefined method/member function:
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now
@@ -33,3 +38,6 @@ class FlatSky : public FunctionObject
   private:
     double  x0, y0, I_sky;
 };
+
+
+#endif /* _FUNC_FLATSKY_H_ */

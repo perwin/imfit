@@ -7,7 +7,7 @@
  *
  */
 
-// Copyright 2020--2022 by Peter Erwin.
+// Copyright 2020--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -68,13 +68,26 @@ TiltedSkyPlane::TiltedSkyPlane( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void TiltedSkyPlane::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // I_0
+  adjustedFunctionParams[0 + offsetIndex] = intensityScale * inputFunctionParams[0 + offsetIndex];
+  // FIXME: figure out correct size rescaling via pixScaling for m_x and m_y (units of pixel^-1)
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void TiltedSkyPlane::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  I_0 = params[0 + offsetIndex ];
+  I_0 = params[0 + offsetIndex ] * intensityScale;
+  // FIXME: figure out correct size rescaling via pixScaling for m_x and m_y (units of pixel^-1)
   m_x = params[1 + offsetIndex ];   // slope in x-direction
   m_y = params[2 + offsetIndex ];   // slope in y-direction
 }

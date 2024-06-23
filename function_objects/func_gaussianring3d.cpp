@@ -105,6 +105,24 @@ GaussianRing3D::GaussianRing3D( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void GaussianRing3D::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, inc, ringPA, ell, J_0, a_ring, sigma, h_z
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = intensityScale * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = pixelScaling * inputFunctionParams[5 + offsetIndex];
+  adjustedFunctionParams[6 + offsetIndex] = pixelScaling * inputFunctionParams[6 + offsetIndex];
+  adjustedFunctionParams[7 + offsetIndex] = pixelScaling * inputFunctionParams[7 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void GaussianRing3D::Setup( double params[], int offsetIndex, double xc, double yc )
@@ -113,14 +131,14 @@ void GaussianRing3D::Setup( double params[], int offsetIndex, double xc, double 
   
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   inclination = params[1 + offsetIndex];
   ringPA = params[2 + offsetIndex];
   ell = params[3 + offsetIndex];
-  J_0 = params[4 + offsetIndex ];
-  a_ring = params[5 + offsetIndex ];
-  sigma = params[6 + offsetIndex ];
-  h_z = params[7 + offsetIndex ];
+  J_0 = params[4 + offsetIndex ] * intensityScale;
+  a_ring = params[5 + offsetIndex ] * pixelScaling;
+  sigma = params[6 + offsetIndex ] * pixelScaling;
+  h_z = params[7 + offsetIndex ] * pixelScaling;
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;

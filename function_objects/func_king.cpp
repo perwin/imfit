@@ -82,17 +82,33 @@ ModifiedKing::ModifiedKing( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void ModifiedKing::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, I_0, r_c, r_t, alpha
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = intensityScale * inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = pixelScaling * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = inputFunctionParams[5 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void ModifiedKing::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   ell = params[1 + offsetIndex];
-  I_0 = params[2 + offsetIndex ];
-  r_c = params[3 + offsetIndex ];
-  r_t = params[4 + offsetIndex ];
+  I_0 = params[2 + offsetIndex ] * intensityScale;
+  r_c = params[3 + offsetIndex ] * pixelScaling;
+  r_t = params[4 + offsetIndex ] * pixelScaling;
   alpha = params[5 + offsetIndex ];   // alpha = 2 for standard King model
   
   // pre-compute useful things for this round of invoking the function

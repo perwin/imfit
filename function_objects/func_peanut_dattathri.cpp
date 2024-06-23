@@ -98,22 +98,44 @@ DattathriPeanut3D::DattathriPeanut3D( )
 
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void DattathriPeanut3D::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, n, I_b, r_e, r_c, alpha, gamma
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = intensityScale * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = inputFunctionParams[5 + offsetIndex];
+  adjustedFunctionParams[6 + offsetIndex] = inputFunctionParams[6 + offsetIndex];
+  adjustedFunctionParams[7 + offsetIndex] = pixelScaling * inputFunctionParams[7 + offsetIndex];
+  adjustedFunctionParams[8 + offsetIndex] = pixelScaling * inputFunctionParams[8 + offsetIndex];
+  adjustedFunctionParams[9 + offsetIndex] = pixelScaling * inputFunctionParams[9 + offsetIndex];
+  adjustedFunctionParams[10 + offsetIndex] = inputFunctionParams[10 + offsetIndex];
+  adjustedFunctionParams[11 + offsetIndex] = inputFunctionParams[11 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void DattathriPeanut3D::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   inc = params[1 + offsetIndex];
   psi_bar = params[2 + offsetIndex];
-  J0_bar = params[3 + offsetIndex];
-  R_bar_x = params[4 + offsetIndex];
+  J0_bar = params[3 + offsetIndex] * intensityScale;
+  R_bar_x = params[4 + offsetIndex] * pixelScaling;
   q = params[5 + offsetIndex];
   q_z = params[6 + offsetIndex];
-  R_peanut = params[7 + offsetIndex];
-  A_peanut = params[8 + offsetIndex];
-  sigma_peanut = params[9 + offsetIndex];
+  R_peanut = params[7 + offsetIndex] * pixelScaling;
+  A_peanut = params[8 + offsetIndex] * pixelScaling;
+  sigma_peanut = params[9 + offsetIndex] * pixelScaling;
   c_bar_par = params[10 + offsetIndex];
   c_bar_perp = params[11 + offsetIndex];
 

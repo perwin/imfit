@@ -18,6 +18,9 @@
  */
 
 
+#ifndef _FUNC_GENSERSIC_H_
+#define _FUNC_GENSERSIC_H_
+
 // CLASS GenSersic:
 
 #include "function_object.h"
@@ -34,6 +37,8 @@ class GenSersic : public FunctionObject
     // Constructors:
     GenSersic( );
     // redefined method/member function:
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now
@@ -54,3 +59,6 @@ class GenSersic : public FunctionObject
     double  q, PA_rad, cosPA, sinPA;   // other useful quantities (basic geometry)
     double  ellExp, invEllExp;         // more useful quantities
 };
+
+
+#endif /* _FUNC_GENSERSIC_H_ */

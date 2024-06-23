@@ -64,6 +64,12 @@ FunctionObject::FunctionObject( )
   // These will get redefined by derived class's constructor
   functionName = "Base (undefined) function";
   shortFunctionName = "BaseFunction";
+  extraParamsSet = false;
+  
+  // MULTIMFIT default values
+  pixelScaling = 1.0;
+  intensityScale = 1.0;
+  imageRotation = 0.0;
 }
 
 
@@ -88,6 +94,29 @@ void FunctionObject::SetZeroPoint( double zeroPoint )
 void FunctionObject::SetLabel( string &userLabel )
 {
   label = userLabel;
+}
+
+
+/* ---------------- PUBLIC METHOD: SetImageParameters ------------------ */
+/// Tell FunctionObject instance about updated image-description parameters
+/// (for use with multimfit).
+/// Note that pixScale = pixel size of image relative to reference image pixels;
+/// internally, we will multiply input size parameters by 1/pixScale
+void FunctionObject::SetImageParameters( double pixScale, double imageRot, double intensScale )
+{
+  pixelScaling = 1.0 / pixScale;
+  imageRotation = imageRot;
+  intensityScale = intensScale;
+}
+
+
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Convert input functionparameters using current set of image-description parameters
+void FunctionObject::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  for (int i = 0; i < nParams; i++)
+    adjustedFunctionParams[i + offsetIndex] = inputFunctionParams[i + offsetIndex];
 }
 
 

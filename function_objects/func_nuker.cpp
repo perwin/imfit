@@ -21,7 +21,7 @@
  *     [v0.1]: 20 April 2023: Created (as modification of func_sersic.cpp.
  */
 
-// Copyright 2023 by Peter Erwin.
+// Copyright 2023-2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -90,16 +90,33 @@ NukerLaw::NukerLaw( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void NukerLaw::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, n, I_b, r_e, r_c, alpha, gamma
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = intensityScale * inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = pixelScaling * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = inputFunctionParams[5 + offsetIndex];
+  adjustedFunctionParams[6 + offsetIndex] = inputFunctionParams[6 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void NukerLaw::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   ell = params[1 + offsetIndex];
-  I_b = params[2 + offsetIndex ];
-  r_b = params[3 + offsetIndex ];
+  I_b = params[2 + offsetIndex ] * intensityScale;
+  r_b = params[3 + offsetIndex ] * pixelScaling;
   alpha = params[4 + offsetIndex ];
   beta = params[5 + offsetIndex ];
   gamma = params[6 + offsetIndex ];

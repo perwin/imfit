@@ -11,9 +11,9 @@
  * PA =  params[2 + offsetIndex];   -- PA of component, rel. to +x axis
  * ell = params[3 + offsetIndex];   -- ellipticity
  * n =   params[4 + offsetIndex ];  -- Sersic index
- * I_b = params[5 + offsetIndex ];  -- break-radius surf. brightness (counts/pixel)
- * r_e =  params[6 + offsetIndex ];  -- half-light radius (pixels)
- * r_b =  params[7 + offsetIndex ];  -- break radius (pixels)
+ * I_b = params[5 + offsetIndex ];  -- break-radius surf. brightness (mag/arcsec^2)
+ * r_e =  params[6 + offsetIndex ];  -- half-light radius
+ * r_b =  params[7 + offsetIndex ];  -- break radius
  * alpha =  params[8 + offsetIndex ];  -- sharpness of break
  * gamma =  params[9 + offsetIndex ];  -- inner power-law slope
  *
@@ -37,6 +37,8 @@ class CoreSersic : public FunctionObject
     // Constructors:
     CoreSersic( );
     // redefined method/member function:
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now

@@ -7,6 +7,9 @@
  */
 
 
+#ifndef _FUNC_GAUSSIAN_H_
+#define _FUNC_GAUSSIAN_H_
+
 // CLASS Gaussian:
 
 #include "function_object.h"
@@ -14,7 +17,7 @@
 
 
 
-/// Class for image function with elliptical isophotes and %Gaussian profile
+/// Class for image function with elliptical isophotes and Gaussian profile
 class Gaussian : public FunctionObject
 {
   // the following static constant will be defined/initialized in the .cpp file
@@ -24,6 +27,8 @@ class Gaussian : public FunctionObject
     // Constructors:
     Gaussian( );
     // redefined method/member function:
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     bool CanCalculateTotalFlux(  );
@@ -44,3 +49,6 @@ class Gaussian : public FunctionObject
     double  twosigma_squared;
     double  q, PA_rad, cosPA, sinPA;   // other useful (shape-related) quantities
 };
+
+
+#endif /* _FUNC_GAUSSIAN_H_ */

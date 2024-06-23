@@ -1,7 +1,7 @@
 /* FILE: func_pointsource.cpp ------------------------------------------ */
 /* 
- *   This is the base class for the various function object classes.
- *   It really shouldn't be instantiated by itself.
+ *   Function object for an interpolated point source, based on user-supplied
+ * PSF image.
  *   
  *   BASIC IDEA:
  *      Setup() is called as the first part of invoking the function;
@@ -22,7 +22,7 @@
  *     2 Oct 2017: Created (as modification of func_gaussian.cpp).
  */
 
-// Copyright 2017--2023 by Peter Erwin.
+// Copyright 2017--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -190,13 +190,24 @@ int PointSource::SetExtraParams( map<string,string>& inputMap )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void PointSource::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // I_tot
+  adjustedFunctionParams[0 + offsetIndex] = intensityScale * inputFunctionParams[0 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void PointSource::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  I_tot = params[0 + offsetIndex];
+  I_tot = params[0 + offsetIndex] * intensityScale;
 }
 
 

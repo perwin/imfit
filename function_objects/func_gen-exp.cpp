@@ -83,17 +83,32 @@ GenExponential::GenExponential( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void GenExponential::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, c0, I_0, h
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = intensityScale * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void GenExponential::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   ell = params[1 + offsetIndex];
-  c0 = params[2 + offsetIndex ];
-  I_0 = params[3 + offsetIndex ];
-  h = params[4 + offsetIndex ];
+  c0 = params[2 + offsetIndex];
+  I_0 = params[3 + offsetIndex] * intensityScale;
+  h = params[4 + offsetIndex] * pixelScaling;
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;
   // convert PA to +x-axis reference

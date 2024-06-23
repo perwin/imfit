@@ -1,5 +1,4 @@
 /*   Class interface definition for func_brokenexpbar3d.cpp
- *   VERSION 0.1
  *
  *   A class derived from FunctionObject (function_object.h),
  * which produces the integrated intensity of a 3D "broken-exponential bar" with
@@ -21,6 +20,8 @@
  *
  */
 
+#ifndef _FUNC_BPBAR3D_
+#define _FUNC_BPBAR3D_
 
 // CLASS BPBar3D:
 
@@ -42,6 +43,8 @@ class BPBar3D : public FunctionObject
     // Constructor
     BPBar3D( );
     // redefined method/member function:
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     // No destructor for now
@@ -58,3 +61,5 @@ class BPBar3D : public FunctionObject
     double  integrationLimit;
     gsl_function  F;
 };
+
+#endif /* _FUNC_BPBAR3D_ */

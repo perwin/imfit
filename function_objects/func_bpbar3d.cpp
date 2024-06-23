@@ -21,7 +21,7 @@
  *     [v0.1]  5 Aug 2023: Created.
  */
 
-// Copyright 2023 by Peter Erwin.
+// Copyright 2023-2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -129,6 +129,32 @@ BPBar3D::BPBar3D( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void CoreSersic::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, n, I_b, r_e, r_c, alpha, gamma
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = pixelScaling * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = intensityScale * inputFunctionParams[5 + offsetIndex];
+  adjustedFunctionParams[6 + offsetIndex] = pixelScaling * inputFunctionParams[6 + offsetIndex];
+  adjustedFunctionParams[7 + offsetIndex] = pixelScaling * inputFunctionParams[7 + offsetIndex];
+  adjustedFunctionParams[8 + offsetIndex] = pixelScaling * inputFunctionParams[8 + offsetIndex];
+  adjustedFunctionParams[9 + offsetIndex] = inputFunctionParams[9 + offsetIndex];
+  adjustedFunctionParams[10 + offsetIndex] = inputFunctionParams[10 + offsetIndex];
+  adjustedFunctionParams[11 + offsetIndex] = intensityScale * inputFunctionParams[11 + offsetIndex];
+  adjustedFunctionParams[12 + offsetIndex] = pixelScaling * inputFunctionParams[12 + offsetIndex];
+  adjustedFunctionParams[13 + offsetIndex] = pixelScaling * inputFunctionParams[13 + offsetIndex];
+  adjustedFunctionParams[14 + offsetIndex] = pixelScaling * inputFunctionParams[14 + offsetIndex];
+  adjustedFunctionParams[15 + offsetIndex] = pixelScaling * inputFunctionParams[15 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void BPBar3D::Setup( double params[], int offsetIndex, double xc, double yc )
@@ -136,22 +162,22 @@ void BPBar3D::Setup( double params[], int offsetIndex, double xc, double yc )
   double  ell_outer, ell_bp;
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   inclination = params[1 + offsetIndex];
   barPA = params[2 + offsetIndex];
-  z_0 = params[3 + offsetIndex];
+  z_0 = params[3 + offsetIndex] * pixelScaling;
   ell_outer = params[4 + offsetIndex];
-  J_0_outer = params[5 + offsetIndex ];
-  h1 = params[6 + offsetIndex ];
-  h2 = params[7 + offsetIndex ];
-  r_b = params[8 + offsetIndex ];
+  J_0_outer = params[5 + offsetIndex ] * intensityScale;
+  h1 = params[6 + offsetIndex ] * pixelScaling;
+  h2 = params[7 + offsetIndex ] * pixelScaling;
+  r_b = params[8 + offsetIndex ] * pixelScaling;
   alpha = params[9 + offsetIndex ];
   ell_bp = params[10 + offsetIndex ];
-  J_0_bp = params[11 + offsetIndex ];
-  r_bp_max = params[12 + offsetIndex ];
-  z_bp_max = params[13 + offsetIndex ];
-  h_bp = params[14 + offsetIndex ];
-  sigma_bp = params[15 + offsetIndex ];
+  J_0_bp = params[11 + offsetIndex ] * intensityScale;
+  r_bp_max = params[12 + offsetIndex ] * pixelScaling;
+  z_bp_max = params[13 + offsetIndex ] * pixelScaling;
+  h_bp = params[14 + offsetIndex ] * pixelScaling;
+  sigma_bp = params[15 + offsetIndex ] * pixelScaling;
   
   // pre-compute useful things for this round of invoking the function
   // convert PA to +x-axis reference

@@ -83,18 +83,34 @@ GaussianRing2Side::GaussianRing2Side( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void GaussianRing2Side::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, A, R_ring, sigma_r_inner, sigma_r_outer
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = intensityScale * inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = pixelScaling * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = pixelScaling * inputFunctionParams[5 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void GaussianRing2Side::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   ell = params[1 + offsetIndex];
-  A = params[2 + offsetIndex ];
-  R_ring = params[3 + offsetIndex ];   // major-axis radius of ring
-  sigma_r_inner = params[4 + offsetIndex ];
-  sigma_r_outer = params[5 + offsetIndex ];
+  A = params[2 + offsetIndex] * intensityScale;
+  R_ring = params[3 + offsetIndex] * pixelScaling;   // major-axis radius of ring
+  sigma_r_inner = params[4 + offsetIndex] * pixelScaling;
+  sigma_r_outer = params[5 + offsetIndex] * pixelScaling;
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;

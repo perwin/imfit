@@ -82,18 +82,34 @@ GaussianRingAz::GaussianRingAz( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void GaussianRingAz::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, A_maj, A_min_rel, R_ring, sigma_r
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex]  - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = intensityScale * inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = pixelScaling * inputFunctionParams[5 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void GaussianRingAz::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex]  - imageRotation;
   ell = params[1 + offsetIndex];
-  A_maj = params[2 + offsetIndex ];
-  A_min_rel = params[3 + offsetIndex ];
-  R_ring = params[4 + offsetIndex ];   // major-axis radius of ring
-  sigma_r = params[5 + offsetIndex ];
+  A_maj = params[2 + offsetIndex] * intensityScale;
+  A_min_rel = params[3 + offsetIndex];
+  R_ring = params[4 + offsetIndex] * pixelScaling;   // major-axis radius of ring
+  sigma_r = params[5 + offsetIndex] * pixelScaling;
 
   // pre-compute useful things for this round of invoking the function
   A_min = A_min_rel * A_maj;

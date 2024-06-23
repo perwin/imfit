@@ -86,19 +86,36 @@ BrokenExponential2D::BrokenExponential2D( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void BrokenExponential2D::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, I_0, h1, h2, r_b, alpha, h_z
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = intensityScale * inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = pixelScaling * inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = pixelScaling * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = (1.0/pixelScaling) * inputFunctionParams[5 + offsetIndex];
+  adjustedFunctionParams[6 + offsetIndex] = pixelScaling * inputFunctionParams[6 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void BrokenExponential2D::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
-  I_0 = params[1 + offsetIndex ];
-  h1 = params[2 + offsetIndex ];
-  h2 = params[3 + offsetIndex ];
-  r_b = params[4 + offsetIndex ];
-  alpha = params[5 + offsetIndex ];
-  h_z = params[6 + offsetIndex ];
+  PA = params[0 + offsetIndex] - imageRotation;
+  I_0 = params[1 + offsetIndex ] * intensityScale;
+  h1 = params[2 + offsetIndex ] * pixelScaling;
+  h2 = params[3 + offsetIndex ] * pixelScaling;
+  r_b = params[4 + offsetIndex ] * pixelScaling;
+  alpha = params[5 + offsetIndex ] / pixelScaling;
+  h_z = params[6 + offsetIndex ] * pixelScaling;
 
   // pre-compute useful things for this round of invoking the function
   // convert PA to +x-axis reference

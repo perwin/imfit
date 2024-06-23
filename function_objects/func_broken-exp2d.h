@@ -39,6 +39,8 @@ class BrokenExponential2D : public FunctionObject
     // No destructor for now
 
     // class method for returning official short name of class
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     static void GetClassShortName( string& classname ) { classname = className; };
 
 

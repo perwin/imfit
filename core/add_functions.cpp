@@ -8,7 +8,7 @@
  *
  */
 
-// Copyright 2010--2023 by Peter Erwin.
+// Copyright 2010--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -389,12 +389,14 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
 int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
                   vector<string> &functionLabelList, vector<int> &functionSetIndices, 
                   const bool subsamplingFlag, const int verboseLevel, 
-                  vector< map<string, string> > &extraParams )
+                  vector< map<string, string> > &extraParams,
+                  const vector<bool> &globalFuncFlags )
 {
   int  nFunctions = functionNameList.size();
   int  status;
   string  currentName;
   bool  extraParamsMayExist = false;
+  bool  globalFuncFlagsExist = false;
   FunctionObject  *thisFunctionObj;
   map<string, factory*>  factory_map;
 
@@ -402,6 +404,8 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
 
   if (extraParams.size() > 0)
     extraParamsMayExist = true;
+  if (globalFuncFlags.size() > 0)
+    globalFuncFlagsExist = true;
   
   for (int i = 0; i < nFunctions; i++) {
     currentName = functionNameList[i];
@@ -431,7 +435,10 @@ int AddFunctions( ModelObject *theModel, const vector<string> &functionNameList,
           }
         }
       }
-      status = theModel->AddFunction(thisFunctionObj);
+      if (globalFuncFlagsExist)
+	    status = theModel->AddFunction(thisFunctionObj, globalFuncFlags[i]);
+	  else
+	    status = theModel->AddFunction(thisFunctionObj);
       if (status < 0) {
         fprintf(stderr, "Error attempting to add function \"%s\" (#%d in list)", 
         		thisFunctionObj->GetShortName().c_str(), i + 1);

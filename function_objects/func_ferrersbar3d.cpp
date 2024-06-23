@@ -102,17 +102,35 @@ FerrersBar3D::FerrersBar3D( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void FerrersBar3D::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, inc, barPA, J_0, R_bar, q, q_z, n
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = intensityScale * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = inputFunctionParams[5 + offsetIndex];
+  adjustedFunctionParams[6 + offsetIndex] = inputFunctionParams[6 + offsetIndex];
+  adjustedFunctionParams[7 + offsetIndex] = inputFunctionParams[7 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void FerrersBar3D::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   inclination = params[1 + offsetIndex];
   barPA = params[2 + offsetIndex];
-  J_0 = params[3 + offsetIndex ];
-  R_bar = params[4 + offsetIndex ];
+  J_0 = params[3 + offsetIndex ] * intensityScale;
+  R_bar = params[4 + offsetIndex ] * pixelScaling;
   q = params[5 + offsetIndex ];
   q_z = params[6 + offsetIndex ];
   n = params[7 + offsetIndex ];

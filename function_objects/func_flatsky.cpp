@@ -69,13 +69,24 @@ FlatSky::FlatSky( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void FlatSky::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // I_0
+  adjustedFunctionParams[0 + offsetIndex] = intensityScale * inputFunctionParams[0 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void FlatSky::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  I_sky = params[0 + offsetIndex ];
+  I_sky = params[0 + offsetIndex] * intensityScale;
 }
 
 

@@ -1,7 +1,7 @@
 /* FILE: func_pointsource_rot.cpp -------------------------------------- */
 /* 
- *   This is the base class for the various function object classes.
- *   It really shouldn't be instantiated by itself.
+ *   Function object for an interpolated point source, based on user-supplied
+ * PSF image, allowing for arbitrary rotation.
  *   
  *   BASIC IDEA:
  *      Setup() is called as the first part of invoking the function;
@@ -22,7 +22,7 @@
  *     11 Aug 2021: Created (as modification of func_pointsource.cpp).
  */
 
-// Copyright 2021--2023 by Peter Erwin.
+// Copyright 2021--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -186,14 +186,26 @@ int PointSourceRot::SetExtraParams( map<string,string>& inputMap )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void PointSourceRot::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, I_tot
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;;
+  adjustedFunctionParams[1 + offsetIndex] = intensityScale * inputFunctionParams[1 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void PointSourceRot::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
-  I_tot = params[1 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
+  I_tot = params[1 + offsetIndex] * intensityScale;
 
   // convert PA to +x-axis reference
   PA_rad = (PA + 90.0) * DEG2RAD;

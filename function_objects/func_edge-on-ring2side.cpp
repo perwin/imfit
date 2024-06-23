@@ -83,19 +83,35 @@ EdgeOnRing2Side::EdgeOnRing2Side( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void EdgeOnRing2Side::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, A, r1, sigma_r_inner, sigma_r_outer, sigma_z
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = intensityScale * inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = pixelScaling * inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = pixelScaling * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = pixelScaling * inputFunctionParams[5 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void EdgeOnRing2Side::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
-  A = params[1 + offsetIndex ];
-  r1 = -params[2 + offsetIndex ];   // left-side radius of ring (negative value)
+  PA = params[0 + offsetIndex] - imageRotation;
+  A = params[1 + offsetIndex ] * intensityScale;
+  r1 = -params[2 + offsetIndex ] * pixelScaling;   // left-side radius of ring (negative value)
   r2 = -r1;                        // right-side radius of ring (positive value)
-  sigma_r_inner = params[3 + offsetIndex ];
-  sigma_r_outer = params[4 + offsetIndex ];
-  sigma_z = params[5 + offsetIndex ];
+  sigma_r_inner = params[3 + offsetIndex ] * pixelScaling;
+  sigma_r_outer = params[4 + offsetIndex ] * pixelScaling;
+  sigma_z = params[5 + offsetIndex ] * pixelScaling;
 
   // pre-compute useful things for this round of invoking the function
   // convert PA to +x-axis reference

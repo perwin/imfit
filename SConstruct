@@ -541,7 +541,7 @@ if doExtraChecks:   # default is to NOT do this; user must specify with "--extra
                     "-Wextra", "-pedantic"])
 
 # which dialect/version of C++ are we using?
-if useModernCpp:
+if useModernCpp:   # command-line option "--modern-cpp"
     cflags_opt.append("-std=c++17")
     cflags_db.append("-std=c++17")
 else:
@@ -601,6 +601,9 @@ env = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=
 env_debug = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
                     LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
                     CPPDEFINES=defines_db, ENV = {'PATH' : os.environ['PATH']} )
+# env_multi = Environment( CC=CC_COMPILER, CXX=CPP_COMPILER, CPPPATH=include_path, LIBS=lib_list, 
+#                     LIBPATH=lib_path, CCFLAGS=cflags_db, LINKFLAGS=link_flags, 
+#                     CPPDEFINES=defines_opt )
 lib_list_nofits = copy.copy(lib_list)
 if "nlopt" in lib_list_nofits:
     lib_list_nofits.remove("nlopt")
@@ -768,6 +771,25 @@ if useLogging:
 mcmc_base_objs = mcmc_base_objs + base_objs + image_io_objs + cdream_objs
 mcmc_base_sources = [name + ".cpp" for name in mcmc_base_objs]
 
+# Main set of files for multimfit
+multimfit_obj_string = """print_results print_results_multi bootstrap_errors 
+estimate_memory multimfit_main model_object_multimage read_simple_params 
+paramvector_processing param_holder imageparams_file_parser store_psf_oversampling
+utilities_multimfit"""
+multimfit_base_objs = [ CORE_SUBDIR + name for name in multimfit_obj_string.split() ]
+multimfit_base_objs = base_objs + image_io_objs + multimfit_base_objs
+multimfit_base_sources = [name + ".cpp" for name in multimfit_base_objs]
+
+# Main set of files for makemultimages
+makemultimages_obj_string = """makemultimages_main model_object_multimage
+read_simple_params paramvector_processing param_holder imageparams_file_parser
+store_psf_oversampling"""
+makemultimages_base_objs = [ CORE_SUBDIR + name for name in makemultimages_obj_string.split() ]
+if useLogging:
+    makemultimages_base_objs.append("loguru/loguru")
+makemultimages_base_objs = base_objs + image_io_objs + makemultimages_base_objs
+makemultimages_base_sources = [name + ".cpp" for name in makemultimages_base_objs]
+
 
 # imfit: put all the object and source-code lists together
 imfit_objs = imfit_base_objs + modelobject_objs + functionobject_objs + solver_objs
@@ -780,6 +802,16 @@ makeimage_sources = makeimage_base_sources + modelobject_sources + functionobjec
 # imfit-mcmc: put all the object and source-code lists together
 mcmc_objs = mcmc_base_objs + modelobject_objs + functionobject_objs
 mcmc_sources = mcmc_base_sources + modelobject_sources + functionobject_sources
+
+# makemultimages: put all the object and source-code lists together
+# makemultimages_objs = makemultimages_base_objs + modelobject_objs + functionobject_objs
+# makemultimages_sources = makemultimages_base_sources + modelobject_sources + functionobject_sources
+makemultimages_objs = makemultimages_base_objs + modelobject_objs + functionobject_objs
+makemultimages_sources = makemultimages_base_sources + modelobject_sources + functionobject_sources
+
+# multimfit: put all the object and source-code lists together
+multimfit_objs = multimfit_base_objs + modelobject_objs + functionobject_objs + solver_objs
+multimfit_sources = multimfit_base_sources + modelobject_sources + functionobject_sources + solver_sources
 
 
 # import environment variables if we're doing scan-build static analysis
@@ -803,6 +835,12 @@ env.Program("makeimage", makeimage_sources)
 mcmc_dbg_objlist = [ env_debug.Object(obj + ".do", src) for (obj,src) in zip(mcmc_objs, mcmc_sources) ]
 env_debug.Program("imfit-mcmc_db", mcmc_dbg_objlist)
 env.Program("imfit-mcmc", mcmc_sources)
+
+multi_objlist = [ env.Object(obj, src) for (obj,src) in zip(makemultimages_objs, makemultimages_sources) ]
+env.Program("makemultimages", multi_objlist)
+
+# multimfit_objlist = [ env_multi.Object(obj, src) for (obj,src) in zip(multimfit_objs, multimfit_sources) ]
+# env_multi.Program("multimfit", multimfit_objlist)
 
 
 # Run tests

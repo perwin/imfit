@@ -87,20 +87,38 @@ FlatBar::FlatBar( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void FlatBar::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, deltaPA_max, I_0, h1, h2, r_b, alpha
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = intensityScale * inputFunctionParams[3 + offsetIndex];
+  adjustedFunctionParams[4 + offsetIndex] = pixelScaling * inputFunctionParams[4 + offsetIndex];
+  adjustedFunctionParams[5 + offsetIndex] = pixelScaling * inputFunctionParams[5 + offsetIndex];
+  adjustedFunctionParams[6 + offsetIndex] = pixelScaling * inputFunctionParams[6 + offsetIndex];
+  adjustedFunctionParams[7 + offsetIndex] = (1.0/pixelScaling) * inputFunctionParams[7 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void FlatBar::Setup( double params[], int offsetIndex, double xc, double yc )
 {
   x0 = xc;
   y0 = yc;
-  PA = params[0 + offsetIndex];
+  PA = params[0 + offsetIndex] - imageRotation;
   ell = params[1 + offsetIndex];
   deltaPA_max = params[2 + offsetIndex];
-  I_0 = params[3 + offsetIndex ];
-  h1 = params[4 + offsetIndex ];
-  h2 = params[5 + offsetIndex ];
-  r_b = params[6 + offsetIndex ];
-  alpha = params[7 + offsetIndex ];
+  I_0 = params[3 + offsetIndex ] * pixelScaling;
+  h1 = params[4 + offsetIndex ] * pixelScaling;
+  h2 = params[5 + offsetIndex ] * pixelScaling;
+  r_b = params[6 + offsetIndex ] * pixelScaling;
+  alpha = params[7 + offsetIndex ] / pixelScaling;
 
   // pre-compute useful things for this round of invoking the function
   q = 1.0 - ell;

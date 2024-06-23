@@ -276,7 +276,7 @@ void ModelObject::SetOMPChunkSize( int chunkSize )
 
 /* ---------------- PUBLIC METHOD: AddFunction ------------------------- */
 /// Adds a FunctionObject subclass to the model
-int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
+int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr, bool isGlobalFunc )
 {
   int  nNewParams, result;
   
@@ -285,6 +285,11 @@ int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
   nNewParams = newFunctionObj_ptr->GetNParams();
   paramSizes.push_back(nNewParams);
   nFunctionParams += nNewParams;
+  // multimfit-related
+  // FIXME: this is just a stub right now (assuming all functions are global)
+  globalFunctionFlags.push_back(isGlobalFunc);
+  if (isGlobalFunc)
+    nGlobalFunctions += 1;
   
   // handle optional case of PointSource function
   if (newFunctionObj_ptr->IsPointSource()) {
@@ -297,6 +302,35 @@ int ModelObject::AddFunction( FunctionObject *newFunctionObj_ptr )
     }
     newFunctionObj_ptr->AddPsfInterpolator(psfInterpolator);
     pointSourcesPresent = true;
+  }
+  
+  return 0;
+}
+
+
+/* ---------------- PUBLIC METHOD: FinalModelSetup -------------------- */
+/// Do any final setup involving determination of parameter numbers (including
+/// accounting for global vs per-image functions in multimfit mode)
+//
+// We assume that the following has already occurred:
+//   1. all functions have been added via repeated calls to AddFunction()
+//   2. DefineFunctionSets(functionSetIndices) has been called;
+//   3. PopulateParameterNames() has been called
+int ModelObject::FinalModelSetup( )
+{
+  // The only thing we really do is count up the number of per-image parameters,
+  // *if* there are any per-image functions
+  if (nFunctions > nGlobalFunctions)
+  {
+    // OK, there are some local, per-image functions
+    // 1. Count up the function parameters; 2 Add 2 for each new function set
+    for (int i = nGlobalFunctions; i < nFunctions; i++) {
+      nPerImageParams += functionObjects[i]->GetNParams();
+      if (fsetStartFlags[i]) {
+        nPerImageParams += 2;
+        nPerImageFunctionSets += 1;
+      }
+    }
   }
   
   return 0;
@@ -1044,6 +1078,24 @@ int ModelObject::FinalSetupForFitting( )
   return returnStatus;
 }
 
+
+
+// Tells individual FunctionObject instances about image-description parameters
+// (pixel scale, overall rotation, intensity scaling).
+// For use by multimfit, etc.
+/* ---------------- PUBLIC METHOD: SetImageParameters ------------------ */
+
+void ModelObject::SetImageParameters( double imageDescriptionParams[] )
+{
+  double pixScale = imageDescriptionParams[0];
+  double rotation = imageDescriptionParams[1];
+  double intensityScale = imageDescriptionParams[2];
+
+  for (int i = 0; i < nFunctions; i++) {
+    if (globalFunctionFlags[i])
+      functionObjects[i]->SetImageParameters(pixScale, rotation, intensityScale);
+  }
+}
 
 
 /* ---------------- PUBLIC METHOD: CreateModelImage -------------------- */
@@ -2339,6 +2391,22 @@ double * ModelObject::GetDataVector( )
 }
 
 
+/* ---------------- PUBLIC METHOD: AddDataFilename --------------------- */
+
+void ModelObject::AddDataFilename( string filename )
+{
+  dataFilename = filename;
+}
+
+
+/* ---------------- PUBLIC METHOD: GetDataFilename --------------------- */
+/// Returns the name of the input data file (e.g., FITS image)
+string ModelObject::GetDataFilename( )
+{
+  return dataFilename;
+}
+
+
 /* ---------------- PUBLIC METHOD: FindTotalFluxes --------------------- */
 /// Estimate total fluxes for individual components (and entire model) by integrating
 /// over a very large image, with each component/function centered in the image.
@@ -2495,6 +2563,13 @@ bool ModelObject::CheckWeightVector( )
     weightVectorOK = false;
   }
   return weightVectorOK;
+}
+
+
+void ModelObject::GetDataImageDimensions( int *nColumns, int *nRows )
+{
+  *nColumns = nDataColumns;
+  *nRows = nDataRows;
 }
 
 

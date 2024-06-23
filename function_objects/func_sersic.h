@@ -17,6 +17,9 @@
  */
 
 
+#ifndef _FUNC_SERSIC_H_
+#define _FUNC_SERSIC_H_
+
 // CLASS Sersic:
 
 #include "function_object.h"
@@ -32,6 +35,8 @@ class Sersic : public FunctionObject
     // Constructors:
     Sersic( );
     // redefined method/member function:
+    void AdjustParametersForImage( const double inputFunctionParams[], 
+									double adjustedFunctionParams[], int offsetIndex );
     void  Setup( double params[], int offsetIndex, double xc, double yc );
     double  GetValue( double x, double y );
     bool CanCalculateTotalFlux(  );
@@ -52,3 +57,6 @@ class Sersic : public FunctionObject
   double  bn, invn;
   double  q, PA_rad, cosPA, sinPA;   // other useful (shape-related) quantities
 };
+
+
+#endif /* _FUNC_SERSIC_H_ */
