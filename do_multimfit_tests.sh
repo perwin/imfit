@@ -28,11 +28,20 @@ if [ ! -f ./multimfit ]
     exit 2
 fi
 
-case "$OSTYPE" in
-  darwin*)  osname="osx" ;; 
-  linux*)   osname="linux" ;;
-  *)        echo "unknown: $OSTYPE" ;;
-esac
+# Determine OS and processor type, so we can compare against the right references files 
+# (this accounts for the fact that different processor-OS combinations produce slightly 
+# different numerical output)
+OS_NAME=$(uname -s)
+ARCH=$(uname -m)
+
+if [[ $OS_NAME == "Darwin" ]]
+then
+    OS_NAME_BETTER="macos"
+else
+    OS_NAME_BETTER="linux"
+fi
+ARCH_TEST_DIR="${OS_NAME_BETTER}_${ARCH}"
+echo "Using OS+architecture = ${ARCH_TEST_DIR}"
 
 
 # create output directory for test_dump*, etc. files (will do nothing if
@@ -107,8 +116,9 @@ echo -n "*** Diff comparison with archives: simplest 2-image run (--fitstat-only
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: simplest 2-image run (L-M)... "
-./python/diff_printouts.py tests/multimfit_reference/multimfit_textout1b temptest/test_dump1b --skip-last=3
+./python/diff_printouts.py tests/multimfit_reference/${ARCH_TEST_DIR}/multimfit_textout1b temptest/test_dump1b --skip-last=3
 STATUS+=$?
+
 
 echo -n "*** Diff comparison with archives: simplest 2-image run (N-M simplex)... "
 ./python/diff_printouts.py tests/multimfit_reference/multimfit_textout1c temptest/test_dump1c --skip-last=3
@@ -152,12 +162,12 @@ echo -n "*** Diff comparison with archives: same as previous, model errors... "
 STATUS+=$?
 
 echo -n "*** Diff comparison with archives: same as previous, Poisson MLR errors... "
-./python/diff_printouts.py tests/multimfit_reference/multimfit_textout3f temptest/test_dump3f --skip-last=3
+./python/diff_printouts.py tests/multimfit_reference/${ARCH_TEST_DIR}/multimfit_textout3f temptest/test_dump3f --skip-last=3
 STATUS+=$?
 
 
 echo -n "*** Diff comparison with archives: bootstrap resampling... "
-./python/diff_printouts.py tests/multimfit_reference/multimfit_textout3g temptest/test_dump3g --skip-last=3
+./python/diff_printouts.py tests/multimfit_reference/${ARCH_TEST_DIR}/multimfit_textout3g temptest/test_dump3g --skip-last=3
 STATUS+=$?
 
 
