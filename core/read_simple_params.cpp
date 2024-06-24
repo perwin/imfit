@@ -53,14 +53,14 @@ long CountDataLines( string& fileName )
   char  buf[MAXLINE];
   long  counter = 0;
   
-  if ((file_ptr = fopen(fileName.c_str(), "r")) == NULL) {
+  if ((file_ptr = fopen(fileName.c_str(), "r")) == nullptr) {
     fprintf(stderr, FILE_OPEN_ERR_STRING, fileName.c_str());
     exit(-1);
   }
 
   // First, count how many data lines there are:
   while ( !feof(file_ptr) ) {
-    if ( fgets(buf, MAXLINE - 1, file_ptr) != NULL ) {
+    if ( fgets(buf, MAXLINE - 1, file_ptr) != nullptr ) {
       // Count line if it does *not* starts with "#":
       if ( strncmp(buf, "#", 1) != 0 )
         counter++;
@@ -96,14 +96,14 @@ long ReadSimpleParameterFile( string& fileName, long startDataRow, long endDataR
   long  i = -1;   // counts which (input) *data* row we are on
   long  j = -1;   // counts which data row we are storing
   
-  if ((file_ptr = fopen(fileName.c_str(), "r")) == NULL) {
+  if ((file_ptr = fopen(fileName.c_str(), "r")) == nullptr) {
     fprintf(stderr, FILE_OPEN_ERR_STRING, fileName.c_str());
     exit(-1);
   }
 
   while ( !feof(file_ptr) ) {
     nRow++;
-    if ( fgets(buf, MAXLINE - 1, file_ptr) != NULL ) {
+    if ( fgets(buf, MAXLINE - 1, file_ptr) != nullptr ) {
       currentLine = buf;
       // Process line if it does *not* starts with "#":
       if ( currentLine[0] != '#' ) {
@@ -122,7 +122,7 @@ long ReadSimpleParameterFile( string& fileName, long startDataRow, long endDataR
             exit(-1);
           }
 
-          xVals[j] = strtod(stringPieces[0].c_str(), (char **)NULL);
+          xVals[j] = strtod(stringPieces[0].c_str(), (char **)nullptr);
         }    
       }
     }

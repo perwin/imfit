@@ -9,7 +9,7 @@
  * March 2017: Created as variation of model_object.cpp
  */
 
-// Copyright 2010--2022 by Peter Erwin.
+// Copyright 2010--2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -467,9 +467,9 @@ void ModelObjectMultImage::PrintDescription( )
 /// Basic function which prints to a vector of strings a summary of the
 /// best-fitting model, in form suitable for future use as an input config file.
 ///
-/// If errs != NULL, then +/- errors are printed as well
+/// If errs != nullptr, then +/- errors are printed as well
 ///
-/// If prefix != NULL, then the specified character (e.g., '#') is prepended to
+/// If prefix != nullptr, then the specified character (e.g., '#') is prepended to
 /// each output line.
 ///
 /// Note that this version (in ModelObjectMultImage) prints the image-description
@@ -521,7 +521,7 @@ int ModelObjectMultImage::PrintModelParamsToStrings( vector<string> &stringVecto
     std::tie(offsetX0, offsetY0) = modelObjectsVect[i]->GetImageOffsets();
     imageX0 += offsetX0;
     imageY0 += offsetY0;
-    if (errs != NULL) {
+    if (errs != nullptr) {
       ExtractImageParams(errs, i, err_pixScale, err_rot, err_iScale, err_imageX0, err_imageY0);
       stringVector.push_back(PrintToString(PARAM_FORMAT_WITH_ERRS, prefix, "PIXEL_SCALE", 
       							pixScale, err_pixScale) + "\n");
@@ -558,7 +558,7 @@ int ModelObjectMultImage::PrintModelParamsToStrings( vector<string> &stringVecto
 void ModelObjectMultImage::GetParameterStringsForOneImage( vector<string> &strings, 
 									double params[], int imageNumber, double errors[] )
 {
-  double *paramErrors = NULL;
+  double *paramErrors = nullptr;
   
   if (! parameterHolderSet)
     SetupParamHolder();
@@ -578,7 +578,7 @@ void ModelObjectMultImage::GetParameterStringsForOneImage( vector<string> &strin
   // If errors were supplied, compute offset into the error vector so we skip over
   // the image-description-parameter errors and get just the function-parameter errors, 
   // not the image-description-parameter errors
-  if (errors != NULL) {
+  if (errors != nullptr) {
     int nImageParams = (nModelObjects - 1)*N_IMAGE_PARAMS;
     paramErrors = errors + nImageParams;
   }

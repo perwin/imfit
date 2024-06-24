@@ -96,8 +96,8 @@ void SaveImageInfoParameters( double *params, ModelObjectMultImage *multModel,
   int  whichSolver;
   double  *imageDescriptionParams = (double *)calloc((size_t)nImages*N_IMAGE_PARAMS, 
   														sizeof(double));
-  double  *imageDescriptionParams_errs = NULL;
-  double  *paramErrs = NULL;
+  double  *imageDescriptionParams_errs = nullptr;
+  double  *paramErrs = nullptr;
 
   multModel->GetAllImageDescriptionParameters(params, imageDescriptionParams);
 
@@ -195,7 +195,7 @@ void PrintSingleImageInfoToStrings( const ImageInfo& imInfo, vector<string>& str
   
   if (! refImageFlag) {
     // save pixel_scale, image_pa, flux_scale, and initial X0,Y0
-    if (imageDescParams_errs == NULL) {
+    if (imageDescParams_errs == nullptr) {
       // no errors on these parameters from the fitting process
       // note that we have to add line-feed at end of each PARAM_FORMAT-based string
       strings.push_back(PrintToString(PARAM_FORMAT, "","PIXEL_SCALE", imageDescParams[0 + offset]) + "\n");

@@ -9,7 +9,7 @@
  * nonlinfit (imfit's conceptual predecessor), so yay for reuse!
  */
 
-// Copyright 2013-2019 by Peter Erwin.
+// Copyright 2013-2019,2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -108,7 +108,7 @@ int BootstrapErrors( const double *bestfitParams, vector<mp_par> parameterLimits
 //   bestfitParams_offsetCorrected = (double *) calloc(nParams, sizeof(double));
   
   // write column header info to file, if user requested saving to file
-  if (outputFile_ptr != NULL) {
+  if (outputFile_ptr != nullptr) {
     string  headerLine = theModel->GetParamHeader();
     fprintf(outputFile_ptr, "#\n# Bootstrap resampling output (%d iterations requested):\n%s\n", 
    			nIterations, headerLine.c_str());
@@ -169,7 +169,7 @@ int BootstrapErrorsBase( const double *bestfitParams, vector<mp_par> parameterLi
   bool  saveToFile = false;
   string  outputLine, iterTemplate;
 
-  if (outputFile_ptr != NULL)
+  if (outputFile_ptr != nullptr)
     saveToFile = true;
   
   if (rngSeed > 0)

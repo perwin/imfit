@@ -4,9 +4,10 @@ NOTES FOR FURTHER C++-11 REWRITES/REFACTORING:
 
 
 NOTES FOR POSSIBLE C+-17 REWRITES/REFACTORING:
+	-std=c++17
 
-* How to compile things for C++-17 (i.e., how we ensure compiler gets a
-"-std=c++17" flag):
+* How to compile imfit, etc. for C++-17 (i.e., how we pass the "-std=c++17" flag
+to whatever compiler we're using):
 $ scons --modern-cpp <target>
 
 
@@ -16,7 +17,6 @@ wrong compiler.
 
 [] std::optional ? (C++-17 equiv. of Haskell Maybe)
 		https://www.bfilipek.com/2018/05/using-optional.html
-		[x]clang++ -std=c++17
 
 		"It is recommended to use optional<T> in situations where there
 		is exactly one, clear (to all parties) reason for having no
@@ -49,7 +49,7 @@ wrong compiler.
 
 
 
-NOTES FOR HYPOTHETICAL C+-20 REWRITES:
+NOTES FOR HYPOTHETICAL C++-20 REWRITES:
 
 std::span = simple wrapper for an array that includes its size
 	NOTE that we could use the ISO C++ Guidelines Support Library (GSL)

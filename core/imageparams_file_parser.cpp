@@ -1,4 +1,4 @@
-// Copyright 2017-2020 by Peter Erwin.
+// Copyright 2017-2020,2024 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -310,7 +310,7 @@ std::tuple<double, mp_par, int> GetParameterAndLimits( const string theLine )
   stringPieces.clear();
   SplitString(theLine, stringPieces);
   // first piece is parameter name, which we ignore; second piece is initial value
-  paramVal = strtod(stringPieces[1].c_str(), NULL);
+  paramVal = strtod(stringPieces[1].c_str(), nullptr);
 
   // OK, now we create a new mp_par structure and check for possible parameter limits
 //   bzero(&newParamLimit, sizeof(mp_par));
@@ -328,8 +328,8 @@ std::tuple<double, mp_par, int> GetParameterAndLimits( const string theLine )
         SplitString(extraPiece, newPieces, ",");
         newParamLimit.limited[0] = 1;
         newParamLimit.limited[1] = 1;
-        lowerLimit = strtod(newPieces[0].c_str(), NULL);
-        upperLimit = strtod(newPieces[1].c_str(), NULL);
+        lowerLimit = strtod(newPieces[0].c_str(), nullptr);
+        upperLimit = strtod(newPieces[1].c_str(), nullptr);
         if (lowerLimit >= upperLimit) {
           fprintf(stderr, "*** WARNING: first parameter limit for \"%s\" (%g) must be < second limit (%g)!\n",
           				stringPieces[0].c_str(), lowerLimit, upperLimit);
@@ -372,19 +372,19 @@ int StoreInfoFromLine( const string theLine, ImageInfo& imageInfo )
     
   // floating-point values
   if (parameterName == PARAMETER_NAME_GAIN) 
-    imageInfo.gain = strtod(stringPieces[1].c_str(), NULL);
+    imageInfo.gain = strtod(stringPieces[1].c_str(), nullptr);
       
   else if (parameterName == PARAMETER_NAME_READNOISE) 
-    imageInfo.readNoise = strtod(stringPieces[1].c_str(), NULL);
+    imageInfo.readNoise = strtod(stringPieces[1].c_str(), nullptr);
       
   else if (parameterName == PARAMETER_NAME_ORIGINAL_SKY) 
-    imageInfo.originalSky = strtod(stringPieces[1].c_str(), NULL);
+    imageInfo.originalSky = strtod(stringPieces[1].c_str(), nullptr);
       
   else if (parameterName == PARAMETER_NAME_EXPTIME) 
-    imageInfo.expTime = strtod(stringPieces[1].c_str(), NULL);
+    imageInfo.expTime = strtod(stringPieces[1].c_str(), nullptr);
       
   else if (parameterName == PARAMETER_NAME_WEIGHT) 
-    imageInfo.weight = strtod(stringPieces[1].c_str(), NULL);
+    imageInfo.weight = strtod(stringPieces[1].c_str(), nullptr);
 
 
   // Special cases of parameters with optional limits or fixed status
@@ -430,27 +430,27 @@ int StoreInfoFromLine( const string theLine, ImageInfo& imageInfo )
   
   // integer values
   else if (parameterName == PARAMETER_NAME_NCOLS)
-    imageInfo.nColumns = (int)strtol(stringPieces[1].c_str(), NULL, 0);
+    imageInfo.nColumns = (int)strtol(stringPieces[1].c_str(), nullptr, 0);
 
   else if (parameterName == PARAMETER_NAME_NROWS) 
-    imageInfo.nRows = (int)strtol(stringPieces[1].c_str(), NULL, 0);
+    imageInfo.nRows = (int)strtol(stringPieces[1].c_str(), nullptr, 0);
 
   else if (parameterName == PARAMETER_NAME_NROWS_NCOLS) {
     vector<string> subPieces;
     SplitString(stringPieces[1], subPieces, ",");
-    imageInfo.nRows = (int)strtol(subPieces[0].c_str(), NULL, 0);
-    imageInfo.nColumns = (int)strtol(subPieces[1].c_str(), NULL, 0);
+    imageInfo.nRows = (int)strtol(subPieces[0].c_str(), nullptr, 0);
+    imageInfo.nColumns = (int)strtol(subPieces[1].c_str(), nullptr, 0);
   }
 
   else if (parameterName == PARAMETER_NAME_NCOLS_NROWS) {
     vector<string> subPieces;
     SplitString(stringPieces[1], subPieces, ",");
-    imageInfo.nColumns = (int)strtol(subPieces[0].c_str(), NULL, 0);
-    imageInfo.nRows = (int)strtol(subPieces[1].c_str(), NULL, 0);
+    imageInfo.nColumns = (int)strtol(subPieces[0].c_str(), nullptr, 0);
+    imageInfo.nRows = (int)strtol(subPieces[1].c_str(), nullptr, 0);
   }
 
   else if (parameterName == PARAMETER_NAME_NCOMBINED)
-    imageInfo.nCombined = (int)strtol(stringPieces[1].c_str(), NULL, 0);
+    imageInfo.nCombined = (int)strtol(stringPieces[1].c_str(), nullptr, 0);
 
   
   // string values
@@ -476,7 +476,7 @@ int StoreInfoFromLine( const string theLine, ImageInfo& imageInfo )
 
   // Special cases of oversampled PSF specifications
   else if (parameterName == PARAMETER_NAME_OVERPSF_SCALE) {
-    int osampleScale = (int)strtol(stringPieces[1].c_str(), NULL, 0);
+    int osampleScale = (int)strtol(stringPieces[1].c_str(), nullptr, 0);
     imageInfo.psfOversamplingScales.push_back(osampleScale);
     imageInfo.nOversamplingScales += 1;
   }

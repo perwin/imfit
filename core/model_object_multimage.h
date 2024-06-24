@@ -53,10 +53,10 @@ class ModelObjectMultImage : public ModelObject
     void SetupParamHolder( );
 
     void GetParameterStringsForOneImage( vector<string> &strings, double params[], 
-    									int imageNumber, double errors[]=NULL );
+    									int imageNumber, double errors[]=nullptr );
 
     void GetPerImageFuncStrings( vector<string> &strings, double params[], 
-    									int imageNumber, double errors[]=NULL );
+    									int imageNumber, double errors[]=nullptr );
 
     void GetAllImageDescriptionParameters( double params[], double outputImageParams[] );
 
