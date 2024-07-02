@@ -2,7 +2,7 @@
 
 # script for generating distribution tarballs
 
-import sys, os, shutil, optparse, tarfile, subprocess, copy
+import sys, os, shutil, optparse, tarfile, subprocess
 import markdown
 
 sys.path.append(os.getcwd())

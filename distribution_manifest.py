@@ -131,26 +131,24 @@ func_gen-sersic
 func_core-sersic 
 func_broken-exp 
 func_broken-exp2d
-func_king
-func_king2
 func_moffat 
 func_flatsky 
 func_tilted-sky-plane
+func_flatbar
 func_gaussian-ring 
 func_gaussian-ring2side
 func_gaussian-ring-az 
-func_edge-on-disk_n4762 
-func_edge-on-disk_n4762v2 
-func_n4608disk 
 func_edge-on-ring 
 func_edge-on-ring2side
 func_edge-on-disk
+func_king
+func_king2
 func_brokenexpdisk3d 
 func_expdisk3d 
 func_gaussianring3d 
 func_ferrersbar2d
 func_ferrersbar3d
-func_flatbar
+func_peanut_dattathri
 func_pointsource
 func_pointsource-rot
 helper_funcs
@@ -158,6 +156,24 @@ helper_funcs_3d
 integrator
 psf_interpolators
 """
+
+functionobject_obj_string = """function_object func_gaussian func_exp func_gen-exp  
+        func_sersic func_gen-sersic func_core-sersic func_broken-exp
+        func_broken-exp2d func_moffat func_flatsky func_tilted-sky-plane 
+        func_flatbar func_gaussian-ring func_gaussian-ring2side func_gaussian-ring-az  
+        func_edge-on-ring func_edge-on-ring2side 
+        func_king func_king2 func_ferrersbar2d  func_peanut_dattathri
+        helper_funcs helper_funcs_3d psf_interpolators"""
+#if useGSL:
+# NOTE: the following modules require GSL be present
+functionobject_obj_string += " func_edge-on-disk"
+functionobject_obj_string += " integrator"
+functionobject_obj_string += " func_expdisk3d"  # requires integrator
+functionobject_obj_string += " func_brokenexpdisk3d"  # requires integrator
+functionobject_obj_string += " func_gaussianring3d"  # requires integrator
+functionobject_obj_string += " func_ferrersbar3d"  # requires integrator
+functionobject_obj_string += " func_pointsource"
+functionobject_obj_string += " func_pointsource-rot"
 
 
 example_files = """
