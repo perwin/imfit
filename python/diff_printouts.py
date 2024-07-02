@@ -10,9 +10,7 @@
 # Usage:
 # $ diff_printouts.py new_file reference_file
 
-from __future__ import print_function
-
-import sys, os, optparse, difflib
+import sys, optparse, difflib
 
 # predefine some ANSI color codes
 RED  = '\033[31m' # red

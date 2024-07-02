@@ -13,8 +13,6 @@
 # The script uses sys.exit() to return either 0 for success or 1 for some kind
 # of failure; this is for use with shell scripts for regression tests, etc.
 
-from __future__ import print_function
-
 import sys, os, optparse, re
 import multiprocessing
 

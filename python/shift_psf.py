@@ -39,31 +39,31 @@ def ShiftAndWrapPSF( psfImage, nRows_psf, nCols_psf, blankImage, nRows_pad, nCol
 			pos_in_psf = i*nCols_psf + j
 			destCol = (nCols_pad - centerX_psf + psfCol) % nCols_pad
 			destRow = (nRows_pad - centerY_psf + psfRow) % nRows_pad
-			#print "(%d,%d) --> (%d,%d)" % (psfCol, psfRow, destCol, destRow)
+			#print("(%d,%d) --> (%d,%d)" % (psfCol, psfRow, destCol, destRow))
 			newImage[destRow*nCols_pad + destCol] = psfImage[pos_in_psf]
 	
 	return newImage
 	
-	
+
 	
 def PrintImage( imageVector, nRows, nCols ):
 	for i in range(nRows):
 		for j in range(nCols):
 			pos = i*nCols + j
 			outStr = " %f" % imageVector[pos]
-			print outStr,
-		print
-	print "\n"
+			print(outStr,)
+		print()
+	print("\n")
 
-print "Original PSF image:"
+print("Original PSF image:")
 PrintImage(psfOrig, 5, 5)
-print "Original blank padded image:"
+print("Original blank padded image:")
 PrintImage(padBlank, 10, 10)
-print
+print()
 testImage = ShiftAndWrapPSF(psfOrig, 5, 5, padBlank, 10, 10)
-print "Trial version of shifted/wrapped PSF:"
+print("Trial version of shifted/wrapped PSF:")
 PrintImage(testImage, 10, 10)
 testImage_small = ShiftAndWrapPSF(psfSmall, 3, 3, padBlank, 10, 10)
-print "Trial version of shifted/wrapped small PSF:"
+print("Trial version of shifted/wrapped small PSF:")
 PrintImage(testImage_small, 10, 10)
 

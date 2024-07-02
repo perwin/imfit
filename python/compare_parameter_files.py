@@ -2,8 +2,6 @@
 #
 # Python script for comparing two different best-fit parameter files from imit.
 
-from __future__ import print_function
-
 import sys, os, optparse
 
 

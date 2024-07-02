@@ -7,7 +7,8 @@
 from __future__ import print_function
 
 
-import sys, os, optparse
+import sys
+import optparse
 
 
 # Sample of diff between two different runs of DE subset of do_imfit_tests:

@@ -9,16 +9,9 @@
 # The script uses sys.exit() to return either 0 for success or 1 for some kind
 # of failure; this is for use with shell scripts for regression tests, etc.
 
-from __future__ import print_function
-
-
 import sys, os, optparse
 import numpy as np
-try:
-	from astropy.io.fits import open as fits_open
-except:
-	from pyfits import open as fits_open
-#import pyfits
+from astropy.io.fits import open as fits_open
 
 # predefine some ANSI color codes
 RED  = '\033[31m' # red
