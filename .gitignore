@@ -1,0 +1,8 @@
+*.o
+.DS_Store
+.sconsign.dblite
+test_runner_*
+*.aux
+*.toc
+*.out
+*.log

@@ -132,7 +132,7 @@ BPBar3D::BPBar3D( )
 /* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
 /// Rescale/adjust input function parameters using current set of image-description 
 /// parameters
-void CoreSersic::AdjustParametersForImage( const double inputFunctionParams[], 
+void BPBar3D::AdjustParametersForImage( const double inputFunctionParams[], 
 										double adjustedFunctionParams[], int offsetIndex )
 {
   // PA, ell, n, I_b, r_e, r_c, alpha, gamma
