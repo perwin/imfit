@@ -108,6 +108,11 @@ echo $RESULT
 RESULT+=$?
 echo $RESULT
 
+# Unit tests for psf_interpolators
+./run_unittest_psf_interpolators.sh
+RESULT+=$?
+echo $RESULT
+
 # NOTE: the following code will correctly set up and run unittest_oversampled_region.t.h;
 # However, that "unit test" doesn't perform proper tests; instead, it generates test image
 # output meant to be inspected with DS9. Therefore, it is currently commented out.

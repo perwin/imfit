@@ -12,8 +12,8 @@ echo
 echo "Generating and compiling unit tests for downsample..."
 $CXXTESTGEN --error-printer -o test_runner_downsample.cpp unit_tests/unittest_downsample.t.h 
 $CPP -std=c++11 -o test_runner_downsample test_runner_downsample.cpp core/downsample.cpp \
-core/image_io.cpp -I. -Icore -Isolvers -I/usr/local/include -I$CXXTEST \
--L/usr/local/lib -lcfitsio -lfftw3 -lm
+core/image_io.cpp -I. -Icore -Isolvers -I$EXTERNAL_INCLUDE_PATH -I$CXXTEST \
+-L$EXTERNAL_LIB_PATH -lcfitsio -lfftw3 -lm
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for downsample:"

@@ -13,7 +13,7 @@ echo "Generating and compiling unit tests for getimages..."
 $CXXTESTGEN --error-printer -o test_runner_getimages.cpp unit_tests/unittest_getimages.t.h 
 $CPP -std=c++11 -o test_runner_getimages test_runner_getimages.cpp \
 core/getimages.cpp core/image_io.cpp core/psf_oversampling_info.cpp core/utilities.cpp \
--L/usr/local/lib -lcfitsio -lfftw3 -I. -I/usr/local/include -Icore -Isolvers \
+-L$EXTERNAL_LIB_PATH -lcfitsio -lfftw3 -I. -I$EXTERNAL_INCLUDE_PATH -Icore -Isolvers \
 -Ifunction_objects -I$CXXTEST
 if [ $? -eq 0 ]
 then

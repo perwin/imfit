@@ -10,12 +10,11 @@
 # "-w" suppresses all warnings
 # "-Wl,-no_compact_unwind" is for suppressing the silly "no compact unwind"
 # warnings from the clang linker.
+
 if [[ $OSTYPE == darwin* ]]
 then
   CPP="g++ -w -Wl,-no_compact_unwind"
   CC=gcc
-#   CPP=g++-5
-#   CC=gcc-5
 else
   CPP="g++ -w"
   CC=gcc
@@ -36,8 +35,25 @@ fi
 CXXTESTGEN=cxxtestgen
 
 
+# Locations of external libraries (CFITSIO, FFTW3, GSL, NLopt)
+# Figure out which type of macOS architecture we're running under
+
+# defaults for Linux and for x86-64 macOS
+EXTERNAL_INCLUDE_PATH="/usr/local/include"
+EXTERNAL_LIB_PATH="/usr/local/lib"
+ARCH=$(uname -m)
+# if we're running on an arm64 (Apple silicon) Mac, use Homebrew's arm64 location
+if [[ $OSTYPE == darwin* ]] && [[ "$ARCH" -eq "arm64" ]]
+then
+  EXTERNAL_INCLUDE_PATH="/opt/homebrew/include"
+  EXTERNAL_LIB_PATH="/opt/homebrew/lib"
+fi
+
+
 export CPP
 export CC
 export CXXTEST
 export CXXTESTGEN
 export LDFLAGS
+export EXTERNAL_INCLUDE_PATH
+export EXTERNAL_LIB_PATH

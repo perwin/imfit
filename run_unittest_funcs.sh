@@ -23,8 +23,8 @@ function_objects/func_pointsource.cpp function_objects/psf_interpolators.cpp \
 function_objects_1d/func1d_exp_test.cpp \
 function_objects/helper_funcs.cpp function_objects/helper_funcs_3d.cpp \
 function_objects/integrator.cpp core/utilities.cpp \
--I/usr/local/include -I$CXXTEST -I. -Icore -Isolvers -Ifunction_objects \
--L/usr/local/lib -lm -lgsl -lgslcblas
+-I$EXTERNAL_INCLUDE_PATH -I$CXXTEST -I. -Icore -Isolvers -Ifunction_objects \
+-L$EXTERNAL_LIB_PATH -lm -lgsl -lgslcblas
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for function objects:"

@@ -44,8 +44,8 @@ function_objects/func_pointsource.cpp function_objects/func_pointsource-rot.cpp 
 function_objects/func_peanut_dattathri.cpp \
 function_objects/helper_funcs.cpp function_objects/helper_funcs_3d.cpp \
 function_objects/psf_interpolators.cpp \
--I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST \
--L/usr/local/lib -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
+-I. -Icore -Isolvers -I$EXTERNAL_INCLUDE_PATH -Ifunction_objects -I$CXXTEST \
+-L$EXTERNAL_LIB_PATH -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for model_object:"

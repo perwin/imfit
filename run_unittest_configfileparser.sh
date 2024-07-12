@@ -12,7 +12,7 @@ echo
 echo "Generating and compiling unit tests for config-file parser..."
 $CXXTESTGEN --error-printer -o test_runner_config.cpp unit_tests/unittest_config_parser.t.h
 $CPP -std=c++11 -o test_runner_config test_runner_config.cpp core/config_file_parser.cpp \
-core/utilities.cpp -I. -Icore -Isolvers -Ifunction_objects -I/usr/local/include -I$CXXTEST
+core/utilities.cpp -I. -Icore -Isolvers -Ifunction_objects -I$CXXTEST
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for config_file_parser:"

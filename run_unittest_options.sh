@@ -11,7 +11,8 @@ NC='\033[0m' # No Color
 echo
 echo "Generating and compiling unit tests for options_makeimage..."
 $CXXTESTGEN --error-printer -o test_runner_options.cpp unit_tests/unittest_options.t.h
-$CPP -std=c++11 -o test_runner_options test_runner_options.cpp -I. -Icore -I/usr/local/include -I$CXXTEST
+$CPP -std=c++11 -o test_runner_options test_runner_options.cpp -I. -Icore \
+-I$CXXTEST
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for OptionsBase and derived classes:"

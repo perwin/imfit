@@ -16,8 +16,8 @@ $CPP -std=c++11 -o test_runner_setup_modelobj test_runner_setup_modelobj.cpp cor
 core/setup_model_object.cpp core/utilities.cpp core/convolver.cpp core/config_file_parser.cpp \
 core/mersenne_twister.cpp core/mp_enorm.cpp core/oversampled_region.cpp core/downsample.cpp \
 core/image_io.cpp core/psf_oversampling_info.cpp function_objects/psf_interpolators.cpp \
--I. -Icore -Isolvers -I/usr/local/include -Ifunction_objects -I$CXXTEST \
--L/usr/local/lib -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
+-I. -Icore -Isolvers -I$EXTERNAL_INCLUDE_PATH -Ifunction_objects -I$CXXTEST \
+-L$EXTERNAL_LIB_PATH -lfftw3_threads -lcfitsio -lfftw3 -lgsl -lgslcblas -lm
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for setup_model_object:"

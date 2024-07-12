@@ -14,8 +14,8 @@ $CXXTESTGEN --error-printer -o test_runner_psf_oversampling_info.cpp \
 unit_tests/unittest_psf_oversampling_info.t.h
 $CPP -std=c++11 -o test_runner_psf_oversampling_info \
 test_runner_psf_oversampling_info.cpp core/psf_oversampling_info.cpp core/utilities.cpp \
--L/usr/local/lib -lfftw3 -I. -Icore -Isolvers -Ifunction_objects \
--I/usr/local/include -I$CXXTEST
+-L$EXTERNAL_LIB_PATH -lfftw3 -I. -Icore -Isolvers -Ifunction_objects \
+-I$EXTERNAL_INCLUDE_PATH -I$CXXTEST
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for psf_oversampling_info:"

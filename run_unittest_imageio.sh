@@ -12,7 +12,7 @@ echo
 echo "Generating and compiling unit tests for image_io..."
 $CXXTESTGEN --error-printer -o test_runner_imageio.cpp unit_tests/unittest_image_io.t.h 
 $CPP -std=c++11 -o test_runner_imageio test_runner_imageio.cpp core/image_io.cpp -I. \
--I/usr/local/include -Icore -I$CXXTEST -L/usr/local/lib -lcfitsio -lfftw3
+-I$EXTERNAL_INCLUDE_PATH -Icore -I$CXXTEST -L$EXTERNAL_LIB_PATH -lcfitsio -lfftw3
 if [ $? -eq 0 ]
 then
   echo "Running unit tests for image_io:"
