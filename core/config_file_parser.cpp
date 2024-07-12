@@ -502,11 +502,10 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   vector<string>  stringPieces;
   vector<int>  origLineNumbers;
   int  functionSectionStart;
-  int  i, nInputLines;
+  int  i;
   int  possibleBadLineNumber = -1;
   int  k = 0;
   int  result;
-  bool inOptionalParams = false;
 
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
@@ -527,7 +526,6 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     }
   }
   inputFileStream.close();
-  nInputLines = inputLines.size();
   
   // Clear the input vectors before we start appending things to them
   functionNameList.clear();
@@ -599,12 +597,11 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   vector<string>  inputLines;
   vector<string>  stringPieces;
   vector<int>  origLineNumbers;
-  int  functionSectionStart, functionNumber, paramNumber;
-  int  i, nInputLines;
+  int  functionSectionStart;
+  int  i;
   int  possibleBadLineNumber = -1;
   int  result;
   int  k = 0;
-  int  pLimitFound;
   
   inputFileStream.open(configFileName.c_str());
   if( ! inputFileStream ) {
@@ -621,7 +618,6 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
     }
   }
   inputFileStream.close();
-  nInputLines = inputLines.size();
 
   // OK, locate the start of the function set (first line beginning with "X0")
   functionSectionStart = VetConfigFile(inputLines, origLineNumbers, mode2D, &possibleBadLineNumber);
