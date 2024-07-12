@@ -217,7 +217,7 @@ PROFILEFIT_SUBDIR = "profile_fitting/"
 #    AVX2  is supported on Intel Haswell and later processors (mostly 2014 onward)
 #    AVX-512  is supported only on "Knights Landing" Xeon Phi processors (2016 onward)
 
-cflags_opt = ["-O3", "-g0", "-fPIC"]
+cflags_opt = ["-O3", "-g0", "-fPIC", "-Wall"]
 if os_type == "Darwin":
     cflags_opt.append("-mmacosx-version-min=10.13")
 if useVectorExtensions:
