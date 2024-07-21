@@ -704,8 +704,8 @@ if useExtraFuncs:
     functionobject_obj_string += " func_logspiral3"
     functionobject_obj_string += " func_logspiral_gauss"
     functionobject_obj_string += " func_logspiral_arc"
-    func_edge-on-disk_n4762
-    func_edge-on-disk_n4762v2 
+#     func_edge-on-disk_n4762
+#     func_edge-on-disk_n4762v2 
     functionobject_obj_string += " func_polynomial_d1"
     functionobject_obj_string += " func_triaxbar3d"
     functionobject_obj_string += " func_triaxbar3d_sq"

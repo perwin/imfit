@@ -43,8 +43,6 @@ ArXiv version:
 [![arxiv](http://img.shields.io/badge/arXiv-1408.1097-orange.svg?style=flat)](http://arxiv.org/abs/1408.1097)
  -->
 
-**New:** Preliminary/experimental Python wrapper for Imfit: [PyImfit](https://github.com/perwin/pyimfit)
-
 
 DOI for current release (v1.9.0), archived at Zenodo:
 
@@ -67,6 +65,16 @@ A basic [tutorial](http://www.mpe.mpg.de/~erwin/code/imfit/markdown/index.html) 
 
 Finally, the paper describing Imfit can be found here: 
 [Erwin 2015](http://adsabs.harvard.edu/abs/2015ApJ...799..226E).
+
+
+## Python Wrapper for Imfit
+
+There is a Python package called
+[PyImfit](https://github.com/perwin/pyimfit), which wraps Imfit as a
+library and allows you to construct model images, do fits, use Imfit
+models in MCMC analyses, etc.,  within a Python session or script.
+([documentation for PyImfit](https://pyimfit.readthedocs.io))
+
 
 
 
