@@ -24,7 +24,7 @@
  *     [v0.1]: 24 Aug 2012: Created (as modification of func_exp3d.cpp).
  */
 
-// Copyright 2012--2022 by Peter Erwin.
+// Copyright 2012--4 by Peter Erwin.
 // 
 // This file is part of Imfit.
 // 
@@ -172,7 +172,7 @@ double GaussianRing3D::GetValue( double x, double y )
   double  y_diff = y - y0;
   double  xp, yp, x_d0, y_d0, z_d0, totalIntensity;
   double  integLimit;
-  double  xyParameters[13];
+  double  xyParameters[12];
 //   int  nSubsamples;
   
   // Calculate x,y in component's (projected sky) reference frame: xp,yp
@@ -197,9 +197,8 @@ double GaussianRing3D::GetValue( double x, double y )
   xyParameters[7] = q;
   xyParameters[8] = J_0;
   xyParameters[9] = a_ring;
-  xyParameters[10] = sigma;
-  xyParameters[11] = h_z;
-  xyParameters[12] = twosigma_squared;
+  xyParameters[10] = h_z;
+  xyParameters[11] = twosigma_squared;
   F.params = xyParameters;
 
   // integrate out to +/- integLimit, which is multiple of ring radius
@@ -235,9 +234,8 @@ double LuminosityDensityRing( double s, void *params )
   double  q = paramsVect[7];
   double  J_0 = paramsVect[8];
   double  a_ring = paramsVect[9];
-  double  sigma = paramsVect[10];
-  double  h_z = paramsVect[11];
-  double  twosigma_squared = paramsVect[12];
+  double  h_z = paramsVect[10];
+  double  twosigma_squared = paramsVect[11];
   
   // Determine 3D Cartesian coordinates in bar's native frame of reference
   std::tie(x_ring, y_ring, z_ring) = Compute3dObjectCoords(s, x_d0, y_d0, z_d0, sinInc, 

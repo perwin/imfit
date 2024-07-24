@@ -76,10 +76,10 @@ double  Integrate_cquad( gsl_function F, double s1, double s2 )
 double  Integrate_Alt( gsl_function F, double s1, double s2 )
 {
   double  result, error;
-  size_t  n_eval;
+//   size_t  n_eval;
   int  status;
   gsl_integration_workspace * workspace;
-  gsl_integration_cquad_workspace * workspace_cquad;
+//   gsl_integration_cquad_workspace * workspace_cquad;
 //   gsl_integration_romberg_workspace * workspace_romberg;
   
   // allocate and free the workspace object here (referencing it with a local

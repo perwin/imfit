@@ -241,7 +241,7 @@ echo -n "[WARNING: NO REFERENCE IMAGE YET!]"
 if [ $do_fits_tests = "1" ]
 then
   echo ""
-  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/multimage_osamp_1.fits tests/${osname}/oversampled_orig.fits
+  ./python/compare_fits_files.py --min-value=1.0e-7 temptest/multimage_osamp_1.fits tests/oversampled_orig.fits
   STATUS+=$?
 fi
 
