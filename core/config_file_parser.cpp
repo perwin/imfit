@@ -399,7 +399,7 @@ int ParseFunctionSection( vector<string>& inputLines, const bool mode2D,
   int  functionNumber = 0;
   int  paramNumber = 0;
   parameterLimitsFound = false;
-  while (i < inputLines.size()) {
+  while (i < (int)inputLines.size()) {
     if (inputLines[i].find("X0", 0) != string::npos) {
       //printf("X0 detected (i = %d)\n", i);
       fsetStartIndices.push_back(functionNumber);
@@ -559,7 +559,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   // OK, now parse the function section
   vector<string> funcSectionLines;
   vector<int> funcSectionOrigLineNumbers;
-  for (i = functionSectionStart; i < inputLines.size(); i++) {
+  for (i = functionSectionStart; i < (int)inputLines.size(); i++) {
     funcSectionLines.push_back(inputLines[i]);
     funcSectionOrigLineNumbers.push_back(origLineNumbers[i]);
   }
@@ -645,7 +645,7 @@ int ReadConfigFile( const string& configFileName, const bool mode2D, vector<stri
   // OK, now parse the function section
   vector<string> funcSectionLines;
   vector<int> funcSectionOrigLineNumbers;
-  for (i = functionSectionStart; i < inputLines.size(); i++) {
+  for (i = functionSectionStart; i < (int)inputLines.size(); i++) {
     funcSectionLines.push_back(inputLines[i]);
     funcSectionOrigLineNumbers.push_back(origLineNumbers[i]);
   }

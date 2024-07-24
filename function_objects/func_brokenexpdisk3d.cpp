@@ -171,7 +171,7 @@ double BrokenExponentialDisk3D::GetValue( double x, double y )
   double  y_diff = y - y0;
   double  xp, yp, x_d0, y_d0, z_d0, totalIntensity;
   double  integLimit;
-  double  xyParameters[17];
+  double  xyParameters[16];
   
   // Calculate x,y in component (projected sky) reference frame
   xp = x_diff*cosPA + y_diff*sinPA;
@@ -190,18 +190,17 @@ double BrokenExponentialDisk3D::GetValue( double x, double y )
   xyParameters[2] = z_d0;
   xyParameters[3] = cosInc;
   xyParameters[4] = sinInc;
-  xyParameters[5] = J_0;
-  xyParameters[6] = h1;
-  xyParameters[7] = h2;
-  xyParameters[8] = r_b;
-  xyParameters[9] = alpha;
-  xyParameters[10] = J_0_times_S;
-  xyParameters[11] = delta_Rb_scaled;
-  xyParameters[12] = exponent;
-  xyParameters[13] = z_0;
-  xyParameters[14] = scaledZ0;
-  xyParameters[15] = two_to_alpha;
-  xyParameters[16] = alphaVert;
+  xyParameters[5] = h1;
+  xyParameters[6] = h2;
+  xyParameters[7] = r_b;
+  xyParameters[8] = alpha;
+  xyParameters[9] = J_0_times_S;
+  xyParameters[10] = delta_Rb_scaled;
+  xyParameters[11] = exponent;
+  xyParameters[12] = z_0;
+  xyParameters[13] = scaledZ0;
+  xyParameters[14] = two_to_alpha;
+  xyParameters[15] = alphaVert;
   F.params = xyParameters;
 
   // integrate out to +/- integLimit, which is larger of (multiple of break radius)
@@ -238,18 +237,17 @@ double LuminosityDensityBED( double s, void *params )
   double z_d0 = paramsVect[2];
   double cosInc = paramsVect[3];
   double sinInc = paramsVect[4];
-  double J_0 = paramsVect[5];
-  double h1 = paramsVect[6];
-  double h2 = paramsVect[7];
-  double r_b = paramsVect[8];
-  double alpha = paramsVect[9];
-  double J_0_times_S = paramsVect[10];
-  double delta_Rb_scaled = paramsVect[11];
-  double exponent = paramsVect[12];
-  double z_0 = paramsVect[13];
-  double scaledZ0 = paramsVect[14];
-  double two_to_alpha = paramsVect[15];
-  double alphaVert = paramsVect[16];
+  double h1 = paramsVect[5];
+  double h2 = paramsVect[6];
+  double r_b = paramsVect[7];
+  double alpha = paramsVect[8];
+  double J_0_times_S = paramsVect[9];
+  double delta_Rb_scaled = paramsVect[10];
+  double exponent = paramsVect[11];
+  double z_0 = paramsVect[12];
+  double scaledZ0 = paramsVect[13];
+  double two_to_alpha = paramsVect[14];
+  double alphaVert = paramsVect[15];
   
   // Given s and the pre-defined parameters, determine our 3D location (x_d,y_d,z_d)
   // [by construction, x_d = x_d0]
