@@ -115,6 +115,20 @@ int GaussianExtraParams::SetExtraParams( map<string,string>& inputMap )
 }
 
 
+/* ---------------- PUBLIC METHOD: AdjustParametersForImage ------------ */
+/// Rescale/adjust input function parameters using current set of image-description 
+/// parameters
+void GaussianExtraParams::AdjustParametersForImage( const double inputFunctionParams[], 
+										double adjustedFunctionParams[], int offsetIndex )
+{
+  // PA, ell, I_0, sigma
+  adjustedFunctionParams[0 + offsetIndex] = inputFunctionParams[0 + offsetIndex] - imageRotation;
+  adjustedFunctionParams[1 + offsetIndex] = inputFunctionParams[1 + offsetIndex];
+  adjustedFunctionParams[2 + offsetIndex] = intensityScale * inputFunctionParams[2 + offsetIndex];
+  adjustedFunctionParams[3 + offsetIndex] = pixelScaling * inputFunctionParams[3 + offsetIndex];
+}
+
+
 /* ---------------- PUBLIC METHOD: Setup ------------------------------- */
 
 void GaussianExtraParams::Setup( double params[], int offsetIndex, double xc, double yc )
