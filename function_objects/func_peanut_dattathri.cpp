@@ -221,8 +221,7 @@ double DattathriPeanut3D::GetValue( double x, double y )
 
 double LuminosityDensityDattathriPeanut3D( double s, void *params )
 {
-  double  y_d, z_d, z, R, lumDensity;
-  double  verticalScaling, sech;
+  double  y_d, z_d, lumDensity;
   double  *paramsVect = (double *)params;
   double x_d0 = paramsVect[0];
   double y_d0 = paramsVect[1];
