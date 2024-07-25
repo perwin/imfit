@@ -220,7 +220,6 @@ void FunctionObject::GetExtraParamsDescription( vector<string> &outputLines )
   
   outputLines.clear();
   if (extraParamsSet) {
-    int  nExtraParams = inputExtraParams.size();
     outputLines.push_back("OPTIONAL_PARAMS_START");
 	for (auto const& x : inputExtraParams) {
 	  string  key = x.first;

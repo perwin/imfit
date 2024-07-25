@@ -3,8 +3,8 @@ Starting bootstrap iterations (L-M solver):
 
 Statistics for parameter values from bootstrap resampling (5 successful iterations):
 Best-fit		 Bootstrap      [68% conf.int., half-width]; (mean +/- standard deviation)
-X0 = 32.9497  +0.0547039, -0.00239716    [32.9473 -- 33.0044, 0.0285506];  (32.9758 +/- 0.0255166)
-Y0 = 34.0986  +0.027661, -0.0277509    [34.0708 -- 34.1262, 0.0277059];  (34.0966 +/- 0.026632)
+X0 = 23.9497  +9.0547, --8.9976    [32.9473 -- 33.0044, 0.0285506];  (32.9758 +/- 0.0255166)
+Y0 = 25.0986  +9.02766, --8.97225    [34.0708 -- 34.1262, 0.0277059];  (34.0966 +/- 0.026632)
 PA = 18.1649  +0.494974, -0.188546    [17.9763 -- 18.6599, 0.34176];  (18.2134 +/- 0.268773)
 ell = 0.234412  +0.00191482, -0.00276547    [0.231646 -- 0.236326, 0.00234014];  (0.234211 +/- 0.00179863)
 n = 2.35479  +0.0768108, -0.033753    [2.32104 -- 2.4316, 0.0552819];  (2.36315 +/- 0.0426835)
@@ -13,6 +13,6 @@ r_e = 58.0709  +3.24553, -1.56195    [56.509 -- 61.3164, 2.40374];  (58.3155 +/-
 Bootstrap-resampling output saved to file "temptest/temp_bootstrap_output2.dat".
 Saving best-fit parameters in file "bestfit_parameters_imfit.dat"
 
-(Elapsed time: 0.035934 sec for fit, 0.054264 for bootstrap, 0.093777 sec total)
+(Elapsed time: 0.038546 sec for fit, 0.053753 for bootstrap, 0.095806 sec total)
 Done!
 
