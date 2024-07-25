@@ -82,8 +82,8 @@
 #include "func_boxytest3d2.h"
 #include "func_gauss_extraparams.h"
 #include "func_flatbar3d.h"
-#include "func_edge-on-disk_n4762.h"
-#include "func_edge-on-disk_n4762v2.h"
+// #include "func_edge-on-disk_n4762.h"
+// #include "func_edge-on-disk_n4762v2.h"
 #include "func_logspiral_exp.h"
 #include "func_logspiral_brokenexp.h"
 #include "func_logspiral.h"
@@ -280,11 +280,11 @@ void PopulateFactoryMap( map<string, factory*>& input_factory_map )
   input_factory_map[classFuncName] = new funcobj_factory<ExpDisk3D_PerfectTrunc>();
 
   // weird extra stuff we may not keep
-  EdgeOnDiskN4762::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762>();
-
-  EdgeOnDiskN4762v2::GetClassShortName(classFuncName);
-  input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762v2>();
+//   EdgeOnDiskN4762::GetClassShortName(classFuncName);
+//   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762>();
+// 
+//   EdgeOnDiskN4762v2::GetClassShortName(classFuncName);
+//   input_factory_map[classFuncName] = new funcobj_factory<EdgeOnDiskN4762v2>();
 
   FlatBar3D::GetClassShortName(classFuncName);
   input_factory_map[classFuncName] = new funcobj_factory<FlatBar3D>();
