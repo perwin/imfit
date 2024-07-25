@@ -201,13 +201,22 @@ double FlatBar::GetValue( double x, double y )
     }
     totalIntensity = theSum / (nSubsamples*nSubsamples);
   }
+//   else {
+//     double  deltaPA = fabs(atan(yp/xp));
+//     if (deltaPA > deltaPA_max_rad)
+//       //totalIntensity = I_0 * exp(-r/h1);
+//       h2_current = h1;
+//     else {
+//       std::tie(r_b_current, h2_current) = GetAdjustedRbh2(xp, yp, r, r_circ);
+//     }
+//     totalIntensity = CalculateIntensity(r, h2_current, r_b_current);
+//   }
   else {
+    std::tie(r_b_current, h2_current) = GetAdjustedRbh2(xp, yp, r, r_circ);
     double  deltaPA = fabs(atan(yp/xp));
-    if (deltaPA > deltaPA_max_rad)
+    if (deltaPA > deltaPA_max_rad) {
       //totalIntensity = I_0 * exp(-r/h1);
       h2_current = h1;
-    else {
-      std::tie(r_b_current, h2_current) = GetAdjustedRbh2(xp, yp, r, r_circ);
     }
     totalIntensity = CalculateIntensity(r, h2_current, r_b_current);
   }
